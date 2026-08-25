@@ -12,6 +12,9 @@
 .trae/
 .openwork-enterprise-creators
 
+# 演练 Agent / Command 定义（入库；node_modules 等由 .opencode/.gitignore 排除）
+!.opencode/
+
 # 本地客户案例目录（不入库）
 追觅科技供应链/
 伊利奶粉-分仓补货/
