@@ -1,0 +1,1412 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>智能订舱 Agent · Agentic 工作流设计</title>
+<script src="https://cdn.jsdelivr.net/npm/plantuml-encoder@1.4.0/dist/plantuml-encoder.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/svg-pan-zoom@3.6.1/dist/svg-pan-zoom.min.js"></script>
+<style>
+:root {
+    --color-primary: #10213E;
+    --color-accent: #5DB2E2;
+    --color-secondary: #625D9C;
+    --color-success: #00524C;
+    --color-info: #6FB1C8;
+    --color-warning: #F59E0B;
+    --color-destructive: #EF4444;
+    --color-background: #FFFFFF;
+    --color-bg-alt: #F5F5F6;
+    --color-foreground: #10213E;
+    --color-text-muted: #64748B;
+    --color-border: #E2E8F0;
+    --shadow-sm: 0 2px 8px rgba(16, 33, 62, 0.08);
+    --shadow-md: 0 4px 16px rgba(16, 33, 62, 0.12);
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --font-family: "MiSans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans SC", "PingFang SC", Arial, sans-serif;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+    font-family: var(--font-family);
+    background: var(--color-bg-alt);
+    color: var(--color-foreground);
+    line-height: 1.6;
+}
+.wrap { width: 85%; max-width: 1440px; margin: 0 auto; padding: 32px 0 64px; }
+
+/* ===== Header ===== */
+.site-header {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 20px 0 16px; border-bottom: 1px solid var(--color-border);
+    margin-bottom: 28px;
+}
+.site-header .left h1 { font-size: 28px; font-weight: 600; color: var(--color-primary); letter-spacing: -0.02em; }
+.site-header .left .sub { font-size: 13px; color: var(--color-text-muted); margin-top: 4px; }
+.site-header .right { text-align: right; font-size: 12px; color: var(--color-text-muted); }
+.site-header .right .gen { text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; }
+
+/* ===== Cards ===== */
+.card {
+    background: var(--color-background);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    padding: 24px;
+    margin-bottom: 24px;
+}
+.section-title {
+    font-size: 18px; font-weight: 600; color: var(--color-primary);
+    margin-bottom: 14px; display: flex; align-items: center; gap: 8px;
+}
+.section-title .tag { font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-accent); font-weight: 700; }
+
+/* ===== 场景概览 ===== */
+.arch-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--color-primary); color: #fff;
+    padding: 6px 14px; border-radius: 6px; font-size: 13px; font-weight: 600;
+    margin-bottom: 12px;
+}
+.principles { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+.principles .chip {
+    background: var(--color-bg-alt); border: 1px solid var(--color-border);
+    border-radius: 20px; padding: 4px 12px; font-size: 12px; color: var(--color-foreground);
+}
+.kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+.kpi-card {
+    border: 1px solid var(--color-border); border-radius: var(--radius-md);
+    padding: 16px; background: var(--color-background);
+}
+.kpi-card .kpi-name { font-size: 14px; font-weight: 600; color: var(--color-primary); margin-bottom: 4px; }
+.kpi-card .kpi-metric { font-size: 12px; color: var(--color-text-muted); margin-bottom: 10px; }
+.kpi-card .kpi-flow { display: flex; align-items: center; gap: 10px; font-size: 13px; font-weight: 600; }
+.kpi-card .baseline { color: var(--color-text-muted); text-decoration: line-through; }
+.kpi-card .arrow { color: var(--color-accent); }
+.kpi-card .target { color: var(--color-success); }
+.kpi-card .linked { margin-top: 10px; font-size: 11px; color: var(--color-text-muted); }
+.kpi-card .linked b { color: var(--color-secondary); }
+
+/* ===== Tab 导航 ===== */
+.tab-nav { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; }
+.tab-btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    border: 1px solid var(--color-border); background: var(--color-background);
+    border-radius: 8px; padding: 10px 18px; font-size: 14px; font-weight: 600;
+    color: var(--color-foreground); cursor: pointer;
+    transition: all 0.15s ease-out;
+}
+.tab-btn:hover { border-color: var(--color-primary); color: var(--color-primary); }
+.tab-btn.active { background: var(--color-primary); color: #fff; border-color: var(--color-primary); }
+.tab-btn .type-badge {
+    font-size: 11px; padding: 2px 8px; border-radius: 10px;
+    background: var(--color-bg-alt); color: var(--color-text-muted); font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.03em;
+}
+.tab-btn.active .type-badge { background: rgba(255,255,255,0.18); color: #fff; }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* ===== 能力头卡 ===== */
+.cap-header { display: grid; grid-template-columns: 1fr 1.2fr; gap: 24px; }
+.cap-header .block { padding: 14px; background: var(--color-bg-alt); border-radius: var(--radius-md); }
+.cap-header .block .lbl { font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; color: var(--color-accent); margin-bottom: 6px; }
+.cap-header .block .val { font-size: 13px; color: var(--color-foreground); }
+.cap-header .goal-card { border-left: 4px solid var(--color-accent); }
+.cap-header .goal-card .lbl { color: var(--color-success); }
+.type-pill {
+    display: inline-block; font-size: 11px; font-weight: 700; padding: 2px 10px;
+    border-radius: 10px; text-transform: uppercase; letter-spacing: 0.04em;
+    vertical-align: middle; margin-left: 6px;
+}
+.type-perception   { background: #DBEAFE; color: #1E40AF; }
+.type-reasoning    { background: #EDE9FE; color: #5B21B6; }
+.type-generation   { background: #E0F2FE; color: #075985; }
+.type-decision     { background: #FEF3C7; color: #92400E; }
+.type-automation   { background: #D1FAE5; color: #065F46; }
+
+/* ===== Agentic 设计卡 ===== */
+.agent-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 8px; }
+.agent-table th { text-align: left; padding: 8px 10px; background: var(--color-primary); color: #fff; font-size: 12px; letter-spacing: 0.03em; }
+.agent-table td { padding: 8px 10px; border-bottom: 1px solid var(--color-border); vertical-align: top; }
+.agent-table tr:nth-child(even) td { background: var(--color-bg-alt); }
+.agent-table .tools { font-size: 12px; color: var(--color-secondary); }
+.pattern-badge {
+    display: inline-block; background: var(--color-secondary); color: #fff;
+    font-size: 12px; font-weight: 700; padding: 4px 12px; border-radius: 4px;
+    text-transform: uppercase; letter-spacing: 0.04em; margin-right: 8px;
+}
+.why-box { margin-top: 12px; padding: 12px 14px; background: var(--color-bg-alt); border-radius: var(--radius-md); font-size: 13px; border-left: 3px solid var(--color-secondary); }
+.why-box .kpi-link { color: var(--color-success); font-weight: 600; }
+
+/* ===== PlantUML 渲染区 ===== */
+.diagram-head { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 12px; }
+.diagram-actions { display: flex; gap: 8px; }
+.btn {
+    padding: 6px 14px; border-radius: 6px; font-size: 13px; font-weight: 600;
+    border: 1px solid var(--color-border); background: #fff; color: var(--color-foreground);
+    cursor: pointer; transition: all 0.15s ease-out;
+    display: inline-flex; align-items: center; gap: 6px;
+}
+.btn:hover { background: var(--color-bg-alt); border-color: var(--color-primary); color: var(--color-primary); }
+.btn-primary { background: var(--color-primary); color: #fff; border-color: var(--color-primary); }
+.btn-primary:hover { opacity: 0.9; color: #fff; }
+.diagram-wrapper {
+    border: 1px solid var(--color-border); border-radius: var(--radius-md);
+    background: #fff; padding: 16px; min-height: 420px;
+    display: flex; justify-content: center; align-items: flex-start;
+    overflow: auto; position: relative;
+}
+.diagram-wrapper svg { max-width: 100%; height: auto; }
+.render-state { font-size: 12px; color: var(--color-text-muted); }
+.render-error {
+    width: 100%; text-align: center; color: var(--color-destructive);
+    padding: 40px 16px; font-size: 14px;
+}
+.render-error pre { text-align: left; margin-top: 12px; padding: 12px; background: var(--color-bg-alt); border-radius: 6px; overflow: auto; font-size: 12px; color: var(--color-text-muted); white-space: pre-wrap; }
+
+/* 高亮图例 */
+.legend-bar { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
+.legend-item {
+    display: inline-flex; align-items: center; gap: 8px;
+    border: 1px solid var(--color-border); border-radius: 8px; padding: 6px 12px;
+    background: var(--color-background); font-size: 12px;
+}
+.legend-item .swatch { width: 16px; height: 16px; border-radius: 4px; border: 1px solid rgba(16,33,62,0.15); }
+.legend-item .kpi-reason { color: var(--color-text-muted); }
+
+/* ===== 护栏 / 失败处理 ===== */
+.guard-list { list-style: none; }
+.guard-list li { padding: 8px 12px; padding-left: 32px; position: relative; font-size: 13px; border-bottom: 1px dashed var(--color-border); }
+.guard-list li:last-child { border-bottom: none; }
+.guard-list li::before {
+    content: "⚠"; position: absolute; left: 8px; top: 7px;
+    font-size: 14px; color: var(--color-warning);
+}
+.failure-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.failure-table th { text-align: left; padding: 8px 10px; background: var(--color-primary); color: #fff; font-size: 12px; }
+.failure-table td { padding: 8px 10px; border-bottom: 1px solid var(--color-border); }
+.failure-table tr:nth-child(even) td { background: var(--color-bg-alt); }
+.type-tag { font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 10px; background: #FFEDD5; color: #9A3412; }
+
+/* ===== PUML 源码 ===== */
+.src-block { margin-top: 14px; }
+.src-toggle { font-size: 12px; color: var(--color-accent); cursor: pointer; user-select: none; text-decoration: underline; }
+.src-pre {
+    display: none; margin-top: 8px; background: var(--color-primary); color: #E2E8F0;
+    padding: 16px; border-radius: var(--radius-md); font-family: "Fira Code", Menlo, monospace;
+    font-size: 12px; overflow: auto; white-space: pre; max-height: 360px;
+}
+.src-pre.show { display: block; }
+
+/* ===== 双列布局 ===== */
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+@media (max-width: 1024px) { .two-col, .cap-header { grid-template-columns: 1fr; } }
+
+/* ===== KPI 矩阵 ===== */
+.matrix-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.matrix-table th { padding: 10px; text-align: center; background: var(--color-primary); color: #fff; font-size: 12px; }
+.matrix-table th:first-child { text-align: left; }
+.matrix-table td { padding: 8px 10px; text-align: center; border-bottom: 1px solid var(--color-border); }
+.matrix-table tr:nth-child(even) td { background: var(--color-bg-alt); }
+.matrix-table .cap-name { text-align: left; font-weight: 600; }
+.matrix-table .dot { color: var(--color-success); font-size: 16px; }
+.matrix-table .dash { color: var(--color-border); font-size: 14px; }
+
+.footer-note { margin-top: 24px; text-align: center; color: var(--color-text-muted); font-size: 12px; text-transform: uppercase; letter-spacing: 0.1em; }
+
+/* Toast */
+.toast {
+    position: fixed; bottom: 24px; right: 24px; background: var(--color-success); color: #fff;
+    padding: 10px 20px; border-radius: 6px; font-size: 13px; font-weight: 600;
+    display: none; z-index: 1000; box-shadow: var(--shadow-md);
+}
+</style>
+
+    <!-- ===== Unified Report Shell: 撑满容器 + 精简 Header + 溢出滚动 ===== -->
+    <style>
+      *, *::before, *::after { box-sizing: border-box !important; }
+      html, body { margin: 0 !important; padding: 0 !important; background: #F5F5F6 !important; overflow-x: auto !important; }
+      .wrap {
+        width: 100% !important;
+        max-width: none !important;
+        margin: 0 auto !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        border: none !important;
+        padding: 24px 28px 48px !important;
+        overflow-x: auto !important;
+      }
+      .site-header { margin-bottom: 20px !important; align-items: center !important; }
+      .site-header h1 { font-size: 22px !important; line-height: 1.3 !important; margin: 0 !important; }
+    
+      /* ===== Unified Header (v2) ===== */
+      .site-header {
+        background: #FFFFFF !important;
+        border-bottom: 1px solid #E2E8F0 !important;
+        border-radius: 0 !important;
+        padding: 12px 0 !important;
+        margin-bottom: 20px !important;
+        min-height: auto !important;
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        gap: 16px !important;
+        flex-wrap: wrap !important;
+      }
+      .site-header h1 {
+        font-size: 22px !important;
+        font-weight: 700 !important;
+        color: #10213E !important;
+        line-height: 1.3 !important;
+        margin: 0 !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 10px !important;
+      }
+      .site-header h1::before {
+        content: "" !important;
+        display: inline-block !important;
+        width: 4px !important;
+        height: 22px !important;
+        background: #5DB2E2 !important;
+        border-radius: 2px !important;
+        flex-shrink: 0 !important;
+      }
+      .site-header h1 svg, .site-header h1 .icon, .site-header h1 img {
+        width: 20px !important;
+        height: 20px !important;
+        flex-shrink: 0 !important;
+      }
+      .site-header .sub, .site-header .description, .site-header .gen, .site-header .header-meta {
+        font-size: 13px !important;
+        color: #64748B !important;
+        margin: 4px 0 0 !important;
+        padding-left: 14px !important;
+      }
+      .btn-secondary, .btn-primary, .btn-copy-yaml {
+        font-size: 12px !important;
+        padding: 6px 12px !important;
+        border-radius: 6px !important;
+        font-weight: 600 !important;
+      }
+      .btn-secondary {
+        background: #FFFFFF !important;
+        color: #10213E !important;
+        border: 1px solid #E2E8F0 !important;
+      }
+      .btn-primary {
+        background: #10213E !important;
+        color: #FFFFFF !important;
+        border: 1px solid #10213E !important;
+      }
+</style>
+
+
+</head>
+<body>
+<div class="wrap">
+
+    <!-- ===== Header ===== -->
+    <header class="site-header">
+        <div class="left">
+            <h1>智能订舱 Agent · Agentic 工作流设计</h1>
+            <div class="sub">智能订舱 Agent（Ask Fin 升级为可执行订舱 Agent） · 输入源：To-be流程: X电商订舱-智能订舱Agent-To-be流程.yaml</div>
+        </div>
+        <div class="right">
+            <div class="gen">Generated by agentic-workflow-designer</div>
+            <div>2026-08-25 21:12:07</div>
+        </div>
+    </header>
+
+    <!-- ===== 场景概览 ===== -->
+    <section class="card">
+        <div class="arch-badge">⚙ 总体架构 · 对话编排 + 执行-校验管道 + 人机协同门禁（Orchestrator-Worker + Human-in-the-Loop + Guardrails-Gated）</div>
+        <div class="section-title">目标 KPI <span class="tag">scenarioKpis</span></div>
+        <div class="kpi-grid">
+            
+            <div class="kpi-card">
+                <div class="kpi-name">在线订舱确认时效</div>
+                <div class="kpi-metric">询价发起 → 签发 Booking Confirmation 端到端时长</div>
+                <div class="kpi-flow">
+                    <span class="baseline">新客/复杂单人工审核，平均数小时 [推断]</span>
+                    <span class="arrow">→</span>
+                    <span class="target">标准 SME 单 ≤2h，头部分钟级（最快 1 分钟）</span>
+                </div>
+                
+                <div class="linked">支撑能力：<b>cap_01、cap_02</b></div>
+                
+            </div>
+            
+            <div class="kpi-card">
+                <div class="kpi-name">AI 分流率</div>
+                <div class="kpi-metric">AI 独立完成会话占全部互动比例</div>
+                <div class="kpi-flow">
+                    <span class="baseline">复杂多单/多单证转人工占比高，分流率未达标</span>
+                    <span class="arrow">→</span>
+                    <span class="target">30%+（KPI 4），人工客服成本显著下降</span>
+                </div>
+                
+                <div class="linked">支撑能力：<b>cap_01、cap_03</b></div>
+                
+            </div>
+            
+            <div class="kpi-card">
+                <div class="kpi-name">SME 全流程自助率</div>
+                <div class="kpi-metric">SME 无人工介入完成订舱全流程占比</div>
+                <div class="kpi-flow">
+                    <span class="baseline">询价→订舱→跟单信息不对称、依赖人工</span>
+                    <span class="arrow">→</span>
+                    <span class="target">直客自助率提升，电商订舱渗透率向 40% 演进</span>
+                </div>
+                
+                <div class="linked">支撑能力：<b>cap_01、cap_02</b></div>
+                
+            </div>
+            
+            <div class="kpi-card">
+                <div class="kpi-name">单证一次提交通过率</div>
+                <div class="kpi-metric">SI 首次提交通过校验占比</div>
+                <div class="kpi-flow">
+                    <span class="baseline">SI 长尾字段人工复核，退单返工</span>
+                    <span class="arrow">→</span>
+                    <span class="target">往返补件 2~3 轮 → 1 轮，一次提交通过率提升</span>
+                </div>
+                
+                <div class="linked">支撑能力：<b>cap_02</b></div>
+                
+            </div>
+            
+            <div class="kpi-card">
+                <div class="kpi-name">舱位保证兑现率</div>
+                <div class="kpi-metric">舱位保证承诺兑现占比（Delay in Transit 保障）</div>
+                <div class="kpi-flow">
+                    <span class="baseline">旺季甩柜/改船通知被动</span>
+                    <span class="arrow">→</span>
+                    <span class="target">95%+（KPI 5），ETA 事前预测性预警</span>
+                </div>
+                
+                <div class="linked">支撑能力：<b>cap_03</b></div>
+                
+            </div>
+            
+            <div class="kpi-card">
+                <div class="kpi-name">复杂问题一次性解决率</div>
+                <div class="kpi-metric">转人工后首次会话解决占比</div>
+                <div class="kpi-flow">
+                    <span class="baseline">转人工需重复提供上下文，一次性解决率低</span>
+                    <span class="arrow">→</span>
+                    <span class="target">附完整上下文摘要，复杂问题一次性解决率提升</span>
+                </div>
+                
+                <div class="linked">支撑能力：<b>cap_03</b></div>
+                
+            </div>
+            
+        </div>
+        <div class="section-title" style="margin-top:20px;">全局设计原则 <span class="tag">designPrinciples</span></div>
+        <div class="principles">
+            <span class="chip">LLM 只做意图理解、推荐解释与生成；事实性计算（报价/载舱率/评分/校验）一律走确定性工具与服务</span><span class="chip">任何写操作（订舱提交/支付/SI 推送）都必须人工审批或人工确认放行，禁止静默通过</span><span class="chip">新客无历史数据时以会话上下文 + OCR 预填兜底，并标注置信度，杜绝空预填</span><span class="chip">高亮段只标注 KPI 决定性路径，避免全图铺色失去重点</span>
+        </div>
+    </section>
+
+    <!-- ===== 能力 Tab ===== -->
+    <nav class="tab-nav">
+        
+        <button class="tab-btn" data-cap="cap_01" onclick="switchTab('cap_01')">
+            智能报价与舱位推荐
+            <span class="type-badge">reasoning</span>
+        </button>
+        
+        <button class="tab-btn" data-cap="cap_02" onclick="switchTab('cap_02')">
+            订舱执行与单证预填
+            <span class="type-badge">automation</span>
+        </button>
+        
+        <button class="tab-btn" data-cap="cap_03" onclick="switchTab('cap_03')">
+            结算·跟踪与售后智服
+            <span class="type-badge">automation</span>
+        </button>
+        
+    </nav>
+
+    <!-- ===== 能力面板 ===== -->
+    
+    <section class="tab-panel card" id="panel-cap_01" data-cap="cap_01">
+        <!-- 能力头卡 -->
+        <div class="cap-header">
+            <div>
+                <div class="block">
+                    <div class="lbl">AI 能力 / 类型</div>
+                    <div class="val">
+                        <b>智能报价与舱位推荐</b>
+                        <span class="type-pill type-reasoning">reasoning</span>
+                    </div>
+                </div>
+                <div class="block" style="margin-top:12px;">
+                    <div class="lbl">对齐 To-be 旅程</div>
+                    <div class="val">
+                        阶段：询价对话 / 报价解读与舱位推荐<br>
+                        行为：自然语言发起询价 / 确认 Agent 推荐舱位
+                    </div>
+                </div>
+            </div>
+            <div>
+                <div class="block">
+                    <div class="lbl">触发（输入）</div>
+                    <div class="val">
+                        <b>自然语言发起询价（文本/语音）</b><br>
+                        输入数据：询价咨询（起运港/目的港/箱型/ETD/货量）+ 会话上下文 + 会员画像<br>
+                        系统上下文：E-Spot/E-Quote 报价引擎 / 舱位余量与船期计划 / SCFI 市场基准
+                    </div>
+                </div>
+                <div class="block goal-card" style="margin-top:12px;">
+                    <div class="lbl">目标（输出 · KPI 影响）</div>
+                    <div class="val">
+                        输出：即期报价卡 + Top3 舱位推荐（附得分与可解释理由）<br>
+                        <span class="kpi-link">KPI：报价数小时→秒级；SME 信息不对称消除 → 自助率↑；AI 分流率 30%+；确认时效向 ≤2h 收敛</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Agentic 架构摘要 -->
+        <div class="section-title" style="margin-top:24px;">Agentic 架构设计 <span class="tag">agenticDesign</span></div>
+        <div style="margin-bottom:8px;">
+            <span class="pattern-badge">orchestrator-worker</span>
+            <span style="font-size:13px;color:var(--color-text-muted);">编排模式</span>
+        </div>
+        <table class="agent-table">
+            <thead><tr><th>Agent / 工具</th><th>角色</th><th>模型</th><th>工具依赖</th><th>记忆</th></tr></thead>
+            <tbody>
+            
+                <tr>
+                    <td><b>对话编排 Agent</b></td>
+                    <td>意图/实体抽取、调度报价与舱位评分、解读与组装推荐、出口校验</td>
+                    <td>Claude 3.5 Sonnet / GPT-4o 级多模态 LLM（多轮任务执行 + Function Calling）</td>
+                    <td class="tools">意图识别/实体抽取模型、E-Spot 报价引擎 API、舱位评分服务、SCFI 市场基准库</td>
+                    <td>任务级上下文（当前询价）+ 场景级会员画像</td>
+                </tr>
+            
+                <tr>
+                    <td><b>报价与舱位确定性服务</b></td>
+                    <td>事实性计算：报价检索、装载率/ETA/舱位保证评分</td>
+                    <td>收益管理引擎 + 确定性评分算法</td>
+                    <td class="tools">报价引擎、舱位评分引擎</td>
+                    <td>无（纯确定性计算）</td>
+                </tr>
+            
+            </tbody>
+        </table>
+        <div class="why-box">
+            <b>Why Pattern：</b>报价检索与舱位评分彼此无依赖可并行，编排者聚合子结果并做单点门禁；评分/报价必须走确定性服务，杜绝 LLM 幻觉产生错误报价<br>
+            <span class="kpi-link">🎯 KPI 对齐：并行检索+评分把询价响应压至秒级（kpi_online），可解释推荐消除信息不对称（kpi_selfservice），标准场景无需人工（kpi_diversion）</span>
+        </div>
+
+        <!-- PlantUML 活动序列图 -->
+        <div class="section-title" style="margin-top:24px;">活动序列图 <span class="tag">PlantUML · 输入→输出</span></div>
+        <div class="diagram-head">
+            <div class="render-state" id="state-cap_01">等待渲染…</div>
+            <div class="diagram-actions">
+                <button class="btn" onclick="resetZoom('cap_01')">重置缩放</button>
+                <button class="btn" onclick="downloadImage('cap_01')">下载图片</button>
+                <button class="btn btn-primary" onclick="copyPuml('cap_01')">复制 PUML</button>
+            </div>
+        </div>
+        <div class="diagram-wrapper" id="diagram-cap_01">
+            <div class="render-state">正在加载 PlantUML 渲染器…</div>
+        </div>
+
+        
+        <div class="legend-bar">
+            
+            <div class="legend-item">
+                <span class="swatch" style="background:#DBEAFE;"></span>
+                <span><b>报价检索 + 舱位评分并行段</b></span>
+                <span class="kpi-reason">时效与自助率关键路径——并行确定性检索把询价压至秒级，支撑 kpi_online/kpi_selfservice；评分走确定性服务杜绝幻觉报价</span>
+            </div>
+            
+        </div>
+        
+
+        <div class="src-block">
+            <span class="src-toggle" onclick="toggleSrc('cap_01')">查看 PlantUML 源码 ▼</span>
+            <pre class="src-pre" id="src-cap_01">@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam sequenceMessageAlign center
+skinparam maxMessageSize 220
+skinparam roundCorner 8
+
+actor "SME 货主直客" as USER #E8F5E9
+participant "对话编排 Agent" as ORCH #DBEAFE
+participant "意图/实体抽取模型" as NLU #F3E8FF
+participant "E-Spot 报价引擎" as QUOTE #F3E8FF
+participant "舱位评分服务" as SPACE #F3E8FF
+participant "会员/CRM 系统" as CRM #F1F5F9
+
+autonumber
+
+== 触发：自然语言发起询价 ==
+USER -> ORCH : 询价咨询\n上海→洛杉矶 40HQ 10/08 截关
+activate ORCH
+note right of ORCH : plan ｜ 拆解子任务\n①意图识别 ②报价检索 ③舱位评分（并行）
+ORCH -> NLU : 抽取询价要素\n(港口对/箱型/ETD/货量)
+activate NLU
+NLU --> ORCH : 实体槽位 + 意图标签=询价
+deactivate NLU
+
+== 关键路径：报价检索 + 舱位评分（高亮） ==
+group 并行检索与评分 #DBEAFE
+  ORCH -> QUOTE : 查询 E-Spot 即期报价
+  activate QUOTE
+  QUOTE --> ORCH : All-in USD 2,450/40HQ\n有效期至 09-30 舱位保证
+  deactivate QUOTE
+  ORCH -> SPACE : 查询装载率/ETA置信度/舱位保证
+  activate SPACE
+  SPACE --> ORCH : A 92分(装载率78%/ETA94%)\nB 88分  C 81分
+  deactivate SPACE
+end
+note over ORCH : 护栏 ｜ 报价与评分必须来自确定性服务\nLLM 不得自行计算价格或得分
+
+== 推荐组装与可解释 ==
+ORCH -> CRM : 读取会员画像/历史偏好
+activate CRM
+CRM --> ORCH : PlumSmart Silver · 近3月 12 TEU
+deactivate CRM
+ORCH -> ORCH : 综合排序生成 Top3\n+ 推荐理由话术
+
+== 决策：货主确认 ==
+alt 货主确认推荐 #ECFDF5
+  ORCH -> USER : 输出 Top3 推荐卡\n(A.E-Spot 92分 可展开子分)
+else 货主犹豫/改需求 #FEF9C3
+  ORCH -> USER : 追问细化（锁价/切换方案）
+  USER --> ORCH : 选定方案（Secured E-Quote）
+end
+deactivate ORCH
+@enduml</pre>
+        </div>
+
+        <!-- 护栏 + 失败处理 -->
+        <div class="two-col" style="margin-top:24px;">
+            <div>
+                <div class="section-title">护栏 <span class="tag">guardrails</span></div>
+                <ul class="guard-list">
+                    <li>报价与舱位评分必须来自确定性服务，LLM 不直接产出价格或得分</li><li>推荐必须附可解释理由，禁止黑盒式推荐</li><li>新客无历史数据时以会话上下文兜底，不准空预填</li>
+                </ul>
+            </div>
+            <div>
+                <div class="section-title">失败处理 <span class="tag">failure</span></div>
+                <table class="failure-table">
+                    <thead><tr><th>触发</th><th>处理</th><th>类型</th></tr></thead>
+                    <tbody>
+                    
+                        <tr>
+                            <td>报价引擎超时 / 无可用航次</td>
+                            <td>自动重试 1 次 → 降级提示并建议邻近航线（Nearby Route Suggestions）</td>
+                            <td><span class="type-tag">retry/fallback</span></td>
+                        </tr>
+                    
+                        <tr>
+                            <td>意图识别歧义（多航次/多箱型）</td>
+                            <td>对话追问澄清要素后再检索，避免错误报价</td>
+                            <td><span class="type-tag">fallback</span></td>
+                        </tr>
+                    
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+    
+    <section class="tab-panel card" id="panel-cap_02" data-cap="cap_02">
+        <!-- 能力头卡 -->
+        <div class="cap-header">
+            <div>
+                <div class="block">
+                    <div class="lbl">AI 能力 / 类型</div>
+                    <div class="val">
+                        <b>订舱执行与单证预填</b>
+                        <span class="type-pill type-automation">automation</span>
+                    </div>
+                </div>
+                <div class="block" style="margin-top:12px;">
+                    <div class="lbl">对齐 To-be 旅程</div>
+                    <div class="val">
+                        阶段：一键订舱确认 / 单证预填（SI 自动生成） / 异常补件<br>
+                        行为：对话内一键订舱 / 上传单据生成 SI / 按 AI 提示一次补全
+                    </div>
+                </div>
+            </div>
+            <div>
+                <div class="block">
+                    <div class="lbl">触发（输入）</div>
+                    <div class="val">
+                        <b>确认 Agent 推荐后对话内一键订舱 / 上传 PI/装箱单</b><br>
+                        输入数据：选定方案 + 会话上下文 + 会员画像（表单）；贸易单据 PDF/图片/Excel（SI）<br>
+                        系统上下文：订舱规则引擎（>200 条）/ 智慧单证规则（>300 条）/ OMS / 智慧单证系统
+                    </div>
+                </div>
+                <div class="block goal-card" style="margin-top:12px;">
+                    <div class="lbl">目标（输出 · KPI 影响）</div>
+                    <div class="val">
+                        输出：Booking Confirmation（签发给货主）+ 已校验并推送的 SI（含异常项标注）<br>
+                        <span class="kpi-link">KPI：确认时效向 ≤2h 收敛、头部分钟级；单证一次提交通过率提升、往返补件 2~3 轮→1 轮</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Agentic 架构摘要 -->
+        <div class="section-title" style="margin-top:24px;">Agentic 架构设计 <span class="tag">agenticDesign</span></div>
+        <div style="margin-bottom:8px;">
+            <span class="pattern-badge">pipeline + human-in-the-loop</span>
+            <span style="font-size:13px;color:var(--color-text-muted);">编排模式</span>
+        </div>
+        <table class="agent-table">
+            <thead><tr><th>Agent / 工具</th><th>角色</th><th>模型</th><th>工具依赖</th><th>记忆</th></tr></thead>
+            <tbody>
+            
+                <tr>
+                    <td><b>订舱执行 Agent</b></td>
+                    <td>3 步表单自动预填、订舱规则校验、签发 Booking Confirmation</td>
+                    <td>LLM（字段映射与生成）+ 规则引擎</td>
+                    <td class="tools">表单预填引擎、订舱校验规则引擎、OMS 提交 API</td>
+                    <td>任务级上下文（预填表单）</td>
+                </tr>
+            
+                <tr>
+                    <td><b>单证 Agent</b></td>
+                    <td>OCR 抽取 SI 字段、品名规范/HS 映射、单证校验、推送单证系统</td>
+                    <td>多模态 LLM（表格/文档理解）+ OCR</td>
+                    <td class="tools">OCR 解析器、多语言品名/HS 字典、单证校验规则引擎、智慧单证 API</td>
+                    <td>任务级上下文（当前单证）</td>
+                </tr>
+            
+            </tbody>
+        </table>
+        <div class="why-box">
+            <b>Why Pattern：</b>从表单预填→校验→人工确认→签发是完整输入输出流，SI 生成同样是一段完整流，中间 HITL 只是门禁而非拆分点；线性管道 + 审批门禁最简洁可审计<br>
+            <span class="kpi-link">🎯 KPI 对齐：自动校验扩围把确认时效压至 ≤2h（kpi_online），单证校验+一次补全把往返补件压至 1 轮（kpi_doc_pass），新客 OCR/会话兜底提升自助率（kpi_selfservice）</span>
+        </div>
+
+        <!-- PlantUML 活动序列图 -->
+        <div class="section-title" style="margin-top:24px;">活动序列图 <span class="tag">PlantUML · 输入→输出</span></div>
+        <div class="diagram-head">
+            <div class="render-state" id="state-cap_02">等待渲染…</div>
+            <div class="diagram-actions">
+                <button class="btn" onclick="resetZoom('cap_02')">重置缩放</button>
+                <button class="btn" onclick="downloadImage('cap_02')">下载图片</button>
+                <button class="btn btn-primary" onclick="copyPuml('cap_02')">复制 PUML</button>
+            </div>
+        </div>
+        <div class="diagram-wrapper" id="diagram-cap_02">
+            <div class="render-state">正在加载 PlantUML 渲染器…</div>
+        </div>
+
+        
+        <div class="legend-bar">
+            
+            <div class="legend-item">
+                <span class="swatch" style="background:#FEF3C7;"></span>
+                <span><b>订舱人工确认门禁段</b></span>
+                <span class="kpi-reason">合规/风险关键路径——写操作强制人工放行，异常 0 静默通过，支撑 kpi_online & kpi_doc_pass & kpi_selfservice</span>
+            </div>
+            
+        </div>
+        
+
+        <div class="src-block">
+            <span class="src-toggle" onclick="toggleSrc('cap_02')">查看 PlantUML 源码 ▼</span>
+            <pre class="src-pre" id="src-cap_02">@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam sequenceMessageAlign center
+skinparam maxMessageSize 220
+skinparam roundCorner 8
+
+actor "SME 货主 / 订舱操作员" as OPS #E8F5E9
+participant "订舱执行 Agent" as EXEC #DBEAFE
+participant "订舱规则引擎" as RULE #F3E8FF
+participant "OMS 系统" as OMS #F1F5F9
+participant "单证 Agent" as DOC #DBEAFE
+participant "智慧单证服务" as DOCSYS #F1F5F9
+
+autonumber
+
+== 阶段一：订舱预填与校验 ==
+OPS -> EXEC : 确认推荐 → 一键订舱
+activate EXEC
+EXEC -> EXEC : 3 步表单自动预填\n(会话上下文+画像兜底)
+EXEC -> RULE : 费率/信用/航线校验(>200条)
+activate RULE
+RULE --> EXEC : 12/12 字段通过
+deactivate RULE
+
+== 关键路径：人工确认门禁（HITL 高亮） ==
+group 订舱人工确认门禁 #FEF3C7
+  EXEC -> OPS : 预填表单待确认\n(货方/港口对/品名/箱型)
+  activate OPS
+  OPS -> EXEC : 对外放行 → 确认提交
+  deactivate OPS
+end
+note over EXEC : 护栏 ｜ 提交订舱/对外动作必须人工放行\n禁止静默提交
+
+EXEC -> OMS : 提交订舱请求
+activate OMS
+OMS --> EXEC : Booking 编号 BK-2026-0901-001
+deactivate OMS
+EXEC -> OMS : 签发 Booking Confirmation
+deactivate EXEC
+
+== 阶段二：单证预填与推送 ==
+OPS -> DOC : 上传 PI/装箱单
+activate DOC
+DOC -> DOC : OCR 抽取 SI 字段(品名/件数/毛重/体积/HS)
+DOC -> DOC : 多语言品名规范 + HS 编码映射
+DOC -> DOCSYS : 单证校验(>300条)
+activate DOCSYS
+DOCSYS --> DOC : 8/10 通过\n(2 项异常: VGM 缺失/毛重差 3.2%)
+deactivate DOCSYS
+
+== 决策：异常补件 ==
+alt 有异常项 #FEF9C3
+  DOC -> OPS : 缺件清单 + 填写示例\n(VGM 示例 12,900 KG)
+  OPS -> DOC : 一次补全 VGM/税号
+  DOC -> DOCSYS : 复检并推送 SI
+  activate DOCSYS
+  DOCSYS --> DOC : 全部通过，SI 已入库
+  deactivate DOCSYS
+else 全部通过 #ECFDF5
+  DOC -> DOCSYS : 直接推送 SI
+  activate DOCSYS
+  DOCSYS --> DOC : SI 入库成功
+  deactivate DOCSYS
+end
+deactivate DOC
+@enduml</pre>
+        </div>
+
+        <!-- 护栏 + 失败处理 -->
+        <div class="two-col" style="margin-top:24px;">
+            <div>
+                <div class="section-title">护栏 <span class="tag">guardrails</span></div>
+                <ul class="guard-list">
+                    <li>提交订舱/签发确认等写操作必须人工确认放行，禁止静默通过</li><li>SI 校验不通过必须提示异常项并给示例，禁止带缺件推送单证系统</li><li>新客无历史数据时用会话上下文+OCR 预填并标注置信度</li>
+                </ul>
+            </div>
+            <div>
+                <div class="section-title">失败处理 <span class="tag">failure</span></div>
+                <table class="failure-table">
+                    <thead><tr><th>触发</th><th>处理</th><th>类型</th></tr></thead>
+                    <tbody>
+                    
+                        <tr>
+                            <td>表单校验不通过（信用受限/费率冲突）</td>
+                            <td>标注原因提示补正 → 复杂单升级人工终审（human_support）</td>
+                            <td><span class="type-tag">escalate</span></td>
+                        </tr>
+                    
+                        <tr>
+                            <td>OCR 抽取置信度低（模糊/破损单据）</td>
+                            <td>标黄待人工复核字段，不阻塞其余字段</td>
+                            <td><span class="type-tag">fallback</span></td>
+                        </tr>
+                    
+                        <tr>
+                            <td>OMS / 单证系统接口失败</td>
+                            <td>重试 2 次 → 标记同步异常并通知 IT</td>
+                            <td><span class="type-tag">retry/escalate</span></td>
+                        </tr>
+                    
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+    
+    <section class="tab-panel card" id="panel-cap_03" data-cap="cap_03">
+        <!-- 能力头卡 -->
+        <div class="cap-header">
+            <div>
+                <div class="block">
+                    <div class="lbl">AI 能力 / 类型</div>
+                    <div class="val">
+                        <b>结算·跟踪与售后智服</b>
+                        <span class="type-pill type-automation">automation</span>
+                    </div>
+                </div>
+                <div class="block" style="margin-top:12px;">
+                    <div class="lbl">对齐 To-be 旅程</div>
+                    <div class="val">
+                        阶段：支付 / 出运跟踪交互 / 售后/复购<br>
+                        行为：在线支付运费 / 对话查船期与里程碑 / 售后咨询与会员复购
+                    </div>
+                </div>
+            </div>
+            <div>
+                <div class="block">
+                    <div class="lbl">触发（输入）</div>
+                    <div class="val">
+                        <b>确认支付 / 对话查询跟踪状态 / 售后咨询</b><br>
+                        输入数据：运费与币种 + 订舱号/提单号 + 售后诉求（费用/权益）<br>
+                        系统上下文：支付网关 / 控制塔·Cargo Tracking+ / ETA 预测模型 / D&D 规则库 / PlumSmart 会员体系 / CRM
+                    </div>
+                </div>
+                <div class="block goal-card" style="margin-top:12px;">
+                    <div class="lbl">目标（输出 · KPI 影响）</div>
+                    <div class="val">
+                        输出：发票核销状态 + 里程碑播报与延误预警 + D&D 解读与复购推荐 + 复杂转人工附摘要<br>
+                        <span class="kpi-link">KPI：跟踪咨询人工转 Agent 秒级响应 → AI 分流率 30%+；ETA 事前预测 → 舱位保证兑现率 95%+；复杂问题附摘要一次性解决率提升</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Agentic 架构摘要 -->
+        <div class="section-title" style="margin-top:24px;">Agentic 架构设计 <span class="tag">agenticDesign</span></div>
+        <div style="margin-bottom:8px;">
+            <span class="pattern-badge">event-driven + human-in-the-loop</span>
+            <span style="font-size:13px;color:var(--color-text-muted);">编排模式</span>
+        </div>
+        <table class="agent-table">
+            <thead><tr><th>Agent / 工具</th><th>角色</th><th>模型</th><th>工具依赖</th><th>记忆</th></tr></thead>
+            <tbody>
+            
+                <tr>
+                    <td><b>结算/跟踪/售后编排 Agent</b></td>
+                    <td>费用试算、里程碑播报、ETA 预测驱动、D&D 解读、复购推荐、复杂转人工摘要</td>
+                    <td>LLM（多轮任务执行 + 工具调用）+ 专用 NLP（情绪风险识别）</td>
+                    <td class="tools">支付网关 API、发票/核销服务、控制塔/OMS 里程碑 API、ETA 预测模型、D&D 规则引擎、CRM 工单 API</td>
+                    <td>场景级上下文（订单 + 会员 + 历史对话）</td>
+                </tr>
+            
+                <tr>
+                    <td><b>控制塔/客服运营</b></td>
+                    <td>延误处置/复杂投诉的人工终审与改配决策</td>
+                    <td>人工 + 规则（Delay in Transit 保障条款）</td>
+                    <td class="tools">改配/赔付规则、客户服务台</td>
+                    <td>人工判断</td>
+                </tr>
+            
+            </tbody>
+        </table>
+        <div class="why-box">
+            <b>Why Pattern：</b>支付、跟踪、售后均为事件/状态变更触发，采用 event-driven 订阅通知；延误与复杂投诉需人工终审，因此叠加 human-in-the-loop 门禁<br>
+            <span class="kpi-link">🎯 KPI 对齐：秒级播报与 ETA 预测把跟踪咨询分流（kpi_diversion），事前预警支撑舱位保证兑现率（kpi_space），附上下文摘要提升复杂问题一次性解决率（kpi_resolve）</span>
+        </div>
+
+        <!-- PlantUML 活动序列图 -->
+        <div class="section-title" style="margin-top:24px;">活动序列图 <span class="tag">PlantUML · 输入→输出</span></div>
+        <div class="diagram-head">
+            <div class="render-state" id="state-cap_03">等待渲染…</div>
+            <div class="diagram-actions">
+                <button class="btn" onclick="resetZoom('cap_03')">重置缩放</button>
+                <button class="btn" onclick="downloadImage('cap_03')">下载图片</button>
+                <button class="btn btn-primary" onclick="copyPuml('cap_03')">复制 PUML</button>
+            </div>
+        </div>
+        <div class="diagram-wrapper" id="diagram-cap_03">
+            <div class="render-state">正在加载 PlantUML 渲染器…</div>
+        </div>
+
+        
+        <div class="legend-bar">
+            
+            <div class="legend-item">
+                <span class="swatch" style="background:#DBEAFE;"></span>
+                <span><b>ETA 事前预测预警段</b></span>
+                <span class="kpi-reason">舱位保证与分流关键路径——事后通知转事前预测（kpi_space），跟踪咨询秒级分流（kpi_diversion）</span>
+            </div>
+            
+        </div>
+        
+
+        <div class="src-block">
+            <span class="src-toggle" onclick="toggleSrc('cap_03')">查看 PlantUML 源码 ▼</span>
+            <pre class="src-pre" id="src-cap_03">@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam sequenceMessageAlign center
+skinparam maxMessageSize 220
+skinparam roundCorner 8
+
+actor "SME 货主直客" as USER #E8F5E9
+participant "结算/跟踪/售后编排 Agent" as SVC #DBEAFE
+participant "支付网关/发票服务" as PAY #F1F5F9
+participant "控制塔/OMS 里程碑" as TRACK #F3E8FF
+participant "ETA 预测模型" as ETA #F3E8FF
+participant "D&D 规则引擎" as DD #F3E8FF
+actor "客服/控制塔运营" as CST #E8F5E9
+
+autonumber
+
+== 触发①：在线支付 ==
+USER -> SVC : 确认支付（USD 2,450）
+activate SVC
+SVC -> PAY : 多币种费用试算
+activate PAY
+PAY --> SVC : USD 2,450 ≈ CNY 17,640(汇率7.2)
+deactivate PAY
+SVC -> PAY : 生成支付链接 + 开票核销
+PAY --> SVC : 发票 INV-2026-0903-001 已生成
+deactivate SVC
+
+== 触发②：对话查询跟踪 ==
+USER -> SVC : 对话查船期（BK-2026-0901-001）
+activate SVC
+SVC -> TRACK : 拉取里程碑
+activate TRACK
+TRACK --> SVC : 开船09-12 中转釜山09-18 ETA 10-02
+deactivate TRACK
+SVC -> ETA : 预测延误概率
+activate ETA
+ETA --> SVC : 洛杉矶拥堵高企 延误概率 68% [推断]
+deactivate ETA
+
+== 关键路径：预测性延误预警（高亮） ==
+group ETA 事前预警 + 订阅通知 #DBEAFE
+  SVC -> USER : 里程碑播报 + 异常节点高亮\n延误 2~3 天 订阅通知
+  SVC -> USER : 推送延误预警
+end
+
+== 决策：延误处置 ==
+alt 高风险延误 #FEF9C3
+  SVC -> CST : 升级改配/赔付预判
+  activate CST
+  CST -> SVC : 改配方案 + 舱位保证承付
+  deactivate CST
+  SVC -> USER : 5 分钟给改配方案
+else 正常 #ECFDF5
+  SVC -> USER : 订阅里程碑通知
+end
+deactivate SVC
+
+== 触发③：售后与复购 ==
+USER -> SVC : 售后咨询（免箱期/D&D）
+activate SVC
+SVC -> DD : 解读免箱期规则
+activate DD
+DD --> SVC : 洛杉矶7天免费 超出USD50/天
+deactivate DD
+SVC -> SVC : 超期预警 + 复购推荐\n(近3月12TEU→预留美西舱位)
+
+== 决策：复杂转人工 ==
+alt 复杂投诉/情绪激动 #FEF9C3
+  SVC -> CST : 附完整上下文摘要 + 货主画像
+  CST -> SVC : 一次性解决并回写工单
+else 常规售后 #ECFDF5
+  SVC -> USER : D&D 解读 + 复购权益推荐
+end
+deactivate SVC
+@enduml</pre>
+        </div>
+
+        <!-- 护栏 + 失败处理 -->
+        <div class="two-col" style="margin-top:24px;">
+            <div>
+                <div class="section-title">护栏 <span class="tag">guardrails</span></div>
+                <ul class="guard-list">
+                    <li>写操作（支付确认/开票）必须人工确认，禁止静默扣款</li><li>延误处置/改配赔付属于对外承诺，必须人工终审放行</li><li>D&D/免箱期规则各港不同，口径不一致时标注待人工确认，禁止直接下结论</li>
+                </ul>
+            </div>
+            <div>
+                <div class="section-title">失败处理 <span class="tag">failure</span></div>
+                <table class="failure-table">
+                    <thead><tr><th>触发</th><th>处理</th><th>类型</th></tr></thead>
+                    <tbody>
+                    
+                        <tr>
+                            <td>支付失败（汇率/通道异常）</td>
+                            <td>自动切换本地支付通道 → 仍失败转人工协助</td>
+                            <td><span class="type-tag">retry/fallback</span></td>
+                        </tr>
+                    
+                        <tr>
+                            <td>ETA 预测置信度低</td>
+                            <td>降级为事后通知，不作为改配依据</td>
+                            <td><span class="type-tag">fallback</span></td>
+                        </tr>
+                    
+                        <tr>
+                            <td>复杂问题 AI 无法解决</td>
+                            <td>附完整上下文摘要升级人工，避免重复收集信息</td>
+                            <td><span class="type-tag">escalate</span></td>
+                        </tr>
+                    
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+    
+
+    <!-- ===== KPI ↔ 能力矩阵 ===== -->
+    <section class="card">
+        <div class="section-title">KPI ↔ 能力支撑矩阵</div>
+        <table class="matrix-table">
+            <thead>
+                <tr>
+                    <th>AI 能力</th>
+                    <th>在线订舱确认时效</th><th>AI 分流率</th><th>SME 全流程自助率</th><th>单证一次提交通过率</th><th>舱位保证兑现率</th><th>复杂问题一次性解决率</th>
+                </tr>
+            </thead>
+            <tbody>
+            
+                <tr>
+                    <td class="cap-name">智能报价与舱位推荐</td>
+                    
+                    <td><span class="dot">●</span></td>
+                    
+                    <td><span class="dot">●</span></td>
+                    
+                    <td><span class="dot">●</span></td>
+                    
+                    <td><span class="dash">—</span></td>
+                    
+                    <td><span class="dash">—</span></td>
+                    
+                    <td><span class="dash">—</span></td>
+                    
+                </tr>
+            
+                <tr>
+                    <td class="cap-name">订舱执行与单证预填</td>
+                    
+                    <td><span class="dot">●</span></td>
+                    
+                    <td><span class="dash">—</span></td>
+                    
+                    <td><span class="dot">●</span></td>
+                    
+                    <td><span class="dot">●</span></td>
+                    
+                    <td><span class="dash">—</span></td>
+                    
+                    <td><span class="dash">—</span></td>
+                    
+                </tr>
+            
+                <tr>
+                    <td class="cap-name">结算·跟踪与售后智服</td>
+                    
+                    <td><span class="dash">—</span></td>
+                    
+                    <td><span class="dot">●</span></td>
+                    
+                    <td><span class="dash">—</span></td>
+                    
+                    <td><span class="dash">—</span></td>
+                    
+                    <td><span class="dot">●</span></td>
+                    
+                    <td><span class="dot">●</span></td>
+                    
+                </tr>
+            
+            </tbody>
+        </table>
+    </section>
+
+    <div class="footer-note">Generated by agentic-workflow-designer · AI4PM Skills</div>
+</div>
+
+<div class="toast" id="toast">已复制 PUML 代码</div>
+
+<!-- ===== PlantUML 源码（按能力） ===== -->
+
+<script type="application/x-puml" id="puml-cap_01">@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam sequenceMessageAlign center
+skinparam maxMessageSize 220
+skinparam roundCorner 8
+
+actor "SME 货主直客" as USER #E8F5E9
+participant "对话编排 Agent" as ORCH #DBEAFE
+participant "意图/实体抽取模型" as NLU #F3E8FF
+participant "E-Spot 报价引擎" as QUOTE #F3E8FF
+participant "舱位评分服务" as SPACE #F3E8FF
+participant "会员/CRM 系统" as CRM #F1F5F9
+
+autonumber
+
+== 触发：自然语言发起询价 ==
+USER -> ORCH : 询价咨询\n上海→洛杉矶 40HQ 10/08 截关
+activate ORCH
+note right of ORCH : plan ｜ 拆解子任务\n①意图识别 ②报价检索 ③舱位评分（并行）
+ORCH -> NLU : 抽取询价要素\n(港口对/箱型/ETD/货量)
+activate NLU
+NLU --> ORCH : 实体槽位 + 意图标签=询价
+deactivate NLU
+
+== 关键路径：报价检索 + 舱位评分（高亮） ==
+group 并行检索与评分 #DBEAFE
+  ORCH -> QUOTE : 查询 E-Spot 即期报价
+  activate QUOTE
+  QUOTE --> ORCH : All-in USD 2,450/40HQ\n有效期至 09-30 舱位保证
+  deactivate QUOTE
+  ORCH -> SPACE : 查询装载率/ETA置信度/舱位保证
+  activate SPACE
+  SPACE --> ORCH : A 92分(装载率78%/ETA94%)\nB 88分  C 81分
+  deactivate SPACE
+end
+note over ORCH : 护栏 ｜ 报价与评分必须来自确定性服务\nLLM 不得自行计算价格或得分
+
+== 推荐组装与可解释 ==
+ORCH -> CRM : 读取会员画像/历史偏好
+activate CRM
+CRM --> ORCH : PlumSmart Silver · 近3月 12 TEU
+deactivate CRM
+ORCH -> ORCH : 综合排序生成 Top3\n+ 推荐理由话术
+
+== 决策：货主确认 ==
+alt 货主确认推荐 #ECFDF5
+  ORCH -> USER : 输出 Top3 推荐卡\n(A.E-Spot 92分 可展开子分)
+else 货主犹豫/改需求 #FEF9C3
+  ORCH -> USER : 追问细化（锁价/切换方案）
+  USER --> ORCH : 选定方案（Secured E-Quote）
+end
+deactivate ORCH
+@enduml</script>
+
+<script type="application/x-puml" id="puml-cap_02">@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam sequenceMessageAlign center
+skinparam maxMessageSize 220
+skinparam roundCorner 8
+
+actor "SME 货主 / 订舱操作员" as OPS #E8F5E9
+participant "订舱执行 Agent" as EXEC #DBEAFE
+participant "订舱规则引擎" as RULE #F3E8FF
+participant "OMS 系统" as OMS #F1F5F9
+participant "单证 Agent" as DOC #DBEAFE
+participant "智慧单证服务" as DOCSYS #F1F5F9
+
+autonumber
+
+== 阶段一：订舱预填与校验 ==
+OPS -> EXEC : 确认推荐 → 一键订舱
+activate EXEC
+EXEC -> EXEC : 3 步表单自动预填\n(会话上下文+画像兜底)
+EXEC -> RULE : 费率/信用/航线校验(>200条)
+activate RULE
+RULE --> EXEC : 12/12 字段通过
+deactivate RULE
+
+== 关键路径：人工确认门禁（HITL 高亮） ==
+group 订舱人工确认门禁 #FEF3C7
+  EXEC -> OPS : 预填表单待确认\n(货方/港口对/品名/箱型)
+  activate OPS
+  OPS -> EXEC : 对外放行 → 确认提交
+  deactivate OPS
+end
+note over EXEC : 护栏 ｜ 提交订舱/对外动作必须人工放行\n禁止静默提交
+
+EXEC -> OMS : 提交订舱请求
+activate OMS
+OMS --> EXEC : Booking 编号 BK-2026-0901-001
+deactivate OMS
+EXEC -> OMS : 签发 Booking Confirmation
+deactivate EXEC
+
+== 阶段二：单证预填与推送 ==
+OPS -> DOC : 上传 PI/装箱单
+activate DOC
+DOC -> DOC : OCR 抽取 SI 字段(品名/件数/毛重/体积/HS)
+DOC -> DOC : 多语言品名规范 + HS 编码映射
+DOC -> DOCSYS : 单证校验(>300条)
+activate DOCSYS
+DOCSYS --> DOC : 8/10 通过\n(2 项异常: VGM 缺失/毛重差 3.2%)
+deactivate DOCSYS
+
+== 决策：异常补件 ==
+alt 有异常项 #FEF9C3
+  DOC -> OPS : 缺件清单 + 填写示例\n(VGM 示例 12,900 KG)
+  OPS -> DOC : 一次补全 VGM/税号
+  DOC -> DOCSYS : 复检并推送 SI
+  activate DOCSYS
+  DOCSYS --> DOC : 全部通过，SI 已入库
+  deactivate DOCSYS
+else 全部通过 #ECFDF5
+  DOC -> DOCSYS : 直接推送 SI
+  activate DOCSYS
+  DOCSYS --> DOC : SI 入库成功
+  deactivate DOCSYS
+end
+deactivate DOC
+@enduml</script>
+
+<script type="application/x-puml" id="puml-cap_03">@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam sequenceMessageAlign center
+skinparam maxMessageSize 220
+skinparam roundCorner 8
+
+actor "SME 货主直客" as USER #E8F5E9
+participant "结算/跟踪/售后编排 Agent" as SVC #DBEAFE
+participant "支付网关/发票服务" as PAY #F1F5F9
+participant "控制塔/OMS 里程碑" as TRACK #F3E8FF
+participant "ETA 预测模型" as ETA #F3E8FF
+participant "D&D 规则引擎" as DD #F3E8FF
+actor "客服/控制塔运营" as CST #E8F5E9
+
+autonumber
+
+== 触发①：在线支付 ==
+USER -> SVC : 确认支付（USD 2,450）
+activate SVC
+SVC -> PAY : 多币种费用试算
+activate PAY
+PAY --> SVC : USD 2,450 ≈ CNY 17,640(汇率7.2)
+deactivate PAY
+SVC -> PAY : 生成支付链接 + 开票核销
+PAY --> SVC : 发票 INV-2026-0903-001 已生成
+deactivate SVC
+
+== 触发②：对话查询跟踪 ==
+USER -> SVC : 对话查船期（BK-2026-0901-001）
+activate SVC
+SVC -> TRACK : 拉取里程碑
+activate TRACK
+TRACK --> SVC : 开船09-12 中转釜山09-18 ETA 10-02
+deactivate TRACK
+SVC -> ETA : 预测延误概率
+activate ETA
+ETA --> SVC : 洛杉矶拥堵高企 延误概率 68% [推断]
+deactivate ETA
+
+== 关键路径：预测性延误预警（高亮） ==
+group ETA 事前预警 + 订阅通知 #DBEAFE
+  SVC -> USER : 里程碑播报 + 异常节点高亮\n延误 2~3 天 订阅通知
+  SVC -> USER : 推送延误预警
+end
+
+== 决策：延误处置 ==
+alt 高风险延误 #FEF9C3
+  SVC -> CST : 升级改配/赔付预判
+  activate CST
+  CST -> SVC : 改配方案 + 舱位保证承付
+  deactivate CST
+  SVC -> USER : 5 分钟给改配方案
+else 正常 #ECFDF5
+  SVC -> USER : 订阅里程碑通知
+end
+deactivate SVC
+
+== 触发③：售后与复购 ==
+USER -> SVC : 售后咨询（免箱期/D&D）
+activate SVC
+SVC -> DD : 解读免箱期规则
+activate DD
+DD --> SVC : 洛杉矶7天免费 超出USD50/天
+deactivate DD
+SVC -> SVC : 超期预警 + 复购推荐\n(近3月12TEU→预留美西舱位)
+
+== 决策：复杂转人工 ==
+alt 复杂投诉/情绪激动 #FEF9C3
+  SVC -> CST : 附完整上下文摘要 + 货主画像
+  CST -> SVC : 一次性解决并回写工单
+else 常规售后 #ECFDF5
+  SVC -> USER : D&D 解读 + 复购权益推荐
+end
+deactivate SVC
+@enduml</script>
+
+
+<script>
+const panZoomInstances = {};
+const rendered = {};
+const activeTabId = 'cap_01';
+
+function switchTab(capId) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.cap === capId));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.dataset.cap === capId));
+    renderDiagram(capId);
+}
+
+function getPuml(capId) {
+    const el = document.getElementById('puml-' + capId);
+    return el ? el.textContent.trim() : '';
+}
+
+function encodeUrl(capId) {
+    try {
+        const puml = getPuml(capId);
+        if (!puml) throw new Error('空 PUML');
+        return 'https://www.plantuml.com/plantuml/svg/' + plantumlEncoder.encode(puml);
+    } catch (e) {
+        return null;
+    }
+}
+
+function renderDiagram(capId) {
+    if (rendered[capId]) return;
+    rendered[capId] = true;
+    const container = document.getElementById('diagram-' + capId);
+    const state = document.getElementById('state-' + capId);
+    if (!container) return;
+
+    const url = encodeUrl(capId);
+    if (!url) {
+        container.innerHTML = '<div class="render-error">⚠ PUML 源码为空或格式不正确，请查看下方源码。</div>';
+        state.textContent = '渲染失败';
+        return;
+    }
+
+    container.innerHTML = '<div class="render-state">正在渲染 PlantUML…</div>';
+    fetch(url)
+        .then(res => {
+            if (!res.ok) throw new Error('PlantUML 渲染请求失败 (' + res.status + ')');
+            return res.text();
+        })
+        .then(svgData => {
+            container.innerHTML = svgData;
+            const svgEl = container.querySelector('svg');
+            if (!svgEl) throw new Error('响应中未找到 SVG');
+            svgEl.setAttribute('id', 'svg-' + capId);
+            svgEl.style.maxWidth = '100%';
+            svgEl.style.height = 'auto';
+            panZoomInstances[capId] = svgPanZoom('#svg-' + capId, {
+                zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true
+            });
+            state.textContent = '✅ 渲染成功（可缩放 / 复制 / 下载）';
+        })
+        .catch(err => {
+            container.innerHTML = '<div class="render-error">⚠ 渲染失败：需要网络访问 plantuml.com。' +
+                '（源码仍可查看/复制，不影响数据）<pre>' + err.message + '</pre></div>';
+            state.textContent = '渲染失败（离线）';
+            console.error(err);
+        });
+}
+
+function resetZoom(capId) { if (panZoomInstances[capId]) panZoomInstances[capId].reset(); }
+
+function downloadImage(capId) {
+    const url = encodeUrl(capId);
+    if (url) window.open(url.replace('/svg/', '/png/'), '_blank');
+}
+
+function copyPuml(capId) {
+    const puml = getPuml(capId);
+    if (!puml) return;
+    navigator.clipboard.writeText(puml).then(() => {
+        const t = document.getElementById('toast');
+        t.style.display = 'block';
+        setTimeout(() => { t.style.display = 'none'; }, 2500);
+    });
+}
+
+function toggleSrc(capId) {
+    const el = document.getElementById('src-' + capId);
+    if (el) el.classList.toggle('show');
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+    if (activeTabId) switchTab(activeTabId);
+});
+</script>
+</body>
+</html>

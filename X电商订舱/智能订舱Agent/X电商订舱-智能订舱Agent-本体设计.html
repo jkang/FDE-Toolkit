@@ -1,0 +1,3105 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>智能订舱Agent-本体设计 - Agent 本体设计 | Inspire</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --color-primary: #10213E;
+      --color-accent: #5DB2E2;
+      --color-secondary: #625D9C;
+      --color-success: #00524C;
+      --color-warning: #F59E0B;
+      --color-destructive: #EF4444;
+      --color-background: #FFFFFF;
+      --color-bg-alt: #F5F5F6;
+      --color-foreground: #10213E;
+      --color-text-muted: #64748B;
+      --color-border: #E2E8F0;
+      --shadow-sm: 0 2px 8px rgba(16,33,62,0.08);
+      --shadow-md: 0 10px 15px -3px rgba(16,33,62,0.1);
+      --radius-sm: 4px;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+      --font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --transition: 0.15s ease-out;
+
+      /* Entity type colours */
+      --entity-core-bg: #EFF6FF;
+      --entity-core-border: #3B82F6;
+      --entity-core-badge: #1D4ED8;
+      --entity-reference-bg: #F5F3FF;
+      --entity-reference-border: #7C3AED;
+      --entity-reference-badge: #5B21B6;
+      --entity-event-bg: #FFF7ED;
+      --entity-event-border: #EA580C;
+      --entity-event-badge: #C2410C;
+
+      /* Transition type colours */
+      --transition-normal: #10B981;
+      --transition-exception: #F59E0B;
+      --transition-recovery: #6366F1;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--font-family);
+      background-color: var(--color-bg-alt);
+      color: var(--color-foreground);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Page wrap ── */
+    .page-wrap {
+      background: var(--color-background);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-md);
+      padding: 40px;
+      width: 85%;
+      margin: 48px auto;
+      border: 1px solid var(--color-border);
+      min-height: calc(100vh - 96px);
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Header ── */
+    .page-header {
+      margin-bottom: 32px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--color-border);
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+    .header-left { display: flex; flex-direction: column; gap: 6px; }
+    .page-header h1 {
+      font-size: 26px; font-weight: 700; color: var(--color-primary);
+      display: flex; align-items: center; gap: 12px;
+    }
+    .page-header h1::before {
+      content: ""; display: block; width: 4px; height: 24px;
+      background: var(--color-accent); border-radius: 2px; flex-shrink: 0;
+    }
+    .header-meta {
+      display: flex; gap: 16px; align-items: center; flex-wrap: wrap;
+      padding-left: 16px; margin-top: 4px;
+    }
+    .meta-badge {
+      font-size: 12px; font-weight: 600; padding: 3px 10px;
+      border-radius: 999px; border: 1px solid;
+    }
+    .meta-badge.domain  { background:#EFF6FF; border-color:#93C5FD; color:#1D4ED8; }
+    .meta-badge.role    { background:#F5F3FF; border-color:#C4B5FD; color:#5B21B6; }
+    .meta-scenario {
+      font-size: 13px; color: var(--color-text-muted);
+      padding-left: 16px; max-width: 600px; line-height: 1.5;
+    }
+    .header-right {
+      text-align: right; display: flex; flex-direction: column;
+      gap: 8px; flex-shrink: 0;
+    }
+    .meta-info { font-size: 12px; color: var(--color-text-muted); }
+    .btn-group { display: flex; gap: 10px; justify-content: flex-end; }
+    .btn-primary {
+      background: var(--color-primary); color: white; padding: 8px 14px;
+      border-radius: 6px; font-size: 12px; font-weight: 600; border: none;
+      cursor: pointer; transition: var(--transition);
+      display: flex; align-items: center; gap: 6px;
+    }
+    .btn-primary:hover { opacity: 0.88; transform: translateY(-1px); }
+    .btn-secondary {
+      background: white; color: var(--color-primary);
+      border: 1px solid var(--color-border); padding: 8px 14px;
+      border-radius: 6px; font-size: 12px; font-weight: 600;
+      cursor: pointer; transition: var(--transition);
+      display: flex; align-items: center; gap: 6px;
+    }
+    .btn-secondary:hover { background: var(--color-bg-alt); }
+
+    /* ── Tabs ── */
+    .tab-nav {
+      display: flex; gap: 0; border-bottom: 2px solid var(--color-border);
+      margin-bottom: 32px;
+    }
+    .tab-btn {
+      padding: 12px 24px; font-size: 14px; font-weight: 600;
+      color: var(--color-text-muted); background: none; border: none;
+      border-bottom: 2px solid transparent; margin-bottom: -2px;
+      cursor: pointer; transition: var(--transition);
+      display: flex; align-items: center; gap: 8px;
+    }
+    .tab-btn:hover { color: var(--color-primary); }
+    .tab-btn.active {
+      color: var(--color-primary); border-bottom-color: var(--color-accent);
+    }
+    .tab-count {
+      font-size: 11px; background: var(--color-bg-alt); color: var(--color-text-muted);
+      border-radius: 999px; padding: 2px 7px; font-weight: 500;
+    }
+    .tab-btn.active .tab-count {
+      background: var(--color-accent); color: white;
+    }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* ── Section title ── */
+    .section-title {
+      font-size: 13px; font-weight: 700; color: var(--color-text-muted);
+      text-transform: uppercase; letter-spacing: .06em;
+      margin-bottom: 16px; margin-top: 28px;
+    }
+    .section-title:first-child { margin-top: 0; }
+
+    /* ════════════════════════════════════════
+       TAB 1 · OBJECT RELATIONS
+       ════════════════════════════════════════ */
+
+    .entity-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+
+    .entity-card {
+      border-radius: var(--radius-md);
+      padding: 16px;
+      border: 1.5px solid;
+      position: relative;
+      transition: var(--transition);
+    }
+    .entity-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+    .entity-card.entity-core      { background: var(--entity-core-bg);      border-color: var(--entity-core-border); }
+    .entity-card.entity-reference { background: var(--entity-reference-bg); border-color: var(--entity-reference-border); }
+    .entity-card.entity-event     { background: var(--entity-event-bg);     border-color: var(--entity-event-border); }
+
+    .entity-header { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 8px; }
+    .entity-badge {
+      font-size: 10px; font-weight: 700; padding: 2px 8px;
+      border-radius: 999px; color: white; flex-shrink: 0; margin-top: 2px;
+    }
+    .entity-core      .entity-badge { background: var(--entity-core-badge); }
+    .entity-reference .entity-badge { background: var(--entity-reference-badge); }
+    .entity-event     .entity-badge { background: var(--entity-event-badge); }
+
+    .entity-name { font-size: 15px; font-weight: 700; color: var(--color-primary); line-height: 1.3; }
+    .entity-desc { font-size: 12px; color: var(--color-text-muted); margin-bottom: 12px; line-height: 1.5; }
+
+    .entity-attrs { margin-bottom: 12px; }
+    .attr-row {
+      display: flex; gap: 6px; align-items: flex-start;
+      font-size: 11px; padding: 4px 0;
+      border-top: 1px solid rgba(0,0,0,0.06);
+    }
+    .attr-name { font-weight: 600; color: var(--color-foreground); min-width: 80px; flex-shrink: 0; }
+    .attr-type {
+      font-size: 10px; padding: 1px 6px; border-radius: 4px;
+      background: rgba(0,0,0,0.06); color: var(--color-text-muted);
+      font-family: monospace; flex-shrink: 0;
+    }
+    .attr-desc { color: var(--color-text-muted); line-height: 1.4; }
+    .attr-values { color: var(--color-text-muted); font-style: italic; }
+
+    .entity-distinctions { margin-top: 8px; }
+    .distinction-label {
+      font-size: 10px; font-weight: 700; color: #B45309;
+      text-transform: uppercase; letter-spacing: .05em; margin-bottom: 4px;
+    }
+    .distinction-item {
+      display: flex; gap: 6px; align-items: flex-start;
+      font-size: 11px; color: #92400E; line-height: 1.45;
+      background: rgba(217,119,6,0.08); border-radius: 4px;
+      padding: 4px 8px; margin-bottom: 4px;
+    }
+    .distinction-icon { flex-shrink: 0; }
+
+    /* Relationships table */
+    .rel-table-wrap {
+      border: 1px solid var(--color-border); border-radius: var(--radius-md); overflow: hidden;
+    }
+    .rel-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .rel-table th {
+      background: var(--color-bg-alt); font-size: 11px; font-weight: 700;
+      color: var(--color-text-muted); text-transform: uppercase; letter-spacing: .05em;
+      padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--color-border);
+    }
+    .rel-table td { padding: 10px 14px; border-bottom: 1px solid var(--color-border); }
+    .rel-table tr:last-child td { border-bottom: none; }
+    .rel-table tr:hover td { background: var(--color-bg-alt); }
+    .rel-from { font-weight: 600; color: var(--color-primary); }
+    .rel-arrow { color: var(--color-accent); font-weight: 700; text-align: center; }
+    .rel-label {
+      display: inline-block; background: var(--color-secondary);
+      color: white; font-size: 11px; font-weight: 600;
+      padding: 2px 8px; border-radius: 999px;
+    }
+    .rel-card { font-size: 11px; color: var(--color-text-muted); font-family: monospace; }
+    .rel-desc { color: var(--color-text-muted); font-size: 12px; }
+
+    /* ════════════════════════════════════════
+       TAB 2 · ACTION BOUNDARIES
+       ════════════════════════════════════════ */
+
+    .ab-card {
+      border: 1px solid var(--color-border); border-radius: var(--radius-lg);
+      overflow: hidden; margin-bottom: 20px;
+      box-shadow: var(--shadow-sm);
+      transition: var(--transition);
+    }
+    .ab-card:hover { box-shadow: var(--shadow-md); }
+
+    .ab-header {
+      background: var(--color-primary); color: white;
+      padding: 14px 20px; display: flex; align-items: flex-start; gap: 12px;
+    }
+    .ab-situation-num {
+      font-size: 11px; font-weight: 700; background: rgba(255,255,255,0.2);
+      border-radius: 999px; padding: 2px 10px; flex-shrink: 0; margin-top: 2px;
+    }
+    .ab-situation-name { font-size: 16px; font-weight: 700; line-height: 1.3; }
+    .ab-situation-desc { font-size: 13px; color: rgba(255,255,255,0.75); margin-top: 4px; line-height: 1.5; }
+
+    .ab-body {
+      display: grid; grid-template-columns: 1fr 1fr;
+      border-top: none;
+    }
+    .ab-quadrant {
+      padding: 16px 18px;
+      border-right: 1px solid var(--color-border);
+      border-bottom: 1px solid var(--color-border);
+    }
+    .ab-quadrant:nth-child(2)  { border-right: none; }
+    .ab-quadrant:nth-child(3)  { border-bottom: none; }
+    .ab-quadrant:nth-child(4)  { border-right: none; border-bottom: none; }
+
+    .quadrant-label {
+      font-size: 11px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .06em; margin-bottom: 10px; display: flex; align-items: center; gap: 6px;
+    }
+    .ql-evidence  { color: #1D4ED8; }
+    .ql-valid     { color: #065F46; }
+    .ql-invalid   { color: #991B1B; }
+    .ql-exception { color: #92400E; }
+
+    .ab-item {
+      display: flex; gap: 8px; align-items: flex-start;
+      font-size: 12px; line-height: 1.5; margin-bottom: 8px;
+      padding-bottom: 8px; border-bottom: 1px solid var(--color-bg-alt);
+    }
+    .ab-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+    .ab-item-dot { flex-shrink: 0; margin-top: 3px; }
+    .ab-item-content { color: var(--color-foreground); }
+    .ab-item-source  { font-size: 11px; font-weight: 600; color: #1D4ED8; margin-bottom: 2px; }
+    .ab-item-reason  { font-size: 11px; color: var(--color-text-muted); margin-top: 3px; font-style: italic; }
+    .ab-item-condition { font-size: 11px; color: #92400E; font-weight: 600; }
+    .ab-item-action    { font-size: 12px; color: var(--color-foreground); margin-top: 2px; }
+
+    /* ════════════════════════════════════════
+       TAB 3 · STATE TRANSITIONS
+       ════════════════════════════════════════ */
+
+    .ws-block {
+      border: 1px solid var(--color-border); border-radius: var(--radius-lg);
+      overflow: hidden; margin-bottom: 28px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .ws-header {
+      background: linear-gradient(135deg, var(--color-primary) 0%, #1B3A6B 100%);
+      color: white; padding: 14px 20px;
+      display: flex; align-items: flex-start; gap: 12px;
+    }
+    .ws-name { font-size: 17px; font-weight: 700; }
+    .ws-desc { font-size: 13px; color: rgba(255,255,255,0.72); margin-top: 4px; line-height: 1.5; }
+    .ws-anchors { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+    .ws-anchor-chip {
+      font-size: 11px; background: rgba(255,255,255,0.15); color: white;
+      border-radius: 999px; padding: 2px 10px; font-weight: 500;
+    }
+
+    /* State flow diagram */
+    .ws-flow {
+      padding: 24px 20px;
+      overflow-x: auto;
+      background: white;
+    }
+    .states-row {
+      display: flex; gap: 0; align-items: flex-start;
+      min-width: max-content;
+    }
+    .state-col {
+      display: flex; flex-direction: column; align-items: center;
+      gap: 6px; min-width: 130px; max-width: 160px;
+    }
+    .state-node {
+      width: 130px; padding: 10px 12px; text-align: center;
+      border: 2px solid var(--color-border); border-radius: var(--radius-md);
+      background: var(--color-bg-alt); cursor: default;
+      transition: var(--transition);
+      position: relative;
+    }
+    .state-node:hover { border-color: var(--color-accent); box-shadow: 0 0 0 3px rgba(93,178,226,0.15); }
+    .state-node.terminal { border-color: var(--color-success); background: #ECFDF5; }
+    .state-node.exception { border-color: var(--color-warning); background: #FFFBEB; }
+    .state-name { font-size: 12px; font-weight: 700; color: var(--color-primary); line-height: 1.3; }
+    .state-desc { font-size: 10px; color: var(--color-text-muted); margin-top: 4px; line-height: 1.4; }
+
+    .transition-arrow {
+      display: flex; align-items: center; flex-shrink: 0;
+      padding: 0 4px; margin-top: 18px;
+    }
+    .arrow-line {
+      position: relative; height: 2px; width: 48px;
+      background: #CBD5E1;
+    }
+    .arrow-line.solid    { background: var(--transition-normal); }
+    .arrow-line.dashed   { background: transparent; border-top: 2px dashed var(--transition-exception); }
+    .arrow-line.dotted   { background: transparent; border-top: 2px dotted var(--transition-recovery); }
+    .arrow-head {
+      width: 0; height: 0;
+      border-top: 6px solid transparent;
+      border-bottom: 6px solid transparent;
+      border-left: 8px solid #CBD5E1;
+      flex-shrink: 0;
+    }
+    .arrow-head.solid    { border-left-color: var(--transition-normal); }
+    .arrow-head.dashed   { border-left-color: var(--transition-exception); }
+    .arrow-head.dotted   { border-left-color: var(--transition-recovery); }
+
+    .trans-label {
+      font-size: 9px; color: var(--color-text-muted); text-align: center;
+      max-width: 130px; line-height: 1.3; margin-top: 4px;
+    }
+
+    /* Transition details list below flow */
+    .ws-transitions-detail {
+      padding: 16px 20px;
+      border-top: 1px solid var(--color-border);
+      background: var(--color-bg-alt);
+    }
+    .trans-detail-title {
+      font-size: 11px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .06em; color: var(--color-text-muted); margin-bottom: 10px;
+    }
+    .trans-detail-row {
+      display: flex; gap: 10px; align-items: flex-start;
+      font-size: 12px; padding: 8px 10px; background: white;
+      border-radius: var(--radius-sm); margin-bottom: 6px;
+      border: 1px solid var(--color-border);
+    }
+    .trans-type-dot {
+      width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; margin-top: 3px;
+    }
+    .trans-type-dot.normal    { background: var(--transition-normal); }
+    .trans-type-dot.exception { background: var(--transition-exception); }
+    .trans-type-dot.recovery  { background: var(--transition-recovery); }
+    .trans-detail-content { flex: 1; }
+    .trans-route { font-weight: 600; color: var(--color-primary); }
+    .trans-trigger { color: var(--color-text-muted); font-size: 11px; margin-top: 2px; }
+    .trans-evidence { font-size: 11px; color: #1D4ED8; margin-top: 2px; }
+
+    /* Guardrails */
+    .ws-guardrails {
+      padding: 16px 20px;
+      border-top: 1px solid var(--color-border);
+    }
+    .guardrail-title {
+      font-size: 11px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .06em; color: #991B1B; margin-bottom: 10px;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .guardrail-item {
+      display: flex; gap: 8px; align-items: flex-start;
+      font-size: 12px; color: #7F1D1D; line-height: 1.5;
+      background: #FEF2F2; border: 1px solid #FECACA;
+      border-radius: var(--radius-sm); padding: 8px 12px; margin-bottom: 6px;
+    }
+    .guardrail-icon { flex-shrink: 0; }
+
+    /* Dependency mapping */
+    .ws-deps { padding: 16px 20px; border-top: 1px solid var(--color-border); }
+    .dep-title {
+      font-size: 11px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .06em; color: var(--color-text-muted); margin-bottom: 10px;
+    }
+    .dep-item {
+      display: flex; gap: 10px; align-items: flex-start;
+      font-size: 12px; line-height: 1.5; padding: 8px 10px;
+      background: #F0F9FF; border: 1px solid #BAE6FD;
+      border-radius: var(--radius-sm); margin-bottom: 6px;
+    }
+    .dep-ws-name { font-weight: 600; color: #0369A1; }
+    .dep-condition { color: var(--color-text-muted); font-size: 11px; margin-top: 2px; }
+    .dep-impact { color: var(--color-foreground); }
+
+    /* ── Agent Prompt Panel ── */
+    .prompt-panel {
+      margin-top: 12px;
+      border: 1px solid var(--color-border); border-radius: var(--radius-md);
+      overflow: hidden;
+    }
+    .prompt-header {
+      background: var(--color-bg-alt); padding: 12px 16px;
+      display: flex; justify-content: space-between; align-items: center;
+      border-bottom: 1px solid var(--color-border);
+    }
+    .prompt-header-title { font-size: 13px; font-weight: 700; color: var(--color-primary); }
+    .prompt-hint { font-size: 11px; color: var(--color-text-muted); }
+    .prompt-body {
+      padding: 16px; font-family: 'Courier New', Courier, monospace;
+      font-size: 12px; line-height: 1.6; color: #1E293B;
+      background: #0F172A; color: #E2E8F0;
+      white-space: pre-wrap; word-break: break-all;
+      max-height: 400px; overflow-y: auto;
+    }
+
+    /* ── Legend ── */
+    .legend {
+      display: flex; gap: 20px; flex-wrap: wrap;
+      padding: 12px 16px; background: var(--color-bg-alt);
+      border-radius: var(--radius-md); margin-bottom: 20px;
+      font-size: 12px;
+    }
+    .legend-item { display: flex; align-items: center; gap: 8px; }
+    .legend-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+    .legend-line {
+      width: 28px; height: 2px; flex-shrink: 0;
+    }
+
+    /* ── Toast ── */
+    .toast {
+      display: none; position: fixed; bottom: 32px; right: 32px;
+      background: var(--color-primary); color: white;
+      padding: 12px 20px; border-radius: var(--radius-md);
+      font-size: 14px; font-weight: 500; box-shadow: var(--shadow-md);
+      z-index: 1000; animation: slideUp 0.2s ease-out;
+    }
+    @keyframes slideUp {
+      from { transform: translateY(8px); opacity: 0; }
+      to   { transform: translateY(0); opacity: 1; }
+    }
+
+    /* ── Mermaid Diagram Overrides ── */
+    .mermaid {
+      display: flex;
+      justify-content: center;
+      background: white;
+      padding: 24px;
+      border-radius: var(--radius-lg);
+      margin-top: 16px;
+    }
+    .mermaid svg {
+      max-height: 480px;
+      width: 100%;
+      height: auto;
+    }
+    .mermaid .edgePath .path {
+      stroke: var(--color-text-muted) !important;
+      stroke-width: 1.5px !important;
+      fill: none !important;
+    }
+    .mermaid .marker {
+      fill: var(--color-text-muted) !important;
+      stroke: var(--color-text-muted) !important;
+    }
+    /* Edge styles mapped to normal, exception and recovery styles */
+    .mermaid .edge-thickness-normal .path {
+      stroke: var(--transition-normal) !important;
+      stroke-width: 2px !important;
+      fill: none !important;
+    }
+    .mermaid .edge-pattern-dashed .path {
+      stroke: var(--transition-exception) !important;
+      stroke-width: 2px !important;
+      fill: none !important;
+    }
+    .mermaid .edge-thickness-thick .path {
+      stroke: var(--transition-recovery) !important;
+      stroke-width: 3px !important;
+      fill: none !important;
+    }
+    .mermaid .edgeLabel rect {
+      fill: white !important;
+      opacity: 0.9;
+    }
+    .mermaid .edgeLabel {
+      font-size: 11px !important;
+      font-weight: 500 !important;
+      color: var(--color-text-muted) !important;
+      font-family: var(--font-family) !important;
+    }
+    .mermaid .node rect {
+      rx: var(--radius-md) !important;
+      ry: var(--radius-md) !important;
+      stroke-width: 2px !important;
+      filter: drop-shadow(0 2px 4px rgba(16,33,62,0.04));
+    }
+    .mermaid .node .label {
+      font-family: var(--font-family) !important;
+      color: var(--color-primary) !important;
+      font-size: 12px !important;
+    }
+    .mermaid .node b {
+      font-size: 13px !important;
+      color: var(--color-primary) !important;
+    }
+  </style>
+
+    <!-- ===== Unified Report Shell: 撑满容器 + 精简 Header + 溢出滚动 ===== -->
+    <style>
+      *, *::before, *::after { box-sizing: border-box !important; }
+      html, body { margin: 0 !important; padding: 0 !important; background: #F5F5F6 !important; overflow-x: auto !important; }
+      .page-wrap {
+        width: 100% !important;
+        max-width: none !important;
+        margin: 0 auto !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        border: none !important;
+        padding: 24px 28px 48px !important;
+        overflow-x: auto !important;
+      }
+      .page-header { margin-bottom: 20px !important; align-items: center !important; }
+      .page-header h1 { font-size: 22px !important; line-height: 1.3 !important; margin: 0 !important; }
+    
+      /* ===== Unified Header (v2) ===== */
+      .page-header {
+        background: #FFFFFF !important;
+        border-bottom: 1px solid #E2E8F0 !important;
+        border-radius: 0 !important;
+        padding: 12px 0 !important;
+        margin-bottom: 20px !important;
+        min-height: auto !important;
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        gap: 16px !important;
+        flex-wrap: wrap !important;
+      }
+      .page-header h1 {
+        font-size: 22px !important;
+        font-weight: 700 !important;
+        color: #10213E !important;
+        line-height: 1.3 !important;
+        margin: 0 !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 10px !important;
+      }
+      .page-header h1::before {
+        content: "" !important;
+        display: inline-block !important;
+        width: 4px !important;
+        height: 22px !important;
+        background: #5DB2E2 !important;
+        border-radius: 2px !important;
+        flex-shrink: 0 !important;
+      }
+      .page-header h1 svg, .page-header h1 .icon, .page-header h1 img {
+        width: 20px !important;
+        height: 20px !important;
+        flex-shrink: 0 !important;
+      }
+      .page-subtitle, .header-meta, .meta-scenario, .header-left p, .header-content p {
+        font-size: 13px !important;
+        color: #64748B !important;
+        margin: 4px 0 0 !important;
+        padding-left: 14px !important;
+      }
+      .meta-badge, .badge, .brand-tag {
+        font-size: 12px !important;
+        color: #64748B !important;
+        background: #F5F5F6 !important;
+        border-radius: 10px !important;
+        padding: 2px 10px !important;
+      }
+      .page-header .btn-group, .header-right, .header-right > div {
+        display: flex !important;
+        align-items: center !important;
+        gap: 8px !important;
+      }
+      .btn-secondary, .btn-primary, .btn-copy-yaml {
+        font-size: 12px !important;
+        padding: 6px 12px !important;
+        border-radius: 6px !important;
+        font-weight: 600 !important;
+      }
+      .btn-secondary {
+        background: #FFFFFF !important;
+        color: #10213E !important;
+        border: 1px solid #E2E8F0 !important;
+      }
+      .btn-primary {
+        background: #10213E !important;
+        color: #FFFFFF !important;
+        border: 1px solid #10213E !important;
+      }
+</style>
+
+
+</head>
+<body>
+
+<div class="page-wrap">
+  <!-- ── Header ── -->
+  <header class="page-header">
+    <div class="header-left">
+      <h1>智能订舱Agent-本体设计</h1>
+      <div class="header-meta">
+        <span class="meta-badge domain">集装箱电商订舱</span>
+        <span class="meta-badge role">🤖 智能订舱执行助手（Booking Agent）</span>
+      </div>
+      
+      <p class="meta-scenario">SME 货主通过对话式智能订舱 Agent 完成询价、舱位推荐、订舱确认、单证预填与出运跟踪的端到端场景</p>
+      
+    </div>
+    <div class="header-right">
+      <div class="meta-info">Generated by agent-ontology-designer</div>
+      <div class="meta-info">2026-08-25 21:14</div>
+      <div class="btn-group">
+        <button class="btn-secondary" onclick="window.print()">导出 PDF</button>
+        <button class="btn-primary" onclick="copyYAML()">复制 YAML</button>
+        <button class="btn-primary" onclick="copyPrompt()">复制 Prompt</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ── Tabs ── -->
+  <nav class="tab-nav">
+    <button class="tab-btn active" id="tab-btn-objects" onclick="switchTab('objects')">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      对象关系
+      <span class="tab-count">7</span>
+    </button>
+    <button class="tab-btn" id="tab-btn-actions" onclick="switchTab('actions')">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      行动边界
+      <span class="tab-count">4</span>
+    </button>
+    <button class="tab-btn" id="tab-btn-states" onclick="switchTab('states')">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 19.07a10 10 0 0 1 0-14.14"/></svg>
+      状态迁移
+      <span class="tab-count">3</span>
+    </button>
+    <button class="tab-btn" id="tab-btn-prompt" onclick="switchTab('prompt')">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+      Agent Prompt
+    </button>
+  </nav>
+
+  <!-- ══════════════════════════
+       TAB 1 · 对象关系
+       ══════════════════════════ -->
+  <div class="tab-panel active" id="tab-objects">
+
+    <p class="section-title">实体（Entities）</p>
+
+    <!-- Entity type legend -->
+    <div class="legend">
+      <span style="font-weight:600; color:var(--color-text-muted);">实体类型：</span>
+      <div class="legend-item">
+        <div class="legend-dot" style="background:var(--entity-core-badge)"></div>
+        核心对象（core）— Agent 直接操作或判断的实体
+      </div>
+      <div class="legend-item">
+        <div class="legend-dot" style="background:var(--entity-reference-badge)"></div>
+        参考对象（reference）— 提供上下文或约束
+      </div>
+      <div class="legend-item">
+        <div class="legend-dot" style="background:var(--entity-event-badge)"></div>
+        事件对象（event）— 记录业务发生的事件
+      </div>
+    </div>
+
+    <div class="entity-grid">
+      
+      <div class="entity-card entity-core">
+        <div class="entity-header">
+          <span class="entity-badge">核心对象</span>
+          <div class="entity-name">订舱请求（Booking Request）</div>
+        </div>
+        <p class="entity-desc">货主经确认后向系统提交的订舱意向，是订舱链路的触发对象，不等于已获舱位</p>
+
+        
+        <div class="entity-attrs">
+          
+          <div class="attr-row">
+            <span class="attr-name">status</span>
+            <span class="attr-type">enum</span>
+            <div>
+              
+                <span class="attr-values">draft / validated / submitted / confirmed / voided</span>
+              
+            </div>
+          </div>
+          
+          <div class="attr-row">
+            <span class="attr-name">container_type</span>
+            <span class="attr-type">string</span>
+            <div>
+              
+                <span class="attr-desc">箱型（如 40HQ）</span>
+              
+            </div>
+          </div>
+          
+          <div class="attr-row">
+            <span class="attr-name">port_pair</span>
+            <span class="attr-type">string</span>
+            <div>
+              
+                <span class="attr-desc">起运港-目的港港口对</span>
+              
+            </div>
+          </div>
+          
+        </div>
+        
+
+        
+        <div class="entity-distinctions">
+          <div class="distinction-label">⚠️ 概念边界</div>
+          
+          <div class="distinction-item">
+            <span class="distinction-icon">≠</span>
+            <span>订舱请求已提交 ≠ 已签发 Booking Confirmation（可能被校验驳回）</span>
+          </div>
+          
+          <div class="distinction-item">
+            <span class="distinction-icon">≠</span>
+            <span>订舱请求的状态不等于舱位状态，须以 Booking Confirmation 为准</span>
+          </div>
+          
+        </div>
+        
+      </div>
+      
+      <div class="entity-card entity-core">
+        <div class="entity-header">
+          <span class="entity-badge">核心对象</span>
+          <div class="entity-name">订舱确认书（Booking Confirmation）</div>
+        </div>
+        <p class="entity-desc">确认已分配舱位并对外承诺的正式文件，含 Booking 编号与舱位保证，是后续单证与跟踪的锚点</p>
+
+        
+        <div class="entity-attrs">
+          
+          <div class="attr-row">
+            <span class="attr-name">booking_no</span>
+            <span class="attr-type">string</span>
+            <div>
+              
+                <span class="attr-desc">订舱编号（如 BK-2026-0901-001）</span>
+              
+            </div>
+          </div>
+          
+          <div class="attr-row">
+            <span class="attr-name">space_guaranteed</span>
+            <span class="attr-type">boolean</span>
+            <div>
+              
+                <span class="attr-desc">是否含舱位保证（Space Protection / Delay in Transit）</span>
+              
+            </div>
+          </div>
+          
+          <div class="attr-row">
+            <span class="attr-name">confirmed_at</span>
+            <span class="attr-type">datetime</span>
+            <div>
+              
+                <span class="attr-desc">签发时间</span>
+              
+            </div>
+          </div>
+          
+        </div>
+        
+
+        
+        <div class="entity-distinctions">
+          <div class="distinction-label">⚠️ 概念边界</div>
+          
+          <div class="distinction-item">
+            <span class="distinction-icon">≠</span>
+            <span>Booking Confirmation 是最快 1 分钟能签发的确定性文件，与报价单（Query）不同</span>
+          </div>
+          
+          <div class="distinction-item">
+            <span class="distinction-icon">≠</span>
+            <span>舱位保证承诺 ≠ 实际已装载，违约时触发赔付流程</span>
+          </div>
+          
+        </div>
+        
+      </div>
+      
+      <div class="entity-card entity-reference">
+        <div class="entity-header">
+          <span class="entity-badge">参考对象</span>
+          <div class="entity-name">报价单（Quotation）</div>
+        </div>
+        <p class="entity-desc">报价引擎生成的 E-Spot/E-Quote 报价，含全包价构成与有效期，可锁定（Secured）</p>
+
+        
+        <div class="entity-attrs">
+          
+          <div class="attr-row">
+            <span class="attr-name">quote_type</span>
+            <span class="attr-type">enum</span>
+            <div>
+              
+                <span class="attr-values">e_spot / e_quote / secured_e_quote</span>
+              
+            </div>
+          </div>
+          
+          <div class="attr-row">
+            <span class="attr-name">all_in_price</span>
+            <span class="attr-type">number</span>
+            <div>
+              
+                <span class="attr-desc">全包运价（USD）</span>
+              
+            </div>
+          </div>
+          
+          <div class="attr-row">
+            <span class="attr-name">validity</span>
+            <span class="attr-type">datetime</span>
+            <div>
+              
+                <span class="attr-desc">有效期</span>
+              
+            </div>
+          </div>
+          
+        </div>
+        
+
+        
+        <div class="entity-distinctions">
+          <div class="distinction-label">⚠️ 概念边界</div>
+          
+          <div class="distinction-item">
+            <span class="distinction-icon">≠</span>
+            <span>报价单只是价格意向，不等于已锁定舱位或已订舱</span>
+          </div>
+          
+          <div class="distinction-item">
+            <span class="distinction-icon">≠</span>
+            <span>Secured E-Quote 锁价 ≠ 已签发订舱确认</span>
+          </div>
+          
+        </div>
+        
+      </div>
+      
+      <div class="entity-card entity-core">
+        <div class="entity-header">
+          <span class="entity-badge">核心对象</span>
+          <div class="entity-name">装运指示（SI）</div>
+        </div>
+        <p class="entity-desc">货主提交的装运指示单证，含品名/唛头/件数/毛重/体积/HS 编码，是提单签发的依据</p>
+
+        
+        <div class="entity-attrs">
+          
+          <div class="attr-row">
+            <span class="attr-name">status</span>
+            <span class="attr-type">enum</span>
+            <div>
+              
+                <span class="attr-values">draft / extracted / validated / submitted</span>
+              
+            </div>
+          </div>
+          
+          <div class="attr-row">
+            <span class="attr-name">hs_code</span>
+            <span class="attr-type">string</span>
+            <div>
+              
+                <span class="attr-desc">HS 编码</span>
+              
+            </div>
+          </div>
+          
+          <div class="attr-row">
+            <span class="attr-name">vgm</span>
+            <span class="attr-type">number</span>
+            <div>
+              
+                <span class="attr-desc">VGM 核实的集装箱总重</span>
+              
+            </div>
+          </div>
+          
+        </div>
+        
+
+        
+        <div class="entity-distinctions">
+          <div class="distinction-label">⚠️ 概念边界</div>
+          
+          <div class="distinction-item">
+            <span class="distinction-icon">≠</span>
+            <span>OCR 抽取的 SI 字段 ≠ 已通过规则校验（可能有 VGM 缺件）</span>
+          </div>
+          
+          <div class="distinction-item">
+            <span class="distinction-icon">≠</span>
+            <span>SI 校验通过 ≠ 已签发提单，需再进入提单流程</span>
+          </div>
+          
+        </div>
+        
+      </div>
+      
+      <div class="entity-card entity-reference">
+        <div class="entity-header">
+          <span class="entity-badge">参考对象</span>
+          <div class="entity-name">贸易单据（PI/装箱单/发票）</div>
+        </div>
+        <p class="entity-desc">货主上传的贸易单据文件（PDF/图片/Excel），是 SI 字段抽取的输入源</p>
+
+        
+        <div class="entity-attrs">
+          
+          <div class="attr-row">
+            <span class="attr-name">doc_type</span>
+            <span class="attr-type">string</span>
+            <div>
+              
+                <span class="attr-desc">单据类型（PI/装箱单/发票）</span>
+              
+            </div>
+          </div>
+          
+          <div class="attr-row">
+            <span class="attr-name">extraction_confidence</span>
+            <span class="attr-type">number</span>
+            <div>
+              
+                <span class="attr-desc">OCR 抽取置信度</span>
+              
+            </div>
+          </div>
+          
+        </div>
+        
+
+        
+        <div class="entity-distinctions">
+          <div class="distinction-label">⚠️ 概念边界</div>
+          
+          <div class="distinction-item">
+            <span class="distinction-icon">≠</span>
+            <span>贸易单据上的数据 ≠ 申报数据，须经 SI 校验与人工确认</span>
+          </div>
+          
+        </div>
+        
+      </div>
+      
+      <div class="entity-card entity-reference">
+        <div class="entity-header">
+          <span class="entity-badge">参考对象</span>
+          <div class="entity-name">舱位（Space Slot）</div>
+        </div>
+        <p class="entity-desc">特定航次可分配的舱位资源，含装载率/ETA 置信度/舱位保证状态，影响推荐排序</p>
+
+        
+        <div class="entity-attrs">
+          
+          <div class="attr-row">
+            <span class="attr-name">load_factor</span>
+            <span class="attr-type">number</span>
+            <div>
+              
+                <span class="attr-desc">装载率</span>
+              
+            </div>
+          </div>
+          
+          <div class="attr-row">
+            <span class="attr-name">eta_confidence</span>
+            <span class="attr-type">number</span>
+            <div>
+              
+                <span class="attr-desc">ETA 置信度</span>
+              
+            </div>
+          </div>
+          
+        </div>
+        
+
+        
+        <div class="entity-distinctions">
+          <div class="distinction-label">⚠️ 概念边界</div>
+          
+          <div class="distinction-item">
+            <span class="distinction-icon">≠</span>
+            <span>舱位余量充足 ≠ 舱位保证一定兑现（旺季可能有甩柜风险）</span>
+          </div>
+          
+        </div>
+        
+      </div>
+      
+      <div class="entity-card entity-reference">
+        <div class="entity-header">
+          <span class="entity-badge">参考对象</span>
+          <div class="entity-name">会员画像（Member Profile）</div>
+        </div>
+        <p class="entity-desc">货主在 PlumSmart 体系的等级、交易记录与偏好，用于预填与复购推荐</p>
+
+        
+        <div class="entity-attrs">
+          
+          <div class="attr-row">
+            <span class="attr-name">tier</span>
+            <span class="attr-type">enum</span>
+            <div>
+              
+                <span class="attr-values">bronze / silver / gold / platinum</span>
+              
+            </div>
+          </div>
+          
+          <div class="attr-row">
+            <span class="attr-name">booking_history</span>
+            <span class="attr-type">string</span>
+            <div>
+              
+                <span class="attr-desc">历史订舱记录</span>
+              
+            </div>
+          </div>
+          
+        </div>
+        
+
+        
+        <div class="entity-distinctions">
+          <div class="distinction-label">⚠️ 概念边界</div>
+          
+          <div class="distinction-item">
+            <span class="distinction-icon">≠</span>
+            <span>新客无历史数据 ≠ 不能预填（以会话上下文+OCR 兜底）</span>
+          </div>
+          
+        </div>
+        
+      </div>
+      
+    </div>
+
+    
+    <p class="section-title">对象关系拓扑图（Relationships Graph）</p>
+    <div class="ws-flow" style="margin-bottom: 24px;">
+      <div class="mermaid" id="mermaid-relationships" style="width: 100%; max-width: 960px; margin: 0 auto;">
+        graph TD
+          %% Styling classes
+          classDef core fill:#EFF6FF,stroke:#3B82F6,stroke-width:2px,color:#1D4ED8;
+          classDef reference fill:#F5F3FF,stroke:#7C3AED,stroke-width:2px,color:#5B21B6;
+          classDef event fill:#FFF7ED,stroke:#EA580C,stroke-width:2px,color:#C2410C;
+
+          %% Nodes definition
+          
+            booking_request["<b>订舱请求（Booking Request）</b><br/><span style='font-size:10px;color:#64748B;'>核心对象</span>"]
+            class booking_request core;
+          
+            booking_confirmation["<b>订舱确认书（Booking Confirmation）</b><br/><span style='font-size:10px;color:#64748B;'>核心对象</span>"]
+            class booking_confirmation core;
+          
+            quotation["<b>报价单（Quotation）</b><br/><span style='font-size:10px;color:#64748B;'>参考对象</span>"]
+            class quotation reference;
+          
+            si_document["<b>装运指示（SI）</b><br/><span style='font-size:10px;color:#64748B;'>核心对象</span>"]
+            class si_document core;
+          
+            trade_document["<b>贸易单据（PI/装箱单/发票）</b><br/><span style='font-size:10px;color:#64748B;'>参考对象</span>"]
+            class trade_document reference;
+          
+            space_slot["<b>舱位（Space Slot）</b><br/><span style='font-size:10px;color:#64748B;'>参考对象</span>"]
+            class space_slot reference;
+          
+            member_profile["<b>会员画像（Member Profile）</b><br/><span style='font-size:10px;color:#64748B;'>参考对象</span>"]
+            class member_profile reference;
+          
+
+          %% Relationships definition
+          
+            quotation -->|触发 1:N| booking_request
+          
+            booking_request -->|产生 1:1| booking_confirmation
+          
+            booking_confirmation -->|关联 1:N| si_document
+          
+            trade_document -->|证明 N:1| si_document
+          
+            space_slot -->|约束 N:N| booking_confirmation
+          
+            member_profile -->|覆盖 N:N| booking_request
+          
+      </div>
+    </div>
+
+    <p class="section-title">对象关系详情（Relationships Detail）</p>
+    <div class="rel-table-wrap">
+      <table class="rel-table">
+        <thead>
+          <tr>
+            <th>从 (From)</th>
+            <th style="text-align:center;">关系</th>
+            <th>到 (To)</th>
+            <th style="text-align:center;">基数</th>
+            <th>业务含义</th>
+          </tr>
+        </thead>
+        <tbody>
+          
+          <tr>
+            <td class="rel-from">报价单（Quotation）</td>
+            <td class="rel-arrow">
+              <span class="rel-label">触发</span>
+            </td>
+            <td class="rel-from">订舱请求（Booking Request）</td>
+            <td class="rel-card" style="text-align:center;">1:N</td>
+            <td class="rel-desc">一张报价单可触发多次订舱请求（货主可改方案/多次提交）</td>
+          </tr>
+          
+          <tr>
+            <td class="rel-from">订舱请求（Booking Request）</td>
+            <td class="rel-arrow">
+              <span class="rel-label">产生</span>
+            </td>
+            <td class="rel-from">订舱确认书（Booking Confirmation）</td>
+            <td class="rel-card" style="text-align:center;">1:1</td>
+            <td class="rel-desc">校验通过的订舱请求产生一份订舱确认书</td>
+          </tr>
+          
+          <tr>
+            <td class="rel-from">订舱确认书（Booking Confirmation）</td>
+            <td class="rel-arrow">
+              <span class="rel-label">关联</span>
+            </td>
+            <td class="rel-from">装运指示（SI）</td>
+            <td class="rel-card" style="text-align:center;">1:N</td>
+            <td class="rel-desc">一份订舱确认书对应装运指示（SI）单证</td>
+          </tr>
+          
+          <tr>
+            <td class="rel-from">贸易单据（PI/装箱单/发票）</td>
+            <td class="rel-arrow">
+              <span class="rel-label">证明</span>
+            </td>
+            <td class="rel-from">装运指示（SI）</td>
+            <td class="rel-card" style="text-align:center;">N:1</td>
+            <td class="rel-desc">多份贸易单据抽取生成一份 SI 字段</td>
+          </tr>
+          
+          <tr>
+            <td class="rel-from">舱位（Space Slot）</td>
+            <td class="rel-arrow">
+              <span class="rel-label">约束</span>
+            </td>
+            <td class="rel-from">订舱确认书（Booking Confirmation）</td>
+            <td class="rel-card" style="text-align:center;">N:N</td>
+            <td class="rel-desc">舱位分配结果约束订舱确认的签发与舱位保证兑现</td>
+          </tr>
+          
+          <tr>
+            <td class="rel-from">会员画像（Member Profile）</td>
+            <td class="rel-arrow">
+              <span class="rel-label">覆盖</span>
+            </td>
+            <td class="rel-from">订舱请求（Booking Request）</td>
+            <td class="rel-card" style="text-align:center;">N:N</td>
+            <td class="rel-desc">会员画像覆盖预填字段（新客无数据时以会话兜底）</td>
+          </tr>
+          
+        </tbody>
+      </table>
+    </div>
+    
+
+  </div><!-- /tab-objects -->
+
+
+  <!-- ══════════════════════════
+       TAB 2 · 行动边界
+       ══════════════════════════ -->
+  <div class="tab-panel" id="tab-actions">
+
+    <div class="legend">
+      <div class="legend-item"><span style="font-size:16px">📋</span> Required Evidence — 做判断前必须核实的门店可见证据</div>
+      <div class="legend-item"><span style="font-size:16px">✅</span> Valid Actions — 当前情境下可以执行的合法动作</div>
+      <div class="legend-item"><span style="font-size:16px">❌</span> Invalid Actions — 不应该执行（会产生错误假设）的动作</div>
+      <div class="legend-item"><span style="font-size:16px">⚠️</span> Exception Triggers — 需要标记风险或升级的触发条件</div>
+    </div>
+
+    
+    <div class="ab-card">
+      <div class="ab-header">
+        <span class="ab-situation-num">情境 1</span>
+        <div>
+          <div class="ab-situation-name">自然语言询价后的报价与舱位推荐</div>
+          
+          <div class="ab-situation-desc">货主以自然语言询价，Agent 需识别意图、检索报价并按装载率/ETA/舱位保证综合推荐 Top3</div>
+          
+        </div>
+      </div>
+      <div class="ab-body">
+
+        <!-- Q1: Required Evidence -->
+        <div class="ab-quadrant">
+          <div class="quadrant-label ql-evidence">📋 Required Evidence</div>
+          
+            
+            <div class="ab-item">
+              <svg class="ab-item-dot" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              <div class="ab-item-content">
+                <div class="ab-item-source">E-Spot/E-Quote 报价引擎</div>
+                <div>确认即期/长时效报价的有效性与全包价构成</div>
+              </div>
+            </div>
+            
+            <div class="ab-item">
+              <svg class="ab-item-dot" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              <div class="ab-item-content">
+                <div class="ab-item-source">舱位评分服务</div>
+                <div>确认各航次装载率、ETA 置信度与舱位保证状态</div>
+              </div>
+            </div>
+            
+            <div class="ab-item">
+              <svg class="ab-item-dot" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              <div class="ab-item-content">
+                <div class="ab-item-source">会员画像（CRM）</div>
+                <div>确认货主等级与历史偏好，非新客时用于推荐</div>
+              </div>
+            </div>
+            
+          
+        </div>
+
+        <!-- Q2: Valid Actions -->
+        <div class="ab-quadrant">
+          <div class="quadrant-label ql-valid">✅ Valid Actions</div>
+          
+            
+            <div class="ab-item">
+              <svg class="ab-item-dot" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+              <div class="ab-item-content">识别询价要素并检索匹配报价</div>
+            </div>
+            
+            <div class="ab-item">
+              <svg class="ab-item-dot" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+              <div class="ab-item-content">按装载率/ETA/舱位保证综合排序生成 Top3 推荐</div>
+            </div>
+            
+            <div class="ab-item">
+              <svg class="ab-item-dot" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+              <div class="ab-item-content">附可解释推荐理由供货主决策</div>
+            </div>
+            
+          
+        </div>
+
+        <!-- Q3: Invalid Actions -->
+        <div class="ab-quadrant">
+          <div class="quadrant-label ql-invalid">❌ Invalid Actions</div>
+          
+            
+            <div class="ab-item">
+              <svg class="ab-item-dot" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#DC2626" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+              <div class="ab-item-content">
+                <div>用 LLM 直接计算或伪造报价与评分</div>
+                <div class="ab-item-reason">原因：报价与评分为事实数据，LLM 计算会产生幻觉，导致错误承诺</div>
+              </div>
+            </div>
+            
+            <div class="ab-item">
+              <svg class="ab-item-dot" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#DC2626" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+              <div class="ab-item-content">
+                <div>新客无历史数据时给出空预填或虚构推荐</div>
+                <div class="ab-item-reason">原因：无证据支撑，会误导货主决策并造成信任受损</div>
+              </div>
+            </div>
+            
+          
+        </div>
+
+        <!-- Q4: Exception Triggers -->
+        <div class="ab-quadrant">
+          <div class="quadrant-label ql-exception">⚠️ Exception Triggers</div>
+          
+            
+            <div class="ab-item">
+              <svg class="ab-item-dot" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#D97706" stroke-width="2"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+              <div class="ab-item-content">
+                <div class="ab-item-condition">当：报价引擎超时或无可用航次</div>
+                <div class="ab-item-action">→ 自动重试 1 次后降级提示，并建议邻近航线（Nearby Route Suggestions）</div>
+              </div>
+            </div>
+            
+            <div class="ab-item">
+              <svg class="ab-item-dot" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#D97706" stroke-width="2"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+              <div class="ab-item-content">
+                <div class="ab-item-condition">当：意图识别歧义（多航次/多箱型）</div>
+                <div class="ab-item-action">→ 对话追问澄清要素后再检索，避免错误报价</div>
+              </div>
+            </div>
+            
+          
+        </div>
+
+      </div>
+    </div>
+    
+    <div class="ab-card">
+      <div class="ab-header">
+        <span class="ab-situation-num">情境 2</span>
+        <div>
+          <div class="ab-situation-name">一键订舱确认与提交</div>
+          
+          <div class="ab-situation-desc">货主确认 Agent 预填的订舱表单，需经规则校验后提交订舱请求并签发确认书</div>
+          
+        </div>
+      </div>
+      <div class="ab-body">
+
+        <!-- Q1: Required Evidence -->
+        <div class="ab-quadrant">
+          <div class="quadrant-label ql-evidence">📋 Required Evidence</div>
+          
+            
+            <div class="ab-item">
+              <svg class="ab-item-dot" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              <div class="ab-item-content">
+                <div class="ab-item-source">订舱规则引擎（&gt;200 条）</div>
+                <div>费率/信用/航线可用性校验全部通过，无拦截项</div>
+              </div>
+            </div>
+            
+            <div class="ab-item">
+              <svg class="ab-item-dot" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              <div class="ab-item-content">
+                <div class="ab-item-source">预填表单</div>
+                <div>货方/收货方/港口对/箱型/品名等必填字段齐全</div>
+              </div>
+            </div>
+            
+          
+        </div>
+
+        <!-- Q2: Valid Actions -->
+        <div class="ab-quadrant">
+          <div class="quadrant-label ql-valid">✅ Valid Actions</div>
+          
+            
+            <div class="ab-item">
+              <svg class="ab-item-dot" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+              <div class="ab-item-content">基于会话上下文+画像自动预填订舱表单</div>
+            </div>
+            
+            <div class="ab-item">
+              <svg class="ab-item-dot" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+              <div class="ab-item-content">运行订舱规则校验并标识异常字段</div>
+            </div>
+            
+            <div class="ab-item">
+              <svg class="ab-item-dot" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+              <div class="ab-item-content">对外放行提交订舱请求并签发 Booking Confirmation</div>
+            </div>
+            
+          
+        </div>
+
+        <!-- Q3: Invalid Actions -->
+        <div class="ab-quadrant">
+          <div class="quadrant-label ql-invalid">❌ Invalid Actions</div>
+          
+            
+            <div class="ab-item">
+              <svg class="ab-item-dot" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#DC2626" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+              <div class="ab-item-content">
+                <div>校验未通过时静默提交订舱请求</div>
+                <div class="ab-item-reason">原因：跳过校验会提交错误/风险订舱，产生后续单证与费用纠纷</div>
+              </div>
+            </div>
+            
+            <div class="ab-item">
+              <svg class="ab-item-dot" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#DC2626" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+              <div class="ab-item-content">
+                <div>未经货主确认直接签发确认书</div>
+                <div class="ab-item-reason">原因：订舱为对外承诺动作，必须有货主人工放行（gate）</div>
+              </div>
+            </div>
+            
+          
+        </div>
+
+        <!-- Q4: Exception Triggers -->
+        <div class="ab-quadrant">
+          <div class="quadrant-label ql-exception">⚠️ Exception Triggers</div>
+          
+            
+            <div class="ab-item">
+              <svg class="ab-item-dot" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#D97706" stroke-width="2"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+              <div class="ab-item-content">
+                <div class="ab-item-condition">当：信用受限/费率冲突/航线不可用</div>
+                <div class="ab-item-action">→ 标注原因提示补正，复杂单升级人工终审</div>
+              </div>
+            </div>
+            
+            <div class="ab-item">
+              <svg class="ab-item-dot" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#D97706" stroke-width="2"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+              <div class="ab-item-content">
+                <div class="ab-item-condition">当：新客无历史交易数据</div>
+                <div class="ab-item-action">→ 以会话上下文+PI/装箱单 OCR 预填兜底，并标注置信度</div>
+              </div>
+            </div>
+            
+          
+        </div>
+
+      </div>
+    </div>
+    
+    <div class="ab-card">
+      <div class="ab-header">
+        <span class="ab-situation-num">情境 3</span>
+        <div>
+          <div class="ab-situation-name">SI 单证预填与推送</div>
+          
+          <div class="ab-situation-desc">操作员上传贸易单据，Agent 抽取 SI 字段、规范品名/映射 HS 并做单证校验后推送单证系统</div>
+          
+        </div>
+      </div>
+      <div class="ab-body">
+
+        <!-- Q1: Required Evidence -->
+        <div class="ab-quadrant">
+          <div class="quadrant-label ql-evidence">📋 Required Evidence</div>
+          
+            
+            <div class="ab-item">
+              <svg class="ab-item-dot" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              <div class="ab-item-content">
+                <div class="ab-item-source">贸易单据（PI/装箱单/发票）</div>
+                <div>OCR 抽取品名/唛头/件数/毛重/体积/HS，标注置信度</div>
+              </div>
+            </div>
+            
+            <div class="ab-item">
+              <svg class="ab-item-dot" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              <div class="ab-item-content">
+                <div class="ab-item-source">智慧单证规则（&gt;300 条）</div>
+                <div>单证校验全部通过，VGM/毛重差异等异常项已标识</div>
+              </div>
+            </div>
+            
+          
+        </div>
+
+        <!-- Q2: Valid Actions -->
+        <div class="ab-quadrant">
+          <div class="quadrant-label ql-valid">✅ Valid Actions</div>
+          
+            
+            <div class="ab-item">
+              <svg class="ab-item-dot" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+              <div class="ab-item-content">OCR 抽取 SI 字段并标记低置信度字段</div>
+            </div>
+            
+            <div class="ab-item">
+              <svg class="ab-item-dot" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+              <div class="ab-item-content">规范多语言品名并映射 HS 编码</div>
+            </div>
+            
+            <div class="ab-item">
+              <svg class="ab-item-dot" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+              <div class="ab-item-content">校验通过后推送 SI 至单证系统</div>
+            </div>
+            
+          
+        </div>
+
+        <!-- Q3: Invalid Actions -->
+        <div class="ab-quadrant">
+          <div class="quadrant-label ql-invalid">❌ Invalid Actions</div>
+          
+            
+            <div class="ab-item">
+              <svg class="ab-item-dot" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#DC2626" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+              <div class="ab-item-content">
+                <div>带缺件（VGM 缺失/毛重超限）直接推送 SI</div>
+                <div class="ab-item-reason">原因：缺件会导致退单返工，拉长订舱周期</div>
+              </div>
+            </div>
+            
+            <div class="ab-item">
+              <svg class="ab-item-dot" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#DC2626" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+              <div class="ab-item-content">
+                <div>HS 编码无法映射时擅自猜测编码</div>
+                <div class="ab-item-reason">原因：错误 HS 编码会导致清关申报错误与合规风险</div>
+              </div>
+            </div>
+            
+          
+        </div>
+
+        <!-- Q4: Exception Triggers -->
+        <div class="ab-quadrant">
+          <div class="quadrant-label ql-exception">⚠️ Exception Triggers</div>
+          
+            
+            <div class="ab-item">
+              <svg class="ab-item-dot" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#D97706" stroke-width="2"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+              <div class="ab-item-content">
+                <div class="ab-item-condition">当：OCR 抽取置信度低（模糊/破损单据）</div>
+                <div class="ab-item-action">→ 标黄待人工复核字段，不阻塞其余字段</div>
+              </div>
+            </div>
+            
+            <div class="ab-item">
+              <svg class="ab-item-dot" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#D97706" stroke-width="2"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+              <div class="ab-item-content">
+                <div class="ab-item-condition">当：VGM 缺失/毛重与装箱单差异超限</div>
+                <div class="ab-item-action">→ 生成补全项并提供填写示例，提示操作员一次补全</div>
+              </div>
+            </div>
+            
+          
+        </div>
+
+      </div>
+    </div>
+    
+    <div class="ab-card">
+      <div class="ab-header">
+        <span class="ab-situation-num">情境 4</span>
+        <div>
+          <div class="ab-situation-name">出运跟踪与售后复购</div>
+          
+          <div class="ab-situation-desc">货主对话查询运输状态，Agent 播报里程碑、预测 ETA 延误并提供 D&amp;D 解读与复购推荐</div>
+          
+        </div>
+      </div>
+      <div class="ab-body">
+
+        <!-- Q1: Required Evidence -->
+        <div class="ab-quadrant">
+          <div class="quadrant-label ql-evidence">📋 Required Evidence</div>
+          
+            
+            <div class="ab-item">
+              <svg class="ab-item-dot" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              <div class="ab-item-content">
+                <div class="ab-item-source">控制塔/OMS 里程碑</div>
+                <div>确认开船/中转/最近已知 ETA 等最新里程碑</div>
+              </div>
+            </div>
+            
+            <div class="ab-item">
+              <svg class="ab-item-dot" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              <div class="ab-item-content">
+                <div class="ab-item-source">D&amp;D 规则引擎</div>
+                <div>确认目的地免箱期与滞箱费规则（各港政策不同）</div>
+              </div>
+            </div>
+            
+          
+        </div>
+
+        <!-- Q2: Valid Actions -->
+        <div class="ab-quadrant">
+          <div class="quadrant-label ql-valid">✅ Valid Actions</div>
+          
+            
+            <div class="ab-item">
+              <svg class="ab-item-dot" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+              <div class="ab-item-content">拉取里程碑并对话式播报，异常节点高亮</div>
+            </div>
+            
+            <div class="ab-item">
+              <svg class="ab-item-dot" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+              <div class="ab-item-content">基于码头拥堵指数预测 ETA 延误并事前预警</div>
+            </div>
+            
+            <div class="ab-item">
+              <svg class="ab-item-dot" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+              <div class="ab-item-content">解读免箱期并基于会员画像推荐复购与舱位预留</div>
+            </div>
+            
+          
+        </div>
+
+        <!-- Q3: Invalid Actions -->
+        <div class="ab-quadrant">
+          <div class="quadrant-label ql-invalid">❌ Invalid Actions</div>
+          
+            
+            <div class="ab-item">
+              <svg class="ab-item-dot" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#DC2626" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+              <div class="ab-item-content">
+                <div>在 ETA 预测置信度低时发布确定性延误结论</div>
+                <div class="ab-item-reason">原因：低置信度预测可能误报，会引发货主不必要的改配决策</div>
+              </div>
+            </div>
+            
+            <div class="ab-item">
+              <svg class="ab-item-dot" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#DC2626" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+              <div class="ab-item-content">
+                <div>忽略各港免箱期政策差异，直接适用单一 D&amp;D 结论</div>
+                <div class="ab-item-reason">原因：各港规则不同，直接下结论会导致费用争议</div>
+              </div>
+            </div>
+            
+          
+        </div>
+
+        <!-- Q4: Exception Triggers -->
+        <div class="ab-quadrant">
+          <div class="quadrant-label ql-exception">⚠️ Exception Triggers</div>
+          
+            
+            <div class="ab-item">
+              <svg class="ab-item-dot" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#D97706" stroke-width="2"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+              <div class="ab-item-content">
+                <div class="ab-item-condition">当：高风险延误（甩柜/改船）</div>
+                <div class="ab-item-action">→ 升级人工按 Delay in Transit 条款生成改配方案与赔付预判</div>
+              </div>
+            </div>
+            
+            <div class="ab-item">
+              <svg class="ab-item-dot" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#D97706" stroke-width="2"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+              <div class="ab-item-content">
+                <div class="ab-item-condition">当：复杂投诉/情绪激动</div>
+                <div class="ab-item-action">→ 附完整上下文摘要升级人工，避免重复收集信息</div>
+              </div>
+            </div>
+            
+          
+        </div>
+
+      </div>
+    </div>
+    
+
+  </div><!-- /tab-actions -->
+
+
+  <!-- ══════════════════════════
+       TAB 3 · 状态迁移
+       ══════════════════════════ -->
+  <div class="tab-panel" id="tab-states">
+
+    <div class="legend">
+      <div class="legend-item">
+        <div class="legend-line" style="background:var(--transition-normal);"></div>
+        正常迁移
+      </div>
+      <div class="legend-item">
+        <div class="legend-line" style="background:transparent; border-top: 2px dashed var(--transition-exception); height:0;"></div>
+        异常分支
+      </div>
+      <div class="legend-item">
+        <div class="legend-line" style="background:transparent; border-top: 2px dotted var(--transition-recovery); height:0;"></div>
+        异常恢复
+      </div>
+      <div class="legend-item">
+        <div class="legend-dot" style="background:var(--color-success); border-radius:3px; width:16px; height:12px;"></div>
+        终态节点
+      </div>
+      <div class="legend-item">
+        <div class="legend-dot" style="background:#FEF3C7; border:2px solid var(--color-warning); border-radius:3px; width:16px; height:12px;"></div>
+        异常态节点
+      </div>
+    </div>
+
+    
+    <div class="ws-block">
+      <!-- Workstream Header -->
+      <div class="ws-header">
+        <div style="flex:1;">
+          <div class="ws-name">⚙️ 订舱执行</div>
+          <div class="ws-desc">从报价确认到签发 Booking Confirmation 的完整执行流</div>
+          
+          <div class="ws-anchors">
+            <span style="font-size:11px;color:rgba(255,255,255,0.55);flex-shrink:0;margin-top:2px;">锚点对象：</span>
+            
+            <span class="ws-anchor-chip">报价单（Quotation）</span>
+            
+            <span class="ws-anchor-chip">订舱请求（Booking Request）</span>
+            
+            <span class="ws-anchor-chip">订舱确认书（Booking Confirmation）</span>
+            
+          </div>
+          
+        </div>
+      </div>
+
+      <!-- State Flow -->
+      
+      <div class="ws-flow">
+        <div class="mermaid" id="mermaid-ws_booking_flow">
+          graph LR
+            %% Styling classes
+            classDef default fill:#EFF6FF,stroke:#3B82F6,stroke-width:2px,color:#1D4ED8;
+            classDef terminal fill:#ECFDF5,stroke:#10B981,stroke-width:2px,color:#065F46;
+            classDef exception fill:#FEF3C7,stroke:#F59E0B,stroke-width:2px,color:#92400E;
+
+            %% Nodes definition
+            
+              bk_quoting["<b>报价中</b><br/><span style='font-size:10px;color:#64748B;'>货主询价，Agent 检索报价并推荐，尚在方案选择阶段</span>"]
+              
+                class bk_quoting default;
+              
+            
+              bk_selected["<b>已选方案</b><br/><span style='font-size:10px;color:#64748B;'>货主已选定报价方案，待预填与校验</span>"]
+              
+                class bk_selected default;
+              
+            
+              bk_validated["<b>校验通过待确认</b><br/><span style='font-size:10px;color:#64748B;'>表单校验通过，等待货主人工放行</span>"]
+              
+                class bk_validated default;
+              
+            
+              bk_confirmed["<b>已订舱</b><br/><span style='font-size:10px;color:#64748B;'>订舱请求提交成功并签发 Booking Confirmation</span>"]
+              
+                class bk_confirmed terminal;
+              
+            
+              bk_rejected["<b>校验被拒</b><br/><span style='font-size:10px;color:#64748B;'>校验未通过，需补正或升级人工终审</span>"]
+              
+                class bk_rejected exception;
+              
+            
+              bk_lost["<b>报价流失</b><br/><span style='font-size:10px;color:#64748B;'>货主放弃本方案或流失</span>"]
+              
+                class bk_lost terminal;
+              
+            
+
+            %% Transitions definition
+            
+              
+                
+                  bk_quoting -->|货主确认选定方案| bk_selected
+                
+              
+                
+                  bk_quoting -.->|货主放弃或转其他平台| bk_lost
+                
+              
+            
+              
+                
+                  bk_selected -->|自动预填并运行订舱规则校验| bk_validated
+                
+              
+                
+                  bk_selected -.->|校验发现拦截项| bk_rejected
+                
+              
+            
+              
+                
+                  bk_validated -->|货主对外放行确认提交| bk_confirmed
+                
+              
+            
+              
+            
+              
+                
+                  bk_rejected ==>|补正资料后重新校验| bk_validated
+                
+              
+            
+              
+            
+        </div>
+      </div>
+
+      <!-- Transition Details -->
+      <div class="ws-transitions-detail">
+        <div class="trans-detail-title">迁移路径详情</div>
+        
+          
+          <div class="trans-detail-row">
+            <div class="trans-type-dot normal"></div>
+            <div class="trans-detail-content">
+              <div class="trans-route">报价中 → 已选方案</div>
+              <div class="trans-trigger">动作：货主确认选定方案</div>
+              
+              <div class="trans-evidence">证据：货主对推荐 Top3 作出选定（含锁价/即期取舍）</div>
+              
+              <div style="font-size:10px;color:var(--color-text-muted);margin-top:2px;">正常迁移</div>
+            </div>
+          </div>
+          
+          <div class="trans-detail-row">
+            <div class="trans-type-dot exception"></div>
+            <div class="trans-detail-content">
+              <div class="trans-route">报价中 → 报价流失</div>
+              <div class="trans-trigger">动作：货主放弃或转其他平台</div>
+              
+              <div class="trans-evidence">证据：对话中止或明确放弃意图</div>
+              
+              <div style="font-size:10px;color:var(--color-text-muted);margin-top:2px;">异常分支</div>
+            </div>
+          </div>
+          
+        
+          
+          <div class="trans-detail-row">
+            <div class="trans-type-dot normal"></div>
+            <div class="trans-detail-content">
+              <div class="trans-route">已选方案 → 校验通过待确认</div>
+              <div class="trans-trigger">动作：自动预填并运行订舱规则校验</div>
+              
+              <div class="trans-evidence">证据：预填字段齐全且校验通过（费率/信用/航线）</div>
+              
+              <div style="font-size:10px;color:var(--color-text-muted);margin-top:2px;">正常迁移</div>
+            </div>
+          </div>
+          
+          <div class="trans-detail-row">
+            <div class="trans-type-dot exception"></div>
+            <div class="trans-detail-content">
+              <div class="trans-route">已选方案 → 校验被拒</div>
+              <div class="trans-trigger">动作：校验发现拦截项</div>
+              
+              <div class="trans-evidence">证据：校验规则返回信用受限/费率冲突/航线不可用</div>
+              
+              <div style="font-size:10px;color:var(--color-text-muted);margin-top:2px;">异常分支</div>
+            </div>
+          </div>
+          
+        
+          
+          <div class="trans-detail-row">
+            <div class="trans-type-dot normal"></div>
+            <div class="trans-detail-content">
+              <div class="trans-route">校验通过待确认 → 已订舱</div>
+              <div class="trans-trigger">动作：货主对外放行确认提交</div>
+              
+              <div class="trans-evidence">证据：货主确认提交订舱请求（gate 人工放行）</div>
+              
+              <div style="font-size:10px;color:var(--color-text-muted);margin-top:2px;">正常迁移</div>
+            </div>
+          </div>
+          
+        
+          
+        
+          
+          <div class="trans-detail-row">
+            <div class="trans-type-dot recovery"></div>
+            <div class="trans-detail-content">
+              <div class="trans-route">校验被拒 → 校验通过待确认</div>
+              <div class="trans-trigger">动作：补正资料后重新校验</div>
+              
+              <div class="trans-evidence">证据：补正字段通过再次校验</div>
+              
+              <div style="font-size:10px;color:var(--color-text-muted);margin-top:2px;">异常恢复</div>
+            </div>
+          </div>
+          
+        
+          
+        
+      </div>
+      
+
+      <!-- Guardrails -->
+      
+      <div class="ws-guardrails">
+        <div class="guardrail-title">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          全局护栏（不可绕过）
+        </div>
+        
+        <div class="guardrail-item">
+          <span class="guardrail-icon">🔒</span>
+          <span>报价与评分必须来自确定性服务，LLM 不直接产出价格或得分</span>
+        </div>
+        
+        <div class="guardrail-item">
+          <span class="guardrail-icon">🔒</span>
+          <span>订舱为对外承诺动作，必须货主人工放行（gate）后方可提交</span>
+        </div>
+        
+        <div class="guardrail-item">
+          <span class="guardrail-icon">🔒</span>
+          <span>新客无历史数据时以会话上下文+OCR 预填兜底，禁止空预填或虚构推荐</span>
+        </div>
+        
+      </div>
+      
+
+      <!-- Dependency Mapping -->
+      
+      <div class="ws-deps">
+        <div class="dep-title">跨流依赖（Dependency Mapping）</div>
+        
+        <div class="dep-item">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0369A1" stroke-width="2" style="flex-shrink:0;margin-top:2px;"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+          <div>
+            <div class="dep-ws-name">→ 单证处理</div>
+            <div class="dep-condition">条件：状态到达 bk_confirmed（已签发 Booking Confirmation）</div>
+            <div class="dep-impact">影响：触发单证处理执行流，可开始 SI 预填</div>
+          </div>
+        </div>
+        
+      </div>
+      
+
+    </div><!-- /ws-block -->
+    
+    <div class="ws-block">
+      <!-- Workstream Header -->
+      <div class="ws-header">
+        <div style="flex:1;">
+          <div class="ws-name">⚙️ 单证处理</div>
+          <div class="ws-desc">从上传贸易单据到 SI 校验通过并推送单证系统的执行流</div>
+          
+          <div class="ws-anchors">
+            <span style="font-size:11px;color:rgba(255,255,255,0.55);flex-shrink:0;margin-top:2px;">锚点对象：</span>
+            
+            <span class="ws-anchor-chip">贸易单据（PI/装箱单/发票）</span>
+            
+            <span class="ws-anchor-chip">装运指示（SI）</span>
+            
+            <span class="ws-anchor-chip">订舱确认书（Booking Confirmation）</span>
+            
+          </div>
+          
+        </div>
+      </div>
+
+      <!-- State Flow -->
+      
+      <div class="ws-flow">
+        <div class="mermaid" id="mermaid-ws_document_flow">
+          graph LR
+            %% Styling classes
+            classDef default fill:#EFF6FF,stroke:#3B82F6,stroke-width:2px,color:#1D4ED8;
+            classDef terminal fill:#ECFDF5,stroke:#10B981,stroke-width:2px,color:#065F46;
+            classDef exception fill:#FEF3C7,stroke:#F59E0B,stroke-width:2px,color:#92400E;
+
+            %% Nodes definition
+            
+              sd_uploaded["<b>单据已上传</b><br/><span style='font-size:10px;color:#64748B;'>操作员上传 PI/装箱单/发票，待 OCR 抽取</span>"]
+              
+                class sd_uploaded default;
+              
+            
+              sd_extracted["<b>字段已抽取</b><br/><span style='font-size:10px;color:#64748B;'>SI 字段已抽取，待规范品名/HS 映射与校验</span>"]
+              
+                class sd_extracted default;
+              
+            
+              sd_validated["<b>校验通过</b><br/><span style='font-size:10px;color:#64748B;'>SI 校验通过，可推送单证系统</span>"]
+              
+                class sd_validated default;
+              
+            
+              sd_exception["<b>补件处理中</b><br/><span style='font-size:10px;color:#64748B;'>存在缺件/异常，Agent 给示例待操作员一次补全</span>"]
+              
+                class sd_exception exception;
+              
+            
+              sd_submitted["<b>已提交</b><br/><span style='font-size:10px;color:#64748B;'>SI 已推送单证系统，进入提单流程</span>"]
+              
+                class sd_submitted terminal;
+              
+            
+
+            %% Transitions definition
+            
+              
+                
+                  sd_uploaded -->|OCR 抽取 SI 字段| sd_extracted
+                
+              
+            
+              
+                
+                  sd_extracted -->|品名规范+HS 映射+单证校验| sd_validated
+                
+              
+                
+                  sd_extracted -.->|校验发现缺件/异常| sd_exception
+                
+              
+            
+              
+                
+                  sd_validated -->|推送 SI 至单证系统| sd_submitted
+                
+              
+            
+              
+                
+                  sd_exception ==>|操作员一次补全并复检| sd_validated
+                
+              
+            
+              
+            
+        </div>
+      </div>
+
+      <!-- Transition Details -->
+      <div class="ws-transitions-detail">
+        <div class="trans-detail-title">迁移路径详情</div>
+        
+          
+          <div class="trans-detail-row">
+            <div class="trans-type-dot normal"></div>
+            <div class="trans-detail-content">
+              <div class="trans-route">单据已上传 → 字段已抽取</div>
+              <div class="trans-trigger">动作：OCR 抽取 SI 字段</div>
+              
+              <div class="trans-evidence">证据：抽取品名/件数/毛重/体积/HS 且标记置信度</div>
+              
+              <div style="font-size:10px;color:var(--color-text-muted);margin-top:2px;">正常迁移</div>
+            </div>
+          </div>
+          
+        
+          
+          <div class="trans-detail-row">
+            <div class="trans-type-dot normal"></div>
+            <div class="trans-detail-content">
+              <div class="trans-route">字段已抽取 → 校验通过</div>
+              <div class="trans-trigger">动作：品名规范+HS 映射+单证校验</div>
+              
+              <div class="trans-evidence">证据：校验通过，VGM/毛重差异等异常项已标识</div>
+              
+              <div style="font-size:10px;color:var(--color-text-muted);margin-top:2px;">正常迁移</div>
+            </div>
+          </div>
+          
+          <div class="trans-detail-row">
+            <div class="trans-type-dot exception"></div>
+            <div class="trans-detail-content">
+              <div class="trans-route">字段已抽取 → 补件处理中</div>
+              <div class="trans-trigger">动作：校验发现缺件/异常</div>
+              
+              <div class="trans-evidence">证据：VGM 缺失或毛重差异超限或 HS 无法映射</div>
+              
+              <div style="font-size:10px;color:var(--color-text-muted);margin-top:2px;">异常分支</div>
+            </div>
+          </div>
+          
+        
+          
+          <div class="trans-detail-row">
+            <div class="trans-type-dot normal"></div>
+            <div class="trans-detail-content">
+              <div class="trans-route">校验通过 → 已提交</div>
+              <div class="trans-trigger">动作：推送 SI 至单证系统</div>
+              
+              <div class="trans-evidence">证据：单证系统接收成功</div>
+              
+              <div style="font-size:10px;color:var(--color-text-muted);margin-top:2px;">正常迁移</div>
+            </div>
+          </div>
+          
+        
+          
+          <div class="trans-detail-row">
+            <div class="trans-type-dot recovery"></div>
+            <div class="trans-detail-content">
+              <div class="trans-route">补件处理中 → 校验通过</div>
+              <div class="trans-trigger">动作：操作员一次补全并复检</div>
+              
+              <div class="trans-evidence">证据：补全字段通过复检校验</div>
+              
+              <div style="font-size:10px;color:var(--color-text-muted);margin-top:2px;">异常恢复</div>
+            </div>
+          </div>
+          
+        
+          
+        
+      </div>
+      
+
+      <!-- Guardrails -->
+      
+      <div class="ws-guardrails">
+        <div class="guardrail-title">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          全局护栏（不可绕过）
+        </div>
+        
+        <div class="guardrail-item">
+          <span class="guardrail-icon">🔒</span>
+          <span>SI 校验不通过必须提示异常项并给示例，禁止带缺件推送单证系统</span>
+        </div>
+        
+        <div class="guardrail-item">
+          <span class="guardrail-icon">🔒</span>
+          <span>HS 编码无法映射时禁止擅自猜测，必须提示人工复核</span>
+        </div>
+        
+        <div class="guardrail-item">
+          <span class="guardrail-icon">🔒</span>
+          <span>OCR 低置信度字段须标黄待复核，不得静默按抽取值推送</span>
+        </div>
+        
+      </div>
+      
+
+      <!-- Dependency Mapping -->
+      
+      <div class="ws-deps">
+        <div class="dep-title">跨流依赖（Dependency Mapping）</div>
+        
+        <div class="dep-item">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0369A1" stroke-width="2" style="flex-shrink:0;margin-top:2px;"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+          <div>
+            <div class="dep-ws-name">→ 订舱执行</div>
+            <div class="dep-condition">条件：单证流程依赖订舱确认书已签发（bk_confirmed）</div>
+            <div class="dep-impact">影响：无订舱确认书时单证流程不能启动，避免孤立单证</div>
+          </div>
+        </div>
+        
+      </div>
+      
+
+    </div><!-- /ws-block -->
+    
+    <div class="ws-block">
+      <!-- Workstream Header -->
+      <div class="ws-header">
+        <div style="flex:1;">
+          <div class="ws-name">⚙️ 出运跟踪与售后</div>
+          <div class="ws-desc">从出运里程碑播报到 ETA 延误预警、售后与复购推荐的执行流</div>
+          
+          <div class="ws-anchors">
+            <span style="font-size:11px;color:rgba(255,255,255,0.55);flex-shrink:0;margin-top:2px;">锚点对象：</span>
+            
+            <span class="ws-anchor-chip">订舱确认书（Booking Confirmation）</span>
+            
+            <span class="ws-anchor-chip">舱位（Space Slot）</span>
+            
+            <span class="ws-anchor-chip">会员画像（Member Profile）</span>
+            
+          </div>
+          
+        </div>
+      </div>
+
+      <!-- State Flow -->
+      
+      <div class="ws-flow">
+        <div class="mermaid" id="mermaid-ws_tracking_flow">
+          graph LR
+            %% Styling classes
+            classDef default fill:#EFF6FF,stroke:#3B82F6,stroke-width:2px,color:#1D4ED8;
+            classDef terminal fill:#ECFDF5,stroke:#10B981,stroke-width:2px,color:#065F46;
+            classDef exception fill:#FEF3C7,stroke:#F59E0B,stroke-width:2px,color:#92400E;
+
+            %% Nodes definition
+            
+              tr_tracking["<b>跟踪中</b><br/><span style='font-size:10px;color:#64748B;'>货主查询运输状态，Agent 拉取里程碑并播报</span>"]
+              
+                class tr_tracking default;
+              
+            
+              tr_warned["<b>延误预警中</b><br/><span style='font-size:10px;color:#64748B;'>高风险延误，Agent 事前预警，必要时升级人工改配</span>"]
+              
+                class tr_warned exception;
+              
+            
+              tr_after_sales["<b>售后复购</b><br/><span style='font-size:10px;color:#64748B;'>货主咨询 D&amp;D/权益，Agent 解读并推荐复购、复杂问题转人工</span>"]
+              
+                class tr_after_sales terminal;
+              
+            
+
+            %% Transitions definition
+            
+              
+                
+                  tr_tracking -.->|ETA 预测高风险延误| tr_warned
+                
+              
+                
+                  tr_tracking -->|运输完成进入售后| tr_after_sales
+                
+              
+            
+              
+                
+                  tr_warned ==>|延误解除或已改配，恢复正常跟踪| tr_tracking
+                
+              
+            
+              
+            
+        </div>
+      </div>
+
+      <!-- Transition Details -->
+      <div class="ws-transitions-detail">
+        <div class="trans-detail-title">迁移路径详情</div>
+        
+          
+          <div class="trans-detail-row">
+            <div class="trans-type-dot exception"></div>
+            <div class="trans-detail-content">
+              <div class="trans-route">跟踪中 → 延误预警中</div>
+              <div class="trans-trigger">动作：ETA 预测高风险延误</div>
+              
+              <div class="trans-evidence">证据：ETA 预测模型输出高延误概率（如 68%）</div>
+              
+              <div style="font-size:10px;color:var(--color-text-muted);margin-top:2px;">异常分支</div>
+            </div>
+          </div>
+          
+          <div class="trans-detail-row">
+            <div class="trans-type-dot normal"></div>
+            <div class="trans-detail-content">
+              <div class="trans-route">跟踪中 → 售后复购</div>
+              <div class="trans-trigger">动作：运输完成进入售后</div>
+              
+              <div class="trans-evidence">证据：货主转售后咨询或到达目的地</div>
+              
+              <div style="font-size:10px;color:var(--color-text-muted);margin-top:2px;">正常迁移</div>
+            </div>
+          </div>
+          
+        
+          
+          <div class="trans-detail-row">
+            <div class="trans-type-dot recovery"></div>
+            <div class="trans-detail-content">
+              <div class="trans-route">延误预警中 → 跟踪中</div>
+              <div class="trans-trigger">动作：延误解除或已改配，恢复正常跟踪</div>
+              
+              <div class="trans-evidence">证据：新 ETA 确认或改配落地，延误风险解除</div>
+              
+              <div style="font-size:10px;color:var(--color-text-muted);margin-top:2px;">异常恢复</div>
+            </div>
+          </div>
+          
+        
+          
+        
+      </div>
+      
+
+      <!-- Guardrails -->
+      
+      <div class="ws-guardrails">
+        <div class="guardrail-title">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          全局护栏（不可绕过）
+        </div>
+        
+        <div class="guardrail-item">
+          <span class="guardrail-icon">🔒</span>
+          <span>ETA 预测置信度低时降级为事后通知，不作为改配依据</span>
+        </div>
+        
+        <div class="guardrail-item">
+          <span class="guardrail-icon">🔒</span>
+          <span>延误处置/改配赔付属对外承诺，必须人工终审放行</span>
+        </div>
+        
+        <div class="guardrail-item">
+          <span class="guardrail-icon">🔒</span>
+          <span>D&amp;D/免箱期规则各港不同，口径不一致时标注待人工确认，禁止直接下结论</span>
+        </div>
+        
+      </div>
+      
+
+      <!-- Dependency Mapping -->
+      
+      <div class="ws-deps">
+        <div class="dep-title">跨流依赖（Dependency Mapping）</div>
+        
+        <div class="dep-item">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0369A1" stroke-width="2" style="flex-shrink:0;margin-top:2px;"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+          <div>
+            <div class="dep-ws-name">→ 订舱执行</div>
+            <div class="dep-condition">条件：跟踪对象依赖订舱确认书编号（bk_confirmed）</div>
+            <div class="dep-impact">影响：无有效订舱编号时无法建立跟踪上下文</div>
+          </div>
+        </div>
+        
+      </div>
+      
+
+    </div><!-- /ws-block -->
+    
+
+  </div><!-- /tab-states -->
+
+
+  <!-- ══════════════════════════
+       TAB 4 · Agent Prompt
+       ══════════════════════════ -->
+  <div class="tab-panel" id="tab-prompt">
+
+    <div style="margin-bottom:16px; font-size:13px; color:var(--color-text-muted); line-height:1.6;">
+      以下是从本体结构自动生成的 Agent System Prompt 片段。
+      可直接复制并注入到 Agent 的系统提示词或知识库中，
+      让 Agent 掌握当前场景的业务对象边界、行动约束和状态护栏。
+    </div>
+
+    <div class="prompt-panel">
+      <div class="prompt-header">
+        <span class="prompt-header-title">🤖 Agent Prompt 片段</span>
+        <span class="prompt-hint">点击右上角「复制 Prompt」按钮一键复制</span>
+      </div>
+      <pre class="prompt-body" id="agent-prompt-content"># 业务本体：智能订舱Agent-本体设计
+领域：集装箱电商订舱
+Agent 角色：智能订舱执行助手（Booking Agent）
+场景：SME 货主通过对话式智能订舱 Agent 完成询价、舱位推荐、订舱确认、单证预填与出运跟踪的端到端场景
+
+## 1. 核心业务对象与概念边界
+### 订舱请求（Booking Request） [核心对象]
+- 定义：货主经确认后向系统提交的订舱意向，是订舱链路的触发对象，不等于已获舱位
+- 属性定义：
+  * status (enum)（可选值：draft / validated / submitted / confirmed / voided） - 订舱请求状态
+  * container_type (string) - 箱型（如 40HQ）
+  * port_pair (string) - 起运港-目的港港口对
+- 关键概念边界（不可混淆）：
+  ⚠️ 订舱请求已提交 ≠ 已签发 Booking Confirmation（可能被校验驳回）
+  ⚠️ 订舱请求的状态不等于舱位状态，须以 Booking Confirmation 为准
+### 订舱确认书（Booking Confirmation） [核心对象]
+- 定义：确认已分配舱位并对外承诺的正式文件，含 Booking 编号与舱位保证，是后续单证与跟踪的锚点
+- 属性定义：
+  * booking_no (string) - 订舱编号（如 BK-2026-0901-001）
+  * space_guaranteed (boolean) - 是否含舱位保证（Space Protection / Delay in Transit）
+  * confirmed_at (datetime) - 签发时间
+- 关键概念边界（不可混淆）：
+  ⚠️ Booking Confirmation 是最快 1 分钟能签发的确定性文件，与报价单（Query）不同
+  ⚠️ 舱位保证承诺 ≠ 实际已装载，违约时触发赔付流程
+### 报价单（Quotation） [参考对象]
+- 定义：报价引擎生成的 E-Spot/E-Quote 报价，含全包价构成与有效期，可锁定（Secured）
+- 属性定义：
+  * quote_type (enum)（可选值：e_spot / e_quote / secured_e_quote） - 报价类型
+  * all_in_price (number) - 全包运价（USD）
+  * validity (datetime) - 有效期
+- 关键概念边界（不可混淆）：
+  ⚠️ 报价单只是价格意向，不等于已锁定舱位或已订舱
+  ⚠️ Secured E-Quote 锁价 ≠ 已签发订舱确认
+### 装运指示（SI） [核心对象]
+- 定义：货主提交的装运指示单证，含品名/唛头/件数/毛重/体积/HS 编码，是提单签发的依据
+- 属性定义：
+  * status (enum)（可选值：draft / extracted / validated / submitted） - SI 状态
+  * hs_code (string) - HS 编码
+  * vgm (number) - VGM 核实的集装箱总重
+- 关键概念边界（不可混淆）：
+  ⚠️ OCR 抽取的 SI 字段 ≠ 已通过规则校验（可能有 VGM 缺件）
+  ⚠️ SI 校验通过 ≠ 已签发提单，需再进入提单流程
+### 贸易单据（PI/装箱单/发票） [参考对象]
+- 定义：货主上传的贸易单据文件（PDF/图片/Excel），是 SI 字段抽取的输入源
+- 属性定义：
+  * doc_type (string) - 单据类型（PI/装箱单/发票）
+  * extraction_confidence (number) - OCR 抽取置信度
+- 关键概念边界（不可混淆）：
+  ⚠️ 贸易单据上的数据 ≠ 申报数据，须经 SI 校验与人工确认
+### 舱位（Space Slot） [参考对象]
+- 定义：特定航次可分配的舱位资源，含装载率/ETA 置信度/舱位保证状态，影响推荐排序
+- 属性定义：
+  * load_factor (number) - 装载率
+  * eta_confidence (number) - ETA 置信度
+- 关键概念边界（不可混淆）：
+  ⚠️ 舱位余量充足 ≠ 舱位保证一定兑现（旺季可能有甩柜风险）
+### 会员画像（Member Profile） [参考对象]
+- 定义：货主在 PlumSmart 体系的等级、交易记录与偏好，用于预填与复购推荐
+- 属性定义：
+  * tier (enum)（可选值：bronze / silver / gold / platinum） - 会员等级
+  * booking_history (string) - 历史订舱记录
+- 关键概念边界（不可混淆）：
+  ⚠️ 新客无历史数据 ≠ 不能预填（以会话上下文+OCR 兜底）
+
+## 2. 对象关系依赖（Relationships）
+- 【报价单（Quotation）】 --(触发, 基数 1:N)--&gt; 【订舱请求（Booking Request）】
+  说明：一张报价单可触发多次订舱请求（货主可改方案/多次提交）
+- 【订舱请求（Booking Request）】 --(产生, 基数 1:1)--&gt; 【订舱确认书（Booking Confirmation）】
+  说明：校验通过的订舱请求产生一份订舱确认书
+- 【订舱确认书（Booking Confirmation）】 --(关联, 基数 1:N)--&gt; 【装运指示（SI）】
+  说明：一份订舱确认书对应装运指示（SI）单证
+- 【贸易单据（PI/装箱单/发票）】 --(证明, 基数 N:1)--&gt; 【装运指示（SI）】
+  说明：多份贸易单据抽取生成一份 SI 字段
+- 【舱位（Space Slot）】 --(约束, 基数 N:N)--&gt; 【订舱确认书（Booking Confirmation）】
+  说明：舱位分配结果约束订舱确认的签发与舱位保证兑现
+- 【会员画像（Member Profile）】 --(覆盖, 基数 N:N)--&gt; 【订舱请求（Booking Request）】
+  说明：会员画像覆盖预填字段（新客无数据时以会话兜底）
+
+## 3. 行动边界限制（情境 - 证据 - 合法/禁止动作）
+### 情境：自然语言询价后的报价与舱位推荐
+描述：货主以自然语言询价，Agent 需识别意图、检索报价并按装载率/ETA/舱位保证综合推荐 Top3
+必须核实的证据：
+  - [E-Spot/E-Quote 报价引擎] 确认即期/长时效报价的有效性与全包价构成
+  - [舱位评分服务] 确认各航次装载率、ETA 置信度与舱位保证状态
+  - [会员画像（CRM）] 确认货主等级与历史偏好，非新客时用于推荐
+✅ 合法动作（允许执行）：
+  - 识别询价要素并检索匹配报价
+  - 按装载率/ETA/舱位保证综合排序生成 Top3 推荐
+  - 附可解释推荐理由供货主决策
+❌ 禁止动作（严禁执行，防范错误假设）：
+  - 用 LLM 直接计算或伪造报价与评分 （禁止原因：报价与评分为事实数据，LLM 计算会产生幻觉，导致错误承诺）
+  - 新客无历史数据时给出空预填或虚构推荐 （禁止原因：无证据支撑，会误导货主决策并造成信任受损）
+⚠️ 异常触发规则：
+  - 当满足条件【报价引擎超时或无可用航次】 → 必须执行：自动重试 1 次后降级提示，并建议邻近航线（Nearby Route Suggestions）
+  - 当满足条件【意图识别歧义（多航次/多箱型）】 → 必须执行：对话追问澄清要素后再检索，避免错误报价
+### 情境：一键订舱确认与提交
+描述：货主确认 Agent 预填的订舱表单，需经规则校验后提交订舱请求并签发确认书
+必须核实的证据：
+  - [订舱规则引擎（&gt;200 条）] 费率/信用/航线可用性校验全部通过，无拦截项
+  - [预填表单] 货方/收货方/港口对/箱型/品名等必填字段齐全
+✅ 合法动作（允许执行）：
+  - 基于会话上下文+画像自动预填订舱表单
+  - 运行订舱规则校验并标识异常字段
+  - 对外放行提交订舱请求并签发 Booking Confirmation
+❌ 禁止动作（严禁执行，防范错误假设）：
+  - 校验未通过时静默提交订舱请求 （禁止原因：跳过校验会提交错误/风险订舱，产生后续单证与费用纠纷）
+  - 未经货主确认直接签发确认书 （禁止原因：订舱为对外承诺动作，必须有货主人工放行（gate））
+⚠️ 异常触发规则：
+  - 当满足条件【信用受限/费率冲突/航线不可用】 → 必须执行：标注原因提示补正，复杂单升级人工终审
+  - 当满足条件【新客无历史交易数据】 → 必须执行：以会话上下文+PI/装箱单 OCR 预填兜底，并标注置信度
+### 情境：SI 单证预填与推送
+描述：操作员上传贸易单据，Agent 抽取 SI 字段、规范品名/映射 HS 并做单证校验后推送单证系统
+必须核实的证据：
+  - [贸易单据（PI/装箱单/发票）] OCR 抽取品名/唛头/件数/毛重/体积/HS，标注置信度
+  - [智慧单证规则（&gt;300 条）] 单证校验全部通过，VGM/毛重差异等异常项已标识
+✅ 合法动作（允许执行）：
+  - OCR 抽取 SI 字段并标记低置信度字段
+  - 规范多语言品名并映射 HS 编码
+  - 校验通过后推送 SI 至单证系统
+❌ 禁止动作（严禁执行，防范错误假设）：
+  - 带缺件（VGM 缺失/毛重超限）直接推送 SI （禁止原因：缺件会导致退单返工，拉长订舱周期）
+  - HS 编码无法映射时擅自猜测编码 （禁止原因：错误 HS 编码会导致清关申报错误与合规风险）
+⚠️ 异常触发规则：
+  - 当满足条件【OCR 抽取置信度低（模糊/破损单据）】 → 必须执行：标黄待人工复核字段，不阻塞其余字段
+  - 当满足条件【VGM 缺失/毛重与装箱单差异超限】 → 必须执行：生成补全项并提供填写示例，提示操作员一次补全
+### 情境：出运跟踪与售后复购
+描述：货主对话查询运输状态，Agent 播报里程碑、预测 ETA 延误并提供 D&amp;D 解读与复购推荐
+必须核实的证据：
+  - [控制塔/OMS 里程碑] 确认开船/中转/最近已知 ETA 等最新里程碑
+  - [D&amp;D 规则引擎] 确认目的地免箱期与滞箱费规则（各港政策不同）
+✅ 合法动作（允许执行）：
+  - 拉取里程碑并对话式播报，异常节点高亮
+  - 基于码头拥堵指数预测 ETA 延误并事前预警
+  - 解读免箱期并基于会员画像推荐复购与舱位预留
+❌ 禁止动作（严禁执行，防范错误假设）：
+  - 在 ETA 预测置信度低时发布确定性延误结论 （禁止原因：低置信度预测可能误报，会引发货主不必要的改配决策）
+  - 忽略各港免箱期政策差异，直接适用单一 D&amp;D 结论 （禁止原因：各港规则不同，直接下结论会导致费用争议）
+⚠️ 异常触发规则：
+  - 当满足条件【高风险延误（甩柜/改船）】 → 必须执行：升级人工按 Delay in Transit 条款生成改配方案与赔付预判
+  - 当满足条件【复杂投诉/情绪激动】 → 必须执行：附完整上下文摘要升级人工，避免重复收集信息
+
+## 4. 状态流转与全局护栏（Workstreams &amp; States）
+### 执行流（Workstream）：订舱执行
+描述：从报价确认到签发 Booking Confirmation 的完整执行流
+锚点对象：报价单（Quotation）、订舱请求（Booking Request）、订舱确认书（Booking Confirmation）
+状态节点及迁移路径：
+  - 状态：报价中 (bk_quoting)
+    状态定义：货主询价，Agent 检索报价并推荐，尚在方案选择阶段
+    可用的状态转移路径：
+      * --[货主确认选定方案] (核实证据: 货主对推荐 Top3 作出选定（含锁价/即期取舍）)--&gt; 到达状态 已选方案 (性质: 正常迁移)
+      * --[货主放弃或转其他平台] (核实证据: 对话中止或明确放弃意图)--&gt; 到达状态 报价流失 (性质: 异常分支)
+  - 状态：已选方案 (bk_selected)
+    状态定义：货主已选定报价方案，待预填与校验
+    可用的状态转移路径：
+      * --[自动预填并运行订舱规则校验] (核实证据: 预填字段齐全且校验通过（费率/信用/航线）)--&gt; 到达状态 校验通过待确认 (性质: 正常迁移)
+      * --[校验发现拦截项] (核实证据: 校验规则返回信用受限/费率冲突/航线不可用)--&gt; 到达状态 校验被拒 (性质: 异常分支)
+  - 状态：校验通过待确认 (bk_validated)
+    状态定义：表单校验通过，等待货主人工放行
+    可用的状态转移路径：
+      * --[货主对外放行确认提交] (核实证据: 货主确认提交订舱请求（gate 人工放行）)--&gt; 到达状态 已订舱 (性质: 正常迁移)
+  - 状态：已订舱 (bk_confirmed)
+    状态定义：订舱请求提交成功并签发 Booking Confirmation
+  - 状态：校验被拒 (bk_rejected)
+    状态定义：校验未通过，需补正或升级人工终审
+    可用的状态转移路径：
+      * --[补正资料后重新校验] (核实证据: 补正字段通过再次校验)--&gt; 到达状态 校验通过待确认 (性质: 异常恢复)
+  - 状态：报价流失 (bk_lost)
+    状态定义：货主放弃本方案或流失
+🔒 全局不可绕过护栏规则：
+  - 报价与评分必须来自确定性服务，LLM 不直接产出价格或得分
+  - 订舱为对外承诺动作，必须货主人工放行（gate）后方可提交
+  - 新客无历史数据时以会话上下文+OCR 预填兜底，禁止空预填或虚构推荐
+🔗 跨流依赖关系：
+  - 自身在该工作流时，若另一执行流 【单证处理】 满足条件【状态到达 bk_confirmed（已签发 Booking Confirmation）】，则受到影响：触发单证处理执行流，可开始 SI 预填
+### 执行流（Workstream）：单证处理
+描述：从上传贸易单据到 SI 校验通过并推送单证系统的执行流
+锚点对象：贸易单据（PI/装箱单/发票）、装运指示（SI）、订舱确认书（Booking Confirmation）
+状态节点及迁移路径：
+  - 状态：单据已上传 (sd_uploaded)
+    状态定义：操作员上传 PI/装箱单/发票，待 OCR 抽取
+    可用的状态转移路径：
+      * --[OCR 抽取 SI 字段] (核实证据: 抽取品名/件数/毛重/体积/HS 且标记置信度)--&gt; 到达状态 字段已抽取 (性质: 正常迁移)
+  - 状态：字段已抽取 (sd_extracted)
+    状态定义：SI 字段已抽取，待规范品名/HS 映射与校验
+    可用的状态转移路径：
+      * --[品名规范+HS 映射+单证校验] (核实证据: 校验通过，VGM/毛重差异等异常项已标识)--&gt; 到达状态 校验通过 (性质: 正常迁移)
+      * --[校验发现缺件/异常] (核实证据: VGM 缺失或毛重差异超限或 HS 无法映射)--&gt; 到达状态 补件处理中 (性质: 异常分支)
+  - 状态：校验通过 (sd_validated)
+    状态定义：SI 校验通过，可推送单证系统
+    可用的状态转移路径：
+      * --[推送 SI 至单证系统] (核实证据: 单证系统接收成功)--&gt; 到达状态 已提交 (性质: 正常迁移)
+  - 状态：补件处理中 (sd_exception)
+    状态定义：存在缺件/异常，Agent 给示例待操作员一次补全
+    可用的状态转移路径：
+      * --[操作员一次补全并复检] (核实证据: 补全字段通过复检校验)--&gt; 到达状态 校验通过 (性质: 异常恢复)
+  - 状态：已提交 (sd_submitted)
+    状态定义：SI 已推送单证系统，进入提单流程
+🔒 全局不可绕过护栏规则：
+  - SI 校验不通过必须提示异常项并给示例，禁止带缺件推送单证系统
+  - HS 编码无法映射时禁止擅自猜测，必须提示人工复核
+  - OCR 低置信度字段须标黄待复核，不得静默按抽取值推送
+🔗 跨流依赖关系：
+  - 自身在该工作流时，若另一执行流 【订舱执行】 满足条件【单证流程依赖订舱确认书已签发（bk_confirmed）】，则受到影响：无订舱确认书时单证流程不能启动，避免孤立单证
+### 执行流（Workstream）：出运跟踪与售后
+描述：从出运里程碑播报到 ETA 延误预警、售后与复购推荐的执行流
+锚点对象：订舱确认书（Booking Confirmation）、舱位（Space Slot）、会员画像（Member Profile）
+状态节点及迁移路径：
+  - 状态：跟踪中 (tr_tracking)
+    状态定义：货主查询运输状态，Agent 拉取里程碑并播报
+    可用的状态转移路径：
+      * --[ETA 预测高风险延误] (核实证据: ETA 预测模型输出高延误概率（如 68%）)--&gt; 到达状态 延误预警中 (性质: 异常分支)
+      * --[运输完成进入售后] (核实证据: 货主转售后咨询或到达目的地)--&gt; 到达状态 售后复购 (性质: 正常迁移)
+  - 状态：延误预警中 (tr_warned)
+    状态定义：高风险延误，Agent 事前预警，必要时升级人工改配
+    可用的状态转移路径：
+      * --[延误解除或已改配，恢复正常跟踪] (核实证据: 新 ETA 确认或改配落地，延误风险解除)--&gt; 到达状态 跟踪中 (性质: 异常恢复)
+  - 状态：售后复购 (tr_after_sales)
+    状态定义：货主咨询 D&amp;D/权益，Agent 解读并推荐复购、复杂问题转人工
+🔒 全局不可绕过护栏规则：
+  - ETA 预测置信度低时降级为事后通知，不作为改配依据
+  - 延误处置/改配赔付属对外承诺，必须人工终审放行
+  - D&amp;D/免箱期规则各港不同，口径不一致时标注待人工确认，禁止直接下结论
+🔗 跨流依赖关系：
+  - 自身在该工作流时，若另一执行流 【订舱执行】 满足条件【跟踪对象依赖订舱确认书编号（bk_confirmed）】，则受到影响：无有效订舱编号时无法建立跟踪上下文
+</pre>
+    </div>
+
+    <div style="margin-top: 24px;">
+      <p class="section-title">原始 YAML 本体</p>
+      <div class="prompt-panel">
+        <div class="prompt-header">
+          <span class="prompt-header-title">📄 Source YAML</span>
+          <span class="prompt-hint">点击「复制 YAML」按钮一键复制</span>
+        </div>
+        <pre class="prompt-body" id="raw-yaml-content">title: 智能订舱Agent-本体设计
+domain: 集装箱电商订舱
+scenario_description: &#34;SME 货主通过对话式智能订舱 Agent 完成询价、舱位推荐、订舱确认、单证预填与出运跟踪的端到端场景&#34;
+target_agent_role: 智能订舱执行助手（Booking Agent）
+
+entities:
+  - id: booking_request
+    name: 订舱请求（Booking Request）
+    type: core
+    description: &#34;货主经确认后向系统提交的订舱意向，是订舱链路的触发对象，不等于已获舱位&#34;
+    attributes:
+      - name: status
+        type: enum
+        values: [draft, validated, submitted, confirmed, voided]
+        description: 订舱请求状态
+      - name: container_type
+        type: string
+        description: 箱型（如 40HQ）
+      - name: port_pair
+        type: string
+        description: 起运港-目的港港口对
+    key_distinctions:
+      - &#34;订舱请求已提交 ≠ 已签发 Booking Confirmation（可能被校验驳回）&#34;
+      - &#34;订舱请求的状态不等于舱位状态，须以 Booking Confirmation 为准&#34;
+
+  - id: booking_confirmation
+    name: 订舱确认书（Booking Confirmation）
+    type: core
+    description: &#34;确认已分配舱位并对外承诺的正式文件，含 Booking 编号与舱位保证，是后续单证与跟踪的锚点&#34;
+    attributes:
+      - name: booking_no
+        type: string
+        description: 订舱编号（如 BK-2026-0901-001）
+      - name: space_guaranteed
+        type: boolean
+        description: 是否含舱位保证（Space Protection / Delay in Transit）
+      - name: confirmed_at
+        type: datetime
+        description: 签发时间
+    key_distinctions:
+      - &#34;Booking Confirmation 是最快 1 分钟能签发的确定性文件，与报价单（Query）不同&#34;
+      - &#34;舱位保证承诺 ≠ 实际已装载，违约时触发赔付流程&#34;
+
+  - id: quotation
+    name: 报价单（Quotation）
+    type: reference
+    description: &#34;报价引擎生成的 E-Spot/E-Quote 报价，含全包价构成与有效期，可锁定（Secured）&#34;
+    attributes:
+      - name: quote_type
+        type: enum
+        values: [e_spot, e_quote, secured_e_quote]
+        description: 报价类型
+      - name: all_in_price
+        type: number
+        description: 全包运价（USD）
+      - name: validity
+        type: datetime
+        description: 有效期
+    key_distinctions:
+      - &#34;报价单只是价格意向，不等于已锁定舱位或已订舱&#34;
+      - &#34;Secured E-Quote 锁价 ≠ 已签发订舱确认&#34;
+
+  - id: si_document
+    name: 装运指示（SI）
+    type: core
+    description: &#34;货主提交的装运指示单证，含品名/唛头/件数/毛重/体积/HS 编码，是提单签发的依据&#34;
+    attributes:
+      - name: status
+        type: enum
+        values: [draft, extracted, validated, submitted]
+        description: SI 状态
+      - name: hs_code
+        type: string
+        description: HS 编码
+      - name: vgm
+        type: number
+        description: VGM 核实的集装箱总重
+    key_distinctions:
+      - &#34;OCR 抽取的 SI 字段 ≠ 已通过规则校验（可能有 VGM 缺件）&#34;
+      - &#34;SI 校验通过 ≠ 已签发提单，需再进入提单流程&#34;
+
+  - id: trade_document
+    name: 贸易单据（PI/装箱单/发票）
+    type: reference
+    description: &#34;货主上传的贸易单据文件（PDF/图片/Excel），是 SI 字段抽取的输入源&#34;
+    attributes:
+      - name: doc_type
+        type: string
+        description: 单据类型（PI/装箱单/发票）
+      - name: extraction_confidence
+        type: number
+        description: OCR 抽取置信度
+    key_distinctions:
+      - &#34;贸易单据上的数据 ≠ 申报数据，须经 SI 校验与人工确认&#34;
+
+  - id: space_slot
+    name: 舱位（Space Slot）
+    type: reference
+    description: &#34;特定航次可分配的舱位资源，含装载率/ETA 置信度/舱位保证状态，影响推荐排序&#34;
+    attributes:
+      - name: load_factor
+        type: number
+        description: 装载率
+      - name: eta_confidence
+        type: number
+        description: ETA 置信度
+    key_distinctions:
+      - &#34;舱位余量充足 ≠ 舱位保证一定兑现（旺季可能有甩柜风险）&#34;
+
+  - id: member_profile
+    name: 会员画像（Member Profile）
+    type: reference
+    description: &#34;货主在 PlumSmart 体系的等级、交易记录与偏好，用于预填与复购推荐&#34;
+    attributes:
+      - name: tier
+        type: enum
+        values: [bronze, silver, gold, platinum]
+        description: 会员等级
+      - name: booking_history
+        type: string
+        description: 历史订舱记录
+    key_distinctions:
+      - &#34;新客无历史数据 ≠ 不能预填（以会话上下文+OCR 兜底）&#34;
+
+relationships:
+  - from: quotation
+    to: booking_request
+    label: 触发
+    cardinality: &#34;1:N&#34;
+    description: &#34;一张报价单可触发多次订舱请求（货主可改方案/多次提交）&#34;
+  - from: booking_request
+    to: booking_confirmation
+    label: 产生
+    cardinality: &#34;1:1&#34;
+    description: &#34;校验通过的订舱请求产生一份订舱确认书&#34;
+  - from: booking_confirmation
+    to: si_document
+    label: 关联
+    cardinality: &#34;1:N&#34;
+    description: &#34;一份订舱确认书对应装运指示（SI）单证&#34;
+  - from: trade_document
+    to: si_document
+    label: 证明
+    cardinality: &#34;N:1&#34;
+    description: &#34;多份贸易单据抽取生成一份 SI 字段&#34;
+  - from: space_slot
+    to: booking_confirmation
+    label: 约束
+    cardinality: &#34;N:N&#34;
+    description: &#34;舱位分配结果约束订舱确认的签发与舱位保证兑现&#34;
+  - from: member_profile
+    to: booking_request
+    label: 覆盖
+    cardinality: &#34;N:N&#34;
+    description: &#34;会员画像覆盖预填字段（新客无数据时以会话兜底）&#34;
+
+action_boundaries:
+  - id: ab_quote_recommend
+    situation: 自然语言询价后的报价与舱位推荐
+    situation_description: &#34;货主以自然语言询价，Agent 需识别意图、检索报价并按装载率/ETA/舱位保证综合推荐 Top3&#34;
+    required_evidence:
+      - source: &#34;E-Spot/E-Quote 报价引擎&#34;
+        checks: &#34;确认即期/长时效报价的有效性与全包价构成&#34;
+      - source: &#34;舱位评分服务&#34;
+        checks: &#34;确认各航次装载率、ETA 置信度与舱位保证状态&#34;
+      - source: &#34;会员画像（CRM）&#34;
+        checks: &#34;确认货主等级与历史偏好，非新客时用于推荐&#34;
+    valid_actions:
+      - &#34;识别询价要素并检索匹配报价&#34;
+      - &#34;按装载率/ETA/舱位保证综合排序生成 Top3 推荐&#34;
+      - &#34;附可解释推荐理由供货主决策&#34;
+    invalid_actions:
+      - action: &#34;用 LLM 直接计算或伪造报价与评分&#34;
+        reason: &#34;报价与评分为事实数据，LLM 计算会产生幻觉，导致错误承诺&#34;
+      - action: &#34;新客无历史数据时给出空预填或虚构推荐&#34;
+        reason: &#34;无证据支撑，会误导货主决策并造成信任受损&#34;
+    exception_triggers:
+      - condition: &#34;报价引擎超时或无可用航次&#34;
+        action: &#34;自动重试 1 次后降级提示，并建议邻近航线（Nearby Route Suggestions）&#34;
+      - condition: &#34;意图识别歧义（多航次/多箱型）&#34;
+        action: &#34;对话追问澄清要素后再检索，避免错误报价&#34;
+
+  - id: ab_booking_submit
+    situation: 一键订舱确认与提交
+    situation_description: &#34;货主确认 Agent 预填的订舱表单，需经规则校验后提交订舱请求并签发确认书&#34;
+    required_evidence:
+      - source: &#34;订舱规则引擎（&gt;200 条）&#34;
+        checks: &#34;费率/信用/航线可用性校验全部通过，无拦截项&#34;
+      - source: &#34;预填表单&#34;
+        checks: &#34;货方/收货方/港口对/箱型/品名等必填字段齐全&#34;
+    valid_actions:
+      - &#34;基于会话上下文+画像自动预填订舱表单&#34;
+      - &#34;运行订舱规则校验并标识异常字段&#34;
+      - &#34;对外放行提交订舱请求并签发 Booking Confirmation&#34;
+    invalid_actions:
+      - action: &#34;校验未通过时静默提交订舱请求&#34;
+        reason: &#34;跳过校验会提交错误/风险订舱，产生后续单证与费用纠纷&#34;
+      - action: &#34;未经货主确认直接签发确认书&#34;
+        reason: &#34;订舱为对外承诺动作，必须有货主人工放行（gate）&#34;
+    exception_triggers:
+      - condition: &#34;信用受限/费率冲突/航线不可用&#34;
+        action: &#34;标注原因提示补正，复杂单升级人工终审&#34;
+      - condition: &#34;新客无历史交易数据&#34;
+        action: &#34;以会话上下文+PI/装箱单 OCR 预填兜底，并标注置信度&#34;
+
+  - id: ab_si_document
+    situation: SI 单证预填与推送
+    situation_description: &#34;操作员上传贸易单据，Agent 抽取 SI 字段、规范品名/映射 HS 并做单证校验后推送单证系统&#34;
+    required_evidence:
+      - source: &#34;贸易单据（PI/装箱单/发票）&#34;
+        checks: &#34;OCR 抽取品名/唛头/件数/毛重/体积/HS，标注置信度&#34;
+      - source: &#34;智慧单证规则（&gt;300 条）&#34;
+        checks: &#34;单证校验全部通过，VGM/毛重差异等异常项已标识&#34;
+    valid_actions:
+      - &#34;OCR 抽取 SI 字段并标记低置信度字段&#34;
+      - &#34;规范多语言品名并映射 HS 编码&#34;
+      - &#34;校验通过后推送 SI 至单证系统&#34;
+    invalid_actions:
+      - action: &#34;带缺件（VGM 缺失/毛重超限）直接推送 SI&#34;
+        reason: &#34;缺件会导致退单返工，拉长订舱周期&#34;
+      - action: &#34;HS 编码无法映射时擅自猜测编码&#34;
+        reason: &#34;错误 HS 编码会导致清关申报错误与合规风险&#34;
+    exception_triggers:
+      - condition: &#34;OCR 抽取置信度低（模糊/破损单据）&#34;
+        action: &#34;标黄待人工复核字段，不阻塞其余字段&#34;
+      - condition: &#34;VGM 缺失/毛重与装箱单差异超限&#34;
+        action: &#34;生成补全项并提供填写示例，提示操作员一次补全&#34;
+
+  - id: ab_tracking_after_sales
+    situation: 出运跟踪与售后复购
+    situation_description: &#34;货主对话查询运输状态，Agent 播报里程碑、预测 ETA 延误并提供 D&amp;D 解读与复购推荐&#34;
+    required_evidence:
+      - source: &#34;控制塔/OMS 里程碑&#34;
+        checks: &#34;确认开船/中转/最近已知 ETA 等最新里程碑&#34;
+      - source: &#34;D&amp;D 规则引擎&#34;
+        checks: &#34;确认目的地免箱期与滞箱费规则（各港政策不同）&#34;
+    valid_actions:
+      - &#34;拉取里程碑并对话式播报，异常节点高亮&#34;
+      - &#34;基于码头拥堵指数预测 ETA 延误并事前预警&#34;
+      - &#34;解读免箱期并基于会员画像推荐复购与舱位预留&#34;
+    invalid_actions:
+      - action: &#34;在 ETA 预测置信度低时发布确定性延误结论&#34;
+        reason: &#34;低置信度预测可能误报，会引发货主不必要的改配决策&#34;
+      - action: &#34;忽略各港免箱期政策差异，直接适用单一 D&amp;D 结论&#34;
+        reason: &#34;各港规则不同，直接下结论会导致费用争议&#34;
+    exception_triggers:
+      - condition: &#34;高风险延误（甩柜/改船）&#34;
+        action: &#34;升级人工按 Delay in Transit 条款生成改配方案与赔付预判&#34;
+      - condition: &#34;复杂投诉/情绪激动&#34;
+        action: &#34;附完整上下文摘要升级人工，避免重复收集信息&#34;
+
+workstreams:
+  - id: ws_booking_flow
+    name: 订舱执行
+    description: &#34;从报价确认到签发 Booking Confirmation 的完整执行流&#34;
+    anchor_objects:
+      - quotation
+      - booking_request
+      - booking_confirmation
+    states:
+      - id: bk_quoting
+        name: 报价中
+        description: &#34;货主询价，Agent 检索报价并推荐，尚在方案选择阶段&#34;
+        transitions:
+          - to_state: bk_selected
+            trigger_action: 货主确认选定方案
+            required_evidence: &#34;货主对推荐 Top3 作出选定（含锁价/即期取舍）&#34;
+            type: normal
+          - to_state: bk_lost
+            trigger_action: 货主放弃或转其他平台
+            required_evidence: &#34;对话中止或明确放弃意图&#34;
+            type: exception
+      - id: bk_selected
+        name: 已选方案
+        description: &#34;货主已选定报价方案，待预填与校验&#34;
+        transitions:
+          - to_state: bk_validated
+            trigger_action: 自动预填并运行订舱规则校验
+            required_evidence: &#34;预填字段齐全且校验通过（费率/信用/航线）&#34;
+            type: normal
+          - to_state: bk_rejected
+            trigger_action: 校验发现拦截项
+            required_evidence: &#34;校验规则返回信用受限/费率冲突/航线不可用&#34;
+            type: exception
+      - id: bk_validated
+        name: 校验通过待确认
+        description: &#34;表单校验通过，等待货主人工放行&#34;
+        transitions:
+          - to_state: bk_confirmed
+            trigger_action: 货主对外放行确认提交
+            required_evidence: &#34;货主确认提交订舱请求（gate 人工放行）&#34;
+            type: normal
+      - id: bk_confirmed
+        name: 已订舱
+        description: &#34;订舱请求提交成功并签发 Booking Confirmation&#34;
+        transitions: []
+      - id: bk_rejected
+        name: 校验被拒
+        description: &#34;校验未通过，需补正或升级人工终审&#34;
+        transitions:
+          - to_state: bk_validated
+            trigger_action: 补正资料后重新校验
+            required_evidence: &#34;补正字段通过再次校验&#34;
+            type: recovery
+      - id: bk_lost
+        name: 报价流失
+        description: &#34;货主放弃本方案或流失&#34;
+        transitions: []
+    guardrails:
+      - &#34;报价与评分必须来自确定性服务，LLM 不直接产出价格或得分&#34;
+      - &#34;订舱为对外承诺动作，必须货主人工放行（gate）后方可提交&#34;
+      - &#34;新客无历史数据时以会话上下文+OCR 预填兜底，禁止空预填或虚构推荐&#34;
+    dependency_mapping:
+      - workstream: ws_document_flow
+        condition: &#34;状态到达 bk_confirmed（已签发 Booking Confirmation）&#34;
+        impact: &#34;触发单证处理执行流，可开始 SI 预填&#34;
+
+  - id: ws_document_flow
+    name: 单证处理
+    description: &#34;从上传贸易单据到 SI 校验通过并推送单证系统的执行流&#34;
+    anchor_objects:
+      - trade_document
+      - si_document
+      - booking_confirmation
+    states:
+      - id: sd_uploaded
+        name: 单据已上传
+        description: &#34;操作员上传 PI/装箱单/发票，待 OCR 抽取&#34;
+        transitions:
+          - to_state: sd_extracted
+            trigger_action: OCR 抽取 SI 字段
+            required_evidence: &#34;抽取品名/件数/毛重/体积/HS 且标记置信度&#34;
+            type: normal
+      - id: sd_extracted
+        name: 字段已抽取
+        description: &#34;SI 字段已抽取，待规范品名/HS 映射与校验&#34;
+        transitions:
+          - to_state: sd_validated
+            trigger_action: 品名规范+HS 映射+单证校验
+            required_evidence: &#34;校验通过，VGM/毛重差异等异常项已标识&#34;
+            type: normal
+          - to_state: sd_exception
+            trigger_action: 校验发现缺件/异常
+            required_evidence: &#34;VGM 缺失或毛重差异超限或 HS 无法映射&#34;
+            type: exception
+      - id: sd_validated
+        name: 校验通过
+        description: &#34;SI 校验通过，可推送单证系统&#34;
+        transitions:
+          - to_state: sd_submitted
+            trigger_action: 推送 SI 至单证系统
+            required_evidence: &#34;单证系统接收成功&#34;
+            type: normal
+      - id: sd_exception
+        name: 补件处理中
+        description: &#34;存在缺件/异常，Agent 给示例待操作员一次补全&#34;
+        transitions:
+          - to_state: sd_validated
+            trigger_action: 操作员一次补全并复检
+            required_evidence: &#34;补全字段通过复检校验&#34;
+            type: recovery
+      - id: sd_submitted
+        name: 已提交
+        description: &#34;SI 已推送单证系统，进入提单流程&#34;
+        transitions: []
+    guardrails:
+      - &#34;SI 校验不通过必须提示异常项并给示例，禁止带缺件推送单证系统&#34;
+      - &#34;HS 编码无法映射时禁止擅自猜测，必须提示人工复核&#34;
+      - &#34;OCR 低置信度字段须标黄待复核，不得静默按抽取值推送&#34;
+    dependency_mapping:
+      - workstream: ws_booking_flow
+        condition: &#34;单证流程依赖订舱确认书已签发（bk_confirmed）&#34;
+        impact: &#34;无订舱确认书时单证流程不能启动，避免孤立单证&#34;
+
+  - id: ws_tracking_flow
+    name: 出运跟踪与售后
+    description: &#34;从出运里程碑播报到 ETA 延误预警、售后与复购推荐的执行流&#34;
+    anchor_objects:
+      - booking_confirmation
+      - space_slot
+      - member_profile
+    states:
+      - id: tr_tracking
+        name: 跟踪中
+        description: &#34;货主查询运输状态，Agent 拉取里程碑并播报&#34;
+        transitions:
+          - to_state: tr_warned
+            trigger_action: ETA 预测高风险延误
+            required_evidence: &#34;ETA 预测模型输出高延误概率（如 68%）&#34;
+            type: exception
+          - to_state: tr_after_sales
+            trigger_action: 运输完成进入售后
+            required_evidence: &#34;货主转售后咨询或到达目的地&#34;
+            type: normal
+      - id: tr_warned
+        name: 延误预警中
+        description: &#34;高风险延误，Agent 事前预警，必要时升级人工改配&#34;
+        transitions:
+          - to_state: tr_tracking
+            trigger_action: 延误解除或已改配，恢复正常跟踪
+            required_evidence: &#34;新 ETA 确认或改配落地，延误风险解除&#34;
+            type: recovery
+      - id: tr_after_sales
+        name: 售后复购
+        description: &#34;货主咨询 D&amp;D/权益，Agent 解读并推荐复购、复杂问题转人工&#34;
+        transitions: []
+    guardrails:
+      - &#34;ETA 预测置信度低时降级为事后通知，不作为改配依据&#34;
+      - &#34;延误处置/改配赔付属对外承诺，必须人工终审放行&#34;
+      - &#34;D&amp;D/免箱期规则各港不同，口径不一致时标注待人工确认，禁止直接下结论&#34;
+    dependency_mapping:
+      - workstream: ws_booking_flow
+        condition: &#34;跟踪对象依赖订舱确认书编号（bk_confirmed）&#34;
+        impact: &#34;无有效订舱编号时无法建立跟踪上下文&#34;
+</pre>
+      </div>
+    </div>
+
+  </div><!-- /tab-prompt -->
+
+</div><!-- /page-wrap -->
+
+<div class="toast" id="toast">已复制到剪贴板</div>
+
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>
+  // Initialize Mermaid with custom configuration
+  mermaid.initialize({
+    startOnLoad: false,
+    securityLevel: 'loose',
+    theme: 'base',
+    themeVariables: {
+      fontFamily: 'Plus Jakarta Sans, Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+      lineColor: '#CBD5E1',
+      primaryColor: '#EFF6FF',
+      primaryTextColor: '#1D4ED8',
+      primaryBorderColor: '#3B82F6',
+      secondaryColor: '#F5F3FF',
+      tertiaryColor: '#FFF7ED',
+      edgeLabelBackground: '#FFFFFF'
+    }
+  });
+
+  let mermaidInitialized = false;
+
+  document.addEventListener("DOMContentLoaded", () => {
+    // Render objects relationship graph immediately on page load (only if present)
+    const relEl = document.getElementById('mermaid-relationships');
+    if (relEl) {
+      try {
+        mermaid.init(undefined, relEl);
+      } catch (e) {
+        console.warn('[ontology] relationships graph render failed:', e);
+      }
+    }
+  });
+
+  function switchTab(name) {
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('tab-' + name).classList.add('active');
+    document.getElementById('tab-btn-' + name).classList.add('active');
+
+    // Render Mermaid diagrams lazily when the tab becomes active and visible
+    if (name === 'states' && !mermaidInitialized) {
+      setTimeout(() => {
+        const stateDiagrams = document.querySelectorAll('.tab-panel#tab-states .mermaid');
+        if (stateDiagrams.length) {
+          try {
+            mermaid.init(undefined, stateDiagrams);
+          } catch (e) {
+            console.warn('[ontology] state diagrams render failed:', e);
+          }
+        }
+        mermaidInitialized = true;
+      }, 50);
+    }
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.style.display = 'block';
+    setTimeout(() => { t.style.display = 'none'; }, 2500);
+  }
+
+  function copyYAML() {
+    const text = document.getElementById('raw-yaml-content').textContent.trim();
+    navigator.clipboard.writeText(text).then(() => showToast('✅ YAML 已复制'));
+  }
+
+  function copyPrompt() {
+    const text = document.getElementById('agent-prompt-content').textContent.trim();
+    navigator.clipboard.writeText(text).then(() => showToast('✅ Prompt 已复制'));
+  }
+</script>
+</body>
+</html>

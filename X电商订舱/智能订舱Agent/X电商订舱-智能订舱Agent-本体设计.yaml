@@ -1,0 +1,414 @@
+title: 智能订舱Agent-本体设计
+domain: 集装箱电商订舱
+scenario_description: "SME 货主通过对话式智能订舱 Agent 完成询价、舱位推荐、订舱确认、单证预填与出运跟踪的端到端场景"
+target_agent_role: 智能订舱执行助手（Booking Agent）
+
+entities:
+  - id: booking_request
+    name: 订舱请求（Booking Request）
+    type: core
+    description: "货主经确认后向系统提交的订舱意向，是订舱链路的触发对象，不等于已获舱位"
+    attributes:
+      - name: status
+        type: enum
+        values: [draft, validated, submitted, confirmed, voided]
+        description: 订舱请求状态
+      - name: container_type
+        type: string
+        description: 箱型（如 40HQ）
+      - name: port_pair
+        type: string
+        description: 起运港-目的港港口对
+    key_distinctions:
+      - "订舱请求已提交 ≠ 已签发 Booking Confirmation（可能被校验驳回）"
+      - "订舱请求的状态不等于舱位状态，须以 Booking Confirmation 为准"
+
+  - id: booking_confirmation
+    name: 订舱确认书（Booking Confirmation）
+    type: core
+    description: "确认已分配舱位并对外承诺的正式文件，含 Booking 编号与舱位保证，是后续单证与跟踪的锚点"
+    attributes:
+      - name: booking_no
+        type: string
+        description: 订舱编号（如 BK-2026-0901-001）
+      - name: space_guaranteed
+        type: boolean
+        description: 是否含舱位保证（Space Protection / Delay in Transit）
+      - name: confirmed_at
+        type: datetime
+        description: 签发时间
+    key_distinctions:
+      - "Booking Confirmation 是最快 1 分钟能签发的确定性文件，与报价单（Query）不同"
+      - "舱位保证承诺 ≠ 实际已装载，违约时触发赔付流程"
+
+  - id: quotation
+    name: 报价单（Quotation）
+    type: reference
+    description: "报价引擎生成的 E-Spot/E-Quote 报价，含全包价构成与有效期，可锁定（Secured）"
+    attributes:
+      - name: quote_type
+        type: enum
+        values: [e_spot, e_quote, secured_e_quote]
+        description: 报价类型
+      - name: all_in_price
+        type: number
+        description: 全包运价（USD）
+      - name: validity
+        type: datetime
+        description: 有效期
+    key_distinctions:
+      - "报价单只是价格意向，不等于已锁定舱位或已订舱"
+      - "Secured E-Quote 锁价 ≠ 已签发订舱确认"
+
+  - id: si_document
+    name: 装运指示（SI）
+    type: core
+    description: "货主提交的装运指示单证，含品名/唛头/件数/毛重/体积/HS 编码，是提单签发的依据"
+    attributes:
+      - name: status
+        type: enum
+        values: [draft, extracted, validated, submitted]
+        description: SI 状态
+      - name: hs_code
+        type: string
+        description: HS 编码
+      - name: vgm
+        type: number
+        description: VGM 核实的集装箱总重
+    key_distinctions:
+      - "OCR 抽取的 SI 字段 ≠ 已通过规则校验（可能有 VGM 缺件）"
+      - "SI 校验通过 ≠ 已签发提单，需再进入提单流程"
+
+  - id: trade_document
+    name: 贸易单据（PI/装箱单/发票）
+    type: reference
+    description: "货主上传的贸易单据文件（PDF/图片/Excel），是 SI 字段抽取的输入源"
+    attributes:
+      - name: doc_type
+        type: string
+        description: 单据类型（PI/装箱单/发票）
+      - name: extraction_confidence
+        type: number
+        description: OCR 抽取置信度
+    key_distinctions:
+      - "贸易单据上的数据 ≠ 申报数据，须经 SI 校验与人工确认"
+
+  - id: space_slot
+    name: 舱位（Space Slot）
+    type: reference
+    description: "特定航次可分配的舱位资源，含装载率/ETA 置信度/舱位保证状态，影响推荐排序"
+    attributes:
+      - name: load_factor
+        type: number
+        description: 装载率
+      - name: eta_confidence
+        type: number
+        description: ETA 置信度
+    key_distinctions:
+      - "舱位余量充足 ≠ 舱位保证一定兑现（旺季可能有甩柜风险）"
+
+  - id: member_profile
+    name: 会员画像（Member Profile）
+    type: reference
+    description: "货主在 PlumSmart 体系的等级、交易记录与偏好，用于预填与复购推荐"
+    attributes:
+      - name: tier
+        type: enum
+        values: [bronze, silver, gold, platinum]
+        description: 会员等级
+      - name: booking_history
+        type: string
+        description: 历史订舱记录
+    key_distinctions:
+      - "新客无历史数据 ≠ 不能预填（以会话上下文+OCR 兜底）"
+
+relationships:
+  - from: quotation
+    to: booking_request
+    label: 触发
+    cardinality: "1:N"
+    description: "一张报价单可触发多次订舱请求（货主可改方案/多次提交）"
+  - from: booking_request
+    to: booking_confirmation
+    label: 产生
+    cardinality: "1:1"
+    description: "校验通过的订舱请求产生一份订舱确认书"
+  - from: booking_confirmation
+    to: si_document
+    label: 关联
+    cardinality: "1:N"
+    description: "一份订舱确认书对应装运指示（SI）单证"
+  - from: trade_document
+    to: si_document
+    label: 证明
+    cardinality: "N:1"
+    description: "多份贸易单据抽取生成一份 SI 字段"
+  - from: space_slot
+    to: booking_confirmation
+    label: 约束
+    cardinality: "N:N"
+    description: "舱位分配结果约束订舱确认的签发与舱位保证兑现"
+  - from: member_profile
+    to: booking_request
+    label: 覆盖
+    cardinality: "N:N"
+    description: "会员画像覆盖预填字段（新客无数据时以会话兜底）"
+
+action_boundaries:
+  - id: ab_quote_recommend
+    situation: 自然语言询价后的报价与舱位推荐
+    situation_description: "货主以自然语言询价，Agent 需识别意图、检索报价并按装载率/ETA/舱位保证综合推荐 Top3"
+    required_evidence:
+      - source: "E-Spot/E-Quote 报价引擎"
+        checks: "确认即期/长时效报价的有效性与全包价构成"
+      - source: "舱位评分服务"
+        checks: "确认各航次装载率、ETA 置信度与舱位保证状态"
+      - source: "会员画像（CRM）"
+        checks: "确认货主等级与历史偏好，非新客时用于推荐"
+    valid_actions:
+      - "识别询价要素并检索匹配报价"
+      - "按装载率/ETA/舱位保证综合排序生成 Top3 推荐"
+      - "附可解释推荐理由供货主决策"
+    invalid_actions:
+      - action: "用 LLM 直接计算或伪造报价与评分"
+        reason: "报价与评分为事实数据，LLM 计算会产生幻觉，导致错误承诺"
+      - action: "新客无历史数据时给出空预填或虚构推荐"
+        reason: "无证据支撑，会误导货主决策并造成信任受损"
+    exception_triggers:
+      - condition: "报价引擎超时或无可用航次"
+        action: "自动重试 1 次后降级提示，并建议邻近航线（Nearby Route Suggestions）"
+      - condition: "意图识别歧义（多航次/多箱型）"
+        action: "对话追问澄清要素后再检索，避免错误报价"
+
+  - id: ab_booking_submit
+    situation: 一键订舱确认与提交
+    situation_description: "货主确认 Agent 预填的订舱表单，需经规则校验后提交订舱请求并签发确认书"
+    required_evidence:
+      - source: "订舱规则引擎（>200 条）"
+        checks: "费率/信用/航线可用性校验全部通过，无拦截项"
+      - source: "预填表单"
+        checks: "货方/收货方/港口对/箱型/品名等必填字段齐全"
+    valid_actions:
+      - "基于会话上下文+画像自动预填订舱表单"
+      - "运行订舱规则校验并标识异常字段"
+      - "对外放行提交订舱请求并签发 Booking Confirmation"
+    invalid_actions:
+      - action: "校验未通过时静默提交订舱请求"
+        reason: "跳过校验会提交错误/风险订舱，产生后续单证与费用纠纷"
+      - action: "未经货主确认直接签发确认书"
+        reason: "订舱为对外承诺动作，必须有货主人工放行（gate）"
+    exception_triggers:
+      - condition: "信用受限/费率冲突/航线不可用"
+        action: "标注原因提示补正，复杂单升级人工终审"
+      - condition: "新客无历史交易数据"
+        action: "以会话上下文+PI/装箱单 OCR 预填兜底，并标注置信度"
+
+  - id: ab_si_document
+    situation: SI 单证预填与推送
+    situation_description: "操作员上传贸易单据，Agent 抽取 SI 字段、规范品名/映射 HS 并做单证校验后推送单证系统"
+    required_evidence:
+      - source: "贸易单据（PI/装箱单/发票）"
+        checks: "OCR 抽取品名/唛头/件数/毛重/体积/HS，标注置信度"
+      - source: "智慧单证规则（>300 条）"
+        checks: "单证校验全部通过，VGM/毛重差异等异常项已标识"
+    valid_actions:
+      - "OCR 抽取 SI 字段并标记低置信度字段"
+      - "规范多语言品名并映射 HS 编码"
+      - "校验通过后推送 SI 至单证系统"
+    invalid_actions:
+      - action: "带缺件（VGM 缺失/毛重超限）直接推送 SI"
+        reason: "缺件会导致退单返工，拉长订舱周期"
+      - action: "HS 编码无法映射时擅自猜测编码"
+        reason: "错误 HS 编码会导致清关申报错误与合规风险"
+    exception_triggers:
+      - condition: "OCR 抽取置信度低（模糊/破损单据）"
+        action: "标黄待人工复核字段，不阻塞其余字段"
+      - condition: "VGM 缺失/毛重与装箱单差异超限"
+        action: "生成补全项并提供填写示例，提示操作员一次补全"
+
+  - id: ab_tracking_after_sales
+    situation: 出运跟踪与售后复购
+    situation_description: "货主对话查询运输状态，Agent 播报里程碑、预测 ETA 延误并提供 D&D 解读与复购推荐"
+    required_evidence:
+      - source: "控制塔/OMS 里程碑"
+        checks: "确认开船/中转/最近已知 ETA 等最新里程碑"
+      - source: "D&D 规则引擎"
+        checks: "确认目的地免箱期与滞箱费规则（各港政策不同）"
+    valid_actions:
+      - "拉取里程碑并对话式播报，异常节点高亮"
+      - "基于码头拥堵指数预测 ETA 延误并事前预警"
+      - "解读免箱期并基于会员画像推荐复购与舱位预留"
+    invalid_actions:
+      - action: "在 ETA 预测置信度低时发布确定性延误结论"
+        reason: "低置信度预测可能误报，会引发货主不必要的改配决策"
+      - action: "忽略各港免箱期政策差异，直接适用单一 D&D 结论"
+        reason: "各港规则不同，直接下结论会导致费用争议"
+    exception_triggers:
+      - condition: "高风险延误（甩柜/改船）"
+        action: "升级人工按 Delay in Transit 条款生成改配方案与赔付预判"
+      - condition: "复杂投诉/情绪激动"
+        action: "附完整上下文摘要升级人工，避免重复收集信息"
+
+workstreams:
+  - id: ws_booking_flow
+    name: 订舱执行
+    description: "从报价确认到签发 Booking Confirmation 的完整执行流"
+    anchor_objects:
+      - quotation
+      - booking_request
+      - booking_confirmation
+    states:
+      - id: bk_quoting
+        name: 报价中
+        description: "货主询价，Agent 检索报价并推荐，尚在方案选择阶段"
+        transitions:
+          - to_state: bk_selected
+            trigger_action: 货主确认选定方案
+            required_evidence: "货主对推荐 Top3 作出选定（含锁价/即期取舍）"
+            type: normal
+          - to_state: bk_lost
+            trigger_action: 货主放弃或转其他平台
+            required_evidence: "对话中止或明确放弃意图"
+            type: exception
+      - id: bk_selected
+        name: 已选方案
+        description: "货主已选定报价方案，待预填与校验"
+        transitions:
+          - to_state: bk_validated
+            trigger_action: 自动预填并运行订舱规则校验
+            required_evidence: "预填字段齐全且校验通过（费率/信用/航线）"
+            type: normal
+          - to_state: bk_rejected
+            trigger_action: 校验发现拦截项
+            required_evidence: "校验规则返回信用受限/费率冲突/航线不可用"
+            type: exception
+      - id: bk_validated
+        name: 校验通过待确认
+        description: "表单校验通过，等待货主人工放行"
+        transitions:
+          - to_state: bk_confirmed
+            trigger_action: 货主对外放行确认提交
+            required_evidence: "货主确认提交订舱请求（gate 人工放行）"
+            type: normal
+      - id: bk_confirmed
+        name: 已订舱
+        description: "订舱请求提交成功并签发 Booking Confirmation"
+        transitions: []
+      - id: bk_rejected
+        name: 校验被拒
+        description: "校验未通过，需补正或升级人工终审"
+        transitions:
+          - to_state: bk_validated
+            trigger_action: 补正资料后重新校验
+            required_evidence: "补正字段通过再次校验"
+            type: recovery
+      - id: bk_lost
+        name: 报价流失
+        description: "货主放弃本方案或流失"
+        transitions: []
+    guardrails:
+      - "报价与评分必须来自确定性服务，LLM 不直接产出价格或得分"
+      - "订舱为对外承诺动作，必须货主人工放行（gate）后方可提交"
+      - "新客无历史数据时以会话上下文+OCR 预填兜底，禁止空预填或虚构推荐"
+    dependency_mapping:
+      - workstream: ws_document_flow
+        condition: "状态到达 bk_confirmed（已签发 Booking Confirmation）"
+        impact: "触发单证处理执行流，可开始 SI 预填"
+
+  - id: ws_document_flow
+    name: 单证处理
+    description: "从上传贸易单据到 SI 校验通过并推送单证系统的执行流"
+    anchor_objects:
+      - trade_document
+      - si_document
+      - booking_confirmation
+    states:
+      - id: sd_uploaded
+        name: 单据已上传
+        description: "操作员上传 PI/装箱单/发票，待 OCR 抽取"
+        transitions:
+          - to_state: sd_extracted
+            trigger_action: OCR 抽取 SI 字段
+            required_evidence: "抽取品名/件数/毛重/体积/HS 且标记置信度"
+            type: normal
+      - id: sd_extracted
+        name: 字段已抽取
+        description: "SI 字段已抽取，待规范品名/HS 映射与校验"
+        transitions:
+          - to_state: sd_validated
+            trigger_action: 品名规范+HS 映射+单证校验
+            required_evidence: "校验通过，VGM/毛重差异等异常项已标识"
+            type: normal
+          - to_state: sd_exception
+            trigger_action: 校验发现缺件/异常
+            required_evidence: "VGM 缺失或毛重差异超限或 HS 无法映射"
+            type: exception
+      - id: sd_validated
+        name: 校验通过
+        description: "SI 校验通过，可推送单证系统"
+        transitions:
+          - to_state: sd_submitted
+            trigger_action: 推送 SI 至单证系统
+            required_evidence: "单证系统接收成功"
+            type: normal
+      - id: sd_exception
+        name: 补件处理中
+        description: "存在缺件/异常，Agent 给示例待操作员一次补全"
+        transitions:
+          - to_state: sd_validated
+            trigger_action: 操作员一次补全并复检
+            required_evidence: "补全字段通过复检校验"
+            type: recovery
+      - id: sd_submitted
+        name: 已提交
+        description: "SI 已推送单证系统，进入提单流程"
+        transitions: []
+    guardrails:
+      - "SI 校验不通过必须提示异常项并给示例，禁止带缺件推送单证系统"
+      - "HS 编码无法映射时禁止擅自猜测，必须提示人工复核"
+      - "OCR 低置信度字段须标黄待复核，不得静默按抽取值推送"
+    dependency_mapping:
+      - workstream: ws_booking_flow
+        condition: "单证流程依赖订舱确认书已签发（bk_confirmed）"
+        impact: "无订舱确认书时单证流程不能启动，避免孤立单证"
+
+  - id: ws_tracking_flow
+    name: 出运跟踪与售后
+    description: "从出运里程碑播报到 ETA 延误预警、售后与复购推荐的执行流"
+    anchor_objects:
+      - booking_confirmation
+      - space_slot
+      - member_profile
+    states:
+      - id: tr_tracking
+        name: 跟踪中
+        description: "货主查询运输状态，Agent 拉取里程碑并播报"
+        transitions:
+          - to_state: tr_warned
+            trigger_action: ETA 预测高风险延误
+            required_evidence: "ETA 预测模型输出高延误概率（如 68%）"
+            type: exception
+          - to_state: tr_after_sales
+            trigger_action: 运输完成进入售后
+            required_evidence: "货主转售后咨询或到达目的地"
+            type: normal
+      - id: tr_warned
+        name: 延误预警中
+        description: "高风险延误，Agent 事前预警，必要时升级人工改配"
+        transitions:
+          - to_state: tr_tracking
+            trigger_action: 延误解除或已改配，恢复正常跟踪
+            required_evidence: "新 ETA 确认或改配落地，延误风险解除"
+            type: recovery
+      - id: tr_after_sales
+        name: 售后复购
+        description: "货主咨询 D&D/权益，Agent 解读并推荐复购、复杂问题转人工"
+        transitions: []
+    guardrails:
+      - "ETA 预测置信度低时降级为事后通知，不作为改配依据"
+      - "延误处置/改配赔付属对外承诺，必须人工终审放行"
+      - "D&D/免箱期规则各港不同，口径不一致时标注待人工确认，禁止直接下结论"
+    dependency_mapping:
+      - workstream: ws_booking_flow
+        condition: "跟踪对象依赖订舱确认书编号（bk_confirmed）"
+        impact: "无有效订舱编号时无法建立跟踪上下文"

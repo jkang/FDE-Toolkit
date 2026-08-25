@@ -1,0 +1,393 @@
+title: "智能订舱 Agent · Agentic 工作流设计"
+
+meta:
+  mode: "agentic-workflow"
+  source: "To-be流程: X电商订舱-智能订舱Agent-To-be流程.yaml"
+  scenarioName: "智能订舱 Agent（Ask Fin 升级为可执行订舱 Agent）"
+  architecture: "对话编排 + 执行-校验管道 + 人机协同门禁（Orchestrator-Worker + Human-in-the-Loop + Guardrails-Gated）"
+
+scenarioKpis:
+  - id: kpi_online
+    name: "在线订舱确认时效"
+    baseline: "新客/复杂单人工审核，平均数小时 [推断]"
+    target: "标准 SME 单 ≤2h，头部分钟级（最快 1 分钟）"
+    metric: "询价发起 → 签发 Booking Confirmation 端到端时长"
+    linkedCapabilities: ["cap_01", "cap_02"]
+  - id: kpi_diversion
+    name: "AI 分流率"
+    baseline: "复杂多单/多单证转人工占比高，分流率未达标"
+    target: "30%+（KPI 4），人工客服成本显著下降"
+    metric: "AI 独立完成会话占全部互动比例"
+    linkedCapabilities: ["cap_01", "cap_03"]
+  - id: kpi_selfservice
+    name: "SME 全流程自助率"
+    baseline: "询价→订舱→跟单信息不对称、依赖人工"
+    target: "直客自助率提升，电商订舱渗透率向 40% 演进"
+    metric: "SME 无人工介入完成订舱全流程占比"
+    linkedCapabilities: ["cap_01", "cap_02"]
+  - id: kpi_doc_pass
+    name: "单证一次提交通过率"
+    baseline: "SI 长尾字段人工复核，退单返工"
+    target: "往返补件 2~3 轮 → 1 轮，一次提交通过率提升"
+    metric: "SI 首次提交通过校验占比"
+    linkedCapabilities: ["cap_02"]
+  - id: kpi_space
+    name: "舱位保证兑现率"
+    baseline: "旺季甩柜/改船通知被动"
+    target: "95%+（KPI 5），ETA 事前预测性预警"
+    metric: "舱位保证承诺兑现占比（Delay in Transit 保障）"
+    linkedCapabilities: ["cap_03"]
+  - id: kpi_resolve
+    name: "复杂问题一次性解决率"
+    baseline: "转人工需重复提供上下文，一次性解决率低"
+    target: "附完整上下文摘要，复杂问题一次性解决率提升"
+    metric: "转人工后首次会话解决占比"
+    linkedCapabilities: ["cap_03"]
+
+designPrinciples:
+  - "LLM 只做意图理解、推荐解释与生成；事实性计算（报价/载舱率/评分/校验）一律走确定性工具与服务"
+  - "任何写操作（订舱提交/支付/SI 推送）都必须人工审批或人工确认放行，禁止静默通过"
+  - "新客无历史数据时以会话上下文 + OCR 预填兜底，并标注置信度，杜绝空预填"
+  - "高亮段只标注 KPI 决定性路径，避免全图铺色失去重点"
+
+capabilities:
+  - id: "cap_01"
+    name: "智能报价与舱位推荐"
+    journeyRef:
+      stages: ["询价对话", "报价解读与舱位推荐"]
+      actions: ["自然语言发起询价", "确认 Agent 推荐舱位"]
+    type: "reasoning"
+    trigger:
+      userAction: "自然语言发起询价（文本/语音）"
+      inputData: "询价咨询（起运港/目的港/箱型/ETD/货量）+ 会话上下文 + 会员画像"
+      systemContext: "E-Spot/E-Quote 报价引擎 / 舱位余量与船期计划 / SCFI 市场基准"
+    goal:
+      output: "即期报价卡 + Top3 舱位推荐（附得分与可解释理由）"
+      kpiImpact: "报价数小时→秒级；SME 信息不对称消除 → 自助率↑；AI 分流率 30%+；确认时效向 ≤2h 收敛"
+      kpiRef: "kpi_diversion"
+    agenticDesign:
+      pattern: "orchestrator-worker"
+      agents:
+        - name: "对话编排 Agent"
+          role: "意图/实体抽取、调度报价与舱位评分、解读与组装推荐、出口校验"
+          model: "Claude 3.5 Sonnet / GPT-4o 级多模态 LLM（多轮任务执行 + Function Calling）"
+          tools: ["意图识别/实体抽取模型", "E-Spot 报价引擎 API", "舱位评分服务", "SCFI 市场基准库"]
+          memory: "任务级上下文（当前询价）+ 场景级会员画像"
+        - name: "报价与舱位确定性服务"
+          role: "事实性计算：报价检索、装载率/ETA/舱位保证评分"
+          model: "收益管理引擎 + 确定性评分算法"
+          tools: ["报价引擎", "舱位评分引擎"]
+          memory: "无（纯确定性计算）"
+      whyPattern: "报价检索与舱位评分彼此无依赖可并行，编排者聚合子结果并做单点门禁；评分/报价必须走确定性服务，杜绝 LLM 幻觉产生错误报价"
+      kpiLink: "并行检索+评分把询价响应压至秒级（kpi_online），可解释推荐消除信息不对称（kpi_selfservice），标准场景无需人工（kpi_diversion）"
+    puml: |
+      @startuml
+      skinparam backgroundColor #FFFFFF
+      skinparam shadowing false
+      skinparam sequenceMessageAlign center
+      skinparam maxMessageSize 220
+      skinparam roundCorner 8
+
+      actor "SME 货主直客" as USER #E8F5E9
+      participant "对话编排 Agent" as ORCH #DBEAFE
+      participant "意图/实体抽取模型" as NLU #F3E8FF
+      participant "E-Spot 报价引擎" as QUOTE #F3E8FF
+      participant "舱位评分服务" as SPACE #F3E8FF
+      participant "会员/CRM 系统" as CRM #F1F5F9
+
+      autonumber
+
+      == 触发：自然语言发起询价 ==
+      USER -> ORCH : 询价咨询\n上海→洛杉矶 40HQ 10/08 截关
+      activate ORCH
+      note right of ORCH : plan ｜ 拆解子任务\n①意图识别 ②报价检索 ③舱位评分（并行）
+      ORCH -> NLU : 抽取询价要素\n(港口对/箱型/ETD/货量)
+      activate NLU
+      NLU --> ORCH : 实体槽位 + 意图标签=询价
+      deactivate NLU
+
+      == 关键路径：报价检索 + 舱位评分（高亮） ==
+      group 并行检索与评分 #DBEAFE
+        ORCH -> QUOTE : 查询 E-Spot 即期报价
+        activate QUOTE
+        QUOTE --> ORCH : All-in USD 2,450/40HQ\n有效期至 09-30 舱位保证
+        deactivate QUOTE
+        ORCH -> SPACE : 查询装载率/ETA置信度/舱位保证
+        activate SPACE
+        SPACE --> ORCH : A 92分(装载率78%/ETA94%)\nB 88分  C 81分
+        deactivate SPACE
+      end
+      note over ORCH : 护栏 ｜ 报价与评分必须来自确定性服务\nLLM 不得自行计算价格或得分
+
+      == 推荐组装与可解释 ==
+      ORCH -> CRM : 读取会员画像/历史偏好
+      activate CRM
+      CRM --> ORCH : PlumSmart Silver · 近3月 12 TEU
+      deactivate CRM
+      ORCH -> ORCH : 综合排序生成 Top3\n+ 推荐理由话术
+
+      == 决策：货主确认 ==
+      alt 货主确认推荐 #ECFDF5
+        ORCH -> USER : 输出 Top3 推荐卡\n(A.E-Spot 92分 可展开子分)
+      else 货主犹豫/改需求 #FEF9C3
+        ORCH -> USER : 追问细化（锁价/切换方案）
+        USER --> ORCH : 选定方案（Secured E-Quote）
+      end
+      deactivate ORCH
+      @enduml
+    highlightLegend:
+      - segment: "报价检索 + 舱位评分并行段"
+        highlight: "#DBEAFE"
+        kpiReason: "时效与自助率关键路径——并行确定性检索把询价压至秒级，支撑 kpi_online/kpi_selfservice；评分走确定性服务杜绝幻觉报价"
+    guardrails:
+      - "报价与舱位评分必须来自确定性服务，LLM 不直接产出价格或得分"
+      - "推荐必须附可解释理由，禁止黑盒式推荐"
+      - "新客无历史数据时以会话上下文兜底，不准空预填"
+    failure:
+      - trigger: "报价引擎超时 / 无可用航次"
+        action: "自动重试 1 次 → 降级提示并建议邻近航线（Nearby Route Suggestions）"
+        type: "retry/fallback"
+      - trigger: "意图识别歧义（多航次/多箱型）"
+        action: "对话追问澄清要素后再检索，避免错误报价"
+        type: "fallback"
+
+  - id: "cap_02"
+    name: "订舱执行与单证预填"
+    journeyRef:
+      stages: ["一键订舱确认", "单证预填（SI 自动生成）", "异常补件"]
+      actions: ["对话内一键订舱", "上传单据生成 SI", "按 AI 提示一次补全"]
+    type: "automation"
+    trigger:
+      userAction: "确认 Agent 推荐后对话内一键订舱 / 上传 PI/装箱单"
+      inputData: "选定方案 + 会话上下文 + 会员画像（表单）；贸易单据 PDF/图片/Excel（SI）"
+      systemContext: "订舱规则引擎（>200 条）/ 智慧单证规则（>300 条）/ OMS / 智慧单证系统"
+    goal:
+      output: "Booking Confirmation（签发给货主）+ 已校验并推送的 SI（含异常项标注）"
+      kpiImpact: "确认时效向 ≤2h 收敛、头部分钟级；单证一次提交通过率提升、往返补件 2~3 轮→1 轮"
+      kpiRef: "kpi_selfservice"
+    agenticDesign:
+      pattern: "pipeline + human-in-the-loop"
+      agents:
+        - name: "订舱执行 Agent"
+          role: "3 步表单自动预填、订舱规则校验、签发 Booking Confirmation"
+          model: "LLM（字段映射与生成）+ 规则引擎"
+          tools: ["表单预填引擎", "订舱校验规则引擎", "OMS 提交 API"]
+          memory: "任务级上下文（预填表单）"
+        - name: "单证 Agent"
+          role: "OCR 抽取 SI 字段、品名规范/HS 映射、单证校验、推送单证系统"
+          model: "多模态 LLM（表格/文档理解）+ OCR"
+          tools: ["OCR 解析器", "多语言品名/HS 字典", "单证校验规则引擎", "智慧单证 API"]
+          memory: "任务级上下文（当前单证）"
+      whyPattern: "从表单预填→校验→人工确认→签发是完整输入输出流，SI 生成同样是一段完整流，中间 HITL 只是门禁而非拆分点；线性管道 + 审批门禁最简洁可审计"
+      kpiLink: "自动校验扩围把确认时效压至 ≤2h（kpi_online），单证校验+一次补全把往返补件压至 1 轮（kpi_doc_pass），新客 OCR/会话兜底提升自助率（kpi_selfservice）"
+    puml: |
+      @startuml
+      skinparam backgroundColor #FFFFFF
+      skinparam shadowing false
+      skinparam sequenceMessageAlign center
+      skinparam maxMessageSize 220
+      skinparam roundCorner 8
+
+      actor "SME 货主 / 订舱操作员" as OPS #E8F5E9
+      participant "订舱执行 Agent" as EXEC #DBEAFE
+      participant "订舱规则引擎" as RULE #F3E8FF
+      participant "OMS 系统" as OMS #F1F5F9
+      participant "单证 Agent" as DOC #DBEAFE
+      participant "智慧单证服务" as DOCSYS #F1F5F9
+
+      autonumber
+
+      == 阶段一：订舱预填与校验 ==
+      OPS -> EXEC : 确认推荐 → 一键订舱
+      activate EXEC
+      EXEC -> EXEC : 3 步表单自动预填\n(会话上下文+画像兜底)
+      EXEC -> RULE : 费率/信用/航线校验(>200条)
+      activate RULE
+      RULE --> EXEC : 12/12 字段通过
+      deactivate RULE
+
+      == 关键路径：人工确认门禁（HITL 高亮） ==
+      group 订舱人工确认门禁 #FEF3C7
+        EXEC -> OPS : 预填表单待确认\n(货方/港口对/品名/箱型)
+        activate OPS
+        OPS -> EXEC : 对外放行 → 确认提交
+        deactivate OPS
+      end
+      note over EXEC : 护栏 ｜ 提交订舱/对外动作必须人工放行\n禁止静默提交
+
+      EXEC -> OMS : 提交订舱请求
+      activate OMS
+      OMS --> EXEC : Booking 编号 BK-2026-0901-001
+      deactivate OMS
+      EXEC -> OMS : 签发 Booking Confirmation
+      deactivate EXEC
+
+      == 阶段二：单证预填与推送 ==
+      OPS -> DOC : 上传 PI/装箱单
+      activate DOC
+      DOC -> DOC : OCR 抽取 SI 字段(品名/件数/毛重/体积/HS)
+      DOC -> DOC : 多语言品名规范 + HS 编码映射
+      DOC -> DOCSYS : 单证校验(>300条)
+      activate DOCSYS
+      DOCSYS --> DOC : 8/10 通过\n(2 项异常: VGM 缺失/毛重差 3.2%)
+      deactivate DOCSYS
+
+      == 决策：异常补件 ==
+      alt 有异常项 #FEF9C3
+        DOC -> OPS : 缺件清单 + 填写示例\n(VGM 示例 12,900 KG)
+        OPS -> DOC : 一次补全 VGM/税号
+        DOC -> DOCSYS : 复检并推送 SI
+        activate DOCSYS
+        DOCSYS --> DOC : 全部通过，SI 已入库
+        deactivate DOCSYS
+      else 全部通过 #ECFDF5
+        DOC -> DOCSYS : 直接推送 SI
+        activate DOCSYS
+        DOCSYS --> DOC : SI 入库成功
+        deactivate DOCSYS
+      end
+      deactivate DOC
+      @enduml
+    highlightLegend:
+      - segment: "订舱人工确认门禁段"
+        highlight: "#FEF3C7"
+        kpiReason: "合规/风险关键路径——写操作强制人工放行，异常 0 静默通过，支撑 kpi_online & kpi_doc_pass & kpi_selfservice"
+    guardrails:
+      - "提交订舱/签发确认等写操作必须人工确认放行，禁止静默通过"
+      - "SI 校验不通过必须提示异常项并给示例，禁止带缺件推送单证系统"
+      - "新客无历史数据时用会话上下文+OCR 预填并标注置信度"
+    failure:
+      - trigger: "表单校验不通过（信用受限/费率冲突）"
+        action: "标注原因提示补正 → 复杂单升级人工终审（human_support）"
+        type: "escalate"
+      - trigger: "OCR 抽取置信度低（模糊/破损单据）"
+        action: "标黄待人工复核字段，不阻塞其余字段"
+        type: "fallback"
+      - trigger: "OMS / 单证系统接口失败"
+        action: "重试 2 次 → 标记同步异常并通知 IT"
+        type: "retry/escalate"
+
+  - id: "cap_03"
+    name: "结算·跟踪与售后智服"
+    journeyRef:
+      stages: ["支付", "出运跟踪交互", "售后/复购"]
+      actions: ["在线支付运费", "对话查船期与里程碑", "售后咨询与会员复购"]
+    type: "automation"
+    trigger:
+      userAction: "确认支付 / 对话查询跟踪状态 / 售后咨询"
+      inputData: "运费与币种 + 订舱号/提单号 + 售后诉求（费用/权益）"
+      systemContext: "支付网关 / 控制塔·Cargo Tracking+ / ETA 预测模型 / D&D 规则库 / PlumSmart 会员体系 / CRM"
+    goal:
+      output: "发票核销状态 + 里程碑播报与延误预警 + D&D 解读与复购推荐 + 复杂转人工附摘要"
+      kpiImpact: "跟踪咨询人工转 Agent 秒级响应 → AI 分流率 30%+；ETA 事前预测 → 舱位保证兑现率 95%+；复杂问题附摘要一次性解决率提升"
+      kpiRef: "kpi_space"
+    agenticDesign:
+      pattern: "event-driven + human-in-the-loop"
+      agents:
+        - name: "结算/跟踪/售后编排 Agent"
+          role: "费用试算、里程碑播报、ETA 预测驱动、D&D 解读、复购推荐、复杂转人工摘要"
+          model: "LLM（多轮任务执行 + 工具调用）+ 专用 NLP（情绪风险识别）"
+          tools: ["支付网关 API", "发票/核销服务", "控制塔/OMS 里程碑 API", "ETA 预测模型", "D&D 规则引擎", "CRM 工单 API"]
+          memory: "场景级上下文（订单 + 会员 + 历史对话）"
+        - name: "控制塔/客服运营"
+          role: "延误处置/复杂投诉的人工终审与改配决策"
+          model: "人工 + 规则（Delay in Transit 保障条款）"
+          tools: ["改配/赔付规则", "客户服务台"]
+          memory: "人工判断"
+      whyPattern: "支付、跟踪、售后均为事件/状态变更触发，采用 event-driven 订阅通知；延误与复杂投诉需人工终审，因此叠加 human-in-the-loop 门禁"
+      kpiLink: "秒级播报与 ETA 预测把跟踪咨询分流（kpi_diversion），事前预警支撑舱位保证兑现率（kpi_space），附上下文摘要提升复杂问题一次性解决率（kpi_resolve）"
+    puml: |
+      @startuml
+      skinparam backgroundColor #FFFFFF
+      skinparam shadowing false
+      skinparam sequenceMessageAlign center
+      skinparam maxMessageSize 220
+      skinparam roundCorner 8
+
+      actor "SME 货主直客" as USER #E8F5E9
+      participant "结算/跟踪/售后编排 Agent" as SVC #DBEAFE
+      participant "支付网关/发票服务" as PAY #F1F5F9
+      participant "控制塔/OMS 里程碑" as TRACK #F3E8FF
+      participant "ETA 预测模型" as ETA #F3E8FF
+      participant "D&D 规则引擎" as DD #F3E8FF
+      actor "客服/控制塔运营" as CST #E8F5E9
+
+      autonumber
+
+      == 触发①：在线支付 ==
+      USER -> SVC : 确认支付（USD 2,450）
+      activate SVC
+      SVC -> PAY : 多币种费用试算
+      activate PAY
+      PAY --> SVC : USD 2,450 ≈ CNY 17,640(汇率7.2)
+      deactivate PAY
+      SVC -> PAY : 生成支付链接 + 开票核销
+      PAY --> SVC : 发票 INV-2026-0903-001 已生成
+      deactivate SVC
+
+      == 触发②：对话查询跟踪 ==
+      USER -> SVC : 对话查船期（BK-2026-0901-001）
+      activate SVC
+      SVC -> TRACK : 拉取里程碑
+      activate TRACK
+      TRACK --> SVC : 开船09-12 中转釜山09-18 ETA 10-02
+      deactivate TRACK
+      SVC -> ETA : 预测延误概率
+      activate ETA
+      ETA --> SVC : 洛杉矶拥堵高企 延误概率 68% [推断]
+      deactivate ETA
+
+      == 关键路径：预测性延误预警（高亮） ==
+      group ETA 事前预警 + 订阅通知 #DBEAFE
+        SVC -> USER : 里程碑播报 + 异常节点高亮\n延误 2~3 天 订阅通知
+        SVC -> USER : 推送延误预警
+      end
+
+      == 决策：延误处置 ==
+      alt 高风险延误 #FEF9C3
+        SVC -> CST : 升级改配/赔付预判
+        activate CST
+        CST -> SVC : 改配方案 + 舱位保证承付
+        deactivate CST
+        SVC -> USER : 5 分钟给改配方案
+      else 正常 #ECFDF5
+        SVC -> USER : 订阅里程碑通知
+      end
+      deactivate SVC
+
+      == 触发③：售后与复购 ==
+      USER -> SVC : 售后咨询（免箱期/D&D）
+      activate SVC
+      SVC -> DD : 解读免箱期规则
+      activate DD
+      DD --> SVC : 洛杉矶7天免费 超出USD50/天
+      deactivate DD
+      SVC -> SVC : 超期预警 + 复购推荐\n(近3月12TEU→预留美西舱位)
+
+      == 决策：复杂转人工 ==
+      alt 复杂投诉/情绪激动 #FEF9C3
+        SVC -> CST : 附完整上下文摘要 + 货主画像
+        CST -> SVC : 一次性解决并回写工单
+      else 常规售后 #ECFDF5
+        SVC -> USER : D&D 解读 + 复购权益推荐
+      end
+      deactivate SVC
+      @enduml
+    highlightLegend:
+      - segment: "ETA 事前预测预警段"
+        highlight: "#DBEAFE"
+        kpiReason: "舱位保证与分流关键路径——事后通知转事前预测（kpi_space），跟踪咨询秒级分流（kpi_diversion）"
+    guardrails:
+      - "写操作（支付确认/开票）必须人工确认，禁止静默扣款"
+      - "延误处置/改配赔付属于对外承诺，必须人工终审放行"
+      - "D&D/免箱期规则各港不同，口径不一致时标注待人工确认，禁止直接下结论"
+    failure:
+      - trigger: "支付失败（汇率/通道异常）"
+        action: "自动切换本地支付通道 → 仍失败转人工协助"
+        type: "retry/fallback"
+      - trigger: "ETA 预测置信度低"
+        action: "降级为事后通知，不作为改配依据"
+        type: "fallback"
+      - trigger: "复杂问题 AI 无法解决"
+        action: "附完整上下文摘要升级人工，避免重复收集信息"
+        type: "escalate"
