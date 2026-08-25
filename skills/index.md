@@ -42,6 +42,7 @@
 
 - **[To-be 旅程设计 (AI Product Journey Generator)](ai-product-journey-generator/SKILL.md)**: 基于 AI 场景定义（AI Canvas），细化用户角色与典型使用场景，设计含 AI 交互细节（上传数据示例/推荐操作指令/可见数据）的 To-be User Journey，为原型生成提供输入。
 - **[To-be 流程泳道图 (To-be Process Designer)](to-be-process-designer/SKILL.md)**: 输入现状流程 + 问题痛点 + AI 机会点画布，以流程挖掘（SKP 阶段1）视角重排为「列=业务阶段(L3) × 行=角色泳道」的深度任务(L5)序列，登记执行主体 / HITL 焦点 / 规则依据类型 / 价值锚定 / 异常链路，输出结构化 YAML + 泳道式 HTML 流程图。
+- **[Agent 产品方案 (Agent Product Proposal Generator)](agent-product-proposal-generator/SKILL.md)**: 基于理需求、场景定义、挖知识、梳理本体的各项产出，聚合生成一份「Agent 产品方案」Markdown 设计文档（产品定位 → 形态架构 → 演示故事线 → 功能与 UI 组件 → Agent 行为 → 规则消费门禁），可直接交给原型作者照单施工。
 - **[任务流程拆解图 (Deep Task Flow Analyzer)](deep-task-flow-analyzer/SKILL.md)**: 承接 AI 场景定义（AI Canvas / To-be 旅程 / 服务蓝图），以 SKP 阶段1「任务流程挖掘」视角把业务按「L3 业务阶段 → L4 活动分组 → L5 可执行动作」三层纵切，登记每个 L5 的执行主体 / 输入输出 / 规则依据 / 异常·HITL，并聚焦高价值 L4（P0）下钻为 L5 深度任务序列，输出「端到端深度任务流程地图」HTML + YAML。与 To-be 泳道图互补：泳道图答「谁在何时做」，本 Skill 答「一件事拆成几个原子动作、每步依据与异常」。
 - **[业务规则挖掘器 (Business Rule Miner)](business-rule-miner/SKILL.md)**: 承接任务流程拆解产物（使用点）+ SRP 已识别规则类型 + 调研素材，以 SKP 阶段2「任务处理规则挖掘」视角，把每个任务依据什么处理深挖为五类可消费的业务知识结构（决策模型/模版范例/术语字典/关键信息提取要点/关联关系），每条规则/样本绑定使用点、来源可追溯，并做 P1↔P2 双向可追踪交叉核对，输出《任务处理规则挖掘清单》HTML + YAML。
 - **[Agentic 工作流设计 (Agentic Workflow Designer)](agentic-workflow-designer/SKILL.md)**: 承接 To-be 旅程，识别其中的各 AI 能力（不同目的/输入输出即拆分，HITL 中间环节不拆），为每个能力生成 PlantUML 活动序列图；以 Agentic 架构专家视角显式设计达成场景 KPI 所需的 Agent 编排（Agent 分解/编排模式/推理循环/护栏/人机协同/失败兜底），关键活动高亮渲染进 HTML。
