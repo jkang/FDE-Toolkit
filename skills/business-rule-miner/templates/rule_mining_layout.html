@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="{{ lang }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+
+    <!-- ===== Design System: Inspire (Enterprise Tech) ===== -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+        :root {
+            --color-primary: #10213E;       /* Starry Blues */
+            --color-accent: #5DB2E2;        /* Creative Blue */
+            --color-secondary: #625D9C;     /* Amethyst */
+            --color-success: #00524C;       /* Myrtle Deep Green */
+            --color-info: #6FB1C8;          /* Cerulean Frost */
+            --color-warning: #F59E0B;       /* Warning */
+            --color-destructive: #EF4444;   /* Danger */
+            --color-background: #FFFFFF;    /* Pure White */
+            --color-bg-alt: #F5F5F6;        /* Tech Gray */
+            --color-foreground: #10213E;    /* Primary Text */
+            --color-text-muted: #64748B;    /* Text Secondary */
+            --color-border: #E2E8F0;        /* Border/Line */
+            --shadow-inspire: 0 2px 8px rgba(16, 33, 62, 0.08);
+        }
+
+        *, *::before, *::after { box-sizing: border-box !important; }
+        html, body {
+            margin: 0 !important; padding: 0 !important;
+            background: var(--color-bg-alt) !important;
+            color: var(--color-foreground) !important;
+            font-family: "MiSans", "Inter", "Microsoft YaHei", sans-serif !important;
+            line-height: 1.6 !important;
+            overflow-x: auto !important;
+        }
+
+        ::-webkit-scrollbar { width: 9px; height: 9px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: 5px; }
+        ::-webkit-scrollbar-thumb:hover { background: #CBD5E1; }
+
+        /* ===== Unified Header ===== */
+        .unified-hdr {
+            width: 100% !important; background: var(--color-background) !important;
+            border-bottom: 1px solid var(--color-border) !important; border-radius: 0 !important;
+            box-shadow: none !important; padding: 14px 28px !important; margin-bottom: 18px !important;
+            display: flex !important; justify-content: space-between !important; align-items: center !important;
+            gap: 16px !important; flex-wrap: wrap !important;
+        }
+        .unified-hdr-left { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+        .unified-hdr-left h1 {
+            font-size: 22px !important; font-weight: 700 !important; color: var(--color-primary) !important;
+            line-height: 1.3 !important; margin: 0 !important; display: flex !important; align-items: center !important; gap: 10px !important;
+        }
+        .unified-hdr-left h1::before {
+            content: "" !important; display: inline-block !important; width: 4px !important; height: 22px !important;
+            background: var(--color-secondary) !important; border-radius: 2px !important; flex-shrink: 0 !important;
+        }
+        .unified-hdr-left p {
+            font-size: 13px !important; color: var(--color-text-muted) !important;
+            margin: 4px 0 0 !important; padding-left: 14px !important; line-height: 1.5 !important;
+        }
+        .unified-hdr-right { display: flex; align-items: center; gap: 12px; flex-shrink: 0; flex-wrap: wrap; }
+        .unified-hdr-stats {
+            display: flex !important; align-items: center !important; gap: 8px !important;
+            background: var(--color-bg-alt) !important; border: 1px solid var(--color-border) !important;
+            border-radius: 20px !important; padding: 4px 14px !important;
+            font-size: 12px !important; color: var(--color-text-muted) !important;
+        }
+        .unified-hdr-stats b { color: var(--color-primary); font-weight: 700; margin-right: 3px; }
+        .hdr-stat-sep { width: 1px; height: 12px; background: var(--color-border); }
+        .btn-copy-yaml {
+            background: var(--color-primary) !important; color: #FFFFFF !important;
+            border: 1px solid var(--color-primary) !important; font-size: 12px !important;
+            padding: 6px 12px !important; border-radius: 6px !important; font-weight: 600 !important;
+            cursor: pointer !important; transition: all 0.15s ease-out !important;
+        }
+        .btn-copy-yaml:hover { opacity: 0.85 !important; }
+
+        main { width: 100% !important; max-width: none !important; margin: 0 auto !important; padding: 4px 28px 48px !important; display: block !important; }
+
+        /* ===== Panel ===== */
+        .panel {
+            background: var(--color-background) !important; border: 1px solid var(--color-border) !important;
+            border-radius: 8px !important; box-shadow: var(--shadow-inspire) !important;
+            padding: 16px 18px !important; margin-bottom: 18px !important;
+        }
+        .panel-head { display: flex !important; justify-content: space-between !important; align-items: center !important; gap: 12px !important; margin-bottom: 14px !important; flex-wrap: wrap !important; }
+        .panel-title { display: flex !important; align-items: center !important; gap: 8px !important; font-size: 14px !important; font-weight: 700 !important; color: var(--color-primary) !important; }
+        .panel-title .emoji { font-size: 16px !important; }
+        .panel-badge { font-size: 11px !important; font-weight: 600 !important; color: var(--color-text-muted) !important; background: var(--color-bg-alt) !important; border-radius: 10px !important; padding: 2px 10px !important; }
+
+        /* ===== Overview strip ===== */
+        .overview-strip {
+            background: var(--color-primary) !important; border-radius: 8px !important;
+            color: #FFFFFF !important; padding: 16px 20px !important; margin-bottom: 18px !important;
+            display: flex !important; align-items: center !important; flex-wrap: wrap !important; gap: 12px 22px !important;
+        }
+        .overview-stat { display: flex !important; align-items: baseline !important; gap: 6px !important; }
+        .overview-stat .num { font-size: 24px !important; font-weight: 800 !important; line-height: 1 !important; color: #FFFFFF !important; }
+        .overview-stat .lbl { font-size: 12px !important; color: rgba(255,255,255,0.8) !important; }
+        .overview-sep { width: 1px !important; height: 26px !important; background: rgba(255,255,255,0.2) !important; }
+
+        /* ===== Legend ===== */
+        .legend-panel {
+            background: var(--color-background) !important; border: 1px solid var(--color-border) !important;
+            border-radius: 8px !important; box-shadow: var(--shadow-inspire) !important;
+            padding: 12px 18px !important; margin-bottom: 18px !important;
+            display: flex !important; flex-wrap: wrap !important; gap: 8px 24px !important; align-items: center !important;
+        }
+        .legend-item { display: flex !important; align-items: center !important; gap: 6px !important; font-size: 12px !important; color: var(--color-text-muted) !important; white-space: nowrap !important; }
+        .legend-item .lbl { font-weight: 700 !important; color: var(--color-primary) !important; margin-right: 2px !important; }
+        .legend-pill {
+            display: inline-flex !important; align-items: center !important; gap: 4px !important;
+            padding: 2px 9px !important; border-radius: 10px !important; font-size: 11px !important; font-weight: 600 !important;
+            border: 1px solid var(--color-border) !important;
+        }
+
+        /* ===== Section label ===== */
+        .rule-section { margin-bottom: 22px !important; }
+        .rule-section-hd { display: flex !important; align-items: center !important; gap: 10px !important; margin: 20px 0 12px !important; }
+        .rule-section-hd .rs-icon { font-size: 18px !important; }
+        .rule-section-hd .rs-title { font-size: 15px !important; font-weight: 700 !important; color: var(--color-primary) !important; }
+        .rule-section-hd .rs-desc { font-size: 12px !important; color: var(--color-text-muted) !important; }
+        .rule-section-hd .rs-count { margin-left: auto !important; font-size: 11px !important; font-weight: 700 !important; color: var(--color-secondary) !important; background: rgba(98,93,156,0.08) !important; border-radius: 10px !important; padding: 2px 10px !important; }
+
+        /* ===== Decision case ===== */
+        .decision-case {
+            border: 1px solid var(--color-border) !important; border-radius: 8px !important;
+            box-shadow: var(--shadow-inspire) !important; padding: 14px 16px !important; margin-bottom: 14px !important;
+            background: var(--color-background) !important;
+        }
+        .decision-case-hd { display: flex !important; align-items: center !important; gap: 8px !important; flex-wrap: wrap !important; margin-bottom: 12px !important; }
+        .decision-case-hd .dc-name { font-size: 14px !important; font-weight: 700 !important; color: var(--color-primary) !important; }
+        .usage-chip { display: inline-flex !important; align-items: center !important; gap: 4px !important; font-size: 11px !important; font-weight: 600 !important; color: var(--color-accent) !important; background: rgba(93,178,226,0.10) !important; border-radius: 10px !important; padding: 2px 9px !important; }
+        .decision-flow { display: flex !important; gap: 10px !important; align-items: stretch !important; }
+        .df-step { flex: 1 1 0 !important; background: var(--color-bg-alt) !important; border-radius: 8px !important; padding: 11px 12px !important; display: flex !important; flex-direction: column !important; gap: 4px !important; }
+        .df-step .df-num { font-size: 11px !important; font-weight: 700 !important; color: var(--color-secondary) !important; }
+        .df-step .df-label { font-size: 12.5px !important; font-weight: 700 !important; color: var(--color-primary) !important; }
+        .df-step .df-val { font-size: 12px !important; color: var(--color-foreground) !important; line-height: 1.5 !important; }
+        .df-step .df-val b { color: var(--color-destructive) !important; font-weight: 600 !important; }
+        .df-step.conflict { background: rgba(245,158,11,0.08) !important; border: 1px solid #FCD34D !important; }
+        .df-arrow { display: flex !important; align-items: center !important; color: var(--color-text-muted) !important; font-size: 16px !important; flex-shrink: 0 !important; }
+        .decision-summary { margin-top: 10px !important; font-size: 12px !important; color: var(--color-text-muted) !important; border-top: 1px dashed var(--color-border) !important; padding-top: 8px !important; }
+
+        /* ===== Template case ===== */
+        .template-case { border: 1px solid var(--color-border) !important; border-radius: 8px !important; box-shadow: var(--shadow-inspire) !important; padding: 14px 16px !important; margin-bottom: 14px !important; }
+        .template-case-hd { display: flex !important; align-items: center !important; justify-content: space-between !important; gap: 10px !important; flex-wrap: wrap !important; margin-bottom: 12px !important; }
+        .template-case-hd .tc-name { font-size: 14px !important; font-weight: 700 !important; color: var(--color-primary) !important; }
+        .template-anatomy { display: flex !important; gap: 6px !important; align-items: center !important; flex-wrap: wrap !important; }
+        .tpl-block { background: var(--color-bg-alt) !important; border-radius: 8px !important; padding: 10px 12px !important; margin-bottom: 10px !important; }
+        .tpl-block-hd { font-size: 12px !important; font-weight: 700 !important; color: var(--color-secondary) !important; margin-bottom: 8px !important; }
+        .tpl-mini-table { font-size: 11.5px !important; }
+        .tpl-mini-table .mt-row { display: flex !important; border-bottom: 1px solid var(--color-border) !important; padding: 6px 0 !important; gap: 8px !important; }
+        .tpl-mini-table .mt-row.head { font-weight: 700 !important; color: var(--color-primary) !important; background: var(--color-bg-alt) !important; padding: 7px 8px !important; border-radius: 6px !important; }
+        .tpl-mini-table .mt-row span { flex: 1 1 0 !important; }
+        .tpl-rule { display: flex !important; gap: 8px !important; flex-wrap: wrap !important; margin-top: 6px !important; }
+        .tpl-rule .tr-pill { font-size: 11px !important; font-weight: 600 !important; padding: 3px 9px !important; border-radius: 8px !important; border: 1px solid var(--color-border) !important; }
+        .tpl-sample { display: flex !important; gap: 8px !important; flex-wrap: wrap !important; margin-top: 8px !important; }
+        .sample-chip { font-size: 11px !important; padding: 3px 9px !important; border-radius: 8px !important; }
+        .sample-chip.good { background: rgba(0,82,76,0.08) !important; color: var(--color-success) !important; border: 1px solid #7FB6B0 !important; }
+        .sample-chip.bad { background: rgba(239,68,68,0.08) !important; color: #B91C1C !important; border: 1px solid #FCA5A5 !important; }
+
+        /* ===== Dictionary ===== */
+        .dict-case { border: 1px solid var(--color-border) !important; border-radius: 8px !important; box-shadow: var(--shadow-inspire) !important; padding: 14px 16px !important; margin-bottom: 14px !important; }
+        .dict-grid { display: grid !important; grid-template-columns: repeat(auto-fill, minmax(210px,1fr)) !important; gap: 8px !important; margin-top: 10px !important; }
+        .dict-entry { background: var(--color-bg-alt) !important; border-radius: 8px !important; padding: 9px 11px !important; }
+        .dict-entry .de-term { font-size: 12.5px !important; font-weight: 700 !important; color: var(--color-primary) !important; }
+        .dict-entry .de-def { font-size: 11.5px !important; color: var(--color-foreground) !important; margin-top: 3px !important; line-height: 1.5 !important; }
+        .dict-entry .de-ctx { font-size: 10.5px !important; color: var(--color-text-muted) !important; margin-top: 3px !important; }
+
+        /* ===== Extraction ===== */
+        .extract-case { border: 1px solid var(--color-border) !important; border-radius: 8px !important; box-shadow: var(--shadow-inspire) !important; padding: 14px 16px !important; margin-bottom: 14px !important; }
+        .extract-table { width: 100% !important; border-collapse: collapse !important; font-size: 11.5px !important; }
+        .extract-table thead th { text-align: left !important; background: var(--color-primary) !important; color: #FFFFFF !important; font-weight: 600 !important; padding: 8px 10px !important; }
+        .extract-table tbody td { padding: 9px 10px !important; border-bottom: 1px solid var(--color-border) !important; vertical-align: top !important; }
+        .extract-table tbody tr:nth-child(even) td { background: var(--color-bg-alt) !important; }
+        .extract-table .td-field { font-weight: 700 !important; color: var(--color-primary) !important; }
+        .acceptance { margin-top: 10px !important; background: rgba(98,93,156,0.06) !important; border-radius: 8px !important; padding: 9px 12px !important; font-size: 12px !important; color: var(--color-secondary) !important; font-weight: 600 !important; }
+
+        /* ===== Relation ===== */
+        .relation-case { border: 1px solid var(--color-border) !important; border-radius: 8px !important; box-shadow: var(--shadow-inspire) !important; padding: 14px 16px !important; margin-bottom: 14px !important; }
+        .relation-network { display: flex !important; align-items: center !important; gap: 8px !important; flex-wrap: wrap !important; margin-bottom: 10px !important; }
+        .rel-node { background: var(--color-bg-alt) !important; border: 1px solid var(--color-border) !important; border-radius: 8px !important; padding: 7px 11px !important; font-size: 12px !important; font-weight: 600 !important; color: var(--color-primary) !important; text-align: center !important; }
+        .rel-node small { display: block !important; font-size: 10px !important; font-weight: 500 !important; color: var(--color-text-muted) !important; }
+        .rel-link { color: var(--color-secondary) !important; font-size: 15px !important; }
+        .rel-rules { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 8px !important; font-size: 12px !important; }
+        .rel-rule-box { background: var(--color-bg-alt) !important; border-radius: 6px !important; padding: 8px 10px !important; }
+        .rel-rule-box b { color: var(--color-primary) !important; display: block !important; margin-bottom: 3px !important; font-size: 11.5px !important; }
+
+        /* ===== Reconciliation ===== */
+        .recon-table { width: 100% !important; border-collapse: collapse !important; font-size: 11.5px !important; }
+        .recon-table thead th { text-align: left !important; background: var(--color-secondary) !important; color: #FFFFFF !important; font-weight: 600 !important; padding: 8px 10px !important; white-space: nowrap !important; }
+        .recon-table tbody td { padding: 9px 10px !important; border-bottom: 1px solid var(--color-border) !important; vertical-align: top !important; }
+        .recon-check { font-size: 11px !important; font-weight: 700 !important; color: var(--color-success) !important; }
+        .recon-check.no { color: var(--color-destructive) !important; }
+
+        /* ===== Notes panel ===== */
+        .notes-panel {
+            background: var(--color-background) !important; border: 1px solid var(--color-border) !important;
+            border-radius: 8px !important; box-shadow: var(--shadow-inspire) !important;
+            padding: 16px 18px !important; margin-top: 4px !important;
+            display: flex !important; flex-wrap: wrap !important; gap: 16px 24px !important;
+        }
+        .notes-col { flex: 1 1 320px !important; }
+        .notes-col h3 { font-size: 13px !important; font-weight: 700 !important; color: var(--color-secondary) !important; margin: 0 0 8px !important; display: flex !important; align-items: center !important; gap: 6px !important; }
+        .notes-col p { margin: 0 !important; font-size: 12px !important; color: var(--color-text-muted) !important; line-height: 1.6 !important; }
+
+        @media (max-width: 768px) {
+            main { padding: 4px 12px 32px !important; }
+            .unified-hdr { padding: 12px 14px !important; }
+            .decision-flow { flex-direction: column !important; }
+            .df-arrow { transform: rotate(90deg) !important; align-self: center !important; }
+            .rel-rules { grid-template-columns: 1fr !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== Unified Header ===== -->
+    <header class="unified-hdr">
+        <div class="unified-hdr-left">
+            <h1>{{ title }}</h1>
+            <p>{{ subtitle }} · {{ methodology }}</p>
+        </div>
+        <div class="unified-hdr-right">
+            <div class="unified-hdr-stats">
+                <span class="hdr-stat"><b>规则</b> {{ overview.ruleCount }}</span>
+                <span class="hdr-stat-sep"></span>
+                <span class="hdr-stat">⚖️ {{ overview.decisionCount }}</span>
+                <span class="hdr-stat-sep"></span>
+                <span class="hdr-stat">📝 {{ overview.templateCount }}</span>
+                <span class="hdr-stat-sep"></span>
+                <span class="hdr-stat">📖 {{ overview.dictionaryCount }}</span>
+                <span class="hdr-stat-sep"></span>
+                <span class="hdr-stat">🔍 {{ overview.extractionCount }}</span>
+                <span class="hdr-stat-sep"></span>
+                <span class="hdr-stat">🔗 {{ overview.relationCount }}</span>
+            </div>
+            <button id="copyYamlBtn" class="btn-copy-yaml" onclick="copyYAML()">复制原始 YAML</button>
+        </div>
+    </header>
+
+    <main>
+        <!-- ===== Overview strip ===== -->
+        <div class="overview-strip">
+            <div class="overview-stat"><span class="num">{{ overview.ruleCount }}</span><span class="lbl">条规则/词条/样本</span></div>
+            <div class="overview-sep"></div>
+            <div class="overview-stat"><span class="num">⚖️ {{ overview.decisionCount }}</span><span class="lbl">决策模型</span></div>
+            <div class="overview-sep"></div>
+            <div class="overview-stat"><span class="num">📝 {{ overview.templateCount }}</span><span class="lbl">模版范例</span></div>
+            <div class="overview-sep"></div>
+            <div class="overview-stat"><span class="num">📖 {{ overview.dictionaryCount }}</span><span class="lbl">术语字典</span></div>
+            <div class="overview-sep"></div>
+            <div class="overview-stat"><span class="num">🔍 {{ overview.extractionCount }}</span><span class="lbl">提取要点</span></div>
+            <div class="overview-sep"></div>
+            <div class="overview-stat"><span class="num">🔗 {{ overview.relationCount }}</span><span class="lbl">关联关系</span></div>
+        </div>
+
+        <!-- ===== Legend ===== -->
+        <div class="legend-panel">
+            <div class="legend-item"><span class="lbl">规则类型</span>
+                {% for t in legend_rule_types %}
+                <span class="legend-pill">{{ t.icon }} {{ t.label }}</span>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- ===== 决策模型类 ===== -->
+        {% if decision %}
+        <div class="rule-section">
+            <div class="rule-section-hd">
+                <span class="rs-icon">⚖️</span><span class="rs-title">决策模型类</span>
+                <span class="rs-desc">怎么算、怎么判、走哪条路径（决策因子 → 逻辑分支 → 分支动作 → 冲突仲裁）</span>
+                <span class="rs-count">{{ decision | length }} 条</span>
+            </div>
+            {% for dc in decision %}
+            <div class="decision-case">
+                <div class="decision-case-hd">
+                    <span class="dc-name">{{ dc.name }}</span>
+                    {% for up in dc.usagePoints %}<span class="usage-chip">使用点 · {{ up }}</span>{% endfor %}
+                </div>
+                <div class="decision-flow">
+                    <div class="df-step">
+                        <span class="df-num">①</span><span class="df-label">决策因子</span>
+                        {% for f in dc.factors %}
+                        <div class="df-val"><b>{{ f.name }}</b>：{{ f.def }}{% if f.source %} <small>(来源 {{ f.source }})</small>{% endif %}</div>
+                        {% endfor %}
+                    </div>
+                    <div class="df-arrow">→</div>
+                    <div class="df-step">
+                        <span class="df-num">②</span><span class="df-label">逻辑分支</span>
+                        {% for b in dc.branches %}<div class="df-val">{{ b.cond }} → {{ b.action }}</div>{% endfor %}
+                    </div>
+                    <div class="df-arrow">→</div>
+                    <div class="df-step">
+                        <span class="df-num">③</span><span class="df-label">分支动作</span>
+                        <div class="df-val">{{ dc.summary }}</div>
+                    </div>
+                    <div class="df-arrow">→</div>
+                    <div class="df-step conflict">
+                        <span class="df-num">④</span><span class="df-label">冲突仲裁</span>
+                        <div class="df-val">{{ dc.arbitration }}</div>
+                        {% if dc.exception %}<div class="df-val"><b>例外/HITL：</b>{{ dc.exception }}</div>{% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- ===== 模版范例类 ===== -->
+        {% if template %}
+        <div class="rule-section">
+            <div class="rule-section-hd">
+                <span class="rs-icon">📝</span><span class="rs-title">模版范例类</span>
+                <span class="rs-desc">照什么结构和范例生成（固定骨架 + 动态字段来源 + 生成/合规规则 + 典型/反面样本）</span>
+                <span class="rs-count">{{ template | length }} 条</span>
+            </div>
+            {% for tc in template %}
+            <div class="template-case">
+                <div class="template-case-hd">
+                    <span class="tc-name">{{ tc.name }}</span>
+                    <div class="template-anatomy">
+                        {% for up in tc.usagePoints %}<span class="usage-chip">使用点 · {{ up }}</span>{% endfor %}
+                    </div>
+                </div>
+                {% if tc.skeleton %}
+                <div class="tpl-block">
+                    <div class="tpl-block-hd">固定骨架（章节 / 表头）</div>
+                    {% for sk in tc.skeleton %}
+                    <div class="tpl-mini-table">
+                        <div class="mt-row"><span><b>{{ sk.part }}</b></span></div>
+                        <div class="mt-row"><span>固定：{{ sk.fixed }}</span></div>
+                        <div class="mt-row"><span>动态：{{ sk.variable }}</span></div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                {% if tc.dynamicFields %}
+                <div class="tpl-block">
+                    <div class="tpl-block-hd">动态字段来源</div>
+                    {% for df in tc.dynamicFields %}<div class="df-val" style="font-size:12px;"><b>{{ df.field }}</b> ← {{ df.source }}</div>{% endfor %}
+                </div>
+                {% endif %}
+                <div class="tpl-rule">
+                    {% if tc.generationRules %}<span class="tr-pill">生成规则：{{ tc.generationRules }}</span>{% endif %}
+                    {% if tc.complianceRules %}<span class="tr-pill">合规：{{ tc.complianceRules }}</span>{% endif %}
+                </div>
+                {% if tc.samples %}
+                <div class="tpl-sample">
+                    {% for s in tc.samples %}
+                    <span class="sample-chip {{ 'good' if '典型' in s.label or '正面' in s.label else 'bad' if '反面' in s.label else '' }}">{{ s.label }} · {{ s.note }}</span>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- ===== 术语字典类 ===== -->
+        {% if dictionary %}
+        <div class="rule-section">
+            <div class="rule-section-hd">
+                <span class="rs-icon">📖</span><span class="rs-title">术语字典类</span>
+                <span class="rs-desc">词、缩写、业务口径（标准名 + 定义 + 引用范围 + 维护方）</span>
+                <span class="rs-count">{{ dictionary | length }} 条</span>
+            </div>
+            {% for dc in dictionary %}
+            <div class="dict-case">
+                <div class="decision-case-hd">
+                    <span class="dc-name">{{ dc.name }}</span>
+                    {% for up in dc.usagePoints %}<span class="usage-chip">使用点 · {{ up }}</span>{% endfor %}
+                </div>
+                {% if dc.entries %}
+                <div class="dict-grid">
+                    {% for e in dc.entries %}
+                    <div class="dict-entry">
+                        <div class="de-term">{{ e.term }}</div>
+                        <div class="de-def">{{ e.def }}</div>
+                        {% if e.context %}<div class="de-ctx">适用：{{ e.context }}</div>{% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                <div class="decision-summary">
+                    <b>维护方：</b>{{ dc.maintainer }}<br>
+                    <b>引用范围：</b>{{ dc.referenced | join('、') }}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- ===== 关键信息提取要点 ===== -->
+        {% if extraction %}
+        <div class="rule-section">
+            <div class="rule-section-hd">
+                <span class="rs-icon">🔍</span><span class="rs-title">关键信息提取要点</span>
+                <span class="rs-desc">专家看资料重点看什么（目标字段 + 典型位置 + 易错点 + 验收门槛）</span>
+                <span class="rs-count">{{ extraction | length }} 条</span>
+            </div>
+            {% for ex in extraction %}
+            <div class="extract-case">
+                <div class="decision-case-hd">
+                    <span class="dc-name">{{ ex.name }}</span>
+                    {% for up in ex.usagePoints %}<span class="usage-chip">使用点 · {{ up }}</span>{% endfor %}
+                </div>
+                <table class="extract-table">
+                    <thead><tr><th>目标字段</th><th>定义</th><th>典型位置</th><th>变体</th><th>易错点</th></tr></thead>
+                    <tbody>
+                        {% for f in ex.fields %}
+                        <tr>
+                            <td class="td-field">{{ f.fieldName }}</td>
+                            <td>{{ f.definition }}</td>
+                            <td>{{ f.typicalLocations | join('、') }}</td>
+                            <td>{{ f.variants | join('、') if f.variants else '—' }}</td>
+                            <td>{{ f.pitfalls | join('、') }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <div class="acceptance">🎯 验收门槛：{{ ex.acceptance }}</div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- ===== 关联关系类 ===== -->
+        {% if relation %}
+        <div class="rule-section">
+            <div class="rule-section-hd">
+                <span class="rs-icon">🔗</span><span class="rs-title">关联关系类</span>
+                <span class="rs-desc">对象之间怎么关联（关系网络 + 建立/特殊规则 + 使用点）</span>
+                <span class="rs-count">{{ relation | length }} 条</span>
+            </div>
+            {% for rl in relation %}
+            <div class="relation-case">
+                <div class="decision-case-hd">
+                    <span class="dc-name">{{ rl.name }}</span>
+                    {% for up in rl.usagePoints %}<span class="usage-chip">使用点 · {{ up }}</span>{% endfor %}
+                </div>
+                <div class="relation-network">
+                    {% for seg in rl.objectType.split('↔') %}{% if not loop.first %}<span class="rel-link">↔</span>{% endif %}<span class="rel-node">{{ seg | trim }}</span>{% endfor %}
+                </div>
+                <div class="decision-summary">{{ rl.meaning }}</div>
+                <div class="rel-rules">
+                    {% if rl.rules.establish %}<div class="rel-rule-box"><b>建立规则</b>{{ rl.rules.establish }}</div>{% endif %}
+                    {% if rl.rules.special %}<div class="rel-rule-box"><b>特殊情况</b>{{ rl.rules.special }}</div>{% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- ===== 双向可追踪 ===== -->
+        {% if reconciliation %}
+        <div class="panel">
+            <div class="panel-head">
+                <span class="panel-title"><span class="emoji">🔗</span>P1 ↔ P2 双向可追踪（交叉核对）</span>
+                <span class="panel-badge">规则能找到 / 使用点能找到 / 名称一致 / 异常链一致</span>
+            </div>
+            <table class="recon-table">
+                <thead><tr><th>任务</th><th>规则依据</th><th>因子</th><th>仲裁</th><th>异常/HITL</th><th>四项检查</th></tr></thead>
+                <tbody>
+                    {% for rc in reconciliation %}
+                    <tr>
+                        <td class="td-field">{{ rc.task }}</td>
+                        <td>{{ rc.rule }}</td>
+                        <td>{{ rc.factor }}</td>
+                        <td>{{ rc.arbitration }}</td>
+                        <td>{{ rc.exception }}</td>
+                        <td>
+                            <span class="recon-check">✓ {{ '规则找到' if rc.checks.ruleFound else '规则缺失' }}</span><br>
+                            <span class="recon-check">✓ {{ '使用点找到' if rc.checks.usageFound else '使用点缺失' }}</span><br>
+                            <span class="recon-check">✓ {{ '名称一致' if rc.checks.nameMatch else '名称不一致' }}</span><br>
+                            <span class="recon-check">✓ {{ '异常链一致' if rc.checks.exceptionMatch else '异常链不一致' }}</span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+
+        <!-- ===== Notes ===== -->
+        <div class="notes-panel">
+            {% if legend_binding_note %}
+            <div class="notes-col"><h3>🔹 共通原则</h3><p>{{ legend_binding_note }}</p></div>
+            {% endif %}
+            {% if legend_conflict_note %}
+            <div class="notes-col"><h3>⚠️ 冲突与缺口</h3><p>{{ legend_conflict_note }}</p></div>
+            {% endif %}
+            {% if inputs %}
+            <div class="notes-col"><h3>📥 输入依据</h3><p>{{ inputs | join(' · ') }}</p></div>
+            {% endif %}
+        </div>
+    </main>
+
+    <script type="application/yaml" id="raw-yaml">
+{{ raw_yaml | safe }}
+    </script>
+
+    <script>
+        function copyYAML() {
+            const yamlContent = document.getElementById('raw-yaml').textContent.trim();
+            navigator.clipboard.writeText(yamlContent).then(() => {
+                const btn = document.getElementById('copyYamlBtn');
+                const originalHtml = btn.innerHTML;
+                btn.innerHTML = '✓ 已复制';
+                setTimeout(() => { btn.innerHTML = originalHtml; }, 1600);
+            }).catch(err => { console.error('Failed to copy: ', err); alert('复制失败，请手动复制。'); });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>X电商订舱 · 智能订舱 Agent · 单证预填（SI 生成）业务规则挖掘</title>
+
+    <!-- ===== Design System: Inspire (Enterprise Tech) ===== -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+        :root {
+            --color-primary: #10213E;       /* Starry Blues */
+            --color-accent: #5DB2E2;        /* Creative Blue */
+            --color-secondary: #625D9C;     /* Amethyst */
+            --color-success: #00524C;       /* Myrtle Deep Green */
+            --color-info: #6FB1C8;          /* Cerulean Frost */
+            --color-warning: #F59E0B;       /* Warning */
+            --color-destructive: #EF4444;   /* Danger */
+            --color-background: #FFFFFF;    /* Pure White */
+            --color-bg-alt: #F5F5F6;        /* Tech Gray */
+            --color-foreground: #10213E;    /* Primary Text */
+            --color-text-muted: #64748B;    /* Text Secondary */
+            --color-border: #E2E8F0;        /* Border/Line */
+            --shadow-inspire: 0 2px 8px rgba(16, 33, 62, 0.08);
+        }
+
+        *, *::before, *::after { box-sizing: border-box !important; }
+        html, body {
+            margin: 0 !important; padding: 0 !important;
+            background: var(--color-bg-alt) !important;
+            color: var(--color-foreground) !important;
+            font-family: "MiSans", "Inter", "Microsoft YaHei", sans-serif !important;
+            line-height: 1.6 !important;
+            overflow-x: auto !important;
+        }
+
+        ::-webkit-scrollbar { width: 9px; height: 9px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: 5px; }
+        ::-webkit-scrollbar-thumb:hover { background: #CBD5E1; }
+
+        /* ===== Unified Header ===== */
+        .unified-hdr {
+            width: 100% !important; background: var(--color-background) !important;
+            border-bottom: 1px solid var(--color-border) !important; border-radius: 0 !important;
+            box-shadow: none !important; padding: 14px 28px !important; margin-bottom: 18px !important;
+            display: flex !important; justify-content: space-between !important; align-items: center !important;
+            gap: 16px !important; flex-wrap: wrap !important;
+        }
+        .unified-hdr-left { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+        .unified-hdr-left h1 {
+            font-size: 22px !important; font-weight: 700 !important; color: var(--color-primary) !important;
+            line-height: 1.3 !important; margin: 0 !important; display: flex !important; align-items: center !important; gap: 10px !important;
+        }
+        .unified-hdr-left h1::before {
+            content: "" !important; display: inline-block !important; width: 4px !important; height: 22px !important;
+            background: var(--color-secondary) !important; border-radius: 2px !important; flex-shrink: 0 !important;
+        }
+        .unified-hdr-left p {
+            font-size: 13px !important; color: var(--color-text-muted) !important;
+            margin: 4px 0 0 !important; padding-left: 14px !important; line-height: 1.5 !important;
+        }
+        .unified-hdr-right { display: flex; align-items: center; gap: 12px; flex-shrink: 0; flex-wrap: wrap; }
+        .unified-hdr-stats {
+            display: flex !important; align-items: center !important; gap: 8px !important;
+            background: var(--color-bg-alt) !important; border: 1px solid var(--color-border) !important;
+            border-radius: 20px !important; padding: 4px 14px !important;
+            font-size: 12px !important; color: var(--color-text-muted) !important;
+        }
+        .unified-hdr-stats b { color: var(--color-primary); font-weight: 700; margin-right: 3px; }
+        .hdr-stat-sep { width: 1px; height: 12px; background: var(--color-border); }
+        .btn-copy-yaml {
+            background: var(--color-primary) !important; color: #FFFFFF !important;
+            border: 1px solid var(--color-primary) !important; font-size: 12px !important;
+            padding: 6px 12px !important; border-radius: 6px !important; font-weight: 600 !important;
+            cursor: pointer !important; transition: all 0.15s ease-out !important;
+        }
+        .btn-copy-yaml:hover { opacity: 0.85 !important; }
+
+        main { width: 100% !important; max-width: none !important; margin: 0 auto !important; padding: 4px 28px 48px !important; display: block !important; }
+
+        /* ===== Panel ===== */
+        .panel {
+            background: var(--color-background) !important; border: 1px solid var(--color-border) !important;
+            border-radius: 8px !important; box-shadow: var(--shadow-inspire) !important;
+            padding: 16px 18px !important; margin-bottom: 18px !important;
+        }
+        .panel-head { display: flex !important; justify-content: space-between !important; align-items: center !important; gap: 12px !important; margin-bottom: 14px !important; flex-wrap: wrap !important; }
+        .panel-title { display: flex !important; align-items: center !important; gap: 8px !important; font-size: 14px !important; font-weight: 700 !important; color: var(--color-primary) !important; }
+        .panel-title .emoji { font-size: 16px !important; }
+        .panel-badge { font-size: 11px !important; font-weight: 600 !important; color: var(--color-text-muted) !important; background: var(--color-bg-alt) !important; border-radius: 10px !important; padding: 2px 10px !important; }
+
+        /* ===== Overview strip ===== */
+        .overview-strip {
+            background: var(--color-primary) !important; border-radius: 8px !important;
+            color: #FFFFFF !important; padding: 16px 20px !important; margin-bottom: 18px !important;
+            display: flex !important; align-items: center !important; flex-wrap: wrap !important; gap: 12px 22px !important;
+        }
+        .overview-stat { display: flex !important; align-items: baseline !important; gap: 6px !important; }
+        .overview-stat .num { font-size: 24px !important; font-weight: 800 !important; line-height: 1 !important; color: #FFFFFF !important; }
+        .overview-stat .lbl { font-size: 12px !important; color: rgba(255,255,255,0.8) !important; }
+        .overview-sep { width: 1px !important; height: 26px !important; background: rgba(255,255,255,0.2) !important; }
+
+        /* ===== Legend ===== */
+        .legend-panel {
+            background: var(--color-background) !important; border: 1px solid var(--color-border) !important;
+            border-radius: 8px !important; box-shadow: var(--shadow-inspire) !important;
+            padding: 12px 18px !important; margin-bottom: 18px !important;
+            display: flex !important; flex-wrap: wrap !important; gap: 8px 24px !important; align-items: center !important;
+        }
+        .legend-item { display: flex !important; align-items: center !important; gap: 6px !important; font-size: 12px !important; color: var(--color-text-muted) !important; white-space: nowrap !important; }
+        .legend-item .lbl { font-weight: 700 !important; color: var(--color-primary) !important; margin-right: 2px !important; }
+        .legend-pill {
+            display: inline-flex !important; align-items: center !important; gap: 4px !important;
+            padding: 2px 9px !important; border-radius: 10px !important; font-size: 11px !important; font-weight: 600 !important;
+            border: 1px solid var(--color-border) !important;
+        }
+
+        /* ===== Section label ===== */
+        .rule-section { margin-bottom: 22px !important; }
+        .rule-section-hd { display: flex !important; align-items: center !important; gap: 10px !important; margin: 20px 0 12px !important; }
+        .rule-section-hd .rs-icon { font-size: 18px !important; }
+        .rule-section-hd .rs-title { font-size: 15px !important; font-weight: 700 !important; color: var(--color-primary) !important; }
+        .rule-section-hd .rs-desc { font-size: 12px !important; color: var(--color-text-muted) !important; }
+        .rule-section-hd .rs-count { margin-left: auto !important; font-size: 11px !important; font-weight: 700 !important; color: var(--color-secondary) !important; background: rgba(98,93,156,0.08) !important; border-radius: 10px !important; padding: 2px 10px !important; }
+
+        /* ===== Decision case ===== */
+        .decision-case {
+            border: 1px solid var(--color-border) !important; border-radius: 8px !important;
+            box-shadow: var(--shadow-inspire) !important; padding: 14px 16px !important; margin-bottom: 14px !important;
+            background: var(--color-background) !important;
+        }
+        .decision-case-hd { display: flex !important; align-items: center !important; gap: 8px !important; flex-wrap: wrap !important; margin-bottom: 12px !important; }
+        .decision-case-hd .dc-name { font-size: 14px !important; font-weight: 700 !important; color: var(--color-primary) !important; }
+        .usage-chip { display: inline-flex !important; align-items: center !important; gap: 4px !important; font-size: 11px !important; font-weight: 600 !important; color: var(--color-accent) !important; background: rgba(93,178,226,0.10) !important; border-radius: 10px !important; padding: 2px 9px !important; }
+        .decision-flow { display: flex !important; gap: 10px !important; align-items: stretch !important; }
+        .df-step { flex: 1 1 0 !important; background: var(--color-bg-alt) !important; border-radius: 8px !important; padding: 11px 12px !important; display: flex !important; flex-direction: column !important; gap: 4px !important; }
+        .df-step .df-num { font-size: 11px !important; font-weight: 700 !important; color: var(--color-secondary) !important; }
+        .df-step .df-label { font-size: 12.5px !important; font-weight: 700 !important; color: var(--color-primary) !important; }
+        .df-step .df-val { font-size: 12px !important; color: var(--color-foreground) !important; line-height: 1.5 !important; }
+        .df-step .df-val b { color: var(--color-destructive) !important; font-weight: 600 !important; }
+        .df-step.conflict { background: rgba(245,158,11,0.08) !important; border: 1px solid #FCD34D !important; }
+        .df-arrow { display: flex !important; align-items: center !important; color: var(--color-text-muted) !important; font-size: 16px !important; flex-shrink: 0 !important; }
+        .decision-summary { margin-top: 10px !important; font-size: 12px !important; color: var(--color-text-muted) !important; border-top: 1px dashed var(--color-border) !important; padding-top: 8px !important; }
+
+        /* ===== Template case ===== */
+        .template-case { border: 1px solid var(--color-border) !important; border-radius: 8px !important; box-shadow: var(--shadow-inspire) !important; padding: 14px 16px !important; margin-bottom: 14px !important; }
+        .template-case-hd { display: flex !important; align-items: center !important; justify-content: space-between !important; gap: 10px !important; flex-wrap: wrap !important; margin-bottom: 12px !important; }
+        .template-case-hd .tc-name { font-size: 14px !important; font-weight: 700 !important; color: var(--color-primary) !important; }
+        .template-anatomy { display: flex !important; gap: 6px !important; align-items: center !important; flex-wrap: wrap !important; }
+        .tpl-block { background: var(--color-bg-alt) !important; border-radius: 8px !important; padding: 10px 12px !important; margin-bottom: 10px !important; }
+        .tpl-block-hd { font-size: 12px !important; font-weight: 700 !important; color: var(--color-secondary) !important; margin-bottom: 8px !important; }
+        .tpl-mini-table { font-size: 11.5px !important; }
+        .tpl-mini-table .mt-row { display: flex !important; border-bottom: 1px solid var(--color-border) !important; padding: 6px 0 !important; gap: 8px !important; }
+        .tpl-mini-table .mt-row.head { font-weight: 700 !important; color: var(--color-primary) !important; background: var(--color-bg-alt) !important; padding: 7px 8px !important; border-radius: 6px !important; }
+        .tpl-mini-table .mt-row span { flex: 1 1 0 !important; }
+        .tpl-rule { display: flex !important; gap: 8px !important; flex-wrap: wrap !important; margin-top: 6px !important; }
+        .tpl-rule .tr-pill { font-size: 11px !important; font-weight: 600 !important; padding: 3px 9px !important; border-radius: 8px !important; border: 1px solid var(--color-border) !important; }
+        .tpl-sample { display: flex !important; gap: 8px !important; flex-wrap: wrap !important; margin-top: 8px !important; }
+        .sample-chip { font-size: 11px !important; padding: 3px 9px !important; border-radius: 8px !important; }
+        .sample-chip.good { background: rgba(0,82,76,0.08) !important; color: var(--color-success) !important; border: 1px solid #7FB6B0 !important; }
+        .sample-chip.bad { background: rgba(239,68,68,0.08) !important; color: #B91C1C !important; border: 1px solid #FCA5A5 !important; }
+
+        /* ===== Dictionary ===== */
+        .dict-case { border: 1px solid var(--color-border) !important; border-radius: 8px !important; box-shadow: var(--shadow-inspire) !important; padding: 14px 16px !important; margin-bottom: 14px !important; }
+        .dict-grid { display: grid !important; grid-template-columns: repeat(auto-fill, minmax(210px,1fr)) !important; gap: 8px !important; margin-top: 10px !important; }
+        .dict-entry { background: var(--color-bg-alt) !important; border-radius: 8px !important; padding: 9px 11px !important; }
+        .dict-entry .de-term { font-size: 12.5px !important; font-weight: 700 !important; color: var(--color-primary) !important; }
+        .dict-entry .de-def { font-size: 11.5px !important; color: var(--color-foreground) !important; margin-top: 3px !important; line-height: 1.5 !important; }
+        .dict-entry .de-ctx { font-size: 10.5px !important; color: var(--color-text-muted) !important; margin-top: 3px !important; }
+
+        /* ===== Extraction ===== */
+        .extract-case { border: 1px solid var(--color-border) !important; border-radius: 8px !important; box-shadow: var(--shadow-inspire) !important; padding: 14px 16px !important; margin-bottom: 14px !important; }
+        .extract-table { width: 100% !important; border-collapse: collapse !important; font-size: 11.5px !important; }
+        .extract-table thead th { text-align: left !important; background: var(--color-primary) !important; color: #FFFFFF !important; font-weight: 600 !important; padding: 8px 10px !important; }
+        .extract-table tbody td { padding: 9px 10px !important; border-bottom: 1px solid var(--color-border) !important; vertical-align: top !important; }
+        .extract-table tbody tr:nth-child(even) td { background: var(--color-bg-alt) !important; }
+        .extract-table .td-field { font-weight: 700 !important; color: var(--color-primary) !important; }
+        .acceptance { margin-top: 10px !important; background: rgba(98,93,156,0.06) !important; border-radius: 8px !important; padding: 9px 12px !important; font-size: 12px !important; color: var(--color-secondary) !important; font-weight: 600 !important; }
+
+        /* ===== Relation ===== */
+        .relation-case { border: 1px solid var(--color-border) !important; border-radius: 8px !important; box-shadow: var(--shadow-inspire) !important; padding: 14px 16px !important; margin-bottom: 14px !important; }
+        .relation-network { display: flex !important; align-items: center !important; gap: 8px !important; flex-wrap: wrap !important; margin-bottom: 10px !important; }
+        .rel-node { background: var(--color-bg-alt) !important; border: 1px solid var(--color-border) !important; border-radius: 8px !important; padding: 7px 11px !important; font-size: 12px !important; font-weight: 600 !important; color: var(--color-primary) !important; text-align: center !important; }
+        .rel-node small { display: block !important; font-size: 10px !important; font-weight: 500 !important; color: var(--color-text-muted) !important; }
+        .rel-link { color: var(--color-secondary) !important; font-size: 15px !important; }
+        .rel-rules { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 8px !important; font-size: 12px !important; }
+        .rel-rule-box { background: var(--color-bg-alt) !important; border-radius: 6px !important; padding: 8px 10px !important; }
+        .rel-rule-box b { color: var(--color-primary) !important; display: block !important; margin-bottom: 3px !important; font-size: 11.5px !important; }
+
+        /* ===== Reconciliation ===== */
+        .recon-table { width: 100% !important; border-collapse: collapse !important; font-size: 11.5px !important; }
+        .recon-table thead th { text-align: left !important; background: var(--color-secondary) !important; color: #FFFFFF !important; font-weight: 600 !important; padding: 8px 10px !important; white-space: nowrap !important; }
+        .recon-table tbody td { padding: 9px 10px !important; border-bottom: 1px solid var(--color-border) !important; vertical-align: top !important; }
+        .recon-check { font-size: 11px !important; font-weight: 700 !important; color: var(--color-success) !important; }
+        .recon-check.no { color: var(--color-destructive) !important; }
+
+        /* ===== Notes panel ===== */
+        .notes-panel {
+            background: var(--color-background) !important; border: 1px solid var(--color-border) !important;
+            border-radius: 8px !important; box-shadow: var(--shadow-inspire) !important;
+            padding: 16px 18px !important; margin-top: 4px !important;
+            display: flex !important; flex-wrap: wrap !important; gap: 16px 24px !important;
+        }
+        .notes-col { flex: 1 1 320px !important; }
+        .notes-col h3 { font-size: 13px !important; font-weight: 700 !important; color: var(--color-secondary) !important; margin: 0 0 8px !important; display: flex !important; align-items: center !important; gap: 6px !important; }
+        .notes-col p { margin: 0 !important; font-size: 12px !important; color: var(--color-text-muted) !important; line-height: 1.6 !important; }
+
+        @media (max-width: 768px) {
+            main { padding: 4px 12px 32px !important; }
+            .unified-hdr { padding: 12px 14px !important; }
+            .decision-flow { flex-direction: column !important; }
+            .df-arrow { transform: rotate(90deg) !important; align-self: center !important; }
+            .rel-rules { grid-template-columns: 1fr !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== Unified Header ===== -->
+    <header class="unified-hdr">
+        <div class="unified-hdr-left">
+            <h1>X电商订舱 · 智能订舱 Agent · 单证预填（SI 生成）业务规则挖掘</h1>
+            <p>来自 SKP 阶段2 · P2 任务处理规则挖掘（聚焦 SI 生成环节） · SKP 阶段2方法（五类任务处理规则：决策/模板/术语/提取点/关联）</p>
+        </div>
+        <div class="unified-hdr-right">
+            <div class="unified-hdr-stats">
+                <span class="hdr-stat"><b>规则</b> 7</span>
+                <span class="hdr-stat-sep"></span>
+                <span class="hdr-stat">⚖️ 2</span>
+                <span class="hdr-stat-sep"></span>
+                <span class="hdr-stat">📝 2</span>
+                <span class="hdr-stat-sep"></span>
+                <span class="hdr-stat">📖 1</span>
+                <span class="hdr-stat-sep"></span>
+                <span class="hdr-stat">🔍 1</span>
+                <span class="hdr-stat-sep"></span>
+                <span class="hdr-stat">🔗 1</span>
+            </div>
+            <button id="copyYamlBtn" class="btn-copy-yaml" onclick="copyYAML()">复制原始 YAML</button>
+        </div>
+    </header>
+
+    <main>
+        <!-- ===== Overview strip ===== -->
+        <div class="overview-strip">
+            <div class="overview-stat"><span class="num">7</span><span class="lbl">条规则/词条/样本</span></div>
+            <div class="overview-sep"></div>
+            <div class="overview-stat"><span class="num">⚖️ 2</span><span class="lbl">决策模型</span></div>
+            <div class="overview-sep"></div>
+            <div class="overview-stat"><span class="num">📝 2</span><span class="lbl">模版范例</span></div>
+            <div class="overview-sep"></div>
+            <div class="overview-stat"><span class="num">📖 1</span><span class="lbl">术语字典</span></div>
+            <div class="overview-sep"></div>
+            <div class="overview-stat"><span class="num">🔍 1</span><span class="lbl">提取要点</span></div>
+            <div class="overview-sep"></div>
+            <div class="overview-stat"><span class="num">🔗 1</span><span class="lbl">关联关系</span></div>
+        </div>
+
+        <!-- ===== Legend ===== -->
+        <div class="legend-panel">
+            <div class="legend-item"><span class="lbl">规则类型</span>
+                
+                <span class="legend-pill">⚖️ 决策模型类</span>
+                
+                <span class="legend-pill">📝 模版范例类</span>
+                
+                <span class="legend-pill">📖 术语字典类</span>
+                
+                <span class="legend-pill">🔍 关键信息提取要点</span>
+                
+                <span class="legend-pill">🔗 关联关系类</span>
+                
+            </div>
+        </div>
+
+        <!-- ===== 决策模型类 ===== -->
+        
+        <div class="rule-section">
+            <div class="rule-section-hd">
+                <span class="rs-icon">⚖️</span><span class="rs-title">决策模型类</span>
+                <span class="rs-desc">怎么算、怎么判、走哪条路径（决策因子 → 逻辑分支 → 分支动作 → 冲突仲裁）</span>
+                <span class="rs-count">2 条</span>
+            </div>
+            
+            <div class="decision-case">
+                <div class="decision-case-hd">
+                    <span class="dc-name">单证校验规则（VGM/毛重差异/HS）</span>
+                    <span class="usage-chip">使用点 · 单证校验（VGM/毛重差异/HS）</span>
+                </div>
+                <div class="decision-flow">
+                    <div class="df-step">
+                        <span class="df-num">①</span><span class="df-label">决策因子</span>
+                        
+                        <div class="df-val"><b>VGM 申报</b>：核实的集装箱总重是否申报 <small>(来源 智慧单证系统)</small></div>
+                        
+                        <div class="df-val"><b>毛重差异</b>：SI 毛重与装箱单/称重差异是否超限 <small>(来源 智慧单证系统)</small></div>
+                        
+                        <div class="df-val"><b>HS 编码</b>：品名能否映射到合规 HS 编码 <small>(来源 多语言品名/HS 字典)</small></div>
+                        
+                    </div>
+                    <div class="df-arrow">→</div>
+                    <div class="df-step">
+                        <span class="df-num">②</span><span class="df-label">逻辑分支</span>
+                        <div class="df-val">VGM 缺失 → → 生成补全项 + 填写示例（如 12,900 KG）</div><div class="df-val">毛重差异超限 → → 差异告警，提示一次补全</div><div class="df-val">HS 编码无法映射 → → 提示人工复核，禁止猜测</div>
+                    </div>
+                    <div class="df-arrow">→</div>
+                    <div class="df-step">
+                        <span class="df-num">③</span><span class="df-label">分支动作</span>
+                        <div class="df-val">运行 300+ 条单证规则，处理 VGM 缺件/毛重差异/HS 编码三类异常，禁止带缺件推送单证系统。</div>
+                    </div>
+                    <div class="df-arrow">→</div>
+                    <div class="df-step conflict">
+                        <span class="df-num">④</span><span class="df-label">冲突仲裁</span>
+                        <div class="df-val">VGM 缺失/毛重超限者阻止推送；HS 无法映射走人工复核，不阻塞主链路。</div>
+                        <div class="df-val"><b>例外/HITL：</b>VGM 缺失/毛重超限 → 生成补全项；HS 无法映射 → 人工复核</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="decision-case">
+                <div class="decision-case-hd">
+                    <span class="dc-name">OCR 置信度与字段处理规则</span>
+                    <span class="usage-chip">使用点 · 抽取置信度标注</span><span class="usage-chip">使用点 · 确认并提交 SI</span>
+                </div>
+                <div class="decision-flow">
+                    <div class="df-step">
+                        <span class="df-num">①</span><span class="df-label">决策因子</span>
+                        
+                        <div class="df-val"><b>OCR 置信度</b>：各字段抽取置信度分数 <small>(来源 OCR 解析器)</small></div>
+                        
+                        <div class="df-val"><b>字段类型</b>：品名/唛头/件数/毛重/体积/HS <small>(来源 抽取结果)</small></div>
+                        
+                    </div>
+                    <div class="df-arrow">→</div>
+                    <div class="df-step">
+                        <span class="df-num">②</span><span class="df-label">逻辑分支</span>
+                        <div class="df-val">置信度高（≥阈值） → → 直接进入品名规范/HS 映射</div><div class="df-val">置信度低（&lt;阈值） → → 标黄待人工复核，不阻塞其余字段</div><div class="df-val">关键字段异常未修正 → → 阻止 SI 提交</div>
+                    </div>
+                    <div class="df-arrow">→</div>
+                    <div class="df-step">
+                        <span class="df-num">③</span><span class="df-label">分支动作</span>
+                        <div class="df-val">按 OCR 置信度决定字段处理路径，低置信度标黄复核，关键异常阻止提交。</div>
+                    </div>
+                    <div class="df-arrow">→</div>
+                    <div class="df-step conflict">
+                        <span class="df-num">④</span><span class="df-label">冲突仲裁</span>
+                        <div class="df-val">低置信度字段标黄复核而非静默按抽取值推送；关键字段（HS）异常未修正时阻止提交。</div>
+                        <div class="df-val"><b>例外/HITL：</b>OCR 置信度低 → 标黄待人工复核；异常未修正 → 阻止提交并给出示例</div>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+        
+
+        <!-- ===== 模版范例类 ===== -->
+        
+        <div class="rule-section">
+            <div class="rule-section-hd">
+                <span class="rs-icon">📝</span><span class="rs-title">模版范例类</span>
+                <span class="rs-desc">照什么结构和范例生成（固定骨架 + 动态字段来源 + 生成/合规规则 + 典型/反面样本）</span>
+                <span class="rs-count">2 条</span>
+            </div>
+            
+            <div class="template-case">
+                <div class="template-case-hd">
+                    <span class="tc-name">补件清单与示例模板</span>
+                    <div class="template-anatomy">
+                        <span class="usage-chip">使用点 · 生成异常补全项与示例</span>
+                    </div>
+                </div>
+                
+                <div class="tpl-block">
+                    <div class="tpl-block-hd">固定骨架（章节 / 表头）</div>
+                    
+                    <div class="tpl-mini-table">
+                        <div class="mt-row"><span><b>① 缺件项</b></span></div>
+                        <div class="mt-row"><span>固定：固定栏（字段名/缺失原因/示例值）</span></div>
+                        <div class="mt-row"><span>动态：随校验异常动态生成</span></div>
+                    </div>
+                    
+                    <div class="tpl-mini-table">
+                        <div class="mt-row"><span><b>② 填写示例</b></span></div>
+                        <div class="mt-row"><span>固定：固定栏（VGM 示例 / HS 映射示例）</span></div>
+                        <div class="mt-row"><span>动态：随字段类型生成</span></div>
+                    </div>
+                    
+                    <div class="tpl-mini-table">
+                        <div class="mt-row"><span><b>③ 复核提示</b></span></div>
+                        <div class="mt-row"><span>固定：固定栏（再校验路径/提交条件）</span></div>
+                        <div class="mt-row"><span>动态：随异常项生成</span></div>
+                    </div>
+                    
+                </div>
+                
+                
+                <div class="tpl-block">
+                    <div class="tpl-block-hd">动态字段来源</div>
+                    <div class="df-val" style="font-size:12px;"><b>缺件项.VGM</b> ← 来自单证校验（VGM 缺失）</div><div class="df-val" style="font-size:12px;"><b>示例值</b> ← 来自历史补件样本 / 标准值模板</div><div class="df-val" style="font-size:12px;"><b>复核提示</b> ← 来自单证校验规则</div>
+                </div>
+                
+                <div class="tpl-rule">
+                    <span class="tr-pill">生成规则：异常项必须给出填写示例；未展示原因与示例不得仅列缺件名。</span>
+                    <span class="tr-pill">合规：补件提示不得让操作员自行猜测口径；关键字段（VGM/HS）必须配套示例。</span>
+                </div>
+                
+                <div class="tpl-sample">
+                    
+                    <span class="sample-chip good">典型 · VGM 补件 · 展示缺失原因 + 12,900 KG 示例，操作员一次补全</span>
+                    
+                    <span class="sample-chip bad">反面 · 只标缺件无示例 · 禁止只列缺件名不给示例，否则操作员仍需二次询问</span>
+                    
+                </div>
+                
+            </div>
+            
+            <div class="template-case">
+                <div class="template-case-hd">
+                    <span class="tc-name">SI 提交模板</span>
+                    <div class="template-anatomy">
+                        <span class="usage-chip">使用点 · 确认并提交 SI</span>
+                    </div>
+                </div>
+                
+                <div class="tpl-block">
+                    <div class="tpl-block-hd">固定骨架（章节 / 表头）</div>
+                    
+                    <div class="tpl-mini-table">
+                        <div class="mt-row"><span><b>① 单证头</b></span></div>
+                        <div class="mt-row"><span>固定：固定栏（订舱号/船名航次/起运港/目的港）</span></div>
+                        <div class="mt-row"><span>动态：随订舱确认书填充</span></div>
+                    </div>
+                    
+                    <div class="tpl-mini-table">
+                        <div class="mt-row"><span><b>② 货载明细</b></span></div>
+                        <div class="mt-row"><span>固定：固定栏（品名/唛头/件数/毛重/体积/HS）</span></div>
+                        <div class="mt-row"><span>动态：随 SI 字段填充</span></div>
+                    </div>
+                    
+                    <div class="tpl-mini-table">
+                        <div class="mt-row"><span><b>③ 校验状态</b></span></div>
+                        <div class="mt-row"><span>固定：固定栏（VGM/毛重/HS 校验通过项）</span></div>
+                        <div class="mt-row"><span>动态：随校验结果填充</span></div>
+                    </div>
+                    
+                </div>
+                
+                
+                <div class="tpl-block">
+                    <div class="tpl-block-hd">动态字段来源</div>
+                    <div class="df-val" style="font-size:12px;"><b>订舱号</b> ← 来自订舱确认书 Booking 编号</div><div class="df-val" style="font-size:12px;"><b>货载明细</b> ← 来自 OCR 抽取 + 品名/HS 映射</div><div class="df-val" style="font-size:12px;"><b>校验状态</b> ← 来自单证校验结果</div>
+                </div>
+                
+                <div class="tpl-rule">
+                    <span class="tr-pill">生成规则：校验全部通过才可提交；存在异常项必须带补件清单一起展示。</span>
+                    <span class="tr-pill">合规：不可带缺件推送；HS 无法映射时禁止提交猜测编码。</span>
+                </div>
+                
+                <div class="tpl-sample">
+                    
+                    <span class="sample-chip good">典型 · 校验通过 SI · 字段齐全、校验通过，一次提交成功</span>
+                    
+                    <span class="sample-chip bad">反面 · 带缺件提交 · 禁止 VGM 缺失仍提交，否则退单返工</span>
+                    
+                </div>
+                
+            </div>
+            
+        </div>
+        
+
+        <!-- ===== 术语字典类 ===== -->
+        
+        <div class="rule-section">
+            <div class="rule-section-hd">
+                <span class="rs-icon">📖</span><span class="rs-title">术语字典类</span>
+                <span class="rs-desc">词、缩写、业务口径（标准名 + 定义 + 引用范围 + 维护方）</span>
+                <span class="rs-count">1 条</span>
+            </div>
+            
+            <div class="dict-case">
+                <div class="decision-case-hd">
+                    <span class="dc-name">单证预填业务口径词典</span>
+                    <span class="usage-chip">使用点 · OCR 抽取 SI 字段</span><span class="usage-chip">使用点 · 单证校验</span><span class="usage-chip">使用点 · 确认并提交 SI</span>
+                </div>
+                
+                <div class="dict-grid">
+                    
+                    <div class="dict-entry">
+                        <div class="de-term">SI</div>
+                        <div class="de-def">装运指示（Shipping Instruction），提单签发的依据</div>
+                        <div class="de-ctx">适用：OCR 抽取/提交</div>
+                    </div>
+                    
+                    <div class="dict-entry">
+                        <div class="de-term">VGM</div>
+                        <div class="de-def">核实的集装箱总重（Verified Gross Mass）</div>
+                        <div class="de-ctx">适用：单证校验</div>
+                    </div>
+                    
+                    <div class="dict-entry">
+                        <div class="de-term">HS 编码</div>
+                        <div class="de-def">海关商品编码，品名的合规申报用码</div>
+                        <div class="de-ctx">适用：品名/HS 映射</div>
+                    </div>
+                    
+                    <div class="dict-entry">
+                        <div class="de-term">唛头</div>
+                        <div class="de-def">货物运输标志（Shipping Mark）</div>
+                        <div class="de-ctx">适用：OCR 抽取</div>
+                    </div>
+                    
+                    <div class="dict-entry">
+                        <div class="de-term">毛重差异</div>
+                        <div class="de-def">SI 毛重与装箱单/称重的偏差</div>
+                        <div class="de-ctx">适用：单证校验</div>
+                    </div>
+                    
+                    <div class="dict-entry">
+                        <div class="de-term">eBL</div>
+                        <div class="de-def">电子提单（Electronic Bill of Lading）</div>
+                        <div class="de-ctx">适用：单证进度</div>
+                    </div>
+                    
+                </div>
+                
+                <div class="decision-summary">
+                    <b>维护方：</b>单证团队，随海关编码与口岸政策更新<br>
+                    <b>引用范围：</b>SI 字段抽取、品名规范、单证校验、补件
+                </div>
+            </div>
+            
+        </div>
+        
+
+        <!-- ===== 关键信息提取要点 ===== -->
+        
+        <div class="rule-section">
+            <div class="rule-section-hd">
+                <span class="rs-icon">🔍</span><span class="rs-title">关键信息提取要点</span>
+                <span class="rs-desc">专家看资料重点看什么（目标字段 + 典型位置 + 易错点 + 验收门槛）</span>
+                <span class="rs-count">1 条</span>
+            </div>
+            
+            <div class="extract-case">
+                <div class="decision-case-hd">
+                    <span class="dc-name">SI 字段抽取要点</span>
+                    <span class="usage-chip">使用点 · OCR 抽取 SI 字段</span>
+                </div>
+                <table class="extract-table">
+                    <thead><tr><th>目标字段</th><th>定义</th><th>典型位置</th><th>变体</th><th>易错点</th></tr></thead>
+                    <tbody>
+                        
+                        <tr>
+                            <td class="td-field">品名</td>
+                            <td>货物行名</td>
+                            <td>PI/装箱单『品名』栏</td>
+                            <td>多语言品名</td>
+                            <td>需规范翻译</td>
+                        </tr>
+                        
+                        <tr>
+                            <td class="td-field">唛头</td>
+                            <td>货物运输标志</td>
+                            <td>装箱单『唛头』栏</td>
+                            <td>—</td>
+                            <td>易与品名混淆</td>
+                        </tr>
+                        
+                        <tr>
+                            <td class="td-field">件数</td>
+                            <td>货物件数</td>
+                            <td>装箱单『件数』栏</td>
+                            <td>—</td>
+                            <td>与发票件数核对</td>
+                        </tr>
+                        
+                        <tr>
+                            <td class="td-field">毛重</td>
+                            <td>货物毛重</td>
+                            <td>装箱单『毛重』栏</td>
+                            <td>含/不含托盘</td>
+                            <td>与 VGM 交叉核对</td>
+                        </tr>
+                        
+                        <tr>
+                            <td class="td-field">体积</td>
+                            <td>货物体积</td>
+                            <td>装箱单『体积』栏</td>
+                            <td>CBM 单位</td>
+                            <td>单位换算</td>
+                        </tr>
+                        
+                        <tr>
+                            <td class="td-field">HS 编码</td>
+                            <td>海关商品编码</td>
+                            <td>发票『HS』列</td>
+                            <td>多编码</td>
+                            <td>需映射避免错编</td>
+                        </tr>
+                        
+                    </tbody>
+                </table>
+                <div class="acceptance">🎯 验收门槛：关键字段识别准确率 ≥98%；HS 编码错配漏标率 0；字段置信度低 → 标黄待人工复核。</div>
+            </div>
+            
+        </div>
+        
+
+        <!-- ===== 关联关系类 ===== -->
+        
+        <div class="rule-section">
+            <div class="rule-section-hd">
+                <span class="rs-icon">🔗</span><span class="rs-title">关联关系类</span>
+                <span class="rs-desc">对象之间怎么关联（关系网络 + 建立/特殊规则 + 使用点）</span>
+                <span class="rs-count">1 条</span>
+            </div>
+            
+            <div class="relation-case">
+                <div class="decision-case-hd">
+                    <span class="dc-name">订舱确认书—SI—提单—eBL 关联</span>
+                    <span class="usage-chip">使用点 · OCR 抽取 SI 字段</span><span class="usage-chip">使用点 · 单证校验</span><span class="usage-chip">使用点 · 确认并提交 SI</span><span class="usage-chip">使用点 · 推送 SI 至单证系统</span>
+                </div>
+                <div class="relation-network">
+                    <span class="rel-node">订舱确认书</span><span class="rel-link">↔</span><span class="rel-node">SI</span><span class="rel-link">↔</span><span class="rel-node">提单</span><span class="rel-link">↔</span><span class="rel-node">eBL</span>
+                </div>
+                <div class="decision-summary">用订舱确认书（Booking 编号）锚定 SI 归属；SI 校验通过后进入提单签发；eBL 贯通单证进度。</div>
+                <div class="rel-rules">
+                    <div class="rel-rule-box"><b>建立规则</b>订舱确认书（Booking 编号）关联 SI；SI 校验通过后触发提单；提单可生成电子提单 eBL</div>
+                    <div class="rel-rule-box"><b>特殊情况</b>一份订舱确认书对应多份 SI（拆箱）；同订舱可能拆分多箱需按箱级追踪单证进度</div>
+                </div>
+            </div>
+            
+        </div>
+        
+
+        <!-- ===== 双向可追踪 ===== -->
+        
+        <div class="panel">
+            <div class="panel-head">
+                <span class="panel-title"><span class="emoji">🔗</span>P1 ↔ P2 双向可追踪（交叉核对）</span>
+                <span class="panel-badge">规则能找到 / 使用点能找到 / 名称一致 / 异常链一致</span>
+            </div>
+            <table class="recon-table">
+                <thead><tr><th>任务</th><th>规则依据</th><th>因子</th><th>仲裁</th><th>异常/HITL</th><th>四项检查</th></tr></thead>
+                <tbody>
+                    
+                    <tr>
+                        <td class="td-field">单证校验（VGM/毛重差异/HS）</td>
+                        <td>单证校验规则（VGM/毛重差异/HS）</td>
+                        <td>VGM 申报、毛重差异、HS 编码</td>
+                        <td>VGM/毛重超限阻止推送，HS 走人工复核</td>
+                        <td>缺件 → 补全；HS 无法映射 → 人工复核</td>
+                        <td>
+                            <span class="recon-check">✓ 规则找到</span><br>
+                            <span class="recon-check">✓ 使用点找到</span><br>
+                            <span class="recon-check">✓ 名称一致</span><br>
+                            <span class="recon-check">✓ 异常链一致</span>
+                        </td>
+                    </tr>
+                    
+                    <tr>
+                        <td class="td-field">确认并提交 SI</td>
+                        <td>OCR 置信度与字段处理规则</td>
+                        <td>OCR 置信度、字段类型</td>
+                        <td>低置信度标黄复核，HS 异常阻止提交</td>
+                        <td>置信度低 → 标黄复核；异常未修正 → 阻止提交</td>
+                        <td>
+                            <span class="recon-check">✓ 规则找到</span><br>
+                            <span class="recon-check">✓ 使用点找到</span><br>
+                            <span class="recon-check">✓ 名称一致</span><br>
+                            <span class="recon-check">✓ 异常链一致</span>
+                        </td>
+                    </tr>
+                    
+                </tbody>
+            </table>
+        </div>
+        
+
+        <!-- ===== Notes ===== -->
+        <div class="notes-panel">
+            
+            <div class="notes-col"><h3>🔹 共通原则</h3><p>每条规则/样本均绑定到使用点；内容可验证、来源可追溯。</p></div>
+            
+            
+            <div class="notes-col"><h3>⚠️ 冲突与缺口</h3><p>知识缺口如实标注，不由 Skill 猜测补全；越权问题反馈上游。</p></div>
+            
+            
+            <div class="notes-col"><h3>📥 输入依据</h3><p>SKP《单证预填SI-任务流程拆解》（动作使用点 + 输入输出 + 规则依据类型） · SRP《智能订舱Agent-本体设计》（ab_si_document 行动边界 + si_document 状态迁移 + 护栏） · SRP《智能订舱Agent-Agentic工作流》cap_02（单证校验规则 &gt;300 条 / HS 映射字典 / 护栏） · 客户素材《智能订舱 Agent 规则清单》（访谈/制度/SOP/单证样例/补件案例）</p></div>
+            
+        </div>
+    </main>
+
+    <script type="application/yaml" id="raw-yaml">
+meta:
+  title: "X电商订舱 · 智能订舱 Agent · 单证预填（SI 生成）业务规则挖掘"
+  subtitle: "来自 SKP 阶段2 · P2 任务处理规则挖掘（聚焦 SI 生成环节）"
+  version: "v1.0"
+  date: "2026-08-25"
+  scenarioName: "智能订舱 Agent · 单证预填（SI 生成）"
+  businessStage: "SKP 阶段2 任务处理规则挖掘 · P2（环节级深钻）"
+  methodology: "SKP 阶段2方法（五类任务处理规则：决策/模板/术语/提取点/关联）"
+  inputs:
+    - "SKP《单证预填SI-任务流程拆解》（动作使用点 + 输入输出 + 规则依据类型）"
+    - "SRP《智能订舱Agent-本体设计》（ab_si_document 行动边界 + si_document 状态迁移 + 护栏）"
+    - "SRP《智能订舱Agent-Agentic工作流》cap_02（单证校验规则 >300 条 / HS 映射字典 / 护栏）"
+    - "客户素材《智能订舱 Agent 规则清单》（访谈/制度/SOP/单证样例/补件案例）"
+  sourceRef: "智能订舱Agent-单证预填SI-任务流程拆解.yaml 使用点 + 本体设计 ab_si_document + Agentic cap_02"
+  kpi:
+    - "单证一次提交通过率"
+    - "SME 全流程自助率"
+
+overview:
+  ruleCount: 6
+  decisionCount: 2
+  templateCount: 2
+  dictionaryCount: 1
+  extractionCount: 1
+  relationCount: 1
+
+legend:
+  bindingNote: "每条规则/样本均绑定到使用点；内容可验证、来源可追溯。"
+  conflictNote: "知识缺口如实标注，不由 Skill 猜测补全；越权问题反馈上游。"
+  ruleTypes:
+    - { type: "decision",   label: "决策模型类",      icon: "⚖️", desc: "怎么算、怎么判、走哪条路径" }
+    - { type: "template",   label: "模版范例类",      icon: "📝", desc: "照什么结构和范例生成" }
+    - { type: "dictionary", label: "术语字典类",      icon: "📖", desc: "词、缩写、业务口径" }
+    - { type: "extraction", label: "关键信息提取要点", icon: "🔍", desc: "专家看资料重点看什么" }
+    - { type: "relation",   label: "关联关系类",      icon: "🔗", desc: "对象之间怎么关联" }
+
+categories:
+  decision:
+    - id: "rd_01"
+      name: "单证校验规则（VGM/毛重差异/HS）"
+      usagePoints: ["单证校验（VGM/毛重差异/HS）"]
+      factors:
+        - { name: "VGM 申报", def: "核实的集装箱总重是否申报", source: "智慧单证系统", deterministic: true }
+        - { name: "毛重差异", def: "SI 毛重与装箱单/称重差异是否超限", source: "智慧单证系统", deterministic: true }
+        - { name: "HS 编码", def: "品名能否映射到合规 HS 编码", source: "多语言品名/HS 字典", deterministic: true }
+      branches:
+        - { cond: "VGM 缺失", action: "→ 生成补全项 + 填写示例（如 12,900 KG）", priority: 1 }
+        - { cond: "毛重差异超限", action: "→ 差异告警，提示一次补全", priority: 2 }
+        - { cond: "HS 编码无法映射", action: "→ 提示人工复核，禁止猜测", priority: 3 }
+      arbitration: "VGM 缺失/毛重超限者阻止推送；HS 无法映射走人工复核，不阻塞主链路。"
+      exception: "VGM 缺失/毛重超限 → 生成补全项；HS 无法映射 → 人工复核"
+      summary: "运行 300+ 条单证规则，处理 VGM 缺件/毛重差异/HS 编码三类异常，禁止带缺件推送单证系统。"
+    - id: "rd_02"
+      name: "OCR 置信度与字段处理规则"
+      usagePoints: ["抽取置信度标注", "确认并提交 SI"]
+      factors:
+        - { name: "OCR 置信度", def: "各字段抽取置信度分数", source: "OCR 解析器", deterministic: false }
+        - { name: "字段类型", def: "品名/唛头/件数/毛重/体积/HS", source: "抽取结果", deterministic: true }
+      branches:
+        - { cond: "置信度高（≥阈值）", action: "→ 直接进入品名规范/HS 映射", priority: 1 }
+        - { cond: "置信度低（<阈值）", action: "→ 标黄待人工复核，不阻塞其余字段", priority: 2 }
+        - { cond: "关键字段异常未修正", action: "→ 阻止 SI 提交", priority: 3 }
+      arbitration: "低置信度字段标黄复核而非静默按抽取值推送；关键字段（HS）异常未修正时阻止提交。"
+      exception: "OCR 置信度低 → 标黄待人工复核；异常未修正 → 阻止提交并给出示例"
+      summary: "按 OCR 置信度决定字段处理路径，低置信度标黄复核，关键异常阻止提交。"
+
+  template:
+    - id: "rt_01"
+      name: "补件清单与示例模板"
+      usagePoints: ["生成异常补全项与示例"]
+      skeleton:
+        - { part: "① 缺件项", fixed: "固定栏（字段名/缺失原因/示例值）", variable: "随校验异常动态生成" }
+        - { part: "② 填写示例", fixed: "固定栏（VGM 示例 / HS 映射示例）", variable: "随字段类型生成" }
+        - { part: "③ 复核提示", fixed: "固定栏（再校验路径/提交条件）", variable: "随异常项生成" }
+      dynamicFields:
+        - { field: "缺件项.VGM", source: "来自单证校验（VGM 缺失）" }
+        - { field: "示例值", source: "来自历史补件样本 / 标准值模板" }
+        - { field: "复核提示", source: "来自单证校验规则" }
+      generationRules: "异常项必须给出填写示例；未展示原因与示例不得仅列缺件名。"
+      complianceRules: "补件提示不得让操作员自行猜测口径；关键字段（VGM/HS）必须配套示例。"
+      samples:
+        - { label: "典型 · VGM 补件", note: "展示缺失原因 + 12,900 KG 示例，操作员一次补全" }
+        - { label: "反面 · 只标缺件无示例", note: "禁止只列缺件名不给示例，否则操作员仍需二次询问" }
+      fieldSource: "依据智能订舱 VGM/毛重补件样例拆出固定栏与动态字段。"
+    - id: "rt_02"
+      name: "SI 提交模板"
+      usagePoints: ["确认并提交 SI"]
+      skeleton:
+        - { part: "① 单证头", fixed: "固定栏（订舱号/船名航次/起运港/目的港）", variable: "随订舱确认书填充" }
+        - { part: "② 货载明细", fixed: "固定栏（品名/唛头/件数/毛重/体积/HS）", variable: "随 SI 字段填充" }
+        - { part: "③ 校验状态", fixed: "固定栏（VGM/毛重/HS 校验通过项）", variable: "随校验结果填充" }
+      dynamicFields:
+        - { field: "订舱号", source: "来自订舱确认书 Booking 编号" }
+        - { field: "货载明细", source: "来自 OCR 抽取 + 品名/HS 映射" }
+        - { field: "校验状态", source: "来自单证校验结果" }
+      generationRules: "校验全部通过才可提交；存在异常项必须带补件清单一起展示。"
+      complianceRules: "不可带缺件推送；HS 无法映射时禁止提交猜测编码。"
+      samples:
+        - { label: "典型 · 校验通过 SI", note: "字段齐全、校验通过，一次提交成功" }
+        - { label: "反面 · 带缺件提交", note: "禁止 VGM 缺失仍提交，否则退单返工" }
+      fieldSource: "依据智能订舱 SI 提交样例拆出固定栏与动态字段。"
+
+  dictionary:
+    - id: "rdict_01"
+      name: "单证预填业务口径词典"
+      aliases: ["SI", "VGM", "HS", "eBL", "唛头", "毛重", "毛重差异"]
+      definition: "单证预填环节统一业务口径词表，供 OCR 抽取、品名规范、单证校验、D&D 解读共同引用。"
+      entries:
+        - { term: "SI", def: "装运指示（Shipping Instruction），提单签发的依据", context: "OCR 抽取/提交" }
+        - { term: "VGM", def: "核实的集装箱总重（Verified Gross Mass）", context: "单证校验" }
+        - { term: "HS 编码", def: "海关商品编码，品名的合规申报用码", context: "品名/HS 映射" }
+        - { term: "唛头", def: "货物运输标志（Shipping Mark）", context: "OCR 抽取" }
+        - { term: "毛重差异", def: "SI 毛重与装箱单/称重的偏差", context: "单证校验" }
+        - { term: "eBL", def: "电子提单（Electronic Bill of Lading）", context: "单证进度" }
+      maintainer: "单证团队，随海关编码与口岸政策更新"
+      referenced: ["SI 字段抽取", "品名规范", "单证校验", "补件"]
+      usagePoints: ["OCR 抽取 SI 字段", "单证校验", "确认并提交 SI"]
+
+  extraction:
+    - id: "rext_01"
+      name: "SI 字段抽取要点"
+      usagePoints: ["OCR 抽取 SI 字段"]
+      fields:
+        - { fieldName: "品名", definition: "货物行名", typicalLocations: ["PI/装箱单『品名』栏"], variants: ["多语言品名"], pitfalls: ["需规范翻译"] }
+        - { fieldName: "唛头", definition: "货物运输标志", typicalLocations: ["装箱单『唛头』栏"], variants: [], pitfalls: ["易与品名混淆"] }
+        - { fieldName: "件数", definition: "货物件数", typicalLocations: ["装箱单『件数』栏"], variants: [], pitfalls: ["与发票件数核对"] }
+        - { fieldName: "毛重", definition: "货物毛重", typicalLocations: ["装箱单『毛重』栏"], variants: ["含/不含托盘"], pitfalls: ["与 VGM 交叉核对"] }
+        - { fieldName: "体积", definition: "货物体积", typicalLocations: ["装箱单『体积』栏"], variants: ["CBM 单位"], pitfalls: ["单位换算"] }
+        - { fieldName: "HS 编码", definition: "海关商品编码", typicalLocations: ["发票『HS』列"], variants: ["多编码"], pitfalls: ["需映射避免错编"] }
+      acceptance: "关键字段识别准确率 ≥98%；HS 编码错配漏标率 0；字段置信度低 → 标黄待人工复核。"
+      samples: ["品名取『品名』栏并规范翻译；毛重与 VGM 交叉核对；HS 编码经映射字典确认后再推送"]
+
+  relation:
+    - id: "rrel_01"
+      name: "订舱确认书—SI—提单—eBL 关联"
+      fromObject: "订舱确认书"
+      toObject: "SI / 提单 / eBL"
+      objectType: "订舱确认书 ↔ SI ↔ 提单 ↔ eBL"
+      meaning: "用订舱确认书（Booking 编号）锚定 SI 归属；SI 校验通过后进入提单签发；eBL 贯通单证进度。"
+      rules:
+        establish: "订舱确认书（Booking 编号）关联 SI；SI 校验通过后触发提单；提单可生成电子提单 eBL"
+        special: "一份订舱确认书对应多份 SI（拆箱）；同订舱可能拆分多箱需按箱级追踪单证进度"
+      scenarios: ["单证预填", "单证校验", "提单签发", "单证进度查询"]
+      usagePoints: ["OCR 抽取 SI 字段", "单证校验", "确认并提交 SI", "推送 SI 至单证系统"]
+      extra: "Booking 编号是单证预填→提单→eBL 全链路的主键锚点。"
+
+reconciliation:
+  - task: "单证校验（VGM/毛重差异/HS）"
+    rule: "单证校验规则（VGM/毛重差异/HS）"
+    factor: "VGM 申报、毛重差异、HS 编码"
+    arbitration: "VGM/毛重超限阻止推送，HS 走人工复核"
+    exception: "缺件 → 补全；HS 无法映射 → 人工复核"
+    checks: { ruleFound: true, usageFound: true, nameMatch: true, exceptionMatch: true }
+  - task: "确认并提交 SI"
+    rule: "OCR 置信度与字段处理规则"
+    factor: "OCR 置信度、字段类型"
+    arbitration: "低置信度标黄复核，HS 异常阻止提交"
+    exception: "置信度低 → 标黄复核；异常未修正 → 阻止提交"
+    checks: { ruleFound: true, usageFound: true, nameMatch: true, exceptionMatch: true }
+
+    </script>
+
+    <script>
+        function copyYAML() {
+            const yamlContent = document.getElementById('raw-yaml').textContent.trim();
+            navigator.clipboard.writeText(yamlContent).then(() => {
+                const btn = document.getElementById('copyYamlBtn');
+                const originalHtml = btn.innerHTML;
+                btn.innerHTML = '✓ 已复制';
+                setTimeout(() => { btn.innerHTML = originalHtml; }, 1600);
+            }).catch(err => { console.error('Failed to copy: ', err); alert('复制失败，请手动复制。'); });
+        }
+    </script>
+</body>
+</html>

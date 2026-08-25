@@ -1,0 +1,213 @@
+meta:
+  title: "X电商订舱 · 智能订舱 Agent 业务规则挖掘清单"
+  subtitle: "来自 SKP 阶段2 · P2 任务处理规则挖掘"
+  version: "v1.0"
+  date: "2026-08-25"
+  scenarioName: "智能订舱 Agent（Ask Fin 升级为可执行订舱 Agent）"
+  businessStage: "SKP 阶段2 任务处理规则挖掘 · P2"
+  methodology: "SKP 阶段2方法（五类任务处理规则：决策/模板/术语/提取点/关联）"
+  inputs:
+    - "SKP《智能订舱Agent-任务流程拆解》（深度任务使用点 + 输入输出 + 规则依据类型）"
+    - "SRP《AI画布-01智能订舱Agent》（dataKnowledge/workflow 识别的规则类型）"
+    - "SRP《智能订舱Agent-本体设计》（实体/关系/状态迁移/护栏，业务语义锚点）"
+    - "SRP《智能订舱Agent-Agentic工作流》（订舱校验引擎/单证规则/D&D/ETA 的边界与护栏）"
+    - "客户素材《智能订舱 Agent 规则清单》（访谈/制度/SOP/表单样例/案例）"
+  sourceRef: "智能订舱Agent-任务流程拆解.yaml 使用点 + 本体设计业务语义 + Agentic工作流护栏"
+  kpi:
+    - "在线订舱确认时效"
+    - "AI 分流率"
+    - "SME 全流程自助率"
+    - "单证一次提交通过率"
+
+overview:
+  ruleCount: 9
+  decisionCount: 5
+  templateCount: 2
+  dictionaryCount: 1
+  extractionCount: 1
+  relationCount: 1
+
+legend:
+  bindingNote: "每条规则/样本均绑定到使用点；内容可验证、来源可追溯。"
+  conflictNote: "知识缺口如实标注，不由 Skill 猜测补全；越权问题反馈上游。"
+  ruleTypes:
+    - { type: "decision",   label: "决策模型类",      icon: "⚖️", desc: "怎么算、怎么判、走哪条路径" }
+    - { type: "template",   label: "模版范例类",      icon: "📝", desc: "照什么结构和范例生成" }
+    - { type: "dictionary", label: "术语字典类",      icon: "📖", desc: "词、缩写、业务口径" }
+    - { type: "extraction", label: "关键信息提取要点", icon: "🔍", desc: "专家看资料重点看什么" }
+    - { type: "relation",   label: "关联关系类",      icon: "🔗", desc: "对象之间怎么关联" }
+
+categories:
+  decision:
+    - id: "rd_01"
+      name: "舱位推荐排序规则"
+      usagePoints: ["综合排序推荐 Top3"]
+      factors:
+        - { name: "装载率（Load Factor）", def: "航次已订舱量占可用舱位的比例", source: "舱位收益系统", deterministic: true }
+        - { name: "ETA 置信度", def: "预计到港时间（ETA）预测的置信度", source: "ETA 预测模型", deterministic: false }
+        - { name: "舱位保证（Space Guaranteed）", def: "该航次是否提供舱位保证承诺", source: "舱位管理", deterministic: true }
+      branches:
+        - { cond: "有舱位保证 + 高 ETA 置信度", action: "→ 置顶推荐并附舱位保证条款", priority: 1 }
+        - { cond: "装载率高但 ETA 置信度低", action: "→ 降序推荐且标注置信度", priority: 2 }
+        - { cond: "旺季舱位挤兑、舱位保证可能违约", action: "→ 前置预警 + 给改配方案", priority: 3 }
+      arbitration: "舱位保证 ＞ ETA 置信度 ＞ 装载率；旺季挤兑时预警优先于常规排序。"
+      exception: "ETA 置信度低于阈值 → 降级为提示，不作为确定性推荐依据"
+      summary: "按装载率/ETA 置信度/舱位保证综合排序，生成可解释的 Top3 舱位推荐。"
+    - id: "rd_02"
+      name: "订舱校验规则引擎"
+      usagePoints: ["订舱规则校验"]
+      factors:
+        - { name: "费率", def: "报价单全包价与订单费率一致性", source: "报价引擎", deterministic: true }
+        - { name: "信用", def: "货主授信额度与信用状况", source: "信用系统", deterministic: true }
+        - { name: "航线可用性", def: "航线/船期在订舱窗口内是否可用", source: "船期系统", deterministic: true }
+      branches:
+        - { cond: "费率不一致", action: "→ 拦截并标注原因，提示补正", priority: 1 }
+        - { cond: "信用受限（超出授信）", action: "→ 提示补正/转人工终审", priority: 2 }
+        - { cond: "航线在窗口内不可用", action: "→ 建议邻近航线（Nearby Route）", priority: 3 }
+      arbitration: "信用受限或费率不一致者不得放行；全部通过后才可进入人工确认门禁。"
+      exception: "校验不过/信用受限 → 标注原因并提示补正/转人工终审"
+      summary: "运行 200+ 条订舱校验规则，识别费率/信用/航线三类异常，作提交前确定性校验。"
+    - id: "rd_03"
+      name: "新客首单预填兜底规则"
+      usagePoints: ["3 步表单自动预填"]
+      factors:
+        - { name: "是否历史货主", def: "有无历史订单数据（订舱记录）", source: "CRM/OMS", deterministic: true }
+        - { name: "会话上下文", def: "本次会话已确认的要素（港口对/箱型/品名）", source: "会话内存", deterministic: true }
+        - { name: "贸易单据 OCR", def: "PI/装箱单抽取的字段与置信度", source: "OCR 解析器", deterministic: false }
+      branches:
+        - { cond: "有历史数据", action: "→ Smart Push 画像预填", priority: 1 }
+        - { cond: "新客无历史数据", action: "→ 会话上下文 + PI/装箱单 OCR 兜底预填", priority: 2 }
+        - { cond: "OCR 置信度低", action: "→ 标黄待人工复核/追问补录", priority: 3 }
+      arbitration: "历史画像优先；无画像则走 OCR 兜底；字段不可确定时明示置信度而非静默填。"
+      exception: "新客无历史数据 → 会话+OCR 兜底预填，标注置信度"
+      summary: "针对新客无历史数据的首单，用会话与贸易单据 OCR 兜底预填订舱表单，杜绝空预填。"
+    - id: "rd_04"
+      name: "单证校验规则（含 VGM/毛重差异）"
+      usagePoints: ["单证规则校验"]
+      factors:
+        - { name: "VGM 申报", def: "核实的集装箱总重是否申报", source: "智慧单证系统", deterministic: true }
+        - { name: "毛重差异", def: "SI 毛重与装箱单/称重差异是否超限", source: "智慧单证系统", deterministic: true }
+        - { name: "HS 编码", def: "品名能否映射到合规 HS 编码", source: "多语言品名/HS 字典", deterministic: true }
+      branches:
+        - { cond: "VGM 缺失", action: "→ 生成补全项 + 填写示例", priority: 1 }
+        - { cond: "毛重差异超限", action: "→ 差异告警，提示一次补全", priority: 2 }
+        - { cond: "HS 编码无法映射", action: "→ 提示人工复核，禁止猜测", priority: 3 }
+      arbitration: "VGM 缺失/毛重超限者阻止推送；HS 无法映射走人工复核，不阻塞主链路。"
+      exception: "VGM 缺失/毛重超限 → 生成补全项；HS 无法映射 → 人工复核"
+      summary: "运行 300+ 条单证规则，处理 VGM 缺件/毛重差异/HS 编码三类异常，禁止带缺件推送。"
+    - id: "rd_05"
+      name: "延误处置与售后分级规则"
+      usagePoints: ["ETA 预测与延误预警", "复杂问题转人工附摘要"]
+      factors:
+        - { name: "延误概率", def: "ETA 预测模型输出的延误概率", source: "ETA 预测模型", deterministic: false }
+        - { name: "风险分级", def: "高风险延误（甩柜/改船）vs 常规延误", source: "控制塔运营", deterministic: true }
+        - { name: "情绪/投诉级别", def: "对话情绪与投诉严重度", source: "情感识别模型", deterministic: false }
+      branches:
+        - { cond: "延误概率高（如 >60%）", action: "→ 事前预警 + 订阅通知", priority: 1 }
+        - { cond: "高风险延误（甩柜/改船）", action: "→ 升级人工按 Delay in Transit 出改配/赔付", priority: 2 }
+        - { cond: "复杂投诉/情绪激动", action: "→ 附完整上下文摘要升级人工", priority: 3 }
+      arbitration: "高风险延误 / 投诉升级优先于常规播报；ETA 置信度低时降级为事后通知。"
+      exception: "甩柜/改船 → 人工出改配与赔付；复杂投诉 → 附摘要转人工；低置信度 → 降级通知"
+      summary: "按延误概率与风险分级决定预警强度，复杂售后附上下文摘要升级人工。"
+
+  template:
+    - id: "rt_01"
+      name: "Booking Confirmation 订舱确认书模板"
+      usagePoints: ["签发 Booking Confirmation"]
+      skeleton:
+        - { part: "① 订舱信息", fixed: "固定栏（Booking 编号/船名航次/起运港/目的港/箱型/数量/ETD）", variable: "随订舱请求动态填充" }
+        - { part: "② 费用与条款", fixed: "固定栏（全包价/有效期/舱位保证 Space Protection 条款）", variable: "随报价单动态填充" }
+        - { part: "③ 双方信息", fixed: "固定栏（货主/订舱方/联系方式）", variable: "随会员画像填充" }
+      dynamicFields:
+        - { field: "Booking 编号", source: "来自 OMS 受理结果（如 BK-2026-0901-001）" }
+        - { field: "全包价", source: "来自报价单 all_in_price" }
+        - { field: "舱位保证条款", source: "来自舱位管理 Space Guaranteed 承诺" }
+      generationRules: "标准单自动确认；复杂单须人工终审后才可签发。"
+      complianceRules: "对外通知必须含订舱编号、船期、全包价三项关键信息；缺一不可。"
+      samples:
+        - { label: "典型 · 标准订舱确认", note: "字段齐全，最快 1 分钟自动签发并多渠道通知货主" }
+        - { label: "反面 · 缺订舱编号/全包价", note: "禁止缺关键字段即签发，否则下游无法履约与结算" }
+      fieldSource: "依据智能订舱订舱确认书样例拆出固定栏与动态字段。"
+    - id: "rt_02"
+      name: "转人工上下文摘要模板"
+      usagePoints: ["复杂问题转人工附摘要"]
+      skeleton:
+        - { part: "① 对话摘要", fixed: "固定节（用户目标/已提供信息/未决问题）", variable: "随会话动态生成" }
+        - { part: "② 货主画像", fixed: "固定节（PlumSmart 等级/历史订舱/当前订单）", variable: "随会员画像填充" }
+        - { part: "③ 建议动作", fixed: "固定节（推荐处理/风险提示）", variable: "随意图与风险分级生成" }
+      dynamicFields:
+        - { field: "对话摘要", source: "模型对多轮会话的摘要" }
+        - { field: "货主画像", source: "CRM 会员画像（PlumSmart）" }
+        - { field: "建议动作", source: "意图识别 + 情感/风险分级" }
+      generationRules: "复杂问题必须附完整上下文摘要，避免人工重复收集信息。"
+      complianceRules: "情绪激动/投诉类置顶转人工；摘要不得含未脱敏敏感信息。"
+      samples:
+        - { label: "典型 · 复杂投诉摘要", note: "摘要 + 画像 + 建议动作齐全，客服直接接手一次性解决" }
+        - { label: "反面 · 只给对话原文", note: "禁止只甩对话原文，否则人工需重读全文、重复提问" }
+      fieldSource: "依据智能订舱转人工摘要模板拆出固定节与动态字段。"
+
+  dictionary:
+    - id: "rdict_01"
+      name: "智能订舱业务口径词典"
+      aliases: ["全包价", "舱位保证", "D&D", "免箱期", "VGM", "SI", "eBL", "Booking 编号"]
+      definition: "智能订舱环节统一业务口径词表，供报价解读、订舱校验、单证处理、D&D 解读共同引用。"
+      entries:
+        - { term: "全包价 All-in Price", def: "含运费+附加费+杂费的单一报价", context: "报价逐项解读" }
+        - { term: "舱位保证 Space Guaranteed", def: "舱位管理方对特定航次的保证承诺（含 Delay in Transit 保障）", context: "综合排序推荐" }
+        - { term: "Booking 编号", def: "订舱确认书的唯一编号（如 BK-2026-0901-001）", context: "订舱受理/签发" }
+        - { term: "D&D", def: "免箱期外的滞箱费/滞港费（Demurrage & Detention）", context: "D&D 规则解读" }
+        - { term: "免箱期", def: "免费用箱天数窗口（各目的港政策不同）", context: "超期预警" }
+        - { term: "VGM", def: "核实的集装箱总重（Verified Gross Mass）", context: "单证校验" }
+        - { term: "SI", def: "装运指示（Shipping Instruction）", context: "单证预填" }
+        - { term: "eBL", def: "电子提单（Electronic Bill of Lading）", context: "单证进度" }
+      maintainer: "订舱运营/单证团队，随口岸政策与费率规则更新"
+      referenced: ["报价解读", "订舱校验", "单证校验", "D&D 解读", "出运跟踪"]
+      usagePoints: ["报价逐项解读", "单证规则校验", "D&D 规则智能解读"]
+
+  extraction:
+    - id: "rext_01"
+      name: "SI 字段抽取要点"
+      usagePoints: ["OCR 抽取 SI 字段"]
+      fields:
+        - { fieldName: "品名", definition: "货物行名", typicalLocations: ["PI/装箱单『品名』栏"], variants: ["多语言品名"], pitfalls: ["需规范翻译"] }
+        - { fieldName: "唛头", definition: "货物运输标志", typicalLocations: ["装箱单『唛头』栏"], variants: [], pitfalls: ["易与品名混淆"] }
+        - { fieldName: "件数", definition: "货物件数", typicalLocations: ["装箱单『件数』栏"], variants: [], pitfalls: ["与发票件数核对"] }
+        - { fieldName: "毛重", definition: "货物毛重", typicalLocations: ["装箱单『毛重』栏"], variants: ["含/不含托盘"], pitfalls: ["与 VGM 交叉核对"] }
+        - { fieldName: "体积", definition: "货物体积", typicalLocations: ["装箱单『体积』栏"], variants: ["CBM 单位"], pitfalls: ["单位换算"] }
+        - { fieldName: "HS 编码", definition: "海关商品编码", typicalLocations: ["发票『HS』列"], variants: ["多编码"], pitfalls: ["需映射避免错编"] }
+      acceptance: "关键字段识别准确率 ≥98%；HS 编码错配漏标率 0；字段置信度低 → 标黄待人工复核。"
+      samples: ["品名取『品名』栏并规范翻译；毛重与 VGM 交叉核对；HS 编码经映射字典确认后再推送"]
+
+  relation:
+    - id: "rrel_01"
+      name: "货主—报价—订舱—单证—跟踪关联"
+      fromObject: "货主"
+      toObject: "报价单 / 订舱请求 / 订舱确认书 / SI / 舱位"
+      objectType: "货主ID ↔ 报价单 ↔ 订舱请求 ↔ 订舱确认书 ↔ SI/舱位"
+      meaning: "用货主 ID 贯通报价与会员画像；用订舱请求关联报价与订舱确认书（Booking 编号）；用舱位约束订舱确认的签发与舱位保证兑现；用 SI 关联单证进度。"
+      rules:
+        establish: "货主ID 关联 CRM 画像与报价单；订舱请求触发订舱确认书（Booking 编号）；舱位分配约束订舱确认签发与舱位保证兑现；SI 关联订舱确认书"
+        special: "一张报价单可触发多次订舱请求（货主改方案）；一份订舱确认书对应多份 SI；同订舱可能拆分多箱需按箱级追踪"
+      scenarios: ["报价识别", "订舱校验", "单证预填", "出运跟踪"]
+      usagePoints: ["综合排序推荐 Top3", "订舱规则校验", "OCR 抽取 SI 字段", "对话查里程碑"]
+      extra: "同时作为「纵向贯通订舱全链路的关键字段来源」（Booking 编号是订舱→单证→跟踪的主键锚点）。"
+
+reconciliation:
+  - task: "综合排序推荐 Top3"
+    rule: "舱位推荐排序规则"
+    factor: "装载率、ETA 置信度、舱位保证"
+    arbitration: "舱位保证 ＞ ETA 置信度 ＞ 装载率"
+    exception: "ETA 置信度低 → 降级提示"
+    checks: { ruleFound: true, usageFound: true, nameMatch: true, exceptionMatch: true }
+  - task: "订舱规则校验"
+    rule: "订舱校验规则引擎"
+    factor: "费率、信用、航线可用性"
+    arbitration: "信用/费率异常者不放行"
+    exception: "校验不过 → 补正/转人工终审"
+    checks: { ruleFound: true, usageFound: true, nameMatch: true, exceptionMatch: true }
+  - task: "单证规则校验"
+    rule: "单证校验规则（含 VGM/毛重差异）"
+    factor: "VGM 申报、毛重差异、HS 编码"
+    arbitration: "VGM/毛重超限阻止推送，HS 走人工复核"
+    exception: "缺件 → 补全；HS 无法映射 → 人工复核"
+    checks: { ruleFound: true, usageFound: true, nameMatch: true, exceptionMatch: true }

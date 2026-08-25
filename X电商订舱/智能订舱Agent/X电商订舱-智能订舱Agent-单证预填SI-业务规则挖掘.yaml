@@ -1,0 +1,159 @@
+meta:
+  title: "X电商订舱 · 智能订舱 Agent · 单证预填（SI 生成）业务规则挖掘"
+  subtitle: "来自 SKP 阶段2 · P2 任务处理规则挖掘（聚焦 SI 生成环节）"
+  version: "v1.0"
+  date: "2026-08-25"
+  scenarioName: "智能订舱 Agent · 单证预填（SI 生成）"
+  businessStage: "SKP 阶段2 任务处理规则挖掘 · P2（环节级深钻）"
+  methodology: "SKP 阶段2方法（五类任务处理规则：决策/模板/术语/提取点/关联）"
+  inputs:
+    - "SKP《单证预填SI-任务流程拆解》（动作使用点 + 输入输出 + 规则依据类型）"
+    - "SRP《智能订舱Agent-本体设计》（ab_si_document 行动边界 + si_document 状态迁移 + 护栏）"
+    - "SRP《智能订舱Agent-Agentic工作流》cap_02（单证校验规则 >300 条 / HS 映射字典 / 护栏）"
+    - "客户素材《智能订舱 Agent 规则清单》（访谈/制度/SOP/单证样例/补件案例）"
+  sourceRef: "智能订舱Agent-单证预填SI-任务流程拆解.yaml 使用点 + 本体设计 ab_si_document + Agentic cap_02"
+  kpi:
+    - "单证一次提交通过率"
+    - "SME 全流程自助率"
+
+overview:
+  ruleCount: 6
+  decisionCount: 2
+  templateCount: 2
+  dictionaryCount: 1
+  extractionCount: 1
+  relationCount: 1
+
+legend:
+  bindingNote: "每条规则/样本均绑定到使用点；内容可验证、来源可追溯。"
+  conflictNote: "知识缺口如实标注，不由 Skill 猜测补全；越权问题反馈上游。"
+  ruleTypes:
+    - { type: "decision",   label: "决策模型类",      icon: "⚖️", desc: "怎么算、怎么判、走哪条路径" }
+    - { type: "template",   label: "模版范例类",      icon: "📝", desc: "照什么结构和范例生成" }
+    - { type: "dictionary", label: "术语字典类",      icon: "📖", desc: "词、缩写、业务口径" }
+    - { type: "extraction", label: "关键信息提取要点", icon: "🔍", desc: "专家看资料重点看什么" }
+    - { type: "relation",   label: "关联关系类",      icon: "🔗", desc: "对象之间怎么关联" }
+
+categories:
+  decision:
+    - id: "rd_01"
+      name: "单证校验规则（VGM/毛重差异/HS）"
+      usagePoints: ["单证校验（VGM/毛重差异/HS）"]
+      factors:
+        - { name: "VGM 申报", def: "核实的集装箱总重是否申报", source: "智慧单证系统", deterministic: true }
+        - { name: "毛重差异", def: "SI 毛重与装箱单/称重差异是否超限", source: "智慧单证系统", deterministic: true }
+        - { name: "HS 编码", def: "品名能否映射到合规 HS 编码", source: "多语言品名/HS 字典", deterministic: true }
+      branches:
+        - { cond: "VGM 缺失", action: "→ 生成补全项 + 填写示例（如 12,900 KG）", priority: 1 }
+        - { cond: "毛重差异超限", action: "→ 差异告警，提示一次补全", priority: 2 }
+        - { cond: "HS 编码无法映射", action: "→ 提示人工复核，禁止猜测", priority: 3 }
+      arbitration: "VGM 缺失/毛重超限者阻止推送；HS 无法映射走人工复核，不阻塞主链路。"
+      exception: "VGM 缺失/毛重超限 → 生成补全项；HS 无法映射 → 人工复核"
+      summary: "运行 300+ 条单证规则，处理 VGM 缺件/毛重差异/HS 编码三类异常，禁止带缺件推送单证系统。"
+    - id: "rd_02"
+      name: "OCR 置信度与字段处理规则"
+      usagePoints: ["抽取置信度标注", "确认并提交 SI"]
+      factors:
+        - { name: "OCR 置信度", def: "各字段抽取置信度分数", source: "OCR 解析器", deterministic: false }
+        - { name: "字段类型", def: "品名/唛头/件数/毛重/体积/HS", source: "抽取结果", deterministic: true }
+      branches:
+        - { cond: "置信度高（≥阈值）", action: "→ 直接进入品名规范/HS 映射", priority: 1 }
+        - { cond: "置信度低（<阈值）", action: "→ 标黄待人工复核，不阻塞其余字段", priority: 2 }
+        - { cond: "关键字段异常未修正", action: "→ 阻止 SI 提交", priority: 3 }
+      arbitration: "低置信度字段标黄复核而非静默按抽取值推送；关键字段（HS）异常未修正时阻止提交。"
+      exception: "OCR 置信度低 → 标黄待人工复核；异常未修正 → 阻止提交并给出示例"
+      summary: "按 OCR 置信度决定字段处理路径，低置信度标黄复核，关键异常阻止提交。"
+
+  template:
+    - id: "rt_01"
+      name: "补件清单与示例模板"
+      usagePoints: ["生成异常补全项与示例"]
+      skeleton:
+        - { part: "① 缺件项", fixed: "固定栏（字段名/缺失原因/示例值）", variable: "随校验异常动态生成" }
+        - { part: "② 填写示例", fixed: "固定栏（VGM 示例 / HS 映射示例）", variable: "随字段类型生成" }
+        - { part: "③ 复核提示", fixed: "固定栏（再校验路径/提交条件）", variable: "随异常项生成" }
+      dynamicFields:
+        - { field: "缺件项.VGM", source: "来自单证校验（VGM 缺失）" }
+        - { field: "示例值", source: "来自历史补件样本 / 标准值模板" }
+        - { field: "复核提示", source: "来自单证校验规则" }
+      generationRules: "异常项必须给出填写示例；未展示原因与示例不得仅列缺件名。"
+      complianceRules: "补件提示不得让操作员自行猜测口径；关键字段（VGM/HS）必须配套示例。"
+      samples:
+        - { label: "典型 · VGM 补件", note: "展示缺失原因 + 12,900 KG 示例，操作员一次补全" }
+        - { label: "反面 · 只标缺件无示例", note: "禁止只列缺件名不给示例，否则操作员仍需二次询问" }
+      fieldSource: "依据智能订舱 VGM/毛重补件样例拆出固定栏与动态字段。"
+    - id: "rt_02"
+      name: "SI 提交模板"
+      usagePoints: ["确认并提交 SI"]
+      skeleton:
+        - { part: "① 单证头", fixed: "固定栏（订舱号/船名航次/起运港/目的港）", variable: "随订舱确认书填充" }
+        - { part: "② 货载明细", fixed: "固定栏（品名/唛头/件数/毛重/体积/HS）", variable: "随 SI 字段填充" }
+        - { part: "③ 校验状态", fixed: "固定栏（VGM/毛重/HS 校验通过项）", variable: "随校验结果填充" }
+      dynamicFields:
+        - { field: "订舱号", source: "来自订舱确认书 Booking 编号" }
+        - { field: "货载明细", source: "来自 OCR 抽取 + 品名/HS 映射" }
+        - { field: "校验状态", source: "来自单证校验结果" }
+      generationRules: "校验全部通过才可提交；存在异常项必须带补件清单一起展示。"
+      complianceRules: "不可带缺件推送；HS 无法映射时禁止提交猜测编码。"
+      samples:
+        - { label: "典型 · 校验通过 SI", note: "字段齐全、校验通过，一次提交成功" }
+        - { label: "反面 · 带缺件提交", note: "禁止 VGM 缺失仍提交，否则退单返工" }
+      fieldSource: "依据智能订舱 SI 提交样例拆出固定栏与动态字段。"
+
+  dictionary:
+    - id: "rdict_01"
+      name: "单证预填业务口径词典"
+      aliases: ["SI", "VGM", "HS", "eBL", "唛头", "毛重", "毛重差异"]
+      definition: "单证预填环节统一业务口径词表，供 OCR 抽取、品名规范、单证校验、D&D 解读共同引用。"
+      entries:
+        - { term: "SI", def: "装运指示（Shipping Instruction），提单签发的依据", context: "OCR 抽取/提交" }
+        - { term: "VGM", def: "核实的集装箱总重（Verified Gross Mass）", context: "单证校验" }
+        - { term: "HS 编码", def: "海关商品编码，品名的合规申报用码", context: "品名/HS 映射" }
+        - { term: "唛头", def: "货物运输标志（Shipping Mark）", context: "OCR 抽取" }
+        - { term: "毛重差异", def: "SI 毛重与装箱单/称重的偏差", context: "单证校验" }
+        - { term: "eBL", def: "电子提单（Electronic Bill of Lading）", context: "单证进度" }
+      maintainer: "单证团队，随海关编码与口岸政策更新"
+      referenced: ["SI 字段抽取", "品名规范", "单证校验", "补件"]
+      usagePoints: ["OCR 抽取 SI 字段", "单证校验", "确认并提交 SI"]
+
+  extraction:
+    - id: "rext_01"
+      name: "SI 字段抽取要点"
+      usagePoints: ["OCR 抽取 SI 字段"]
+      fields:
+        - { fieldName: "品名", definition: "货物行名", typicalLocations: ["PI/装箱单『品名』栏"], variants: ["多语言品名"], pitfalls: ["需规范翻译"] }
+        - { fieldName: "唛头", definition: "货物运输标志", typicalLocations: ["装箱单『唛头』栏"], variants: [], pitfalls: ["易与品名混淆"] }
+        - { fieldName: "件数", definition: "货物件数", typicalLocations: ["装箱单『件数』栏"], variants: [], pitfalls: ["与发票件数核对"] }
+        - { fieldName: "毛重", definition: "货物毛重", typicalLocations: ["装箱单『毛重』栏"], variants: ["含/不含托盘"], pitfalls: ["与 VGM 交叉核对"] }
+        - { fieldName: "体积", definition: "货物体积", typicalLocations: ["装箱单『体积』栏"], variants: ["CBM 单位"], pitfalls: ["单位换算"] }
+        - { fieldName: "HS 编码", definition: "海关商品编码", typicalLocations: ["发票『HS』列"], variants: ["多编码"], pitfalls: ["需映射避免错编"] }
+      acceptance: "关键字段识别准确率 ≥98%；HS 编码错配漏标率 0；字段置信度低 → 标黄待人工复核。"
+      samples: ["品名取『品名』栏并规范翻译；毛重与 VGM 交叉核对；HS 编码经映射字典确认后再推送"]
+
+  relation:
+    - id: "rrel_01"
+      name: "订舱确认书—SI—提单—eBL 关联"
+      fromObject: "订舱确认书"
+      toObject: "SI / 提单 / eBL"
+      objectType: "订舱确认书 ↔ SI ↔ 提单 ↔ eBL"
+      meaning: "用订舱确认书（Booking 编号）锚定 SI 归属；SI 校验通过后进入提单签发；eBL 贯通单证进度。"
+      rules:
+        establish: "订舱确认书（Booking 编号）关联 SI；SI 校验通过后触发提单；提单可生成电子提单 eBL"
+        special: "一份订舱确认书对应多份 SI（拆箱）；同订舱可能拆分多箱需按箱级追踪单证进度"
+      scenarios: ["单证预填", "单证校验", "提单签发", "单证进度查询"]
+      usagePoints: ["OCR 抽取 SI 字段", "单证校验", "确认并提交 SI", "推送 SI 至单证系统"]
+      extra: "Booking 编号是单证预填→提单→eBL 全链路的主键锚点。"
+
+reconciliation:
+  - task: "单证校验（VGM/毛重差异/HS）"
+    rule: "单证校验规则（VGM/毛重差异/HS）"
+    factor: "VGM 申报、毛重差异、HS 编码"
+    arbitration: "VGM/毛重超限阻止推送，HS 走人工复核"
+    exception: "缺件 → 补全；HS 无法映射 → 人工复核"
+    checks: { ruleFound: true, usageFound: true, nameMatch: true, exceptionMatch: true }
+  - task: "确认并提交 SI"
+    rule: "OCR 置信度与字段处理规则"
+    factor: "OCR 置信度、字段类型"
+    arbitration: "低置信度标黄复核，HS 异常阻止提交"
+    exception: "置信度低 → 标黄复核；异常未修正 → 阻止提交"
+    checks: { ruleFound: true, usageFound: true, nameMatch: true, exceptionMatch: true }

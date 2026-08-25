@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>X电商订舱 · 智能订舱 Agent · 单证预填（SI 生成）任务流程拆解</title>
+
+    <!-- ===== Design System: Inspire (Enterprise Tech) ===== -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+        :root {
+            --color-primary: #10213E;       /* Starry Blues */
+            --color-accent: #5DB2E2;        /* Creative Blue */
+            --color-secondary: #625D9C;     /* Amethyst */
+            --color-success: #00524C;       /* Myrtle Deep Green */
+            --color-info: #6FB1C8;          /* Cerulean Frost */
+            --color-warning: #F59E0B;       /* Warning */
+            --color-destructive: #EF4444;   /* Danger */
+            --color-background: #FFFFFF;    /* Pure White */
+            --color-bg-alt: #F5F5F6;        /* Tech Gray */
+            --color-foreground: #10213E;    /* Primary Text */
+            --color-text-muted: #64748B;    /* Text Secondary */
+            --color-border: #E2E8F0;        /* Border/Line */
+            --shadow-inspire: 0 2px 8px rgba(16, 33, 62, 0.08);
+        }
+
+        *, *::before, *::after { box-sizing: border-box !important; }
+        html, body {
+            margin: 0 !important; padding: 0 !important;
+            background: var(--color-bg-alt) !important;
+            color: var(--color-foreground) !important;
+            font-family: "MiSans", "Inter", "Microsoft YaHei", sans-serif !important;
+            line-height: 1.6 !important;
+            overflow-x: auto !important;
+        }
+
+        ::-webkit-scrollbar { width: 9px; height: 9px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: 5px; }
+        ::-webkit-scrollbar-thumb:hover { background: #CBD5E1; }
+
+        /* ===== Unified Header ===== */
+        .unified-hdr {
+            width: 100% !important; background: var(--color-background) !important;
+            border-bottom: 1px solid var(--color-border) !important; border-radius: 0 !important;
+            box-shadow: none !important; padding: 14px 28px !important; margin-bottom: 18px !important;
+            display: flex !important; justify-content: space-between !important; align-items: center !important;
+            gap: 16px !important; flex-wrap: wrap !important;
+        }
+        .unified-hdr-left { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+        .unified-hdr-left h1 {
+            font-size: 22px !important; font-weight: 700 !important; color: var(--color-primary) !important;
+            line-height: 1.3 !important; margin: 0 !important; display: flex !important; align-items: center !important; gap: 10px !important;
+        }
+        .unified-hdr-left h1::before {
+            content: "" !important; display: inline-block !important; width: 4px !important; height: 22px !important;
+            background: var(--color-accent) !important; border-radius: 2px !important; flex-shrink: 0 !important;
+        }
+        .unified-hdr-left p {
+            font-size: 13px !important; color: var(--color-text-muted) !important;
+            margin: 4px 0 0 !important; padding-left: 14px !important; line-height: 1.5 !important;
+        }
+        .unified-hdr-right { display: flex; align-items: center; gap: 12px; flex-shrink: 0; flex-wrap: wrap; }
+        .unified-hdr-stats {
+            display: flex !important; align-items: center !important; gap: 8px !important;
+            background: var(--color-bg-alt) !important; border: 1px solid var(--color-border) !important;
+            border-radius: 20px !important; padding: 4px 14px !important;
+            font-size: 12px !important; color: var(--color-text-muted) !important;
+        }
+        .unified-hdr-stats b { color: var(--color-primary); font-weight: 700; margin-right: 3px; }
+        .hdr-stat-sep { width: 1px; height: 12px; background: var(--color-border); }
+        .btn-copy-yaml {
+            background: var(--color-primary) !important; color: #FFFFFF !important;
+            border: 1px solid var(--color-primary) !important; font-size: 12px !important;
+            padding: 6px 12px !important; border-radius: 6px !important; font-weight: 600 !important;
+            cursor: pointer !important; transition: all 0.15s ease-out !important;
+        }
+        .btn-copy-yaml:hover { opacity: 0.85 !important; }
+
+        main { width: 100% !important; max-width: none !important; margin: 0 auto !important; padding: 4px 28px 48px !important; display: block !important; }
+
+        /* ===== Panel helpers ===== */
+        .panel {
+            background: var(--color-background) !important; border: 1px solid var(--color-border) !important;
+            border-radius: 8px !important; box-shadow: var(--shadow-inspire) !important;
+            padding: 16px 18px !important; margin-bottom: 18px !important;
+        }
+        .panel-head { display: flex !important; justify-content: space-between !important; align-items: center !important; gap: 12px !important; margin-bottom: 12px !important; flex-wrap: wrap !important; }
+        .panel-title { display: flex !important; align-items: center !important; gap: 8px !important; font-size: 14px !important; font-weight: 700 !important; color: var(--color-primary) !important; }
+        .panel-title .emoji { font-size: 16px !important; }
+        .panel-badge { font-size: 11px !important; font-weight: 600 !important; color: var(--color-text-muted) !important; background: var(--color-bg-alt) !important; border-radius: 10px !important; padding: 2px 10px !important; }
+
+        /* ===== Legend ===== */
+        .legend-panel {
+            background: var(--color-background) !important; border: 1px solid var(--color-border) !important;
+            border-radius: 8px !important; box-shadow: var(--shadow-inspire) !important;
+            padding: 12px 18px !important; margin-bottom: 18px !important;
+            display: flex !important; flex-wrap: wrap !important; gap: 8px 28px !important; align-items: center !important;
+        }
+        .legend-item { display: flex !important; align-items: center !important; gap: 6px !important; font-size: 12px !important; color: var(--color-text-muted) !important; white-space: nowrap !important; }
+        .legend-item .lbl { font-weight: 700 !important; color: var(--color-primary) !important; margin-right: 2px !important; }
+        .legend-pill {
+            display: inline-flex !important; align-items: center !important; gap: 4px !important;
+            padding: 2px 9px !important; border-radius: 10px !important; font-size: 11px !important; font-weight: 600 !important;
+            border: 1px solid var(--color-border) !important;
+        }
+        .legend-pill.p0 { background: rgba(245,158,11,0.10) !important; color: #B45309 !important; border-color: #FCD34D !important; }
+        .legend-convention { display: flex !important; align-items: center !important; gap: 5px !important; font-size: 12px !important; color: var(--color-secondary) !important; font-weight: 600 !important; }
+        .legend-convention i { font-style: normal !important; color: var(--color-accent) !important; }
+
+        /* ===== Overview strip (5 L3 · 11 L4 · 21 L5) ===== */
+        .overview-strip {
+            background: var(--color-primary) !important; border-radius: 8px !important;
+            color: #FFFFFF !important; padding: 14px 20px !important; margin-bottom: 18px !important;
+            display: flex !important; align-items: center !important; flex-wrap: wrap !important; gap: 14px 28px !important;
+        }
+        .overview-stat { display: flex !important; align-items: baseline !important; gap: 8px !important; }
+        .overview-stat .num { font-size: 26px !important; font-weight: 800 !important; line-height: 1 !important; }
+        .overview-stat .lbl { font-size: 12px !important; color: rgba(255,255,255,0.8) !important; }
+        .overview-stat .lbl b { color: var(--color-accent) !important; }
+        .overview-sep { width: 1px !important; height: 30px !important; background: rgba(255,255,255,0.2) !important; }
+        .overview-focus { margin-left: auto !important; display: flex !important; align-items: center !important; gap: 8px !important; font-size: 12px !important; color: rgba(255,255,255,0.85) !important; }
+        .overview-focus .badge { background: var(--color-warning) !important; color: #FFFFFF !important; font-weight: 700 !important; border-radius: 6px !important; padding: 2px 9px !important; font-size: 12px !important; }
+
+        /* ===== Stage chain (端到端流程全景) ===== */
+        .stage-chain { display: flex !important; gap: 12px !important; align-items: stretch !important; flex-wrap: nowrap !important; overflow-x: auto !important; padding-bottom: 8px !important; }
+        .stage-card {
+            flex: 0 0 235px !important; background: var(--color-background) !important;
+            border: 1px solid var(--color-border) !important; border-radius: 8px !important;
+            box-shadow: var(--shadow-inspire) !important; display: flex !important; flex-direction: column !important;
+            overflow: hidden !important;
+        }
+        .stage-card.focus { border: 2px solid var(--color-warning) !important; box-shadow: 0 0 0 3px rgba(245,158,11,0.10) !important; }
+        .stage-hd {
+            display: flex !important; align-items: center !important; gap: 8px !important;
+            padding: 12px 14px !important; background: var(--color-bg-alt) !important;
+            border-bottom: 1px solid var(--color-border) !important;
+        }
+        .stage-hd.focus { background: rgba(245,158,11,0.08) !important; }
+        .stage-num {
+            width: 22px !important; height: 22px !important; flex-shrink: 0 !important; border-radius: 6px !important;
+            display: flex !important; align-items: center !important; justify-content: center !important;
+            font-size: 12px !important; font-weight: 700 !important; background: var(--color-primary) !important; color: #FFFFFF !important;
+        }
+        .stage-card.focus .stage-num { background: var(--color-warning) !important; }
+        .stage-name { flex: 1 1 auto !important; font-size: 13px !important; font-weight: 700 !important; color: var(--color-primary) !important; line-height: 1.3 !important; }
+        .stage-count { font-size: 11px !important; font-weight: 600 !important; color: var(--color-accent) !important; }
+        .stage-body { padding: 12px 14px !important; display: flex !important; flex-direction: column !important; gap: 12px !important; }
+        .group-hd { display: flex !important; align-items: center !important; gap: 6px !important; margin-bottom: 6px !important; }
+        .group-hd .g-dot { width: 6px !important; height: 6px !important; border-radius: 50% !important; background: var(--color-secondary) !important; flex-shrink: 0 !important; }
+        .group-hd .g-name { font-size: 12px !important; font-weight: 700 !important; color: var(--color-secondary) !important; }
+        .group-hd .p0-flag { font-size: 10px !important; font-weight: 700 !important; color: #B45309 !important; background: rgba(245,158,11,0.12) !important; border-radius: 6px !important; padding: 1px 6px !important; }
+        .task-item { display: flex !important; align-items: center !important; gap: 6px !important; padding: 5px 6px !important; border-radius: 6px !important; font-size: 12px !important; color: var(--color-foreground) !important; line-height: 1.4 !important; transition: background 0.15s ease-out !important; }
+        .task-item:hover { background: var(--color-bg-alt) !important; }
+        .task-item .dot { width: 8px !important; height: 8px !important; border-radius: 50% !important; flex-shrink: 0 !important; }
+        .task-item .t-name { flex: 1 1 auto !important; }
+        .stage-arrow { display: flex !important; align-items: center !important; color: var(--color-text-muted) !important; font-size: 16px !important; flex-shrink: 0 !important; }
+        .reading-strip {
+            display: flex !important; align-items: center !important; flex-wrap: wrap !important; gap: 8px 10px !important;
+            background: var(--color-bg-alt) !important; border-radius: 8px !important; padding: 12px 16px !important; margin-top: 14px !important;
+            font-size: 12px !important; color: var(--color-text-muted) !important;
+        }
+        .reading-strip span { display: flex !important; align-items: center !important; gap: 6px !important; }
+        .reading-strip .rs-b { font-weight: 700 !important; color: var(--color-primary) !important; }
+        .reading-strip .arr { color: var(--color-accent) !important; font-weight: 700 !important; }
+
+        /* ===== Focus drill (before/after) ===== */
+        .drill-wrap { display: grid !important; grid-template-columns: 1fr 90px 1.2fr !important; gap: 12px !important; align-items: stretch !important; }
+        .drill-col { background: var(--color-bg-alt) !important; border-radius: 8px !important; padding: 14px 16px !important; display: flex !important; flex-direction: column !important; gap: 8px !important; }
+        .drill-col.evidence { background: rgba(98,93,156,0.06) !important; }
+        .drill-label { font-size: 11px !important; font-weight: 700 !important; color: var(--color-text-muted) !important; text-transform: uppercase !important; letter-spacing: 0.04em !important; }
+        .drill-col h4 { font-size: 14px !important; font-weight: 700 !important; color: var(--color-primary) !important; margin: 0 !important; }
+        .drill-col p { font-size: 12.5px !important; color: var(--color-foreground) !important; line-height: 1.6 !important; margin: 0 !important; }
+        .drill-evidence-li { display: flex !important; align-items: flex-start !important; gap: 6px !important; font-size: 12.5px !important; color: var(--color-foreground) !important; line-height: 1.55 !important; }
+        .drill-evidence-li::before { content: "•" !important; color: var(--color-secondary) !important; font-weight: 700 !important; }
+        .drill-arrow { display: flex !important; align-items: center !important; justify-content: center !important; flex-direction: column !important; gap: 6px !important; color: var(--color-text-muted) !important; font-size: 12px !important; text-align: center !important; }
+        .drill-arrow .a { font-size: 26px !important; color: var(--color-accent) !important; }
+
+        /* ===== L5 sequence cards ===== */
+        .l5-seq { display: flex !important; gap: 12px !important; align-items: stretch !important; flex-wrap: wrap !important; }
+        .l5-seq-card {
+            flex: 1 1 30% !important; min-width: 200px !important; background: var(--color-background) !important;
+            border: 1px solid var(--color-border) !important; border-radius: 8px !important;
+            box-shadow: var(--shadow-inspire) !important; padding: 14px 16px !important;
+            display: flex !important; flex-direction: column !important; gap: 6px !important; border-top: 3px solid var(--color-accent) !important;
+        }
+        .l5-seq-card .l5-id { font-size: 11px !important; font-weight: 700 !important; color: var(--color-secondary) !important; }
+        .l5-seq-card .l5-name { font-size: 14px !important; font-weight: 700 !important; color: var(--color-primary) !important; line-height: 1.35 !important; }
+        .l5-seq-card .l5-q { font-size: 12px !important; color: var(--color-text-muted) !important; }
+        .l5-seq-card .l5-q b { color: var(--color-accent) !important; font-weight: 700 !important; }
+        .l5-seq-arrow { display: flex !important; align-items: center !important; color: var(--color-text-muted) !important; font-size: 16px !important; flex-shrink: 0 !important; }
+
+        /* ===== Task table ===== */
+        .task-table { width: 100% !important; border-collapse: collapse !important; font-size: 12px !important; }
+        .task-table thead th { text-align: left !important; background: var(--color-primary) !important; color: #FFFFFF !important; font-weight: 600 !important; padding: 9px 12px !important; white-space: nowrap !important; }
+        .task-table thead th:first-child { border-radius: 8px 0 0 0 !important; }
+        .task-table thead th:last-child { border-radius: 0 8px 0 0 !important; }
+        .task-table tbody td { padding: 10px 12px !important; border-bottom: 1px solid var(--color-border) !important; vertical-align: top !important; line-height: 1.5 !important; color: var(--color-foreground) !important; }
+        .task-table tbody tr:last-child td { border-bottom: none !important; }
+        .task-table tbody tr:nth-child(even) td { background: var(--color-bg-alt) !important; }
+        .task-table .td-l5 { font-weight: 700 !important; color: var(--color-primary) !important; white-space: nowrap !important; }
+        .task-table .actor-chip { display: inline-flex !important; align-items: center !important; gap: 3px !important; font-size: 10px !important; font-weight: 600 !important; border-radius: 10px !important; padding: 1px 7px !important; margin-top: 4px !important; border: 1px solid var(--color-border) !important; }
+        .task-table .exception { color: #B91C1C !important; font-weight: 600 !important; }
+
+        /* ===== IO chain ===== */
+        .io-chain { display: flex !important; align-items: center !important; flex-wrap: wrap !important; gap: 8px !important; }
+        .io-node {
+            background: var(--color-bg-alt) !important; border: 1px solid var(--color-border) !important; border-radius: 8px !important;
+            padding: 7px 12px !important; font-size: 12px !important; font-weight: 600 !important; color: var(--color-primary) !important; white-space: nowrap !important;
+        }
+        .io-node.downstream { background: rgba(0,82,76,0.08) !important; border-color: #7FB6B0 !important; color: var(--color-success) !important; }
+        .io-arrow { color: var(--color-accent) !important; font-size: 15px !important; font-weight: 700 !important; flex-shrink: 0 !important; }
+
+        /* ===== Learning ===== */
+        .learning-grid { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 12px !important; }
+        .learning-card { background: var(--color-bg-alt) !important; border-radius: 8px !important; padding: 14px 16px !important; border-left: 3px solid var(--color-secondary) !important; }
+        .learning-card.green { border-left-color: var(--color-success) !important; }
+        .learning-card h4 { font-size: 13px !important; font-weight: 700 !important; color: var(--color-primary) !important; margin: 0 0 6px !important; }
+        .learning-card p { font-size: 12.5px !important; color: var(--color-foreground) !important; line-height: 1.6 !important; margin: 0 !important; }
+
+        /* Responsive (375/768/1024) */
+        @media (max-width: 768px) {
+            main { padding: 4px 12px 32px !important; }
+            .unified-hdr { padding: 12px 14px !important; }
+            .drill-wrap { grid-template-columns: 1fr !important; }
+            .learning-grid { grid-template-columns: 1fr !important; }
+            .stage-arrow, .l5-seq-arrow { display: none !important; }
+            .stage-chain { flex-wrap: wrap !important; }
+            .stage-card { flex: 1 1 100% !important; }
+            .l5-seq-card { flex: 1 1 100% !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== Unified Header ===== -->
+    <header class="unified-hdr">
+        <div class="unified-hdr-left">
+            <h1>X电商订舱 · 智能订舱 Agent · 单证预填（SI 生成）任务流程拆解</h1>
+            <p>来自《任务流程挖掘清单》· 聚焦业务环节「单证预填（SI 生成）」（SKP P1 深钻） · SKP 阶段1方法（业务环节 → 活动 → 动作级；聚焦 SI 生成环节纵切）</p>
+        </div>
+        <div class="unified-hdr-right">
+            <div class="unified-hdr-stats">
+                <span class="hdr-stat"><b>L3</b> 4</span>
+                <span class="hdr-stat-sep"></span>
+                <span class="hdr-stat"><b>L4</b> 4</span>
+                <span class="hdr-stat-sep"></span>
+                <span class="hdr-stat"><b>L5</b> 11</span>
+            </div>
+            <button id="copyYamlBtn" class="btn-copy-yaml" onclick="copyYAML()">复制原始 YAML</button>
+        </div>
+    </header>
+
+    <main>
+        <!-- ===== Overview Strip ===== -->
+        <div class="overview-strip">
+            <div class="overview-stat"><span class="num">4</span><span class="lbl">个 <b>L3</b> 业务阶段</span></div>
+            <div class="overview-sep"></div>
+            <div class="overview-stat"><span class="num">4</span><span class="lbl">个 <b>L4</b> 活动分组</span></div>
+            <div class="overview-sep"></div>
+            <div class="overview-stat"><span class="num">11</span><span class="lbl">个 <b>L5</b> 可执行动作</span></div>
+            <div class="overview-focus">焦点 L4 ≡ <span class="badge">SI 字段生成与单证校验</span></div>
+        </div>
+
+        <!-- ===== Legend ===== -->
+        <div class="legend-panel">
+            <div class="legend-item"><span class="lbl">执行主体</span>
+                
+                <span class="legend-pill" style=&#34;color:#1B6EA8; background:rgba(93,178,226,0.10); border-color:#9BD0EC;&#34;>🤖 Agent</span>
+                
+                <span class="legend-pill" style=&#34;color:#4C4680; background:rgba(98,93,156,0.10); border-color:#B6B2DE;&#34;>🤝 混合执行</span>
+                
+                <span class="legend-pill" style=&#34;color:#B45309; background:rgba(245,158,11,0.10); border-color:#FCD34D;&#34;>👤 人工</span>
+                
+            </div>
+            
+            <div class="legend-item"><span class="lbl">重点</span>
+                <span class="legend-pill p0">P0 本节重点</span>
+            </div>
+            
+            
+            <div class="legend-convention">
+                业务环节<i>→</i>活动分组<i>→</i>可执行动作
+            </div>
+            
+        </div>
+
+        <!-- ===== End-to-end stage chain ===== -->
+        <div class="panel">
+            <div class="panel-head">
+                <span class="panel-title"><span class="emoji">🗺️</span>端到端深度任务流程地图</span>
+                <span class="panel-badge">全景 → 聚焦下钻</span>
+            </div>
+            <div class="stage-chain">
+                
+                
+                <div class="stage-card ">
+                    <div class="stage-hd ">
+                        <span class="stage-num">01</span>
+                        <span class="stage-name">单据准备</span>
+                        <span class="stage-count">2 L5</span>
+                    </div>
+                    <div class="stage-body">
+                        
+                        <div>
+                            <div class="group-hd">
+                                <span class="g-dot"></span>
+                                <span class="g-name">贸易单据上传与预检</span>
+                                
+                            </div>
+                            
+                            <div class="task-item">
+                                <span class="dot" style=&#34;background:#F59E0B;&#34;></span>
+                                <span class="t-name">上传贸易单据（PI/装箱单/发票）</span>
+                            </div>
+                            
+                            <div class="task-item">
+                                <span class="dot" style=&#34;background:#5DB2E2;&#34;></span>
+                                <span class="t-name">预检单据完整性（缺件/清晰度）</span>
+                            </div>
+                            
+                        </div>
+                        
+                    </div>
+                </div>
+                
+                <div class="stage-arrow">→</div>
+                <div class="stage-card ">
+                    <div class="stage-hd ">
+                        <span class="stage-num">02</span>
+                        <span class="stage-name">SI 字段生成</span>
+                        <span class="stage-count">3 L5</span>
+                    </div>
+                    <div class="stage-body">
+                        
+                        <div>
+                            <div class="group-hd">
+                                <span class="g-dot"></span>
+                                <span class="g-name">OCR 抽取与字段标准化</span>
+                                
+                            </div>
+                            
+                            <div class="task-item">
+                                <span class="dot" style=&#34;background:#5DB2E2;&#34;></span>
+                                <span class="t-name">OCR 抽取（品名/唛头/件数/毛重/体积）</span>
+                            </div>
+                            
+                            <div class="task-item">
+                                <span class="dot" style=&#34;background:#5DB2E2;&#34;></span>
+                                <span class="t-name">抽取置信度标注（低置信度标黄）</span>
+                            </div>
+                            
+                            <div class="task-item">
+                                <span class="dot" style=&#34;background:#5DB2E2;&#34;></span>
+                                <span class="t-name">品名规范与 HS 编码映射</span>
+                            </div>
+                            
+                        </div>
+                        
+                    </div>
+                </div>
+                
+                <div class="stage-arrow">→</div>
+                <div class="stage-card focus">
+                    <div class="stage-hd focus">
+                        <span class="stage-num">03</span>
+                        <span class="stage-name">单证校验</span>
+                        <span class="stage-count">3 L5</span>
+                    </div>
+                    <div class="stage-body">
+                        
+                        <div>
+                            <div class="group-hd">
+                                <span class="g-dot"></span>
+                                <span class="g-name">SI 字段生成与单证校验</span>
+                                <span class="p0-flag">★ P0</span>
+                            </div>
+                            
+                            <div class="task-item">
+                                <span class="dot" style=&#34;background:#5DB2E2;&#34;></span>
+                                <span class="t-name">单证校验（VGM/毛重差异/HS）</span>
+                            </div>
+                            
+                            <div class="task-item">
+                                <span class="dot" style=&#34;background:#5DB2E2;&#34;></span>
+                                <span class="t-name">生成异常补全项与示例</span>
+                            </div>
+                            
+                            <div class="task-item">
+                                <span class="dot" style=&#34;background:#5DB2E2;&#34;></span>
+                                <span class="t-name">HS 无法映射时提示人工复核</span>
+                            </div>
+                            
+                        </div>
+                        
+                    </div>
+                </div>
+                
+                <div class="stage-arrow">→</div>
+                <div class="stage-card ">
+                    <div class="stage-hd ">
+                        <span class="stage-num">04</span>
+                        <span class="stage-name">确认提交</span>
+                        <span class="stage-count">3 L5</span>
+                    </div>
+                    <div class="stage-body">
+                        
+                        <div>
+                            <div class="group-hd">
+                                <span class="g-dot"></span>
+                                <span class="g-name">SI 提交与推送</span>
+                                
+                            </div>
+                            
+                            <div class="task-item">
+                                <span class="dot" style=&#34;background:#625D9C;&#34;></span>
+                                <span class="t-name">确认并提交 SI（一次补全）</span>
+                            </div>
+                            
+                            <div class="task-item">
+                                <span class="dot" style=&#34;background:#5DB2E2;&#34;></span>
+                                <span class="t-name">推送 SI 至单证系统</span>
+                            </div>
+                            
+                            <div class="task-item">
+                                <span class="dot" style=&#34;background:#F59E0B;&#34;></span>
+                                <span class="t-name">异常单证升级人工处理</span>
+                            </div>
+                            
+                        </div>
+                        
+                    </div>
+                </div>
+                
+            </div>
+            
+            <div class="reading-strip">
+                
+                <span><b>先看全链路</b>：从贸易单据上传到 SI 推送单证系统，形成完整单证闭环</span>
+                <span class="arr">→</span>
+                
+                <span><b>再找高价值活动</b>：「SI 字段生成与单证校验」承载最密集的规则校验与补件，是返工率关键</span>
+                <span class="arr">→</span>
+                
+                <span><b>最后下钻到动作</b>：拆成「抽取 / 校验 / 补件」三个可独立挂规则的动作</span>
+                
+                
+            </div>
+            
+        </div>
+
+        <!-- ===== Focus drill ===== -->
+        <div class="panel">
+            <div class="panel-head">
+                <span class="panel-title"><span class="emoji">⛏️</span>聚焦下钻 · 把「SI 字段生成与单证校验」拆到不可再分</span>
+                <span class="panel-badge">单证预填（SI 生成） / P0</span>
+            </div>
+            <div class="drill-wrap">
+                <div class="drill-col">
+                    <span class="drill-label">拆解前 · L4</span>
+                    <h4>「SI 字段生成与单证校验」仍然太粗</h4>
+                    <p>它包含 OCR 抽取、品名规范、HS 映射、单证校验、补件等不同动作，输入输出和异常各不相同，不能直接作为最小执行单元。</p>
+                </div>
+                <div class="drill-arrow"><span class="a">→</span><span>访谈走查＋材料还原 →</span></div>
+                <div class="drill-col evidence">
+                    <span class="drill-label">专家实际怎么做</span>
+                    <h4>证据 · 访谈走查</h4>
+                    <div class="drill-evidence-li">根据贸易单据 OCR 抽取品名/唛头/件数/毛重/体积，并标注置信度</div><div class="drill-evidence-li">规范多语言品名、映射 HS 编码，运行 300+ 条单证校验规则</div><div class="drill-evidence-li">VGM 缺失/毛重差异生成补全项，HS 无法映射则人工复核（禁猜）</div>
+                    <p style="margin-top:6px;color:var(--color-secondary);font-weight:600;">下钻为 3 个能独立挂规则的动作，各自回答『抽取什么 / 依据什么放行 / 缺件怎么办』。</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== L5 depth task sequence ===== -->
+        <div class="panel">
+            <div class="panel-head">
+                <span class="panel-title"><span class="emoji">🧩</span>L5 深度任务序列（下钻 P0）</span>
+                <span class="panel-badge">单一动词 · 明确 I/O · 可观测</span>
+            </div>
+            <div class="l5-seq">
+                
+                
+                <div class="l5-seq-card">
+                    <span class="l5-id">L5-1</span>
+                    <span class="l5-name">OCR 抽取 SI 字段</span>
+                    <span class="l5-q">回答「<b>抽取什么</b>」</span>
+                </div>
+                
+                <div class="l5-seq-arrow">→</div>
+                <div class="l5-seq-card">
+                    <span class="l5-id">L5-2</span>
+                    <span class="l5-name">品名规范与 HS 映射</span>
+                    <span class="l5-q">回答「<b>依据什么标准化</b>」</span>
+                </div>
+                
+                <div class="l5-seq-arrow">→</div>
+                <div class="l5-seq-card">
+                    <span class="l5-id">L5-3</span>
+                    <span class="l5-name">单证校验与补件</span>
+                    <span class="l5-q">回答「<b>依据什么放行 · 缺件怎么办</b>」</span>
+                </div>
+                
+            </div>
+        </div>
+
+        <!-- ===== L5 task table ===== -->
+        <div class="panel">
+            <div class="panel-head">
+                <span class="panel-title"><span class="emoji">📋</span>深度任务结构化表</span>
+                <span class="panel-badge">输入 / 输出 / 规则依据 / 异常·HITL</span>
+            </div>
+            <table class="task-table">
+                <thead>
+                    <tr>
+                        <th>L5 深度任务</th><th>输入</th><th>输出</th><th>规则依据</th><th>异常 / HITL</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    
+                    <tr>
+                        <td class="td-l5">OCR 抽取 SI 字段
+                            <br><span class="actor-chip" style=&#34;color:#1B6EA8; background:rgba(93,178,226,0.10); border-color:#9BD0EC;&#34;>🤖 Agent</span>
+                        </td>
+                        <td>贸易单据（PI/装箱单/发票 PDF/图片/Excel）</td>
+                        <td>抽取的 SI 字段（品名/唛头/件数/毛重/体积）+ 置信度标注</td>
+                        <td>关键信息提取要点·SI 字段抽取与置信度判定</td>
+                        <td class="exception">OCR 置信度低（模糊/破损）→ 标黄待人工复核，不阻塞其余字段</td>
+                    </tr>
+                    
+                    <tr>
+                        <td class="td-l5">品名规范与 HS 映射
+                            <br><span class="actor-chip" style=&#34;color:#1B6EA8; background:rgba(93,178,226,0.10); border-color:#9BD0EC;&#34;>🤖 Agent</span>
+                        </td>
+                        <td>抽取的品名/唛头/件数 + HS 映射字典</td>
+                        <td>标准化品名 + 合规 HS 编码</td>
+                        <td>术语字典类·多语言品名/HS 编码映射</td>
+                        <td class="exception">HS 编码无法映射 → 提示人工复核（禁止擅自猜测）</td>
+                    </tr>
+                    
+                    <tr>
+                        <td class="td-l5">单证校验与补件
+                            <br><span class="actor-chip" style=&#34;color:#1B6EA8; background:rgba(93,178,226,0.10); border-color:#9BD0EC;&#34;>🤖 Agent</span>
+                        </td>
+                        <td>SI 字段 + 单证规则库（&gt;300 条）</td>
+                        <td>校验结果（含 VGM/毛重差异告警）+ 补全项示例</td>
+                        <td>决策模型类·单证校验规则（VGM/毛重/HS）</td>
+                        <td class="exception">VGM 缺失/毛重超限 → 生成补全项；异常未修正 → 阻止提交</td>
+                    </tr>
+                    
+                </tbody>
+            </table>
+        </div>
+
+        <!-- ===== IO chain ===== -->
+        <div class="panel">
+            <div class="panel-head">
+                <span class="panel-title"><span class="emoji">🔁</span>输入输出如何闭环</span>
+                <span class="panel-badge">下游衔接</span>
+            </div>
+            <div class="io-chain">
+                
+                
+                <span class="io-node ">订舱确认书（已签发）</span>
+                
+                <span class="io-arrow">→</span>
+                <span class="io-node ">上传贸易单据</span>
+                
+                <span class="io-arrow">→</span>
+                <span class="io-node ">OCR 抽取 SI 字段</span>
+                
+                <span class="io-arrow">→</span>
+                <span class="io-node ">品名规范 + HS 映射</span>
+                
+                <span class="io-arrow">→</span>
+                <span class="io-node ">单证校验（VGM/毛重/HS）</span>
+                
+                <span class="io-arrow">→</span>
+                <span class="io-node ">确认提交 SI</span>
+                
+                <span class="io-arrow">→</span>
+                <span class="io-node downstream">下游：推送单证系统 → 进入提单流程</span>
+                
+            </div>
+        </div>
+
+        <!-- ===== Learning ===== -->
+        <div class="panel">
+            <div class="panel-head">
+                <span class="panel-title"><span class="emoji">💡</span>挖掘的关键</span>
+            </div>
+            <div class="learning-grid">
+                <div class="learning-card">
+                    <h4>为什么这样拆？</h4>
+                    <p>三个动作各自只有一个核心动词，产出可观察，并可独立挂接规则（提取要点 / HS 字典 / 单证校验规则）。</p>
+                </div>
+                <div class="learning-card green">
+                    <h4>挖掘的关键不是改写名称</h4>
+                    <p>挖掘的关键不是改写名称，而是把单证预填这一真实执行的动作顺序、输入输出、判断依据（VGM/毛重/HS）和异常链路（标黄/补件/人工复核）结构化，供 P2 规则绑定与下游本体/测试消费。</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Raw YAML Data (Hidden) -->
+    <script type="application/yaml" id="raw-yaml">
+meta:
+  title: "X电商订舱 · 智能订舱 Agent · 单证预填（SI 生成）任务流程拆解"
+  subtitle: "来自《任务流程挖掘清单》· 聚焦业务环节「单证预填（SI 生成）」（SKP P1 深钻）"
+  version: "v1.0"
+  date: "2026-08-25"
+  scenarioName: "智能订舱 Agent · 单证预填（SI 生成）"
+  businessStage: "SKP 阶段1 任务流程挖掘 · P1（环节级深钻）"
+  methodology: "SKP 阶段1方法（业务环节 → 活动 → 动作级；聚焦 SI 生成环节纵切）"
+  inputs:
+    - "SRP《智能订舱Agent-本体设计》（si_document/trade_document 状态迁移 + ab_si_document 行动边界）"
+    - "SRP《智能订舱Agent-Agentic工作流》cap_02（OCR 抽取/HS 映射/单证校验的护栏与异常）"
+    - "SRP《智能订舱Agent-To-be流程》（P4 单证处理 的深度任务链）"
+    - "SRP《智能订舱Agent-CKD矩阵分析》（智慧单证规则库 >300 条 / HS 映射字典 / 贸易单据资产）"
+  sourceRef: "智能订舱Agent-本体设计 + Agentic工作流 cap_02 + To-be流程 P4"
+  kpi:
+    - "单证一次提交通过率"
+    - "AI 分流率"
+    - "SME 全流程自助率"
+
+overview:
+  focusL3: "单证预填（SI 生成）"
+  focusL4: "SI 字段生成与单证校验"
+
+legend:
+  focusType: "p0"
+  focusLabel: "P0 本节重点"
+  execution:
+    - { type: "agent",  label: "Agent",   icon: "🤖" }
+    - { type: "mixed",  label: "混合执行", icon: "🤝" }
+    - { type: "human",  label: "人工",     icon: "👤" }
+  convention:
+    - "业务环节"
+    - "活动分组"
+    - "可执行动作"
+
+stages:
+  - id: "S1"
+    num: "01"
+    name: "单据准备"
+    l5Count: 2
+    isFocus: false
+    groups:
+      - id: "G1_1"
+        name: "贸易单据上传与预检"
+        isP0: false
+        tasks:
+          - { id: "t01", name: "上传贸易单据（PI/装箱单/发票）", actor: "human" }
+          - { id: "t02", name: "预检单据完整性（缺件/清晰度）", actor: "agent" }
+
+  - id: "S2"
+    num: "02"
+    name: "SI 字段生成"
+    l5Count: 3
+    isFocus: false
+    groups:
+      - id: "G2_1"
+        name: "OCR 抽取与字段标准化"
+        isP0: false
+        tasks:
+          - { id: "t03", name: "OCR 抽取（品名/唛头/件数/毛重/体积）", actor: "agent" }
+          - { id: "t04", name: "抽取置信度标注（低置信度标黄）", actor: "agent" }
+          - { id: "t05", name: "品名规范与 HS 编码映射", actor: "agent" }
+
+  - id: "S3"
+    num: "03"
+    name: "单证校验"
+    l5Count: 3
+    isFocus: true
+    groups:
+      - id: "G3_1"
+        name: "SI 字段生成与单证校验"
+        isP0: true
+        tasks:
+          - { id: "t06", name: "单证校验（VGM/毛重差异/HS）", actor: "agent" }
+          - { id: "t07", name: "生成异常补全项与示例", actor: "agent" }
+          - { id: "t08", name: "HS 无法映射时提示人工复核", actor: "agent" }
+
+  - id: "S4"
+    num: "04"
+    name: "确认提交"
+    l5Count: 3
+    isFocus: false
+    groups:
+      - id: "G4_1"
+        name: "SI 提交与推送"
+        isP0: false
+        tasks:
+          - { id: "t09", name: "确认并提交 SI（一次补全）", actor: "mixed" }
+          - { id: "t10", name: "推送 SI 至单证系统", actor: "agent" }
+          - { id: "t11", name: "异常单证升级人工处理", actor: "human" }
+
+readingFlow:
+  - "<b>先看全链路</b>：从贸易单据上传到 SI 推送单证系统，形成完整单证闭环"
+  - "<b>再找高价值活动</b>：「SI 字段生成与单证校验」承载最密集的规则校验与补件，是返工率关键"
+  - "<b>最后下钻到动作</b>：拆成「抽取 / 校验 / 补件」三个可独立挂规则的动作"
+
+focusDrill:
+  before:
+    l4Name: "SI 字段生成与单证校验"
+    whyTooCoarse: "它包含 OCR 抽取、品名规范、HS 映射、单证校验、补件等不同动作，输入输出和异常各不相同，不能直接作为最小执行单元。"
+  approach: "访谈走查＋材料还原 →"
+  evidence:
+    - "根据贸易单据 OCR 抽取品名/唛头/件数/毛重/体积，并标注置信度"
+    - "规范多语言品名、映射 HS 编码，运行 300+ 条单证校验规则"
+    - "VGM 缺失/毛重差异生成补全项，HS 无法映射则人工复核（禁猜）"
+  after: "下钻为 3 个能独立挂规则的动作，各自回答『抽取什么 / 依据什么放行 / 缺件怎么办』。"
+
+focusSequence:
+  - { id: "L5-1", name: "OCR 抽取 SI 字段", question: "抽取什么" }
+  - { id: "L5-2", name: "品名规范与 HS 映射", question: "依据什么标准化" }
+  - { id: "L5-3", name: "单证校验与补件", question: "依据什么放行 · 缺件怎么办" }
+
+taskTable:
+  - l5: "OCR 抽取 SI 字段"
+    inputs: "贸易单据（PI/装箱单/发票 PDF/图片/Excel）"
+    outputs: "抽取的 SI 字段（品名/唛头/件数/毛重/体积）+ 置信度标注"
+    ruleType: "关键信息提取要点·SI 字段抽取与置信度判定"
+    exception: "OCR 置信度低（模糊/破损）→ 标黄待人工复核，不阻塞其余字段"
+    actor: "agent"
+  - l5: "品名规范与 HS 映射"
+    inputs: "抽取的品名/唛头/件数 + HS 映射字典"
+    outputs: "标准化品名 + 合规 HS 编码"
+    ruleType: "术语字典类·多语言品名/HS 编码映射"
+    exception: "HS 编码无法映射 → 提示人工复核（禁止擅自猜测）"
+    actor: "agent"
+  - l5: "单证校验与补件"
+    inputs: "SI 字段 + 单证规则库（>300 条）"
+    outputs: "校验结果（含 VGM/毛重差异告警）+ 补全项示例"
+    ruleType: "决策模型类·单证校验规则（VGM/毛重/HS）"
+    exception: "VGM 缺失/毛重超限 → 生成补全项；异常未修正 → 阻止提交"
+    actor: "agent"
+
+ioChain:
+  - "订舱确认书（已签发）"
+  - "上传贸易单据"
+  - "OCR 抽取 SI 字段"
+  - "品名规范 + HS 映射"
+  - "单证校验（VGM/毛重/HS）"
+  - "确认提交 SI"
+  - "下游：推送单证系统 → 进入提单流程"
+
+learning:
+  why: "三个动作各自只有一个核心动词，产出可观察，并可独立挂接规则（提取要点 / HS 字典 / 单证校验规则）。"
+  key: "挖掘的关键不是改写名称，而是把单证预填这一真实执行的动作顺序、输入输出、判断依据（VGM/毛重/HS）和异常链路（标黄/补件/人工复核）结构化，供 P2 规则绑定与下游本体/测试消费。"
+
+    </script>
+
+    <script>
+        function copyYAML() {
+            const yamlContent = document.getElementById('raw-yaml').textContent.trim();
+            navigator.clipboard.writeText(yamlContent).then(() => {
+                const btn = document.getElementById('copyYamlBtn');
+                const originalHtml = btn.innerHTML;
+                btn.innerHTML = '✓ 已复制';
+                setTimeout(() => { btn.innerHTML = originalHtml; }, 1600);
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+                alert('复制失败，请手动复制。');
+            });
+        }
+    </script>
+</body>
+</html>

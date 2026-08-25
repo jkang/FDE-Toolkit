@@ -28,7 +28,7 @@ author: KK
 
 > 与相邻 Skill 的边界（同属 SKP 阶段1，视角不同）：
 > - `to-be-process-designer`：**横切·角色协同**（泳道图：列=L3 阶段 × 行=角色泳道），回答「谁在何时做什么」。
-> - 本 Skill：**纵切·任务粒度**（L3 阶段卡 → L4 分组 → L5 动作 + 焦点 L4 下钻），回答「一件事拆成几个原子动作，每个动作的输入/依据/异常是什么」。
+> - 本 Skill：**纵切·任务粒度**（L3 阶段卡 → L4 分组 → 动作级 + 焦点 L4 下钻），回答「一件事拆成几个原子动作，每个动作的输入/依据/异常是什么」。
 > - `agentic-workflow-designer`：**单能力内部执行**（PlantUML 活动/时序图），回答「某个 AI 能力内部怎么执行」。
 
 > [!IMPORTANT] 全局规范（双重输出 / 输出路径 / 视觉设计）
@@ -50,17 +50,17 @@ author: KK
 
 ---
 
-## 核心方法：纵切拆解（L3 → L4 → L5）
+## 核心方法：纵切拆解（L3 → L4 → 动作级）
 
-把「模糊的一个任务」纵切为「一组不可再分、单一动词、I/O 明确、结果可观察、可独立挂规则」的深度任务。
+把「模糊的一个任务」纵切为「一组**可独立描述、可观察、可单独挂规则**的深度任务」。这里的分层是**描述业务粗细的工具**，不是绝对标准——拆到什么粒度，以「这一步能清楚交代输入/输出/依据、且能单独挂规则」为准，不硬套某条固定判据。拆得太粗会挂不细，拆得太碎会让走查成本爆炸。
 
-| 层级 | 含义 | 判定要点 |
-|------|------|---------|
-| **L3** | 业务阶段 | 场景从触发到闭环的 5~7 个阶段，阶段间用箭头串成闭环 |
+| 层级 | 含义 | 说明 |
+|------|------|------|
+| **L3** | 业务阶段 | 场景从触发到闭环的若干阶段，阶段间用箭头串成闭环 |
 | **L4** | 活动分组 | 阶段内「一个角色可承接的成组工作」；焦点 L4（P0）仅 1 个 |
-| **L5** | 可执行动作 | **五判据**：不可再分 / 单一动词 / 明确 I/O / 结果可观测 / 名称全场唯一 |
+| **动作级（L5）** | 可执行动作 | 目标是「单一动作、明确 I/O、结果可观察、可独立挂规则」；具体粒度由业务现场决定 |
 
-每个 L5 登记执行主体 `actor`：`agent`（纯后台算法）/ `human`（判断/责任/承诺）/ `mixed`（AI 产出+人工确认）。
+每个深度任务登记执行主体 `actor`：`agent`（纯后台算法）/ `human`（判断/责任/承诺）/ `mixed`（AI 产出+人工确认）。
 
 ---
 
@@ -89,7 +89,7 @@ author: KK
 - 提炼 `meta.kpi`（价值锚定），选定 `overview.focusL4`（承载最密集专家判断的 P0 L4）。
 
 ### Step 2 · 纵切推导 YAML（LLM 产物）
-- 严格遵循 `references/task_breakdown_prompts.md` 的角色设定、纵切铁律、L5 五判据与字段约束。
+- 严格遵循 `references/task_breakdown_prompts.md` 的角色设定、纵切铁律与字段约束。
 - **产物保存到 `<公司/业务名>/<场景名>/` 场景子目录**，
   命名 `[公司/业务名]-[场景名]-任务流程拆解.yaml`（`examples/` 仅存放演示样例）。
 
@@ -111,7 +111,7 @@ L5 深度任务序列 → 结构化表（输入/输出/规则依据/异常·HITL
 deep-task-flow-analyzer/
 ├── SKILL.md                            # 本指南
 ├── references/
-│   ├── task_breakdown_prompts.md       # 核心 LLM Prompt 铁律（角色设定 + 纵切铁律 + L5 五判据）
+│   ├── task_breakdown_prompts.md       # 核心 LLM Prompt 铁律（角色设定 + 纵切铁律 + 字段约束）
 │   └── schema.yaml                     # 标准 YAML 数据契约（智能订舱 Agent 场景）
 ├── templates/
 │   └── task_breakdown_layout.html      # Jinja2 HTML/CSS 模板（阶段链 + 下钻 + 结构化表）
@@ -129,6 +129,7 @@ deep-task-flow-analyzer/
 | 上游输入 | `ai-canvas-generator` / `ai-product-journey-generator` | 提供场景定义 / To-be 旅程作为纵切依据 |
 | 上游输入 | `blueprint-map-generator` / `business-process-deep-analyzer` | 提供现状流程（L1–L4）与痛点 |
 | 平行互补 | `to-be-process-designer` | 泳道图给「角色协同全景」；本 Skill 给「任务粒度下钻」，二者互补 |
+| 同 Agent | `to-be-process-designer` / `business-rule-miner` / `agent-ontology-designer` / `agentic-workflow-designer` / `context-knowledge-data-analyzer` | 共同构成 `agent-arch-designer` Agent；本 Skill 与 `to-be-process-designer` 同属 SKP P1 流程骨架，本 Skill 产出的使用点输入 `business-rule-miner`（P2） |
 | 下游衔接 | `agent-ontology-designer` / `agentic-workflow-designer` | 本产物的 L5 / 规则依据 / 执行主体，作为本体与编排设计的骨架 |
 | 下游衔接 | `context-knowledge-data-analyzer`（CKD） | 深度任务的输入输出可作为 CKD 数据资产锚点 |
 | 下游衔接 | `ai-test-dataset-generator` / `mvp-metrics-generator` | L5 输入输出可转译为测试用例 / 成效指标 |
