@@ -103,7 +103,7 @@ stages:
         thoughts:
           - "最快 1 分钟拿到确认，体验很好"
         painPoints:
-          - "最快 1 分钟仅限特定条款客户，多数 SME 仍需等待人工确认 [推断]"
+          - "最快 1 分钟仅限特定条款货主，多数 SME 仍需等待人工确认 [推断]"
         aiusecase:
           name: "分钟级自动确认"
           description: "自动校验规则扩围，对标准 SME 订单自动签发 Booking Confirmation 并预告舱位保证状态。"

@@ -232,10 +232,10 @@ useCases:
     integrationComplexity: 5
     knowledgeComplexity: 5
 
-  # ─── 客户服务 ───
+  # ─── 货主服务 ───
   - id: "G01"
     name: "前置费用透明与超期预警"
-    type: "客户服务"
+    type: "货主服务"
     userCount: 4
     usageFrequency: 4
     businessValue: 3
@@ -245,7 +245,7 @@ useCases:
     knowledgeComplexity: 2
   - id: "G02"
     name: "智能订舱 Agent"
-    type: "客户服务"
+    type: "货主服务"
     userCount: 5
     usageFrequency: 5
     businessValue: 5
@@ -255,7 +255,7 @@ useCases:
     knowledgeComplexity: 4
   - id: "G03"
     name: "情绪识别与智能升级"
-    type: "客户服务"
+    type: "货主服务"
     userCount: 4
     usageFrequency: 4
     businessValue: 3
@@ -265,7 +265,7 @@ useCases:
     knowledgeComplexity: 2
   - id: "G04"
     name: "eBL 放货快速接入引导"
-    type: "客户服务"
+    type: "货主服务"
     userCount: 3
     usageFrequency: 3
     businessValue: 3
@@ -319,6 +319,6 @@ useCases:
 insights:
   - "Quick Wins（高收益/低成本）：AI 自动认证审核、首单智能预填、智能补件检查、分钟级自动确认、前置费用透明、情绪识别与智能升级等集中在获客与订舱环节，直接作用于 SME 首单转化与订舱确认时效（KPI 3），建议第一梯队立即启动。"
   - "Big Bets（高收益/高成本）：智能订舱 Agent、AI 预测性预警、智能舱位预测与分配、全航线智能报价为北极星渗透率（25%[推断]→40%）的核心引擎，需跨 OMS/收益/控制塔多系统投入，建议 P0 立项、12 个月内呈现可量化 ROI（对冲 2025 年溢利 -41.3% 的成本压力）。"
-  - "跟踪预警与询价报价类场景平均优先级最高（跟踪预警 avg 7.73、询价报价 avg 6.73），用户覆盖与使用频率双高，是 SME 全流程信息不对称痛点的最直接解药；客户服务类中智能订舱 Agent 是单一最高价值场景（Top 6），建议作为旗舰单点攻坚。"
+  - "跟踪预警与询价报价类场景平均优先级最高（跟踪预警 avg 7.73、询价报价 avg 6.73），用户覆盖与使用频率双高，是 SME 全流程信息不对称痛点的最直接解药；货主服务类中智能订舱 Agent 是单一最高价值场景（Top 6），建议作为旗舰单点攻坚。"
   - "供应链协同类场景（F03/H04）知识复杂度与集成复杂度最高（各维 5 分），需母集团双品牌协同与外部数据生态，建议作为二期战略型项目，先行以 AI 预测性预警（F02）作为入口积累运力协同数据 [推断]。"
   - "单证支付类场景中，智慧单证增强（基于年 35 万份自动处理基座）优先级显著高于 eBL 生态渗透（依赖贸易链外部节点采纳，集成复杂度 5），建议前者快速迭代、后者渐进渗透（LCL eBL 试点扩面）。"

@@ -17,7 +17,7 @@ stages:
             description: "「数字营销团队」在「获客触达」下提供[基于贸易流向与货主搜索意图的个性化内容生成与精准投放]能力，以「提升 SME 首访转化率、降低单线索获客成本」。（来源：C-体验旅程图-智能获客与内容触达）"
           - type: "cognitive"
             name: "贸易画像智能分级"
-            description: "「销售团队」在「线索管理」下提供[基于货量、航线与行业特征的潜在客户价值评分]能力，以「优先触达高价值 SME 长尾客户、提升营销 ROI」。（来源：B-售后与会员运营-复购激励痛点 [推断]）"
+            description: "「销售团队」在「线索管理」下提供[基于货量、航线与行业特征的潜在货主价值评分]能力，以「优先触达高价值 SME 长尾货主、提升营销 ROI」。（来源：B-售后与会员运营-复购激励痛点 [推断]）"
       - activity: "企业注册与资质认证"
         role: "SME 货主 / 电商运营"
         touchpoint: "独立电商平台注册页 / CRM / 风控系统"
@@ -55,7 +55,7 @@ stages:
           - "人工维护与推送长时效报价单"
         cognitive_tasks:
           - "评估锁价产品在运价波动下的风险敞口"
-          - "权衡客户价值与舱位收益给出报价组合"
+          - "权衡货主价值与舱位收益给出报价组合"
         ai_opportunities:
           - type: "cognitive"
             name: "动态锁价风控"
@@ -103,7 +103,7 @@ stages:
         ai_opportunities:
           - type: "repetitive"
             name: "分钟级自动确认"
-            description: "「订舱运营」在「订舱受理」下提供[自动校验规则扩围 + 标准 SME 订单自动签发 Booking Confirmation]能力，以「将平均确认时效向 ≤2 小时（KPI 3）收敛、对标行业头部分钟级体验」。（来源：C-体验旅程图-分钟级自动确认；B 最快 1 分钟仅限特定条款客户（high 痛点））"
+            description: "「订舱运营」在「订舱受理」下提供[自动校验规则扩围 + 标准 SME 订单自动签发 Booking Confirmation]能力，以「将平均确认时效向 ≤2 小时（KPI 3）收敛、对标行业头部分钟级体验」。（来源：C-体验旅程图-分钟级自动确认；B 最快 1 分钟仅限特定条款货主（high 痛点））"
       - activity: "舱位分配与旺季保障"
         role: "舱位管理 / 收益管理系统"
         touchpoint: "舱位分配引擎 / 收益管理系统"
@@ -123,7 +123,7 @@ stages:
   - name: "单证与支付"
     steps:
       - activity: "SI 提交与智慧单证"
-        role: "客户 + 智慧单证系统"
+        role: "货主 + 智慧单证系统"
         touchpoint: "智慧单证系统"
         repetitive_tasks:
           - "人工复核多语言品名、唛头与长尾字段"
@@ -133,7 +133,7 @@ stages:
         ai_opportunities:
           - type: "repetitive"
             name: "智慧单证增强"
-            description: "「客户」在「SI 提交」下提供[多语言品名识别 + 合规校验 + 自动纠错回填（在年 35 万份自动处理基础上扩展）]能力，以「进一步压缩人工复核比例、降低退单返工」。（来源：B 非结构化 SI 人工复核（medium 痛点）；X 2025 年报智慧单证约 35 万份）"
+            description: "「货主」在「SI 提交」下提供[多语言品名识别 + 合规校验 + 自动纠错回填（在年 35 万份自动处理基础上扩展）]能力，以「进一步压缩人工复核比例、降低退单返工」。（来源：B 非结构化 SI 人工复核（medium 痛点）；X 2025 年报智慧单证约 35 万份）"
       - activity: "eBL 签发与互操作渗透"
         role: "单证团队 + IQAX"
         touchpoint: "IQAX eBL / GSBN 区块链"
@@ -161,7 +161,7 @@ stages:
   - name: "陆运清关履约"
     steps:
       - activity: "提箱装箱与陆运调度"
-        role: "客户 + 拖车承运商"
+        role: "货主 + 拖车承运商"
         touchpoint: "E-Trucking / Door Haulage"
         repetitive_tasks:
           - "旺季人工排队约车与电话调度"
@@ -173,7 +173,7 @@ stages:
             name: "智能拖车调度"
             description: "「陆运运营」在「拖车调度」下提供[基于箱量预测与港口拥堵的运力动态分配 + 智能路由]能力，以「缩短旺季提箱等待、降低误船改配率」。（来源：C-体验旅程图-智能拖车调度；B 内陆拖车资源紧张（high 痛点））"
       - activity: "出口清关与合规"
-        role: "客户 / 报关行 + E-Customs"
+        role: "货主 / 报关行 + E-Customs"
         touchpoint: "E-Customs / 海关申报系统"
         repetitive_tasks:
           - "人工准备报关单、装箱单与许可证"
@@ -241,14 +241,14 @@ stages:
           - "复杂问题转人工时重复收集上下文"
         cognitive_tasks:
           - "处理多订单、多单证的复杂咨询"
-          - "识别客户情绪与升级诉求"
+          - "识别货主情绪与升级诉求"
         ai_opportunities:
           - type: "innovation"
             name: "智能订舱 Agent"
             description: "「SME 货主」在「全流程服务」下提供[从问答升级为可执行订舱 / 单证 / 异常查询与处理的 Agent（Ask Fin 升级）]能力，以「将 AI 分流率提升至 30%+（KPI 4）、人工客服成本显著下降」。（来源：phase3 AI 规划①智能订舱助手；B AI 客服复杂场景受限（medium 痛点））"
           - type: "cognitive"
             name: "情绪识别与智能升级"
-            description: "「客服」在「投诉处理」下提供[对话情感分析与工单自动摘要 + 上下文无缝转人工]能力，以「提升复杂问题一次性解决率与客户满意度」。（来源：B AI 会话转人工率未披露（low 痛点）[推断]）"
+            description: "「客服」在「投诉处理」下提供[对话情感分析与工单自动摘要 + 上下文无缝转人工]能力，以「提升复杂问题一次性解决率与货主满意度」。（来源：B AI 会话转人工率未披露（low 痛点）[推断]）"
           - type: "longtail"
             name: "eBL 放货快速接入引导"
             description: "「收货人」在「目的港放货」下提供[eBL 快速接入与无纸化放货引导]能力，以「缩短正本流转周期、减少额外 D&D」。（来源：C-体验旅程图-端到端无纸化放货；B 收货人未接入 eBL（high 痛点））"
@@ -262,14 +262,14 @@ stages:
           - "人工核算等级积分与权益发放"
         cognitive_tasks:
           - "设计让 SME 感知度高的权益组合"
-          - "预测客户流失与复购窗口"
+          - "预测货主流失与复购窗口"
         ai_opportunities:
           - type: "cognitive"
             name: "会员智能运营"
             description: "「电商运营」在「会员运营」下提供[基于订舱行为的升级路径推荐 + 专属舱位 / 服务权益个性化]能力，以「提升 SME 会员活跃度与感知价值、驱动复购」。（来源：C-体验旅程图-会员智能运营；B 会员权益感知弱（medium 痛点））"
           - type: "cognitive"
             name: "复购预测与流失挽留"
-            description: "「电商运营」在「客户留存」下提供[基于交易序列的复购概率预测与流失预警 + 自动挽留动作]能力，以「提升客户生命周期价值、摊薄获客成本」。（来源：B 复购依赖价格敏感驱动（high 痛点）[推断模型]）"
+            description: "「电商运营」在「货主留存」下提供[基于交易序列的复购概率预测与流失预警 + 自动挽留动作]能力，以「提升货主生命周期价值、摊薄获客成本」。（来源：B 复购依赖价格敏感驱动（high 痛点）[推断模型]）"
       - activity: "促销与营销触达"
         role: "数字营销团队"
         touchpoint: "促销引擎 / 微信小程序 / 营销自动化"
@@ -288,7 +288,7 @@ stages:
           - "人工整合多式联运与供应商 SLA 数据"
         cognitive_tasks:
           - "优化多式联运与舱位协同决策"
-          - "测算 EU ETS / 碳合规成本并转化为客户价值"
+          - "测算 EU ETS / 碳合规成本并转化为货主价值"
         ai_opportunities:
           - type: "innovation"
             name: "供应链协同智能（含绿色增值）"

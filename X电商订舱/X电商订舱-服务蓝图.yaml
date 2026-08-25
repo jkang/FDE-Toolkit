@@ -41,13 +41,13 @@ phases:
             - "通知触达不稳定"
           cognitiveLoad: low
     backstageLayer:
-      supportProcess: 客户数据管理
+      supportProcess: 货主数据管理
       activities:
-        - name: "维护客户主数据"
+        - name: "维护货主主数据"
           role: "数据团队"
-          systemTouchpoints: "CRM 客户主数据"
+          systemTouchpoints: "CRM 货主主数据"
           painPoints:
-            - "多渠道客户数据未统一"
+            - "多渠道货主数据未统一"
           cognitiveLoad: medium
         - name: "合规与信用风控"
           role: "风控系统"
@@ -130,7 +130,7 @@ phases:
           painPoints:
             - "人工审核兜底比例高"
           cognitiveLoad: high
-        - name: "订舱状态通知客户"
+        - name: "订舱状态通知货主"
           role: "订舱系统"
           systemTouchpoints: "邮件 / 微信小程序"
           painPoints:
@@ -158,7 +158,7 @@ phases:
         - name: "接收订舱确认书"
           touchpoints: "邮件 / 小程序通知"
           painPoints:
-            - "1 分钟确认仅限特定客户"
+            - "1 分钟确认仅限特定货主"
           expectations:
             - "确认时效透明"
           experienceScore: 8
@@ -329,7 +329,7 @@ phases:
           painPoints:
             - "ETA 预测能力不足"
           cognitiveLoad: high
-        - name: "客户问询响应"
+        - name: "货主问询响应"
           role: "客服"
           systemTouchpoints: "AI 客服 / 工单系统"
           painPoints:
@@ -392,7 +392,7 @@ phases:
           painPoints:
             - "各港政策不一"
           cognitiveLoad: medium
-        - name: "客户行为分析"
+        - name: "货主行为分析"
           role: "数据团队"
           systemTouchpoints: "CRM / BI / 营销自动化"
           painPoints:

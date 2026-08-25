@@ -42,7 +42,7 @@ smart-booking-agent/
 ├── src/                    # 前端源码（react+antd）
 │   ├── pages/              # 6 个页面
 │   ├── layouts/            # 工作台布局（侧边栏+顶栏）
-│   ├── api/client.js       # API 客户端
+│   ├── api/client.js       # API 调用端
 │   └── theme.js            # 主题配色
 ├── vite.config.js
 └── package.json

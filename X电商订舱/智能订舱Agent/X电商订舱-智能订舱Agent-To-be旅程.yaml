@@ -130,7 +130,7 @@ stages:
             name: "会话上下文 + 会员画像"
             format: "OMS/CRM API"
             example: "PlumSmart Silver 等级 · 近 3 个月 12 TEU"
-            content: "客户画像、历史偏好航线、会员等级权益"
+            content: "货主画像、历史偏好航线、会员等级权益"
         aiInteraction:
           aiAction: "按装载率/中转/ETA 置信度/舱位保证综合排序推荐 Top 3，并解释推荐理由（可解释性）"
           suggestions:
@@ -217,7 +217,7 @@ stages:
           - "提交后校验：全部通过，SI 已推送单证系统"
         designNotes:
           - "往返补件由 2~3 轮压缩至 1 轮，一次提交通过率提升（对应 As-Is 痛点：资料不全被退单）"
-          - "复杂场景转人工时附完整对话摘要与客户画像（承接 Canvas workflow·智能升级）"
+          - "复杂场景转人工时附完整对话摘要与货主画像（承接 Canvas workflow·智能升级）"
   - name: "支付"
     actions:
       - name: "在线支付运费"

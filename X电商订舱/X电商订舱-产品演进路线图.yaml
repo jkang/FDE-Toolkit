@@ -16,13 +16,13 @@ phases:
       - category: "效率"
         description: "分钟级自动确认规则扩围，平均确认时效向 ≤4 小时收敛（KPI 3）〔P3〕"
       - category: "增长"
-        description: "电商订舱量年化 240 万 TEU、FreightSmart 活跃客户 3 万（6 个月目标）〔P3〕"
+        description: "电商订舱量年化 240 万 TEU、FreightSmart 活跃货主 3 万（6 个月目标）〔P3〕"
     metrics:
       - name: "电商渠道订舱量（年化）〔P3〕"
         target: "240 万 TEU"
       - name: "在线订舱确认时效〔P3〕"
         target: "平均 ≤4 小时"
-      - name: "FreightSmart 活跃客户〔P3〕"
+      - name: "FreightSmart 活跃货主〔P3〕"
         target: "3 万"
       - name: "AI 服务分流率〔P3〕"
         target: "25%"
@@ -57,7 +57,7 @@ phases:
         items:
           - "KPI 口径与基线数据看板"
           - "订舱校验规则引擎扩围（>200 条）"
-          - "客户行为事件埋点启动"
+          - "货主行为事件埋点启动"
       - category: "合规风控"
         name: "合规底座先行"
         description: "跨境数据合规 + 算法可解释性框架启动〔P3〕"
@@ -69,7 +69,7 @@ phases:
     timeframe: "2027 H1"
     objectives:
       - category: "增长"
-        description: "电商订舱渗透率 35%+[推断]、FreightSmart 活跃客户 5 万+、直客占比向 30% 爬坡〔P3〕"
+        description: "电商订舱渗透率 35%+[推断]、FreightSmart 活跃货主 5 万+、直客占比向 30% 爬坡〔P3〕"
       - category: "效率"
         description: "平均确认时效 ≤2 小时，分钟级自动确认规模化覆盖（KPI 3）〔P3〕"
       - category: "质量"
