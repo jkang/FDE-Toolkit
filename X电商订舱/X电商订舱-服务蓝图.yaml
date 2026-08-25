@@ -1,0 +1,400 @@
+title: "X电商订舱服务蓝图"
+config:
+  height:
+    customerLayer: 150
+    frontstageLayer: 180
+    backstageLayer: 150
+phases:
+  - name: "注册认证"
+    customerLayer:
+      journeyStage: 注册与认证
+      actions:
+        - name: "提交企业注册资料"
+          touchpoints: "独立电商平台/官网门户"
+          painPoints:
+            - "认证约需 3 个工作日"
+            - "注册字段多耗时长"
+          expectations:
+            - "分钟级开户"
+            - "流程简单"
+          experienceScore: 4
+        - name: "等待账号开通审核"
+          touchpoints: "邮件/短信通知"
+          painPoints:
+            - "等待期无法订舱"
+          expectations:
+            - "快速获得反馈"
+          experienceScore: 5
+    frontstageLayer:
+      processStage: 开户受理
+      activities:
+        - name: "受理注册与资质核验"
+          role: "电商运营"
+          systemTouchpoints: "CRM / 风控系统"
+          painPoints:
+            - "人工验真效率低"
+          cognitiveLoad: high
+        - name: "开通账号并通知"
+          role: "运营专员"
+          systemTouchpoints: "邮件 / 短信网关"
+          painPoints:
+            - "通知触达不稳定"
+          cognitiveLoad: low
+    backstageLayer:
+      supportProcess: 客户数据管理
+      activities:
+        - name: "维护客户主数据"
+          role: "数据团队"
+          systemTouchpoints: "CRM 客户主数据"
+          painPoints:
+            - "多渠道客户数据未统一"
+          cognitiveLoad: medium
+        - name: "合规与信用风控"
+          role: "风控系统"
+          systemTouchpoints: "风控 / 信用评估系统"
+          painPoints:
+            - "缺少 AI 自动验真"
+          cognitiveLoad: medium
+  - name: "询价报价"
+    customerLayer:
+      journeyStage: 询价与比价
+      actions:
+        - name: "查询即期/长时效报价"
+          touchpoints: "E-Spot / E-Quote"
+          painPoints:
+            - "即期报价航次覆盖不全"
+          expectations:
+            - "全航线透明报价"
+          experienceScore: 8
+        - name: "锁定运价（Secured）"
+          touchpoints: "报价单页面"
+          painPoints:
+            - "锁价后运价下行吃亏"
+          expectations:
+            - "锁价风险可控"
+          experienceScore: 6
+    frontstageLayer:
+      processStage: 报价服务
+      activities:
+        - name: "生成与推送报价"
+          role: "报价系统 / AI"
+          systemTouchpoints: "AI 报价引擎 / All-in-One"
+          painPoints:
+            - "实时定价覆盖成本高"
+          cognitiveLoad: medium
+        - name: "报价答疑与协商"
+          role: "销售 / 客服"
+          systemTouchpoints: "AI 客服（Ask Fin）"
+          painPoints:
+            - "复杂询价转人工多"
+          cognitiveLoad: high
+    backstageLayer:
+      supportProcess: 定价支撑
+      activities:
+        - name: "市场运价指数维护"
+          role: "收益管理"
+          systemTouchpoints: "运价指数 / BI 系统"
+          painPoints:
+            - "运价波动预测不足"
+          cognitiveLoad: medium
+        - name: "舱位收益配置"
+          role: "收益管理系统"
+          systemTouchpoints: "舱位分配 / 收益系统"
+          painPoints:
+            - "锁价风险对冲缺模型"
+          cognitiveLoad: high
+  - name: "在线订舱"
+    customerLayer:
+      journeyStage: 下单订舱
+      actions:
+        - name: "3 步表单提交订舱"
+          touchpoints: "订舱表单 / 微信小程序"
+          painPoints:
+            - "新客首单仍偏慢"
+          expectations:
+            - "首单分钟级完成"
+          experienceScore: 7
+        - name: "补充资料与确认"
+          touchpoints: "客服 / 邮件"
+          painPoints:
+            - "往返补件拉长周期"
+          expectations:
+            - "一次提交通过"
+          experienceScore: 4
+    frontstageLayer:
+      processStage: 订舱受理
+      activities:
+        - name: "受理与校验订舱请求"
+          role: "CSR / 订舱运营"
+          systemTouchpoints: "OMS / CRM"
+          painPoints:
+            - "人工审核兜底比例高"
+          cognitiveLoad: high
+        - name: "订舱状态通知客户"
+          role: "订舱系统"
+          systemTouchpoints: "邮件 / 微信小程序"
+          painPoints:
+            - "补件沟通靠人工"
+          cognitiveLoad: low
+    backstageLayer:
+      supportProcess: 订舱规则支撑
+      activities:
+        - name: "费率与信用校验规则"
+          role: "规则引擎"
+          systemTouchpoints: "订舱规则 / 信用系统"
+          painPoints:
+            - "自动校验覆盖不全"
+          cognitiveLoad: medium
+        - name: "智能预填（Smart Push）"
+          role: "AI 系统"
+          systemTouchpoints: "Smart Push 推荐引擎"
+          painPoints:
+            - "新客无历史数据可用"
+          cognitiveLoad: medium
+  - name: "舱位确认"
+    customerLayer:
+      journeyStage: 舱位与确认
+      actions:
+        - name: "接收订舱确认书"
+          touchpoints: "邮件 / 小程序通知"
+          painPoints:
+            - "1 分钟确认仅限特定客户"
+          expectations:
+            - "确认时效透明"
+          experienceScore: 8
+        - name: "处理旺季改船通知"
+          touchpoints: "客服 / 控制塔"
+          painPoints:
+            - "甩柜/改船方案被动"
+          expectations:
+            - "舱位保证兑现"
+          experienceScore: 3
+    frontstageLayer:
+      processStage: 舱位管理
+      activities:
+        - name: "舱位分配与收益校验"
+          role: "舱位管理员"
+          systemTouchpoints: "舱位分配 / 收益系统"
+          painPoints:
+            - "旺季 SME 舱位被挤占"
+          cognitiveLoad: high
+        - name: "签发确认与改配处置"
+          role: "订舱运营"
+          systemTouchpoints: "OMS / 客服系统"
+          painPoints:
+            - "改配沟通成本高"
+          cognitiveLoad: high
+    backstageLayer:
+      supportProcess: 运力保障
+      activities:
+        - name: "航线运力与联盟协调"
+          role: "航线管理"
+          systemTouchpoints: "联盟网络 / 船期系统"
+          painPoints:
+            - "船期计划同步有延迟"
+          cognitiveLoad: medium
+        - name: "舱位保证承诺管理"
+          role: "收益管理"
+          systemTouchpoints: "SLA / 舱位保证模块"
+          painPoints:
+            - "承诺兑现未设为硬约束"
+          cognitiveLoad: high
+  - name: "单证支付"
+    customerLayer:
+      journeyStage: 单证与结算
+      actions:
+        - name: "提交 SI 与 VGM"
+          touchpoints: "智慧单证系统"
+          painPoints:
+            - "长尾字段人工复核"
+          expectations:
+            - "单证自动校验"
+          experienceScore: 7
+        - name: "签发 eBL / 纸质提单"
+          touchpoints: "IQAX eBL / GSBN"
+          painPoints:
+            - "收货人未接入 eBL"
+          expectations:
+            - "全链路无纸化"
+          experienceScore: 5
+        - name: "在线支付与发票"
+          touchpoints: "支付系统 / 门户"
+          painPoints:
+            - "外币支付手续费高"
+          expectations:
+            - "多币种便捷结算"
+          experienceScore: 6
+    frontstageLayer:
+      processStage: 单证与结算
+      activities:
+        - name: "单证校验与签发"
+          role: "单证团队"
+          systemTouchpoints: "智慧单证 / IQAX"
+          painPoints:
+            - "eBL 渗透率仍低"
+          cognitiveLoad: high
+        - name: "收款与开票核销"
+          role: "财务"
+          systemTouchpoints: "结算 / 发票系统"
+          painPoints:
+            - "多渠道对账成本高"
+          cognitiveLoad: medium
+    backstageLayer:
+      supportProcess: 单证与资金支撑
+      activities:
+        - name: "区块链 eBL 互操作"
+          role: "IQAX 平台"
+          systemTouchpoints: "GSBN 区块链网络"
+          painPoints:
+            - "跨平台标准未统一"
+          cognitiveLoad: medium
+        - name: "账期与信用管理"
+          role: "财务系统"
+          systemTouchpoints: "集团 ERP / 结算系统"
+          painPoints:
+            - "EDI 与电商账单口径不一"
+          cognitiveLoad: medium
+  - name: "陆运清关"
+    customerLayer:
+      journeyStage: 履约与申报
+      actions:
+        - name: "提箱装箱与陆运安排"
+          touchpoints: "E-Trucking / 堆场"
+          painPoints:
+            - "旺季拖车资源紧张"
+          expectations:
+            - "拖车即时可约"
+          experienceScore: 6
+        - name: "出口清关申报"
+          touchpoints: "E-Customs / 报关行"
+          painPoints:
+            - "政策变化致扣货延误"
+          expectations:
+            - "合规前置校验"
+          experienceScore: 4
+    frontstageLayer:
+      processStage: 履约协调
+      activities:
+        - name: "陆运调度与衔接"
+          role: "陆运运营"
+          systemTouchpoints: "Door Haulage / E-Trucking"
+          painPoints:
+            - "陆运船期衔接断点"
+          cognitiveLoad: high
+        - name: "清关申报与跟踪"
+          role: "清关专员"
+          systemTouchpoints: "E-Customs 平台"
+          painPoints:
+            - "异常清关依赖人工"
+          cognitiveLoad: high
+    backstageLayer:
+      supportProcess: 履约资源
+      activities:
+        - name: "拖车运力资源池"
+          role: "运力管理"
+          systemTouchpoints: "陆运调度系统"
+          painPoints:
+            - "缺 AI 动态路由"
+          cognitiveLoad: medium
+        - name: "海关合规规则库"
+          role: "合规团队"
+          systemTouchpoints: "合规规则库"
+          painPoints:
+            - "监管规则未数字化"
+          cognitiveLoad: high
+  - name: "出运跟踪"
+    customerLayer:
+      journeyStage: 运输跟踪
+      actions:
+        - name: "控制塔查看全订单"
+          touchpoints: "控制塔 / Cargo Tracking+"
+          painPoints:
+            - "码头节点更新延迟"
+          expectations:
+            - "里程碑实时可见"
+          experienceScore: 8
+        - name: "接收延误预警与处置"
+          touchpoints: "异常通知 / 客服"
+          painPoints:
+            - "延误多为事后通知"
+          expectations:
+            - "提前预测延误"
+          experienceScore: 3
+    frontstageLayer:
+      processStage: 跟踪服务
+      activities:
+        - name: "监控与异常处置"
+          role: "控制塔运营"
+          systemTouchpoints: "控制塔 / 异常管理"
+          painPoints:
+            - "ETA 预测能力不足"
+          cognitiveLoad: high
+        - name: "客户问询响应"
+          role: "客服"
+          systemTouchpoints: "AI 客服 / 工单系统"
+          painPoints:
+            - "货到哪了查询量大"
+          cognitiveLoad: medium
+    backstageLayer:
+      supportProcess: 数据支撑
+      activities:
+        - name: "多源船箱数据接入"
+          role: "数据平台"
+          systemTouchpoints: "AIS / 码头接口 / BI"
+          painPoints:
+            - "外部数据实时性受限"
+          cognitiveLoad: medium
+        - name: "AI 延误预测模型"
+          role: "AI 团队"
+          systemTouchpoints: "预测模型 / 控制塔"
+          painPoints:
+            - "预测性预警未落地"
+          cognitiveLoad: high
+  - name: "到港售后"
+    customerLayer:
+      journeyStage: 交付与留存
+      actions:
+        - name: "D&D 费用管理与提货"
+          touchpoints: "D&D 计算器 / 码头"
+          painPoints:
+            - "免箱期规则复杂"
+          expectations:
+            - "费用前置透明"
+          experienceScore: 5
+        - name: "售后咨询与会员权益"
+          touchpoints: "AI 客服 / PlumSmart"
+          painPoints:
+            - "会员权益感知弱"
+          expectations:
+            - "权益简单可感知"
+          experienceScore: 6
+    frontstageLayer:
+      processStage: 交付服务
+      activities:
+        - name: "放货与异常结算"
+          role: "目的港代理"
+          systemTouchpoints: "IQAX eBL / 码头系统"
+          painPoints:
+            - "纸质流程拖慢放货"
+          cognitiveLoad: medium
+        - name: "售后与会员运营"
+          role: "电商运营"
+          systemTouchpoints: "PlumSmart / CRM"
+          painPoints:
+            - "复购激励不足"
+          cognitiveLoad: medium
+    backstageLayer:
+      supportProcess: 运营支撑
+      activities:
+        - name: "D&D 规则与计费维护"
+          role: "财务"
+          systemTouchpoints: "D&D 计费系统"
+          painPoints:
+            - "各港政策不一"
+          cognitiveLoad: medium
+        - name: "客户行为分析"
+          role: "数据团队"
+          systemTouchpoints: "CRM / BI / 营销自动化"
+          painPoints:
+            - "缺复购预测模型"
+          cognitiveLoad: medium

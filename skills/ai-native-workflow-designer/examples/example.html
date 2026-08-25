@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI-Native 客户支持全量闭环工作流</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    colors: {
+                        slate: {
+                            850: '#152033',
+                            900: '#0f172a',
+                            950: '#020617',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: #0f172a; 
+            color: #f8fafc;
+            background-image: 
+                radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), 
+                radial-gradient(at 50% 0%, hsla(225,39%,30%,0.1) 0, transparent 50%), 
+                radial-gradient(at 100% 0%, hsla(339,49%,30%,0.1) 0, transparent 50%);
+            background-attachment: fixed;
+        }
+        
+        .glass-panel { 
+            background: rgba(30, 41, 59, 0.6); 
+            backdrop-filter: blur(16px); 
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.05); 
+        }
+        
+        .node-card { 
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+        }
+        .node-card:hover { 
+            transform: translateY(-4px); 
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.3); 
+            border-color: rgba(255, 255, 255, 0.15); 
+            background: rgba(30, 41, 59, 0.8);
+        }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+        .phase-connector {
+            position: relative;
+        }
+        .phase-connector::after {
+            content: '';
+            position: absolute;
+            top: 24px;
+            right: -24px;
+            width: 24px;
+            height: 2px;
+            background: linear-gradient(90deg, rgba(99,102,241,0.5) 0%, rgba(14,165,233,0.5) 100%);
+            z-index: 0;
+        }
+        .phase-connector:last-child::after {
+            display: none;
+        }
+
+        .tag {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 0.125rem 0.375rem;
+            border-radius: 9999px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body class="min-h-screen text-slate-300">
+
+    <!-- Header -->
+    <header class="glass-panel sticky top-0 z-50 border-b border-slate-800 shadow-lg">
+        <div class="max-w-[1600px] mx-auto px-6 py-4 flex items-center justify-between">
+            <div>
+                <div class="flex items-center gap-3 mb-1">
+                    <span class="text-2xl">⚡️</span>
+                    <h1 class="text-xl font-bold text-white tracking-tight">AI-Native 客户支持全量闭环工作流</h1>
+                </div>
+                <div class="flex items-center gap-4 text-xs text-slate-400">
+                    <span class="flex items-center gap-1">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                        ToC 智能硬件售后
+                    </span>
+                    <span>•</span>
+                    <span>Generated: 2026-05-07 11:58</span>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-6">
+                <!-- Stats -->
+                <div class="flex items-center gap-3 text-xs bg-slate-800/50 rounded-full px-4 py-1.5 border border-slate-700/50">
+                    <span class="font-semibold text-slate-300">Total Nodes: 4</span>
+                    <span class="w-px h-3 bg-slate-600"></span>
+                    <span class="text-indigo-400 flex items-center gap-1">🤖 AI: 2</span>
+                    <span class="text-emerald-400 flex items-center gap-1">👤 Human: 1</span>
+                    <span class="text-fuchsia-400 flex items-center gap-1">🤝 Hybrid: 1</span>
+                </div>
+                
+                <button id="copyYamlBtn" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium px-4 py-2 rounded-md transition-colors flex items-center gap-2 shadow-lg shadow-indigo-500/20">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                    Copy YAML
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-[1600px] mx-auto px-6 py-8">
+        
+        <!-- Objective / Description -->
+        
+        <div class="glass-panel p-6 rounded-xl mb-10 border-l-4 border-l-indigo-500 max-w-4xl">
+            <h2 class="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                Workflow Objective
+            </h2>
+            <p class="text-slate-200 text-lg leading-relaxed">颠覆传统的“提交表单-客服分发-工程师处理”的人工体系，引入多模态预诊与全自动数字人执行的全新 AI-Native 服务流程。</p>
+        </div>
+        
+
+        <!-- Horizontal Scrollable Canvas for Phases -->
+        <div class="overflow-x-auto pb-10 hide-scrollbar">
+            <div class="flex gap-6 min-w-max items-stretch">
+                
+                
+                <!-- Phase Column -->
+                <div class="w-[400px] flex-shrink-0 flex flex-col phase-connector">
+                    
+                    <!-- Phase Header -->
+                    <div class="mb-6 relative z-10">
+                        <div class="flex items-center gap-3 mb-2">
+                            <div class="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-sm font-bold text-slate-300 shadow-inner">
+                                1
+                            </div>
+                            <h3 class="text-lg font-bold text-white">多模态意图捕获与智能预诊</h3>
+                        </div>
+                        
+                        <p class="text-sm text-slate-400 pl-11">用户触点零距离接入，通过跨模态信息秒级定界问题。</p>
+                        
+                    </div>
+                    
+                    <!-- Nodes Container -->
+                    <div class="flex-1 flex flex-col gap-4 pl-4 border-l-2 border-slate-800/50 ml-4 relative z-10">
+                        
+                        
+                        <!-- Node Card -->
+                        <div class="node-card glass-panel rounded-xl p-5 border-l-4 border-indigo-500 relative group">
+                            
+                            <!-- Actor Badge -->
+                            <div class="absolute -left-3.5 top-5 w-6 h-6 rounded-full bg-indigo-500/10 border border-indigo-500 flex items-center justify-center text-xs shadow-md z-20" title="Actor: AI">
+                                🤖
+                            </div>
+
+                            <div class="flex justify-between items-start mb-3">
+                                <h4 class="font-bold text-slate-100 text-base ml-2 pr-2">多模态故障自证分析</h4>
+                                <span class="tag bg-indigo-500/10 border-indigo-500 text-indigo-400 border flex-shrink-0 mt-0.5">AI</span>
+                            </div>
+                            
+                            <div class="space-y-4 ml-2">
+                                <!-- Action -->
+                                <div class="text-sm text-slate-300 leading-relaxed">
+                                    引导用户直接通过手机摄像头拍摄硬件状态或异常声音，Agent 实时进行多模态时序流分析，初步判定故障硬件类型、损坏程度与真伪。
+                                </div>
+                                
+                                <!-- AI Capability (if exists) -->
+                                
+                                <div class="bg-indigo-900/20 border border-indigo-500/20 rounded p-2.5">
+                                    <div class="text-[0.65rem] text-indigo-400 uppercase font-semibold mb-1 flex items-center gap-1">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                                        AI Capability
+                                    </div>
+                                    <div class="text-xs text-indigo-200">多模态视觉理解 (Multimodal Vision), 音频异常检测 (Audio Anomaly Detection)</div>
+                                </div>
+                                
+                                
+                                <!-- I/O Data Flow -->
+                                <div class="flex items-stretch gap-2">
+                                    <div class="flex-1 bg-slate-800/40 border border-slate-700/50 rounded p-2">
+                                        <div class="text-[0.65rem] text-slate-400 uppercase font-semibold mb-1">Inputs</div>
+                                        <ul class="text-xs text-slate-300 space-y-1">
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-slate-500 mt-px">→</span> <span class="truncate" title="用户拍摄的故障音视频">用户拍摄的故障音视频</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-slate-500 mt-px">→</span> <span class="truncate" title="设备底层 Telemetry 日志">设备底层 Telemetry 日志</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-slate-500 mt-px">→</span> <span class="truncate" title="历史购买记录">历史购买记录</span></li>
+                                            
+                                        </ul>
+                                    </div>
+                                    <div class="flex-1 bg-slate-800/40 border border-slate-700/50 rounded p-2">
+                                        <div class="text-[0.65rem] text-slate-400 uppercase font-semibold mb-1">Outputs</div>
+                                        <ul class="text-xs text-slate-300 space-y-1">
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-slate-500 mt-px">→</span> <span class="truncate" title="结构化硬件诊断书">结构化硬件诊断书</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-slate-500 mt-px">→</span> <span class="truncate" title="故障置信度分数">故障置信度分数</span></li>
+                                            
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <!-- Human Touchpoint (Critical for Hybrid/Human) -->
+                                
+                                <div class="border-t border-slate-700/50 pt-3 mt-3">
+                                    <div class="text-[0.65rem] text-slate-500 uppercase font-semibold mb-1 flex items-center gap-1">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                        Human Touchpoint
+                                    </div>
+                                    <div class="text-xs text-slate-400">
+                                        无需人工。纯后台算法秒级并发处理验证。
+                                    </div>
+                                </div>
+                                
+                                
+                            </div>
+                        </div>
+                        
+                        <!-- Vertical connector arrow between nodes -->
+                        
+                        
+                        
+                    </div>
+                </div>
+                
+                <!-- Phase Column -->
+                <div class="w-[400px] flex-shrink-0 flex flex-col phase-connector">
+                    
+                    <!-- Phase Header -->
+                    <div class="mb-6 relative z-10">
+                        <div class="flex items-center gap-3 mb-2">
+                            <div class="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-sm font-bold text-slate-300 shadow-inner">
+                                2
+                            </div>
+                            <h3 class="text-lg font-bold text-white">动态柔性协商与自动履约</h3>
+                        </div>
+                        
+                        <p class="text-sm text-slate-400 pl-11">基于诊断自动生成补偿边界，并通过智能体主动与客户促成协议。</p>
+                        
+                    </div>
+                    
+                    <!-- Nodes Container -->
+                    <div class="flex-1 flex flex-col gap-4 pl-4 border-l-2 border-slate-800/50 ml-4 relative z-10">
+                        
+                        
+                        <!-- Node Card -->
+                        <div class="node-card glass-panel rounded-xl p-5 border-l-4 border-fuchsia-500 relative group">
+                            
+                            <!-- Actor Badge -->
+                            <div class="absolute -left-3.5 top-5 w-6 h-6 rounded-full bg-fuchsia-500/10 border border-fuchsia-500 flex items-center justify-center text-xs shadow-md z-20" title="Actor: HYBRID">
+                                🤝
+                            </div>
+
+                            <div class="flex justify-between items-start mb-3">
+                                <h4 class="font-bold text-slate-100 text-base ml-2 pr-2">数字人共情谈判与安抚</h4>
+                                <span class="tag bg-fuchsia-500/10 border-fuchsia-500 text-fuchsia-400 border flex-shrink-0 mt-0.5">HYBRID</span>
+                            </div>
+                            
+                            <div class="space-y-4 ml-2">
+                                <!-- Action -->
+                                <div class="text-sm text-slate-300 leading-relaxed">
+                                    Agent 结合用户的情绪指数与生命周期价值 (LTV)，启动拟真数字人与用户进行音视频互动，在授权范围内动态给出两种备选方案（立即换新或上门修），促成一致。
+                                </div>
+                                
+                                <!-- AI Capability (if exists) -->
+                                
+                                <div class="bg-indigo-900/20 border border-indigo-500/20 rounded p-2.5">
+                                    <div class="text-[0.65rem] text-indigo-400 uppercase font-semibold mb-1 flex items-center gap-1">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                                        AI Capability
+                                    </div>
+                                    <div class="text-xs text-indigo-200">实时语音生成 (TTS), 高精度数字人驱动, 多轮动态博弈对话, 情感分析</div>
+                                </div>
+                                
+                                
+                                <!-- I/O Data Flow -->
+                                <div class="flex items-stretch gap-2">
+                                    <div class="flex-1 bg-slate-800/40 border border-slate-700/50 rounded p-2">
+                                        <div class="text-[0.65rem] text-slate-400 uppercase font-semibold mb-1">Inputs</div>
+                                        <ul class="text-xs text-slate-300 space-y-1">
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-slate-500 mt-px">→</span> <span class="truncate" title="结构化硬件诊断书">结构化硬件诊断书</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-slate-500 mt-px">→</span> <span class="truncate" title="用户当前情绪指数">用户当前情绪指数</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-slate-500 mt-px">→</span> <span class="truncate" title="实时库存与仓储物流情况">实时库存与仓储物流情况</span></li>
+                                            
+                                        </ul>
+                                    </div>
+                                    <div class="flex-1 bg-slate-800/40 border border-slate-700/50 rounded p-2">
+                                        <div class="text-[0.65rem] text-slate-400 uppercase font-semibold mb-1">Outputs</div>
+                                        <ul class="text-xs text-slate-300 space-y-1">
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-slate-500 mt-px">→</span> <span class="truncate" title="用户接受的最终售后协议">用户接受的最终售后协议</span></li>
+                                            
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <!-- Human Touchpoint (Critical for Hybrid/Human) -->
+                                
+                                <div class="border-t border-slate-700/50 pt-3 mt-3">
+                                    <div class="text-[0.65rem] text-amber-400 uppercase font-semibold mb-1 flex items-center gap-1">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                        Human Touchpoint
+                                    </div>
+                                    <div class="text-xs text-slate-300">
+                                        若在对话中感知到用户出现极端愤怒或投诉倾向，触发阈值，无缝秒转至高级客户成功经理 (CSM) 团队进行人工安抚。
+                                    </div>
+                                </div>
+                                
+                                
+                            </div>
+                        </div>
+                        
+                        <!-- Vertical connector arrow between nodes -->
+                        
+                        <div class="h-6 ml-6 border-l-2 border-dashed border-slate-600 flex items-center">
+                            <div class="w-2 h-2 rounded-full bg-slate-600 -ml-[5px]"></div>
+                        </div>
+                        
+                        
+                        
+                        <!-- Node Card -->
+                        <div class="node-card glass-panel rounded-xl p-5 border-l-4 border-indigo-500 relative group">
+                            
+                            <!-- Actor Badge -->
+                            <div class="absolute -left-3.5 top-5 w-6 h-6 rounded-full bg-indigo-500/10 border border-indigo-500 flex items-center justify-center text-xs shadow-md z-20" title="Actor: AI">
+                                🤖
+                            </div>
+
+                            <div class="flex justify-between items-start mb-3">
+                                <h4 class="font-bold text-slate-100 text-base ml-2 pr-2">全链路供应链调度指令下发</h4>
+                                <span class="tag bg-indigo-500/10 border-indigo-500 text-indigo-400 border flex-shrink-0 mt-0.5">AI</span>
+                            </div>
+                            
+                            <div class="space-y-4 ml-2">
+                                <!-- Action -->
+                                <div class="text-sm text-slate-300 leading-relaxed">
+                                    协议达成后，履约智能体自动调用 WMS 和第三方物流 API，执行补发操作或派送揽收订单给顺丰等快递。
+                                </div>
+                                
+                                <!-- AI Capability (if exists) -->
+                                
+                                <div class="bg-indigo-900/20 border border-indigo-500/20 rounded p-2.5">
+                                    <div class="text-[0.65rem] text-indigo-400 uppercase font-semibold mb-1 flex items-center gap-1">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                                        AI Capability
+                                    </div>
+                                    <div class="text-xs text-indigo-200">Agent 工具调用 (Tool Calling), 预测性履约时效分析</div>
+                                </div>
+                                
+                                
+                                <!-- I/O Data Flow -->
+                                <div class="flex items-stretch gap-2">
+                                    <div class="flex-1 bg-slate-800/40 border border-slate-700/50 rounded p-2">
+                                        <div class="text-[0.65rem] text-slate-400 uppercase font-semibold mb-1">Inputs</div>
+                                        <ul class="text-xs text-slate-300 space-y-1">
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-slate-500 mt-px">→</span> <span class="truncate" title="售后协议">售后协议</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-slate-500 mt-px">→</span> <span class="truncate" title="用户退换货地址">用户退换货地址</span></li>
+                                            
+                                        </ul>
+                                    </div>
+                                    <div class="flex-1 bg-slate-800/40 border border-slate-700/50 rounded p-2">
+                                        <div class="text-[0.65rem] text-slate-400 uppercase font-semibold mb-1">Outputs</div>
+                                        <ul class="text-xs text-slate-300 space-y-1">
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-slate-500 mt-px">→</span> <span class="truncate" title="物流运单号">物流运单号</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-slate-500 mt-px">→</span> <span class="truncate" title="发货与上门时效提醒">发货与上门时效提醒</span></li>
+                                            
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <!-- Human Touchpoint (Critical for Hybrid/Human) -->
+                                
+                                <div class="border-t border-slate-700/50 pt-3 mt-3">
+                                    <div class="text-[0.65rem] text-slate-500 uppercase font-semibold mb-1 flex items-center gap-1">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                        Human Touchpoint
+                                    </div>
+                                    <div class="text-xs text-slate-400">
+                                        无缝衔接。仅在遭遇区域不可抗力或物流系统全面宕机时发送人工运营告警。
+                                    </div>
+                                </div>
+                                
+                                
+                            </div>
+                        </div>
+                        
+                        <!-- Vertical connector arrow between nodes -->
+                        
+                        
+                        
+                    </div>
+                </div>
+                
+                <!-- Phase Column -->
+                <div class="w-[400px] flex-shrink-0 flex flex-col phase-connector">
+                    
+                    <!-- Phase Header -->
+                    <div class="mb-6 relative z-10">
+                        <div class="flex items-center gap-3 mb-2">
+                            <div class="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-sm font-bold text-slate-300 shadow-inner">
+                                3
+                            </div>
+                            <h3 class="text-lg font-bold text-white">异常工单的深度裁决与价值回收</h3>
+                        </div>
+                        
+                        <p class="text-sm text-slate-400 pl-11">处理少数 AI 无法定夺的纠纷，并将售后经验回哺到研发端。</p>
+                        
+                    </div>
+                    
+                    <!-- Nodes Container -->
+                    <div class="flex-1 flex flex-col gap-4 pl-4 border-l-2 border-slate-800/50 ml-4 relative z-10">
+                        
+                        
+                        <!-- Node Card -->
+                        <div class="node-card glass-panel rounded-xl p-5 border-l-4 border-emerald-500 relative group">
+                            
+                            <!-- Actor Badge -->
+                            <div class="absolute -left-3.5 top-5 w-6 h-6 rounded-full bg-emerald-500/10 border border-emerald-500 flex items-center justify-center text-xs shadow-md z-20" title="Actor: HUMAN">
+                                👤
+                            </div>
+
+                            <div class="flex justify-between items-start mb-3">
+                                <h4 class="font-bold text-slate-100 text-base ml-2 pr-2">复杂欺诈与高风险赔偿裁决</h4>
+                                <span class="tag bg-emerald-500/10 border-emerald-500 text-emerald-400 border flex-shrink-0 mt-0.5">HUMAN</span>
+                            </div>
+                            
+                            <div class="space-y-4 ml-2">
+                                <!-- Action -->
+                                <div class="text-sm text-slate-300 leading-relaxed">
+                                    对于 AI 判定属于“极高套利欺诈嫌疑”或涉及高额赔偿金的 Case，直接进入人工定夺中心，辅助提供完整的证据链与 AI 分析结论供人类审批。
+                                </div>
+                                
+                                <!-- AI Capability (if exists) -->
+                                
+                                <div class="bg-indigo-900/20 border border-indigo-500/20 rounded p-2.5">
+                                    <div class="text-[0.65rem] text-indigo-400 uppercase font-semibold mb-1 flex items-center gap-1">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                                        AI Capability
+                                    </div>
+                                    <div class="text-xs text-indigo-200">欺诈检测辅助 (Fraud Detection), 证据链提取与知识图谱</div>
+                                </div>
+                                
+                                
+                                <!-- I/O Data Flow -->
+                                <div class="flex items-stretch gap-2">
+                                    <div class="flex-1 bg-slate-800/40 border border-slate-700/50 rounded p-2">
+                                        <div class="text-[0.65rem] text-slate-400 uppercase font-semibold mb-1">Inputs</div>
+                                        <ul class="text-xs text-slate-300 space-y-1">
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-slate-500 mt-px">→</span> <span class="truncate" title="高风险预警标记">高风险预警标记</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-slate-500 mt-px">→</span> <span class="truncate" title="多模态分析报告">多模态分析报告</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-slate-500 mt-px">→</span> <span class="truncate" title="用户全量行为数据日志">用户全量行为数据日志</span></li>
+                                            
+                                        </ul>
+                                    </div>
+                                    <div class="flex-1 bg-slate-800/40 border border-slate-700/50 rounded p-2">
+                                        <div class="text-[0.65rem] text-slate-400 uppercase font-semibold mb-1">Outputs</div>
+                                        <ul class="text-xs text-slate-300 space-y-1">
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-slate-500 mt-px">→</span> <span class="truncate" title="最终冻结账户或放行赔偿的决定">最终冻结账户或放行赔偿的决定</span></li>
+                                            
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <!-- Human Touchpoint (Critical for Hybrid/Human) -->
+                                
+                                <div class="border-t border-slate-700/50 pt-3 mt-3">
+                                    <div class="text-[0.65rem] text-amber-400 uppercase font-semibold mb-1 flex items-center gap-1">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                        Human Touchpoint
+                                    </div>
+                                    <div class="text-xs text-slate-300">
+                                        人类担任最终法官。AI 仅作为提供确凿证物和初步建议的法务助手，最终裁量权和法律责任由人类承担。
+                                    </div>
+                                </div>
+                                
+                                
+                            </div>
+                        </div>
+                        
+                        <!-- Vertical connector arrow between nodes -->
+                        
+                        
+                        
+                    </div>
+                </div>
+                
+                
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Raw YAML Data (Hidden) -->
+    <script type="application/yaml" id="raw-yaml">
+---
+title: "AI-Native 客户支持全量闭环工作流"
+business_type: "ToC 智能硬件售后"
+description: "颠覆传统的“提交表单-客服分发-工程师处理”的人工体系，引入多模态预诊与全自动数字人执行的全新 AI-Native 服务流程。"
+phases:
+  - name: "多模态意图捕获与智能预诊"
+    description: "用户触点零距离接入，通过跨模态信息秒级定界问题。"
+    nodes:
+      - name: "多模态故障自证分析"
+        actor: "ai"
+        action_description: "引导用户直接通过手机摄像头拍摄硬件状态或异常声音，Agent 实时进行多模态时序流分析，初步判定故障硬件类型、损坏程度与真伪。"
+        ai_capability: "多模态视觉理解 (Multimodal Vision), 音频异常检测 (Audio Anomaly Detection)"
+        automation_level: "high"
+        inputs: ["用户拍摄的故障音视频", "设备底层 Telemetry 日志", "历史购买记录"]
+        outputs: ["结构化硬件诊断书", "故障置信度分数"]
+        human_touchpoint: "无需人工。纯后台算法秒级并发处理验证。"
+
+  - name: "动态柔性协商与自动履约"
+    description: "基于诊断自动生成补偿边界，并通过智能体主动与客户促成协议。"
+    nodes:
+      - name: "数字人共情谈判与安抚"
+        actor: "hybrid"
+        action_description: "Agent 结合用户的情绪指数与生命周期价值 (LTV)，启动拟真数字人与用户进行音视频互动，在授权范围内动态给出两种备选方案（立即换新或上门修），促成一致。"
+        ai_capability: "实时语音生成 (TTS), 高精度数字人驱动, 多轮动态博弈对话, 情感分析"
+        automation_level: "medium"
+        inputs: ["结构化硬件诊断书", "用户当前情绪指数", "实时库存与仓储物流情况"]
+        outputs: ["用户接受的最终售后协议"]
+        human_touchpoint: "若在对话中感知到用户出现极端愤怒或投诉倾向，触发阈值，无缝秒转至高级客户成功经理 (CSM) 团队进行人工安抚。"
+        
+      - name: "全链路供应链调度指令下发"
+        actor: "ai"
+        action_description: "协议达成后，履约智能体自动调用 WMS 和第三方物流 API，执行补发操作或派送揽收订单给顺丰等快递。"
+        ai_capability: "Agent 工具调用 (Tool Calling), 预测性履约时效分析"
+        automation_level: "high"
+        inputs: ["售后协议", "用户退换货地址"]
+        outputs: ["物流运单号", "发货与上门时效提醒"]
+        human_touchpoint: "无缝衔接。仅在遭遇区域不可抗力或物流系统全面宕机时发送人工运营告警。"
+
+  - name: "异常工单的深度裁决与价值回收"
+    description: "处理少数 AI 无法定夺的纠纷，并将售后经验回哺到研发端。"
+    nodes:
+      - name: "复杂欺诈与高风险赔偿裁决"
+        actor: "human"
+        action_description: "对于 AI 判定属于“极高套利欺诈嫌疑”或涉及高额赔偿金的 Case，直接进入人工定夺中心，辅助提供完整的证据链与 AI 分析结论供人类审批。"
+        ai_capability: "欺诈检测辅助 (Fraud Detection), 证据链提取与知识图谱"
+        automation_level: "low"
+        inputs: ["高风险预警标记", "多模态分析报告", "用户全量行为数据日志"]
+        outputs: ["最终冻结账户或放行赔偿的决定"]
+        human_touchpoint: "人类担任最终法官。AI 仅作为提供确凿证物和初步建议的法务助手，最终裁量权和法律责任由人类承担。"
+
+    </script>
+
+    <script>
+        // Copy YAML Functionality
+        document.getElementById('copyYamlBtn').addEventListener('click', function() {
+            const yamlContent = document.getElementById('raw-yaml').textContent.trim();
+            navigator.clipboard.writeText(yamlContent).then(() => {
+                const btn = this;
+                const originalHtml = btn.innerHTML;
+                btn.innerHTML = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Copied!`;
+                btn.classList.replace('bg-indigo-600', 'bg-emerald-600');
+                btn.classList.replace('hover:bg-indigo-500', 'hover:bg-emerald-500');
+                btn.classList.replace('shadow-indigo-500/20', 'shadow-emerald-500/20');
+                
+                setTimeout(() => {
+                    btn.innerHTML = originalHtml;
+                    btn.classList.replace('bg-emerald-600', 'bg-indigo-600');
+                    btn.classList.replace('hover:bg-emerald-500', 'hover:bg-indigo-500');
+                    btn.classList.replace('shadow-emerald-500/20', 'shadow-indigo-500/20');
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+                alert('Failed to copy YAML to clipboard.');
+            });
+        });
+    </script>
+</body>
+</html>

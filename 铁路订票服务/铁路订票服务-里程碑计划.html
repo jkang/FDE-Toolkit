@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>铁路订票服务 — AI 场景演进里程碑规划 - Milestone Roadmap | Inspire</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      /* Inspire Design System Tokens (Standard Light Mode) */
+      --color-primary: #10213E;      /* Starry Blues */
+      --color-accent: #5DB2E2;       /* Creative Blue */
+      --color-secondary: #625D9C;    /* Amethyst */
+      --color-success: #00524C;      /* Myrtle Deep Green */
+      --color-info: #6FB1C8;         /* Cerulean Frost */
+      --color-warning: #F59E0B;      /* Warning */
+      --color-destructive: #EF4444;  /* Danger */
+      --color-background: #FFFFFF;   /* Pure White */
+      --color-bg-alt: #F5F5F6;       /* Tech Gray */
+      --color-foreground: #10213E;   /* Primary Text */
+      --color-text-muted: #64748B;   /* Text Secondary */
+      --color-border: #E2E8F0;       /* Border/Line */
+      
+      --shadow-sm: 0 2px 8px rgba(16, 33, 62, 0.08);
+      --shadow-md: 0 10px 15px -3px rgba(16, 33, 62, 0.1);
+      --radius-sm: 4px;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+      --font-family: 'MiSans', 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --transition: 0.15s ease-out;
+    }
+
+    /* Reset & Base */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--font-family);
+      background-color: var(--color-bg-alt);
+      color: var(--color-foreground);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ===== Page Container ===== */
+    .page-wrap {
+      background: var(--color-background);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-md);
+      padding: 40px;
+      width: 85%;
+      margin: 48px auto;
+      overflow: hidden;
+      border: 1px solid var(--color-border);
+      min-height: calc(100vh - 96px);
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Standardized Header */
+    .page-header {
+      margin-bottom: 40px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--color-border);
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+
+    .header-left {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .page-header h1 {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--color-primary);
+      line-height: 1.2;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .page-header h1::before {
+      content: "";
+      display: block;
+      width: 4px;
+      height: 24px;
+      background: var(--color-accent);
+      border-radius: 2px;
+    }
+
+    .page-subtitle {
+      font-size: 16px;
+      color: var(--color-text-muted);
+      font-weight: 500;
+      padding-left: 16px;
+    }
+
+    .header-right {
+      text-align: right;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .meta-info {
+      font-size: 12px;
+      color: var(--color-text-muted);
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 12px;
+      justify-content: flex-end;
+    }
+
+    .btn-primary {
+      background: var(--color-primary);
+      color: white;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+
+    .btn-secondary {
+      background: white;
+      color: var(--color-primary);
+      border: 1px solid var(--color-border);
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .btn-secondary:hover { background: var(--color-bg-alt); }
+
+    /* ===== Timeline Canvas ===== */
+    .timeline-container {
+      position: relative;
+      margin-top: 20px;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      background: white;
+      overflow-x: auto;
+    }
+
+    .timeline-header {
+      display: flex;
+      border-bottom: 2px solid var(--color-border);
+      background: var(--color-bg-alt);
+      position: sticky;
+      top: 0;
+      z-index: 20;
+    }
+
+    .quarter-col {
+      flex: 1;
+      padding: 12px;
+      text-align: center;
+      font-weight: 700;
+      font-size: 14px;
+      color: var(--color-primary);
+      border-right: 1px solid var(--color-border);
+      min-width: 150px;
+    }
+    .quarter-col:last-child { border-right: none; }
+
+    /* Vertical Grid Lines */
+    .grid-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      display: flex;
+      pointer-events: none;
+      z-index: 1;
+    }
+    .grid-line {
+      flex: 1;
+      border-right: 1px dashed var(--color-border);
+    }
+    .grid-line:last-child { border-right: none; }
+
+    /* Lanes */
+    .team-lane {
+      display: flex;
+      border-bottom: 1px solid var(--color-border);
+      min-height: 80px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .team-info {
+      width: 180px;
+      padding: 16px;
+      background: white;
+      border-right: 2px solid var(--color-border);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      position: sticky;
+      left: 0;
+      z-index: 10;
+      box-shadow: 4px 0 8px rgba(0,0,0,0.02);
+    }
+
+    .team-name {
+      font-weight: 700;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--color-primary);
+    }
+
+    .team-icon {
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 6px;
+      color: white;
+    }
+
+    .tasks-area {
+      flex: 1;
+      position: relative;
+      padding: 10px 0;
+      min-width: calc(len(quarters) * 150px);
+    }
+
+    /* Task Cards - CONTRAST FIX */
+    .task-card {
+      position: absolute;
+      height: 36px;
+      background: white;
+      border: 1.5px solid var(--task-color);
+      border-left: 4px solid var(--task-color);
+      border-radius: 6px;
+      padding: 0 10px;
+      display: flex;
+      align-items: center;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--color-primary);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      box-shadow: var(--shadow-sm);
+      z-index: 5;
+    }
+    .task-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(16, 33, 62, 0.12);
+      z-index: 50;
+      width: auto !important;
+      min-width: 100%;
+      padding-right: 20px;
+    }
+
+    /* Milestone Markers */
+    .milestone-marker {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: var(--m-color);
+      z-index: 30;
+      pointer-events: none;
+    }
+    .milestone-marker::after {
+      content: "";
+      position: absolute;
+      top: -6px;
+      left: -4px;
+      width: 10px;
+      height: 10px;
+      background: var(--m-color);
+      border-radius: 50%;
+    }
+
+    .milestone-flag {
+      position: absolute;
+      top: -32px;
+      transform: translateX(-50%);
+      background: var(--m-color);
+      color: white; /* HIGH CONTRAST */
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+      white-space: nowrap;
+      box-shadow: var(--shadow-sm);
+      pointer-events: auto;
+      cursor: help;
+      z-index: 40;
+    }
+    .milestone-flag::after {
+      content: "";
+      position: absolute;
+      bottom: -4px;
+      left: 50%;
+      transform: translateX(-50%);
+      border-left: 5px solid transparent;
+      border-right: 5px solid transparent;
+      border-top: 5px solid var(--m-color);
+    }
+
+    /* Tooltip logic */
+    .task-tooltip {
+      visibility: hidden;
+      position: absolute;
+      bottom: 125%;
+      background: var(--color-primary);
+      color: white;
+      padding: 12px;
+      border-radius: 8px;
+      width: 240px;
+      font-size: 12px;
+      font-weight: normal;
+      line-height: 1.4;
+      z-index: 100;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+      opacity: 0;
+      transition: opacity 0.2s;
+      pointer-events: none;
+    }
+    .task-card:hover .task-tooltip {
+      visibility: visible;
+      opacity: 1;
+    }
+    .task-tooltip.is-right { right: 0; }
+    .task-tooltip.is-left { left: 0; }
+
+    .tooltip-title { font-weight: 700; margin-bottom: 4px; color: var(--color-accent); font-size: 13px; }
+    .tooltip-meta { font-size: 11px; opacity: 0.7; margin-bottom: 8px; display: flex; gap: 8px; }
+
+    /* Footer */
+    .footer {
+      margin-top: 40px;
+      padding-top: 24px;
+      border-top: 1px solid var(--color-border);
+      text-align: center;
+      font-size: 12px;
+      color: var(--color-text-muted);
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--color-primary);
+      color: white;
+      padding: 12px 24px;
+      border-radius: 50px;
+      font-size: 14px;
+      font-weight: 600;
+      box-shadow: var(--shadow-md);
+      display: none;
+      z-index: 1000;
+      animation: slideUp 0.3s ease-out;
+    }
+
+    @keyframes slideUp {
+      from { transform: translate(-50%, 20px); opacity: 0; }
+      to { transform: translate(-50%, 0); opacity: 1; }
+    }
+
+    @media print {
+      .page-wrap { width: 100%; margin: 0; border: none; box-shadow: none; }
+      .btn-group { display: none !important; }
+      body { background: white; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="page-wrap">
+    <header class="page-header">
+      <div class="header-left">
+        <h1>铁路订票服务 — AI 场景演进里程碑规划</h1>
+      </div>
+      <div class="header-right">
+        <div class="btn-group">
+          <button class="btn-secondary" onclick="window.print()">导出 PDF / 打印</button>
+          <button class="btn-primary" onclick="copyYAML()">复制原始 YAML</button>
+        </div>
+      </div>
+    </header>
+
+    <div class="timeline-container">
+      <div class="timeline-header">
+        <div style="width: 180px; background: var(--color-bg-alt); border-right: 2px solid var(--color-border);"></div>
+        
+        <div class="quarter-col">2026-Q1</div>
+        
+        <div class="quarter-col">2026-Q2</div>
+        
+        <div class="quarter-col">2026-Q3</div>
+        
+        <div class="quarter-col">2026-Q4</div>
+        
+        <div class="quarter-col">2027-Q1</div>
+        
+        <div class="quarter-col">2027-Q2</div>
+        
+        <div class="quarter-col">2027-Q3</div>
+        
+        <div class="quarter-col">2027-Q4</div>
+        
+      </div>
+
+      <div style="position: relative;">
+        <!-- Grid Lines -->
+        <div class="grid-overlay">
+          <div style="width: 180px;"></div>
+          
+          <div class="grid-line"></div>
+          
+          <div class="grid-line"></div>
+          
+          <div class="grid-line"></div>
+          
+          <div class="grid-line"></div>
+          
+          <div class="grid-line"></div>
+          
+          <div class="grid-line"></div>
+          
+          <div class="grid-line"></div>
+          
+          <div class="grid-line"></div>
+          
+        </div>
+
+        <!-- Milestones Overlay -->
+        <div style="position: absolute; left: 180px; right: 0; top: 0; bottom: 0; z-index: 30; pointer-events: none;">
+          
+          <div class="milestone-marker" style="left: 25.0%; --m-color: #ef4444;">
+            <div class="milestone-flag" title="">
+              第一阶段：透明度提升与服务打基石
+            </div>
+          </div>
+          
+          <div class="milestone-marker" style="left: 50.0%; --m-color: #f59e0b;">
+            <div class="milestone-flag" title="">
+              第二阶段：智能决策辅助与异常补救
+            </div>
+          </div>
+          
+          <div class="milestone-marker" style="left: 100.0%; --m-color: #10b981;">
+            <div class="milestone-flag" title="">
+              第三阶段：全行程自动化与生态协同
+            </div>
+          </div>
+          
+        </div>
+
+        <!-- Teams & Tasks -->
+        
+        <div class="team-lane">
+          <div class="team-info">
+            <div class="team-name">
+              <div class="team-icon" style="background: #3b82f6;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 7a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"></path>
+                </svg>
+              </div>
+              用户体验与服务团队
+            </div>
+            <div style="font-size: 11px; color: var(--color-text-muted); line-height: 1.3;">
+              
+            </div>
+          </div>
+          <div class="tasks-area" style="height: 80px;">
+            
+            <div class="task-card" 
+                 style="left: calc(0.0% + 2px); width: calc(12.5% - 4px); top: 0px; --task-color: #3b82f6;">
+              可视化队列进度条研发
+              
+              <div class="task-tooltip is-left">
+                <div class="tooltip-title">可视化队列进度条研发</div>
+                <div class="tooltip-meta">
+                  <span>2026-Q1 → 2026-Q1</span>
+                  
+                </div>
+                <div class="tooltip-desc">基于并发负载的透明化排队展示</div>
+              </div>
+            </div>
+            
+            <div class="task-card" 
+                 style="left: calc(0.0% + 2px); width: calc(25.0% - 4px); top: 42px; --task-color: #3b82f6;">
+              特殊旅客主动服务管家
+              
+              <div class="task-tooltip is-left">
+                <div class="tooltip-title">特殊旅客主动服务管家</div>
+                <div class="tooltip-meta">
+                  <span>2026-Q1 → 2026-Q2</span>
+                  
+                </div>
+                <div class="tooltip-desc">针对重点人群的差异化行程指引</div>
+              </div>
+            </div>
+            
+            <div class="task-card" 
+                 style="left: calc(25.0% + 2px); width: calc(25.0% - 4px); top: 0px; --task-color: #3b82f6;">
+              退改签决策引导助手
+              
+              <div class="task-tooltip is-left">
+                <div class="tooltip-title">退改签决策引导助手</div>
+                <div class="tooltip-meta">
+                  <span>2026-Q3 → 2026-Q4</span>
+                  
+                </div>
+                <div class="tooltip-desc">规则白话化与智能改签建议</div>
+              </div>
+            </div>
+            
+          </div>
+        </div>
+        
+        <div class="team-lane">
+          <div class="team-info">
+            <div class="team-name">
+              <div class="team-icon" style="background: #8b5cf6;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 3a4 4 0 0 1 4 4c0 1.05-.4 2.01-1.07 2.72A3.99 3.99 0 0 1 18 13.5c0 1.83-1.23 3.37-2.92 3.84v.05A2.6 2.6 0 0 1 12.5 20h-1a2.6 2.6 0 0 1-2.58-2.61v-.05A3.98 3.98 0 0 1 6 13.5c0-.85.27-1.64.73-2.28A4 4 0 0 1 8 5h.07C8.75 3.84 10.28 3 12 3z"></path>
+                </svg>
+              </div>
+              核心算法与引擎团队
+            </div>
+            <div style="font-size: 11px; color: var(--color-text-muted); line-height: 1.3;">
+              
+            </div>
+          </div>
+          <div class="tasks-area" style="height: 80px;">
+            
+            <div class="task-card" 
+                 style="left: calc(0.0% + 2px); width: calc(25.0% - 4px); top: 0px; --task-color: #8b5cf6;">
+              全链路事件智能摘要
+              
+              <div class="task-tooltip is-left">
+                <div class="tooltip-title">全链路事件智能摘要</div>
+                <div class="tooltip-meta">
+                  <span>2026-Q1 → 2026-Q2</span>
+                  
+                </div>
+                <div class="tooltip-desc">跨系统日志聚合与根因摘要分析</div>
+              </div>
+            </div>
+            
+            <div class="task-card" 
+                 style="left: calc(12.5% + 2px); width: calc(25.0% - 4px); top: 42px; --task-color: #8b5cf6;">
+              候补成功率预测模型
+              
+              <div class="task-tooltip is-left">
+                <div class="tooltip-title">候补成功率预测模型</div>
+                <div class="tooltip-meta">
+                  <span>2026-Q2 → 2026-Q3</span>
+                  
+                </div>
+                <div class="tooltip-desc">基于历史兑现数据的概率预测算法</div>
+              </div>
+            </div>
+            
+            <div class="task-card" 
+                 style="left: calc(50.0% + 2px); width: calc(25.0% - 4px); top: 0px; --task-color: #8b5cf6;">
+              秒级自动补位引擎
+              
+              <div class="task-tooltip is-right">
+                <div class="tooltip-title">秒级自动补位引擎</div>
+                <div class="tooltip-meta">
+                  <span>2027-Q1 → 2027-Q2</span>
+                  
+                </div>
+                <div class="tooltip-desc">出票失败后的高并发自动对冲算法</div>
+              </div>
+            </div>
+            
+          </div>
+        </div>
+        
+        <div class="team-lane">
+          <div class="team-info">
+            <div class="team-name">
+              <div class="team-icon" style="background: #ec4899;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                </svg>
+              </div>
+              生态集成与协同团队
+            </div>
+            <div style="font-size: 11px; color: var(--color-text-muted); line-height: 1.3;">
+              
+            </div>
+          </div>
+          <div class="tasks-area" style="height: 80px;">
+            
+            <div class="task-card" 
+                 style="left: calc(25.0% + 2px); width: calc(25.0% - 4px); top: 0px; --task-color: #ec4899;">
+              晚点/停运全家桶处置
+              
+              <div class="task-tooltip is-left">
+                <div class="tooltip-title">晚点/停运全家桶处置</div>
+                <div class="tooltip-meta">
+                  <span>2026-Q3 → 2026-Q4</span>
+                  
+                </div>
+                <div class="tooltip-desc">票务与餐饮/约车联动退改协议</div>
+              </div>
+            </div>
+            
+            <div class="task-card" 
+                 style="left: calc(62.5% + 2px); width: calc(25.0% - 4px); top: 0px; --task-color: #ec4899;">
+              全行程智能打包建议
+              
+              <div class="task-tooltip is-right">
+                <div class="tooltip-title">全行程智能打包建议</div>
+                <div class="tooltip-meta">
+                  <span>2027-Q2 → 2027-Q3</span>
+                  
+                </div>
+                <div class="tooltip-desc">基于行程订单的关联服务推荐模型</div>
+              </div>
+            </div>
+            
+            <div class="task-card" 
+                 style="left: calc(75.0% + 2px); width: calc(25.0% - 4px); top: 42px; --task-color: #ec4899;">
+              约车自动配时与排程
+              
+              <div class="task-tooltip is-right">
+                <div class="tooltip-title">约车自动配时与排程</div>
+                <div class="tooltip-meta">
+                  <span>2027-Q3 → 2027-Q4</span>
+                  
+                </div>
+                <div class="tooltip-desc">基于列车位置的动态接送机配时</div>
+              </div>
+            </div>
+            
+          </div>
+        </div>
+        
+      </div>
+    </div>
+
+    <footer class="footer">
+      Generated by milestone-plan-generator · 2026-07-14 18:22 · &copy; 2026 Inspire AI4PM
+    </footer>
+  </div>
+
+  <div class="toast" id="toast">已成功复制 YAML 数据</div>
+  
+  <script type="application/yaml" id="raw-yaml">
+title: "铁路订票服务 — AI 场景演进里程碑规划"
+subtitle: "2026-2027 全链路服务体验提升计划"
+quarters:
+  - "2026-Q1"
+  - "2026-Q2"
+  - "2026-Q3"
+  - "2026-Q4"
+  - "2027-Q1"
+  - "2027-Q2"
+  - "2027-Q3"
+  - "2027-Q4"
+milestones:
+  - name: "Phase 1"
+    endQuarter: "2026-Q2"
+    title: "第一阶段：透明度提升与服务打基石"
+    goals:
+      - headline: "消除排队焦虑"
+        description: "上线可视化队列进度条，实现高峰购票透明化"
+      - headline: "服务摘要提效"
+        description: "完成全链路事件智能摘要，提升客服处理效率 40%"
+  - name: "Phase 2"
+    endQuarter: "2026-Q4"
+    title: "第二阶段：智能决策辅助与异常补救"
+    goals:
+      - headline: "确定性预测"
+        description: "上线候补成功率区间预测，降低用户决策成本"
+      - headline: "主动关怀闭环"
+        description: "实现晚点/停运一键式全家桶处置，提升售后满意度"
+  - name: "Phase 3"
+    endQuarter: "2027-Q4"
+    title: "第三阶段：全行程自动化与生态协同"
+    goals:
+      - headline: "支付即保障"
+        description: "上线秒级自动补位引擎，解决出票失败痛点"
+      - headline: "一站式行程"
+        description: "实现全行程智能打包建议与约车自动配时"
+teams:
+  - id: "ux_service"
+    name: "用户体验与服务团队"
+    icon: "Users"
+    tasks:
+      - name: "可视化队列进度条研发"
+        description: "基于并发负载的透明化排队展示"
+        startQuarter: "2026-Q1"
+        endQuarter: "2026-Q1"
+        milestoneTag: "Phase 1"
+        type: "研发"
+      - name: "特殊旅客主动服务管家"
+        description: "针对重点人群的差异化行程指引"
+        startQuarter: "2026-Q1"
+        endQuarter: "2026-Q2"
+        milestoneTag: "Phase 1"
+        type: "灰度上线"
+      - name: "退改签决策引导助手"
+        description: "规则白话化与智能改签建议"
+        startQuarter: "2026-Q3"
+        endQuarter: "2026-Q4"
+        milestoneTag: "Phase 2"
+        type: "正式上线"
+  - id: "algorithm_engine"
+    name: "核心算法与引擎团队"
+    icon: "Brain"
+    tasks:
+      - name: "全链路事件智能摘要"
+        description: "跨系统日志聚合与根因摘要分析"
+        startQuarter: "2026-Q1"
+        endQuarter: "2026-Q2"
+        milestoneTag: "Phase 1"
+        type: "研发"
+      - name: "候补成功率预测模型"
+        description: "基于历史兑现数据的概率预测算法"
+        startQuarter: "2026-Q2"
+        endQuarter: "2026-Q3"
+        milestoneTag: "Phase 2"
+        type: "实测"
+      - name: "秒级自动补位引擎"
+        description: "出票失败后的高并发自动对冲算法"
+        startQuarter: "2027-Q1"
+        endQuarter: "2027-Q2"
+        milestoneTag: "Phase 3"
+        type: "正式上线"
+  - id: "ecosystem_integration"
+    name: "生态集成与协同团队"
+    icon: "Blocks"
+    tasks:
+      - name: "晚点/停运全家桶处置"
+        description: "票务与餐饮/约车联动退改协议"
+        startQuarter: "2026-Q3"
+        endQuarter: "2026-Q4"
+        milestoneTag: "Phase 2"
+        type: "正式上线"
+      - name: "全行程智能打包建议"
+        description: "基于行程订单的关联服务推荐模型"
+        startQuarter: "2027-Q2"
+        endQuarter: "2027-Q3"
+        milestoneTag: "Phase 3"
+        type: "研发"
+      - name: "约车自动配时与排程"
+        description: "基于列车位置的动态接送机配时"
+        startQuarter: "2027-Q3"
+        endQuarter: "2027-Q4"
+        milestoneTag: "Phase 3"
+        type: "灰度上线"
+
+  </script>
+
+  <script>
+    function copyYAML() {
+      const yaml = document.getElementById('raw-yaml').textContent.trim();
+      navigator.clipboard.writeText(yaml).then(() => {
+        const toast = document.getElementById('toast');
+        toast.style.display = 'block';
+        setTimeout(() => { toast.style.display = 'none'; }, 2500);
+      });
+    }
+  </script>
+</body>
+</html>

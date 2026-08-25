@@ -1,0 +1,324 @@
+title: "X电商订舱 AI 场景优先级矩阵报告"
+useCases:
+  # ─── 获客认证 ───
+  - id: "A01"
+    name: "智能获客与内容触达"
+    type: "获客认证"
+    userCount: 4
+    usageFrequency: 4
+    businessValue: 3
+    dataComplexity: 3
+    aiDesignComplexity: 3
+    integrationComplexity: 3
+    knowledgeComplexity: 2
+  - id: "A02"
+    name: "贸易画像智能分级"
+    type: "获客认证"
+    userCount: 3
+    usageFrequency: 3
+    businessValue: 3
+    dataComplexity: 3
+    aiDesignComplexity: 3
+    integrationComplexity: 3
+    knowledgeComplexity: 3
+  - id: "A03"
+    name: "AI 自动认证审核"
+    type: "获客认证"
+    userCount: 4
+    usageFrequency: 4
+    businessValue: 4
+    dataComplexity: 3
+    aiDesignComplexity: 2
+    integrationComplexity: 3
+    knowledgeComplexity: 2
+  - id: "A04"
+    name: "非标资质智能复核"
+    type: "获客认证"
+    userCount: 2
+    usageFrequency: 2
+    businessValue: 2
+    dataComplexity: 4
+    aiDesignComplexity: 4
+    integrationComplexity: 3
+    knowledgeComplexity: 4
+
+  # ─── 询价报价 ───
+  - id: "B01"
+    name: "全航线智能报价"
+    type: "询价报价"
+    userCount: 5
+    usageFrequency: 5
+    businessValue: 5
+    dataComplexity: 4
+    aiDesignComplexity: 3
+    integrationComplexity: 4
+    knowledgeComplexity: 3
+  - id: "B02"
+    name: "动态锁价风控"
+    type: "询价报价"
+    userCount: 4
+    usageFrequency: 4
+    businessValue: 4
+    dataComplexity: 4
+    aiDesignComplexity: 4
+    integrationComplexity: 4
+    knowledgeComplexity: 4
+  - id: "B03"
+    name: "个性化报价推荐"
+    type: "询价报价"
+    userCount: 5
+    usageFrequency: 5
+    businessValue: 4
+    dataComplexity: 3
+    aiDesignComplexity: 3
+    integrationComplexity: 3
+    knowledgeComplexity: 2
+  - id: "B04"
+    name: "All-in-One 比价与到岸成本试算"
+    type: "询价报价"
+    userCount: 4
+    usageFrequency: 4
+    businessValue: 4
+    dataComplexity: 3
+    aiDesignComplexity: 3
+    integrationComplexity: 4
+    knowledgeComplexity: 3
+
+  # ─── 订舱舱位 ───
+  - id: "C01"
+    name: "首单智能预填"
+    type: "订舱舱位"
+    userCount: 4
+    usageFrequency: 4
+    businessValue: 4
+    dataComplexity: 3
+    aiDesignComplexity: 2
+    integrationComplexity: 3
+    knowledgeComplexity: 2
+  - id: "C02"
+    name: "智能补件检查"
+    type: "订舱舱位"
+    userCount: 4
+    usageFrequency: 4
+    businessValue: 3
+    dataComplexity: 2
+    aiDesignComplexity: 2
+    integrationComplexity: 2
+    knowledgeComplexity: 2
+  - id: "C03"
+    name: "分钟级自动确认"
+    type: "订舱舱位"
+    userCount: 5
+    usageFrequency: 5
+    businessValue: 5
+    dataComplexity: 3
+    aiDesignComplexity: 2
+    integrationComplexity: 4
+    knowledgeComplexity: 2
+  - id: "C04"
+    name: "智能舱位预测与分配"
+    type: "订舱舱位"
+    userCount: 4
+    usageFrequency: 5
+    businessValue: 5
+    dataComplexity: 4
+    aiDesignComplexity: 4
+    integrationComplexity: 4
+    knowledgeComplexity: 4
+  - id: "C05"
+    name: "智能改配与补偿方案"
+    type: "订舱舱位"
+    userCount: 3
+    usageFrequency: 3
+    businessValue: 4
+    dataComplexity: 3
+    aiDesignComplexity: 3
+    integrationComplexity: 4
+    knowledgeComplexity: 3
+
+  # ─── 单证支付 ───
+  - id: "D01"
+    name: "智慧单证增强"
+    type: "单证支付"
+    userCount: 5
+    usageFrequency: 5
+    businessValue: 4
+    dataComplexity: 3
+    aiDesignComplexity: 3
+    integrationComplexity: 3
+    knowledgeComplexity: 3
+  - id: "D02"
+    name: "eBL 生态渗透助手"
+    type: "单证支付"
+    userCount: 3
+    usageFrequency: 3
+    businessValue: 4
+    dataComplexity: 4
+    aiDesignComplexity: 3
+    integrationComplexity: 5
+    knowledgeComplexity: 4
+  - id: "D03"
+    name: "智能对账与本地化收付"
+    type: "单证支付"
+    userCount: 3
+    usageFrequency: 4
+    businessValue: 3
+    dataComplexity: 3
+    aiDesignComplexity: 2
+    integrationComplexity: 4
+    knowledgeComplexity: 3
+
+  # ─── 陆运清关 ───
+  - id: "E01"
+    name: "智能拖车调度"
+    type: "陆运清关"
+    userCount: 4
+    usageFrequency: 4
+    businessValue: 4
+    dataComplexity: 4
+    aiDesignComplexity: 4
+    integrationComplexity: 4
+    knowledgeComplexity: 3
+  - id: "E02"
+    name: "合规智能清关"
+    type: "陆运清关"
+    userCount: 4
+    usageFrequency: 4
+    businessValue: 4
+    dataComplexity: 4
+    aiDesignComplexity: 4
+    integrationComplexity: 4
+    knowledgeComplexity: 4
+  - id: "E03"
+    name: "政策变化智能解读"
+    type: "陆运清关"
+    userCount: 4
+    usageFrequency: 3
+    businessValue: 3
+    dataComplexity: 3
+    aiDesignComplexity: 3
+    integrationComplexity: 2
+    knowledgeComplexity: 4
+
+  # ─── 跟踪预警 ───
+  - id: "F01"
+    name: "多源轨迹融合"
+    type: "跟踪预警"
+    userCount: 5
+    usageFrequency: 5
+    businessValue: 4
+    dataComplexity: 4
+    aiDesignComplexity: 3
+    integrationComplexity: 4
+    knowledgeComplexity: 3
+  - id: "F02"
+    name: "AI 预测性预警"
+    type: "跟踪预警"
+    userCount: 5
+    usageFrequency: 5
+    businessValue: 5
+    dataComplexity: 4
+    aiDesignComplexity: 4
+    integrationComplexity: 4
+    knowledgeComplexity: 3
+  - id: "F03"
+    name: "智能供应链协同"
+    type: "供应链协同"
+    userCount: 3
+    usageFrequency: 3
+    businessValue: 4
+    dataComplexity: 5
+    aiDesignComplexity: 5
+    integrationComplexity: 5
+    knowledgeComplexity: 5
+
+  # ─── 客户服务 ───
+  - id: "G01"
+    name: "前置费用透明与超期预警"
+    type: "客户服务"
+    userCount: 4
+    usageFrequency: 4
+    businessValue: 3
+    dataComplexity: 3
+    aiDesignComplexity: 2
+    integrationComplexity: 3
+    knowledgeComplexity: 2
+  - id: "G02"
+    name: "智能订舱 Agent"
+    type: "客户服务"
+    userCount: 5
+    usageFrequency: 5
+    businessValue: 5
+    dataComplexity: 4
+    aiDesignComplexity: 4
+    integrationComplexity: 5
+    knowledgeComplexity: 4
+  - id: "G03"
+    name: "情绪识别与智能升级"
+    type: "客户服务"
+    userCount: 4
+    usageFrequency: 4
+    businessValue: 3
+    dataComplexity: 2
+    aiDesignComplexity: 3
+    integrationComplexity: 3
+    knowledgeComplexity: 2
+  - id: "G04"
+    name: "eBL 放货快速接入引导"
+    type: "客户服务"
+    userCount: 3
+    usageFrequency: 3
+    businessValue: 3
+    dataComplexity: 3
+    aiDesignComplexity: 2
+    integrationComplexity: 4
+    knowledgeComplexity: 3
+
+  # ─── 会员运营 ───
+  - id: "H01"
+    name: "会员智能运营"
+    type: "会员运营"
+    userCount: 4
+    usageFrequency: 4
+    businessValue: 4
+    dataComplexity: 3
+    aiDesignComplexity: 3
+    integrationComplexity: 3
+    knowledgeComplexity: 2
+  - id: "H02"
+    name: "复购预测与流失挽留"
+    type: "会员运营"
+    userCount: 4
+    usageFrequency: 4
+    businessValue: 4
+    dataComplexity: 3
+    aiDesignComplexity: 3
+    integrationComplexity: 3
+    knowledgeComplexity: 2
+  - id: "H03"
+    name: "区域化智能营销"
+    type: "会员运营"
+    userCount: 4
+    usageFrequency: 3
+    businessValue: 3
+    dataComplexity: 3
+    aiDesignComplexity: 3
+    integrationComplexity: 4
+    knowledgeComplexity: 3
+  - id: "H04"
+    name: "供应链协同智能（含绿色增值）"
+    type: "供应链协同"
+    userCount: 3
+    usageFrequency: 2
+    businessValue: 4
+    dataComplexity: 5
+    aiDesignComplexity: 5
+    integrationComplexity: 5
+    knowledgeComplexity: 5
+
+insights:
+  - "Quick Wins（高收益/低成本）：AI 自动认证审核、首单智能预填、智能补件检查、分钟级自动确认、前置费用透明、情绪识别与智能升级等集中在获客与订舱环节，直接作用于 SME 首单转化与订舱确认时效（KPI 3），建议第一梯队立即启动。"
+  - "Big Bets（高收益/高成本）：智能订舱 Agent、AI 预测性预警、智能舱位预测与分配、全航线智能报价为北极星渗透率（25%[推断]→40%）的核心引擎，需跨 OMS/收益/控制塔多系统投入，建议 P0 立项、12 个月内呈现可量化 ROI（对冲 2025 年溢利 -41.3% 的成本压力）。"
+  - "跟踪预警与询价报价类场景平均优先级最高（跟踪预警 avg 7.73、询价报价 avg 6.73），用户覆盖与使用频率双高，是 SME 全流程信息不对称痛点的最直接解药；客户服务类中智能订舱 Agent 是单一最高价值场景（Top 6），建议作为旗舰单点攻坚。"
+  - "供应链协同类场景（F03/H04）知识复杂度与集成复杂度最高（各维 5 分），需母集团双品牌协同与外部数据生态，建议作为二期战略型项目，先行以 AI 预测性预警（F02）作为入口积累运力协同数据 [推断]。"
+  - "单证支付类场景中，智慧单证增强（基于年 35 万份自动处理基座）优先级显著高于 eBL 生态渗透（依赖贸易链外部节点采纳，集成复杂度 5），建议前者快速迭代、后者渐进渗透（LCL eBL 试点扩面）。"

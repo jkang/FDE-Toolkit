@@ -1,0 +1,43 @@
+---
+title: "AI-Native 智慧门诊全链路创新流程"
+business_type: "智慧医疗 / 医院门诊"
+description: "通过 AI 预问诊与数字化专家助理，重构传统“挂号-排队-问诊”的低效串行流程，实现医生资源的极致利用与病患体验的跨越式提升。"
+phases:
+  - name: "多模态智能分诊与预问诊"
+    description: "在病患挂号后立即启动，利用 AI 提前完成基础信息采集。"
+    nodes:
+      - name: "AI 交互式预问诊"
+        actor: "ai"
+        action_description: "病患挂号成功后，通过手机端进入 AI 诊室。AI 根据病患主诉，调取历史电子病历，进行深度多轮追问，覆盖现病史、既往史、过敏史等。"
+        ai_capability: "医学知识图谱 RAG, 多轮动态逻辑对话"
+        automation_level: "high"
+        inputs: ["病患挂号信息", "历史电子病历", "病患主诉语音/文字"]
+        outputs: ["结构化预问诊报告", "疑似诊断提示"]
+        expert_review: "落地性：RAG 技术在垂直病历问答中已趋于成熟；合规性：需严格遵守医疗数据安全与病患隐私保护协议，AI 仅收集信息不提供处方建议。"
+        human_touchpoint: "全自动。通过友好、有同理心的 Prompt 设计缓解病患焦虑。"
+
+  - name: "诊前医生助理决策辅助"
+    description: "在医生接诊前，由 AI 整理精华信息，压缩医生阅读成本。"
+    nodes:
+      - name: "预问诊报告自动提炼"
+        actor: "ai"
+        action_description: "AI 将几千字的预问诊对话记录，自动提炼为符合医学规范的“诊前摘要”，并标注异常指标和关键风险点，推送到医生工作站。"
+        ai_capability: "长文本医学语义总结, 关键风险点检测"
+        automation_level: "high"
+        inputs: ["结构化预问诊报告"]
+        outputs: ["诊前摘要 (SOAP 格式)"]
+        expert_review: "实战价值：大幅缩短医生录入病历的时间（约节省 40%）；技术点：SOAP 格式的准确性需经过专科医生校验集的微调。"
+        human_touchpoint: "无感。医生在刷卡接诊的一瞬间，报告即出现在屏幕右侧。"
+
+  - name: "高效精准问诊与闭环"
+    description: "医生回归专业判断，AI 辅助事务性工作。"
+    nodes:
+      - name: "辅助诊断与方案联想"
+        actor: "hybrid"
+        action_description: "医生问诊过程中，AI 实时根据对话生成辅助诊断建议，并根据医院药品库、耗材库联想初步处方单，供医生一键勾选。"
+        ai_capability: "实时语义分析, 处方辅助决策支持 (CDSS)"
+        automation_level: "medium"
+        inputs: ["实时问诊对话", "诊前摘要", "药品目录"]
+        outputs: ["最终处方单", "随访建议"]
+        expert_review: "监管重点：AI 绝对不能代替医生下达最终处方，必须由医生确认并签名，符合国家 CDSS 二级及以上评审要求。"
+        human_touchpoint: "医生担任决策大脑。AI 负责完成 80% 的体力录入工作，医生负责最后的 20% 核心判断。"

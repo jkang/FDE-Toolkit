@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="{{ lang }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"MiSans"', 'Inter', 'system-ui', 'sans-serif'],
+                    },
+                    colors: {
+                        inspire: {
+                            primary: '#10213E',
+                            accent: '#5DB2E2',
+                            secondary: '#625D9C',
+                            success: '#00524C',
+                            info: '#6FB1C8',
+                            warning: '#F59E0B',
+                            destructive: '#EF4444',
+                            background: '#FFFFFF',
+                            bgAlt: '#F5F5F6',
+                            foreground: '#10213E',
+                            textMuted: '#64748B',
+                            border: '#E2E8F0',
+                        }
+                    },
+                    boxShadow: {
+                        inspire: '0 2px 8px rgba(16, 33, 62, 0.08)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        
+        :root {
+            --color-primary: #10213E;
+            --color-accent: #5DB2E2;
+            --color-border: #E2E8F0;
+            --shadow-sm: 0 2px 8px rgba(16, 33, 62, 0.08);
+        }
+
+        body { 
+            font-family: "MiSans", 'Inter', sans-serif; 
+            background-color: #F5F5F6; 
+            color: #10213E;
+            line-height: 1.6;
+        }
+        
+        .glass-panel { 
+            background: #FFFFFF; 
+            border: 1px solid var(--color-border);
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .node-card { 
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: #FFFFFF;
+            border: 1px solid var(--color-border);
+            box-shadow: var(--shadow-sm);
+        }
+        .node-card:hover { 
+            transform: translateY(-4px); 
+            box-shadow: 0 12px 20px -5px rgba(16, 33, 62, 0.1);
+            border-color: var(--color-accent); 
+        }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #E2E8F0; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #CBD5E1; }
+
+        .phase-connector {
+            position: relative;
+        }
+        .phase-connector::after {
+            content: '';
+            position: absolute;
+            top: 24px;
+            right: -24px;
+            width: 24px;
+            height: 2px;
+            background: linear-gradient(90deg, rgba(16,33,62,0.2) 0%, rgba(93,178,226,0.2) 100%);
+            z-index: 0;
+        }
+        .phase-connector:last-child::after {
+            display: none;
+        }
+
+        .tag {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 0.125rem 0.375rem;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+    </style>
+
+    <!-- ===== Unified Report Shell: 撑满容器 + 精简 Header + 溢出滚动 ===== -->
+    <style>
+      *, *::before, *::after { box-sizing: border-box !important; }
+      html, body { margin: 0 !important; padding: 0 !important; background: #F5F5F6 !important; overflow-x: auto !important; }
+      main.max-w-\[1600px\] {
+        width: 100% !important;
+        max-width: none !important;
+        margin: 0 auto !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        border: none !important;
+        padding: 24px 28px 48px !important;
+        overflow-x: auto !important;
+      }
+      header.glass-panel { margin-bottom: 20px !important; align-items: center !important; }
+      header.glass-panel h1 { font-size: 22px !important; line-height: 1.3 !important; margin: 0 !important; }
+      header.glass-panel { padding-top: 10px !important; padding-bottom: 10px !important; }
+      header.glass-panel .px-6 { padding-left: 28px !important; padding-right: 28px !important; padding-top: 6px !important; padding-bottom: 6px !important; }
+    
+      /* ===== Unified Header (v2) ===== */
+      header.glass-panel {
+        background: #FFFFFF !important;
+        border-bottom: 1px solid #E2E8F0 !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        padding: 12px 0 !important;
+        margin-bottom: 20px !important;
+        min-height: auto !important;
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        gap: 16px !important;
+        flex-wrap: wrap !important;
+      }
+      header.glass-panel h1 {
+        font-size: 22px !important;
+        font-weight: 700 !important;
+        color: #10213E !important;
+        line-height: 1.3 !important;
+        margin: 0 !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 10px !important;
+      }
+      header.glass-panel h1::before {
+        content: "" !important;
+        display: inline-block !important;
+        width: 4px !important;
+        height: 22px !important;
+        background: #5DB2E2 !important;
+        border-radius: 2px !important;
+        flex-shrink: 0 !important;
+      }
+      header.glass-panel h1 svg, header.glass-panel h1 .icon, header.glass-panel h1 img, header.glass-panel .text-2xl {
+        width: 20px !important;
+        height: 20px !important;
+        flex-shrink: 0 !important;
+        font-size: 18px !important;
+      }
+      header.glass-panel .space-y-4, header.glass-panel > div {
+        font-size: 13px !important;
+        color: #64748B !important;
+      }
+      header.glass-panel .inline-flex, header.glass-panel [class*="rounded-full"] {
+        font-size: 12px !important;
+        color: #64748B !important;
+        background: #F5F5F6 !important;
+        border: none !important;
+        box-shadow: none !important;
+        padding: 2px 10px !important;
+        border-radius: 10px !important;
+      }
+      header.glass-panel button {
+        font-size: 12px !important;
+        padding: 6px 12px !important;
+        border-radius: 6px !important;
+        font-weight: 600 !important;
+        background: #10213E !important;
+        color: #FFFFFF !important;
+        border: 1px solid #10213E !important;
+      }
+
+      /* ===== Unified Header: 结构样式 ===== */
+      .unified-hdr {
+        background: #FFFFFF !important;
+        border-bottom: 1px solid #E2E8F0 !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        padding: 14px 28px !important;
+        margin-bottom: 20px !important;
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        gap: 16px !important;
+        flex-wrap: wrap !important;
+        position: static !important;
+        top: auto !important;
+        z-index: auto !important;
+      }
+      .unified-hdr-left { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+      .unified-hdr-right { display: flex; align-items: center; gap: 12px; flex-shrink: 0; flex-wrap: wrap; }
+      .unified-hdr h1 {
+        font-size: 22px !important;
+        font-weight: 700 !important;
+        color: #10213E !important;
+        line-height: 1.3 !important;
+        margin: 0 !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 10px !important;
+      }
+      .unified-hdr h1::before {
+        content: "" !important;
+        display: inline-block !important;
+        width: 4px !important;
+        height: 22px !important;
+        background: #5DB2E2 !important;
+        border-radius: 2px !important;
+        flex-shrink: 0 !important;
+      }
+      .unified-hdr p {
+        font-size: 13px !important;
+        color: #64748B !important;
+        margin: 4px 0 0 !important;
+        padding-left: 14px !important;
+        line-height: 1.5 !important;
+      }
+    
+      /* ===== Unified Header: stats 徽章 ===== */
+      .unified-hdr-stats {
+        display: flex !important;
+        align-items: center !important;
+        gap: 8px !important;
+        background: #F5F5F6 !important;
+        border: 1px solid #E2E8F0 !important;
+        border-radius: 20px !important;
+        padding: 4px 14px !important;
+        font-size: 12px !important;
+        color: #64748B !important;
+      }
+      .unified-hdr-stats b { color: #10213E; font-weight: 700; margin-right: 4px; }
+      .hdr-stat-sep { width: 1px; height: 12px; background: #E2E8F0; }
+      .unified-hdr-right .btn-copy-yaml {
+        background: #10213E !important;
+        color: #FFFFFF !important;
+        border: 1px solid #10213E !important;
+        font-size: 12px !important;
+        padding: 6px 12px !important;
+        border-radius: 6px !important;
+        font-weight: 600 !important;
+      }
+</style>
+
+
+</head>
+<body class="min-h-screen">
+
+    <!-- Header -->
+    <header class="unified-hdr">
+        <div class="unified-hdr-left">
+            <h1>{{ title }}</h1>
+            <p>{{ business_type }} · Generated: {{ generated_at }}</p>
+        </div>
+        <div class="unified-hdr-right">
+            <div class="unified-hdr-stats">
+                <span class="hdr-stat"><b>Total Nodes</b> {{ stats.total }}</span>
+                <span class="hdr-stat-sep"></span>
+                <span class="hdr-stat">🤖 AI: {{ stats.ai }}</span>
+                <span class="hdr-stat-sep"></span>
+                <span class="hdr-stat">👤 Human: {{ stats.human }}</span>
+                <span class="hdr-stat-sep"></span>
+                <span class="hdr-stat">🤝 Hybrid: {{ stats.hybrid }}</span>
+            </div>
+            <button id="copyYamlBtn" class="btn-copy-yaml" onclick="copyYAML()">复制原始 YAML</button>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-[1600px] mx-auto px-6 py-8">
+        
+        <!-- Objective / Description -->
+        {% if description %}
+        <div class="glass-panel p-6 rounded-xl mb-10 border-l-4 border-l-inspire-accent max-w-4xl">
+            <h2 class="text-sm font-semibold text-inspire-textMuted uppercase tracking-wider mb-2 flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                Workflow Objective
+            </h2>
+            <p class="text-inspire-primary text-lg leading-relaxed font-medium">{{ description }}</p>
+        </div>
+        {% endif %}
+
+        <!-- Horizontal Scrollable Canvas for Phases -->
+        <div class="overflow-x-auto pb-10 hide-scrollbar">
+            <div class="flex gap-6 min-w-max items-stretch">
+                
+                {% for phase in phases %}
+                <!-- Phase Column -->
+                <div class="w-[400px] flex-shrink-0 flex flex-col phase-connector">
+                    
+                    <!-- Phase Header -->
+                    <div class="mb-6 relative z-10">
+                        <div class="flex items-center gap-3 mb-2">
+                            <div class="w-8 h-8 rounded-full bg-inspire-primary flex items-center justify-center text-sm font-bold text-white shadow-sm">
+                                {{ loop.index }}
+                            </div>
+                            <h3 class="text-lg font-bold text-inspire-primary">{{ phase.name }}</h3>
+                        </div>
+                        {% if phase.description %}
+                        <p class="text-sm text-inspire-textMuted pl-11">{{ phase.description }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Nodes Container -->
+                    <div class="flex-1 flex flex-col gap-4 pl-4 border-l-2 border-slate-800/50 ml-4 relative z-10">
+                        
+                        {% for node in phase.nodes %}
+                        <!-- Node Card -->
+                        <div class="node-card glass-panel rounded-xl p-5 border-l-4 {{ node.color_class.split(' ')[1] }} relative group">
+                            
+                            <!-- Actor Badge -->
+                            <div class="absolute -left-3.5 top-5 w-6 h-6 rounded-full {{ node.color_class.split(' ')[0] }} border {{ node.color_class.split(' ')[1] }} flex items-center justify-center text-xs shadow-md z-20" title="Actor: {{ node.actor }}">
+                                {{ node.icon }}
+                            </div>
+
+                            <div class="flex justify-between items-start mb-3">
+                                <h4 class="font-bold text-inspire-primary text-base ml-2 pr-2">{{ node.name }}</h4>
+                                <span class="tag {{ node.color_class }} {{ node.text_class }} border flex-shrink-0 mt-0.5">{{ node.actor }}</span>
+                            </div>
+                            
+                            <div class="space-y-4 ml-2">
+                                <!-- Action -->
+                                <div class="text-sm text-inspire-foreground leading-relaxed">
+                                    {{ node.action_description }}
+                                </div>
+                                
+                                <!-- AI Capability (if exists) -->
+                                {% if node.ai_capability and node.ai_capability != '无' %}
+                                <div class="bg-indigo-900/20 border border-indigo-500/20 rounded p-2.5">
+                                    <div class="text-[0.65rem] text-indigo-400 uppercase font-semibold mb-1 flex items-center gap-1">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                                        AI Capability
+                                    </div>
+                                    <div class="text-xs text-indigo-200">{{ node.ai_capability }}</div>
+                                </div>
+                                {% endif %}
+                                
+                                <!-- I/O Data Flow -->
+                                <div class="flex items-stretch gap-2">
+                                    <div class="flex-1 bg-slate-800/40 border border-slate-700/50 rounded p-2">
+                                        <div class="text-[0.65rem] text-slate-400 uppercase font-semibold mb-1">Inputs</div>
+                                        <ul class="text-xs text-slate-300 space-y-1">
+                                            {% for inp in node.inputs %}
+                                            <li class="flex items-start gap-1"><span class="text-slate-500 mt-px">→</span> <span class="truncate" title="{{ inp }}">{{ inp }}</span></li>
+                                            {% endfor %}
+                                        </ul>
+                                    </div>
+                                    <div class="flex-1 bg-slate-800/40 border border-slate-700/50 rounded p-2">
+                                        <div class="text-[0.65rem] text-slate-400 uppercase font-semibold mb-1">Outputs</div>
+                                        <ul class="text-xs text-slate-300 space-y-1">
+                                            {% for out in node.outputs %}
+                                            <li class="flex items-start gap-1"><span class="text-slate-500 mt-px">→</span> <span class="truncate" title="{{ out }}">{{ out }}</span></li>
+                                            {% endfor %}
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <!-- Human Touchpoint (Critical for Hybrid/Human) -->
+                                {% if node.human_touchpoint %}
+                                <div class="border-t border-slate-700/50 pt-3 mt-3">
+                                    <div class="text-[0.65rem] {% if node.actor == 'AI' %}text-slate-500{% else %}text-amber-400{% endif %} uppercase font-semibold mb-1 flex items-center gap-1">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                        Human Touchpoint
+                                    </div>
+                                    <div class="text-xs {% if node.actor == 'AI' %}text-slate-400{% else %}text-slate-300{% endif %}">
+                                        {{ node.human_touchpoint }}
+                                    </div>
+                                </div>
+                                {% endif %}
+                                <!-- Expert Review (Added for feasibility) -->
+                                {% if node.expert_review %}
+                                <div class="border-t border-slate-700/50 pt-3 mt-3">
+                                    <div class="text-[0.65rem] text-emerald-400 uppercase font-semibold mb-1 flex items-center gap-1">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+                                        Expert Reality Check
+                                    </div>
+                                    <div class="text-xs text-slate-300 italic">
+                                        {{ node.expert_review }}
+                                    </div>
+                                </div>
+                                {% endif %}
+                                
+                            </div>
+                        </div>
+                        
+                        <!-- Vertical connector arrow between nodes -->
+                        {% if not loop.last %}
+                        <div class="h-6 ml-6 border-l-2 border-dashed border-slate-600 flex items-center">
+                            <div class="w-2 h-2 rounded-full bg-slate-600 -ml-[5px]"></div>
+                        </div>
+                        {% endif %}
+                        
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endfor %}
+                
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Raw YAML Data (Hidden) -->
+    <script type="application/yaml" id="raw-yaml">
+{{ raw_yaml | safe }}
+    </script>
+
+    <script>
+        // Copy YAML Functionality
+        document.getElementById('copyYamlBtn').addEventListener('click', function() {
+            const yamlContent = document.getElementById('raw-yaml').textContent.trim();
+            navigator.clipboard.writeText(yamlContent).then(() => {
+                const btn = this;
+                const originalHtml = btn.innerHTML;
+                btn.innerHTML = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Copied!`;
+                btn.classList.replace('bg-indigo-600', 'bg-emerald-600');
+                btn.classList.replace('hover:bg-indigo-500', 'hover:bg-emerald-500');
+                btn.classList.replace('shadow-indigo-500/20', 'shadow-emerald-500/20');
+                
+                setTimeout(() => {
+                    btn.innerHTML = originalHtml;
+                    btn.classList.replace('bg-emerald-600', 'bg-indigo-600');
+                    btn.classList.replace('hover:bg-emerald-500', 'hover:bg-indigo-500');
+                    btn.classList.replace('shadow-emerald-500/20', 'shadow-indigo-500/20');
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+                alert('Failed to copy YAML to clipboard.');
+            });
+        });
+    </script>
+</body>
+</html>

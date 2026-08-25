@@ -1,0 +1,534 @@
+title: "X电商订舱业务端到端流程深度分析"
+company: "X（全球头部集装箱运输与物流一体化企业）"
+domain: "电商订舱业务（在线订舱门户 / 独立电商平台 / 移动App）"
+description: "基于 X 2025 年报与官网、独立电商平台官网、IQAX 新闻稿、行业数字化渗透率年报等公开材料，对电商订舱业务进行业务类型（L0）、L1 端到端价值流与 L2 流程活动三层梳理，并识别各环节痛点。关键数据来源已随文标注；带 [推断] 的为推算值，正式使用前需以 X 内部口径校准。"
+
+business_types:
+  - name: "SME 直客即期订舱业务"
+    model: "B2B（在线自助直客）"
+    product_type: "平台服务"
+    market_type: "增量市场（SME 长尾蓝海）"
+    description: "通过独立电商平台面向中小企业提供 E-Spot 即期报价（舱位保证、锁定运价、优先供柜）与 E-Quote 长时效报价（最长 1 个月、Secured E-Quote 固定锁费），所见即所得、透明比价、即时确认，对标马士基 Spot 即期数字化产品。（来源：独立电商平台官网）"
+  - name: "签约客户全周期订舱管理"
+    model: "B2B（混合渠道）"
+    product_type: "平台服务 + 解决方案"
+    market_type: "存量市场（大客户与货代）"
+    description: "通过官网在线订舱门户（MOC）为存量签约客户提供 24/7 全生命周期货载管理，涵盖订舱、船期、跟踪、SI、提单、VGM、发票付款与 D&D 计算器；新版 3 步订舱表单 + Smart Push 智能推送，最快 1 分钟确认。（来源：X 官网 MOC 产品页）"
+  - name: "端到端增值服务业务"
+    model: "B2B（一站式物流）"
+    product_type: "解决方案"
+    market_type: "垂直市场（高附加值服务）"
+    description: "在订舱基础上叠加全程陆运（Door Haulage）、出口清关（E-Customs）、绿色航运（X Green）、Concierge 管家、原箱进转出（Container Re-Use）、迟延转运（Delay in Transit）、额外免箱期等增值服务，向供应链平台化演进。（来源：独立电商平台官网）"
+
+l1_value_streams:
+  - name: "电商订舱履约主价值流"
+    description: "从客户注册认证到到港交付放货的全链路价值创造过程，覆盖询价-锁舱-放单-结算-履约-交付六大环节，2025 年电商渠道承载超 200 万 TEU（约占总载货量 25% [推断]）。（来源：X 2025 年报）"
+    business_type: "SME 直客即期订舱业务"
+    stages:
+      - name: "客户注册与认证"
+        description: "新客户（SME 货主/货代）完成企业注册、资质认证与账号开通，建立数字身份，进入独立电商平台或官网门户服务池。"
+        order: 1
+        type: "process"
+        l2_processes:
+          - name: "企业账号注册与资料填报"
+            role: "SME 货主 / 货代（客户）"
+            system: "独立电商平台 / 官网订舱门户注册页"
+            inputs:
+              - "企业营业执照与经营资质"
+              - "贸易合同与联系人信息"
+            outputs:
+              - "待审核注册申请"
+            description: "客户在线填写企业资质、联系人与结算信息，选择服务渠道（独立电商平台或官网门户）；移动App与微信小程序提供补充注册入口（微信小程序 2024.08 上线）。（来源：独立电商平台官网）"
+            order: 1
+            pain_points:
+              - severity: "medium"
+                description: "注册字段繁多，SME 首次填报需 30-60 分钟 [推断]"
+                impact: "新客注册流失率偏高，长尾获客入口摩擦直接压缩 SME 增量"
+                root_cause: "表单未针对 SME 简化资质要求，缺乏模板化与历史信息复用"
+          - name: "资质审核与账号开通"
+            role: "电商运营 / 风控审核员"
+            system: "CRM 客户管理系统 / 风控系统"
+            inputs:
+              - "注册申请与资质文件"
+            outputs:
+              - "认证通过的账号（约 3 个工作日）"
+            description: "人工审核企业资质并开通账号；X 官方披露企业认证约 3 个工作日完成。（来源：独立电商平台官网）"
+            order: 2
+            pain_points:
+              - severity: "high"
+                description: "企业认证约需 3 个工作日，远慢于行业头部分钟级自助开户 [推断]"
+                impact: "新客首单等待窗口长，SME 可能转向货代或其他平台即时交易"
+                root_cause: "审核依赖人工验证，缺乏 AI 资质识别与自动验真，开户与订舱链路未打通"
+      - name: "询价与报价"
+        description: "客户通过 E-Spot（即期，所见即所得）或 E-Quote（长时效最长 1 个月）获取透明报价，可用 Secured E-Quote（2025.01 上线）固定锁费，2026.03 起支持 All-in-One 一站式询价。"
+        order: 2
+        type: "process"
+        l2_processes:
+          - name: "即期 / 长时效报价查询"
+            role: "SME 货主（客户）"
+            system: "独立电商平台报价引擎（E-Spot / E-Quote）"
+            inputs:
+              - "起运港 / 目的港"
+              - "货量、货型与船期偏好"
+            outputs:
+              - "E-Spot 即期报价（含舱位保证与优先供柜）"
+              - "E-Quote 报价单（最长 1 个月有效）"
+            description: "客户在线查询即期运价或长时效报价，E-Spot 针对特定 X 航次提供实时透明报价并锁定大部分附加费，含 24 小时无忧取消（Cooling-off）。（来源：独立电商平台官网）"
+            order: 1
+            pain_points:
+              - severity: "medium"
+                description: "即期报价仅覆盖特定航次，非全航线透明 [推断]"
+                impact: "客户需多平台比价，报价覆盖不足导致转化流失"
+                root_cause: "即期定价依赖舱位收益管理策略，全航线实时定价存在成本约束"
+          - name: "智能报价推荐与锁价"
+            role: "AI 助手（Ask Fin / 小飞 Fin）+ 收益管理"
+            system: "AI 报价引擎 / All-in-One 询价（2026.03）"
+            inputs:
+              - "历史成交价与市场运价指数"
+              - "客户偏好与航线网络数据"
+            outputs:
+              - "个性化报价推荐（Smart Push / Nearby Route Suggestions）"
+              - "Secured E-Quote 锁价确认"
+            description: "AI 基于历史交易与市场运价指数推荐最优港口对与报价，提供固定费率锁价与附近航线建议（2025.05 上线）。（来源：独立电商平台官网 / X 2025 年报）"
+            order: 2
+            pain_points:
+              - severity: "high"
+                description: "锁价产品与市场运价下行脱钩时，客户弃约或转投即期 [推断]"
+                impact: "报价承诺与实际运价背离放大收益风险，影响舱位收益管理"
+                root_cause: "锁价定价缺乏动态风险对冲模型，运价波动（2025 年关税/红海扰动）传导至锁价成本"
+      - name: "在线订舱"
+        description: "客户以新版 3 步订舱表单提交订舱请求，Smart Push 基于历史交易智能预填费率参考号、港口对与货方信息，缩短填单时间。"
+        order: 3
+        type: "process"
+        l2_processes:
+          - name: "3 步订舱表单提交"
+            role: "SME 货主（客户）"
+            system: "官网订舱门户新版订舱表单 / 独立电商平台"
+            inputs:
+              - "报价参考号、货量与箱型"
+              - "起运 / 目的港与货方信息"
+            outputs:
+              - "订舱请求（Booking Request）"
+            description: "客户完成 3 步订舱，Smart Push 智能推送费率参考号、港口对与货方信息；订舱表单 2025 年改版上线。（来源：X 官网 MOC 产品页）"
+            order: 1
+            pain_points:
+              - severity: "low"
+                description: "新客首次使用字段不熟悉，资料不齐需往返补件"
+                impact: "订舱提交平均耗时仍偏高 [推断]，SME 小单客户对时效敏感"
+                root_cause: "智能预填依赖历史数据，新客无历史记录可用"
+          - name: "订舱请求受理与校验"
+            role: "订舱运营 / CSR（客户服务代表）"
+            system: "订舱管理系统（OMS）/ CRM"
+            inputs:
+              - "订舱请求与客户档案"
+            outputs:
+              - "已受理订舱与 SLA 校验结果"
+            description: "系统校验费率、信用与航线可用性，将订舱请求路由至舱位分配环节。"
+            order: 2
+            pain_points:
+              - severity: "high"
+                description: "最快 1 分钟确认仅限特定条款客户，大量 SME 请求仍走人工审核"
+                impact: "平均确认时效无法对标行业头部分钟级体验，直接制约电商订舱渗透率提升"
+                root_cause: "自动校验规则覆盖不全，人工审核兜底比例高（对应无代理化能力缺口 [推断]）"
+      - name: "舱位分配与确认"
+        description: "系统按航线运力与收益管理策略分配舱位，签发 Booking Confirmation 并登记 E-Spot 舱位保证（Space Protection）承诺。"
+        order: 4
+        type: "decision"
+        l2_processes:
+          - name: "舱位分配与收益校验"
+            role: "舱位管理 / 收益管理系统"
+            system: "舱位分配引擎 / 收益管理系统"
+            inputs:
+              - "已受理订舱与客户价值分级"
+              - "航线装载率与运力配置"
+            outputs:
+              - "舱位分配结果（E-Spot 订单优先供柜）"
+            description: "收益管理按航线装载率与客户价值分配舱位，E-Spot 订单享受优先供柜与舱位保证。（来源：独立电商平台官网）"
+            order: 1
+            pain_points:
+              - severity: "high"
+                description: "旺季/运力波动期舱位向高价值客户倾斜，SME 甩柜或改船风险上升"
+                impact: "舱位保证兑现缺口侵蚀锁舱承诺信任（KPI 目标 95%+），SME 复购受损"
+                root_cause: "动态运力分配以收益为先，未将电商承诺兑现率设为硬约束"
+          - name: "Booking Confirmation 签发与告知"
+            role: "订舱系统（自动）+ 客服"
+            system: "订舱门户 / 独立电商平台 + 邮件 / 微信小程序通知"
+            inputs:
+              - "舱位分配结果"
+            outputs:
+              - "Booking Confirmation（特定条款客户最快 1 分钟）"
+            description: "自动签发订舱确认并多通道通知（邮件、微信小程序实时推送）。"
+            order: 2
+            pain_points:
+              - severity: "medium"
+                description: "改船/取消异常通知延迟，平台状态与船期计划不同步"
+                impact: "客户对船期变更知情滞后，产生投诉与改单成本"
+                root_cause: "海洋联盟 DAY9/DAY10 船期计划与电商系统状态同步存在时差"
+      - name: "单证处理"
+        description: "客户提交装运指示（SI），智慧单证系统自动处理（2025 年约 35 万份），提单经 IQAX eBL / GSBN 区块链签发电子提单，打通无纸化闭环。"
+        order: 5
+        type: "process"
+        l2_processes:
+          - name: "SI 提交与自动处理"
+            role: "客户 + 智慧单证系统"
+            system: "智慧单证系统（订舱门户 / 独立电商平台）"
+            inputs:
+              - "装箱数据、唛头、品名与 VGM"
+            outputs:
+              - "校验通过的 SI（年约 35 万份自动处理）"
+            description: "客户在线提交 SI 与 VGM，AI 智慧单证自动校验、纠错与回填；2025 年自动处理约 35 万份装运指示。（来源：X 2025 年报）"
+            order: 1
+            pain_points:
+              - severity: "medium"
+                description: "非结构化 / 手工 SI 仍需人工复核，错误退单引发返工"
+                impact: "单证人工复核占比高，35 万份自动处理的效率红利未完全释放"
+                root_cause: "智慧单证覆盖主流格式，长尾字段与多语言品名识别仍依赖人工"
+          - name: "提单签发（eBL / 纸质）"
+            role: "单证团队 + IQAX 数字贸易"
+            system: "IQAX eBL / GSBN 区块链 / 提单系统"
+            inputs:
+              - "校验后的 SI 与贸易条款"
+            outputs:
+              - "电子提单（eBL）或纸质提单"
+            description: "签发提单；IQAX eBL 于 2024.12 获国际保赔协会（IG P&I）互操作批准，2026.06 启动 LCL eBL 试点并推出 IQAX One 平台。（来源：IQAX 新闻稿 / X 2025 年报）"
+            order: 2
+            pain_points:
+              - severity: "high"
+                description: "eBL 渗透率未披露且仍处拐点期，纸质提单流转慢、互操作标准不统一"
+                impact: "无纸化红利（KPI 目标 eBL 30%+）兑现缓慢，融资与放货环节仍依赖纸质"
+                root_cause: "跨境银行/收货人数字化接受度参差，跨平台互操作标准仍在建立"
+      - name: "支付与结算"
+        description: "在线支付运费与附加费、开具电子发票，支持账期客户结算，D&D 费用透明化。"
+        order: 6
+        type: "process"
+        l2_processes:
+          - name: "在线支付与发票"
+            role: "SME 货主（客户）"
+            system: "支付系统 / 发票模块（官网订舱门户）"
+            inputs:
+              - "运费账单与附加费明细"
+            outputs:
+              - "支付凭证与电子发票"
+            description: "客户在订舱门户在线查看发票、付款并管理 D&D 费用，支持报表与对账。（来源：X 官网 MOC 产品页）"
+            order: 1
+            pain_points:
+              - severity: "medium"
+                description: "多币种支付与 SME 小额高频结算存在汇率与手续费摩擦"
+                impact: "跨境支付成本与结算周期影响 SME 现金流体验"
+                root_cause: "支付通道覆盖有限，南美等新市场缺乏本地化收付款渠道"
+          - name: "账期与对账管理"
+            role: "财务 / 结算团队"
+            system: "结算系统 / 集团 ERP"
+            inputs:
+              - "支付记录与合同账期"
+            outputs:
+              - "对账单与账期核销"
+            description: "财务按客户信用等级管理账期并月度对账。"
+            order: 2
+            pain_points:
+              - severity: "low"
+                description: "电商 / 货代 EDI 渠道账单口径不一，对账需人工合并"
+                impact: "财务对账人力成本高，SME 账单理解成本上升"
+                root_cause: "电商订单与货代 EDI 订单在结算系统内未完全统一"
+      - name: "提箱装箱·陆运·清关"
+        description: "客户提箱装箱，通过 E-Trucking / Door Haulage（2022.06）全程陆运衔接，E-Customs（2023.01）完成出口清关，实现端到端履约。"
+        order: 7
+        type: "parallel"
+        l2_processes:
+          - name: "提箱装箱与陆运订舱"
+            role: "客户 + 拖车承运商"
+            system: "E-Trucking / Door Haulage（2022.06）"
+            inputs:
+              - "放箱指令与装箱计划"
+            outputs:
+              - "重箱进场（进港 / 进码头）"
+            description: "客户提空箱装箱，通过陆运网络安排拖车，支持门到门（Door Haulage）全程运输。（来源：独立电商平台官网）"
+            order: 1
+            pain_points:
+              - severity: "high"
+                description: "内陆拖车资源紧张（旺季尤甚），陆运与船期衔接断点导致误船 / 赶船"
+                impact: "误船改配产生额外成本，Door Haulage 端到端承诺兑现率承压"
+                root_cause: "内陆运力资源池有限，拖车调度缺乏 AI 动态路由优化"
+          - name: "出口清关（E-Customs）"
+            role: "客户 / 报关行 + E-Customs 平台"
+            system: "E-Customs（2023.01）/ 海关申报系统"
+            inputs:
+              - "报关单、装箱单、发票与许可证"
+            outputs:
+              - "海关放行 / 查验结果"
+            description: "E-Customs 提供清关增值服务，支持在线申报与状态跟踪。（来源：独立电商平台官网）"
+            order: 2
+            pain_points:
+              - severity: "critical"
+                description: "出口国监管政策多变（美国关税 / 301 调查、欧盟 ETS 等），清关异常导致扣货延误"
+                impact: "清关延误推高全程时效波动，端到端 SLA 承诺难兑现，SME 对不确定性敏感"
+                root_cause: "合规规则未数字化沉淀，异常清关依赖人工介入（行业存在数据孤岛）"
+      - name: "出运跟踪"
+        description: "控制塔（Control Tower，2022.09）提供全订单可视化，Cargo Tracking+（2022.12）精细追踪，2026.07 上线新版 Cargo Tracking 体验。"
+        order: 8
+        type: "process"
+        l2_processes:
+          - name: "控制塔全订单可视化"
+            role: "SME 货主 / 客服"
+            system: "Control Tower（2022.09）/ Cargo Tracking+（2022.12）"
+            inputs:
+              - "船舶动态、箱动态与订舱单证数据"
+            outputs:
+              - "全订单可视化看板与里程碑状态"
+            description: "客户通过控制塔查看订舱、单证与运输全流程状态，跟踪 ETA 与箱况。（来源：独立电商平台官网）"
+            order: 1
+            pain_points:
+              - severity: "high"
+                description: "跟踪粒度受码头 / 船司数据源限制，部分节点更新延迟"
+                impact: "直客 SME 高频咨询货到哪了，客服查询量高企"
+                root_cause: "数据依赖外部港口 / 码头接口，实时性受制于外部系统"
+          - name: "异常预警与处置"
+            role: "控制塔运营团队 + 客服"
+            system: "控制塔异常管理 / AI 预警 / Delay in Transit（2025.12）"
+            inputs:
+              - "实时船箱数据与港口拥堵信息"
+            outputs:
+              - "异常告警与处置方案（改配 / 延保 / 赔付）"
+            description: "识别延误、转船等异常并向客户推送，提供迟延转运保障产品。（来源：独立电商平台官网）"
+            order: 2
+            pain_points:
+              - severity: "critical"
+                description: "异常预警以事后通知为主，ETA 延误预测能力不足 [推断]"
+                impact: "客户收到通知时已错过应对窗口，下游备货 / 生产计划被打乱，赔付上升"
+                root_cause: "控制塔偏可视化而非可预测，缺 AI 延误概率预测模型"
+      - name: "到港交付与放货"
+        description: "到港通知与 D&D 管理（免箱期 / 滞箱费），eBL 放货与目的港提货，LCL eBL 试点向中小客户渗透。"
+        order: 9
+        type: "process"
+        l2_processes:
+          - name: "到港通知与 D&D 管理"
+            role: "SME 货主 / 收货人"
+            system: "D&D 计算器 / 到港通知（官网订舱门户）"
+            inputs:
+              - "到港 ETA、免箱期与滞箱费规则"
+            outputs:
+              - "D&D 费用预估与到港通知"
+            description: "客户使用 D&D 计算器预估滞箱费并管理免箱期窗口。（来源：X 官网 MOC 产品页）"
+            order: 1
+            pain_points:
+              - severity: "medium"
+                description: "免箱期与 D&D 计费规则复杂，SME 对费用明细理解困难、争议频发"
+                impact: "D&D 争议投诉影响结算体验与满意度"
+                root_cause: "各目的港免箱期政策不一，费用说明未前置到订舱环节"
+          - name: "eBL 放货与提货"
+            role: "收货人 / 目的港代理 + IQAX"
+            system: "IQAX eBL / 目的港码头系统"
+            inputs:
+              - "到港通知与正本 eBL / 纸质提单"
+            outputs:
+              - "放货指令与提货完成"
+            description: "收货人凭 eBL 完成放货提货；IQAX 联合天津振华、EZShipping 启动高量 LCL eBL 试点（2026.06）。（来源：IQAX 新闻稿）"
+            order: 2
+            pain_points:
+              - severity: "high"
+                description: "收货人未接入 eBL 体系时退回纸质流程，正本流转慢产生额外 D&D"
+                impact: "无纸化收益在目的港端断裂，提货时效与费用风险并存"
+                root_cause: "eBL 采纳依赖贸易链全节点数字化，收货人侧数字化渗透不足"
+      - name: "售后与会员运营"
+        description: "PlumSmart 会员计划（2021.07）分层运营、AI 客服承接 150 万+ 互动（2025 年），售后处理与复购管理。"
+        order: 10
+        type: "process"
+        l2_processes:
+          - name: "会员计划与专属权益"
+            role: "电商运营"
+            system: "PlumSmart 会员系统 / CRM"
+            inputs:
+              - "交易数据与会员等级规则"
+            outputs:
+              - "会员等级与 E-Spot 专属特权"
+            description: "PlumSmart 多等级会员体系，提供 E-Spot 专属特权与会员运营。（来源：独立电商平台官网）"
+            order: 1
+            pain_points:
+              - severity: "medium"
+                description: "会员权益对 SME 感知度有限，等级晋升路径复杂导致活跃度低"
+                impact: "会员复购与黏性不足，PlumSmart 仍处 modest start 阶段（五周年官方口径）"
+                root_cause: "权益设计偏向运价折扣，缺对 SME 刚需（舱位优先、专属客服通道）的强绑定"
+          - name: "售后处理与 AI 客服"
+            role: "AI 客服（Ask Fin）+ 人工客服"
+            system: "AI 聊天机器人（2025 年 150 万+ 互动，同比 +43%）/ 客服工单系统"
+            inputs:
+              - "客户咨询、投诉与异常单"
+            outputs:
+              - "解决方案与工单闭环"
+            description: "AI 客服承接询价、订舱、跟踪等问答，复杂问题转人工处理。（来源：X 2025 年报）"
+            order: 2
+            pain_points:
+              - severity: "medium"
+                description: "AI 问答对复杂多单 / 多单证场景处理有限，需转人工，分流率占比未披露"
+                impact: "人工客服成本仍高，AI 分流率未达 30%+ 目标（KPI 4）"
+                root_cause: "AI 知识库未完全打通订舱 / 单证实时状态，复杂场景缺少 Agent 化执行能力"
+
+  - name: "增值服务与会员运营价值流"
+    description: "在基础订舱之上叠加陆运、清关、绿色、免箱期等增值服务，并通过会员、促销、智能客服与绿色品牌运营驱动复购与留存。"
+    business_type: "端到端增值服务业务"
+    stages:
+      - name: "增值服务选购"
+        description: "客户在订舱流程内选购陆运、清关、绿色、免箱期等增值服务并集成到报价单。"
+        order: 1
+        type: "process"
+        l2_processes:
+          - name: "增值服务组合选购"
+            role: "SME 货主（客户）"
+            system: "独立电商平台增值服务商城"
+            inputs:
+              - "基础运价与服务选项（额外免箱期 / 清关 / 绿色）"
+            outputs:
+              - "含增值服务的总报价（Smart Combo 组合优惠）"
+            description: "客户按需组合 Door Haulage、E-Customs、额外免箱期（2021.10）、X Green（2024.12）等服务，Smart Combo（2025.03）打包优惠。（来源：独立电商平台官网）"
+            order: 1
+            pain_points:
+              - severity: "low"
+                description: "增值服务价格与条款说明分散，SME 组合测算耗时"
+                impact: "增值服务渗透率（尤其绿色服务）低于预期 [推断]"
+                root_cause: "服务说明缺乏场景化推荐，未嵌入 AI 需求识别"
+          - name: "服务履约与结算"
+            role: "增值服务运营 / 供应商"
+            system: "服务履约系统 / E-Trucking（2022.08）"
+            inputs:
+              - "服务订单与供应商资源"
+            outputs:
+              - "服务完成记录与结算"
+            description: "协调拖车、清关、仓配等第三方资源完成履约并结算。"
+            order: 2
+            pain_points:
+              - severity: "high"
+                description: "增值服务由多家供应商协同，履约 SLA 不统一导致体验波动"
+                impact: "端到端承诺（Concierge 管家服务 2025.05）兑现不稳定，影响高端服务溢价"
+                root_cause: "供应商管理与 SLA 数字化程度不足"
+      - name: "会员计划运营"
+        description: "PlumSmart 分层会员体系，通过积分、等级与 E-Spot 专属特权运营客户黏性。"
+        order: 2
+        type: "process"
+        l2_processes:
+          - name: "等级与积分运营"
+            role: "电商运营"
+            system: "PlumSmart 会员系统 / CRM"
+            inputs:
+              - "订舱频次、货量与服务组合"
+            outputs:
+              - "等级升降与积分发放"
+            description: "按订舱量与频次驱动等级成长，发放积分与专属优惠。（来源：独立电商平台官网）"
+            order: 1
+            pain_points:
+              - severity: "medium"
+                description: "等级晋升规则复杂，SME 小单客户难以升级"
+                impact: "长尾客户权益获取感弱，会员计划复购拉动有限"
+                root_cause: "等级规则偏重总量而非频次 / 黏性设计"
+          - name: "E-Spot 专属特权"
+            role: "电商运营 + 收益管理"
+            system: "独立电商平台权益引擎"
+            inputs:
+              - "会员等级与舱位资源"
+            outputs:
+              - "专属报价 / 优先供柜权益"
+            description: "高等级会员获得 E-Spot 专属报价与优先供柜权益。"
+            order: 2
+            pain_points:
+              - severity: "low"
+                description: "专属权益与公开闪购价差异不大时吸引力弱 [推断]"
+                impact: "高等级会员黏性激励不足"
+                root_cause: "权益差异化空间受运价透明度约束"
+      - name: "促销与营销触达"
+        description: "E-Spot 闪购、Promo Code、Smart Combo 等促销活动，通过微信小程序与邮件多渠道触达。"
+        order: 3
+        type: "process"
+        l2_processes:
+          - name: "闪购与促销活动"
+            role: "数字营销团队"
+            system: "促销引擎 / 营销自动化"
+            inputs:
+              - "舱位余量与活动预算"
+            outputs:
+              - "E-Spot Flash Sale 活动与兑换码"
+            description: "Promo Code 2024.09 上线，2026 年起 E-Spot Flash Sale 常态化，配合 Smart Combo 组合优惠。（来源：独立电商平台官网）"
+            order: 1
+            pain_points:
+              - severity: "medium"
+                description: "促销依赖舱位余量放量，SME 对能否抢到舱位存在信任疑虑"
+                impact: "促销拉新效果受舱位兑现瓶颈限制"
+                root_cause: "促销与舱位保证未强耦合，信任承诺未产品化"
+          - name: "多渠道触达与召回"
+            role: "数字营销 + 微信小程序运营"
+            system: "微信小程序（2024.08）/ 邮件 / 消息推送"
+            inputs:
+              - "客户标签与行为数据"
+            outputs:
+              - "个性化推荐与召回触达"
+            description: "AI 产品推荐（2024.11）基于行为数据做个性化推荐，微信小程序覆盖中国内地及港澳。（来源：独立电商平台官网）"
+            order: 2
+            pain_points:
+              - severity: "medium"
+                description: "多语言 / 多地区触达成本高，南美新市场本地化运营刚起步 [推断]"
+                impact: "新区域客户培育慢，营销 ROI 承压"
+                root_cause: "缺乏区域化营销中台与本地化内容能力"
+      - name: "智能客服支持"
+        description: "Ask Fin 智能客服（2023.01/2023.11）与 AI 产品推荐支撑全渠道咨询，2025 年互动超 150 万次。"
+        order: 4
+        type: "process"
+        l2_processes:
+          - name: "AI 智能问答"
+            role: "AI 客服（Ask Fin / 小飞 Fin）"
+            system: "AI 聊天机器人（2023.01 / 2023.11）"
+            inputs:
+              - "知识库与订单 / 船期数据"
+            outputs:
+              - "即时答案（2025 年 150 万+ 互动，同比 +43%）"
+            description: "7x24 覆盖询价、订舱、跟踪等场景，移动 App 全量改版后含全天候聊天机器人支持。（来源：X 2025 年报）"
+            order: 1
+            pain_points:
+              - severity: "low"
+                description: "高峰期复杂查询需人工兜底，AI 会话转人工率未披露"
+                impact: "人工兜底占比决定成本优化空间（KPI 4 目标 AI 分流率 30%+）"
+                root_cause: "复杂意图识别与多轮任务执行能力待增强"
+          - name: "智能推荐与导流"
+            role: "AI 推荐引擎"
+            system: "AI 产品推荐（2024.11）/ Nearby Route Suggestions（2025.05）"
+            inputs:
+              - "客户偏好、航线网络与舱位状态"
+            outputs:
+              - "附近航线建议 / 增值服务推荐"
+            description: "基于位置的附近航线建议与个性化产品推荐，向增值服务导流。（来源：独立电商平台官网）"
+            order: 2
+            pain_points:
+              - severity: "low"
+                description: "推荐到报价 / 下单闭环衔接仍靠人工点击跳转 [推断]"
+                impact: "推荐转化率未完全释放"
+                root_cause: "推荐引擎与订舱引擎未深度集成"
+      - name: "复购与口碑留存"
+        description: "复购激励、客户满意度管理与绿色品牌（X Green / 甲醇船队）及联盟生态背书驱动留存。"
+        order: 5
+        type: "process"
+        l2_processes:
+          - name: "复购激励与忠诚计划"
+            role: "电商运营 + 销售"
+            system: "CRM / 营销自动化"
+            inputs:
+              - "复购周期与流失预警数据"
+            outputs:
+              - "复购优惠与挽回动作"
+            description: "基于流失风险分层的复购激励与客户挽回运营。"
+            order: 1
+            pain_points:
+              - severity: "high"
+                description: "SME 客户流失率与 NPS 未披露，复购主要依赖价格敏感驱动"
+                impact: "客户生命周期价值提升慢，获客成本摊薄不足"
+                root_cause: "缺乏复购预测与忠诚机制，服务差异化（舱位优先）未定价"
+          - name: "绿色品牌与生态背书"
+            role: "品牌市场 + 绿色业务"
+            system: "X Green（2024.12）/ 移动App 碳排放计算 / 海洋联盟"
+            inputs:
+              - "甲醇双燃料船队运力与碳数据"
+            outputs:
+              - "绿色服务产品与 ESG 报告"
+            description: "X Green 绿色服务与移动 App 碳排放计算工具，结合甲醇双燃料船队（X Wisdom 2026.07 首航）与海洋联盟延至 2032 年生态背书。（来源：独立电商平台官网 / X 新闻中心）"
+            order: 2
+            pain_points:
+              - severity: "low"
+                description: "绿色服务付费意愿集中在外贸合规敏感客户，SME 普及率有限 [推断]"
+                impact: "绿色溢价变现周期长"
+                root_cause: "欧盟 ETS 等合规成本尚未转化为客户可感知价值"

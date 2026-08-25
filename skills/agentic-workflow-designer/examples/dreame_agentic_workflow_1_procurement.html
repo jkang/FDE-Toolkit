@@ -1,0 +1,1116 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>采购订单自动生成 · Agentic 工作流设计</title>
+<script src="https://cdn.jsdelivr.net/npm/plantuml-encoder@1.4.0/dist/plantuml-encoder.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/svg-pan-zoom@3.6.1/dist/svg-pan-zoom.min.js"></script>
+<style>
+:root {
+    --color-primary: #10213E;
+    --color-accent: #5DB2E2;
+    --color-secondary: #625D9C;
+    --color-success: #00524C;
+    --color-info: #6FB1C8;
+    --color-warning: #F59E0B;
+    --color-destructive: #EF4444;
+    --color-background: #FFFFFF;
+    --color-bg-alt: #F5F5F6;
+    --color-foreground: #10213E;
+    --color-text-muted: #64748B;
+    --color-border: #E2E8F0;
+    --shadow-sm: 0 2px 8px rgba(16, 33, 62, 0.08);
+    --shadow-md: 0 4px 16px rgba(16, 33, 62, 0.12);
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --font-family: "MiSans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans SC", "PingFang SC", Arial, sans-serif;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+    font-family: var(--font-family);
+    background: var(--color-bg-alt);
+    color: var(--color-foreground);
+    line-height: 1.6;
+}
+.wrap { width: 85%; max-width: 1440px; margin: 0 auto; padding: 32px 0 64px; }
+
+/* ===== Header ===== */
+.site-header {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 20px 0 16px; border-bottom: 1px solid var(--color-border);
+    margin-bottom: 28px;
+}
+.site-header .left h1 { font-size: 28px; font-weight: 600; color: var(--color-primary); letter-spacing: -0.02em; }
+.site-header .left .sub { font-size: 13px; color: var(--color-text-muted); margin-top: 4px; }
+.site-header .right { text-align: right; font-size: 12px; color: var(--color-text-muted); }
+.site-header .right .gen { text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; }
+
+/* ===== Cards ===== */
+.card {
+    background: var(--color-background);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    padding: 24px;
+    margin-bottom: 24px;
+}
+.section-title {
+    font-size: 18px; font-weight: 600; color: var(--color-primary);
+    margin-bottom: 14px; display: flex; align-items: center; gap: 8px;
+}
+.section-title .tag { font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-accent); font-weight: 700; }
+
+/* ===== 场景概览 ===== */
+.arch-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--color-primary); color: #fff;
+    padding: 6px 14px; border-radius: 6px; font-size: 13px; font-weight: 600;
+    margin-bottom: 12px;
+}
+.principles { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+.principles .chip {
+    background: var(--color-bg-alt); border: 1px solid var(--color-border);
+    border-radius: 20px; padding: 4px 12px; font-size: 12px; color: var(--color-foreground);
+}
+.kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+.kpi-card {
+    border: 1px solid var(--color-border); border-radius: var(--radius-md);
+    padding: 16px; background: var(--color-background);
+}
+.kpi-card .kpi-name { font-size: 14px; font-weight: 600; color: var(--color-primary); margin-bottom: 4px; }
+.kpi-card .kpi-metric { font-size: 12px; color: var(--color-text-muted); margin-bottom: 10px; }
+.kpi-card .kpi-flow { display: flex; align-items: center; gap: 10px; font-size: 13px; font-weight: 600; }
+.kpi-card .baseline { color: var(--color-text-muted); text-decoration: line-through; }
+.kpi-card .arrow { color: var(--color-accent); }
+.kpi-card .target { color: var(--color-success); }
+.kpi-card .linked { margin-top: 10px; font-size: 11px; color: var(--color-text-muted); }
+.kpi-card .linked b { color: var(--color-secondary); }
+
+/* ===== Tab 导航 ===== */
+.tab-nav { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; }
+.tab-btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    border: 1px solid var(--color-border); background: var(--color-background);
+    border-radius: 8px; padding: 10px 18px; font-size: 14px; font-weight: 600;
+    color: var(--color-foreground); cursor: pointer;
+    transition: all 0.15s ease-out;
+}
+.tab-btn:hover { border-color: var(--color-primary); color: var(--color-primary); }
+.tab-btn.active { background: var(--color-primary); color: #fff; border-color: var(--color-primary); }
+.tab-btn .type-badge {
+    font-size: 11px; padding: 2px 8px; border-radius: 10px;
+    background: var(--color-bg-alt); color: var(--color-text-muted); font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.03em;
+}
+.tab-btn.active .type-badge { background: rgba(255,255,255,0.18); color: #fff; }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* ===== 能力头卡 ===== */
+.cap-header { display: grid; grid-template-columns: 1fr 1.2fr; gap: 24px; }
+.cap-header .block { padding: 14px; background: var(--color-bg-alt); border-radius: var(--radius-md); }
+.cap-header .block .lbl { font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; color: var(--color-accent); margin-bottom: 6px; }
+.cap-header .block .val { font-size: 13px; color: var(--color-foreground); }
+.cap-header .goal-card { border-left: 4px solid var(--color-accent); }
+.cap-header .goal-card .lbl { color: var(--color-success); }
+.type-pill {
+    display: inline-block; font-size: 11px; font-weight: 700; padding: 2px 10px;
+    border-radius: 10px; text-transform: uppercase; letter-spacing: 0.04em;
+    vertical-align: middle; margin-left: 6px;
+}
+.type-perception   { background: #DBEAFE; color: #1E40AF; }
+.type-reasoning    { background: #EDE9FE; color: #5B21B6; }
+.type-generation   { background: #E0F2FE; color: #075985; }
+.type-decision     { background: #FEF3C7; color: #92400E; }
+.type-automation   { background: #D1FAE5; color: #065F46; }
+
+/* ===== Agentic 设计卡 ===== */
+.agent-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 8px; }
+.agent-table th { text-align: left; padding: 8px 10px; background: var(--color-primary); color: #fff; font-size: 12px; letter-spacing: 0.03em; }
+.agent-table td { padding: 8px 10px; border-bottom: 1px solid var(--color-border); vertical-align: top; }
+.agent-table tr:nth-child(even) td { background: var(--color-bg-alt); }
+.agent-table .tools { font-size: 12px; color: var(--color-secondary); }
+.pattern-badge {
+    display: inline-block; background: var(--color-secondary); color: #fff;
+    font-size: 12px; font-weight: 700; padding: 4px 12px; border-radius: 4px;
+    text-transform: uppercase; letter-spacing: 0.04em; margin-right: 8px;
+}
+.why-box { margin-top: 12px; padding: 12px 14px; background: var(--color-bg-alt); border-radius: var(--radius-md); font-size: 13px; border-left: 3px solid var(--color-secondary); }
+.why-box .kpi-link { color: var(--color-success); font-weight: 600; }
+
+/* ===== PlantUML 渲染区 ===== */
+.diagram-head { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 12px; }
+.diagram-actions { display: flex; gap: 8px; }
+.btn {
+    padding: 6px 14px; border-radius: 6px; font-size: 13px; font-weight: 600;
+    border: 1px solid var(--color-border); background: #fff; color: var(--color-foreground);
+    cursor: pointer; transition: all 0.15s ease-out;
+    display: inline-flex; align-items: center; gap: 6px;
+}
+.btn:hover { background: var(--color-bg-alt); border-color: var(--color-primary); color: var(--color-primary); }
+.btn-primary { background: var(--color-primary); color: #fff; border-color: var(--color-primary); }
+.btn-primary:hover { opacity: 0.9; color: #fff; }
+.diagram-wrapper {
+    border: 1px solid var(--color-border); border-radius: var(--radius-md);
+    background: #fff; padding: 16px; min-height: 420px;
+    display: flex; justify-content: center; align-items: flex-start;
+    overflow: auto; position: relative;
+}
+.diagram-wrapper svg { max-width: 100%; height: auto; }
+.render-state { font-size: 12px; color: var(--color-text-muted); }
+.render-error {
+    width: 100%; text-align: center; color: var(--color-destructive);
+    padding: 40px 16px; font-size: 14px;
+}
+.render-error pre { text-align: left; margin-top: 12px; padding: 12px; background: var(--color-bg-alt); border-radius: 6px; overflow: auto; font-size: 12px; color: var(--color-text-muted); white-space: pre-wrap; }
+
+/* 高亮图例 */
+.legend-bar { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
+.legend-item {
+    display: inline-flex; align-items: center; gap: 8px;
+    border: 1px solid var(--color-border); border-radius: 8px; padding: 6px 12px;
+    background: var(--color-background); font-size: 12px;
+}
+.legend-item .swatch { width: 16px; height: 16px; border-radius: 4px; border: 1px solid rgba(16,33,62,0.15); }
+.legend-item .kpi-reason { color: var(--color-text-muted); }
+
+/* ===== 护栏 / 失败处理 ===== */
+.guard-list { list-style: none; }
+.guard-list li { padding: 8px 12px; padding-left: 32px; position: relative; font-size: 13px; border-bottom: 1px dashed var(--color-border); }
+.guard-list li:last-child { border-bottom: none; }
+.guard-list li::before {
+    content: "⚠"; position: absolute; left: 8px; top: 7px;
+    font-size: 14px; color: var(--color-warning);
+}
+.failure-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.failure-table th { text-align: left; padding: 8px 10px; background: var(--color-primary); color: #fff; font-size: 12px; }
+.failure-table td { padding: 8px 10px; border-bottom: 1px solid var(--color-border); }
+.failure-table tr:nth-child(even) td { background: var(--color-bg-alt); }
+.type-tag { font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 10px; background: #FFEDD5; color: #9A3412; }
+
+/* ===== PUML 源码 ===== */
+.src-block { margin-top: 14px; }
+.src-toggle { font-size: 12px; color: var(--color-accent); cursor: pointer; user-select: none; text-decoration: underline; }
+.src-pre {
+    display: none; margin-top: 8px; background: var(--color-primary); color: #E2E8F0;
+    padding: 16px; border-radius: var(--radius-md); font-family: "Fira Code", Menlo, monospace;
+    font-size: 12px; overflow: auto; white-space: pre; max-height: 360px;
+}
+.src-pre.show { display: block; }
+
+/* ===== 双列布局 ===== */
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+@media (max-width: 1024px) { .two-col, .cap-header { grid-template-columns: 1fr; } }
+
+/* ===== KPI 矩阵 ===== */
+.matrix-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.matrix-table th { padding: 10px; text-align: center; background: var(--color-primary); color: #fff; font-size: 12px; }
+.matrix-table th:first-child { text-align: left; }
+.matrix-table td { padding: 8px 10px; text-align: center; border-bottom: 1px solid var(--color-border); }
+.matrix-table tr:nth-child(even) td { background: var(--color-bg-alt); }
+.matrix-table .cap-name { text-align: left; font-weight: 600; }
+.matrix-table .dot { color: var(--color-success); font-size: 16px; }
+.matrix-table .dash { color: var(--color-border); font-size: 14px; }
+
+.footer-note { margin-top: 24px; text-align: center; color: var(--color-text-muted); font-size: 12px; text-transform: uppercase; letter-spacing: 0.1em; }
+
+/* Toast */
+.toast {
+    position: fixed; bottom: 24px; right: 24px; background: var(--color-success); color: #fff;
+    padding: 10px 20px; border-radius: 6px; font-size: 13px; font-weight: 600;
+    display: none; z-index: 1000; box-shadow: var(--shadow-md);
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+    <!-- ===== Header ===== -->
+    <header class="site-header">
+        <div class="left">
+            <h1>采购订单自动生成 · Agentic 工作流设计</h1>
+            <div class="sub">采购订单自动生成 · 输入源：To-be旅程: dreame_to_be_1_procurement.yaml</div>
+        </div>
+        <div class="right">
+            <div class="gen">Generated by agentic-workflow-designer</div>
+            <div>2026-08-21 23:26:01</div>
+        </div>
+    </header>
+
+    <!-- ===== 场景概览 ===== -->
+    <section class="card">
+        <div class="arch-badge">⚙ 总体架构 · Orchestrator-Worker 并行编排 + 人工审批门禁（HITL）</div>
+        <div class="section-title">目标 KPI <span class="tag">scenarioKpis</span></div>
+        <div class="kpi-grid">
+            
+            <div class="kpi-card">
+                <div class="kpi-name">订单处理时效</div>
+                <div class="kpi-metric">端到端时长（缺料提出 → 订单下发）</div>
+                <div class="kpi-flow">
+                    <span class="baseline">2 天</span>
+                    <span class="arrow">→</span>
+                    <span class="target">2 小时</span>
+                </div>
+                
+                <div class="linked">支撑能力：<b>cap_01、cap_02、cap_03</b></div>
+                
+            </div>
+            
+            <div class="kpi-card">
+                <div class="kpi-name">人工录入与审批工作量</div>
+                <div class="kpi-metric">人工耗时</div>
+                <div class="kpi-flow">
+                    <span class="baseline">录入 30min/张 + 审批 1 天/张</span>
+                    <span class="arrow">→</span>
+                    <span class="target">录入 2min/张 + 审批 2h/张</span>
+                </div>
+                
+                <div class="linked">支撑能力：<b>cap_01、cap_03</b></div>
+                
+            </div>
+            
+            <div class="kpi-card">
+                <div class="kpi-name">采购异常拦截率</div>
+                <div class="kpi-metric">异常识别覆盖率</div>
+                <div class="kpi-flow">
+                    <span class="baseline">异常漏检率高（依赖人工核对）</span>
+                    <span class="arrow">→</span>
+                    <span class="target">价格/交期异常 100% 显性拦截</span>
+                </div>
+                
+                <div class="linked">支撑能力：<b>cap_02、cap_03</b></div>
+                
+            </div>
+            
+        </div>
+        <div class="section-title" style="margin-top:20px;">全局设计原则 <span class="tag">designPrinciples</span></div>
+        <div class="principles">
+            <span class="chip">LLM 只做判断与生成，事实性计算一律交给确定性工具/服务（净需求、评分、校验）</span><span class="chip">任何写操作（下单/下发/同步 ERP）必须人工审批放行，禁止静默通过</span><span class="chip">高亮段只标注 KPI 决定性路径，避免全图铺色失去重点</span>
+        </div>
+    </section>
+
+    <!-- ===== 能力 Tab ===== -->
+    <nav class="tab-nav">
+        
+        <button class="tab-btn" data-cap="cap_01" onclick="switchTab('cap_01')">
+            智能单据解析
+            <span class="type-badge">perception</span>
+        </button>
+        
+        <button class="tab-btn" data-cap="cap_02" onclick="switchTab('cap_02')">
+            智能需求计算与选商
+            <span class="type-badge">reasoning</span>
+        </button>
+        
+        <button class="tab-btn" data-cap="cap_03" onclick="switchTab('cap_03')">
+            订单生成·审批·下发
+            <span class="type-badge">decision</span>
+        </button>
+        
+    </nav>
+
+    <!-- ===== 能力面板 ===== -->
+    
+    <section class="tab-panel card" id="panel-cap_01" data-cap="cap_01">
+        <!-- 能力头卡 -->
+        <div class="cap-header">
+            <div>
+                <div class="block">
+                    <div class="lbl">AI 能力 / 类型</div>
+                    <div class="val">
+                        <b>智能单据解析</b>
+                        <span class="type-pill type-perception">perception</span>
+                    </div>
+                </div>
+                <div class="block" style="margin-top:12px;">
+                    <div class="lbl">对齐 To-be 旅程</div>
+                    <div class="val">
+                        阶段：发起采购需求<br>
+                        行为：上传缺料申请单
+                    </div>
+                </div>
+            </div>
+            <div>
+                <div class="block">
+                    <div class="lbl">触发（输入）</div>
+                    <div class="val">
+                        <b>上传缺料申请单</b><br>
+                        输入数据：PR-2024-0812.xlsx（物料编码/需求数量/期望交期/紧急等级）<br>
+                        系统上下文：物料主数据 / 历史订单库
+                    </div>
+                </div>
+                <div class="block goal-card" style="margin-top:12px;">
+                    <div class="lbl">目标（输出 · KPI 影响）</div>
+                    <div class="val">
+                        输出：结构化需求单（3 条物料，含完整性校验状态）<br>
+                        <span class="kpi-link">KPI：录入耗时 30min→2min；字段漏填率 -90%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Agentic 架构摘要 -->
+        <div class="section-title" style="margin-top:24px;">Agentic 架构设计 <span class="tag">agenticDesign</span></div>
+        <div style="margin-bottom:8px;">
+            <span class="pattern-badge">orchestrator-worker</span>
+            <span style="font-size:13px;color:var(--color-text-muted);">编排模式</span>
+        </div>
+        <table class="agent-table">
+            <thead><tr><th>Agent / 工具</th><th>角色</th><th>模型</th><th>工具依赖</th><th>记忆</th></tr></thead>
+            <tbody>
+            
+                <tr>
+                    <td><b>解析编排 Agent</b></td>
+                    <td>拆解与调度、结果聚合、校验门禁</td>
+                    <td>多模态 LLM（表格理解）</td>
+                    <td class="tools">表格结构解析、主数据校验 API</td>
+                    <td>任务级上下文（当前单据）</td>
+                </tr>
+            
+            </tbody>
+        </table>
+        <div class="why-box">
+            <b>Why Pattern：</b>字段抽取与主数据校验无依赖可并行，编排者聚合子结果并做单点门禁<br>
+            <span class="kpi-link">🎯 KPI 对齐：并行校验把单张处理时延压至 2min；校验走确定性主数据服务，杜绝 LLM 幻觉产生错误物料编码</span>
+        </div>
+
+        <!-- PlantUML 活动序列图 -->
+        <div class="section-title" style="margin-top:24px;">活动序列图 <span class="tag">PlantUML · 输入→输出</span></div>
+        <div class="diagram-head">
+            <div class="render-state" id="state-cap_01">等待渲染…</div>
+            <div class="diagram-actions">
+                <button class="btn" onclick="resetZoom('cap_01')">重置缩放</button>
+                <button class="btn" onclick="downloadImage('cap_01')">下载图片</button>
+                <button class="btn btn-primary" onclick="copyPuml('cap_01')">复制 PUML</button>
+            </div>
+        </div>
+        <div class="diagram-wrapper" id="diagram-cap_01">
+            <div class="render-state">正在加载 PlantUML 渲染器…</div>
+        </div>
+
+        
+        <div class="legend-bar">
+            
+            <div class="legend-item">
+                <span class="swatch" style="background:#DBEAFE;"></span>
+                <span><b>并行解析+校验段</b></span>
+                <span class="kpi-reason">时延关键路径——并行化直接支撑 kpi1/kpi2（录入 30min→2min）</span>
+            </div>
+            
+        </div>
+        
+
+        <div class="src-block">
+            <span class="src-toggle" onclick="toggleSrc('cap_01')">查看 PlantUML 源码 ▼</span>
+            <pre class="src-pre" id="src-cap_01">@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam sequenceMessageAlign center
+
+skinparam maxMessageSize 220
+skinparam roundCorner 8
+
+actor "采购专员" as USER #E8F5E9
+participant "解析编排 Agent" as ORCH #DBEAFE
+participant "表格解析工具" as PARSER #F3E8FF
+participant "物料主数据服务" as MDS #F1F5F9
+
+autonumber
+
+== 触发：上传缺料申请单 ==
+USER -> ORCH : 上传缺料申请单\nPR-2024-0812.xlsx
+activate ORCH
+note right of ORCH
+  plan ｜ ReAct 拆解子任务
+  ①字段抽取  ②主数据校验（并行）
+end note
+
+== 关键路径：并行解析+校验（高亮） ==
+group 并行执行子任务 #DBEAFE
+  ORCH -> PARSER : 调用表格解析\n(编码/数量/交期/紧急等级)
+  activate PARSER
+  PARSER --> ORCH : 返回 3 条物料记录
+  deactivate PARSER
+  ORCH -> MDS : 批量校验编码/完整性
+  activate MDS
+  MDS --> ORCH : 2 通过 / 1 缺失交期
+  deactivate MDS
+end
+note over ORCH : 护栏 ｜ 未经验证编码禁止进入下游
+
+== 决策：交期缺失分支 ==
+alt 期望交期缺失 #FEF9C3
+  ORCH -> USER : 追问补录（标黄提醒）
+  USER --> ORCH : 补录交期
+else 字段完整 #ECFDF5
+  ORCH -> USER : 输出结构化需求单\n(3 条物料 + 校验状态)
+end
+
+deactivate ORCH
+@enduml</pre>
+        </div>
+
+        <!-- 护栏 + 失败处理 -->
+        <div class="two-col" style="margin-top:24px;">
+            <div>
+                <div class="section-title">护栏 <span class="tag">guardrails</span></div>
+                <ul class="guard-list">
+                    <li>识别结果未经主数据校验不得进入下游</li><li>物料编码以主数据服务为准，LLM 不直接产出编码</li><li>字段缺失必须追问补录，禁止静默跳过</li>
+                </ul>
+            </div>
+            <div>
+                <div class="section-title">失败处理 <span class="tag">failure</span></div>
+                <table class="failure-table">
+                    <thead><tr><th>触发</th><th>处理</th><th>类型</th></tr></thead>
+                    <tbody>
+                    
+                        <tr>
+                            <td>表格解析失败（图片模糊/格式异常）</td>
+                            <td>自动重试 1 次 → 仍失败转人工上传标准模板</td>
+                            <td><span class="type-tag">retry/fallback</span></td>
+                        </tr>
+                    
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+    
+    <section class="tab-panel card" id="panel-cap_02" data-cap="cap_02">
+        <!-- 能力头卡 -->
+        <div class="cap-header">
+            <div>
+                <div class="block">
+                    <div class="lbl">AI 能力 / 类型</div>
+                    <div class="val">
+                        <b>智能需求计算与选商</b>
+                        <span class="type-pill type-reasoning">reasoning</span>
+                    </div>
+                </div>
+                <div class="block" style="margin-top:12px;">
+                    <div class="lbl">对齐 To-be 旅程</div>
+                    <div class="val">
+                        阶段：智能需求计算与选商<br>
+                        行为：确认 AI 推荐的最优供应商
+                    </div>
+                </div>
+            </div>
+            <div>
+                <div class="block">
+                    <div class="lbl">触发（输入）</div>
+                    <div class="val">
+                        <b>确认 AI 推荐</b><br>
+                        输入数据：结构化需求单 + 生产计划 + 库存水位 + BOM 共用件映射<br>
+                        系统上下文：供应商池（近 90 天交付达成率）/ 历史成交价
+                    </div>
+                </div>
+                <div class="block goal-card" style="margin-top:12px;">
+                    <div class="lbl">目标（输出 · KPI 影响）</div>
+                    <div class="val">
+                        输出：Top 供应商推荐（附子分依据）+ 异常询价建议<br>
+                        <span class="kpi-link">KPI：选商耗时 2h→10min；价格异常 100% 前置识别</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Agentic 架构摘要 -->
+        <div class="section-title" style="margin-top:24px;">Agentic 架构设计 <span class="tag">agenticDesign</span></div>
+        <div style="margin-bottom:8px;">
+            <span class="pattern-badge">orchestrator-worker + guardrails-gated</span>
+            <span style="font-size:13px;color:var(--color-text-muted);">编排模式</span>
+        </div>
+        <table class="agent-table">
+            <thead><tr><th>Agent / 工具</th><th>角色</th><th>模型</th><th>工具依赖</th><th>记忆</th></tr></thead>
+            <tbody>
+            
+                <tr>
+                    <td><b>选商编排 Agent</b></td>
+                    <td>需求解析、调用计算与评分、结果组装</td>
+                    <td>LLM（指令理解与推荐解释）</td>
+                    <td class="tools">净需求计算引擎、供应商评分服务</td>
+                    <td>场景级上下文（需求单 + 历史成交价）</td>
+                </tr>
+            
+            </tbody>
+        </table>
+        <div class="why-box">
+            <b>Why Pattern：</b>净需求计算与供应商评分均为确定性服务，编排者负责解释推荐理由；评分结果过价格异常门禁再出推荐<br>
+            <span class="kpi-link">🎯 KPI 对齐：评分结果必须附子分依据供人复核，异常(±8%)置顶拦截，直接支撑 kpi3 异常拦截率 100%</span>
+        </div>
+
+        <!-- PlantUML 活动序列图 -->
+        <div class="section-title" style="margin-top:24px;">活动序列图 <span class="tag">PlantUML · 输入→输出</span></div>
+        <div class="diagram-head">
+            <div class="render-state" id="state-cap_02">等待渲染…</div>
+            <div class="diagram-actions">
+                <button class="btn" onclick="resetZoom('cap_02')">重置缩放</button>
+                <button class="btn" onclick="downloadImage('cap_02')">下载图片</button>
+                <button class="btn btn-primary" onclick="copyPuml('cap_02')">复制 PUML</button>
+            </div>
+        </div>
+        <div class="diagram-wrapper" id="diagram-cap_02">
+            <div class="render-state">正在加载 PlantUML 渲染器…</div>
+        </div>
+
+        
+        <div class="legend-bar">
+            
+            <div class="legend-item">
+                <span class="swatch" style="background:#DBEAFE;"></span>
+                <span><b>净需求计算+选商打分段</b></span>
+                <span class="kpi-reason">决策质量关键路径——确定性计算杜绝幻觉报价，支撑 kpi3 异常拦截</span>
+            </div>
+            
+        </div>
+        
+
+        <div class="src-block">
+            <span class="src-toggle" onclick="toggleSrc('cap_02')">查看 PlantUML 源码 ▼</span>
+            <pre class="src-pre" id="src-cap_02">@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam sequenceMessageAlign center
+
+skinparam maxMessageSize 220
+skinparam roundCorner 8
+
+actor "采购专员" as USER #E8F5E9
+participant "选商编排 Agent" as ORCH #DBEAFE
+participant "净需求计算引擎" as DEMAND #F3E8FF
+participant "供应商评分服务" as SCORE #F3E8FF
+participant "ERP/库存系统" as ERP #F1F5F9
+
+autonumber
+
+== 触发：确认 AI 推荐 ==
+ORCH -> ORCH : 接收结构化需求单
+note right of ORCH : plan ｜ 组装上下文\n(需求+库存+BOM+供应商池)
+
+== 关键路径：净需求计算 + 选商打分（高亮） ==
+group 智能计算与选商 #DBEAFE
+  ORCH -> ERP : 读取库存水位/生产计划
+  activate ERP
+  ERP --> ORCH : 电机库存 320 < 安全库存 500
+  deactivate ERP
+  ORCH -> DEMAND : 净需求计算\n(BOM 共用件映射)
+  activate DEMAND
+  DEMAND --> ORCH : 电机需采 180 件等
+  deactivate DEMAND
+  ORCH -> SCORE : 供应商加权打分\n(价格/交期/履约率)
+  activate SCORE
+  SCORE --> ORCH : 泰科 92 分(¥18.5/5天)\n华宇 86 分(¥17.9/9天)
+  deactivate SCORE
+end
+note over ORCH : 护栏 ｜ 推荐必须附子分依据\n价格偏离历史均价 ±8% 置顶异常
+
+== 决策：价格异常门禁 ==
+alt 价格异常(>±8%) #FEF9C3
+  ORCH -> USER : 询价单建议\n(发备选供应商)
+  USER --> ORCH : 确认生成询价单
+else 正常 #ECFDF5
+  ORCH -> USER : 展示 Top3 推荐卡\n(子分可展开)
+end
+@enduml</pre>
+        </div>
+
+        <!-- 护栏 + 失败处理 -->
+        <div class="two-col" style="margin-top:24px;">
+            <div>
+                <div class="section-title">护栏 <span class="tag">guardrails</span></div>
+                <ul class="guard-list">
+                    <li>供应商评分必须来自确定性评分服务，LLM 不得自行算分</li><li>价格偏离历史均价 ±8% 必须置顶异常，禁止隐藏</li>
+                </ul>
+            </div>
+            <div>
+                <div class="section-title">失败处理 <span class="tag">failure</span></div>
+                <table class="failure-table">
+                    <thead><tr><th>触发</th><th>处理</th><th>类型</th></tr></thead>
+                    <tbody>
+                    
+                        <tr>
+                            <td>供应商无历史成交记录</td>
+                            <td>展示行业均价兜底并标注置信度</td>
+                            <td><span class="type-tag">fallback</span></td>
+                        </tr>
+                    
+                        <tr>
+                            <td>ERP 接口超时</td>
+                            <td>重试 2 次 → 失败转人工录入库存水位</td>
+                            <td><span class="type-tag">retry/fallback</span></td>
+                        </tr>
+                    
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+    
+    <section class="tab-panel card" id="panel-cap_03" data-cap="cap_03">
+        <!-- 能力头卡 -->
+        <div class="cap-header">
+            <div>
+                <div class="block">
+                    <div class="lbl">AI 能力 / 类型</div>
+                    <div class="val">
+                        <b>订单生成·审批·下发</b>
+                        <span class="type-pill type-decision">decision</span>
+                    </div>
+                </div>
+                <div class="block" style="margin-top:12px;">
+                    <div class="lbl">对齐 To-be 旅程</div>
+                    <div class="val">
+                        阶段：订单生成与审批 / 下单与状态同步<br>
+                        行为：提交订单草稿进入审批 / 确认下发订单至供应商
+                    </div>
+                </div>
+            </div>
+            <div>
+                <div class="block">
+                    <div class="lbl">触发（输入）</div>
+                    <div class="val">
+                        <b>提交订单草稿</b><br>
+                        输入数据：推荐供应商 + 数量/交期/单价/付款条款<br>
+                        系统上下文：审批规则（金额权限/SLA）/ ERP 订单模板
+                    </div>
+                </div>
+                <div class="block goal-card" style="margin-top:12px;">
+                    <div class="lbl">目标（输出 · KPI 影响）</div>
+                    <div class="val">
+                        输出：已审批订单（电子签章）已下发 + ERP 状态同步<br>
+                        <span class="kpi-link">KPI：审批 1 天→2h；人工下单工作量 -70%；异常项 0 静默通过</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Agentic 架构摘要 -->
+        <div class="section-title" style="margin-top:24px;">Agentic 架构设计 <span class="tag">agenticDesign</span></div>
+        <div style="margin-bottom:8px;">
+            <span class="pattern-badge">pipeline + human-in-the-loop</span>
+            <span style="font-size:13px;color:var(--color-text-muted);">编排模式</span>
+        </div>
+        <table class="agent-table">
+            <thead><tr><th>Agent / 工具</th><th>角色</th><th>模型</th><th>工具依赖</th><th>记忆</th></tr></thead>
+            <tbody>
+            
+                <tr>
+                    <td><b>订单 Agent</b></td>
+                    <td>生成订单草稿、异常标注</td>
+                    <td>LLM（单据生成）</td>
+                    <td class="tools">订单模板渲染、异常识别服务</td>
+                    <td>任务级上下文（订单草稿）</td>
+                </tr>
+            
+                <tr>
+                    <td><b>审批编排 Agent</b></td>
+                    <td>审批流调度、写操作门禁、下发同步</td>
+                    <td>规则引擎 + LLM 审批建议</td>
+                    <td class="tools">SRM/ERP 下发 API、交期看板</td>
+                    <td>场景级上下文（审批单）</td>
+                </tr>
+            
+            </tbody>
+        </table>
+        <div class="why-box">
+            <b>Why Pattern：</b>从草稿生成到下发是同一完整输入输出流，中间 HITL 审批是门禁而非拆分点；线性管道 + 审批门禁最简洁可审计<br>
+            <span class="kpi-link">🎯 KPI 对齐：审批全自动预审 + 紧急单置顶，SLA 4h 内完成；写操作强制人工放行保住合规底线，支撑 kpi1/kpi2</span>
+        </div>
+
+        <!-- PlantUML 活动序列图 -->
+        <div class="section-title" style="margin-top:24px;">活动序列图 <span class="tag">PlantUML · 输入→输出</span></div>
+        <div class="diagram-head">
+            <div class="render-state" id="state-cap_03">等待渲染…</div>
+            <div class="diagram-actions">
+                <button class="btn" onclick="resetZoom('cap_03')">重置缩放</button>
+                <button class="btn" onclick="downloadImage('cap_03')">下载图片</button>
+                <button class="btn btn-primary" onclick="copyPuml('cap_03')">复制 PUML</button>
+            </div>
+        </div>
+        <div class="diagram-wrapper" id="diagram-cap_03">
+            <div class="render-state">正在加载 PlantUML 渲染器…</div>
+        </div>
+
+        
+        <div class="legend-bar">
+            
+            <div class="legend-item">
+                <span class="swatch" style="background:#FEF3C7;"></span>
+                <span><b>人工审批门禁段</b></span>
+                <span class="kpi-reason">合规/风险关键路径——写操作强制人工放行，异常 0 静默通过，支撑 kpi2/kpi3</span>
+            </div>
+            
+        </div>
+        
+
+        <div class="src-block">
+            <span class="src-toggle" onclick="toggleSrc('cap_03')">查看 PlantUML 源码 ▼</span>
+            <pre class="src-pre" id="src-cap_03">@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam sequenceMessageAlign center
+
+skinparam maxMessageSize 220
+skinparam roundCorner 8
+
+participant "订单 Agent" as ORDER #DBEAFE
+participant "异常识别服务" as ANOM #F3E8FF
+participant "审批编排 Agent" as APP #DBEAFE
+actor "采购经理" as MGR #E8F5E9
+participant "SRM/ERP 下发服务" as SYS #F1F5F9
+
+autonumber
+
+== 阶段一：订单生成与异常识别 ==
+ORDER -> ANOM : 生成订单草稿\n(数量/交期/单价/供应商)
+activate ANOM
+ANOM --> ORDER : 异常预警 1 项\n(密封圈价格超历史 12%)
+deactivate ANOM
+ORDER -> APP : 提交审批建议\n(一键通过/打回/转复核)
+
+== 关键路径：人工审批门禁（HITL 高亮） ==
+group 人工审批门禁 #FEF3C7
+  APP -> MGR : 审批待办\n(紧急单置顶/SLA 4h)
+  activate MGR
+  MGR -> APP : 审批通过 / 打回
+  deactivate MGR
+end
+note over APP : 护栏 ｜ 写操作必须人工放行\n异常项禁止静默通过
+
+== 决策：审批结果 ==
+alt 通过 #ECFDF5
+  APP -> SYS : 下发电子订单+同步 ERP
+  activate SYS
+  SYS --> APP : 状态:待供应商确认/在途
+  deactivate SYS
+  APP -> MGR : 交期风险看板提醒
+else 打回 #FEF9C3
+  APP -> ORDER : 回退修订并重新校验
+  ORDER -> APP : 修订完成再提交审批
+end
+@enduml</pre>
+        </div>
+
+        <!-- 护栏 + 失败处理 -->
+        <div class="two-col" style="margin-top:24px;">
+            <div>
+                <div class="section-title">护栏 <span class="tag">guardrails</span></div>
+                <ul class="guard-list">
+                    <li>订单生成后必须过异常识别服务，异常项显性标注</li><li>任何下单/下发/同步写操作必须人工审批通过后执行</li><li>紧急单（P0）自动置顶审批队列，不被普通单挤占</li>
+                </ul>
+            </div>
+            <div>
+                <div class="section-title">失败处理 <span class="tag">failure</span></div>
+                <table class="failure-table">
+                    <thead><tr><th>触发</th><th>处理</th><th>类型</th></tr></thead>
+                    <tbody>
+                    
+                        <tr>
+                            <td>供应商确认超时</td>
+                            <td>自动推送催办 + 交期冲突预警看板</td>
+                            <td><span class="type-tag">escalate</span></td>
+                        </tr>
+                    
+                        <tr>
+                            <td>ERP 同步失败</td>
+                            <td>重试 2 次 → 标记同步异常并通知 IT</td>
+                            <td><span class="type-tag">retry/escalate</span></td>
+                        </tr>
+                    
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+    
+
+    <!-- ===== KPI ↔ 能力矩阵 ===== -->
+    <section class="card">
+        <div class="section-title">KPI ↔ 能力支撑矩阵</div>
+        <table class="matrix-table">
+            <thead>
+                <tr>
+                    <th>AI 能力</th>
+                    <th>订单处理时效</th><th>人工录入与审批工作量</th><th>采购异常拦截率</th>
+                </tr>
+            </thead>
+            <tbody>
+            
+                <tr>
+                    <td class="cap-name">智能单据解析</td>
+                    
+                    <td><span class="dot">●</span></td>
+                    
+                    <td><span class="dot">●</span></td>
+                    
+                    <td><span class="dash">—</span></td>
+                    
+                </tr>
+            
+                <tr>
+                    <td class="cap-name">智能需求计算与选商</td>
+                    
+                    <td><span class="dot">●</span></td>
+                    
+                    <td><span class="dash">—</span></td>
+                    
+                    <td><span class="dot">●</span></td>
+                    
+                </tr>
+            
+                <tr>
+                    <td class="cap-name">订单生成·审批·下发</td>
+                    
+                    <td><span class="dot">●</span></td>
+                    
+                    <td><span class="dot">●</span></td>
+                    
+                    <td><span class="dot">●</span></td>
+                    
+                </tr>
+            
+            </tbody>
+        </table>
+    </section>
+
+    <div class="footer-note">Generated by agentic-workflow-designer · AI4PM Skills</div>
+</div>
+
+<div class="toast" id="toast">已复制 PUML 代码</div>
+
+<!-- ===== PlantUML 源码（按能力） ===== -->
+
+<script type="application/x-puml" id="puml-cap_01">@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam sequenceMessageAlign center
+
+skinparam maxMessageSize 220
+skinparam roundCorner 8
+
+actor "采购专员" as USER #E8F5E9
+participant "解析编排 Agent" as ORCH #DBEAFE
+participant "表格解析工具" as PARSER #F3E8FF
+participant "物料主数据服务" as MDS #F1F5F9
+
+autonumber
+
+== 触发：上传缺料申请单 ==
+USER -> ORCH : 上传缺料申请单\nPR-2024-0812.xlsx
+activate ORCH
+note right of ORCH
+  plan ｜ ReAct 拆解子任务
+  ①字段抽取  ②主数据校验（并行）
+end note
+
+== 关键路径：并行解析+校验（高亮） ==
+group 并行执行子任务 #DBEAFE
+  ORCH -> PARSER : 调用表格解析\n(编码/数量/交期/紧急等级)
+  activate PARSER
+  PARSER --> ORCH : 返回 3 条物料记录
+  deactivate PARSER
+  ORCH -> MDS : 批量校验编码/完整性
+  activate MDS
+  MDS --> ORCH : 2 通过 / 1 缺失交期
+  deactivate MDS
+end
+note over ORCH : 护栏 ｜ 未经验证编码禁止进入下游
+
+== 决策：交期缺失分支 ==
+alt 期望交期缺失 #FEF9C3
+  ORCH -> USER : 追问补录（标黄提醒）
+  USER --> ORCH : 补录交期
+else 字段完整 #ECFDF5
+  ORCH -> USER : 输出结构化需求单\n(3 条物料 + 校验状态)
+end
+
+deactivate ORCH
+@enduml</script>
+
+<script type="application/x-puml" id="puml-cap_02">@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam sequenceMessageAlign center
+
+skinparam maxMessageSize 220
+skinparam roundCorner 8
+
+actor "采购专员" as USER #E8F5E9
+participant "选商编排 Agent" as ORCH #DBEAFE
+participant "净需求计算引擎" as DEMAND #F3E8FF
+participant "供应商评分服务" as SCORE #F3E8FF
+participant "ERP/库存系统" as ERP #F1F5F9
+
+autonumber
+
+== 触发：确认 AI 推荐 ==
+ORCH -> ORCH : 接收结构化需求单
+note right of ORCH : plan ｜ 组装上下文\n(需求+库存+BOM+供应商池)
+
+== 关键路径：净需求计算 + 选商打分（高亮） ==
+group 智能计算与选商 #DBEAFE
+  ORCH -> ERP : 读取库存水位/生产计划
+  activate ERP
+  ERP --> ORCH : 电机库存 320 < 安全库存 500
+  deactivate ERP
+  ORCH -> DEMAND : 净需求计算\n(BOM 共用件映射)
+  activate DEMAND
+  DEMAND --> ORCH : 电机需采 180 件等
+  deactivate DEMAND
+  ORCH -> SCORE : 供应商加权打分\n(价格/交期/履约率)
+  activate SCORE
+  SCORE --> ORCH : 泰科 92 分(¥18.5/5天)\n华宇 86 分(¥17.9/9天)
+  deactivate SCORE
+end
+note over ORCH : 护栏 ｜ 推荐必须附子分依据\n价格偏离历史均价 ±8% 置顶异常
+
+== 决策：价格异常门禁 ==
+alt 价格异常(>±8%) #FEF9C3
+  ORCH -> USER : 询价单建议\n(发备选供应商)
+  USER --> ORCH : 确认生成询价单
+else 正常 #ECFDF5
+  ORCH -> USER : 展示 Top3 推荐卡\n(子分可展开)
+end
+@enduml</script>
+
+<script type="application/x-puml" id="puml-cap_03">@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam sequenceMessageAlign center
+
+skinparam maxMessageSize 220
+skinparam roundCorner 8
+
+participant "订单 Agent" as ORDER #DBEAFE
+participant "异常识别服务" as ANOM #F3E8FF
+participant "审批编排 Agent" as APP #DBEAFE
+actor "采购经理" as MGR #E8F5E9
+participant "SRM/ERP 下发服务" as SYS #F1F5F9
+
+autonumber
+
+== 阶段一：订单生成与异常识别 ==
+ORDER -> ANOM : 生成订单草稿\n(数量/交期/单价/供应商)
+activate ANOM
+ANOM --> ORDER : 异常预警 1 项\n(密封圈价格超历史 12%)
+deactivate ANOM
+ORDER -> APP : 提交审批建议\n(一键通过/打回/转复核)
+
+== 关键路径：人工审批门禁（HITL 高亮） ==
+group 人工审批门禁 #FEF3C7
+  APP -> MGR : 审批待办\n(紧急单置顶/SLA 4h)
+  activate MGR
+  MGR -> APP : 审批通过 / 打回
+  deactivate MGR
+end
+note over APP : 护栏 ｜ 写操作必须人工放行\n异常项禁止静默通过
+
+== 决策：审批结果 ==
+alt 通过 #ECFDF5
+  APP -> SYS : 下发电子订单+同步 ERP
+  activate SYS
+  SYS --> APP : 状态:待供应商确认/在途
+  deactivate SYS
+  APP -> MGR : 交期风险看板提醒
+else 打回 #FEF9C3
+  APP -> ORDER : 回退修订并重新校验
+  ORDER -> APP : 修订完成再提交审批
+end
+@enduml</script>
+
+
+<script>
+const panZoomInstances = {};
+const rendered = {};
+const activeTabId = 'cap_01';
+
+function switchTab(capId) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.cap === capId));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.dataset.cap === capId));
+    renderDiagram(capId);
+}
+
+function getPuml(capId) {
+    const el = document.getElementById('puml-' + capId);
+    return el ? el.textContent.trim() : '';
+}
+
+function encodeUrl(capId) {
+    try {
+        const puml = getPuml(capId);
+        if (!puml) throw new Error('空 PUML');
+        return 'https://www.plantuml.com/plantuml/svg/' + plantumlEncoder.encode(puml);
+    } catch (e) {
+        return null;
+    }
+}
+
+function renderDiagram(capId) {
+    if (rendered[capId]) return;
+    rendered[capId] = true;
+    const container = document.getElementById('diagram-' + capId);
+    const state = document.getElementById('state-' + capId);
+    if (!container) return;
+
+    const url = encodeUrl(capId);
+    if (!url) {
+        container.innerHTML = '<div class="render-error">⚠ PUML 源码为空或格式不正确，请查看下方源码。</div>';
+        state.textContent = '渲染失败';
+        return;
+    }
+
+    container.innerHTML = '<div class="render-state">正在渲染 PlantUML…</div>';
+    fetch(url)
+        .then(res => {
+            if (!res.ok) throw new Error('PlantUML 渲染请求失败 (' + res.status + ')');
+            return res.text();
+        })
+        .then(svgData => {
+            container.innerHTML = svgData;
+            const svgEl = container.querySelector('svg');
+            if (!svgEl) throw new Error('响应中未找到 SVG');
+            svgEl.setAttribute('id', 'svg-' + capId);
+            svgEl.style.maxWidth = '100%';
+            svgEl.style.height = 'auto';
+            panZoomInstances[capId] = svgPanZoom('#svg-' + capId, {
+                zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true
+            });
+            state.textContent = '✅ 渲染成功（可缩放 / 复制 / 下载）';
+        })
+        .catch(err => {
+            container.innerHTML = '<div class="render-error">⚠ 渲染失败：需要网络访问 plantuml.com。' +
+                '（源码仍可查看/复制，不影响数据）<pre>' + err.message + '</pre></div>';
+            state.textContent = '渲染失败（离线）';
+            console.error(err);
+        });
+}
+
+function resetZoom(capId) { if (panZoomInstances[capId]) panZoomInstances[capId].reset(); }
+
+function downloadImage(capId) {
+    const url = encodeUrl(capId);
+    if (url) window.open(url.replace('/svg/', '/png/'), '_blank');
+}
+
+function copyPuml(capId) {
+    const puml = getPuml(capId);
+    if (!puml) return;
+    navigator.clipboard.writeText(puml).then(() => {
+        const t = document.getElementById('toast');
+        t.style.display = 'block';
+        setTimeout(() => { t.style.display = 'none'; }, 2500);
+    });
+}
+
+function toggleSrc(capId) {
+    const el = document.getElementById('src-' + capId);
+    if (el) el.classList.toggle('show');
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+    if (activeTabId) switchTab(activeTabId);
+});
+</script>
+</body>
+</html>

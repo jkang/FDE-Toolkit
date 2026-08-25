@@ -1,0 +1,932 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>采购订单自动生成 · To-be 旅程设计</title>
+  <style>
+    /* ============ 基础重置 ============ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: #f3f5f9;
+      padding: 28px 24px;
+      color: #1e293b;
+    }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+    .container { max-width: 100%; background: #fff; border-radius: 16px; box-shadow: 0 4px 24px rgba(15, 23, 42, 0.08); padding: 28px 32px 20px; }
+
+    /* ============ 头部 ============ */
+    .page-header {
+      display: flex; justify-content: space-between; align-items: flex-start; gap: 16px;
+      flex-wrap: wrap; padding-bottom: 20px; border-bottom: 2px solid #eef2f7;
+    }
+    .title-row { display: flex; align-items: center; gap: 14px; }
+    .title-icon {
+      width: 52px; height: 52px; border-radius: 14px; display: flex; align-items: center; justify-content: center;
+      font-size: 26px; background: linear-gradient(135deg, #6366f1, #8b5cf6); color: #fff; flex-shrink: 0;
+    }
+    .page-title { font-size: 24px; font-weight: 700; color: #0f172a; line-height: 1.3; }
+    .page-subtitle { font-size: 13px; color: #64748b; margin-top: 4px; }
+    .meta-badges { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
+    .badge {
+      font-size: 12px; padding: 5px 12px; border-radius: 999px; background: #f1f5f9;
+      color: #475569; border: 1px solid #e2e8f0; white-space: nowrap;
+    }
+    .badge.mode-badge { background: linear-gradient(135deg, #4f46e5, #7c3aed); color: #fff; border: none; font-weight: 600; }
+
+    /* ============ Section ============ */
+    .section { margin-top: 32px; }
+    .section-title {
+      display: flex; align-items: center; gap: 10px; font-size: 17px; font-weight: 700; color: #0f172a;
+      margin-bottom: 16px;
+    }
+    .section-num {
+      width: 28px; height: 28px; border-radius: 8px; background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      color: #fff; font-size: 13px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center;
+    }
+    .section-en { font-size: 11px; color: #94a3b8; font-weight: 500; letter-spacing: 0.5px; }
+
+    /* ============ Persona 卡片 ============ */
+    .persona-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; }
+    .persona-card {
+      background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 18px;
+      box-shadow: 0 1px 3px rgba(15,23,42,0.04); transition: all 0.2s;
+    }
+    .persona-card:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(99,102,241,0.10); border-color: #c7d2fe; }
+    .persona-head { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+    .avatar {
+      width: 46px; height: 46px; border-radius: 50%; background: linear-gradient(135deg, #6366f1, #a855f7);
+      color: #fff; font-size: 19px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .persona-name { font-size: 16px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+    .role-badge { font-size: 11px; font-weight: 600; color: #4f46e5; background: #eef2ff; border: 1px solid #c7d2fe; border-radius: 999px; padding: 2px 10px; }
+    .persona-dept { font-size: 12px; color: #94a3b8; margin-top: 2px; }
+    .persona-bg { font-size: 13px; color: #475569; line-height: 1.6; background: #f8fafc; border-radius: 8px; padding: 10px 12px; margin-bottom: 12px; }
+    .p-block { margin-bottom: 10px; }
+    .p-label { font-size: 12px; font-weight: 600; margin-bottom: 4px; }
+    .p-label.goals-label { color: #059669; }
+    .p-label.pains-label { color: #e11d48; }
+    .p-label.data-label { color: #b45309; }
+    .p-label.errors-label { color: #9333ea; margin-top: 8px; }
+    .p-block ul { list-style: none; }
+    .p-block ul li { font-size: 12.5px; color: #334155; line-height: 1.55; padding-left: 14px; position: relative; margin-bottom: 2px; }
+    .goals-label + ul li::before { content: "✓"; position: absolute; left: 0; color: #10b981; font-weight: 700; }
+    .pains-label + ul li::before { content: "✕"; position: absolute; left: 0; color: #f43f5e; font-weight: 700; }
+    .data-label + ul li::before, .errors-label + ul li::before { content: "•"; position: absolute; left: 2px; color: #94a3b8; }
+    .freq-badge {
+      display: inline-block; font-size: 11px; color: #7c3aed; background: #f5f3ff; border: 1px solid #ddd6fe;
+      border-radius: 999px; padding: 2px 10px; margin-bottom: 6px;
+    }
+
+    /* ============ Scenario 卡片 ============ */
+    .scenario-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+    .scenario-card {
+      background: #fff; border: 1px solid #e2e8f0; border-left: 4px solid #6366f1; border-radius: 14px; padding: 18px;
+      box-shadow: 0 1px 3px rgba(15,23,42,0.04); transition: all 0.2s;
+    }
+    .scenario-card:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(99,102,241,0.10); }
+    .scenario-head { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
+    .scenario-id { font-size: 11px; font-weight: 700; color: #6366f1; background: #eef2ff; border-radius: 6px; padding: 3px 8px; }
+    .scenario-name { font-size: 16px; font-weight: 700; }
+    .persona-link { margin-left: auto; font-size: 11px; color: #64748b; background: #f1f5f9; border-radius: 999px; padding: 3px 10px; }
+    .sc-trigger { font-size: 13px; color: #475569; background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 8px 12px; margin-bottom: 10px; line-height: 1.5; }
+    .sc-biz { list-style: none; margin-bottom: 10px; }
+    .sc-biz li { font-size: 12.5px; color: #334155; line-height: 1.55; padding-left: 14px; position: relative; }
+    .sc-biz li::before { content: "📊"; position: absolute; left: 0; top: 1px; font-size: 10px; }
+    .sc-goal { font-size: 13px; font-weight: 600; color: #047857; background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 8px; padding: 8px 12px; }
+
+    /* ============ 旅程泳道图 ============ */
+    .journey-map-canvas { display: flex; position: relative; min-width: 964px; border: 1px solid #e2e8f0; border-radius: 12px; background: #fff; overflow: hidden; }
+    .labels-column { display: flex; flex-direction: column; flex-shrink: 0; position: sticky; left: 0; z-index: 30; background: #f8fafc; }
+    .lane-label {
+      width: 132px; min-width: 132px; display: flex; align-items: center; justify-content: flex-start;
+      padding: 0 12px; font-size: 12.5px; font-weight: 600; color: #475569;
+      background: #f8fafc; border-right: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0;
+    }
+    .content-column { display: flex; flex-direction: column; flex-grow: 1; position: relative; min-width: 0; }
+    .lane-row { position: relative; border-bottom: 1px solid #e2e8f0; background: #fff; }
+    .h-stage { height: 46px; }
+    .h-behavior { height: 92px; }
+    .h-touchpoint { height: 78px; }
+    .h-thoughts { height: 120px; }
+    .h-inputs { height: 190px; }
+    .h-ai { height: 210px; }
+    .h-visible { height: 170px; }
+    .h-design { height: 140px; }
+
+    /* 阶段块 */
+    .stage-block {
+      position: absolute; top: 0; height: 100%; border-right: 2px solid #fff;
+      display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; color: #1e293b;
+      background: linear-gradient(180deg, #eef2ff, #e0e7ff);
+    }
+
+    /* 行为卡片 + 流程箭头 */
+    .action-wrapper { position: absolute; transform: translateX(-50%); }
+    .behavior-card {
+      width: 170px; height: 74px; margin-top: 8px;
+      display: flex; align-items: center; justify-content: center; text-align: center; padding: 10px;
+      background: #fff; border: 2px solid #10b981; border-radius: 10px; box-shadow: 0 2px 6px rgba(16,185,129,0.08);
+      font-size: 12.5px; font-weight: 600; color: #065f46; transition: all 0.2s;
+    }
+    .behavior-card:hover { transform: translateY(-2px); box-shadow: 0 6px 14px rgba(16,185,129,0.16); }
+    .flow-arrow {
+      position: absolute; top: 36px; right: -14px; color: #10b981; font-size: 14px; font-weight: 700; z-index: 2;
+    }
+    .flow-arrow-dash { color: #94a3b8; }
+
+    /* 触点 */
+    .touchpoint-card {
+      width: 170px; height: 62px; margin-top: 8px;
+      background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 6px;
+    }
+    .tp-badge { font-size: 11.5px; font-weight: 600; color: #2563eb; background: #eff6ff; padding: 2px 10px; border-radius: 999px; }
+    .tp-device { font-size: 11px; color: #64748b; text-align: center; line-height: 1.3; }
+
+    /* 想法 */
+    .thoughts-container { width: 170px; margin-top: 8px; max-height: 108px; overflow-y: auto; padding-right: 2px; display: flex; flex-direction: column; gap: 4px; }
+    .thought-bubble {
+      font-size: 11.5px; color: #475569; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; border-top-left-radius: 2px;
+      padding: 6px 10px; line-height: 1.45; box-shadow: 0 1px 2px rgba(0,0,0,0.04); word-break: break-all;
+    }
+
+    /* 用户输入数据 */
+    .inputs-container { width: 170px; margin-top: 8px; max-height: 178px; overflow-y: auto; padding-right: 2px; display: flex; flex-direction: column; gap: 6px; }
+    .input-card { background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 8px 10px; transition: all 0.2s; }
+    .input-card:hover { border-color: #f59e0b; box-shadow: 0 2px 6px rgba(245,158,11,0.12); }
+    .input-head { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-bottom: 4px; }
+    .input-type { font-size: 10px; font-weight: 700; color: #92400e; background: #fef3c7; border-radius: 4px; padding: 1px 6px; }
+    .input-name { font-size: 12px; font-weight: 700; color: #78350f; }
+    .input-format { font-size: 10px; color: #b45309; border: 1px dashed #fcd34d; border-radius: 4px; padding: 0 5px; }
+    .input-example { font-size: 11px; color: #92400e; background: #fff7ed; border-radius: 5px; padding: 3px 6px; margin-bottom: 3px; word-break: break-all; }
+    .input-content { font-size: 10.5px; color: #a16207; line-height: 1.4; word-break: break-all; }
+
+    /* AI 交互与推荐指令 */
+    .ai-container { width: 170px; margin-top: 8px; max-height: 198px; overflow-y: auto; padding-right: 2px; display: flex; flex-direction: column; gap: 6px; }
+    .ai-action { font-size: 11.5px; color: #312e81; background: #eef2ff; border: 1px solid #c7d2fe; border-radius: 8px; padding: 7px 9px; line-height: 1.45; }
+    .sugg-label { font-size: 10.5px; font-weight: 700; color: #6d28d9; margin-top: 2px; }
+    .sugg-chips { display: flex; flex-direction: column; gap: 4px; }
+    .sugg-chip {
+      font-size: 11px; color: #5b21b6; background: #f5f3ff; border: 1px solid #ddd6fe; border-radius: 8px;
+      padding: 4px 9px; display: flex; align-items: center; gap: 5px; line-height: 1.35; transition: all 0.15s;
+    }
+    .sugg-chip:hover { background: #ede9fe; border-color: #a78bfa; }
+    .sugg-chip::before { content: "⚡"; font-size: 10px; flex-shrink: 0; }
+
+    /* 可见数据 */
+    .visible-container { width: 170px; margin-top: 8px; max-height: 158px; overflow-y: auto; padding-right: 2px; display: flex; flex-direction: column; gap: 5px; }
+    .visible-item {
+      font-size: 11px; color: #064e3b; background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 7px;
+      padding: 5px 9px; line-height: 1.45; word-break: break-all;
+    }
+    .visible-item::before { content: "📊"; font-size: 10px; margin-right: 4px; }
+
+    /* 设计意图与改善 */
+    .design-container { width: 170px; margin-top: 8px; max-height: 128px; overflow-y: auto; padding-right: 2px; display: flex; flex-direction: column; gap: 5px; }
+    .design-item {
+      font-size: 11px; color: #7c2d12; background: #fff7ed; border: 1px solid #fed7aa; border-radius: 7px;
+      padding: 5px 9px; line-height: 1.45; word-break: break-all;
+    }
+    .design-item::before { content: "🎨"; font-size: 10px; margin-right: 4px; }
+
+    /* ============ 原型衔接区 ============ */
+    .handoff-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; }
+    .handoff-block {
+      background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px;
+    }
+    .handoff-block.wide { grid-column: 1 / -1; }
+    .ho-title { font-size: 13.5px; font-weight: 700; color: #0f172a; margin-bottom: 10px; }
+    .chip-wrap { display: flex; flex-wrap: wrap; gap: 6px; }
+    .chip { font-size: 11.5px; border-radius: 8px; padding: 5px 10px; line-height: 1.4; }
+    .chip-blue { color: #1e40af; background: #eff6ff; border: 1px solid #bfdbfe; }
+    .chip-amber { color: #92400e; background: #fffbeb; border: 1px solid #fde68a; }
+    .chip-violet { color: #5b21b6; background: #f5f3ff; border: 1px solid #ddd6fe; }
+    .path-list { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+    .path-list li {
+      font-size: 12.5px; color: #334155; background: #fff; border: 1px solid #e2e8f0; border-radius: 8px;
+      padding: 8px 12px; line-height: 1.5;
+    }
+    .path-list li::before { content: "🔀 "; }
+
+    .footer-mark { margin-top: 24px; font-size: 12px; color: #94a3b8; text-align: right; }
+
+    @media (max-width: 640px) {
+      body { padding: 14px 10px; }
+      .container { padding: 18px 14px; }
+      .page-title { font-size: 19px; }
+      .persona-grid, .scenario-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- ================= 头部 ================= -->
+  <header class="page-header">
+    <div class="title-row">
+      <div class="title-icon">🧭</div>
+      <div>
+        <div class="page-title">采购订单自动生成 · To-be 旅程设计</div>
+        <div class="page-subtitle">AI 产品设计 · To-be User Journey Design</div>
+      </div>
+    </div>
+    <div class="meta-badges">
+      <span class="badge mode-badge">TO-BE 设计态</span>
+      <span class="badge">🎯 场景：采购订单自动生成</span>
+      <span class="badge">📎 来源：AI画布: dreame_canvas_1_procurement.yaml</span>
+      <span class="badge">📦 形态：嵌入SRM系统的智能下单模块 + 采购专员工作台待办</span>
+    </div>
+  </header>
+
+  <!-- ================= 01 用户角色细化 ================= -->
+  <section class="section">
+    <div class="section-title">
+      <span class="section-num">01</span> 用户角色细化 <span class="section-en">PERSONAS</span>
+    </div>
+    <div class="persona-grid">
+      
+      <div class="persona-card">
+        <div class="persona-head">
+          <div class="avatar">张</div>
+          <div>
+            <div class="persona-name">张敏 <span class="role-badge">采购专员</span></div>
+            <div class="persona-dept">采购部</div>
+          </div>
+        </div>
+        <p class="persona-bg">负责生产物料采购，日均处理 15~30 张采购申请，日常使用 SRM 与 Excel 手工录入</p>
+        <div class="p-block">
+          <div class="p-label goals-label">🎯 核心目标</div>
+          <ul>
+            
+            <li>快速完成需求识别与供应商寻源</li>
+            
+            <li>避免物料漏采或交期延误</li>
+            
+          </ul>
+        </div>
+        <div class="p-block">
+          <div class="p-label pains-label">⚠️ 当前痛点</div>
+          <ul>
+            
+            <li>每日数十张采购单需手工录入，耗时超过 2 小时</li>
+            
+            <li>多品类共用零部件协调复杂，容易遗漏</li>
+            
+          </ul>
+        </div>
+        <div class="p-block">
+          <div class="p-label data-label">🗃️ 典型业务数据</div>
+          <div class="freq-badge">使用频率：高频</div>
+          <ul>
+            
+            <li>采购申请单 PR-2024-0812.xlsx：含 3~5 条物料，字段为物料编码/需求数量/期望交期/用途</li>
+            
+            <li>历史成交价：每物料 3~5 家供应商报价</li>
+            
+          </ul>
+          
+          <div class="p-label errors-label">常见失误</div>
+          <ul>
+            
+            <li>期望交期字段漏填</li>
+            
+            <li>物料编码书写不规范</li>
+            
+          </ul>
+          
+        </div>
+      </div>
+      
+      <div class="persona-card">
+        <div class="persona-head">
+          <div class="avatar">李</div>
+          <div>
+            <div class="persona-name">李强 <span class="role-badge">采购经理</span></div>
+            <div class="persona-dept">采购部</div>
+          </div>
+        </div>
+        <p class="persona-bg">负责采购订单终审，每周审批 80+ 张订单，关注成本与供应商风险</p>
+        <div class="p-block">
+          <div class="p-label goals-label">🎯 核心目标</div>
+          <ul>
+            
+            <li>快速完成订单审批，不阻塞采购时效</li>
+            
+            <li>及时发现异常价格与交期风险</li>
+            
+          </ul>
+        </div>
+        <div class="p-block">
+          <div class="p-label pains-label">⚠️ 当前痛点</div>
+          <ul>
+            
+            <li>审批流程长，每张订单需逐张核对价格合理性</li>
+            
+            <li>紧急插单频繁，人工调整容易出错</li>
+            
+          </ul>
+        </div>
+        <div class="p-block">
+          <div class="p-label data-label">🗃️ 典型业务数据</div>
+          <div class="freq-badge">使用频率：中频</div>
+          <ul>
+            
+            <li>审批看板：当日待审 12 张，含 3 张紧急插单</li>
+            
+            <li>价格异常阈值：偏离历史均价 ±8%</li>
+            
+          </ul>
+          
+          <div class="p-label errors-label">常见失误</div>
+          <ul>
+            
+            <li>漏看价格异常标记</li>
+            
+            <li>紧急单被普通队列挤占</li>
+            
+          </ul>
+          
+        </div>
+      </div>
+      
+    </div>
+  </section>
+
+  <!-- ================= 02 典型使用场景 ================= -->
+  <section class="section">
+    <div class="section-title">
+      <span class="section-num">02</span> 典型使用场景 <span class="section-en">SCENARIOS</span>
+    </div>
+    <div class="scenario-grid">
+      
+      <div class="scenario-card">
+        <div class="scenario-head">
+          <span class="scenario-id">s1</span>
+          <span class="scenario-name">紧急缺料采购</span>
+          <span class="persona-link">👤 buyer_zhang</span>
+        </div>
+        <div class="sc-trigger">⚡ 触发：产线报缺料，需求方要求当天确认供应商并下单</div>
+        <div class="p-label data-label">📊 涉及业务数据</div>
+        <ul class="sc-biz">
+          
+          <li>缺料清单（含紧急等级：P0/P1/P2 标识）</li>
+          
+          <li>可用供应商池（近 90 天交付达成率）</li>
+          
+        </ul>
+        <div class="sc-goal">🎯 10 分钟内完成需求识别 + 供应商初选 + 订单草稿生成</div>
+      </div>
+      
+      <div class="scenario-card">
+        <div class="scenario-head">
+          <span class="scenario-id">s2</span>
+          <span class="scenario-name">批量日常补货</span>
+          <span class="persona-link">👤 buyer_zhang</span>
+        </div>
+        <div class="sc-trigger">⚡ 触发：每周一基于安全库存水位生成补货清单</div>
+        <div class="p-label data-label">📊 涉及业务数据</div>
+        <ul class="sc-biz">
+          
+          <li>库存水位报表（当前库存 / 安全库存 / 在途）</li>
+          
+          <li>BOM 物料清单与共用件映射</li>
+          
+        </ul>
+        <div class="sc-goal">🎯 批量生成 20+ 张订单草稿，异常项单独提示人工确认</div>
+      </div>
+      
+    </div>
+  </section>
+
+  <!-- ================= 03 To-be 旅程泳道图 ================= -->
+  <section class="section">
+    <div class="section-title">
+      <span class="section-num">03</span> To-be 旅程泳道图 <span class="section-en">USER JOURNEY</span>
+    </div>
+
+    <div class="journey-map-canvas">
+      <!-- 左侧标签列 -->
+      <div class="labels-column">
+        <div class="lane-label h-stage">阶段</div>
+        <div class="lane-label h-behavior">用户行为</div>
+        <div class="lane-label h-touchpoint">触点</div>
+        <div class="lane-label h-thoughts">用户想法</div>
+        <div class="lane-label h-inputs">📎 用户输入数据</div>
+        <div class="lane-label h-ai">🤖 AI 交互与推荐指令</div>
+        <div class="lane-label h-visible">📊 可见数据</div>
+        <div class="lane-label h-design">🎨 设计意图与改善</div>
+      </div>
+
+      <!-- 右侧内容列 -->
+      <div class="content-column">
+
+        <!-- ===== 阶段 ===== -->
+        <div class="lane-row h-stage">
+          
+          <div class="stage-block" style="left: 0.0%; width: 25.0%;">发起采购需求</div>
+          
+          <div class="stage-block" style="left: 25.0%; width: 25.0%;">智能需求计算与选商</div>
+          
+          <div class="stage-block" style="left: 50.0%; width: 25.0%;">订单生成与审批</div>
+          
+          <div class="stage-block" style="left: 75.0%; width: 25.0%;">下单与状态同步</div>
+          
+        </div>
+
+        <!-- ===== 用户行为 ===== -->
+        <div class="lane-row h-behavior">
+          
+            
+            <div class="action-wrapper" style="left: 11.424731182795698%;">
+              <div class="behavior-card">上传缺料申请单</div>
+              
+              <div class="flow-arrow flow-arrow-dash">➜</div>
+              
+            </div>
+            
+          
+            
+            <div class="action-wrapper" style="left: 36.424731182795696%;">
+              <div class="behavior-card">确认 AI 推荐的最优供应商</div>
+              
+              <div class="flow-arrow flow-arrow-dash">➜</div>
+              
+            </div>
+            
+          
+            
+            <div class="action-wrapper" style="left: 61.424731182795696%;">
+              <div class="behavior-card">提交订单草稿进入审批</div>
+              
+              <div class="flow-arrow flow-arrow-dash">➜</div>
+              
+            </div>
+            
+          
+            
+            <div class="action-wrapper" style="left: 86.4247311827957%;">
+              <div class="behavior-card">确认下发订单至供应商</div>
+              
+            </div>
+            
+          
+        </div>
+
+        <!-- ===== 触点 ===== -->
+        <div class="lane-row h-touchpoint">
+          
+            
+            <div class="action-wrapper" style="left: 11.424731182795698%;">
+              <div class="touchpoint-card">
+                <span class="tp-badge">采购专员</span>
+                <span class="tp-device">Web 采购工作台 · 上传区</span>
+              </div>
+            </div>
+            
+          
+            
+            <div class="action-wrapper" style="left: 36.424731182795696%;">
+              <div class="touchpoint-card">
+                <span class="tp-badge">采购专员</span>
+                <span class="tp-device">SRM 智能下单模块 · 推荐卡片</span>
+              </div>
+            </div>
+            
+          
+            
+            <div class="action-wrapper" style="left: 61.424731182795696%;">
+              <div class="touchpoint-card">
+                <span class="tp-badge">采购经理</span>
+                <span class="tp-device">采购经理工作台 · 待办审批</span>
+              </div>
+            </div>
+            
+          
+            
+            <div class="action-wrapper" style="left: 86.4247311827957%;">
+              <div class="touchpoint-card">
+                <span class="tp-badge">采购专员</span>
+                <span class="tp-device">SRM 平台 · 订单下发 / 钉钉通知</span>
+              </div>
+            </div>
+            
+          
+        </div>
+
+        <!-- ===== 用户想法 ===== -->
+        <div class="lane-row h-thoughts">
+          
+            
+            <div class="action-wrapper" style="left: 11.424731182795698%;">
+              <div class="thoughts-container">
+                
+                <div class="thought-bubble">希望系统能自动识别申请单内容，别再让我手动录入</div>
+                
+              </div>
+            </div>
+            
+          
+            
+            <div class="action-wrapper" style="left: 36.424731182795696%;">
+              <div class="thoughts-container">
+                
+                <div class="thought-bubble">AI 推荐的理由是否充分？价格和交期我要能一键对比</div>
+                
+              </div>
+            </div>
+            
+          
+            
+            <div class="action-wrapper" style="left: 61.424731182795696%;">
+              <div class="thoughts-container">
+                
+                <div class="thought-bubble">希望能一眼看到异常项，紧急单别被普通队列挤占</div>
+                
+              </div>
+            </div>
+            
+          
+            
+            <div class="action-wrapper" style="left: 86.4247311827957%;">
+              <div class="thoughts-container">
+                
+                <div class="thought-bubble">希望订单状态能自动同步，不用我再去 ERP 里人工维护</div>
+                
+              </div>
+            </div>
+            
+          
+        </div>
+
+        <!-- ===== 用户输入数据 ===== -->
+        <div class="lane-row h-inputs">
+          
+            
+            <div class="action-wrapper" style="left: 11.424731182795698%;">
+              <div class="inputs-container">
+                
+                <div class="input-card">
+                  <div class="input-head">
+                    <span class="input-type">文件上传</span>
+                    <span class="input-name">缺料申请单</span>
+                    <span class="input-format">Excel/CSV</span>
+                  </div>
+                  <div class="input-example">📄 PR-2024-0812.xlsx</div>
+                  <div class="input-content">物料编码、需求数量、期望交期、紧急等级(P0/P1/P2)、用途</div>
+                </div>
+                
+              </div>
+            </div>
+            
+          
+            
+            <div class="action-wrapper" style="left: 36.424731182795696%;">
+              <div class="inputs-container">
+                
+                <div class="input-card">
+                  <div class="input-head">
+                    <span class="input-type">系统自动带入</span>
+                    <span class="input-name">生产计划 + 库存水位</span>
+                    <span class="input-format">ERP API 实时数据</span>
+                  </div>
+                  <div class="input-example">📄 电机库存 320 件 < 安全库存 500 件</div>
+                  <div class="input-content">生产计划工单、当前库存水位、安全库存阈值、BOM 共用件映射</div>
+                </div>
+                
+              </div>
+            </div>
+            
+          
+            
+            <div class="action-wrapper" style="left: 61.424731182795696%;">
+              <div class="inputs-container">
+                
+                <div class="input-card">
+                  <div class="input-head">
+                    <span class="input-type">表单确认</span>
+                    <span class="input-name">订单草稿确认</span>
+                    <span class="input-format">页面内编辑</span>
+                  </div>
+                  <div class="input-example">📄 PO-2024-0812-003：电机 180 件 × ¥18.5 = ¥3,330</div>
+                  <div class="input-content">数量、交期、单价、付款条款、供应商</div>
+                </div>
+                
+              </div>
+            </div>
+            
+          
+            
+            <div class="action-wrapper" style="left: 86.4247311827957%;">
+              <div class="inputs-container">
+                
+                <div class="input-card">
+                  <div class="input-head">
+                    <span class="input-type">系统自动执行</span>
+                    <span class="input-name">审批通过后的订单数据</span>
+                    <span class="input-format">SRM → ERP API</span>
+                  </div>
+                  <div class="input-example">📄 PO-2024-0812-003 状态: 待供应商确认</div>
+                  <div class="input-content">订单号、供应商、数量、交期、金额</div>
+                </div>
+                
+              </div>
+            </div>
+            
+          
+        </div>
+
+        <!-- ===== AI 交互与推荐指令 ===== -->
+        <div class="lane-row h-ai">
+          
+            
+            <div class="action-wrapper" style="left: 11.424731182795698%;">
+              <div class="ai-container">
+                
+                <div class="ai-action">🤖 表格解析识别申请单字段，与物料主数据比对校验完整性</div>
+                
+                
+                <div class="sugg-label">⚡ 对话推荐操作指令</div>
+                <div class="sugg-chips">
+                  
+                  <span class="sugg-chip">识别并校验物料信息</span>
+                  
+                  <span class="sugg-chip">查询历史成交价</span>
+                  
+                </div>
+                
+              </div>
+            </div>
+            
+          
+            
+            <div class="action-wrapper" style="left: 36.424731182795696%;">
+              <div class="ai-container">
+                
+                <div class="ai-action">🤖 净需求计算 + 供应商匹配（价格/交期/历史履约率加权打分）</div>
+                
+                
+                <div class="sugg-label">⚡ 对话推荐操作指令</div>
+                <div class="sugg-chips">
+                  
+                  <span class="sugg-chip">对比 Top 3 供应商报价</span>
+                  
+                  <span class="sugg-chip">生成询价单并发给备选供应商</span>
+                  
+                  <span class="sugg-chip">查看历史价格趋势</span>
+                  
+                </div>
+                
+              </div>
+            </div>
+            
+          
+            
+            <div class="action-wrapper" style="left: 61.424731182795696%;">
+              <div class="ai-container">
+                
+                <div class="ai-action">🤖 生成订单 PDF/电子单据，识别异常项并给出审批建议</div>
+                
+                
+                <div class="sugg-label">⚡ 对话推荐操作指令</div>
+                <div class="sugg-chips">
+                  
+                  <span class="sugg-chip">一键审批通过（无异常项）</span>
+                  
+                  <span class="sugg-chip">标记价格异常并打回修改</span>
+                  
+                  <span class="sugg-chip">转人工复核交期风险</span>
+                  
+                </div>
+                
+              </div>
+            </div>
+            
+          
+            
+            <div class="action-wrapper" style="left: 86.4247311827957%;">
+              <div class="ai-container">
+                
+                <div class="ai-action">🤖 自动下发电子签章订单并推送供应商，同步更新 ERP 状态</div>
+                
+                
+                <div class="sugg-label">⚡ 对话推荐操作指令</div>
+                <div class="sugg-chips">
+                  
+                  <span class="sugg-chip">查看供应商确认进度</span>
+                  
+                  <span class="sugg-chip">设置交期提醒（超期自动预警）</span>
+                  
+                </div>
+                
+              </div>
+            </div>
+            
+          
+        </div>
+
+        <!-- ===== 可见数据 ===== -->
+        <div class="lane-row h-visible">
+          
+            
+            <div class="action-wrapper" style="left: 11.424731182795698%;">
+              <div class="visible-container">
+                
+                <div class="visible-item">识别结果：3 条物料（电机×500件 / 轴承×200件 / 密封圈×1000件）</div>
+                
+                <div class="visible-item">完整性校验：2 项通过，1 项缺失（期望交期未填，已标黄提醒）</div>
+                
+              </div>
+            </div>
+            
+          
+            
+            <div class="action-wrapper" style="left: 36.424731182795696%;">
+              <div class="visible-container">
+                
+                <div class="visible-item">净需求：电机 500 件（需采 180 件）、轴承 200 件、密封圈 1000 件</div>
+                
+                <div class="visible-item">推荐结果：泰科机电 92 分（¥18.5/件，交期 5 天）；华宇传动 86 分（¥17.9/件，交期 9 天）</div>
+                
+              </div>
+            </div>
+            
+          
+            
+            <div class="action-wrapper" style="left: 61.424731182795696%;">
+              <div class="visible-container">
+                
+                <div class="visible-item">订单摘要卡：PO-2024-0812-003，¥3,330，交期 5 天</div>
+                
+                <div class="visible-item">异常预警：1 项（密封圈价格高于历史均价 12%，已标红）</div>
+                
+                <div class="visible-item">紧急单置顶标识：P0 紧急，剩余审批 SLA 4 小时</div>
+                
+              </div>
+            </div>
+            
+          
+            
+            <div class="action-wrapper" style="left: 86.4247311827957%;">
+              <div class="visible-container">
+                
+                <div class="visible-item">下发成功：3 张订单已推送（供应商已收到通知）</div>
+                
+                <div class="visible-item">ERP 状态已同步：待供应商确认 / 在途 / 已入库</div>
+                
+                <div class="visible-item">交期看板：1 单存在交期冲突风险（密封圈 9 天 > 期望 7 天）</div>
+                
+              </div>
+            </div>
+            
+          
+        </div>
+
+        <!-- ===== 设计意图与改善 ===== -->
+        <div class="lane-row h-design">
+          
+            
+            <div class="action-wrapper" style="left: 11.424731182795698%;">
+              <div class="design-container">
+                
+                <div class="design-item">录入耗时由 30 分钟降至 2 分钟</div>
+                
+                <div class="design-item">交期缺失时 AI 主动追问补录，不阻塞主流程</div>
+                
+              </div>
+            </div>
+            
+          
+            
+            <div class="action-wrapper" style="left: 36.424731182795696%;">
+              <div class="design-container">
+                
+                <div class="design-item">推荐必须展示打分依据（价格/交期/履约率子分），供人复核</div>
+                
+                <div class="design-item">价格偏离历史均价 ±8% 时置顶异常标记</div>
+                
+              </div>
+            </div>
+            
+          
+            
+            <div class="action-wrapper" style="left: 61.424731182795696%;">
+              <div class="design-container">
+                
+                <div class="design-item">审批耗时由平均 1 天压缩至 2 小时</div>
+                
+                <div class="design-item">异常项必须显性提示，禁止静默通过</div>
+                
+              </div>
+            </div>
+            
+          
+            
+            <div class="action-wrapper" style="left: 86.4247311827957%;">
+              <div class="design-container">
+                
+                <div class="design-item">人工下单工作量减少 70%</div>
+                
+                <div class="design-item">订单处理时效由 2 天缩短至 2 小时</div>
+                
+                <div class="design-item">交期风险在可视化看板中提前暴露，降低缺料率 30%</div>
+                
+              </div>
+            </div>
+            
+          
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 04 原型衔接要点 ================= -->
+  <section class="section">
+    <div class="section-title">
+      <span class="section-num">04</span> 原型衔接要点 <span class="section-en">PROTOTYPE HANDOFF</span>
+    </div>
+    <div class="handoff-grid">
+      <div class="handoff-block">
+        <div class="ho-title">🖥️ 页面 / 触点清单</div>
+        <div class="chip-wrap">
+          
+          <span class="chip chip-blue">Web 采购工作台 · 上传区</span>
+          
+          <span class="chip chip-blue">SRM 智能下单模块 · 推荐卡片</span>
+          
+          <span class="chip chip-blue">采购经理工作台 · 待办审批</span>
+          
+          <span class="chip chip-blue">SRM 平台 · 订单下发 / 钉钉通知</span>
+          
+        </div>
+      </div>
+      <div class="handoff-block">
+        <div class="ho-title">🗃️ 核心 Mock 数据实体</div>
+        <div class="chip-wrap">
+          
+          <span class="chip chip-amber">缺料申请单 (Excel/CSV)</span>
+          
+          <span class="chip chip-amber">生产计划 + 库存水位 (ERP API 实时数据)</span>
+          
+          <span class="chip chip-amber">订单草稿确认 (页面内编辑)</span>
+          
+          <span class="chip chip-amber">审批通过后的订单数据 (SRM → ERP API)</span>
+          
+        </div>
+      </div>
+      <div class="handoff-block">
+        <div class="ho-title">⚡ 推荐操作指令库</div>
+        <div class="chip-wrap">
+          
+          <span class="chip chip-violet">“识别并校验物料信息”</span>
+          
+          <span class="chip chip-violet">“查询历史成交价”</span>
+          
+          <span class="chip chip-violet">“对比 Top 3 供应商报价”</span>
+          
+          <span class="chip chip-violet">“生成询价单并发给备选供应商”</span>
+          
+          <span class="chip chip-violet">“查看历史价格趋势”</span>
+          
+          <span class="chip chip-violet">“一键审批通过（无异常项）”</span>
+          
+          <span class="chip chip-violet">“标记价格异常并打回修改”</span>
+          
+          <span class="chip chip-violet">“转人工复核交期风险”</span>
+          
+          <span class="chip chip-violet">“查看供应商确认进度”</span>
+          
+          <span class="chip chip-violet">“设置交期提醒（超期自动预警）”</span>
+          
+        </div>
+      </div>
+      <div class="handoff-block wide">
+        <div class="ho-title">🔀 交互路径 / 分支 / 异常（供原型路径控制器使用）</div>
+        <ul class="path-list">
+          
+          <li>主路径：上传申请单 → 确认 AI 推荐 → 提交审批 → 下发订单</li>
+          
+          <li>分支：AI 推荐价高于历史均价 → 触发询价单发给备选供应商</li>
+          
+          <li>异常：交期字段缺失 → AI 追问补录，不阻塞主流程</li>
+          
+          <li>边界：供应商无历史成交记录 → 展示行业均价兜底，标注置信度</li>
+          
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <div class="footer-mark">Generated by ai-product-journey-generator · 2026-08-21 16:35:59</div>
+
+</div>
+
+</body>
+</html>

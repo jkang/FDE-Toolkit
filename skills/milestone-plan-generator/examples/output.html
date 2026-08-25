@@ -1,0 +1,1313 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>智能零售平台演进规划 - Milestone Roadmap | Inspire</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      /* Inspire Design System Tokens (Standard Light Mode) */
+      --color-primary: #10213E;      /* Starry Blues */
+      --color-accent: #5DB2E2;       /* Creative Blue */
+      --color-secondary: #625D9C;    /* Amethyst */
+      --color-success: #00524C;      /* Myrtle Deep Green */
+      --color-info: #6FB1C8;         /* Cerulean Frost */
+      --color-warning: #F59E0B;      /* Warning */
+      --color-destructive: #EF4444;  /* Danger */
+      --color-background: #FFFFFF;   /* Pure White */
+      --color-bg-alt: #F5F5F6;       /* Tech Gray */
+      --color-foreground: #10213E;   /* Primary Text */
+      --color-text-muted: #64748B;   /* Text Secondary */
+      --color-border: #E2E8F0;       /* Border/Line */
+      
+      --shadow-sm: 0 2px 8px rgba(16, 33, 62, 0.08);
+      --shadow-md: 0 10px 15px -3px rgba(16, 33, 62, 0.1);
+      --radius-sm: 4px;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+      --font-family: 'MiSans', 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --transition: 0.15s ease-out;
+    }
+
+    /* Reset & Base */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--font-family);
+      background-color: var(--color-bg-alt);
+      color: var(--color-foreground);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Standardized Header */
+    .page-header {
+      background: var(--color-background);
+      padding: 24px 40px;
+      border-bottom: 1px solid var(--color-border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .header-content {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .header-content h1 {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--color-primary);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .header-content h1::before {
+      content: "";
+      display: block;
+      width: 4px;
+      height: 24px;
+      background: var(--color-accent);
+      border-radius: 2px;
+    }
+
+    .header-content p {
+      font-size: 14px;
+      color: var(--color-text-muted);
+      margin-top: 4px;
+      padding-left: 16px;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 12px;
+    }
+
+    .btn-primary {
+      background: var(--color-primary);
+      color: white;
+      padding: 10px 20px;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      transition: var(--transition);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .btn-primary:hover { opacity: 0.85; transform: translateY(-1px); }
+
+    .btn-secondary {
+      background: white;
+      color: var(--color-primary);
+      border: 1px solid var(--color-border);
+      padding: 10px 20px;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+    .btn-secondary:hover { background: var(--color-bg-alt); }
+
+    /* Main Viewport */
+    .viewport {
+      padding: 40px;
+      overflow-x: auto;
+      flex: 1;
+    }
+
+    /* Canvas Grid Area */
+    .canvas {
+      background: var(--color-background);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+      padding: 40px;
+      padding-top: 280px; 
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      min-width: 1200px;
+    }
+
+    /* Timeline Row */
+    .timeline-row {
+      display: flex;
+      margin-bottom: 24px;
+      margin-top: 32px;
+      position: relative;
+      z-index: 30;
+      flex-shrink: 0;
+    }
+    .timeline-margin {
+      width: 240px;
+      flex-shrink: 0;
+      border-bottom: 1px solid var(--color-border);
+    }
+    .timeline-track {
+      flex: 1;
+      display: flex;
+      position: relative;
+      border-bottom: 2px solid var(--color-primary);
+    }
+    .quarter-cell {
+      flex: 1;
+      position: relative;
+      text-align: center;
+      padding: 12px 0;
+    }
+    .quarter-tick {
+      position: absolute;
+      bottom: 0; left: 0;
+      width: 1px; height: 10px;
+      background: var(--color-primary);
+    }
+    .quarter-tick-end {
+      position: absolute;
+      bottom: 0; right: 0;
+      width: 1px; height: 10px;
+      background: var(--color-primary);
+    }
+    .quarter-year {
+      position: absolute;
+      bottom: 100%; left: 0;
+      margin-bottom: 8px;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--color-primary);
+      padding-left: 4px;
+    }
+    .quarter-text { 
+      font-size: 13px; 
+      font-weight: 600; 
+      color: var(--color-text-muted); 
+    }
+
+    /* Milestones Flags */
+    .ms-flag {
+      position: absolute;
+      top: 0; bottom: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      transform: translateX(-100%);
+      margin-left: 14px;
+      pointer-events: none;
+      z-index: 20;
+    }
+
+    .ms-goal-card {
+      position: absolute;
+      bottom: 100%; right: 0;
+      margin-bottom: 40px;
+      width: 340px; 
+      background: white;
+      border-radius: var(--radius-md);
+      box-shadow: 0 12px 24px rgba(16, 33, 62, 0.12);
+      padding: 24px;
+      pointer-events: auto;
+      overflow: hidden;
+      transition: var(--transition);
+      border: 1px solid var(--color-border);
+      border-top: 4px solid var(--color-primary);
+    }
+    .ms-goal-card:hover { transform: translateY(-4px); }
+    
+    .ms-goal-title { 
+      font-size: 18px; 
+      font-weight: 700; 
+      color: var(--color-primary);
+      margin-bottom: 6px;
+    }
+    .ms-goal-time { 
+      font-size: 13px; 
+      font-weight: 700; 
+      color: var(--color-accent);
+      margin-bottom: 16px; 
+      padding-bottom: 12px; 
+      border-bottom: 1px solid var(--color-border); 
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    
+    .ms-goal-item { 
+      display: flex; 
+      align-items: flex-start; 
+      gap: 10px; 
+      font-size: 14px; 
+      color: var(--color-foreground); 
+      line-height: 1.6; 
+      margin-bottom: 12px; 
+    }
+    .ms-goal-bullet { 
+      flex-shrink: 0; 
+      color: var(--color-accent);
+      font-weight: bold;
+      margin-top: 2px;
+    }
+    .ms-goal-hl { 
+      font-weight: 700; 
+      color: var(--color-primary); 
+    }
+    
+    .ms-flag-pole {
+      display: flex; 
+      flex-direction: column; 
+      align-items: center; 
+      width: 40px; 
+      pointer-events: auto;
+    }
+    .ms-flag-icon { 
+      width: 28px; 
+      height: 28px; 
+      margin-bottom: 8px; 
+      transition: transform 0.2s; 
+    }
+    .ms-flag:hover .ms-flag-icon { transform: scale(1.15) rotate(-5deg); }
+    .ms-flag-name {
+      font-size: 12px; 
+      font-weight: 700; 
+      margin-bottom: 8px; 
+      padding: 4px 12px;
+      border-radius: 999px; 
+      background: var(--color-primary); 
+      color: white;
+      box-shadow: var(--shadow-sm);
+      white-space: nowrap;
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+    .ms-flag-line { 
+      width: 2px; 
+      flex: 1; 
+      min-height: 1000px; 
+      border-radius: 999px; 
+      background: var(--color-primary);
+      opacity: 0.15; 
+    }
+
+    /* Lanes Area */
+    .lanes-wrapper { flex: 1; display: flex; flex-direction: column; }
+    .lane-row {
+      display: flex;
+      flex: 1;
+      border-top: 1px solid var(--color-border);
+    }
+    .lane-row:first-child { border-top: none; }
+    
+    .lane-header {
+      width: 240px;
+      flex-shrink: 0;
+      padding: 32px 20px;
+      display: flex;
+      align-items: center;
+      border-right: 1px solid var(--color-border);
+      background-color: var(--color-background);
+      transition: background-color 0.2s;
+    }
+    .lane-header:hover { background: var(--color-bg-alt); }
+    .lane-icon { width: 28px; height: 28px; color: var(--color-accent); margin-right: 20px; flex-shrink: 0; }
+    .lane-title { font-size: 15px; font-weight: 700; color: var(--color-primary); }
+    .lane-subtitle { font-size: 12px; color: var(--color-text-muted); margin-top: 4px; font-weight: 500; }
+
+    .lane-gantt {
+      flex: 1;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .lane-grid {
+      position: absolute; inset: 0; display: flex; pointer-events: none;
+    }
+    .lane-grid-col { flex: 1; border-left: 1px solid var(--color-border); }
+    .lane-grid-col:first-child { border-left: none; }
+    .lane-grid-col:nth-child(odd) { background-color: rgba(245, 245, 246, 0.4); }
+
+    .lane-content { position: relative; width: 100%; display: flex; flex-direction: column; justify-content: center; }
+    .lane-tasks-container { position: relative; width: 100%; }
+
+    /* Task Card - Improved Contrast & Professionalism */
+    .task-card {
+      position: absolute;
+      background: #FFFFFF;
+      border-radius: var(--radius-sm);
+      box-shadow: 0 1px 3px rgba(16, 33, 62, 0.1);
+      border: 1px solid var(--color-border);
+      border-left-width: 4px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 0 12px 0 16px;
+      z-index: 10;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      overflow: hidden;
+    }
+    
+    .task-card:hover {
+      box-shadow: 0 4px 12px rgba(16, 33, 62, 0.15);
+      transform: translateY(-1px);
+      z-index: 100;
+      background: #F8FAFC;
+    }
+    
+    .task-badge {
+      position: absolute;
+      top: 6px; right: 8px;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 4px;
+      background: var(--color-bg-alt);
+      color: var(--color-primary);
+      white-space: nowrap;
+      z-index: 10;
+      border: 1px solid var(--color-border);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    
+    .task-name { 
+      font-size: 14px; 
+      font-weight: 700; 
+      color: var(--color-primary); 
+      line-height: 1.2; 
+      margin-bottom: 2px; 
+      white-space: nowrap; 
+      overflow: hidden; 
+      text-overflow: ellipsis;
+    }
+    .task-desc { 
+      font-size: 11px; 
+      color: var(--color-text-muted); 
+      line-height: 1.2; 
+      white-space: nowrap; 
+      overflow: hidden; 
+      text-overflow: ellipsis;
+      font-weight: 500;
+    }
+
+    /* Tooltip */
+    .task-tooltip {
+      position: absolute;
+      left: 0; top: 100%;
+      margin-top: 12px;
+      background: white;
+      border-top-width: 4px;
+      border-top-style: solid;
+      box-shadow: 0 20px 50px rgba(16, 33, 62, 0.2);
+      border-radius: var(--radius-md);
+      padding: 24px;
+      min-width: 360px; 
+      max-width: 480px;
+      z-index: 110;
+      opacity: 0; visibility: hidden;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      pointer-events: none;
+      transform: translateY(10px);
+      border-left: 1px solid var(--color-border);
+      border-right: 1px solid var(--color-border);
+      border-bottom: 1px solid var(--color-border);
+    }
+    .task-tooltip.flip {
+      left: auto;
+      right: 0;
+    }
+    .task-card:hover .task-tooltip { 
+      opacity: 1; 
+      visibility: visible; 
+      transform: translateY(0);
+    }
+    
+    .tt-name { font-size: 18px; font-weight: 700; color: var(--color-primary); margin-bottom: 8px; }
+    .tt-desc { font-size: 14px; color: var(--color-foreground); margin-bottom: 16px; line-height: 1.6; }
+    .tt-meta { display: flex; align-items: center; gap: 12px; font-size: 13px; color: var(--color-text-muted); margin-bottom: 20px; padding-top: 12px; border-top: 1px solid var(--color-border); }
+    .tt-team { display: flex; align-items: center; gap: 8px; font-weight: 700; color: var(--color-primary); }
+    .tt-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .tt-tag {
+      font-size: 11px; font-weight: 700; padding: 4px 12px; border-radius: 4px; display: inline-block;
+      background-color: var(--color-bg-alt);
+      color: var(--color-primary);
+      border: 1px solid var(--color-border);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .footer { 
+      text-align: center; 
+      font-size: 13px; 
+      color: var(--color-text-muted); 
+      padding: 48px 0; 
+      border-top: 1px solid var(--color-border); 
+      margin-top: 40px;
+      background: var(--color-background);
+    }
+
+    /* Toast Notification */
+    .toast {
+      position: fixed; bottom: 32px; right: 32px;
+      background: var(--color-success); color: white;
+      padding: 14px 28px; border-radius: 8px;
+      font-size: 14px; font-weight: 600;
+      display: none; z-index: 1000;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+
+    /* Icons */
+    .icon { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+    
+    @media print {
+      .page-header, .btn-group { display: none !important; }
+      body { background: white; }
+      .viewport { padding: 0; }
+      .canvas { border: none; box-shadow: none; padding: 0; min-width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  
+  <header class="page-header">
+    <div class="header-content">
+      <h1>
+        <svg class="icon" style="width: 28px; height: 28px; color: var(--color-accent);" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+        智能零售平台演进规划
+      </h1>
+      <p>2026-2027 核心里程碑计划</p>
+    </div>
+    <div class="btn-group">
+      <button class="btn-secondary" onclick="exportMap()">导出 PDF / 打印</button>
+      <button class="btn-primary" onclick="copyYAML()">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
+        复制原始 YAML
+      </button>
+    </div>
+  </header>
+
+  <div class="viewport">
+    <div class="canvas">
+      
+      <!-- Timeline Header & Flags -->
+      <div class="timeline-row">
+        <div class="timeline-margin"></div>
+        <div class="timeline-track">
+          
+          
+          
+          <div class="quarter-cell">
+            
+            <div class="quarter-year">2026年</div>
+            
+            <div class="quarter-tick"></div>
+            
+            <div class="quarter-text">Q1</div>
+          </div>
+          
+          
+          
+          <div class="quarter-cell">
+            
+            <div class="quarter-tick"></div>
+            
+            <div class="quarter-text">Q2</div>
+          </div>
+          
+          
+          
+          <div class="quarter-cell">
+            
+            <div class="quarter-tick"></div>
+            
+            <div class="quarter-text">Q3</div>
+          </div>
+          
+          
+          
+          <div class="quarter-cell">
+            
+            <div class="quarter-tick"></div>
+            
+            <div class="quarter-text">Q4</div>
+          </div>
+          
+          
+          
+          <div class="quarter-cell">
+            
+            <div class="quarter-year">2027年</div>
+            
+            <div class="quarter-tick"></div>
+            
+            <div class="quarter-text">Q1</div>
+          </div>
+          
+          
+          
+          <div class="quarter-cell">
+            
+            <div class="quarter-tick"></div>
+            
+            <div class="quarter-text">Q2</div>
+          </div>
+          
+          
+          
+          <div class="quarter-cell">
+            
+            <div class="quarter-tick"></div>
+            
+            <div class="quarter-text">Q3</div>
+          </div>
+          
+          
+          
+          <div class="quarter-cell">
+            
+            <div class="quarter-tick"></div>
+            <div class="quarter-tick-end"></div>
+            <div class="quarter-text">Q4</div>
+          </div>
+          
+
+          <!-- Milestones Flags -->
+          
+          <div class="ms-flag" style="left: 25.0%;">
+            
+            <div class="ms-goal-card" style="border-top-color: #ef4444;">
+              <div class="ms-goal-title" style="color: #ef4444;">第一阶段：线上线下基础融合</div>
+              <div class="ms-goal-time" style="color: #ef4444;">2026-Q2</div>
+              <div>
+                
+                <div class="ms-goal-item">
+                  <span class="ms-goal-bullet" style="color: #ef4444;">▸</span>
+                  <div><span class="ms-goal-hl">全渠道通:</span> 完成全渠道数据打通</div>
+                </div>
+                
+                <div class="ms-goal-item">
+                  <span class="ms-goal-bullet" style="color: #ef4444;">▸</span>
+                  <div><span class="ms-goal-hl">会员统一:</span> 实现全域会员身份统一</div>
+                </div>
+                
+              </div>
+            </div>
+
+            <div class="ms-flag-pole">
+              <svg class="ms-flag-icon" style="color: #ef4444; fill: #ef4444;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg>
+              <div class="ms-flag-name" style="background-color: #ef4444;">近期</div>
+              <div class="ms-flag-line" style="background-color: #ef4444;"></div>
+            </div>
+          </div>
+          
+          <div class="ms-flag" style="left: 50.0%;">
+            
+            <div class="ms-goal-card" style="border-top-color: #f59e0b;">
+              <div class="ms-goal-title" style="color: #f59e0b;">第二阶段：智能决策与供应链优化</div>
+              <div class="ms-goal-time" style="color: #f59e0b;">2026-Q4</div>
+              <div>
+                
+                <div class="ms-goal-item">
+                  <span class="ms-goal-bullet" style="color: #f59e0b;">▸</span>
+                  <div><span class="ms-goal-hl">智能补货:</span> 基于数据智能实现自动补货</div>
+                </div>
+                
+                <div class="ms-goal-item">
+                  <span class="ms-goal-bullet" style="color: #f59e0b;">▸</span>
+                  <div><span class="ms-goal-hl">精准营销:</span> 实现精准营销</div>
+                </div>
+                
+              </div>
+            </div>
+
+            <div class="ms-flag-pole">
+              <svg class="ms-flag-icon" style="color: #f59e0b; fill: #f59e0b;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg>
+              <div class="ms-flag-name" style="background-color: #f59e0b;">中期</div>
+              <div class="ms-flag-line" style="background-color: #f59e0b;"></div>
+            </div>
+          </div>
+          
+          <div class="ms-flag" style="left: 100.0%;">
+            
+            <div class="ms-goal-card" style="border-top-color: #10b981;">
+              <div class="ms-goal-title" style="color: #10b981;">第三阶段：无人零售与生态构建</div>
+              <div class="ms-goal-time" style="color: #10b981;">2027-Q4</div>
+              <div>
+                
+                <div class="ms-goal-item">
+                  <span class="ms-goal-bullet" style="color: #10b981;">▸</span>
+                  <div><span class="ms-goal-hl">无人零售:</span> 探索无人零售新形态</div>
+                </div>
+                
+                <div class="ms-goal-item">
+                  <span class="ms-goal-bullet" style="color: #10b981;">▸</span>
+                  <div><span class="ms-goal-hl">生态构建:</span> 构建开放SaaS生态</div>
+                </div>
+                
+              </div>
+            </div>
+
+            <div class="ms-flag-pole">
+              <svg class="ms-flag-icon" style="color: #10b981; fill: #10b981;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg>
+              <div class="ms-flag-name" style="background-color: #10b981;">远期</div>
+              <div class="ms-flag-line" style="background-color: #10b981;"></div>
+            </div>
+          </div>
+          
+        </div>
+      </div>
+
+      <!-- Lanes -->
+      <div class="lanes-wrapper">
+        
+        <div class="lane-row">
+          <div class="lane-header">
+            <svg class="lane-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M5 4h14c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H5c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2zM5 8h14M5 12h14M5 16h14"></path>
+            </svg>
+            <div>
+              <div class="lane-title">基础架构团队</div>
+              <div class="lane-subtitle">4 项举措</div>
+            </div>
+          </div>
+
+          <div class="lane-gantt">
+            <!-- Background Grid -->
+            <div class="lane-grid">
+              
+              <div class="lane-grid-col"></div>
+              
+              <div class="lane-grid-col"></div>
+              
+              <div class="lane-grid-col"></div>
+              
+              <div class="lane-grid-col"></div>
+              
+              <div class="lane-grid-col"></div>
+              
+              <div class="lane-grid-col"></div>
+              
+              <div class="lane-grid-col"></div>
+              
+              <div class="lane-grid-col"></div>
+              
+            </div>
+
+            <div class="lane-content" style="height: 80px;">
+              <div class="lane-tasks-container">
+                
+                
+                
+                <div class="task-card" style="left: calc(0.0% + 2px); width: calc(25.0% - 4px); top: 0px; height: 36px; border-left-color: #3b82f6;">
+                  
+                  
+                  <div class="task-badge">研发</div>
+                  
+
+                  <div class="task-name">库存中心重构</div>
+                  <div class="task-desc">支持高并发秒杀场景</div>
+
+                  <!-- Hover Tooltip -->
+                  <div class="task-tooltip " style="border-top-color: #3b82f6">
+                    <div class="tt-name">库存中心重构</div>
+                    <div class="tt-desc">支持高并发秒杀场景</div>
+                    <div class="tt-meta">
+                      <span class="tt-team">
+                        <div class="tt-dot" style="background-color: #3b82f6;"></div>
+                        基础架构团队
+                      </span>
+                      <span>•</span>
+                      <span>2026-Q1 &rarr; 2026-Q2</span>
+                    </div>
+                    
+                    <div class="tt-tag" style="background-color: #3b82f61A; color: #3b82f6;">
+                      近期
+                    </div>
+                    
+                  </div>
+                </div>
+                
+                
+                <div class="task-card" style="left: calc(12.5% + 2px); width: calc(25.0% - 4px); top: 42px; height: 36px; border-left-color: #3b82f6;">
+                  
+                  
+                  <div class="task-badge">灰度上线</div>
+                  
+
+                  <div class="task-name">会员中台2.0</div>
+                  <div class="task-desc">全域标签体系构建</div>
+
+                  <!-- Hover Tooltip -->
+                  <div class="task-tooltip " style="border-top-color: #3b82f6">
+                    <div class="tt-name">会员中台2.0</div>
+                    <div class="tt-desc">全域标签体系构建</div>
+                    <div class="tt-meta">
+                      <span class="tt-team">
+                        <div class="tt-dot" style="background-color: #3b82f6;"></div>
+                        基础架构团队
+                      </span>
+                      <span>•</span>
+                      <span>2026-Q2 &rarr; 2026-Q3</span>
+                    </div>
+                    
+                    <div class="tt-tag" style="background-color: #3b82f61A; color: #3b82f6;">
+                      中期
+                    </div>
+                    
+                  </div>
+                </div>
+                
+                
+                <div class="task-card" style="left: calc(37.5% + 2px); width: calc(37.5% - 4px); top: 0px; height: 36px; border-left-color: #3b82f6;">
+                  
+                  
+                  <div class="task-badge">研发</div>
+                  
+
+                  <div class="task-name">全球化多活架构</div>
+                  <div class="task-desc">跨境业务数据合规与低延迟</div>
+
+                  <!-- Hover Tooltip -->
+                  <div class="task-tooltip flip" style="border-top-color: #3b82f6">
+                    <div class="tt-name">全球化多活架构</div>
+                    <div class="tt-desc">跨境业务数据合规与低延迟</div>
+                    <div class="tt-meta">
+                      <span class="tt-team">
+                        <div class="tt-dot" style="background-color: #3b82f6;"></div>
+                        基础架构团队
+                      </span>
+                      <span>•</span>
+                      <span>2026-Q4 &rarr; 2027-Q2</span>
+                    </div>
+                    
+                    <div class="tt-tag" style="background-color: #3b82f61A; color: #3b82f6;">
+                      中期
+                    </div>
+                    
+                  </div>
+                </div>
+                
+                
+                <div class="task-card" style="left: calc(75.0% + 2px); width: calc(25.0% - 4px); top: 0px; height: 36px; border-left-color: #3b82f6;">
+                  
+                  
+                  <div class="task-badge">研发</div>
+                  
+
+                  <div class="task-name">云边端协同网络</div>
+                  <div class="task-desc">无人店边缘节点即时同步</div>
+
+                  <!-- Hover Tooltip -->
+                  <div class="task-tooltip flip" style="border-top-color: #3b82f6">
+                    <div class="tt-name">云边端协同网络</div>
+                    <div class="tt-desc">无人店边缘节点即时同步</div>
+                    <div class="tt-meta">
+                      <span class="tt-team">
+                        <div class="tt-dot" style="background-color: #3b82f6;"></div>
+                        基础架构团队
+                      </span>
+                      <span>•</span>
+                      <span>2027-Q3 &rarr; 2027-Q4</span>
+                    </div>
+                    
+                    <div class="tt-tag" style="background-color: #3b82f61A; color: #3b82f6;">
+                      远期
+                    </div>
+                    
+                  </div>
+                </div>
+                
+
+              </div>
+            </div>
+
+          </div>
+        </div>
+        
+        <div class="lane-row">
+          <div class="lane-header">
+            <svg class="lane-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M5 2h14c1.1 0 2 .9 2 2v16c0 1.1-.9 2-2 2H5c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2zM12 18h.01"></path>
+            </svg>
+            <div>
+              <div class="lane-title">移动端团队</div>
+              <div class="lane-subtitle">4 项举措</div>
+            </div>
+          </div>
+
+          <div class="lane-gantt">
+            <!-- Background Grid -->
+            <div class="lane-grid">
+              
+              <div class="lane-grid-col"></div>
+              
+              <div class="lane-grid-col"></div>
+              
+              <div class="lane-grid-col"></div>
+              
+              <div class="lane-grid-col"></div>
+              
+              <div class="lane-grid-col"></div>
+              
+              <div class="lane-grid-col"></div>
+              
+              <div class="lane-grid-col"></div>
+              
+              <div class="lane-grid-col"></div>
+              
+            </div>
+
+            <div class="lane-content" style="height: 80px;">
+              <div class="lane-tasks-container">
+                
+                
+                
+                <div class="task-card" style="left: calc(12.5% + 2px); width: calc(12.5% - 4px); top: 0px; height: 36px; border-left-color: #8b5cf6;">
+                  
+                  
+                  <div class="task-badge">正式上线</div>
+                  
+
+                  <div class="task-name">导购助手App</div>
+                  <div class="task-desc">赋能店员数字化导购</div>
+
+                  <!-- Hover Tooltip -->
+                  <div class="task-tooltip " style="border-top-color: #8b5cf6">
+                    <div class="tt-name">导购助手App</div>
+                    <div class="tt-desc">赋能店员数字化导购</div>
+                    <div class="tt-meta">
+                      <span class="tt-team">
+                        <div class="tt-dot" style="background-color: #8b5cf6;"></div>
+                        移动端团队
+                      </span>
+                      <span>•</span>
+                      <span>2026-Q2 &rarr; 2026-Q2</span>
+                    </div>
+                    
+                    <div class="tt-tag" style="background-color: #8b5cf61A; color: #8b5cf6;">
+                      近期
+                    </div>
+                    
+                  </div>
+                </div>
+                
+                
+                <div class="task-card" style="left: calc(25.0% + 2px); width: calc(25.0% - 4px); top: 0px; height: 36px; border-left-color: #8b5cf6;">
+                  
+                  
+                  <div class="task-badge">研发</div>
+                  
+
+                  <div class="task-name">AR试妆功能</div>
+                  <div class="task-desc">提升美妆品类转化率</div>
+
+                  <!-- Hover Tooltip -->
+                  <div class="task-tooltip " style="border-top-color: #8b5cf6">
+                    <div class="tt-name">AR试妆功能</div>
+                    <div class="tt-desc">提升美妆品类转化率</div>
+                    <div class="tt-meta">
+                      <span class="tt-team">
+                        <div class="tt-dot" style="background-color: #8b5cf6;"></div>
+                        移动端团队
+                      </span>
+                      <span>•</span>
+                      <span>2026-Q3 &rarr; 2026-Q4</span>
+                    </div>
+                    
+                    <div class="tt-tag" style="background-color: #8b5cf61A; color: #8b5cf6;">
+                      中期
+                    </div>
+                    
+                  </div>
+                </div>
+                
+                
+                <div class="task-card" style="left: calc(50.0% + 2px); width: calc(25.0% - 4px); top: 0px; height: 36px; border-left-color: #8b5cf6;">
+                  
+                  
+                  <div class="task-badge">灰度上线</div>
+                  
+
+                  <div class="task-name">无人店小程序</div>
+                  <div class="task-desc">扫码进店-自动结算-离店</div>
+
+                  <!-- Hover Tooltip -->
+                  <div class="task-tooltip flip" style="border-top-color: #8b5cf6">
+                    <div class="tt-name">无人店小程序</div>
+                    <div class="tt-desc">扫码进店-自动结算-离店</div>
+                    <div class="tt-meta">
+                      <span class="tt-team">
+                        <div class="tt-dot" style="background-color: #8b5cf6;"></div>
+                        移动端团队
+                      </span>
+                      <span>•</span>
+                      <span>2027-Q1 &rarr; 2027-Q2</span>
+                    </div>
+                    
+                    <div class="tt-tag" style="background-color: #8b5cf61A; color: #8b5cf6;">
+                      远期
+                    </div>
+                    
+                  </div>
+                </div>
+                
+                
+                <div class="task-card" style="left: calc(75.0% + 2px); width: calc(25.0% - 4px); top: 0px; height: 36px; border-left-color: #8b5cf6;">
+                  
+                  
+                  <div class="task-badge">研发</div>
+                  
+
+                  <div class="task-name">MR混合现实购物</div>
+                  <div class="task-desc">Vision Pro 沉浸式购物体验</div>
+
+                  <!-- Hover Tooltip -->
+                  <div class="task-tooltip flip" style="border-top-color: #8b5cf6">
+                    <div class="tt-name">MR混合现实购物</div>
+                    <div class="tt-desc">Vision Pro 沉浸式购物体验</div>
+                    <div class="tt-meta">
+                      <span class="tt-team">
+                        <div class="tt-dot" style="background-color: #8b5cf6;"></div>
+                        移动端团队
+                      </span>
+                      <span>•</span>
+                      <span>2027-Q3 &rarr; 2027-Q4</span>
+                    </div>
+                    
+                    <div class="tt-tag" style="background-color: #8b5cf61A; color: #8b5cf6;">
+                      远期
+                    </div>
+                    
+                  </div>
+                </div>
+                
+
+              </div>
+            </div>
+
+          </div>
+        </div>
+        
+        <div class="lane-row">
+          <div class="lane-header">
+            <svg class="lane-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 3a4 4 0 0 1 4 4c0 1.05-.4 2.01-1.07 2.72A3.99 3.99 0 0 1 18 13.5c0 1.83-1.23 3.37-2.92 3.84v.05A2.6 2.6 0 0 1 12.5 20h-1a2.6 2.6 0 0 1-2.58-2.61v-.05A3.98 3.98 0 0 1 6 13.5c0-.85.27-1.64.73-2.28A4 4 0 0 1 8 5h.07C8.75 3.84 10.28 3 12 3z"></path>
+            </svg>
+            <div>
+              <div class="lane-title">算法团队</div>
+              <div class="lane-subtitle">4 项举措</div>
+            </div>
+          </div>
+
+          <div class="lane-gantt">
+            <!-- Background Grid -->
+            <div class="lane-grid">
+              
+              <div class="lane-grid-col"></div>
+              
+              <div class="lane-grid-col"></div>
+              
+              <div class="lane-grid-col"></div>
+              
+              <div class="lane-grid-col"></div>
+              
+              <div class="lane-grid-col"></div>
+              
+              <div class="lane-grid-col"></div>
+              
+              <div class="lane-grid-col"></div>
+              
+              <div class="lane-grid-col"></div>
+              
+            </div>
+
+            <div class="lane-content" style="height: 80px;">
+              <div class="lane-tasks-container">
+                
+                
+                
+                <div class="task-card" style="left: calc(0.0% + 2px); width: calc(25.0% - 4px); top: 0px; height: 36px; border-left-color: #ec4899;">
+                  
+                  
+                  <div class="task-badge">实测</div>
+                  
+
+                  <div class="task-name">销量预测模型</div>
+                  <div class="task-desc">基于时序模型的销量预测</div>
+
+                  <!-- Hover Tooltip -->
+                  <div class="task-tooltip " style="border-top-color: #ec4899">
+                    <div class="tt-name">销量预测模型</div>
+                    <div class="tt-desc">基于时序模型的销量预测</div>
+                    <div class="tt-meta">
+                      <span class="tt-team">
+                        <div class="tt-dot" style="background-color: #ec4899;"></div>
+                        算法团队
+                      </span>
+                      <span>•</span>
+                      <span>2026-Q1 &rarr; 2026-Q2</span>
+                    </div>
+                    
+                    <div class="tt-tag" style="background-color: #ec48991A; color: #ec4899;">
+                      近期
+                    </div>
+                    
+                  </div>
+                </div>
+                
+                
+                <div class="task-card" style="left: calc(25.0% + 2px); width: calc(25.0% - 4px); top: 0px; height: 36px; border-left-color: #ec4899;">
+                  
+                  
+                  <div class="task-badge">灰度上线</div>
+                  
+
+                  <div class="task-name">智能选品引擎</div>
+                  <div class="task-desc">基于商圈画像的选品推荐</div>
+
+                  <!-- Hover Tooltip -->
+                  <div class="task-tooltip " style="border-top-color: #ec4899">
+                    <div class="tt-name">智能选品引擎</div>
+                    <div class="tt-desc">基于商圈画像的选品推荐</div>
+                    <div class="tt-meta">
+                      <span class="tt-team">
+                        <div class="tt-dot" style="background-color: #ec4899;"></div>
+                        算法团队
+                      </span>
+                      <span>•</span>
+                      <span>2026-Q3 &rarr; 2026-Q4</span>
+                    </div>
+                    
+                    <div class="tt-tag" style="background-color: #ec48991A; color: #ec4899;">
+                      中期
+                    </div>
+                    
+                  </div>
+                </div>
+                
+                
+                <div class="task-card" style="left: calc(50.0% + 2px); width: calc(37.5% - 4px); top: 0px; height: 36px; border-left-color: #ec4899;">
+                  
+                  
+                  <div class="task-badge">研发</div>
+                  
+
+                  <div class="task-name">无人店视觉识别</div>
+                  <div class="task-desc">商品拿取动作识别</div>
+
+                  <!-- Hover Tooltip -->
+                  <div class="task-tooltip flip" style="border-top-color: #ec4899">
+                    <div class="tt-name">无人店视觉识别</div>
+                    <div class="tt-desc">商品拿取动作识别</div>
+                    <div class="tt-meta">
+                      <span class="tt-team">
+                        <div class="tt-dot" style="background-color: #ec4899;"></div>
+                        算法团队
+                      </span>
+                      <span>•</span>
+                      <span>2027-Q1 &rarr; 2027-Q3</span>
+                    </div>
+                    
+                    <div class="tt-tag" style="background-color: #ec48991A; color: #ec4899;">
+                      远期
+                    </div>
+                    
+                  </div>
+                </div>
+                
+                
+                <div class="task-card" style="left: calc(87.5% + 2px); width: calc(12.5% - 4px); top: 0px; height: 36px; border-left-color: #ec4899;">
+                  
+                  
+                  <div class="task-badge">研发</div>
+                  
+
+                  <div class="task-name">多模态交互Agent</div>
+                  <div class="task-desc">语音+手势意图识别</div>
+
+                  <!-- Hover Tooltip -->
+                  <div class="task-tooltip flip" style="border-top-color: #ec4899">
+                    <div class="tt-name">多模态交互Agent</div>
+                    <div class="tt-desc">语音+手势意图识别</div>
+                    <div class="tt-meta">
+                      <span class="tt-team">
+                        <div class="tt-dot" style="background-color: #ec4899;"></div>
+                        算法团队
+                      </span>
+                      <span>•</span>
+                      <span>2027-Q4 &rarr; 2027-Q4</span>
+                    </div>
+                    
+                    <div class="tt-tag" style="background-color: #ec48991A; color: #ec4899;">
+                      远期
+                    </div>
+                    
+                  </div>
+                </div>
+                
+
+              </div>
+            </div>
+
+          </div>
+        </div>
+        
+      </div>
+
+    </div>
+
+    <footer class="footer">
+      Generated by milestone-plan-generator &middot; 2026-05-09 13:26 &middot; &copy; 2026 Inspire AI4PM
+    </footer>
+  </div>
+
+  <div class="toast" id="toast">已成功复制 YAML 数据</div>
+  
+  <script type="application/yaml" id="raw-yaml">
+title: &#34;智能零售平台演进规划&#34;
+subtitle: &#34;2026-2027 核心里程碑计划&#34;
+quarters: 
+  - &#34;2026-Q1&#34;
+  - &#34;2026-Q2&#34;
+  - &#34;2026-Q3&#34;
+  - &#34;2026-Q4&#34;
+  - &#34;2027-Q1&#34;
+  - &#34;2027-Q2&#34;
+  - &#34;2027-Q3&#34;
+  - &#34;2027-Q4&#34;
+milestones:
+  - name: &#34;近期&#34;
+    endQuarter: &#34;2026-Q2&#34;
+    title: &#34;第一阶段：线上线下基础融合&#34;
+    goals:
+      - headline: &#34;全渠道通&#34;
+        description: &#34;完成全渠道数据打通&#34;
+      - headline: &#34;会员统一&#34;
+        description: &#34;实现全域会员身份统一&#34;
+  - name: &#34;中期&#34;
+    endQuarter: &#34;2026-Q4&#34;
+    title: &#34;第二阶段：智能决策与供应链优化&#34;
+    goals:
+      - headline: &#34;智能补货&#34;
+        description: &#34;基于数据智能实现自动补货&#34;
+      - headline: &#34;精准营销&#34;
+        description: &#34;实现精准营销&#34;
+  - name: &#34;远期&#34;
+    endQuarter: &#34;2027-Q4&#34;
+    title: &#34;第三阶段：无人零售与生态构建&#34;
+    goals:
+      - headline: &#34;无人零售&#34;
+        description: &#34;探索无人零售新形态&#34;
+      - headline: &#34;生态构建&#34;
+        description: &#34;构建开放SaaS生态&#34;
+teams:
+  - id: &#34;foundation&#34;
+    name: &#34;基础架构团队&#34;
+    icon: &#34;Database&#34;
+    tasks:
+      - name: &#34;库存中心重构&#34;
+        description: &#34;支持高并发秒杀场景&#34;
+        startQuarter: &#34;2026-Q1&#34;
+        endQuarter: &#34;2026-Q2&#34;
+        milestoneTag: &#34;近期&#34;
+        type: &#34;研发&#34;
+      - name: &#34;会员中台2.0&#34;
+        description: &#34;全域标签体系构建&#34;
+        startQuarter: &#34;2026-Q2&#34;
+        endQuarter: &#34;2026-Q3&#34;
+        milestoneTag: &#34;中期&#34;
+        type: &#34;灰度上线&#34;
+      - name: &#34;全球化多活架构&#34;
+        description: &#34;跨境业务数据合规与低延迟&#34;
+        startQuarter: &#34;2026-Q4&#34;
+        endQuarter: &#34;2027-Q2&#34;
+        milestoneTag: &#34;中期&#34;
+        type: &#34;研发&#34;
+      - name: &#34;云边端协同网络&#34;
+        description: &#34;无人店边缘节点即时同步&#34;
+        startQuarter: &#34;2027-Q3&#34;
+        endQuarter: &#34;2027-Q4&#34;
+        milestoneTag: &#34;远期&#34;
+        type: &#34;研发&#34;
+  - id: &#34;mobile&#34;
+    name: &#34;移动端团队&#34;
+    icon: &#34;Smartphone&#34;
+    tasks:
+      - name: &#34;导购助手App&#34;
+        description: &#34;赋能店员数字化导购&#34;
+        startQuarter: &#34;2026-Q2&#34;
+        endQuarter: &#34;2026-Q2&#34;
+        milestoneTag: &#34;近期&#34;
+        type: &#34;正式上线&#34;
+      - name: &#34;AR试妆功能&#34;
+        description: &#34;提升美妆品类转化率&#34;
+        startQuarter: &#34;2026-Q3&#34;
+        endQuarter: &#34;2026-Q4&#34;
+        milestoneTag: &#34;中期&#34;
+        type: &#34;研发&#34;
+      - name: &#34;无人店小程序&#34;
+        description: &#34;扫码进店-自动结算-离店&#34;
+        startQuarter: &#34;2027-Q1&#34;
+        endQuarter: &#34;2027-Q2&#34;
+        milestoneTag: &#34;远期&#34;
+        type: &#34;灰度上线&#34;
+      - name: &#34;MR混合现实购物&#34;
+        description: &#34;Vision Pro 沉浸式购物体验&#34;
+        startQuarter: &#34;2027-Q3&#34;
+        endQuarter: &#34;2027-Q4&#34;
+        milestoneTag: &#34;远期&#34;
+        type: &#34;研发&#34;
+  - id: &#34;algo&#34;
+    name: &#34;算法团队&#34;
+    icon: &#34;Brain&#34;
+    tasks:
+      - name: &#34;销量预测模型&#34;
+        description: &#34;基于时序模型的销量预测&#34;
+        startQuarter: &#34;2026-Q1&#34;
+        endQuarter: &#34;2026-Q2&#34;
+        milestoneTag: &#34;近期&#34;
+        type: &#34;实测&#34;
+      - name: &#34;智能选品引擎&#34;
+        description: &#34;基于商圈画像的选品推荐&#34;
+        startQuarter: &#34;2026-Q3&#34;
+        endQuarter: &#34;2026-Q4&#34;
+        milestoneTag: &#34;中期&#34;
+        type: &#34;灰度上线&#34;
+      - name: &#34;无人店视觉识别&#34;
+        description: &#34;商品拿取动作识别&#34;
+        startQuarter: &#34;2027-Q1&#34;
+        endQuarter: &#34;2027-Q3&#34;
+        milestoneTag: &#34;远期&#34;
+        type: &#34;研发&#34;
+      - name: &#34;多模态交互Agent&#34;
+        description: &#34;语音+手势意图识别&#34;
+        startQuarter: &#34;2027-Q4&#34;
+        endQuarter: &#34;2027-Q4&#34;
+        milestoneTag: &#34;远期&#34;
+        type: &#34;研发&#34;
+
+  </script>
+
+  <script>
+    function copyYAML() {
+      const yaml = document.getElementById('raw-yaml').textContent.trim();
+      navigator.clipboard.writeText(yaml).then(() => {
+        const toast = document.getElementById('toast');
+        toast.style.display = 'block';
+        setTimeout(() => { toast.style.display = 'none'; }, 2500);
+      });
+    }
+    function exportMap() {
+      window.print();
+    }
+  </script>
+</body>
+</html>

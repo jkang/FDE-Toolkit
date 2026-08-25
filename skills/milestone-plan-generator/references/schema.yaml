@@ -1,0 +1,35 @@
+# YAML Schema Definition for Milestone Plan
+
+title: "项目总体规划标题" # 例如：智能零售平台演进规划
+subtitle: "副标题" # 例如：2026-2027 核心里程碑计划
+quarters: 
+  # 必须按照时间先后顺序排列。所有任务的区间必须在这以内
+  - "2026-Q1"
+  - "2026-Q2"
+  - "2026-Q3"
+  - "2026-Q4"
+  - "2027-Q1"
+  - "2027-Q2"
+milestones:
+  # 对应图表上方的目标阶段标识
+  - name: "近期"         # 短标签，如 近期 / MVP / 一期
+    endQuarter: "2026-Q2" # 这个目标对应的结束季度，旗帜会挂靠在这个节点
+    title: "第一阶段：线上线下基础融合" # 具体描述
+    goals:
+      - headline: "全渠道通"
+        description: "完成全渠道数据打通"
+      - headline: "会员统一"
+        description: "实现全域会员身份统一"
+teams:
+  # 对应左侧纵向的分组/泳道（Lanes）
+  - id: "foundation"
+    name: "基础架构团队"
+    icon: "Database" # 仅支持：Database, Smartphone, Brain, Globe, Shield, Users, Server, Cloud, Code, Blocks
+    tasks:
+      # 在该泳道内横铺的具体执行块（Task）
+      - name: "库存中心重构"
+        description: "支持高并发秒杀场景"
+        startQuarter: "2026-Q1" # 必须存在于 quarters 数组内
+        endQuarter: "2026-Q2"   # 必须存在于 quarters 数组内，且顺位大于等于 startQuarter
+        milestoneTag: "近期"     # 配合 tooltip 显示所归属的业务里程碑大目标名称
+        type: "研发"            # 仅支持 "研发", "实测", "灰度上线", "正式上线"

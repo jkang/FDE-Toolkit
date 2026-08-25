@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>移动电商应用演进路线图</title>
+  <style>
+    /* Reset & Base */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans SC", "PingFang SC", Arial, sans-serif;
+      background: #f8fafc;
+      color: #1e293b;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Wrap the entire view so horizontal scrolling expands the page canvas naturally */
+    .viewport {
+      padding: 32px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow-x: auto;
+    }
+
+    .canvas-container {
+      min-width: max-content;
+      min-height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Header */
+    .header { text-align: center; margin-bottom: 32px; }
+    .header h1 { font-size: 1.875rem; font-weight: 700; color: #1e293b; margin-bottom: 8px; }
+    .header p { font-size: 1.125rem; color: #475569; max-width: 800px; margin: 0 auto; line-height: 1.6; }
+    
+    .meta-tags { display: flex; justify-content: center; gap: 12px; margin-top: 12px; }
+    .meta-tag { font-size: 0.75rem; padding: 4px 12px; background: rgba(59,130,246,0.1); color: #2563eb; border-radius: 999px; font-weight: 500;}
+
+    /* Phases Layout */
+    .phases-row {
+      display: flex;
+      gap: 24px;
+      min-height: 600px;
+    }
+
+    .phase-column {
+      flex: 1;
+      min-width: 320px;
+      max-width: 400px;
+      padding: 0 8px;
+    }
+
+    /* Phase Header Box */
+    .ph-header {
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 12px;
+      text-align: center;
+      transition: box-shadow 0.2s;
+    }
+    .ph-header:hover { box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06); }
+    .ph-title { font-size: 1.125rem; font-weight: 600; color: #0f172a; }
+    .ph-desc { font-size: 0.875rem; color: #475569; margin-top: 4px; }
+    .ph-time { 
+      display: inline-block; font-size: 0.75rem; padding: 4px 12px; border-radius: 999px;
+      margin-top: 12px; font-weight: 600;
+    }
+
+    /* Phase Blocks (Objectives + Metrics, Initiatives) */
+    .block-card {
+      background: #ffffff;
+      border-radius: 8px;
+      border: 1px solid #f1f5f9;
+      overflow: hidden;
+      margin-bottom: 16px;
+    }
+    .block-header {
+      padding: 8px 12px;
+      background: #f8fafc;
+      border-bottom: 1px solid #f1f5f9;
+      font-size: 0.875rem; font-weight: 600; color: #334155;
+    }
+    .block-header.top-border { border-top: 1px solid #f1f5f9; }
+    .block-content { padding: 12px; }
+
+    /* Objective Rows */
+    .obj-row { display: flex; align-items: flex-start; gap: 8px; padding: 4px; border-radius: 4px; transition: background 0.2s; margin-bottom: 4px; }
+    .obj-row:hover { background: #f8fafc; }
+    .obj-badge { font-size: 0.75rem; padding: 2px 8px; border-radius: 6px; background: #f1f5f9; color: #475569; flex-shrink: 0; font-weight: 500; }
+    .obj-text { font-size: 0.875rem; color: #1e293b; line-height: 1.4; }
+    .empty-state { font-size: 0.875rem; font-style: italic; color: #94a3b8; }
+
+    /* Metric Rows */
+    .metric-row { display: flex; align-items: center; justify-content: space-between; padding: 4px; border-radius: 4px; transition: background 0.2s; margin-bottom: 4px;}
+    .metric-row:hover { background: #f8fafc; }
+    .metric-name { font-size: 0.875rem; font-weight: 500; color: #1e293b; }
+    .metric-target { font-size: 0.75rem; padding: 4px 8px; background: #eff6ff; border: 1px solid #dbeafe; color: #1d4ed8; border-radius: 6px; font-weight: 600;}
+
+    /* Initiative Items */
+    .init-group { border-bottom: 1px solid #f1f5f9; padding-bottom: 12px; margin-bottom: 12px; }
+    .init-group:last-child { border-bottom: none; padding-bottom: 0; margin-bottom: 0; }
+    .init-title-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+    .init-cat { font-size: 0.75rem; padding: 2px 8px; border-radius: 6px; font-weight: 500; }
+    .init-name { font-size: 0.875rem; font-weight: 600; color: #0f172a; }
+    .init-desc { font-size: 0.75rem; color: #475569; margin-bottom: 8px; line-height: 1.4; }
+    .init-bullets { list-style-type: disc; list-style-position: inside; }
+    .init-bullet { font-size: 0.875rem; color: #334155; padding: 2px 4px; border-radius: 4px; line-height: 1.5; }
+    .init-bullet:hover { background: #f1f5f9; }
+
+    .footer { text-align: center; font-size: 0.75rem; color: #94a3b8; margin-top: 32px; padding-bottom: 16px;}
+  </style>
+</head>
+<body>
+  <div class="viewport">
+    <div class="canvas-container">
+      
+      <!-- Roadmap Header -->
+      <div class="header">
+        <h1>移动电商应用演进路线图</h1>
+        <p>这里可以填写对于路线图战略和方向的一句话概括或总结描述</p>
+        
+        <div class="meta-tags">
+          <span class="meta-tag">Period: 2026-2027</span>
+          <span class="meta-tag">Updated: 2026-05-01</span>
+        </div>
+      </div>
+
+      <!-- Phases Canvas -->
+      <div class="phases-row">
+        
+        <div class="phase-column">
+          
+          <!-- Phase Timeline Header -->
+          <div class="ph-header" style="background-color: #f0fdf4">
+            <h3 class="ph-title">版本 1.0 - 基础闭环</h3>
+            <p class="ph-desc">可选的短描述</p>
+            
+            <div class="ph-time" style="background-color: #dcfce7; color: #166534">2026 Q1</div>
+            
+          </div>
+
+          <!-- Objectives & Metrics Card -->
+          <div class="block-card">
+            
+            <div class="block-header">阶段目标</div>
+            <div class="block-content">
+              
+                
+                <div class="obj-row">
+                  <span class="obj-badge">用户体验</span>
+                  <span class="obj-text">建立核心购物体验与履约流程</span>
+                </div>
+                
+              
+            </div>
+
+            <div class="block-header top-border">核心指标</div>
+            <div class="block-content">
+              
+                
+                <div class="metric-row">
+                  <span class="metric-name">用户注册数</span>
+                  
+                  <span class="metric-target">10,000</span>
+                  
+                </div>
+                
+                <div class="metric-row">
+                  <span class="metric-name">订单转化率</span>
+                  
+                  <span class="metric-target">2%</span>
+                  
+                </div>
+                
+              
+            </div>
+            
+          </div>
+
+          <!-- Initiatives Card -->
+          <div class="block-card">
+            <div class="block-header">关键举措</div>
+            <div class="block-content">
+              
+                
+                <div class="init-group">
+                  <div class="init-title-row">
+                    
+                    <span class="init-cat" style="background-color: #dbeafe; color: #1e40af">产品功能</span>
+                    
+                    <span class="init-name">核心交易系统</span>
+                  </div>
+                  
+                  <p class="init-desc">底座能力搭建</p>
+                  
+                  
+                  <ul class="init-bullets">
+                    
+                    <li class="init-bullet">用户注册与登录组件</li>
+                    
+                    <li class="init-bullet">基础商品搜索与浏览</li>
+                    
+                    <li class="init-bullet">购物车与支付全链路重构</li>
+                    
+                    
+                  </ul>
+                </div>
+                
+                <div class="init-group">
+                  <div class="init-title-row">
+                    
+                    <span class="init-cat" style="background-color: #f3e8ff; color: #6b21a8">技术基建</span>
+                    
+                    
+                  </div>
+                  
+                  
+                  <ul class="init-bullets">
+                    
+                    <li class="init-bullet">压测与容灾平台搭建</li>
+                    
+                    
+                  </ul>
+                </div>
+                
+              
+            </div>
+          </div>
+
+        </div>
+        
+        <div class="phase-column">
+          
+          <!-- Phase Timeline Header -->
+          <div class="ph-header" style="background-color: #fefce8">
+            <h3 class="ph-title">版本 2.0 - 社交与体验增强</h3>
+            
+            
+            <div class="ph-time" style="background-color: #fef9c3; color: #854d0e">2026 Q2</div>
+            
+          </div>
+
+          <!-- Objectives & Metrics Card -->
+          <div class="block-card">
+            
+            <div class="block-header">阶段目标</div>
+            <div class="block-content">
+              
+                
+                <div class="obj-row">
+                  <span class="obj-badge">商业</span>
+                  <span class="obj-text">提升用户留存与活跃</span>
+                </div>
+                
+              
+            </div>
+
+            <div class="block-header top-border">核心指标</div>
+            <div class="block-content">
+              
+                
+                <div class="metric-row">
+                  <span class="metric-name">月活跃用户 (MAU)</span>
+                  
+                  <span class="metric-target">50,000</span>
+                  
+                </div>
+                
+              
+            </div>
+            
+          </div>
+
+          <!-- Initiatives Card -->
+          <div class="block-card">
+            <div class="block-header">关键举措</div>
+            <div class="block-content">
+              
+                
+                <div class="init-group">
+                  <div class="init-title-row">
+                    
+                    <span class="init-cat" style="background-color: #ffedd5; color: #9a3412">运营策略</span>
+                    
+                    <span class="init-name">社交裂变体系</span>
+                  </div>
+                  
+                  
+                  <ul class="init-bullets">
+                    
+                    <li class="init-bullet">个性化商品推荐算法</li>
+                    
+                    <li class="init-bullet">社交拼团与拼单功能</li>
+                    
+                    <li class="init-bullet">用户评价和种草社区</li>
+                    
+                    
+                  </ul>
+                </div>
+                
+              
+            </div>
+          </div>
+
+        </div>
+        
+      </div>
+      
+      <div class="footer">Generated by roadmap-generator &middot; 2026-04-21 20:28</div>
+    </div>
+  </div>
+</body>
+</html>

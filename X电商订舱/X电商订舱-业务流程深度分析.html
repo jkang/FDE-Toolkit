@@ -1,0 +1,3133 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>X电商订舱业务端到端流程深度分析</title>
+  <style>
+    :root {
+      /* Base colors */
+      --bg-page: #f8fafc;
+      --bg-card: #ffffff;
+      --bg-section: #f1f5f9;
+      --border-color: #e2e8f0;
+      --border-light: #f1f5f9;
+      --text-main: #0f172a;
+      --text-secondary: #334155;
+      --text-muted: #64748b;
+      --text-light: #94a3b8;
+      
+      /* Severity colors */
+      --pain-critical: #dc2626;
+      --pain-critical-bg: #fef2f2;
+      --pain-high: #ea580c;
+      --pain-high-bg: #fff7ed;
+      --pain-medium: #ca8a04;
+      --pain-medium-bg: #fefce8;
+      --pain-low: #2563eb;
+      --pain-low-bg: #eff6ff;
+      
+      /* Business type colors */
+      --bt-color-1: #0ea5e9;   /* Sky */
+      --bt-color-2: #8b5cf6;   /* Violet */
+      --bt-color-3: #10b981;   /* Emerald */
+      --bt-color-4: #f59e0b;   /* Amber */
+      --bt-color-5: #ec4899;   /* Pink */
+      --bt-color-6: #6366f1;   /* Indigo */
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+                   "Noto Sans SC", "PingFang SC", "Microsoft YaHei", Arial, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.6;
+      padding: 24px;
+    }
+
+    /* ── Header ── */
+    .page-header {
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      color: white;
+      padding: 32px 40px;
+      border-radius: 16px;
+      margin-bottom: 32px;
+      box-shadow: 0 10px 25px -5px rgba(0,0,0,0.15);
+    }
+    .page-header h1 {
+      font-size: 1.8rem;
+      font-weight: 800;
+      margin-bottom: 8px;
+      letter-spacing: -0.02em;
+    }
+    .header-meta {
+      display: flex;
+      gap: 24px;
+      margin-top: 12px;
+      font-size: 0.9rem;
+      color: #94a3b8;
+      flex-wrap: wrap;
+    }
+    .header-meta span {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .header-desc {
+      margin-top: 12px;
+      color: #cbd5e1;
+      font-size: 0.95rem;
+      max-width: 800px;
+      line-height: 1.5;
+    }
+
+    /* ── Section Title ── */
+    .section-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--text-main);
+      margin: 32px 0 16px 0;
+      padding-left: 14px;
+      border-left: 4px solid #0ea5e9;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .section-subtitle {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin: -8px 0 16px 18px;
+    }
+
+    /* ── Business Type Matrix ── */
+    .bt-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .bt-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 20px;
+      transition: all 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+    .bt-card:hover {
+      box-shadow: 0 8px 20px -4px rgba(0,0,0,0.08);
+      transform: translateY(-2px);
+    }
+    .bt-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 100%;
+      background: var(--bt-color);
+    }
+    .bt-name {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: var(--text-main);
+    }
+    .bt-tags {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+    .bt-tag {
+      font-size: 0.72rem;
+      padding: 3px 10px;
+      border-radius: 20px;
+      background: var(--bg-section);
+      color: var(--text-secondary);
+      font-weight: 500;
+      border: 1px solid var(--border-color);
+    }
+    .bt-desc {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    /* ── Value Stream Section ── */
+    .vs-section {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+    .vs-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border-light);
+    }
+    .vs-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+    .vs-bt-badge {
+      font-size: 0.72rem;
+      padding: 3px 12px;
+      border-radius: 20px;
+      background: var(--bt-color);
+      color: white;
+      font-weight: 600;
+    }
+    .vs-desc {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 20px;
+    }
+
+    /* ── L1 Timeline ── */
+    .l1-timeline {
+      display: flex;
+      align-items: stretch;
+      gap: 0;
+      overflow-x: auto;
+      padding: 8px 0;
+    }
+    .l1-stage {
+      flex: 1;
+      min-width: 160px;
+      position: relative;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .l1-stage:hover .l1-stage-inner {
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .l1-stage-inner {
+      background: var(--bg-card);
+      border: 2px solid var(--border-color);
+      border-radius: 10px;
+      padding: 16px;
+      margin: 0 8px;
+      text-align: center;
+      position: relative;
+      transition: all 0.2s;
+    }
+    .l1-stage.active .l1-stage-inner {
+      border-color: var(--bt-color);
+      background: linear-gradient(135deg, var(--bt-color-bg) 0%, var(--bg-card) 100%);
+    }
+    .l1-stage-order {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--bt-color);
+      color: white;
+      font-size: 0.8rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 10px;
+    }
+    .l1-stage-name {
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+    .l1-stage-desc {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      line-height: 1.4;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    /* Arrow between stages */
+    .l1-stage::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      right: -8px;
+      width: 16px;
+      height: 2px;
+      background: var(--border-color);
+      z-index: 1;
+    }
+    .l1-stage:last-child::after {
+      display: none;
+    }
+    .l1-stage-arrow {
+      position: absolute;
+      top: 50%;
+      right: -12px;
+      transform: translateY(-50%);
+      color: var(--text-light);
+      font-size: 1rem;
+      z-index: 2;
+    }
+    .l1-stage:last-child .l1-stage-arrow {
+      display: none;
+    }
+    /* Pain indicator on L1 */
+    .l1-pain-indicator {
+      display: flex;
+      justify-content: center;
+      gap: 4px;
+      margin-top: 8px;
+      flex-wrap: wrap;
+    }
+    .pain-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+    .pain-dot.critical { background: var(--pain-critical); box-shadow: 0 0 4px var(--pain-critical); }
+    .pain-dot.high { background: var(--pain-high); }
+    .pain-dot.medium { background: var(--pain-medium); }
+    .pain-dot.low { background: var(--pain-low); }
+
+    /* ── L2 Detail Panel ── */
+    .l2-panel {
+      display: none;
+      margin-top: 20px;
+      padding: 20px;
+      background: var(--bg-section);
+      border-radius: 10px;
+      border: 1px solid var(--border-color);
+    }
+    .l2-panel.active {
+      display: block;
+      animation: slideDown 0.3s ease;
+    }
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .l2-panel-header {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .l2-flow {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .l2-activity {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 16px;
+      position: relative;
+      transition: all 0.2s;
+    }
+    .l2-activity:hover {
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+    /* Activity connector line */
+    .l2-activity::before {
+      content: '';
+      position: absolute;
+      left: 24px;
+      top: -12px;
+      width: 2px;
+      height: 12px;
+      background: var(--border-color);
+    }
+    .l2-activity:first-child::before {
+      display: none;
+    }
+    .l2-activity-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 10px;
+    }
+    .l2-activity-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+    .l2-activity-order {
+      font-size: 0.7rem;
+      color: var(--text-light);
+      background: var(--bg-section);
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+    .l2-activity-meta {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+    .l2-meta-item {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .l2-meta-item b {
+      color: var(--text-secondary);
+      font-weight: 600;
+    }
+    .l2-io {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+    .l2-io-item {
+      font-size: 0.78rem;
+    }
+    .l2-io-label {
+      color: var(--text-light);
+      font-size: 0.72rem;
+      margin-bottom: 2px;
+    }
+    .l2-io-value {
+      color: var(--text-secondary);
+    }
+    .l2-desc {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+      line-height: 1.5;
+    }
+
+    /* ── Pain Points in L2 ── */
+    .l2-pains {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .pain-card {
+      border-radius: 6px;
+      padding: 10px 12px;
+      border-left: 3px solid;
+      font-size: 0.8rem;
+    }
+    .pain-card.critical {
+      background: var(--pain-critical-bg);
+      border-left-color: var(--pain-critical);
+    }
+    .pain-card.high {
+      background: var(--pain-high-bg);
+      border-left-color: var(--pain-high);
+    }
+    .pain-card.medium {
+      background: var(--pain-medium-bg);
+      border-left-color: var(--pain-medium);
+    }
+    .pain-card.low {
+      background: var(--pain-low-bg);
+      border-left-color: var(--pain-low);
+    }
+    .pain-severity {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-weight: 600;
+      font-size: 0.72rem;
+      margin-bottom: 4px;
+    }
+    .pain-severity.critical { color: var(--pain-critical); }
+    .pain-severity.high { color: var(--pain-high); }
+    .pain-severity.medium { color: var(--pain-medium); }
+    .pain-severity.low { color: var(--pain-low); }
+    .pain-desc {
+      color: var(--text-secondary);
+      margin-bottom: 4px;
+    }
+    .pain-impact {
+      color: var(--text-muted);
+      font-size: 0.75rem;
+    }
+    .pain-root {
+      color: var(--text-light);
+      font-size: 0.75rem;
+      margin-top: 4px;
+      font-style: italic;
+    }
+
+    /* ── Pain Summary Panel ── */
+    .summary-panel {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 24px;
+      margin-top: 24px;
+    }
+    .summary-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .stat-card {
+      text-align: center;
+      padding: 12px;
+      border-radius: 8px;
+      background: var(--bg-section);
+    }
+    .stat-number {
+      font-size: 1.5rem;
+      font-weight: 800;
+      margin-bottom: 4px;
+    }
+    .stat-number.critical { color: var(--pain-critical); }
+    .stat-number.high { color: var(--pain-high); }
+    .stat-number.medium { color: var(--pain-medium); }
+    .stat-number.low { color: var(--pain-low); }
+    .stat-label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    /* Pain table */
+    .pain-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+    }
+    .pain-table th {
+      text-align: left;
+      padding: 10px;
+      background: var(--bg-section);
+      color: var(--text-secondary);
+      font-weight: 600;
+      border-bottom: 2px solid var(--border-color);
+      position: sticky;
+      top: 0;
+    }
+    .pain-table td {
+      padding: 10px;
+      border-bottom: 1px solid var(--border-light);
+      vertical-align: top;
+    }
+    .pain-table tr:hover td {
+      background: var(--bg-section);
+    }
+    .pain-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.72rem;
+      font-weight: 600;
+    }
+    .pain-badge.critical {
+      background: var(--pain-critical-bg);
+      color: var(--pain-critical);
+    }
+    .pain-badge.high {
+      background: var(--pain-high-bg);
+      color: var(--pain-high);
+    }
+    .pain-badge.medium {
+      background: var(--pain-medium-bg);
+      color: var(--pain-medium);
+    }
+    .pain-badge.low {
+      background: var(--pain-low-bg);
+      color: var(--pain-low);
+    }
+    .table-stage {
+      font-size: 0.75rem;
+      color: var(--text-light);
+    }
+    .table-activity {
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+
+    /* ── Footer ── */
+    .page-footer {
+      text-align: center;
+      padding: 24px;
+      color: var(--text-light);
+      font-size: 0.8rem;
+      margin-top: 32px;
+    }
+
+    /* ── Scrollbar styling ── */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: var(--bg-section);
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 1024px) {
+      .l1-timeline {
+        flex-wrap: wrap;
+      }
+      .l1-stage {
+        min-width: 140px;
+        flex: 0 0 calc(50% - 16px);
+        margin-bottom: 16px;
+      }
+      .l1-stage::after,
+      .l1-stage-arrow {
+        display: none;
+      }
+    }
+    @media (max-width: 768px) {
+      body { padding: 12px; }
+      .page-header { padding: 20px 24px; }
+      .page-header h1 { font-size: 1.4rem; }
+      .header-meta { gap: 12px; }
+      .bt-grid { grid-template-columns: 1fr; }
+      .l1-stage {
+        flex: 0 0 100%;
+      }
+      .l2-activity-header {
+        flex-direction: column;
+      }
+      .pain-table {
+        font-size: 0.78rem;
+      }
+      .pain-table th,
+      .pain-table td {
+        padding: 6px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="page-header">
+    <h1>X电商订舱业务端到端流程深度分析</h1>
+    <div class="header-meta">
+      <span>🏢 X（全球头部集装箱运输与物流一体化企业）</span>
+      <span>📋 电商订舱业务（在线订舱门户 / 独立电商平台 / 移动App）</span>
+      <span>🕐 2026-08-21 15:54</span>
+    </div>
+    
+    <div class="header-desc">基于 X 2025 年报与官网、独立电商平台官网、IQAX 新闻稿、行业数字化渗透率年报等公开材料，对电商订舱业务进行业务类型（L0）、L1 端到端价值流与 L2 流程活动三层梳理，并识别各环节痛点。关键数据来源已随文标注；带 [推断] 的为推算值，正式使用前需以 X 内部口径校准。</div>
+    
+  </div>
+
+  <div class="section-title">📊 业务类型分析</div>
+  <div class="section-subtitle">基于业务模式、产品类型、市场类型的三维分型</div>
+  <div class="bt-grid">
+    
+    <div class="bt-card" style="--bt-color: var(--bt-color-1); --bt-color-bg: #0ea5e915;">
+      <div class="bt-name">SME 直客即期订舱业务</div>
+      <div class="bt-tags">
+        <span class="bt-tag">B2B（在线自助直客）</span>
+        <span class="bt-tag">平台服务</span>
+        <span class="bt-tag">增量市场（SME 长尾蓝海）</span>
+      </div>
+      <div class="bt-desc">通过独立电商平台面向中小企业提供 E-Spot 即期报价（舱位保证、锁定运价、优先供柜）与 E-Quote 长时效报价（最长 1 个月、Secured E-Quote 固定锁费），所见即所得、透明比价、即时确认，对标马士基 Spot 即期数字化产品。（来源：独立电商平台官网）</div>
+    </div>
+    
+    <div class="bt-card" style="--bt-color: var(--bt-color-2); --bt-color-bg: #8b5cf615;">
+      <div class="bt-name">签约客户全周期订舱管理</div>
+      <div class="bt-tags">
+        <span class="bt-tag">B2B（混合渠道）</span>
+        <span class="bt-tag">平台服务 + 解决方案</span>
+        <span class="bt-tag">存量市场（大客户与货代）</span>
+      </div>
+      <div class="bt-desc">通过官网在线订舱门户（MOC）为存量签约客户提供 24/7 全生命周期货载管理，涵盖订舱、船期、跟踪、SI、提单、VGM、发票付款与 D&amp;D 计算器；新版 3 步订舱表单 + Smart Push 智能推送，最快 1 分钟确认。（来源：X 官网 MOC 产品页）</div>
+    </div>
+    
+    <div class="bt-card" style="--bt-color: var(--bt-color-3); --bt-color-bg: #10b98115;">
+      <div class="bt-name">端到端增值服务业务</div>
+      <div class="bt-tags">
+        <span class="bt-tag">B2B（一站式物流）</span>
+        <span class="bt-tag">解决方案</span>
+        <span class="bt-tag">垂直市场（高附加值服务）</span>
+      </div>
+      <div class="bt-desc">在订舱基础上叠加全程陆运（Door Haulage）、出口清关（E-Customs）、绿色航运（X Green）、Concierge 管家、原箱进转出（Container Re-Use）、迟延转运（Delay in Transit）、额外免箱期等增值服务，向供应链平台化演进。（来源：独立电商平台官网）</div>
+    </div>
+    
+  </div>
+
+  <div class="section-title">🔄 L1 端到端价值流 & L2 流程详情</div>
+  <div class="section-subtitle">点击阶段卡片展开 L2 级业务流程与痛点分析</div>
+  
+  
+  <div class="vs-section">
+    <div class="vs-header">
+      <div>
+        <div class="vs-title">电商订舱履约主价值流</div>
+        <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;">从客户注册认证到到港交付放货的全链路价值创造过程，覆盖询价-锁舱-放单-结算-履约-交付六大环节，2025 年电商渠道承载超 200 万 TEU（约占总载货量 25% [推断]）。（来源：X 2025 年报）</div>
+      </div>
+      <span class="vs-bt-badge" style="--bt-color: var(--bt-color-1);">SME 直客即期订舱业务</span>
+    </div>
+    
+    <div class="l1-timeline">
+      
+      <div class="l1-stage" 
+           data-vs="0" 
+           data-stage="0"
+           onclick="toggleL2(0, '客户注册与认证')"
+           style="--bt-color: var(--bt-color-1); --bt-color-bg: #0ea5e915;">
+        <div class="l1-stage-inner">
+          <div class="l1-stage-order">1</div>
+          <div class="l1-stage-name">客户注册与认证</div>
+          <div class="l1-stage-desc">新客户（SME 货主/货代）完成企业注册、资质认证与账号开通，建立数字身份，进入独立电商平台或官网门户服务池。</div>
+          
+          <div class="l1-pain-indicator">
+            
+            <span class="pain-dot medium"></span>
+            
+            <span class="pain-dot high"></span>
+            
+          </div>
+          
+        </div>
+        
+        <div class="l1-stage-arrow">▶</div>
+        
+      </div>
+      
+      <div class="l1-stage" 
+           data-vs="1" 
+           data-stage="1"
+           onclick="toggleL2(1, '询价与报价')"
+           style="--bt-color: var(--bt-color-1); --bt-color-bg: #0ea5e915;">
+        <div class="l1-stage-inner">
+          <div class="l1-stage-order">2</div>
+          <div class="l1-stage-name">询价与报价</div>
+          <div class="l1-stage-desc">客户通过 E-Spot（即期，所见即所得）或 E-Quote（长时效最长 1 个月）获取透明报价，可用 Secured E-Quote（2025.01 上线）固定锁费，2026.03 起支持 All-in-One 一站式询价。</div>
+          
+          <div class="l1-pain-indicator">
+            
+            <span class="pain-dot medium"></span>
+            
+            <span class="pain-dot high"></span>
+            
+          </div>
+          
+        </div>
+        
+        <div class="l1-stage-arrow">▶</div>
+        
+      </div>
+      
+      <div class="l1-stage" 
+           data-vs="2" 
+           data-stage="2"
+           onclick="toggleL2(2, '在线订舱')"
+           style="--bt-color: var(--bt-color-1); --bt-color-bg: #0ea5e915;">
+        <div class="l1-stage-inner">
+          <div class="l1-stage-order">3</div>
+          <div class="l1-stage-name">在线订舱</div>
+          <div class="l1-stage-desc">客户以新版 3 步订舱表单提交订舱请求，Smart Push 基于历史交易智能预填费率参考号、港口对与货方信息，缩短填单时间。</div>
+          
+          <div class="l1-pain-indicator">
+            
+            <span class="pain-dot low"></span>
+            
+            <span class="pain-dot high"></span>
+            
+          </div>
+          
+        </div>
+        
+        <div class="l1-stage-arrow">▶</div>
+        
+      </div>
+      
+      <div class="l1-stage" 
+           data-vs="3" 
+           data-stage="3"
+           onclick="toggleL2(3, '舱位分配与确认')"
+           style="--bt-color: var(--bt-color-1); --bt-color-bg: #0ea5e915;">
+        <div class="l1-stage-inner">
+          <div class="l1-stage-order">4</div>
+          <div class="l1-stage-name">舱位分配与确认</div>
+          <div class="l1-stage-desc">系统按航线运力与收益管理策略分配舱位，签发 Booking Confirmation 并登记 E-Spot 舱位保证（Space Protection）承诺。</div>
+          
+          <div class="l1-pain-indicator">
+            
+            <span class="pain-dot high"></span>
+            
+            <span class="pain-dot medium"></span>
+            
+          </div>
+          
+        </div>
+        
+        <div class="l1-stage-arrow">▶</div>
+        
+      </div>
+      
+      <div class="l1-stage" 
+           data-vs="4" 
+           data-stage="4"
+           onclick="toggleL2(4, '单证处理')"
+           style="--bt-color: var(--bt-color-1); --bt-color-bg: #0ea5e915;">
+        <div class="l1-stage-inner">
+          <div class="l1-stage-order">5</div>
+          <div class="l1-stage-name">单证处理</div>
+          <div class="l1-stage-desc">客户提交装运指示（SI），智慧单证系统自动处理（2025 年约 35 万份），提单经 IQAX eBL / GSBN 区块链签发电子提单，打通无纸化闭环。</div>
+          
+          <div class="l1-pain-indicator">
+            
+            <span class="pain-dot medium"></span>
+            
+            <span class="pain-dot high"></span>
+            
+          </div>
+          
+        </div>
+        
+        <div class="l1-stage-arrow">▶</div>
+        
+      </div>
+      
+      <div class="l1-stage" 
+           data-vs="5" 
+           data-stage="5"
+           onclick="toggleL2(5, '支付与结算')"
+           style="--bt-color: var(--bt-color-1); --bt-color-bg: #0ea5e915;">
+        <div class="l1-stage-inner">
+          <div class="l1-stage-order">6</div>
+          <div class="l1-stage-name">支付与结算</div>
+          <div class="l1-stage-desc">在线支付运费与附加费、开具电子发票，支持账期客户结算，D&amp;D 费用透明化。</div>
+          
+          <div class="l1-pain-indicator">
+            
+            <span class="pain-dot medium"></span>
+            
+            <span class="pain-dot low"></span>
+            
+          </div>
+          
+        </div>
+        
+        <div class="l1-stage-arrow">▶</div>
+        
+      </div>
+      
+      <div class="l1-stage" 
+           data-vs="6" 
+           data-stage="6"
+           onclick="toggleL2(6, '提箱装箱·陆运·清关')"
+           style="--bt-color: var(--bt-color-1); --bt-color-bg: #0ea5e915;">
+        <div class="l1-stage-inner">
+          <div class="l1-stage-order">7</div>
+          <div class="l1-stage-name">提箱装箱·陆运·清关</div>
+          <div class="l1-stage-desc">客户提箱装箱，通过 E-Trucking / Door Haulage（2022.06）全程陆运衔接，E-Customs（2023.01）完成出口清关，实现端到端履约。</div>
+          
+          <div class="l1-pain-indicator">
+            
+            <span class="pain-dot high"></span>
+            
+            <span class="pain-dot critical"></span>
+            
+          </div>
+          
+        </div>
+        
+        <div class="l1-stage-arrow">▶</div>
+        
+      </div>
+      
+      <div class="l1-stage" 
+           data-vs="7" 
+           data-stage="7"
+           onclick="toggleL2(7, '出运跟踪')"
+           style="--bt-color: var(--bt-color-1); --bt-color-bg: #0ea5e915;">
+        <div class="l1-stage-inner">
+          <div class="l1-stage-order">8</div>
+          <div class="l1-stage-name">出运跟踪</div>
+          <div class="l1-stage-desc">控制塔（Control Tower，2022.09）提供全订单可视化，Cargo Tracking+（2022.12）精细追踪，2026.07 上线新版 Cargo Tracking 体验。</div>
+          
+          <div class="l1-pain-indicator">
+            
+            <span class="pain-dot high"></span>
+            
+            <span class="pain-dot critical"></span>
+            
+          </div>
+          
+        </div>
+        
+        <div class="l1-stage-arrow">▶</div>
+        
+      </div>
+      
+      <div class="l1-stage" 
+           data-vs="8" 
+           data-stage="8"
+           onclick="toggleL2(8, '到港交付与放货')"
+           style="--bt-color: var(--bt-color-1); --bt-color-bg: #0ea5e915;">
+        <div class="l1-stage-inner">
+          <div class="l1-stage-order">9</div>
+          <div class="l1-stage-name">到港交付与放货</div>
+          <div class="l1-stage-desc">到港通知与 D&amp;D 管理（免箱期 / 滞箱费），eBL 放货与目的港提货，LCL eBL 试点向中小客户渗透。</div>
+          
+          <div class="l1-pain-indicator">
+            
+            <span class="pain-dot medium"></span>
+            
+            <span class="pain-dot high"></span>
+            
+          </div>
+          
+        </div>
+        
+        <div class="l1-stage-arrow">▶</div>
+        
+      </div>
+      
+      <div class="l1-stage" 
+           data-vs="9" 
+           data-stage="9"
+           onclick="toggleL2(9, '售后与会员运营')"
+           style="--bt-color: var(--bt-color-1); --bt-color-bg: #0ea5e915;">
+        <div class="l1-stage-inner">
+          <div class="l1-stage-order">10</div>
+          <div class="l1-stage-name">售后与会员运营</div>
+          <div class="l1-stage-desc">PlumSmart 会员计划（2021.07）分层运营、AI 客服承接 150 万+ 互动（2025 年），售后处理与复购管理。</div>
+          
+          <div class="l1-pain-indicator">
+            
+            <span class="pain-dot medium"></span>
+            
+            <span class="pain-dot medium"></span>
+            
+          </div>
+          
+        </div>
+        
+      </div>
+      
+    </div>
+
+    
+    <div class="l2-panel" id="l2-panel-0" data-vs="0">
+      <div class="l2-panel-header">
+        <span style="color: var(--bt-color-1);">▸</span>
+        阶段 1: 客户注册与认证 — L2 流程详情
+      </div>
+      <div class="l2-flow">
+        
+        <div class="l2-activity">
+          <div class="l2-activity-header">
+            <div class="l2-activity-title">企业账号注册与资料填报</div>
+            <span class="l2-activity-order">#1</span>
+          </div>
+          <div class="l2-activity-meta">
+            <span class="l2-meta-item">👤 <b>角色:</b> SME 货主 / 货代（客户）</span>
+            <span class="l2-meta-item">💻 <b>系统:</b> 独立电商平台 / 官网订舱门户注册页</span>
+          </div>
+          
+          <div class="l2-io">
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输入</div>
+              <div class="l2-io-value">企业营业执照与经营资质, 贸易合同与联系人信息</div>
+            </div>
+            
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输出</div>
+              <div class="l2-io-value">待审核注册申请</div>
+            </div>
+            
+          </div>
+          
+          
+          <div class="l2-desc">客户在线填写企业资质、联系人与结算信息，选择服务渠道（独立电商平台或官网门户）；移动App与微信小程序提供补充注册入口（微信小程序 2024.08 上线）。（来源：独立电商平台官网）</div>
+          
+          
+          <div class="l2-pains">
+            
+            <div class="pain-card medium">
+              <div class="pain-severity medium">
+                🟡
+                MEDIUM 严重程度
+              </div>
+              <div class="pain-desc">注册字段繁多，SME 首次填报需 30-60 分钟 [推断]</div>
+              <div class="pain-impact">💥 影响: 新客注册流失率偏高，长尾获客入口摩擦直接压缩 SME 增量</div>
+              <div class="pain-root">🔍 根因: 表单未针对 SME 简化资质要求，缺乏模板化与历史信息复用</div>
+            </div>
+            
+          </div>
+          
+        </div>
+        
+        <div class="l2-activity">
+          <div class="l2-activity-header">
+            <div class="l2-activity-title">资质审核与账号开通</div>
+            <span class="l2-activity-order">#2</span>
+          </div>
+          <div class="l2-activity-meta">
+            <span class="l2-meta-item">👤 <b>角色:</b> 电商运营 / 风控审核员</span>
+            <span class="l2-meta-item">💻 <b>系统:</b> CRM 客户管理系统 / 风控系统</span>
+          </div>
+          
+          <div class="l2-io">
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输入</div>
+              <div class="l2-io-value">注册申请与资质文件</div>
+            </div>
+            
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输出</div>
+              <div class="l2-io-value">认证通过的账号（约 3 个工作日）</div>
+            </div>
+            
+          </div>
+          
+          
+          <div class="l2-desc">人工审核企业资质并开通账号；X 官方披露企业认证约 3 个工作日完成。（来源：独立电商平台官网）</div>
+          
+          
+          <div class="l2-pains">
+            
+            <div class="pain-card high">
+              <div class="pain-severity high">
+                🟠
+                HIGH 严重程度
+              </div>
+              <div class="pain-desc">企业认证约需 3 个工作日，远慢于行业头部分钟级自助开户 [推断]</div>
+              <div class="pain-impact">💥 影响: 新客首单等待窗口长，SME 可能转向货代或其他平台即时交易</div>
+              <div class="pain-root">🔍 根因: 审核依赖人工验证，缺乏 AI 资质识别与自动验真，开户与订舱链路未打通</div>
+            </div>
+            
+          </div>
+          
+        </div>
+        
+      </div>
+    </div>
+    
+    <div class="l2-panel" id="l2-panel-1" data-vs="1">
+      <div class="l2-panel-header">
+        <span style="color: var(--bt-color-1);">▸</span>
+        阶段 2: 询价与报价 — L2 流程详情
+      </div>
+      <div class="l2-flow">
+        
+        <div class="l2-activity">
+          <div class="l2-activity-header">
+            <div class="l2-activity-title">即期 / 长时效报价查询</div>
+            <span class="l2-activity-order">#1</span>
+          </div>
+          <div class="l2-activity-meta">
+            <span class="l2-meta-item">👤 <b>角色:</b> SME 货主（客户）</span>
+            <span class="l2-meta-item">💻 <b>系统:</b> 独立电商平台报价引擎（E-Spot / E-Quote）</span>
+          </div>
+          
+          <div class="l2-io">
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输入</div>
+              <div class="l2-io-value">起运港 / 目的港, 货量、货型与船期偏好</div>
+            </div>
+            
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输出</div>
+              <div class="l2-io-value">E-Spot 即期报价（含舱位保证与优先供柜）, E-Quote 报价单（最长 1 个月有效）</div>
+            </div>
+            
+          </div>
+          
+          
+          <div class="l2-desc">客户在线查询即期运价或长时效报价，E-Spot 针对特定 X 航次提供实时透明报价并锁定大部分附加费，含 24 小时无忧取消（Cooling-off）。（来源：独立电商平台官网）</div>
+          
+          
+          <div class="l2-pains">
+            
+            <div class="pain-card medium">
+              <div class="pain-severity medium">
+                🟡
+                MEDIUM 严重程度
+              </div>
+              <div class="pain-desc">即期报价仅覆盖特定航次，非全航线透明 [推断]</div>
+              <div class="pain-impact">💥 影响: 客户需多平台比价，报价覆盖不足导致转化流失</div>
+              <div class="pain-root">🔍 根因: 即期定价依赖舱位收益管理策略，全航线实时定价存在成本约束</div>
+            </div>
+            
+          </div>
+          
+        </div>
+        
+        <div class="l2-activity">
+          <div class="l2-activity-header">
+            <div class="l2-activity-title">智能报价推荐与锁价</div>
+            <span class="l2-activity-order">#2</span>
+          </div>
+          <div class="l2-activity-meta">
+            <span class="l2-meta-item">👤 <b>角色:</b> AI 助手（Ask Fin / 小飞 Fin）+ 收益管理</span>
+            <span class="l2-meta-item">💻 <b>系统:</b> AI 报价引擎 / All-in-One 询价（2026.03）</span>
+          </div>
+          
+          <div class="l2-io">
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输入</div>
+              <div class="l2-io-value">历史成交价与市场运价指数, 客户偏好与航线网络数据</div>
+            </div>
+            
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输出</div>
+              <div class="l2-io-value">个性化报价推荐（Smart Push / Nearby Route Suggestions）, Secured E-Quote 锁价确认</div>
+            </div>
+            
+          </div>
+          
+          
+          <div class="l2-desc">AI 基于历史交易与市场运价指数推荐最优港口对与报价，提供固定费率锁价与附近航线建议（2025.05 上线）。（来源：独立电商平台官网 / X 2025 年报）</div>
+          
+          
+          <div class="l2-pains">
+            
+            <div class="pain-card high">
+              <div class="pain-severity high">
+                🟠
+                HIGH 严重程度
+              </div>
+              <div class="pain-desc">锁价产品与市场运价下行脱钩时，客户弃约或转投即期 [推断]</div>
+              <div class="pain-impact">💥 影响: 报价承诺与实际运价背离放大收益风险，影响舱位收益管理</div>
+              <div class="pain-root">🔍 根因: 锁价定价缺乏动态风险对冲模型，运价波动（2025 年关税/红海扰动）传导至锁价成本</div>
+            </div>
+            
+          </div>
+          
+        </div>
+        
+      </div>
+    </div>
+    
+    <div class="l2-panel" id="l2-panel-2" data-vs="2">
+      <div class="l2-panel-header">
+        <span style="color: var(--bt-color-1);">▸</span>
+        阶段 3: 在线订舱 — L2 流程详情
+      </div>
+      <div class="l2-flow">
+        
+        <div class="l2-activity">
+          <div class="l2-activity-header">
+            <div class="l2-activity-title">3 步订舱表单提交</div>
+            <span class="l2-activity-order">#1</span>
+          </div>
+          <div class="l2-activity-meta">
+            <span class="l2-meta-item">👤 <b>角色:</b> SME 货主（客户）</span>
+            <span class="l2-meta-item">💻 <b>系统:</b> 官网订舱门户新版订舱表单 / 独立电商平台</span>
+          </div>
+          
+          <div class="l2-io">
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输入</div>
+              <div class="l2-io-value">报价参考号、货量与箱型, 起运 / 目的港与货方信息</div>
+            </div>
+            
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输出</div>
+              <div class="l2-io-value">订舱请求（Booking Request）</div>
+            </div>
+            
+          </div>
+          
+          
+          <div class="l2-desc">客户完成 3 步订舱，Smart Push 智能推送费率参考号、港口对与货方信息；订舱表单 2025 年改版上线。（来源：X 官网 MOC 产品页）</div>
+          
+          
+          <div class="l2-pains">
+            
+            <div class="pain-card low">
+              <div class="pain-severity low">
+                🔵
+                LOW 严重程度
+              </div>
+              <div class="pain-desc">新客首次使用字段不熟悉，资料不齐需往返补件</div>
+              <div class="pain-impact">💥 影响: 订舱提交平均耗时仍偏高 [推断]，SME 小单客户对时效敏感</div>
+              <div class="pain-root">🔍 根因: 智能预填依赖历史数据，新客无历史记录可用</div>
+            </div>
+            
+          </div>
+          
+        </div>
+        
+        <div class="l2-activity">
+          <div class="l2-activity-header">
+            <div class="l2-activity-title">订舱请求受理与校验</div>
+            <span class="l2-activity-order">#2</span>
+          </div>
+          <div class="l2-activity-meta">
+            <span class="l2-meta-item">👤 <b>角色:</b> 订舱运营 / CSR（客户服务代表）</span>
+            <span class="l2-meta-item">💻 <b>系统:</b> 订舱管理系统（OMS）/ CRM</span>
+          </div>
+          
+          <div class="l2-io">
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输入</div>
+              <div class="l2-io-value">订舱请求与客户档案</div>
+            </div>
+            
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输出</div>
+              <div class="l2-io-value">已受理订舱与 SLA 校验结果</div>
+            </div>
+            
+          </div>
+          
+          
+          <div class="l2-desc">系统校验费率、信用与航线可用性，将订舱请求路由至舱位分配环节。</div>
+          
+          
+          <div class="l2-pains">
+            
+            <div class="pain-card high">
+              <div class="pain-severity high">
+                🟠
+                HIGH 严重程度
+              </div>
+              <div class="pain-desc">最快 1 分钟确认仅限特定条款客户，大量 SME 请求仍走人工审核</div>
+              <div class="pain-impact">💥 影响: 平均确认时效无法对标行业头部分钟级体验，直接制约电商订舱渗透率提升</div>
+              <div class="pain-root">🔍 根因: 自动校验规则覆盖不全，人工审核兜底比例高（对应无代理化能力缺口 [推断]）</div>
+            </div>
+            
+          </div>
+          
+        </div>
+        
+      </div>
+    </div>
+    
+    <div class="l2-panel" id="l2-panel-3" data-vs="3">
+      <div class="l2-panel-header">
+        <span style="color: var(--bt-color-1);">▸</span>
+        阶段 4: 舱位分配与确认 — L2 流程详情
+      </div>
+      <div class="l2-flow">
+        
+        <div class="l2-activity">
+          <div class="l2-activity-header">
+            <div class="l2-activity-title">舱位分配与收益校验</div>
+            <span class="l2-activity-order">#1</span>
+          </div>
+          <div class="l2-activity-meta">
+            <span class="l2-meta-item">👤 <b>角色:</b> 舱位管理 / 收益管理系统</span>
+            <span class="l2-meta-item">💻 <b>系统:</b> 舱位分配引擎 / 收益管理系统</span>
+          </div>
+          
+          <div class="l2-io">
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输入</div>
+              <div class="l2-io-value">已受理订舱与客户价值分级, 航线装载率与运力配置</div>
+            </div>
+            
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输出</div>
+              <div class="l2-io-value">舱位分配结果（E-Spot 订单优先供柜）</div>
+            </div>
+            
+          </div>
+          
+          
+          <div class="l2-desc">收益管理按航线装载率与客户价值分配舱位，E-Spot 订单享受优先供柜与舱位保证。（来源：独立电商平台官网）</div>
+          
+          
+          <div class="l2-pains">
+            
+            <div class="pain-card high">
+              <div class="pain-severity high">
+                🟠
+                HIGH 严重程度
+              </div>
+              <div class="pain-desc">旺季/运力波动期舱位向高价值客户倾斜，SME 甩柜或改船风险上升</div>
+              <div class="pain-impact">💥 影响: 舱位保证兑现缺口侵蚀锁舱承诺信任（KPI 目标 95%+），SME 复购受损</div>
+              <div class="pain-root">🔍 根因: 动态运力分配以收益为先，未将电商承诺兑现率设为硬约束</div>
+            </div>
+            
+          </div>
+          
+        </div>
+        
+        <div class="l2-activity">
+          <div class="l2-activity-header">
+            <div class="l2-activity-title">Booking Confirmation 签发与告知</div>
+            <span class="l2-activity-order">#2</span>
+          </div>
+          <div class="l2-activity-meta">
+            <span class="l2-meta-item">👤 <b>角色:</b> 订舱系统（自动）+ 客服</span>
+            <span class="l2-meta-item">💻 <b>系统:</b> 订舱门户 / 独立电商平台 + 邮件 / 微信小程序通知</span>
+          </div>
+          
+          <div class="l2-io">
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输入</div>
+              <div class="l2-io-value">舱位分配结果</div>
+            </div>
+            
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输出</div>
+              <div class="l2-io-value">Booking Confirmation（特定条款客户最快 1 分钟）</div>
+            </div>
+            
+          </div>
+          
+          
+          <div class="l2-desc">自动签发订舱确认并多通道通知（邮件、微信小程序实时推送）。</div>
+          
+          
+          <div class="l2-pains">
+            
+            <div class="pain-card medium">
+              <div class="pain-severity medium">
+                🟡
+                MEDIUM 严重程度
+              </div>
+              <div class="pain-desc">改船/取消异常通知延迟，平台状态与船期计划不同步</div>
+              <div class="pain-impact">💥 影响: 客户对船期变更知情滞后，产生投诉与改单成本</div>
+              <div class="pain-root">🔍 根因: 海洋联盟 DAY9/DAY10 船期计划与电商系统状态同步存在时差</div>
+            </div>
+            
+          </div>
+          
+        </div>
+        
+      </div>
+    </div>
+    
+    <div class="l2-panel" id="l2-panel-4" data-vs="4">
+      <div class="l2-panel-header">
+        <span style="color: var(--bt-color-1);">▸</span>
+        阶段 5: 单证处理 — L2 流程详情
+      </div>
+      <div class="l2-flow">
+        
+        <div class="l2-activity">
+          <div class="l2-activity-header">
+            <div class="l2-activity-title">SI 提交与自动处理</div>
+            <span class="l2-activity-order">#1</span>
+          </div>
+          <div class="l2-activity-meta">
+            <span class="l2-meta-item">👤 <b>角色:</b> 客户 + 智慧单证系统</span>
+            <span class="l2-meta-item">💻 <b>系统:</b> 智慧单证系统（订舱门户 / 独立电商平台）</span>
+          </div>
+          
+          <div class="l2-io">
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输入</div>
+              <div class="l2-io-value">装箱数据、唛头、品名与 VGM</div>
+            </div>
+            
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输出</div>
+              <div class="l2-io-value">校验通过的 SI（年约 35 万份自动处理）</div>
+            </div>
+            
+          </div>
+          
+          
+          <div class="l2-desc">客户在线提交 SI 与 VGM，AI 智慧单证自动校验、纠错与回填；2025 年自动处理约 35 万份装运指示。（来源：X 2025 年报）</div>
+          
+          
+          <div class="l2-pains">
+            
+            <div class="pain-card medium">
+              <div class="pain-severity medium">
+                🟡
+                MEDIUM 严重程度
+              </div>
+              <div class="pain-desc">非结构化 / 手工 SI 仍需人工复核，错误退单引发返工</div>
+              <div class="pain-impact">💥 影响: 单证人工复核占比高，35 万份自动处理的效率红利未完全释放</div>
+              <div class="pain-root">🔍 根因: 智慧单证覆盖主流格式，长尾字段与多语言品名识别仍依赖人工</div>
+            </div>
+            
+          </div>
+          
+        </div>
+        
+        <div class="l2-activity">
+          <div class="l2-activity-header">
+            <div class="l2-activity-title">提单签发（eBL / 纸质）</div>
+            <span class="l2-activity-order">#2</span>
+          </div>
+          <div class="l2-activity-meta">
+            <span class="l2-meta-item">👤 <b>角色:</b> 单证团队 + IQAX 数字贸易</span>
+            <span class="l2-meta-item">💻 <b>系统:</b> IQAX eBL / GSBN 区块链 / 提单系统</span>
+          </div>
+          
+          <div class="l2-io">
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输入</div>
+              <div class="l2-io-value">校验后的 SI 与贸易条款</div>
+            </div>
+            
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输出</div>
+              <div class="l2-io-value">电子提单（eBL）或纸质提单</div>
+            </div>
+            
+          </div>
+          
+          
+          <div class="l2-desc">签发提单；IQAX eBL 于 2024.12 获国际保赔协会（IG P&amp;I）互操作批准，2026.06 启动 LCL eBL 试点并推出 IQAX One 平台。（来源：IQAX 新闻稿 / X 2025 年报）</div>
+          
+          
+          <div class="l2-pains">
+            
+            <div class="pain-card high">
+              <div class="pain-severity high">
+                🟠
+                HIGH 严重程度
+              </div>
+              <div class="pain-desc">eBL 渗透率未披露且仍处拐点期，纸质提单流转慢、互操作标准不统一</div>
+              <div class="pain-impact">💥 影响: 无纸化红利（KPI 目标 eBL 30%+）兑现缓慢，融资与放货环节仍依赖纸质</div>
+              <div class="pain-root">🔍 根因: 跨境银行/收货人数字化接受度参差，跨平台互操作标准仍在建立</div>
+            </div>
+            
+          </div>
+          
+        </div>
+        
+      </div>
+    </div>
+    
+    <div class="l2-panel" id="l2-panel-5" data-vs="5">
+      <div class="l2-panel-header">
+        <span style="color: var(--bt-color-1);">▸</span>
+        阶段 6: 支付与结算 — L2 流程详情
+      </div>
+      <div class="l2-flow">
+        
+        <div class="l2-activity">
+          <div class="l2-activity-header">
+            <div class="l2-activity-title">在线支付与发票</div>
+            <span class="l2-activity-order">#1</span>
+          </div>
+          <div class="l2-activity-meta">
+            <span class="l2-meta-item">👤 <b>角色:</b> SME 货主（客户）</span>
+            <span class="l2-meta-item">💻 <b>系统:</b> 支付系统 / 发票模块（官网订舱门户）</span>
+          </div>
+          
+          <div class="l2-io">
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输入</div>
+              <div class="l2-io-value">运费账单与附加费明细</div>
+            </div>
+            
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输出</div>
+              <div class="l2-io-value">支付凭证与电子发票</div>
+            </div>
+            
+          </div>
+          
+          
+          <div class="l2-desc">客户在订舱门户在线查看发票、付款并管理 D&amp;D 费用，支持报表与对账。（来源：X 官网 MOC 产品页）</div>
+          
+          
+          <div class="l2-pains">
+            
+            <div class="pain-card medium">
+              <div class="pain-severity medium">
+                🟡
+                MEDIUM 严重程度
+              </div>
+              <div class="pain-desc">多币种支付与 SME 小额高频结算存在汇率与手续费摩擦</div>
+              <div class="pain-impact">💥 影响: 跨境支付成本与结算周期影响 SME 现金流体验</div>
+              <div class="pain-root">🔍 根因: 支付通道覆盖有限，南美等新市场缺乏本地化收付款渠道</div>
+            </div>
+            
+          </div>
+          
+        </div>
+        
+        <div class="l2-activity">
+          <div class="l2-activity-header">
+            <div class="l2-activity-title">账期与对账管理</div>
+            <span class="l2-activity-order">#2</span>
+          </div>
+          <div class="l2-activity-meta">
+            <span class="l2-meta-item">👤 <b>角色:</b> 财务 / 结算团队</span>
+            <span class="l2-meta-item">💻 <b>系统:</b> 结算系统 / 集团 ERP</span>
+          </div>
+          
+          <div class="l2-io">
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输入</div>
+              <div class="l2-io-value">支付记录与合同账期</div>
+            </div>
+            
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输出</div>
+              <div class="l2-io-value">对账单与账期核销</div>
+            </div>
+            
+          </div>
+          
+          
+          <div class="l2-desc">财务按客户信用等级管理账期并月度对账。</div>
+          
+          
+          <div class="l2-pains">
+            
+            <div class="pain-card low">
+              <div class="pain-severity low">
+                🔵
+                LOW 严重程度
+              </div>
+              <div class="pain-desc">电商 / 货代 EDI 渠道账单口径不一，对账需人工合并</div>
+              <div class="pain-impact">💥 影响: 财务对账人力成本高，SME 账单理解成本上升</div>
+              <div class="pain-root">🔍 根因: 电商订单与货代 EDI 订单在结算系统内未完全统一</div>
+            </div>
+            
+          </div>
+          
+        </div>
+        
+      </div>
+    </div>
+    
+    <div class="l2-panel" id="l2-panel-6" data-vs="6">
+      <div class="l2-panel-header">
+        <span style="color: var(--bt-color-1);">▸</span>
+        阶段 7: 提箱装箱·陆运·清关 — L2 流程详情
+      </div>
+      <div class="l2-flow">
+        
+        <div class="l2-activity">
+          <div class="l2-activity-header">
+            <div class="l2-activity-title">提箱装箱与陆运订舱</div>
+            <span class="l2-activity-order">#1</span>
+          </div>
+          <div class="l2-activity-meta">
+            <span class="l2-meta-item">👤 <b>角色:</b> 客户 + 拖车承运商</span>
+            <span class="l2-meta-item">💻 <b>系统:</b> E-Trucking / Door Haulage（2022.06）</span>
+          </div>
+          
+          <div class="l2-io">
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输入</div>
+              <div class="l2-io-value">放箱指令与装箱计划</div>
+            </div>
+            
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输出</div>
+              <div class="l2-io-value">重箱进场（进港 / 进码头）</div>
+            </div>
+            
+          </div>
+          
+          
+          <div class="l2-desc">客户提空箱装箱，通过陆运网络安排拖车，支持门到门（Door Haulage）全程运输。（来源：独立电商平台官网）</div>
+          
+          
+          <div class="l2-pains">
+            
+            <div class="pain-card high">
+              <div class="pain-severity high">
+                🟠
+                HIGH 严重程度
+              </div>
+              <div class="pain-desc">内陆拖车资源紧张（旺季尤甚），陆运与船期衔接断点导致误船 / 赶船</div>
+              <div class="pain-impact">💥 影响: 误船改配产生额外成本，Door Haulage 端到端承诺兑现率承压</div>
+              <div class="pain-root">🔍 根因: 内陆运力资源池有限，拖车调度缺乏 AI 动态路由优化</div>
+            </div>
+            
+          </div>
+          
+        </div>
+        
+        <div class="l2-activity">
+          <div class="l2-activity-header">
+            <div class="l2-activity-title">出口清关（E-Customs）</div>
+            <span class="l2-activity-order">#2</span>
+          </div>
+          <div class="l2-activity-meta">
+            <span class="l2-meta-item">👤 <b>角色:</b> 客户 / 报关行 + E-Customs 平台</span>
+            <span class="l2-meta-item">💻 <b>系统:</b> E-Customs（2023.01）/ 海关申报系统</span>
+          </div>
+          
+          <div class="l2-io">
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输入</div>
+              <div class="l2-io-value">报关单、装箱单、发票与许可证</div>
+            </div>
+            
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输出</div>
+              <div class="l2-io-value">海关放行 / 查验结果</div>
+            </div>
+            
+          </div>
+          
+          
+          <div class="l2-desc">E-Customs 提供清关增值服务，支持在线申报与状态跟踪。（来源：独立电商平台官网）</div>
+          
+          
+          <div class="l2-pains">
+            
+            <div class="pain-card critical">
+              <div class="pain-severity critical">
+                🔴
+                CRITICAL 严重程度
+              </div>
+              <div class="pain-desc">出口国监管政策多变（美国关税 / 301 调查、欧盟 ETS 等），清关异常导致扣货延误</div>
+              <div class="pain-impact">💥 影响: 清关延误推高全程时效波动，端到端 SLA 承诺难兑现，SME 对不确定性敏感</div>
+              <div class="pain-root">🔍 根因: 合规规则未数字化沉淀，异常清关依赖人工介入（行业存在数据孤岛）</div>
+            </div>
+            
+          </div>
+          
+        </div>
+        
+      </div>
+    </div>
+    
+    <div class="l2-panel" id="l2-panel-7" data-vs="7">
+      <div class="l2-panel-header">
+        <span style="color: var(--bt-color-1);">▸</span>
+        阶段 8: 出运跟踪 — L2 流程详情
+      </div>
+      <div class="l2-flow">
+        
+        <div class="l2-activity">
+          <div class="l2-activity-header">
+            <div class="l2-activity-title">控制塔全订单可视化</div>
+            <span class="l2-activity-order">#1</span>
+          </div>
+          <div class="l2-activity-meta">
+            <span class="l2-meta-item">👤 <b>角色:</b> SME 货主 / 客服</span>
+            <span class="l2-meta-item">💻 <b>系统:</b> Control Tower（2022.09）/ Cargo Tracking+（2022.12）</span>
+          </div>
+          
+          <div class="l2-io">
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输入</div>
+              <div class="l2-io-value">船舶动态、箱动态与订舱单证数据</div>
+            </div>
+            
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输出</div>
+              <div class="l2-io-value">全订单可视化看板与里程碑状态</div>
+            </div>
+            
+          </div>
+          
+          
+          <div class="l2-desc">客户通过控制塔查看订舱、单证与运输全流程状态，跟踪 ETA 与箱况。（来源：独立电商平台官网）</div>
+          
+          
+          <div class="l2-pains">
+            
+            <div class="pain-card high">
+              <div class="pain-severity high">
+                🟠
+                HIGH 严重程度
+              </div>
+              <div class="pain-desc">跟踪粒度受码头 / 船司数据源限制，部分节点更新延迟</div>
+              <div class="pain-impact">💥 影响: 直客 SME 高频咨询货到哪了，客服查询量高企</div>
+              <div class="pain-root">🔍 根因: 数据依赖外部港口 / 码头接口，实时性受制于外部系统</div>
+            </div>
+            
+          </div>
+          
+        </div>
+        
+        <div class="l2-activity">
+          <div class="l2-activity-header">
+            <div class="l2-activity-title">异常预警与处置</div>
+            <span class="l2-activity-order">#2</span>
+          </div>
+          <div class="l2-activity-meta">
+            <span class="l2-meta-item">👤 <b>角色:</b> 控制塔运营团队 + 客服</span>
+            <span class="l2-meta-item">💻 <b>系统:</b> 控制塔异常管理 / AI 预警 / Delay in Transit（2025.12）</span>
+          </div>
+          
+          <div class="l2-io">
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输入</div>
+              <div class="l2-io-value">实时船箱数据与港口拥堵信息</div>
+            </div>
+            
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输出</div>
+              <div class="l2-io-value">异常告警与处置方案（改配 / 延保 / 赔付）</div>
+            </div>
+            
+          </div>
+          
+          
+          <div class="l2-desc">识别延误、转船等异常并向客户推送，提供迟延转运保障产品。（来源：独立电商平台官网）</div>
+          
+          
+          <div class="l2-pains">
+            
+            <div class="pain-card critical">
+              <div class="pain-severity critical">
+                🔴
+                CRITICAL 严重程度
+              </div>
+              <div class="pain-desc">异常预警以事后通知为主，ETA 延误预测能力不足 [推断]</div>
+              <div class="pain-impact">💥 影响: 客户收到通知时已错过应对窗口，下游备货 / 生产计划被打乱，赔付上升</div>
+              <div class="pain-root">🔍 根因: 控制塔偏可视化而非可预测，缺 AI 延误概率预测模型</div>
+            </div>
+            
+          </div>
+          
+        </div>
+        
+      </div>
+    </div>
+    
+    <div class="l2-panel" id="l2-panel-8" data-vs="8">
+      <div class="l2-panel-header">
+        <span style="color: var(--bt-color-1);">▸</span>
+        阶段 9: 到港交付与放货 — L2 流程详情
+      </div>
+      <div class="l2-flow">
+        
+        <div class="l2-activity">
+          <div class="l2-activity-header">
+            <div class="l2-activity-title">到港通知与 D&amp;D 管理</div>
+            <span class="l2-activity-order">#1</span>
+          </div>
+          <div class="l2-activity-meta">
+            <span class="l2-meta-item">👤 <b>角色:</b> SME 货主 / 收货人</span>
+            <span class="l2-meta-item">💻 <b>系统:</b> D&amp;D 计算器 / 到港通知（官网订舱门户）</span>
+          </div>
+          
+          <div class="l2-io">
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输入</div>
+              <div class="l2-io-value">到港 ETA、免箱期与滞箱费规则</div>
+            </div>
+            
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输出</div>
+              <div class="l2-io-value">D&amp;D 费用预估与到港通知</div>
+            </div>
+            
+          </div>
+          
+          
+          <div class="l2-desc">客户使用 D&amp;D 计算器预估滞箱费并管理免箱期窗口。（来源：X 官网 MOC 产品页）</div>
+          
+          
+          <div class="l2-pains">
+            
+            <div class="pain-card medium">
+              <div class="pain-severity medium">
+                🟡
+                MEDIUM 严重程度
+              </div>
+              <div class="pain-desc">免箱期与 D&amp;D 计费规则复杂，SME 对费用明细理解困难、争议频发</div>
+              <div class="pain-impact">💥 影响: D&amp;D 争议投诉影响结算体验与满意度</div>
+              <div class="pain-root">🔍 根因: 各目的港免箱期政策不一，费用说明未前置到订舱环节</div>
+            </div>
+            
+          </div>
+          
+        </div>
+        
+        <div class="l2-activity">
+          <div class="l2-activity-header">
+            <div class="l2-activity-title">eBL 放货与提货</div>
+            <span class="l2-activity-order">#2</span>
+          </div>
+          <div class="l2-activity-meta">
+            <span class="l2-meta-item">👤 <b>角色:</b> 收货人 / 目的港代理 + IQAX</span>
+            <span class="l2-meta-item">💻 <b>系统:</b> IQAX eBL / 目的港码头系统</span>
+          </div>
+          
+          <div class="l2-io">
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输入</div>
+              <div class="l2-io-value">到港通知与正本 eBL / 纸质提单</div>
+            </div>
+            
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输出</div>
+              <div class="l2-io-value">放货指令与提货完成</div>
+            </div>
+            
+          </div>
+          
+          
+          <div class="l2-desc">收货人凭 eBL 完成放货提货；IQAX 联合天津振华、EZShipping 启动高量 LCL eBL 试点（2026.06）。（来源：IQAX 新闻稿）</div>
+          
+          
+          <div class="l2-pains">
+            
+            <div class="pain-card high">
+              <div class="pain-severity high">
+                🟠
+                HIGH 严重程度
+              </div>
+              <div class="pain-desc">收货人未接入 eBL 体系时退回纸质流程，正本流转慢产生额外 D&amp;D</div>
+              <div class="pain-impact">💥 影响: 无纸化收益在目的港端断裂，提货时效与费用风险并存</div>
+              <div class="pain-root">🔍 根因: eBL 采纳依赖贸易链全节点数字化，收货人侧数字化渗透不足</div>
+            </div>
+            
+          </div>
+          
+        </div>
+        
+      </div>
+    </div>
+    
+    <div class="l2-panel" id="l2-panel-9" data-vs="9">
+      <div class="l2-panel-header">
+        <span style="color: var(--bt-color-1);">▸</span>
+        阶段 10: 售后与会员运营 — L2 流程详情
+      </div>
+      <div class="l2-flow">
+        
+        <div class="l2-activity">
+          <div class="l2-activity-header">
+            <div class="l2-activity-title">会员计划与专属权益</div>
+            <span class="l2-activity-order">#1</span>
+          </div>
+          <div class="l2-activity-meta">
+            <span class="l2-meta-item">👤 <b>角色:</b> 电商运营</span>
+            <span class="l2-meta-item">💻 <b>系统:</b> PlumSmart 会员系统 / CRM</span>
+          </div>
+          
+          <div class="l2-io">
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输入</div>
+              <div class="l2-io-value">交易数据与会员等级规则</div>
+            </div>
+            
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输出</div>
+              <div class="l2-io-value">会员等级与 E-Spot 专属特权</div>
+            </div>
+            
+          </div>
+          
+          
+          <div class="l2-desc">PlumSmart 多等级会员体系，提供 E-Spot 专属特权与会员运营。（来源：独立电商平台官网）</div>
+          
+          
+          <div class="l2-pains">
+            
+            <div class="pain-card medium">
+              <div class="pain-severity medium">
+                🟡
+                MEDIUM 严重程度
+              </div>
+              <div class="pain-desc">会员权益对 SME 感知度有限，等级晋升路径复杂导致活跃度低</div>
+              <div class="pain-impact">💥 影响: 会员复购与黏性不足，PlumSmart 仍处 modest start 阶段（五周年官方口径）</div>
+              <div class="pain-root">🔍 根因: 权益设计偏向运价折扣，缺对 SME 刚需（舱位优先、专属客服通道）的强绑定</div>
+            </div>
+            
+          </div>
+          
+        </div>
+        
+        <div class="l2-activity">
+          <div class="l2-activity-header">
+            <div class="l2-activity-title">售后处理与 AI 客服</div>
+            <span class="l2-activity-order">#2</span>
+          </div>
+          <div class="l2-activity-meta">
+            <span class="l2-meta-item">👤 <b>角色:</b> AI 客服（Ask Fin）+ 人工客服</span>
+            <span class="l2-meta-item">💻 <b>系统:</b> AI 聊天机器人（2025 年 150 万+ 互动，同比 +43%）/ 客服工单系统</span>
+          </div>
+          
+          <div class="l2-io">
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输入</div>
+              <div class="l2-io-value">客户咨询、投诉与异常单</div>
+            </div>
+            
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输出</div>
+              <div class="l2-io-value">解决方案与工单闭环</div>
+            </div>
+            
+          </div>
+          
+          
+          <div class="l2-desc">AI 客服承接询价、订舱、跟踪等问答，复杂问题转人工处理。（来源：X 2025 年报）</div>
+          
+          
+          <div class="l2-pains">
+            
+            <div class="pain-card medium">
+              <div class="pain-severity medium">
+                🟡
+                MEDIUM 严重程度
+              </div>
+              <div class="pain-desc">AI 问答对复杂多单 / 多单证场景处理有限，需转人工，分流率占比未披露</div>
+              <div class="pain-impact">💥 影响: 人工客服成本仍高，AI 分流率未达 30%+ 目标（KPI 4）</div>
+              <div class="pain-root">🔍 根因: AI 知识库未完全打通订舱 / 单证实时状态，复杂场景缺少 Agent 化执行能力</div>
+            </div>
+            
+          </div>
+          
+        </div>
+        
+      </div>
+    </div>
+    
+  </div>
+  
+  <div class="vs-section">
+    <div class="vs-header">
+      <div>
+        <div class="vs-title">增值服务与会员运营价值流</div>
+        <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;">在基础订舱之上叠加陆运、清关、绿色、免箱期等增值服务，并通过会员、促销、智能客服与绿色品牌运营驱动复购与留存。</div>
+      </div>
+      <span class="vs-bt-badge" style="--bt-color: var(--bt-color-3);">端到端增值服务业务</span>
+    </div>
+    
+    <div class="l1-timeline">
+      
+      <div class="l1-stage" 
+           data-vs="0" 
+           data-stage="0"
+           onclick="toggleL2(0, '增值服务选购')"
+           style="--bt-color: var(--bt-color-3); --bt-color-bg: #10b98115;">
+        <div class="l1-stage-inner">
+          <div class="l1-stage-order">1</div>
+          <div class="l1-stage-name">增值服务选购</div>
+          <div class="l1-stage-desc">客户在订舱流程内选购陆运、清关、绿色、免箱期等增值服务并集成到报价单。</div>
+          
+          <div class="l1-pain-indicator">
+            
+            <span class="pain-dot low"></span>
+            
+            <span class="pain-dot high"></span>
+            
+          </div>
+          
+        </div>
+        
+        <div class="l1-stage-arrow">▶</div>
+        
+      </div>
+      
+      <div class="l1-stage" 
+           data-vs="1" 
+           data-stage="1"
+           onclick="toggleL2(1, '会员计划运营')"
+           style="--bt-color: var(--bt-color-3); --bt-color-bg: #10b98115;">
+        <div class="l1-stage-inner">
+          <div class="l1-stage-order">2</div>
+          <div class="l1-stage-name">会员计划运营</div>
+          <div class="l1-stage-desc">PlumSmart 分层会员体系，通过积分、等级与 E-Spot 专属特权运营客户黏性。</div>
+          
+          <div class="l1-pain-indicator">
+            
+            <span class="pain-dot medium"></span>
+            
+            <span class="pain-dot low"></span>
+            
+          </div>
+          
+        </div>
+        
+        <div class="l1-stage-arrow">▶</div>
+        
+      </div>
+      
+      <div class="l1-stage" 
+           data-vs="2" 
+           data-stage="2"
+           onclick="toggleL2(2, '促销与营销触达')"
+           style="--bt-color: var(--bt-color-3); --bt-color-bg: #10b98115;">
+        <div class="l1-stage-inner">
+          <div class="l1-stage-order">3</div>
+          <div class="l1-stage-name">促销与营销触达</div>
+          <div class="l1-stage-desc">E-Spot 闪购、Promo Code、Smart Combo 等促销活动，通过微信小程序与邮件多渠道触达。</div>
+          
+          <div class="l1-pain-indicator">
+            
+            <span class="pain-dot medium"></span>
+            
+            <span class="pain-dot medium"></span>
+            
+          </div>
+          
+        </div>
+        
+        <div class="l1-stage-arrow">▶</div>
+        
+      </div>
+      
+      <div class="l1-stage" 
+           data-vs="3" 
+           data-stage="3"
+           onclick="toggleL2(3, '智能客服支持')"
+           style="--bt-color: var(--bt-color-3); --bt-color-bg: #10b98115;">
+        <div class="l1-stage-inner">
+          <div class="l1-stage-order">4</div>
+          <div class="l1-stage-name">智能客服支持</div>
+          <div class="l1-stage-desc">Ask Fin 智能客服（2023.01/2023.11）与 AI 产品推荐支撑全渠道咨询，2025 年互动超 150 万次。</div>
+          
+          <div class="l1-pain-indicator">
+            
+            <span class="pain-dot low"></span>
+            
+            <span class="pain-dot low"></span>
+            
+          </div>
+          
+        </div>
+        
+        <div class="l1-stage-arrow">▶</div>
+        
+      </div>
+      
+      <div class="l1-stage" 
+           data-vs="4" 
+           data-stage="4"
+           onclick="toggleL2(4, '复购与口碑留存')"
+           style="--bt-color: var(--bt-color-3); --bt-color-bg: #10b98115;">
+        <div class="l1-stage-inner">
+          <div class="l1-stage-order">5</div>
+          <div class="l1-stage-name">复购与口碑留存</div>
+          <div class="l1-stage-desc">复购激励、客户满意度管理与绿色品牌（X Green / 甲醇船队）及联盟生态背书驱动留存。</div>
+          
+          <div class="l1-pain-indicator">
+            
+            <span class="pain-dot high"></span>
+            
+            <span class="pain-dot low"></span>
+            
+          </div>
+          
+        </div>
+        
+      </div>
+      
+    </div>
+
+    
+    <div class="l2-panel" id="l2-panel-0" data-vs="0">
+      <div class="l2-panel-header">
+        <span style="color: var(--bt-color-3);">▸</span>
+        阶段 1: 增值服务选购 — L2 流程详情
+      </div>
+      <div class="l2-flow">
+        
+        <div class="l2-activity">
+          <div class="l2-activity-header">
+            <div class="l2-activity-title">增值服务组合选购</div>
+            <span class="l2-activity-order">#1</span>
+          </div>
+          <div class="l2-activity-meta">
+            <span class="l2-meta-item">👤 <b>角色:</b> SME 货主（客户）</span>
+            <span class="l2-meta-item">💻 <b>系统:</b> 独立电商平台增值服务商城</span>
+          </div>
+          
+          <div class="l2-io">
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输入</div>
+              <div class="l2-io-value">基础运价与服务选项（额外免箱期 / 清关 / 绿色）</div>
+            </div>
+            
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输出</div>
+              <div class="l2-io-value">含增值服务的总报价（Smart Combo 组合优惠）</div>
+            </div>
+            
+          </div>
+          
+          
+          <div class="l2-desc">客户按需组合 Door Haulage、E-Customs、额外免箱期（2021.10）、X Green（2024.12）等服务，Smart Combo（2025.03）打包优惠。（来源：独立电商平台官网）</div>
+          
+          
+          <div class="l2-pains">
+            
+            <div class="pain-card low">
+              <div class="pain-severity low">
+                🔵
+                LOW 严重程度
+              </div>
+              <div class="pain-desc">增值服务价格与条款说明分散，SME 组合测算耗时</div>
+              <div class="pain-impact">💥 影响: 增值服务渗透率（尤其绿色服务）低于预期 [推断]</div>
+              <div class="pain-root">🔍 根因: 服务说明缺乏场景化推荐，未嵌入 AI 需求识别</div>
+            </div>
+            
+          </div>
+          
+        </div>
+        
+        <div class="l2-activity">
+          <div class="l2-activity-header">
+            <div class="l2-activity-title">服务履约与结算</div>
+            <span class="l2-activity-order">#2</span>
+          </div>
+          <div class="l2-activity-meta">
+            <span class="l2-meta-item">👤 <b>角色:</b> 增值服务运营 / 供应商</span>
+            <span class="l2-meta-item">💻 <b>系统:</b> 服务履约系统 / E-Trucking（2022.08）</span>
+          </div>
+          
+          <div class="l2-io">
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输入</div>
+              <div class="l2-io-value">服务订单与供应商资源</div>
+            </div>
+            
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输出</div>
+              <div class="l2-io-value">服务完成记录与结算</div>
+            </div>
+            
+          </div>
+          
+          
+          <div class="l2-desc">协调拖车、清关、仓配等第三方资源完成履约并结算。</div>
+          
+          
+          <div class="l2-pains">
+            
+            <div class="pain-card high">
+              <div class="pain-severity high">
+                🟠
+                HIGH 严重程度
+              </div>
+              <div class="pain-desc">增值服务由多家供应商协同，履约 SLA 不统一导致体验波动</div>
+              <div class="pain-impact">💥 影响: 端到端承诺（Concierge 管家服务 2025.05）兑现不稳定，影响高端服务溢价</div>
+              <div class="pain-root">🔍 根因: 供应商管理与 SLA 数字化程度不足</div>
+            </div>
+            
+          </div>
+          
+        </div>
+        
+      </div>
+    </div>
+    
+    <div class="l2-panel" id="l2-panel-1" data-vs="1">
+      <div class="l2-panel-header">
+        <span style="color: var(--bt-color-3);">▸</span>
+        阶段 2: 会员计划运营 — L2 流程详情
+      </div>
+      <div class="l2-flow">
+        
+        <div class="l2-activity">
+          <div class="l2-activity-header">
+            <div class="l2-activity-title">等级与积分运营</div>
+            <span class="l2-activity-order">#1</span>
+          </div>
+          <div class="l2-activity-meta">
+            <span class="l2-meta-item">👤 <b>角色:</b> 电商运营</span>
+            <span class="l2-meta-item">💻 <b>系统:</b> PlumSmart 会员系统 / CRM</span>
+          </div>
+          
+          <div class="l2-io">
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输入</div>
+              <div class="l2-io-value">订舱频次、货量与服务组合</div>
+            </div>
+            
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输出</div>
+              <div class="l2-io-value">等级升降与积分发放</div>
+            </div>
+            
+          </div>
+          
+          
+          <div class="l2-desc">按订舱量与频次驱动等级成长，发放积分与专属优惠。（来源：独立电商平台官网）</div>
+          
+          
+          <div class="l2-pains">
+            
+            <div class="pain-card medium">
+              <div class="pain-severity medium">
+                🟡
+                MEDIUM 严重程度
+              </div>
+              <div class="pain-desc">等级晋升规则复杂，SME 小单客户难以升级</div>
+              <div class="pain-impact">💥 影响: 长尾客户权益获取感弱，会员计划复购拉动有限</div>
+              <div class="pain-root">🔍 根因: 等级规则偏重总量而非频次 / 黏性设计</div>
+            </div>
+            
+          </div>
+          
+        </div>
+        
+        <div class="l2-activity">
+          <div class="l2-activity-header">
+            <div class="l2-activity-title">E-Spot 专属特权</div>
+            <span class="l2-activity-order">#2</span>
+          </div>
+          <div class="l2-activity-meta">
+            <span class="l2-meta-item">👤 <b>角色:</b> 电商运营 + 收益管理</span>
+            <span class="l2-meta-item">💻 <b>系统:</b> 独立电商平台权益引擎</span>
+          </div>
+          
+          <div class="l2-io">
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输入</div>
+              <div class="l2-io-value">会员等级与舱位资源</div>
+            </div>
+            
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输出</div>
+              <div class="l2-io-value">专属报价 / 优先供柜权益</div>
+            </div>
+            
+          </div>
+          
+          
+          <div class="l2-desc">高等级会员获得 E-Spot 专属报价与优先供柜权益。</div>
+          
+          
+          <div class="l2-pains">
+            
+            <div class="pain-card low">
+              <div class="pain-severity low">
+                🔵
+                LOW 严重程度
+              </div>
+              <div class="pain-desc">专属权益与公开闪购价差异不大时吸引力弱 [推断]</div>
+              <div class="pain-impact">💥 影响: 高等级会员黏性激励不足</div>
+              <div class="pain-root">🔍 根因: 权益差异化空间受运价透明度约束</div>
+            </div>
+            
+          </div>
+          
+        </div>
+        
+      </div>
+    </div>
+    
+    <div class="l2-panel" id="l2-panel-2" data-vs="2">
+      <div class="l2-panel-header">
+        <span style="color: var(--bt-color-3);">▸</span>
+        阶段 3: 促销与营销触达 — L2 流程详情
+      </div>
+      <div class="l2-flow">
+        
+        <div class="l2-activity">
+          <div class="l2-activity-header">
+            <div class="l2-activity-title">闪购与促销活动</div>
+            <span class="l2-activity-order">#1</span>
+          </div>
+          <div class="l2-activity-meta">
+            <span class="l2-meta-item">👤 <b>角色:</b> 数字营销团队</span>
+            <span class="l2-meta-item">💻 <b>系统:</b> 促销引擎 / 营销自动化</span>
+          </div>
+          
+          <div class="l2-io">
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输入</div>
+              <div class="l2-io-value">舱位余量与活动预算</div>
+            </div>
+            
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输出</div>
+              <div class="l2-io-value">E-Spot Flash Sale 活动与兑换码</div>
+            </div>
+            
+          </div>
+          
+          
+          <div class="l2-desc">Promo Code 2024.09 上线，2026 年起 E-Spot Flash Sale 常态化，配合 Smart Combo 组合优惠。（来源：独立电商平台官网）</div>
+          
+          
+          <div class="l2-pains">
+            
+            <div class="pain-card medium">
+              <div class="pain-severity medium">
+                🟡
+                MEDIUM 严重程度
+              </div>
+              <div class="pain-desc">促销依赖舱位余量放量，SME 对能否抢到舱位存在信任疑虑</div>
+              <div class="pain-impact">💥 影响: 促销拉新效果受舱位兑现瓶颈限制</div>
+              <div class="pain-root">🔍 根因: 促销与舱位保证未强耦合，信任承诺未产品化</div>
+            </div>
+            
+          </div>
+          
+        </div>
+        
+        <div class="l2-activity">
+          <div class="l2-activity-header">
+            <div class="l2-activity-title">多渠道触达与召回</div>
+            <span class="l2-activity-order">#2</span>
+          </div>
+          <div class="l2-activity-meta">
+            <span class="l2-meta-item">👤 <b>角色:</b> 数字营销 + 微信小程序运营</span>
+            <span class="l2-meta-item">💻 <b>系统:</b> 微信小程序（2024.08）/ 邮件 / 消息推送</span>
+          </div>
+          
+          <div class="l2-io">
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输入</div>
+              <div class="l2-io-value">客户标签与行为数据</div>
+            </div>
+            
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输出</div>
+              <div class="l2-io-value">个性化推荐与召回触达</div>
+            </div>
+            
+          </div>
+          
+          
+          <div class="l2-desc">AI 产品推荐（2024.11）基于行为数据做个性化推荐，微信小程序覆盖中国内地及港澳。（来源：独立电商平台官网）</div>
+          
+          
+          <div class="l2-pains">
+            
+            <div class="pain-card medium">
+              <div class="pain-severity medium">
+                🟡
+                MEDIUM 严重程度
+              </div>
+              <div class="pain-desc">多语言 / 多地区触达成本高，南美新市场本地化运营刚起步 [推断]</div>
+              <div class="pain-impact">💥 影响: 新区域客户培育慢，营销 ROI 承压</div>
+              <div class="pain-root">🔍 根因: 缺乏区域化营销中台与本地化内容能力</div>
+            </div>
+            
+          </div>
+          
+        </div>
+        
+      </div>
+    </div>
+    
+    <div class="l2-panel" id="l2-panel-3" data-vs="3">
+      <div class="l2-panel-header">
+        <span style="color: var(--bt-color-3);">▸</span>
+        阶段 4: 智能客服支持 — L2 流程详情
+      </div>
+      <div class="l2-flow">
+        
+        <div class="l2-activity">
+          <div class="l2-activity-header">
+            <div class="l2-activity-title">AI 智能问答</div>
+            <span class="l2-activity-order">#1</span>
+          </div>
+          <div class="l2-activity-meta">
+            <span class="l2-meta-item">👤 <b>角色:</b> AI 客服（Ask Fin / 小飞 Fin）</span>
+            <span class="l2-meta-item">💻 <b>系统:</b> AI 聊天机器人（2023.01 / 2023.11）</span>
+          </div>
+          
+          <div class="l2-io">
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输入</div>
+              <div class="l2-io-value">知识库与订单 / 船期数据</div>
+            </div>
+            
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输出</div>
+              <div class="l2-io-value">即时答案（2025 年 150 万+ 互动，同比 +43%）</div>
+            </div>
+            
+          </div>
+          
+          
+          <div class="l2-desc">7x24 覆盖询价、订舱、跟踪等场景，移动 App 全量改版后含全天候聊天机器人支持。（来源：X 2025 年报）</div>
+          
+          
+          <div class="l2-pains">
+            
+            <div class="pain-card low">
+              <div class="pain-severity low">
+                🔵
+                LOW 严重程度
+              </div>
+              <div class="pain-desc">高峰期复杂查询需人工兜底，AI 会话转人工率未披露</div>
+              <div class="pain-impact">💥 影响: 人工兜底占比决定成本优化空间（KPI 4 目标 AI 分流率 30%+）</div>
+              <div class="pain-root">🔍 根因: 复杂意图识别与多轮任务执行能力待增强</div>
+            </div>
+            
+          </div>
+          
+        </div>
+        
+        <div class="l2-activity">
+          <div class="l2-activity-header">
+            <div class="l2-activity-title">智能推荐与导流</div>
+            <span class="l2-activity-order">#2</span>
+          </div>
+          <div class="l2-activity-meta">
+            <span class="l2-meta-item">👤 <b>角色:</b> AI 推荐引擎</span>
+            <span class="l2-meta-item">💻 <b>系统:</b> AI 产品推荐（2024.11）/ Nearby Route Suggestions（2025.05）</span>
+          </div>
+          
+          <div class="l2-io">
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输入</div>
+              <div class="l2-io-value">客户偏好、航线网络与舱位状态</div>
+            </div>
+            
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输出</div>
+              <div class="l2-io-value">附近航线建议 / 增值服务推荐</div>
+            </div>
+            
+          </div>
+          
+          
+          <div class="l2-desc">基于位置的附近航线建议与个性化产品推荐，向增值服务导流。（来源：独立电商平台官网）</div>
+          
+          
+          <div class="l2-pains">
+            
+            <div class="pain-card low">
+              <div class="pain-severity low">
+                🔵
+                LOW 严重程度
+              </div>
+              <div class="pain-desc">推荐到报价 / 下单闭环衔接仍靠人工点击跳转 [推断]</div>
+              <div class="pain-impact">💥 影响: 推荐转化率未完全释放</div>
+              <div class="pain-root">🔍 根因: 推荐引擎与订舱引擎未深度集成</div>
+            </div>
+            
+          </div>
+          
+        </div>
+        
+      </div>
+    </div>
+    
+    <div class="l2-panel" id="l2-panel-4" data-vs="4">
+      <div class="l2-panel-header">
+        <span style="color: var(--bt-color-3);">▸</span>
+        阶段 5: 复购与口碑留存 — L2 流程详情
+      </div>
+      <div class="l2-flow">
+        
+        <div class="l2-activity">
+          <div class="l2-activity-header">
+            <div class="l2-activity-title">复购激励与忠诚计划</div>
+            <span class="l2-activity-order">#1</span>
+          </div>
+          <div class="l2-activity-meta">
+            <span class="l2-meta-item">👤 <b>角色:</b> 电商运营 + 销售</span>
+            <span class="l2-meta-item">💻 <b>系统:</b> CRM / 营销自动化</span>
+          </div>
+          
+          <div class="l2-io">
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输入</div>
+              <div class="l2-io-value">复购周期与流失预警数据</div>
+            </div>
+            
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输出</div>
+              <div class="l2-io-value">复购优惠与挽回动作</div>
+            </div>
+            
+          </div>
+          
+          
+          <div class="l2-desc">基于流失风险分层的复购激励与客户挽回运营。</div>
+          
+          
+          <div class="l2-pains">
+            
+            <div class="pain-card high">
+              <div class="pain-severity high">
+                🟠
+                HIGH 严重程度
+              </div>
+              <div class="pain-desc">SME 客户流失率与 NPS 未披露，复购主要依赖价格敏感驱动</div>
+              <div class="pain-impact">💥 影响: 客户生命周期价值提升慢，获客成本摊薄不足</div>
+              <div class="pain-root">🔍 根因: 缺乏复购预测与忠诚机制，服务差异化（舱位优先）未定价</div>
+            </div>
+            
+          </div>
+          
+        </div>
+        
+        <div class="l2-activity">
+          <div class="l2-activity-header">
+            <div class="l2-activity-title">绿色品牌与生态背书</div>
+            <span class="l2-activity-order">#2</span>
+          </div>
+          <div class="l2-activity-meta">
+            <span class="l2-meta-item">👤 <b>角色:</b> 品牌市场 + 绿色业务</span>
+            <span class="l2-meta-item">💻 <b>系统:</b> X Green（2024.12）/ 移动App 碳排放计算 / 海洋联盟</span>
+          </div>
+          
+          <div class="l2-io">
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输入</div>
+              <div class="l2-io-value">甲醇双燃料船队运力与碳数据</div>
+            </div>
+            
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输出</div>
+              <div class="l2-io-value">绿色服务产品与 ESG 报告</div>
+            </div>
+            
+          </div>
+          
+          
+          <div class="l2-desc">X Green 绿色服务与移动 App 碳排放计算工具，结合甲醇双燃料船队（X Wisdom 2026.07 首航）与海洋联盟延至 2032 年生态背书。（来源：独立电商平台官网 / X 新闻中心）</div>
+          
+          
+          <div class="l2-pains">
+            
+            <div class="pain-card low">
+              <div class="pain-severity low">
+                🔵
+                LOW 严重程度
+              </div>
+              <div class="pain-desc">绿色服务付费意愿集中在外贸合规敏感客户，SME 普及率有限 [推断]</div>
+              <div class="pain-impact">💥 影响: 绿色溢价变现周期长</div>
+              <div class="pain-root">🔍 根因: 欧盟 ETS 等合规成本尚未转化为客户可感知价值</div>
+            </div>
+            
+          </div>
+          
+        </div>
+        
+      </div>
+    </div>
+    
+  </div>
+  
+
+  <div class="section-title">⚠️ 业务痛点汇总分析</div>
+  <div class="section-subtitle">全量痛点按严重程度统计与明细</div>
+  
+  <div class="summary-panel">
+    <div class="summary-stats">
+      <div class="stat-card">
+        <div class="stat-number critical">2</div>
+        <div class="stat-label">严重痛点</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number high">10</div>
+        <div class="stat-label">高优先级</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number medium">11</div>
+        <div class="stat-label">中优先级</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number low">7</div>
+        <div class="stat-label">低优先级</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" style="color: var(--text-main);">30</div>
+        <div class="stat-label">痛点总数</div>
+      </div>
+    </div>
+
+    <table class="pain-table">
+      <thead>
+        <tr>
+          <th style="width: 80px;">严重程度</th>
+          <th style="width: 120px;">价值流 / 阶段</th>
+          <th style="width: 120px;">活动</th>
+          <th>痛点描述</th>
+          <th>影响</th>
+        </tr>
+      </thead>
+      <tbody>
+        
+        <tr>
+          <td>
+            <span class="pain-badge critical">
+              🔴
+              CRITICAL
+            </span>
+          </td>
+          <td>
+            <div class="table-activity">电商订舱履约主价值流</div>
+            <div class="table-stage">提箱装箱·陆运·清关</div>
+          </td>
+          <td class="table-activity">出口清关（E-Customs）</td>
+          <td>出口国监管政策多变（美国关税 / 301 调查、欧盟 ETS 等），清关异常导致扣货延误</td>
+          <td style="font-size: 0.78rem; color: var(--text-muted);">清关延误推高全程时效波动，端到端 SLA 承诺难兑现，SME 对不确定性敏感</td>
+        </tr>
+        
+        <tr>
+          <td>
+            <span class="pain-badge critical">
+              🔴
+              CRITICAL
+            </span>
+          </td>
+          <td>
+            <div class="table-activity">电商订舱履约主价值流</div>
+            <div class="table-stage">出运跟踪</div>
+          </td>
+          <td class="table-activity">异常预警与处置</td>
+          <td>异常预警以事后通知为主，ETA 延误预测能力不足 [推断]</td>
+          <td style="font-size: 0.78rem; color: var(--text-muted);">客户收到通知时已错过应对窗口，下游备货 / 生产计划被打乱，赔付上升</td>
+        </tr>
+        
+        <tr>
+          <td>
+            <span class="pain-badge high">
+              🟠
+              HIGH
+            </span>
+          </td>
+          <td>
+            <div class="table-activity">电商订舱履约主价值流</div>
+            <div class="table-stage">客户注册与认证</div>
+          </td>
+          <td class="table-activity">资质审核与账号开通</td>
+          <td>企业认证约需 3 个工作日，远慢于行业头部分钟级自助开户 [推断]</td>
+          <td style="font-size: 0.78rem; color: var(--text-muted);">新客首单等待窗口长，SME 可能转向货代或其他平台即时交易</td>
+        </tr>
+        
+        <tr>
+          <td>
+            <span class="pain-badge high">
+              🟠
+              HIGH
+            </span>
+          </td>
+          <td>
+            <div class="table-activity">电商订舱履约主价值流</div>
+            <div class="table-stage">询价与报价</div>
+          </td>
+          <td class="table-activity">智能报价推荐与锁价</td>
+          <td>锁价产品与市场运价下行脱钩时，客户弃约或转投即期 [推断]</td>
+          <td style="font-size: 0.78rem; color: var(--text-muted);">报价承诺与实际运价背离放大收益风险，影响舱位收益管理</td>
+        </tr>
+        
+        <tr>
+          <td>
+            <span class="pain-badge high">
+              🟠
+              HIGH
+            </span>
+          </td>
+          <td>
+            <div class="table-activity">电商订舱履约主价值流</div>
+            <div class="table-stage">在线订舱</div>
+          </td>
+          <td class="table-activity">订舱请求受理与校验</td>
+          <td>最快 1 分钟确认仅限特定条款客户，大量 SME 请求仍走人工审核</td>
+          <td style="font-size: 0.78rem; color: var(--text-muted);">平均确认时效无法对标行业头部分钟级体验，直接制约电商订舱渗透率提升</td>
+        </tr>
+        
+        <tr>
+          <td>
+            <span class="pain-badge high">
+              🟠
+              HIGH
+            </span>
+          </td>
+          <td>
+            <div class="table-activity">电商订舱履约主价值流</div>
+            <div class="table-stage">舱位分配与确认</div>
+          </td>
+          <td class="table-activity">舱位分配与收益校验</td>
+          <td>旺季/运力波动期舱位向高价值客户倾斜，SME 甩柜或改船风险上升</td>
+          <td style="font-size: 0.78rem; color: var(--text-muted);">舱位保证兑现缺口侵蚀锁舱承诺信任（KPI 目标 95%+），SME 复购受损</td>
+        </tr>
+        
+        <tr>
+          <td>
+            <span class="pain-badge high">
+              🟠
+              HIGH
+            </span>
+          </td>
+          <td>
+            <div class="table-activity">电商订舱履约主价值流</div>
+            <div class="table-stage">单证处理</div>
+          </td>
+          <td class="table-activity">提单签发（eBL / 纸质）</td>
+          <td>eBL 渗透率未披露且仍处拐点期，纸质提单流转慢、互操作标准不统一</td>
+          <td style="font-size: 0.78rem; color: var(--text-muted);">无纸化红利（KPI 目标 eBL 30%+）兑现缓慢，融资与放货环节仍依赖纸质</td>
+        </tr>
+        
+        <tr>
+          <td>
+            <span class="pain-badge high">
+              🟠
+              HIGH
+            </span>
+          </td>
+          <td>
+            <div class="table-activity">电商订舱履约主价值流</div>
+            <div class="table-stage">提箱装箱·陆运·清关</div>
+          </td>
+          <td class="table-activity">提箱装箱与陆运订舱</td>
+          <td>内陆拖车资源紧张（旺季尤甚），陆运与船期衔接断点导致误船 / 赶船</td>
+          <td style="font-size: 0.78rem; color: var(--text-muted);">误船改配产生额外成本，Door Haulage 端到端承诺兑现率承压</td>
+        </tr>
+        
+        <tr>
+          <td>
+            <span class="pain-badge high">
+              🟠
+              HIGH
+            </span>
+          </td>
+          <td>
+            <div class="table-activity">电商订舱履约主价值流</div>
+            <div class="table-stage">出运跟踪</div>
+          </td>
+          <td class="table-activity">控制塔全订单可视化</td>
+          <td>跟踪粒度受码头 / 船司数据源限制，部分节点更新延迟</td>
+          <td style="font-size: 0.78rem; color: var(--text-muted);">直客 SME 高频咨询货到哪了，客服查询量高企</td>
+        </tr>
+        
+        <tr>
+          <td>
+            <span class="pain-badge high">
+              🟠
+              HIGH
+            </span>
+          </td>
+          <td>
+            <div class="table-activity">电商订舱履约主价值流</div>
+            <div class="table-stage">到港交付与放货</div>
+          </td>
+          <td class="table-activity">eBL 放货与提货</td>
+          <td>收货人未接入 eBL 体系时退回纸质流程，正本流转慢产生额外 D&amp;D</td>
+          <td style="font-size: 0.78rem; color: var(--text-muted);">无纸化收益在目的港端断裂，提货时效与费用风险并存</td>
+        </tr>
+        
+        <tr>
+          <td>
+            <span class="pain-badge high">
+              🟠
+              HIGH
+            </span>
+          </td>
+          <td>
+            <div class="table-activity">增值服务与会员运营价值流</div>
+            <div class="table-stage">增值服务选购</div>
+          </td>
+          <td class="table-activity">服务履约与结算</td>
+          <td>增值服务由多家供应商协同，履约 SLA 不统一导致体验波动</td>
+          <td style="font-size: 0.78rem; color: var(--text-muted);">端到端承诺（Concierge 管家服务 2025.05）兑现不稳定，影响高端服务溢价</td>
+        </tr>
+        
+        <tr>
+          <td>
+            <span class="pain-badge high">
+              🟠
+              HIGH
+            </span>
+          </td>
+          <td>
+            <div class="table-activity">增值服务与会员运营价值流</div>
+            <div class="table-stage">复购与口碑留存</div>
+          </td>
+          <td class="table-activity">复购激励与忠诚计划</td>
+          <td>SME 客户流失率与 NPS 未披露，复购主要依赖价格敏感驱动</td>
+          <td style="font-size: 0.78rem; color: var(--text-muted);">客户生命周期价值提升慢，获客成本摊薄不足</td>
+        </tr>
+        
+        <tr>
+          <td>
+            <span class="pain-badge medium">
+              🟡
+              MEDIUM
+            </span>
+          </td>
+          <td>
+            <div class="table-activity">电商订舱履约主价值流</div>
+            <div class="table-stage">客户注册与认证</div>
+          </td>
+          <td class="table-activity">企业账号注册与资料填报</td>
+          <td>注册字段繁多，SME 首次填报需 30-60 分钟 [推断]</td>
+          <td style="font-size: 0.78rem; color: var(--text-muted);">新客注册流失率偏高，长尾获客入口摩擦直接压缩 SME 增量</td>
+        </tr>
+        
+        <tr>
+          <td>
+            <span class="pain-badge medium">
+              🟡
+              MEDIUM
+            </span>
+          </td>
+          <td>
+            <div class="table-activity">电商订舱履约主价值流</div>
+            <div class="table-stage">询价与报价</div>
+          </td>
+          <td class="table-activity">即期 / 长时效报价查询</td>
+          <td>即期报价仅覆盖特定航次，非全航线透明 [推断]</td>
+          <td style="font-size: 0.78rem; color: var(--text-muted);">客户需多平台比价，报价覆盖不足导致转化流失</td>
+        </tr>
+        
+        <tr>
+          <td>
+            <span class="pain-badge medium">
+              🟡
+              MEDIUM
+            </span>
+          </td>
+          <td>
+            <div class="table-activity">电商订舱履约主价值流</div>
+            <div class="table-stage">舱位分配与确认</div>
+          </td>
+          <td class="table-activity">Booking Confirmation 签发与告知</td>
+          <td>改船/取消异常通知延迟，平台状态与船期计划不同步</td>
+          <td style="font-size: 0.78rem; color: var(--text-muted);">客户对船期变更知情滞后，产生投诉与改单成本</td>
+        </tr>
+        
+        <tr>
+          <td>
+            <span class="pain-badge medium">
+              🟡
+              MEDIUM
+            </span>
+          </td>
+          <td>
+            <div class="table-activity">电商订舱履约主价值流</div>
+            <div class="table-stage">单证处理</div>
+          </td>
+          <td class="table-activity">SI 提交与自动处理</td>
+          <td>非结构化 / 手工 SI 仍需人工复核，错误退单引发返工</td>
+          <td style="font-size: 0.78rem; color: var(--text-muted);">单证人工复核占比高，35 万份自动处理的效率红利未完全释放</td>
+        </tr>
+        
+        <tr>
+          <td>
+            <span class="pain-badge medium">
+              🟡
+              MEDIUM
+            </span>
+          </td>
+          <td>
+            <div class="table-activity">电商订舱履约主价值流</div>
+            <div class="table-stage">支付与结算</div>
+          </td>
+          <td class="table-activity">在线支付与发票</td>
+          <td>多币种支付与 SME 小额高频结算存在汇率与手续费摩擦</td>
+          <td style="font-size: 0.78rem; color: var(--text-muted);">跨境支付成本与结算周期影响 SME 现金流体验</td>
+        </tr>
+        
+        <tr>
+          <td>
+            <span class="pain-badge medium">
+              🟡
+              MEDIUM
+            </span>
+          </td>
+          <td>
+            <div class="table-activity">电商订舱履约主价值流</div>
+            <div class="table-stage">到港交付与放货</div>
+          </td>
+          <td class="table-activity">到港通知与 D&amp;D 管理</td>
+          <td>免箱期与 D&amp;D 计费规则复杂，SME 对费用明细理解困难、争议频发</td>
+          <td style="font-size: 0.78rem; color: var(--text-muted);">D&amp;D 争议投诉影响结算体验与满意度</td>
+        </tr>
+        
+        <tr>
+          <td>
+            <span class="pain-badge medium">
+              🟡
+              MEDIUM
+            </span>
+          </td>
+          <td>
+            <div class="table-activity">电商订舱履约主价值流</div>
+            <div class="table-stage">售后与会员运营</div>
+          </td>
+          <td class="table-activity">会员计划与专属权益</td>
+          <td>会员权益对 SME 感知度有限，等级晋升路径复杂导致活跃度低</td>
+          <td style="font-size: 0.78rem; color: var(--text-muted);">会员复购与黏性不足，PlumSmart 仍处 modest start 阶段（五周年官方口径）</td>
+        </tr>
+        
+        <tr>
+          <td>
+            <span class="pain-badge medium">
+              🟡
+              MEDIUM
+            </span>
+          </td>
+          <td>
+            <div class="table-activity">电商订舱履约主价值流</div>
+            <div class="table-stage">售后与会员运营</div>
+          </td>
+          <td class="table-activity">售后处理与 AI 客服</td>
+          <td>AI 问答对复杂多单 / 多单证场景处理有限，需转人工，分流率占比未披露</td>
+          <td style="font-size: 0.78rem; color: var(--text-muted);">人工客服成本仍高，AI 分流率未达 30%+ 目标（KPI 4）</td>
+        </tr>
+        
+        <tr>
+          <td>
+            <span class="pain-badge medium">
+              🟡
+              MEDIUM
+            </span>
+          </td>
+          <td>
+            <div class="table-activity">增值服务与会员运营价值流</div>
+            <div class="table-stage">会员计划运营</div>
+          </td>
+          <td class="table-activity">等级与积分运营</td>
+          <td>等级晋升规则复杂，SME 小单客户难以升级</td>
+          <td style="font-size: 0.78rem; color: var(--text-muted);">长尾客户权益获取感弱，会员计划复购拉动有限</td>
+        </tr>
+        
+        <tr>
+          <td>
+            <span class="pain-badge medium">
+              🟡
+              MEDIUM
+            </span>
+          </td>
+          <td>
+            <div class="table-activity">增值服务与会员运营价值流</div>
+            <div class="table-stage">促销与营销触达</div>
+          </td>
+          <td class="table-activity">闪购与促销活动</td>
+          <td>促销依赖舱位余量放量，SME 对能否抢到舱位存在信任疑虑</td>
+          <td style="font-size: 0.78rem; color: var(--text-muted);">促销拉新效果受舱位兑现瓶颈限制</td>
+        </tr>
+        
+        <tr>
+          <td>
+            <span class="pain-badge medium">
+              🟡
+              MEDIUM
+            </span>
+          </td>
+          <td>
+            <div class="table-activity">增值服务与会员运营价值流</div>
+            <div class="table-stage">促销与营销触达</div>
+          </td>
+          <td class="table-activity">多渠道触达与召回</td>
+          <td>多语言 / 多地区触达成本高，南美新市场本地化运营刚起步 [推断]</td>
+          <td style="font-size: 0.78rem; color: var(--text-muted);">新区域客户培育慢，营销 ROI 承压</td>
+        </tr>
+        
+        <tr>
+          <td>
+            <span class="pain-badge low">
+              🔵
+              LOW
+            </span>
+          </td>
+          <td>
+            <div class="table-activity">电商订舱履约主价值流</div>
+            <div class="table-stage">在线订舱</div>
+          </td>
+          <td class="table-activity">3 步订舱表单提交</td>
+          <td>新客首次使用字段不熟悉，资料不齐需往返补件</td>
+          <td style="font-size: 0.78rem; color: var(--text-muted);">订舱提交平均耗时仍偏高 [推断]，SME 小单客户对时效敏感</td>
+        </tr>
+        
+        <tr>
+          <td>
+            <span class="pain-badge low">
+              🔵
+              LOW
+            </span>
+          </td>
+          <td>
+            <div class="table-activity">电商订舱履约主价值流</div>
+            <div class="table-stage">支付与结算</div>
+          </td>
+          <td class="table-activity">账期与对账管理</td>
+          <td>电商 / 货代 EDI 渠道账单口径不一，对账需人工合并</td>
+          <td style="font-size: 0.78rem; color: var(--text-muted);">财务对账人力成本高，SME 账单理解成本上升</td>
+        </tr>
+        
+        <tr>
+          <td>
+            <span class="pain-badge low">
+              🔵
+              LOW
+            </span>
+          </td>
+          <td>
+            <div class="table-activity">增值服务与会员运营价值流</div>
+            <div class="table-stage">增值服务选购</div>
+          </td>
+          <td class="table-activity">增值服务组合选购</td>
+          <td>增值服务价格与条款说明分散，SME 组合测算耗时</td>
+          <td style="font-size: 0.78rem; color: var(--text-muted);">增值服务渗透率（尤其绿色服务）低于预期 [推断]</td>
+        </tr>
+        
+        <tr>
+          <td>
+            <span class="pain-badge low">
+              🔵
+              LOW
+            </span>
+          </td>
+          <td>
+            <div class="table-activity">增值服务与会员运营价值流</div>
+            <div class="table-stage">会员计划运营</div>
+          </td>
+          <td class="table-activity">E-Spot 专属特权</td>
+          <td>专属权益与公开闪购价差异不大时吸引力弱 [推断]</td>
+          <td style="font-size: 0.78rem; color: var(--text-muted);">高等级会员黏性激励不足</td>
+        </tr>
+        
+        <tr>
+          <td>
+            <span class="pain-badge low">
+              🔵
+              LOW
+            </span>
+          </td>
+          <td>
+            <div class="table-activity">增值服务与会员运营价值流</div>
+            <div class="table-stage">智能客服支持</div>
+          </td>
+          <td class="table-activity">AI 智能问答</td>
+          <td>高峰期复杂查询需人工兜底，AI 会话转人工率未披露</td>
+          <td style="font-size: 0.78rem; color: var(--text-muted);">人工兜底占比决定成本优化空间（KPI 4 目标 AI 分流率 30%+）</td>
+        </tr>
+        
+        <tr>
+          <td>
+            <span class="pain-badge low">
+              🔵
+              LOW
+            </span>
+          </td>
+          <td>
+            <div class="table-activity">增值服务与会员运营价值流</div>
+            <div class="table-stage">智能客服支持</div>
+          </td>
+          <td class="table-activity">智能推荐与导流</td>
+          <td>推荐到报价 / 下单闭环衔接仍靠人工点击跳转 [推断]</td>
+          <td style="font-size: 0.78rem; color: var(--text-muted);">推荐转化率未完全释放</td>
+        </tr>
+        
+        <tr>
+          <td>
+            <span class="pain-badge low">
+              🔵
+              LOW
+            </span>
+          </td>
+          <td>
+            <div class="table-activity">增值服务与会员运营价值流</div>
+            <div class="table-stage">复购与口碑留存</div>
+          </td>
+          <td class="table-activity">绿色品牌与生态背书</td>
+          <td>绿色服务付费意愿集中在外贸合规敏感客户，SME 普及率有限 [推断]</td>
+          <td style="font-size: 0.78rem; color: var(--text-muted);">绿色溢价变现周期长</td>
+        </tr>
+        
+      </tbody>
+    </table>
+  </div>
+
+  <div class="page-footer">
+    Generated by Business Process Deep Analyzer · 2026-08-21 15:54
+  </div>
+
+  <script>
+    // Track active L2 panels per value stream
+    var activePanels = {};
+    
+    function toggleL2(stageIndex, stageName) {
+      var panel = document.getElementById('l2-panel-' + stageIndex);
+      if (!panel) return;
+      
+      // Close other panels in the same value stream
+      var vsPanels = document.querySelectorAll('.l2-panel[data-vs="' + stageIndex + '"]');
+      
+      if (panel.classList.contains('active')) {
+        panel.classList.remove('active');
+      } else {
+        // Close all panels first
+        document.querySelectorAll('.l2-panel.active').forEach(function(p) {
+          p.classList.remove('active');
+        });
+        // Open clicked panel
+        panel.classList.add('active');
+        // Scroll to panel
+        setTimeout(function() {
+          panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }, 100);
+      }
+    }
+    
+    // Highlight L1 stage on hover
+    document.querySelectorAll('.l1-stage').forEach(function(stage) {
+      stage.addEventListener('mouseenter', function() {
+        this.classList.add('active');
+      });
+      stage.addEventListener('mouseleave', function() {
+        if (!document.getElementById('l2-panel-' + this.dataset.stage).classList.contains('active')) {
+          this.classList.remove('active');
+        }
+      });
+    });
+  </script>
+
+</body>
+</html>

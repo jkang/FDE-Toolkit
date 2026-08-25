@@ -1,0 +1,62 @@
+
+title: "极氪汽车 (Zeekr) — 出海欧洲业务战略与指标推导"
+planning_cycle: "2025 - 2026"
+nsm:
+  name: "欧洲市场月活跃交付车辆数 (MAV)"
+  target: "15,000"
+  unit: "台/月"
+  definition: "指在欧洲市场当月完成交付并处于活跃行驶状态（有联网数据回传）的车辆总数。"
+kpi_pyramid:
+  - name: "市场增长"
+    type: "增长指标"
+    metrics:
+      - name: "新增订单量"
+        target: "20,000+"
+        desc: "月度新增合同订单数"
+      - name: "欧洲门店覆盖数"
+        target: "150家"
+        desc: "含直营与授权服务点"
+  - name: "渠道效率"
+    type: "效率指标"
+    metrics:
+      - name: "单店月均交付"
+        target: "100台"
+        desc: "提升渠道周转效率"
+      - name: "试驾转化率"
+        target: "15%"
+        desc: "从到店试驾到下单的转化"
+  - name: "服务质量"
+    type: "质量指标"
+    metrics:
+      - name: "欧洲用户 NPS"
+        target: "75分"
+        desc: "衡量本地化服务口碑"
+      - name: "首年无故障率"
+        target: "98.5%"
+        desc: "核心产品质量保障"
+  - name: "经营健康"
+    type: "健康指标"
+    metrics:
+      - name: "海外单车毛利"
+        target: "18%"
+        desc: "确保高端品牌溢价"
+      - name: "当地品牌知名度"
+        target: "40%"
+        desc: "核心城市目标人群覆盖"
+strategies:
+  - name: "品牌高端化本土适配策略"
+    priority: 0
+    swot_ref: "S1 x O2"
+    description: "利用国内成熟的 800V 高压快充技术优势，针对欧洲能源转型机会，建立“补能无忧”的高端品牌形象。"
+    actions:
+      - "启动 'Zeekr Power' 欧洲补能网络合作计划"
+      - "发布针对欧洲审美与法规的全新 HMI 界面"
+    kpi_ref: "品牌知名度 / 试驾转化率"
+  - name: "直营+代理双轨渠道扩张"
+    priority: 1
+    swot_ref: "W2 x O3"
+    description: "针对自建渠道缓慢的劣势，在核心城市保留直营体验店的同时，与当地大型汽车经销商集团合作快速下沉。"
+    actions:
+      - "在法/德/意核心城市开设旗舰旗舰店"
+      - "授权 50 家本地服务商提供售后保障"
+    kpi_ref: "门店覆盖数 / 单店月均交付"

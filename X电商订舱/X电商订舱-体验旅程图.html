@@ -1,0 +1,1680 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>X电商订舱 SME 货主直客体验旅程图（As-Is 现状诊断）</title>
+  <style>
+    /* 基础重置 */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background-color: #f8f9fa;
+      padding: 24px;
+      color: #1e293b;
+    }
+
+    /* Scrollbar styling */
+    ::-webkit-scrollbar { width: 4px; height: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+    /* 容器主视图 */
+    .container {
+      max-width: 100%;
+      overflow-x: auto;
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      padding: 20px;
+    }
+    .page-title {
+      font-size: 24px;
+      margin-bottom: 20px;
+      color: #1e293b;
+      font-weight: 600;
+    }
+
+    /* 地图画布与轴 */
+    .journey-map-canvas {
+      display: flex;
+      position: relative;
+      min-width: 3544px;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      background: #fff;
+    }
+
+    /* 左侧标签列 */
+    .labels-column {
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      position: sticky;
+      left: 0;
+      z-index: 20;
+      background: #fff;
+    }
+    .lane-label {
+      width: 120px;
+      min-width: 120px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 0 12px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: #475569;
+      background-color: #f1f5f9;
+      border-right: 1px solid #e2e8f0;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    
+    /* 右侧画布列 */
+    .content-column {
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+      position: relative;
+    }
+
+    /* 各泳道高度复现 */
+    .lane-row {
+      position: relative;
+      border-bottom: 1px solid #e2e8f0;
+      background: #fff;
+    }
+    .h-stage { height: 48px; }
+    .h-behavior { height: 80px; }
+    .h-touchpoint { height: 80px; }
+    .h-experience { height: 240px; }
+    .h-thoughts { height: 180px; }
+    .h-bottom { height: 200px; }
+
+    /* 阶段颜色块 (Stage Block) */
+    .stage-block {
+      position: absolute;
+      top: 0;
+      height: 100%;
+      border-right: 1px solid white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 0.875rem;
+      color: #334155;
+    }
+
+    /* 公共绝对定位元素 Wrapper */
+    .action-wrapper {
+      position: absolute;
+      transform: translateX(-50%);
+    }
+
+    /* Behavior (动作卡片) */
+    .behavior-card {
+      width: 160px;
+      height: calc(80px - 16px);
+      margin-top: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 8px;
+      background: white;
+      border: 2px solid #10b981;
+      border-radius: 8px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: #1f2937;
+      transition: all 0.2s;
+    }
+    .behavior-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+      border-color: #059669;
+    }
+
+    /* Touchpoint (触点) */
+    .touchpoint-card {
+      width: 160px;
+      height: calc(80px - 16px);
+      margin-top: 8px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    .tp-badge {
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: #3b82f6;
+      background: #eff6ff;
+      padding: 2px 8px;
+      border-radius: 999px;
+    }
+    .tp-device {
+      font-size: 0.7rem;
+      color: #64748b;
+    }
+
+    /* Experience (体验分) */
+    .hline-dashed {
+      position: absolute;
+      left: 0; right: 0;
+      border-top: 1px dashed rgba(226, 232, 240, 0.8);
+    }
+    .y-axis-label {
+      position: absolute;
+      left: 4px;
+      font-size: 10px;
+      color: #94a3b8;
+      transform: translateY(-50%);
+    }
+    .exp-dot-container {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      z-index: 10;
+    }
+    .exp-dot {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: bold;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      border: 2px solid white;
+    }
+    /* Colors via generated classes */
+    .bg-emerald-600 { background-color: #059669; }
+    .bg-emerald-400 { background-color: #34d399; }
+    .bg-emerald-200 { background-color: #a7f3d0; }
+    .bg-slate-300 { background-color: #cbd5e1; }
+    .bg-amber-300 { background-color: #fcd34d; }
+    .bg-orange-400 { background-color: #fb923c; }
+    .bg-red-500 { background-color: #ef4444; }
+    .text-white { color: white; }
+    .text-black { color: #000; }
+
+    /* Thoughts (用户想法) */
+    .thoughts-container {
+      width: 160px;
+      margin-top: 8px;
+      max-height: calc(180px - 16px);
+      overflow-y: auto;
+      overflow-x: hidden;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      padding-right: 2px;
+    }
+    .thought-bubble {
+      font-size: 0.7rem;
+      color: #475569;
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      border-top-left-radius: 2px;
+      padding: 6px 10px;
+      line-height: 1.4;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+      transition: all 0.2s;
+      word-break: break-all;
+    }
+    .thought-bubble:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      border-color: #cbd5e1;
+    }
+    
+    .bottom-container {
+      width: 160px;
+      margin-top: 8px;
+      max-height: calc(200px - 16px);
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding-right: 2px;
+    }
+    .ai-card {
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-radius: 6px;
+      padding: 8px;
+      margin-bottom: 6px;
+      transition: all 0.2s;
+    }
+    .ai-card:hover { transform: translateY(-1px); box-shadow: 0 2px 4px rgba(0,0,0,0.05); border-color: #93c5fd; }
+    .ai-title {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #1d4ed8;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-bottom: 4px;
+    }
+    .ai-desc { font-size: 0.7rem; color: #1e3a8a; line-height: 1.4; }
+    
+    .pain-card {
+      border-radius: 6px;
+      padding: 8px;
+      transition: all 0.2s;
+      margin-bottom: 6px;
+    }
+    .pain-card:hover { transform: translateY(-1px); box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+
+    /* As-is mode: 红色警告系 */
+    .pain-card-as-is { background: #fff1f2; border: 1px solid #fecdd3; }
+    .pain-card-as-is:hover { border-color: #fda4af; }
+    .pain-card-as-is .pain-title { color: #e11d48; font-size: 0.75rem; font-weight: 600; margin-bottom: 4px; }
+    .pain-card-as-is .pain-list { list-style-type: none; font-size: 0.7rem; color: #be123c; }
+    .pain-card-as-is .pain-list li { margin-bottom: 2px; position: relative; padding-left: 8px; line-height: 1.4; word-break: break-all; }
+    .pain-card-as-is .pain-list li::before { content: "•"; position: absolute; left: 0; color: #fb7185; }
+
+    /* To-be mode: 橙色改进系 */
+    .pain-card-to-be { background: #fff7ed; border: 1px solid #fed7aa; }
+    .pain-card-to-be:hover { border-color: #fdba74; }
+    .pain-card-to-be .pain-title { color: #ea580c; font-size: 0.75rem; font-weight: 600; margin-bottom: 4px; }
+    .pain-card-to-be .pain-list { list-style-type: none; font-size: 0.7rem; color: #9a3412; }
+    .pain-card-to-be .pain-list li { margin-bottom: 2px; position: relative; padding-left: 8px; line-height: 1.4; word-break: break-all; }
+    .pain-card-to-be .pain-list li::before { content: "•"; position: absolute; left: 0; color: #fb923c; }
+
+    .footer-mark {
+      margin-top: 16px;
+      font-size: 12px;
+      color: #94a3b8;
+      text-align: right;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <div class="page-title">X电商订舱 SME 货主直客体验旅程图（As-Is 现状诊断）</div>
+
+  <div class="journey-map-canvas">
+    <!-- 左侧 Label 列 -->
+    <div class="labels-column">
+      <div class="lane-label h-stage">阶段</div>
+      <div class="lane-label h-behavior">用户行为</div>
+      <div class="lane-label h-touchpoint">用户触点</div>
+      <div class="lane-label h-experience">体验情绪</div>
+      <div class="lane-label h-thoughts">用户想法</div>
+      <div class="lane-label h-bottom">现存业务痛点</div>
+    </div>
+
+    <!-- 右侧容器列 -->
+    <div class="content-column">
+      
+      <!-- ================= 阶段 (Stage) ================= -->
+      <div class="lane-row h-stage">
+        
+        <div class="stage-block" style="left: 0.0%; width: 10.526315789473683%; background: rgba(241, 245, 249, 0.7);">
+          认知与注册认证
+        </div>
+        
+        <div class="stage-block" style="left: 10.526315789473683%; width: 15.789473684210526%; background: rgba(241, 245, 249, 0.7);">
+          询价与比价
+        </div>
+        
+        <div class="stage-block" style="left: 26.31578947368421%; width: 10.526315789473683%; background: rgba(241, 245, 249, 0.7);">
+          下单订舱
+        </div>
+        
+        <div class="stage-block" style="left: 36.84210526315789%; width: 10.526315789473683%; background: rgba(241, 245, 249, 0.7);">
+          舱位确认
+        </div>
+        
+        <div class="stage-block" style="left: 47.368421052631575%; width: 15.789473684210526%; background: rgba(241, 245, 249, 0.7);">
+          单证与支付
+        </div>
+        
+        <div class="stage-block" style="left: 63.1578947368421%; width: 10.526315789473683%; background: rgba(241, 245, 249, 0.7);">
+          提箱装箱与陆运清关
+        </div>
+        
+        <div class="stage-block" style="left: 73.68421052631578%; width: 10.526315789473683%; background: rgba(241, 245, 249, 0.7);">
+          出运跟踪
+        </div>
+        
+        <div class="stage-block" style="left: 84.21052631578947%; width: 15.789473684210526%; background: rgba(241, 245, 249, 0.7);">
+          到港交付与售后
+        </div>
+        
+      </div>
+
+      <!-- ================= 用户行为 (Behavior) ================= -->
+      <div class="lane-row h-behavior">
+        
+          
+          <div class="action-wrapper" style="left: 2.3923444976076556%;">
+            <div class="behavior-card">发现平台并浏览资讯</div>
+          </div>
+          
+          <div class="action-wrapper" style="left: 7.655502392344498%;">
+            <div class="behavior-card">提交企业认证资料</div>
+          </div>
+          
+        
+          
+          <div class="action-wrapper" style="left: 12.918660287081341%;">
+            <div class="behavior-card">查询即期运价（E-Spot）</div>
+          </div>
+          
+          <div class="action-wrapper" style="left: 18.181818181818183%;">
+            <div class="behavior-card">长时效报价与锁价</div>
+          </div>
+          
+          <div class="action-wrapper" style="left: 23.444976076555022%;">
+            <div class="behavior-card">多平台比价</div>
+          </div>
+          
+        
+          
+          <div class="action-wrapper" style="left: 28.708133971291865%;">
+            <div class="behavior-card">3 步订舱表单提交</div>
+          </div>
+          
+          <div class="action-wrapper" style="left: 33.97129186602871%;">
+            <div class="behavior-card">补充资料与补件</div>
+          </div>
+          
+        
+          
+          <div class="action-wrapper" style="left: 39.23444976076555%;">
+            <div class="behavior-card">收到 Booking Confirmation</div>
+          </div>
+          
+          <div class="action-wrapper" style="left: 44.49760765550239%;">
+            <div class="behavior-card">旺季舱位变更处理</div>
+          </div>
+          
+        
+          
+          <div class="action-wrapper" style="left: 49.760765550239235%;">
+            <div class="behavior-card">提交 SI 与 VGM</div>
+          </div>
+          
+          <div class="action-wrapper" style="left: 55.02392344497608%;">
+            <div class="behavior-card">电子提单签发（eBL）</div>
+          </div>
+          
+          <div class="action-wrapper" style="left: 60.28708133971292%;">
+            <div class="behavior-card">在线支付运费</div>
+          </div>
+          
+        
+          
+          <div class="action-wrapper" style="left: 65.55023923444976%;">
+            <div class="behavior-card">提箱与装箱</div>
+          </div>
+          
+          <div class="action-wrapper" style="left: 70.81339712918661%;">
+            <div class="behavior-card">出口清关</div>
+          </div>
+          
+        
+          
+          <div class="action-wrapper" style="left: 76.07655502392345%;">
+            <div class="behavior-card">控制塔查看运输状态</div>
+          </div>
+          
+          <div class="action-wrapper" style="left: 81.3397129186603%;">
+            <div class="behavior-card">收到延误通知与处置</div>
+          </div>
+          
+        
+          
+          <div class="action-wrapper" style="left: 86.60287081339713%;">
+            <div class="behavior-card">D&D 费用管理</div>
+          </div>
+          
+          <div class="action-wrapper" style="left: 91.86602870813397%;">
+            <div class="behavior-card">提货与放货完成</div>
+          </div>
+          
+          <div class="action-wrapper" style="left: 97.1291866028708%;">
+            <div class="behavior-card">售后与会员权益</div>
+          </div>
+          
+        
+      </div>
+
+      <!-- ================= 用户触点 (Touchpoint) ================= -->
+      <div class="lane-row h-touchpoint">
+        
+          
+          <div class="action-wrapper" style="left: 2.3923444976076556%;">
+            <div class="touchpoint-card">
+              <span class="tp-badge">SME 货主</span>
+              <span class="tp-device">独立电商平台官网/搜索引擎/行业展会</span>
+            </div>
+          </div>
+          
+          <div class="action-wrapper" style="left: 7.655502392344498%;">
+            <div class="touchpoint-card">
+              <span class="tp-badge">SME 货主</span>
+              <span class="tp-device">独立电商平台注册页</span>
+            </div>
+          </div>
+          
+        
+          
+          <div class="action-wrapper" style="left: 12.918660287081341%;">
+            <div class="touchpoint-card">
+              <span class="tp-badge">SME 货主</span>
+              <span class="tp-device">独立电商平台报价页</span>
+            </div>
+          </div>
+          
+          <div class="action-wrapper" style="left: 18.181818181818183%;">
+            <div class="touchpoint-card">
+              <span class="tp-badge">SME 货主</span>
+              <span class="tp-device">报价单页面（E-Quote/Secured E-Quote）</span>
+            </div>
+          </div>
+          
+          <div class="action-wrapper" style="left: 23.444976076555022%;">
+            <div class="touchpoint-card">
+              <span class="tp-badge">SME 货主</span>
+              <span class="tp-device">第三方货代平台/其他船司平台</span>
+            </div>
+          </div>
+          
+        
+          
+          <div class="action-wrapper" style="left: 28.708133971291865%;">
+            <div class="touchpoint-card">
+              <span class="tp-badge">SME 货主</span>
+              <span class="tp-device">独立电商平台/官网订舱表单</span>
+            </div>
+          </div>
+          
+          <div class="action-wrapper" style="left: 33.97129186602871%;">
+            <div class="touchpoint-card">
+              <span class="tp-badge">SME 货主</span>
+              <span class="tp-device">客服/邮件</span>
+            </div>
+          </div>
+          
+        
+          
+          <div class="action-wrapper" style="left: 39.23444976076555%;">
+            <div class="touchpoint-card">
+              <span class="tp-badge">SME 货主</span>
+              <span class="tp-device">邮件/微信小程序通知</span>
+            </div>
+          </div>
+          
+          <div class="action-wrapper" style="left: 44.49760765550239%;">
+            <div class="touchpoint-card">
+              <span class="tp-badge">SME 货主</span>
+              <span class="tp-device">客服/控制塔</span>
+            </div>
+          </div>
+          
+        
+          
+          <div class="action-wrapper" style="left: 49.760765550239235%;">
+            <div class="touchpoint-card">
+              <span class="tp-badge">SME 货主</span>
+              <span class="tp-device">智慧单证系统</span>
+            </div>
+          </div>
+          
+          <div class="action-wrapper" style="left: 55.02392344497608%;">
+            <div class="touchpoint-card">
+              <span class="tp-badge">SME 货主</span>
+              <span class="tp-device">IQAX eBL / GSBN 区块链</span>
+            </div>
+          </div>
+          
+          <div class="action-wrapper" style="left: 60.28708133971292%;">
+            <div class="touchpoint-card">
+              <span class="tp-badge">SME 货主</span>
+              <span class="tp-device">支付系统</span>
+            </div>
+          </div>
+          
+        
+          
+          <div class="action-wrapper" style="left: 65.55023923444976%;">
+            <div class="touchpoint-card">
+              <span class="tp-badge">SME 货主</span>
+              <span class="tp-device">码头/堆场/E-Trucking</span>
+            </div>
+          </div>
+          
+          <div class="action-wrapper" style="left: 70.81339712918661%;">
+            <div class="touchpoint-card">
+              <span class="tp-badge">SME 货主</span>
+              <span class="tp-device">E-Customs/报关行</span>
+            </div>
+          </div>
+          
+        
+          
+          <div class="action-wrapper" style="left: 76.07655502392345%;">
+            <div class="touchpoint-card">
+              <span class="tp-badge">SME 货主</span>
+              <span class="tp-device">控制塔/Cargo Tracking+/移动App</span>
+            </div>
+          </div>
+          
+          <div class="action-wrapper" style="left: 81.3397129186603%;">
+            <div class="touchpoint-card">
+              <span class="tp-badge">SME 货主</span>
+              <span class="tp-device">控制塔异常通知/客服</span>
+            </div>
+          </div>
+          
+        
+          
+          <div class="action-wrapper" style="left: 86.60287081339713%;">
+            <div class="touchpoint-card">
+              <span class="tp-badge">SME 货主</span>
+              <span class="tp-device">D&D 计算器</span>
+            </div>
+          </div>
+          
+          <div class="action-wrapper" style="left: 91.86602870813397%;">
+            <div class="touchpoint-card">
+              <span class="tp-badge">SME 货主</span>
+              <span class="tp-device">目的港码头/IQAX eBL</span>
+            </div>
+          </div>
+          
+          <div class="action-wrapper" style="left: 97.1291866028708%;">
+            <div class="touchpoint-card">
+              <span class="tp-badge">SME 货主</span>
+              <span class="tp-device">PlumSmart/AI 客服</span>
+            </div>
+          </div>
+          
+        
+      </div>
+
+      <!-- ================= 体验情绪 (Experience) ================= -->
+      <div class="lane-row h-experience">
+        <!-- Axes markers -->
+        <div class="hline-dashed" style="top: 10%;"></div>
+        <div class="hline-dashed" style="top: 30%;"></div>
+        <div class="hline-dashed" style="top: 50%;"></div>
+        <div class="hline-dashed" style="top: 70%;"></div>
+        <div class="hline-dashed" style="top: 90%;"></div>
+        
+        <div class="y-axis-label" style="top: 10%;">10</div>
+        <div class="y-axis-label" style="top: 30%;">7.5</div>
+        <div class="y-axis-label" style="top: 50%;">5</div>
+        <div class="y-axis-label" style="top: 70%;">2.5</div>
+        <div class="y-axis-label" style="top: 90%;">0</div>
+
+        <!-- Line drawing SVG -->
+        <svg width="100%" height="100%" style="position: absolute; overflow: visible; pointer-events: none; z-index: 1;">
+          <g stroke="#94a3b8" stroke-width="2">
+            <!-- connecting inner actions -->
+            
+              
+              
+                
+                  <line x1="2.3923444976076556%" y1="34.0%" 
+                        x2="7.655502392344498%" y2="58.0%" />
+                
+              
+                
+              
+            
+              
+              
+                
+                  <line x1="12.918660287081341%" y1="26.0%" 
+                        x2="18.181818181818183%" y2="42.0%" />
+                
+              
+                
+                  <line x1="18.181818181818183%" y1="42.0%" 
+                        x2="23.444976076555022%" y2="50.0%" />
+                
+              
+                
+              
+            
+              
+              
+                
+                  <line x1="28.708133971291865%" y1="34.0%" 
+                        x2="33.97129186602871%" y2="58.0%" />
+                
+              
+                
+              
+            
+              
+              
+                
+                  <line x1="39.23444976076555%" y1="26.0%" 
+                        x2="44.49760765550239%" y2="66.0%" />
+                
+              
+                
+              
+            
+              
+              
+                
+                  <line x1="49.760765550239235%" y1="34.0%" 
+                        x2="55.02392344497608%" y2="50.0%" />
+                
+              
+                
+                  <line x1="55.02392344497608%" y1="50.0%" 
+                        x2="60.28708133971292%" y2="42.0%" />
+                
+              
+                
+              
+            
+              
+              
+                
+                  <line x1="65.55023923444976%" y1="42.0%" 
+                        x2="70.81339712918661%" y2="58.0%" />
+                
+              
+                
+              
+            
+              
+              
+                
+                  <line x1="76.07655502392345%" y1="26.0%" 
+                        x2="81.3397129186603%" y2="66.0%" />
+                
+              
+                
+              
+            
+              
+              
+                
+                  <line x1="86.60287081339713%" y1="50.0%" 
+                        x2="91.86602870813397%" y2="34.0%" />
+                
+              
+                
+                  <line x1="91.86602870813397%" y1="34.0%" 
+                        x2="97.1291866028708%" y2="42.0%" />
+                
+              
+                
+              
+            
+            <!-- connecting cross stages -->
+            
+              
+                
+                
+                
+                  <line x1="7.655502392344498%" y1="58.0%" 
+                        x2="12.918660287081341%" y2="26.0%" 
+                        stroke-dasharray="4 2" />
+                
+              
+            
+              
+                
+                
+                
+                  <line x1="23.444976076555022%" y1="50.0%" 
+                        x2="28.708133971291865%" y2="34.0%" 
+                        stroke-dasharray="4 2" />
+                
+              
+            
+              
+                
+                
+                
+                  <line x1="33.97129186602871%" y1="58.0%" 
+                        x2="39.23444976076555%" y2="26.0%" 
+                        stroke-dasharray="4 2" />
+                
+              
+            
+              
+                
+                
+                
+                  <line x1="44.49760765550239%" y1="66.0%" 
+                        x2="49.760765550239235%" y2="34.0%" 
+                        stroke-dasharray="4 2" />
+                
+              
+            
+              
+                
+                
+                
+                  <line x1="60.28708133971292%" y1="42.0%" 
+                        x2="65.55023923444976%" y2="42.0%" 
+                        stroke-dasharray="4 2" />
+                
+              
+            
+              
+                
+                
+                
+                  <line x1="70.81339712918661%" y1="58.0%" 
+                        x2="76.07655502392345%" y2="26.0%" 
+                        stroke-dasharray="4 2" />
+                
+              
+            
+              
+                
+                
+                
+                  <line x1="81.3397129186603%" y1="66.0%" 
+                        x2="86.60287081339713%" y2="50.0%" 
+                        stroke-dasharray="4 2" />
+                
+              
+            
+              
+            
+          </g>
+        </svg>
+
+        <!-- Points -->
+        
+          
+          <div class="exp-dot-container" style="left: 2.3923444976076556%; top: 34.0%;">
+            <div class="exp-dot bg-emerald-400 text-black">
+              7
+            </div>
+          </div>
+          
+          <div class="exp-dot-container" style="left: 7.655502392344498%; top: 58.0%;">
+            <div class="exp-dot bg-amber-300 text-black">
+              4
+            </div>
+          </div>
+          
+        
+          
+          <div class="exp-dot-container" style="left: 12.918660287081341%; top: 26.0%;">
+            <div class="exp-dot bg-emerald-400 text-black">
+              8
+            </div>
+          </div>
+          
+          <div class="exp-dot-container" style="left: 18.181818181818183%; top: 42.0%;">
+            <div class="exp-dot bg-emerald-200 text-black">
+              6
+            </div>
+          </div>
+          
+          <div class="exp-dot-container" style="left: 23.444976076555022%; top: 50.0%;">
+            <div class="exp-dot bg-slate-300 text-black">
+              5
+            </div>
+          </div>
+          
+        
+          
+          <div class="exp-dot-container" style="left: 28.708133971291865%; top: 34.0%;">
+            <div class="exp-dot bg-emerald-400 text-black">
+              7
+            </div>
+          </div>
+          
+          <div class="exp-dot-container" style="left: 33.97129186602871%; top: 58.0%;">
+            <div class="exp-dot bg-amber-300 text-black">
+              4
+            </div>
+          </div>
+          
+        
+          
+          <div class="exp-dot-container" style="left: 39.23444976076555%; top: 26.0%;">
+            <div class="exp-dot bg-emerald-400 text-black">
+              8
+            </div>
+          </div>
+          
+          <div class="exp-dot-container" style="left: 44.49760765550239%; top: 66.0%;">
+            <div class="exp-dot bg-orange-400 text-white">
+              3
+            </div>
+          </div>
+          
+        
+          
+          <div class="exp-dot-container" style="left: 49.760765550239235%; top: 34.0%;">
+            <div class="exp-dot bg-emerald-400 text-black">
+              7
+            </div>
+          </div>
+          
+          <div class="exp-dot-container" style="left: 55.02392344497608%; top: 50.0%;">
+            <div class="exp-dot bg-slate-300 text-black">
+              5
+            </div>
+          </div>
+          
+          <div class="exp-dot-container" style="left: 60.28708133971292%; top: 42.0%;">
+            <div class="exp-dot bg-emerald-200 text-black">
+              6
+            </div>
+          </div>
+          
+        
+          
+          <div class="exp-dot-container" style="left: 65.55023923444976%; top: 42.0%;">
+            <div class="exp-dot bg-emerald-200 text-black">
+              6
+            </div>
+          </div>
+          
+          <div class="exp-dot-container" style="left: 70.81339712918661%; top: 58.0%;">
+            <div class="exp-dot bg-amber-300 text-black">
+              4
+            </div>
+          </div>
+          
+        
+          
+          <div class="exp-dot-container" style="left: 76.07655502392345%; top: 26.0%;">
+            <div class="exp-dot bg-emerald-400 text-black">
+              8
+            </div>
+          </div>
+          
+          <div class="exp-dot-container" style="left: 81.3397129186603%; top: 66.0%;">
+            <div class="exp-dot bg-orange-400 text-white">
+              3
+            </div>
+          </div>
+          
+        
+          
+          <div class="exp-dot-container" style="left: 86.60287081339713%; top: 50.0%;">
+            <div class="exp-dot bg-slate-300 text-black">
+              5
+            </div>
+          </div>
+          
+          <div class="exp-dot-container" style="left: 91.86602870813397%; top: 34.0%;">
+            <div class="exp-dot bg-emerald-400 text-black">
+              7
+            </div>
+          </div>
+          
+          <div class="exp-dot-container" style="left: 97.1291866028708%; top: 42.0%;">
+            <div class="exp-dot bg-emerald-200 text-black">
+              6
+            </div>
+          </div>
+          
+        
+      </div>
+
+      <!-- ================= 用户想法 (Thoughts) ================= -->
+      <div class="lane-row h-thoughts">
+        
+          
+          <div class="action-wrapper" style="left: 2.3923444976076556%;">
+            <div class="thoughts-container">
+              
+              <div class="thought-bubble">想找到比货代更透明的运价渠道</div>
+              
+              <div class="thought-bubble">担心小单量是否被重视</div>
+              
+            </div>
+          </div>
+          
+          <div class="action-wrapper" style="left: 7.655502392344498%;">
+            <div class="thoughts-container">
+              
+              <div class="thought-bubble">注册字段怎么这么多</div>
+              
+              <div class="thought-bubble">为什么认证要等这么久</div>
+              
+            </div>
+          </div>
+          
+        
+          
+          <div class="action-wrapper" style="left: 12.918660287081341%;">
+            <div class="thoughts-container">
+              
+              <div class="thought-bubble">运价透明还能锁舱，很好</div>
+              
+              <div class="thought-bubble">希望航次覆盖更多</div>
+              
+            </div>
+          </div>
+          
+          <div class="action-wrapper" style="left: 18.181818181818183%;">
+            <div class="thoughts-container">
+              
+              <div class="thought-bubble">锁价能控制成本</div>
+              
+              <div class="thought-bubble">担心锁价后运价下跌吃亏</div>
+              
+            </div>
+          </div>
+          
+          <div class="action-wrapper" style="left: 23.444976076555022%;">
+            <div class="thoughts-container">
+              
+              <div class="thought-bubble">比价真耗时</div>
+              
+              <div class="thought-bubble">货代报价有时更灵活</div>
+              
+            </div>
+          </div>
+          
+        
+          
+          <div class="action-wrapper" style="left: 28.708133971291865%;">
+            <div class="thoughts-container">
+              
+              <div class="thought-bubble">3 步流程很顺畅</div>
+              
+              <div class="thought-bubble">Smart Push 预填帮我省了时间</div>
+              
+            </div>
+          </div>
+          
+          <div class="action-wrapper" style="left: 33.97129186602871%;">
+            <div class="thoughts-container">
+              
+              <div class="thought-bubble">为什么又缺资料</div>
+              
+              <div class="thought-bubble">来回补件很烦</div>
+              
+            </div>
+          </div>
+          
+        
+          
+          <div class="action-wrapper" style="left: 39.23444976076555%;">
+            <div class="thoughts-container">
+              
+              <div class="thought-bubble">最快 1 分钟拿到确认，体验很好</div>
+              
+            </div>
+          </div>
+          
+          <div class="action-wrapper" style="left: 44.49760765550239%;">
+            <div class="thoughts-container">
+              
+              <div class="thought-bubble">又被改船了</div>
+              
+              <div class="thought-bubble">我的货期怎么办</div>
+              
+            </div>
+          </div>
+          
+        
+          
+          <div class="action-wrapper" style="left: 49.760765550239235%;">
+            <div class="thoughts-container">
+              
+              <div class="thought-bubble">系统能自动校验和纠错，省心</div>
+              
+            </div>
+          </div>
+          
+          <div class="action-wrapper" style="left: 55.02392344497608%;">
+            <div class="thoughts-container">
+              
+              <div class="thought-bubble">电子提单很好，但收货人没接入</div>
+              
+              <div class="thought-bubble">银行还是只认纸质</div>
+              
+            </div>
+          </div>
+          
+          <div class="action-wrapper" style="left: 60.28708133971292%;">
+            <div class="thoughts-container">
+              
+              <div class="thought-bubble">在线支付很方便</div>
+              
+              <div class="thought-bubble">外币付款手续费不低</div>
+              
+            </div>
+          </div>
+          
+        
+          
+          <div class="action-wrapper" style="left: 65.55023923444976%;">
+            <div class="thoughts-container">
+              
+              <div class="thought-bubble">希望能约到当天的拖车</div>
+              
+            </div>
+          </div>
+          
+          <div class="action-wrapper" style="left: 70.81339712918661%;">
+            <div class="thoughts-container">
+              
+              <div class="thought-bubble">关税政策又变了</div>
+              
+              <div class="thought-bubble">查验很耽误时间</div>
+              
+            </div>
+          </div>
+          
+        
+          
+          <div class="action-wrapper" style="left: 76.07655502392345%;">
+            <div class="thoughts-container">
+              
+              <div class="thought-bubble">全订单可视化很清晰</div>
+              
+            </div>
+          </div>
+          
+          <div class="action-wrapper" style="left: 81.3397129186603%;">
+            <div class="thoughts-container">
+              
+              <div class="thought-bubble">通知太晚了</div>
+              
+              <div class="thought-bubble">延误了怎么办</div>
+              
+            </div>
+          </div>
+          
+        
+          
+          <div class="action-wrapper" style="left: 86.60287081339713%;">
+            <div class="thoughts-container">
+              
+              <div class="thought-bubble">免箱期计算复杂</div>
+              
+              <div class="thought-bubble">费用为什么这么高</div>
+              
+            </div>
+          </div>
+          
+          <div class="action-wrapper" style="left: 91.86602870813397%;">
+            <div class="thoughts-container">
+              
+              <div class="thought-bubble">eBL 放货很快</div>
+              
+              <div class="thought-bubble">希望收货人也能用上</div>
+              
+            </div>
+          </div>
+          
+          <div class="action-wrapper" style="left: 97.1291866028708%;">
+            <div class="thoughts-container">
+              
+              <div class="thought-bubble">AI 客服响应很快</div>
+              
+              <div class="thought-bubble">会员权益还不大了解</div>
+              
+            </div>
+          </div>
+          
+        
+      </div>
+
+      <!-- ================= 痛点 & AI预设 (PainPoints & AI) ================= -->
+      <div class="lane-row h-bottom">
+        
+          
+          <div class="action-wrapper" style="left: 2.3923444976076556%;">
+            <div class="bottom-container">
+              
+              <div class="ai-card">
+                <div class="ai-title">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="9" y1="18" x2="15" y2="18"></line><line x1="10" y1="22" x2="14" y2="22"></line><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"></path>
+                  </svg>
+                  智能获客与内容触达
+                </div>
+                <div class="ai-desc">基于货主搜索意图、贸易流向与航线的个性化内容推荐与精准触达，提升 SME 认知与首访转化。</div>
+              </div>
+              
+              
+                
+                <div class="pain-card pain-card-as-is">
+                  <div class="pain-title">现存痛点</div>
+                  <ul class="pain-list">
+                    
+                    <li>平台认知度低于行业头部，主动搜索到达有限 [推断]</li>
+                    
+                  </ul>
+                </div>
+              
+            </div>
+          </div>
+          
+          <div class="action-wrapper" style="left: 7.655502392344498%;">
+            <div class="bottom-container">
+              
+              <div class="ai-card">
+                <div class="ai-title">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="9" y1="18" x2="15" y2="18"></line><line x1="10" y1="22" x2="14" y2="22"></line><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"></path>
+                  </svg>
+                  AI 自动认证审核
+                </div>
+                <div class="ai-desc">基于营业执照 OCR 与多源验真的分钟级自动开户，同步开通订舱权限，消灭等待窗口。</div>
+              </div>
+              
+              
+                
+                <div class="pain-card pain-card-as-is">
+                  <div class="pain-title">现存痛点</div>
+                  <ul class="pain-list">
+                    
+                    <li>企业认证约需 3 个工作日，等待期无法订舱（X 官方口径）</li>
+                    
+                  </ul>
+                </div>
+              
+            </div>
+          </div>
+          
+        
+          
+          <div class="action-wrapper" style="left: 12.918660287081341%;">
+            <div class="bottom-container">
+              
+              <div class="ai-card">
+                <div class="ai-title">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="9" y1="18" x2="15" y2="18"></line><line x1="10" y1="22" x2="14" y2="22"></line><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"></path>
+                  </svg>
+                  全航线智能报价
+                </div>
+                <div class="ai-desc">结合市场运价指数（SCFI/CCFI）与舱位余量生成全航线即期报价，缩小透明报价盲区。</div>
+              </div>
+              
+              
+                
+                <div class="pain-card pain-card-as-is">
+                  <div class="pain-title">现存痛点</div>
+                  <ul class="pain-list">
+                    
+                    <li>即期报价仅覆盖特定 X 航次，部分港口对无透明报价 [推断]</li>
+                    
+                  </ul>
+                </div>
+              
+            </div>
+          </div>
+          
+          <div class="action-wrapper" style="left: 18.181818181818183%;">
+            <div class="bottom-container">
+              
+              <div class="ai-card">
+                <div class="ai-title">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="9" y1="18" x2="15" y2="18"></line><line x1="10" y1="22" x2="14" y2="22"></line><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"></path>
+                  </svg>
+                  动态锁价风控
+                </div>
+                <div class="ai-desc">基于运价波动预测提供锁价区间建议与弃约补偿条款，平衡双方风险。</div>
+              </div>
+              
+              
+                
+                <div class="pain-card pain-card-as-is">
+                  <div class="pain-title">现存痛点</div>
+                  <ul class="pain-list">
+                    
+                    <li>Secured E-Quote 锁价后若市场运价大幅下行，相对成本劣势</li>
+                    
+                  </ul>
+                </div>
+              
+            </div>
+          </div>
+          
+          <div class="action-wrapper" style="left: 23.444976076555022%;">
+            <div class="bottom-container">
+              
+              <div class="ai-card">
+                <div class="ai-title">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="9" y1="18" x2="15" y2="18"></line><line x1="10" y1="22" x2="14" y2="22"></line><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"></path>
+                  </svg>
+                  All-in-One 比价助手
+                </div>
+                <div class="ai-desc">基于历史成交与市场指数的一站式询价与到岸成本试算（All-in-One 2026.03），减少跨平台比价摩擦。</div>
+              </div>
+              
+              
+                
+                <div class="pain-card pain-card-as-is">
+                  <div class="pain-title">现存痛点</div>
+                  <ul class="pain-list">
+                    
+                    <li>人工多平台比价耗时，SME 议价能力弱</li>
+                    
+                  </ul>
+                </div>
+              
+            </div>
+          </div>
+          
+        
+          
+          <div class="action-wrapper" style="left: 28.708133971291865%;">
+            <div class="bottom-container">
+              
+              <div class="ai-card">
+                <div class="ai-title">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="9" y1="18" x2="15" y2="18"></line><line x1="10" y1="22" x2="14" y2="22"></line><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"></path>
+                  </svg>
+                  首单智能预填
+                </div>
+                <div class="ai-desc">基于贸易单据（PI/装箱单）OCR 自动预填订舱字段，首单耗时压缩至分钟级。</div>
+              </div>
+              
+              
+                
+                <div class="pain-card pain-card-as-is">
+                  <div class="pain-title">现存痛点</div>
+                  <ul class="pain-list">
+                    
+                    <li>新客无历史数据，Smart Push 预填不可用，首单仍偏慢</li>
+                    
+                  </ul>
+                </div>
+              
+            </div>
+          </div>
+          
+          <div class="action-wrapper" style="left: 33.97129186602871%;">
+            <div class="bottom-container">
+              
+              <div class="ai-card">
+                <div class="ai-title">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="9" y1="18" x2="15" y2="18"></line><line x1="10" y1="22" x2="14" y2="22"></line><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"></path>
+                  </svg>
+                  智能补件检查
+                </div>
+                <div class="ai-desc">提交前 AI 校验必填项与合规字段，缺件实时提示并给出填写示例，一次提交通过率提升。</div>
+              </div>
+              
+              
+                
+                <div class="pain-card pain-card-as-is">
+                  <div class="pain-title">现存痛点</div>
+                  <ul class="pain-list">
+                    
+                    <li>资料不全被退单，往返补件拉长订舱周期</li>
+                    
+                  </ul>
+                </div>
+              
+            </div>
+          </div>
+          
+        
+          
+          <div class="action-wrapper" style="left: 39.23444976076555%;">
+            <div class="bottom-container">
+              
+              <div class="ai-card">
+                <div class="ai-title">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="9" y1="18" x2="15" y2="18"></line><line x1="10" y1="22" x2="14" y2="22"></line><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"></path>
+                  </svg>
+                  分钟级自动确认
+                </div>
+                <div class="ai-desc">自动校验规则扩围，对标准 SME 订单自动签发 Booking Confirmation 并预告舱位保证状态。</div>
+              </div>
+              
+              
+                
+                <div class="pain-card pain-card-as-is">
+                  <div class="pain-title">现存痛点</div>
+                  <ul class="pain-list">
+                    
+                    <li>最快 1 分钟仅限特定条款客户，多数 SME 仍需等待人工确认 [推断]</li>
+                    
+                  </ul>
+                </div>
+              
+            </div>
+          </div>
+          
+          <div class="action-wrapper" style="left: 44.49760765550239%;">
+            <div class="bottom-container">
+              
+              <div class="ai-card">
+                <div class="ai-title">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="9" y1="18" x2="15" y2="18"></line><line x1="10" y1="22" x2="14" y2="22"></line><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"></path>
+                  </svg>
+                  舱位保证 SLA 承诺
+                </div>
+                <div class="ai-desc">舱位保证产品化（含改配自动方案与 Delay in Transit 赔付，2025.12），提升旺季确定性。</div>
+              </div>
+              
+              
+                
+                <div class="pain-card pain-card-as-is">
+                  <div class="pain-title">现存痛点</div>
+                  <ul class="pain-list">
+                    
+                    <li>旺季甩柜/改船后补偿与改配方案被动，SME 货期被打乱</li>
+                    
+                  </ul>
+                </div>
+              
+            </div>
+          </div>
+          
+        
+          
+          <div class="action-wrapper" style="left: 49.760765550239235%;">
+            <div class="bottom-container">
+              
+              <div class="ai-card">
+                <div class="ai-title">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="9" y1="18" x2="15" y2="18"></line><line x1="10" y1="22" x2="14" y2="22"></line><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"></path>
+                  </svg>
+                  智慧单证增强
+                </div>
+                <div class="ai-desc">扩展多语言品名识别与合规校验（年 35 万份自动处理基础），进一步压缩人工复核比例。</div>
+              </div>
+              
+              
+                
+                <div class="pain-card pain-card-as-is">
+                  <div class="pain-title">现存痛点</div>
+                  <ul class="pain-list">
+                    
+                    <li>多语言品名/长尾字段仍需人工复核，退单返工偶尔发生</li>
+                    
+                  </ul>
+                </div>
+              
+            </div>
+          </div>
+          
+          <div class="action-wrapper" style="left: 55.02392344497608%;">
+            <div class="bottom-container">
+              
+              <div class="ai-card">
+                <div class="ai-title">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="9" y1="18" x2="15" y2="18"></line><line x1="10" y1="22" x2="14" y2="22"></line><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"></path>
+                  </svg>
+                  eBL 生态渗透
+                </div>
+                <div class="ai-desc">面向收货人与银行提供轻量 eBL 门户与互操作引导（LCL eBL 试点 2026.06），加速贸易链数字化。</div>
+              </div>
+              
+              
+                
+                <div class="pain-card pain-card-as-is">
+                  <div class="pain-title">现存痛点</div>
+                  <ul class="pain-list">
+                    
+                    <li>目的港收货人/银行未接入 eBL，退回纸质流程</li>
+                    
+                  </ul>
+                </div>
+              
+            </div>
+          </div>
+          
+          <div class="action-wrapper" style="left: 60.28708133971292%;">
+            <div class="bottom-container">
+              
+              <div class="ai-card">
+                <div class="ai-title">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="9" y1="18" x2="15" y2="18"></line><line x1="10" y1="22" x2="14" y2="22"></line><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"></path>
+                  </svg>
+                  本地化收付
+                </div>
+                <div class="ai-desc">覆盖新兴市场本地支付通道，提供多币种结算优化与费用试算。</div>
+              </div>
+              
+              
+                
+                <div class="pain-card pain-card-as-is">
+                  <div class="pain-title">现存痛点</div>
+                  <ul class="pain-list">
+                    
+                    <li>多币种小额高频支付汇率与手续费成本高</li>
+                    
+                  </ul>
+                </div>
+              
+            </div>
+          </div>
+          
+        
+          
+          <div class="action-wrapper" style="left: 65.55023923444976%;">
+            <div class="bottom-container">
+              
+              <div class="ai-card">
+                <div class="ai-title">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="9" y1="18" x2="15" y2="18"></line><line x1="10" y1="22" x2="14" y2="22"></line><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"></path>
+                  </svg>
+                  智能拖车调度
+                </div>
+                <div class="ai-desc">基于箱量与港口拥堵预测的动态拖车调度与预约（Door Haulage/E-Trucking），缩短提箱等待。</div>
+              </div>
+              
+              
+                
+                <div class="pain-card pain-card-as-is">
+                  <div class="pain-title">现存痛点</div>
+                  <ul class="pain-list">
+                    
+                    <li>旺季拖车资源紧张，提箱排队时间长</li>
+                    
+                  </ul>
+                </div>
+              
+            </div>
+          </div>
+          
+          <div class="action-wrapper" style="left: 70.81339712918661%;">
+            <div class="bottom-container">
+              
+              <div class="ai-card">
+                <div class="ai-title">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="9" y1="18" x2="15" y2="18"></line><line x1="10" y1="22" x2="14" y2="22"></line><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"></path>
+                  </svg>
+                  合规智能清关
+                </div>
+                <div class="ai-desc">将监管政策数字化并前置申报校验，异常清关自动预警并推荐替代方案（E-Customs 增强）。</div>
+              </div>
+              
+              
+                
+                <div class="pain-card pain-card-as-is">
+                  <div class="pain-title">现存痛点</div>
+                  <ul class="pain-list">
+                    
+                    <li>美国关税/301 等政策变化导致清关异常，扣货延误风险高</li>
+                    
+                  </ul>
+                </div>
+              
+            </div>
+          </div>
+          
+        
+          
+          <div class="action-wrapper" style="left: 76.07655502392345%;">
+            <div class="bottom-container">
+              
+              <div class="ai-card">
+                <div class="ai-title">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="9" y1="18" x2="15" y2="18"></line><line x1="10" y1="22" x2="14" y2="22"></line><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"></path>
+                  </svg>
+                  多源轨迹融合
+                </div>
+                <div class="ai-desc">融合船司/码头/AIS 多源数据补齐节点盲区，跟踪里程碑实时化（新版 Cargo Tracking 2026.07）。</div>
+              </div>
+              
+              
+                
+                <div class="pain-card pain-card-as-is">
+                  <div class="pain-title">现存痛点</div>
+                  <ul class="pain-list">
+                    
+                    <li>码头作业等部分节点更新延迟，实时性受外部数据源限制</li>
+                    
+                  </ul>
+                </div>
+              
+            </div>
+          </div>
+          
+          <div class="action-wrapper" style="left: 81.3397129186603%;">
+            <div class="bottom-container">
+              
+              <div class="ai-card">
+                <div class="ai-title">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="9" y1="18" x2="15" y2="18"></line><line x1="10" y1="22" x2="14" y2="22"></line><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"></path>
+                  </svg>
+                  AI 预测性预警
+                </div>
+                <div class="ai-desc">基于历史与实时数据预测 ETA 延误概率并提前推送，附自动改配建议，控制塔从可视化走向可预测。</div>
+              </div>
+              
+              
+                
+                <div class="pain-card pain-card-as-is">
+                  <div class="pain-title">现存痛点</div>
+                  <ul class="pain-list">
+                    
+                    <li>ETA 延误多为事后通知，缺乏预测性预警，下游备货计划被打乱</li>
+                    
+                  </ul>
+                </div>
+              
+            </div>
+          </div>
+          
+        
+          
+          <div class="action-wrapper" style="left: 86.60287081339713%;">
+            <div class="bottom-container">
+              
+              <div class="ai-card">
+                <div class="ai-title">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="9" y1="18" x2="15" y2="18"></line><line x1="10" y1="22" x2="14" y2="22"></line><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"></path>
+                  </svg>
+                  前置费用透明
+                </div>
+                <div class="ai-desc">订舱环节即展示目的港免箱期与 D&D 预估，超期自动预警并提供豁免申请入口。</div>
+              </div>
+              
+              
+                
+                <div class="pain-card pain-card-as-is">
+                  <div class="pain-title">现存痛点</div>
+                  <ul class="pain-list">
+                    
+                    <li>免箱期与滞箱费规则复杂，费用明细争议频发</li>
+                    
+                  </ul>
+                </div>
+              
+            </div>
+          </div>
+          
+          <div class="action-wrapper" style="left: 91.86602870813397%;">
+            <div class="bottom-container">
+              
+              <div class="ai-card">
+                <div class="ai-title">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="9" y1="18" x2="15" y2="18"></line><line x1="10" y1="22" x2="14" y2="22"></line><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"></path>
+                  </svg>
+                  端到端无纸化放货
+                </div>
+                <div class="ai-desc">向收货人提供 eBL 快速接入引导，实现订舱到放货全链路无纸化闭环。</div>
+              </div>
+              
+              
+                
+                <div class="pain-card pain-card-as-is">
+                  <div class="pain-title">现存痛点</div>
+                  <ul class="pain-list">
+                    
+                    <li>收货人未接入 eBL 时退回纸质，放货周期变长</li>
+                    
+                  </ul>
+                </div>
+              
+            </div>
+          </div>
+          
+          <div class="action-wrapper" style="left: 97.1291866028708%;">
+            <div class="bottom-container">
+              
+              <div class="ai-card">
+                <div class="ai-title">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="9" y1="18" x2="15" y2="18"></line><line x1="10" y1="22" x2="14" y2="22"></line><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"></path>
+                  </svg>
+                  会员智能运营
+                </div>
+                <div class="ai-desc">基于订舱行为自动推荐升级路径与专属舱位权益，AI 客服主动关怀关键节点，驱动复购留存。</div>
+              </div>
+              
+              
+                
+                <div class="pain-card pain-card-as-is">
+                  <div class="pain-title">现存痛点</div>
+                  <ul class="pain-list">
+                    
+                    <li>会员等级晋升复杂，专属权益感知弱，复购激励不足</li>
+                    
+                  </ul>
+                </div>
+              
+            </div>
+          </div>
+          
+        
+      </div>
+
+    </div> <!-- /.content-column -->
+  </div> <!-- /.journey-map-canvas -->
+
+  <div class="footer-mark">Generated by journey-map-generator · 2026-08-21 15:54:47</div>
+
+</div>
+
+</body>
+</html>

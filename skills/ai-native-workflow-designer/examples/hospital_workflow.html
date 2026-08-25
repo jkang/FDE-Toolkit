@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI-Native 智慧门诊全链路创新流程</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    colors: {
+                        slate: {
+                            850: '#152033',
+                            900: '#0f172a',
+                            950: '#020617',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: #0f172a; 
+            color: #f8fafc;
+            background-image: 
+                radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), 
+                radial-gradient(at 50% 0%, hsla(225,39%,30%,0.1) 0, transparent 50%), 
+                radial-gradient(at 100% 0%, hsla(339,49%,30%,0.1) 0, transparent 50%);
+            background-attachment: fixed;
+        }
+        
+        .glass-panel { 
+            background: rgba(30, 41, 59, 0.6); 
+            backdrop-filter: blur(16px); 
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.05); 
+        }
+        
+        .node-card { 
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+        }
+        .node-card:hover { 
+            transform: translateY(-4px); 
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.3); 
+            border-color: rgba(255, 255, 255, 0.15); 
+            background: rgba(30, 41, 59, 0.8);
+        }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+        .phase-connector {
+            position: relative;
+        }
+        .phase-connector::after {
+            content: '';
+            position: absolute;
+            top: 24px;
+            right: -24px;
+            width: 24px;
+            height: 2px;
+            background: linear-gradient(90deg, rgba(99,102,241,0.5) 0%, rgba(14,165,233,0.5) 100%);
+            z-index: 0;
+        }
+        .phase-connector:last-child::after {
+            display: none;
+        }
+
+        .tag {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 0.125rem 0.375rem;
+            border-radius: 9999px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body class="min-h-screen text-slate-300">
+
+    <!-- Header -->
+    <header class="glass-panel sticky top-0 z-50 border-b border-slate-800 shadow-lg">
+        <div class="max-w-[1600px] mx-auto px-6 py-4 flex items-center justify-between">
+            <div>
+                <div class="flex items-center gap-3 mb-1">
+                    <span class="text-2xl">⚡️</span>
+                    <h1 class="text-xl font-bold text-white tracking-tight">AI-Native 智慧门诊全链路创新流程</h1>
+                </div>
+                <div class="flex items-center gap-4 text-xs text-slate-400">
+                    <span class="flex items-center gap-1">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                        智慧医疗 / 医院门诊
+                    </span>
+                    <span>•</span>
+                    <span>Generated: 2026-05-08 18:53</span>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-6">
+                <!-- Stats -->
+                <div class="flex items-center gap-3 text-xs bg-slate-800/50 rounded-full px-4 py-1.5 border border-slate-700/50">
+                    <span class="font-semibold text-slate-300">Total Nodes: 3</span>
+                    <span class="w-px h-3 bg-slate-600"></span>
+                    <span class="text-indigo-400 flex items-center gap-1">🤖 AI: 2</span>
+                    <span class="text-emerald-400 flex items-center gap-1">👤 Human: 0</span>
+                    <span class="text-fuchsia-400 flex items-center gap-1">🤝 Hybrid: 1</span>
+                </div>
+                
+                <button id="copyYamlBtn" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium px-4 py-2 rounded-md transition-colors flex items-center gap-2 shadow-lg shadow-indigo-500/20">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                    Copy YAML
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-[1600px] mx-auto px-6 py-8">
+        
+        <!-- Objective / Description -->
+        
+        <div class="glass-panel p-6 rounded-xl mb-10 border-l-4 border-l-indigo-500 max-w-4xl">
+            <h2 class="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                Workflow Objective
+            </h2>
+            <p class="text-slate-200 text-lg leading-relaxed">通过 AI 预问诊与数字化专家助理，重构传统“挂号-排队-问诊”的低效串行流程，实现医生资源的极致利用与病患体验的跨越式提升。</p>
+        </div>
+        
+
+        <!-- Horizontal Scrollable Canvas for Phases -->
+        <div class="overflow-x-auto pb-10 hide-scrollbar">
+            <div class="flex gap-6 min-w-max items-stretch">
+                
+                
+                <!-- Phase Column -->
+                <div class="w-[400px] flex-shrink-0 flex flex-col phase-connector">
+                    
+                    <!-- Phase Header -->
+                    <div class="mb-6 relative z-10">
+                        <div class="flex items-center gap-3 mb-2">
+                            <div class="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-sm font-bold text-slate-300 shadow-inner">
+                                1
+                            </div>
+                            <h3 class="text-lg font-bold text-white">多模态智能分诊与预问诊</h3>
+                        </div>
+                        
+                        <p class="text-sm text-slate-400 pl-11">在病患挂号后立即启动，利用 AI 提前完成基础信息采集。</p>
+                        
+                    </div>
+                    
+                    <!-- Nodes Container -->
+                    <div class="flex-1 flex flex-col gap-4 pl-4 border-l-2 border-slate-800/50 ml-4 relative z-10">
+                        
+                        
+                        <!-- Node Card -->
+                        <div class="node-card glass-panel rounded-xl p-5 border-l-4 border-indigo-500 relative group">
+                            
+                            <!-- Actor Badge -->
+                            <div class="absolute -left-3.5 top-5 w-6 h-6 rounded-full bg-indigo-500/10 border border-indigo-500 flex items-center justify-center text-xs shadow-md z-20" title="Actor: AI">
+                                🤖
+                            </div>
+
+                            <div class="flex justify-between items-start mb-3">
+                                <h4 class="font-bold text-slate-100 text-base ml-2 pr-2">AI 交互式预问诊</h4>
+                                <span class="tag bg-indigo-500/10 border-indigo-500 text-indigo-400 border flex-shrink-0 mt-0.5">AI</span>
+                            </div>
+                            
+                            <div class="space-y-4 ml-2">
+                                <!-- Action -->
+                                <div class="text-sm text-slate-300 leading-relaxed">
+                                    病患挂号成功后，通过手机端进入 AI 诊室。AI 根据病患主诉，调取历史电子病历，进行深度多轮追问，覆盖现病史、既往史、过敏史等。
+                                </div>
+                                
+                                <!-- AI Capability (if exists) -->
+                                
+                                <div class="bg-indigo-900/20 border border-indigo-500/20 rounded p-2.5">
+                                    <div class="text-[0.65rem] text-indigo-400 uppercase font-semibold mb-1 flex items-center gap-1">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                                        AI Capability
+                                    </div>
+                                    <div class="text-xs text-indigo-200">医学知识图谱 RAG, 多轮动态逻辑对话</div>
+                                </div>
+                                
+                                
+                                <!-- I/O Data Flow -->
+                                <div class="flex items-stretch gap-2">
+                                    <div class="flex-1 bg-slate-800/40 border border-slate-700/50 rounded p-2">
+                                        <div class="text-[0.65rem] text-slate-400 uppercase font-semibold mb-1">Inputs</div>
+                                        <ul class="text-xs text-slate-300 space-y-1">
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-slate-500 mt-px">→</span> <span class="truncate" title="病患挂号信息">病患挂号信息</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-slate-500 mt-px">→</span> <span class="truncate" title="历史电子病历">历史电子病历</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-slate-500 mt-px">→</span> <span class="truncate" title="病患主诉语音/文字">病患主诉语音/文字</span></li>
+                                            
+                                        </ul>
+                                    </div>
+                                    <div class="flex-1 bg-slate-800/40 border border-slate-700/50 rounded p-2">
+                                        <div class="text-[0.65rem] text-slate-400 uppercase font-semibold mb-1">Outputs</div>
+                                        <ul class="text-xs text-slate-300 space-y-1">
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-slate-500 mt-px">→</span> <span class="truncate" title="结构化预问诊报告">结构化预问诊报告</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-slate-500 mt-px">→</span> <span class="truncate" title="疑似诊断提示">疑似诊断提示</span></li>
+                                            
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <!-- Human Touchpoint (Critical for Hybrid/Human) -->
+                                
+                                <div class="border-t border-slate-700/50 pt-3 mt-3">
+                                    <div class="text-[0.65rem] text-slate-500 uppercase font-semibold mb-1 flex items-center gap-1">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                        Human Touchpoint
+                                    </div>
+                                    <div class="text-xs text-slate-400">
+                                        全自动。通过友好、有同理心的 Prompt 设计缓解病患焦虑。
+                                    </div>
+                                </div>
+                                
+                                <!-- Expert Review (Added for feasibility) -->
+                                
+                                <div class="border-t border-slate-700/50 pt-3 mt-3">
+                                    <div class="text-[0.65rem] text-emerald-400 uppercase font-semibold mb-1 flex items-center gap-1">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+                                        Expert Reality Check
+                                    </div>
+                                    <div class="text-xs text-slate-300 italic">
+                                        落地性：RAG 技术在垂直病历问答中已趋于成熟；合规性：需严格遵守医疗数据安全与病患隐私保护协议，AI 仅收集信息不提供处方建议。
+                                    </div>
+                                </div>
+                                
+                                
+                            </div>
+                        </div>
+                        
+                        <!-- Vertical connector arrow between nodes -->
+                        
+                        
+                        
+                    </div>
+                </div>
+                
+                <!-- Phase Column -->
+                <div class="w-[400px] flex-shrink-0 flex flex-col phase-connector">
+                    
+                    <!-- Phase Header -->
+                    <div class="mb-6 relative z-10">
+                        <div class="flex items-center gap-3 mb-2">
+                            <div class="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-sm font-bold text-slate-300 shadow-inner">
+                                2
+                            </div>
+                            <h3 class="text-lg font-bold text-white">诊前医生助理决策辅助</h3>
+                        </div>
+                        
+                        <p class="text-sm text-slate-400 pl-11">在医生接诊前，由 AI 整理精华信息，压缩医生阅读成本。</p>
+                        
+                    </div>
+                    
+                    <!-- Nodes Container -->
+                    <div class="flex-1 flex flex-col gap-4 pl-4 border-l-2 border-slate-800/50 ml-4 relative z-10">
+                        
+                        
+                        <!-- Node Card -->
+                        <div class="node-card glass-panel rounded-xl p-5 border-l-4 border-indigo-500 relative group">
+                            
+                            <!-- Actor Badge -->
+                            <div class="absolute -left-3.5 top-5 w-6 h-6 rounded-full bg-indigo-500/10 border border-indigo-500 flex items-center justify-center text-xs shadow-md z-20" title="Actor: AI">
+                                🤖
+                            </div>
+
+                            <div class="flex justify-between items-start mb-3">
+                                <h4 class="font-bold text-slate-100 text-base ml-2 pr-2">预问诊报告自动提炼</h4>
+                                <span class="tag bg-indigo-500/10 border-indigo-500 text-indigo-400 border flex-shrink-0 mt-0.5">AI</span>
+                            </div>
+                            
+                            <div class="space-y-4 ml-2">
+                                <!-- Action -->
+                                <div class="text-sm text-slate-300 leading-relaxed">
+                                    AI 将几千字的预问诊对话记录，自动提炼为符合医学规范的“诊前摘要”，并标注异常指标和关键风险点，推送到医生工作站。
+                                </div>
+                                
+                                <!-- AI Capability (if exists) -->
+                                
+                                <div class="bg-indigo-900/20 border border-indigo-500/20 rounded p-2.5">
+                                    <div class="text-[0.65rem] text-indigo-400 uppercase font-semibold mb-1 flex items-center gap-1">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                                        AI Capability
+                                    </div>
+                                    <div class="text-xs text-indigo-200">长文本医学语义总结, 关键风险点检测</div>
+                                </div>
+                                
+                                
+                                <!-- I/O Data Flow -->
+                                <div class="flex items-stretch gap-2">
+                                    <div class="flex-1 bg-slate-800/40 border border-slate-700/50 rounded p-2">
+                                        <div class="text-[0.65rem] text-slate-400 uppercase font-semibold mb-1">Inputs</div>
+                                        <ul class="text-xs text-slate-300 space-y-1">
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-slate-500 mt-px">→</span> <span class="truncate" title="结构化预问诊报告">结构化预问诊报告</span></li>
+                                            
+                                        </ul>
+                                    </div>
+                                    <div class="flex-1 bg-slate-800/40 border border-slate-700/50 rounded p-2">
+                                        <div class="text-[0.65rem] text-slate-400 uppercase font-semibold mb-1">Outputs</div>
+                                        <ul class="text-xs text-slate-300 space-y-1">
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-slate-500 mt-px">→</span> <span class="truncate" title="诊前摘要 (SOAP 格式)">诊前摘要 (SOAP 格式)</span></li>
+                                            
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <!-- Human Touchpoint (Critical for Hybrid/Human) -->
+                                
+                                <div class="border-t border-slate-700/50 pt-3 mt-3">
+                                    <div class="text-[0.65rem] text-slate-500 uppercase font-semibold mb-1 flex items-center gap-1">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                        Human Touchpoint
+                                    </div>
+                                    <div class="text-xs text-slate-400">
+                                        无感。医生在刷卡接诊的一瞬间，报告即出现在屏幕右侧。
+                                    </div>
+                                </div>
+                                
+                                <!-- Expert Review (Added for feasibility) -->
+                                
+                                <div class="border-t border-slate-700/50 pt-3 mt-3">
+                                    <div class="text-[0.65rem] text-emerald-400 uppercase font-semibold mb-1 flex items-center gap-1">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+                                        Expert Reality Check
+                                    </div>
+                                    <div class="text-xs text-slate-300 italic">
+                                        实战价值：大幅缩短医生录入病历的时间（约节省 40%）；技术点：SOAP 格式的准确性需经过专科医生校验集的微调。
+                                    </div>
+                                </div>
+                                
+                                
+                            </div>
+                        </div>
+                        
+                        <!-- Vertical connector arrow between nodes -->
+                        
+                        
+                        
+                    </div>
+                </div>
+                
+                <!-- Phase Column -->
+                <div class="w-[400px] flex-shrink-0 flex flex-col phase-connector">
+                    
+                    <!-- Phase Header -->
+                    <div class="mb-6 relative z-10">
+                        <div class="flex items-center gap-3 mb-2">
+                            <div class="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-sm font-bold text-slate-300 shadow-inner">
+                                3
+                            </div>
+                            <h3 class="text-lg font-bold text-white">高效精准问诊与闭环</h3>
+                        </div>
+                        
+                        <p class="text-sm text-slate-400 pl-11">医生回归专业判断，AI 辅助事务性工作。</p>
+                        
+                    </div>
+                    
+                    <!-- Nodes Container -->
+                    <div class="flex-1 flex flex-col gap-4 pl-4 border-l-2 border-slate-800/50 ml-4 relative z-10">
+                        
+                        
+                        <!-- Node Card -->
+                        <div class="node-card glass-panel rounded-xl p-5 border-l-4 border-fuchsia-500 relative group">
+                            
+                            <!-- Actor Badge -->
+                            <div class="absolute -left-3.5 top-5 w-6 h-6 rounded-full bg-fuchsia-500/10 border border-fuchsia-500 flex items-center justify-center text-xs shadow-md z-20" title="Actor: HYBRID">
+                                🤝
+                            </div>
+
+                            <div class="flex justify-between items-start mb-3">
+                                <h4 class="font-bold text-slate-100 text-base ml-2 pr-2">辅助诊断与方案联想</h4>
+                                <span class="tag bg-fuchsia-500/10 border-fuchsia-500 text-fuchsia-400 border flex-shrink-0 mt-0.5">HYBRID</span>
+                            </div>
+                            
+                            <div class="space-y-4 ml-2">
+                                <!-- Action -->
+                                <div class="text-sm text-slate-300 leading-relaxed">
+                                    医生问诊过程中，AI 实时根据对话生成辅助诊断建议，并根据医院药品库、耗材库联想初步处方单，供医生一键勾选。
+                                </div>
+                                
+                                <!-- AI Capability (if exists) -->
+                                
+                                <div class="bg-indigo-900/20 border border-indigo-500/20 rounded p-2.5">
+                                    <div class="text-[0.65rem] text-indigo-400 uppercase font-semibold mb-1 flex items-center gap-1">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                                        AI Capability
+                                    </div>
+                                    <div class="text-xs text-indigo-200">实时语义分析, 处方辅助决策支持 (CDSS)</div>
+                                </div>
+                                
+                                
+                                <!-- I/O Data Flow -->
+                                <div class="flex items-stretch gap-2">
+                                    <div class="flex-1 bg-slate-800/40 border border-slate-700/50 rounded p-2">
+                                        <div class="text-[0.65rem] text-slate-400 uppercase font-semibold mb-1">Inputs</div>
+                                        <ul class="text-xs text-slate-300 space-y-1">
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-slate-500 mt-px">→</span> <span class="truncate" title="实时问诊对话">实时问诊对话</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-slate-500 mt-px">→</span> <span class="truncate" title="诊前摘要">诊前摘要</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-slate-500 mt-px">→</span> <span class="truncate" title="药品目录">药品目录</span></li>
+                                            
+                                        </ul>
+                                    </div>
+                                    <div class="flex-1 bg-slate-800/40 border border-slate-700/50 rounded p-2">
+                                        <div class="text-[0.65rem] text-slate-400 uppercase font-semibold mb-1">Outputs</div>
+                                        <ul class="text-xs text-slate-300 space-y-1">
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-slate-500 mt-px">→</span> <span class="truncate" title="最终处方单">最终处方单</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-slate-500 mt-px">→</span> <span class="truncate" title="随访建议">随访建议</span></li>
+                                            
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <!-- Human Touchpoint (Critical for Hybrid/Human) -->
+                                
+                                <div class="border-t border-slate-700/50 pt-3 mt-3">
+                                    <div class="text-[0.65rem] text-amber-400 uppercase font-semibold mb-1 flex items-center gap-1">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                        Human Touchpoint
+                                    </div>
+                                    <div class="text-xs text-slate-300">
+                                        医生担任决策大脑。AI 负责完成 80% 的体力录入工作，医生负责最后的 20% 核心判断。
+                                    </div>
+                                </div>
+                                
+                                <!-- Expert Review (Added for feasibility) -->
+                                
+                                <div class="border-t border-slate-700/50 pt-3 mt-3">
+                                    <div class="text-[0.65rem] text-emerald-400 uppercase font-semibold mb-1 flex items-center gap-1">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+                                        Expert Reality Check
+                                    </div>
+                                    <div class="text-xs text-slate-300 italic">
+                                        监管重点：AI 绝对不能代替医生下达最终处方，必须由医生确认并签名，符合国家 CDSS 二级及以上评审要求。
+                                    </div>
+                                </div>
+                                
+                                
+                            </div>
+                        </div>
+                        
+                        <!-- Vertical connector arrow between nodes -->
+                        
+                        
+                        
+                    </div>
+                </div>
+                
+                
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Raw YAML Data (Hidden) -->
+    <script type="application/yaml" id="raw-yaml">
+---
+title: "AI-Native 智慧门诊全链路创新流程"
+business_type: "智慧医疗 / 医院门诊"
+description: "通过 AI 预问诊与数字化专家助理，重构传统“挂号-排队-问诊”的低效串行流程，实现医生资源的极致利用与病患体验的跨越式提升。"
+phases:
+  - name: "多模态智能分诊与预问诊"
+    description: "在病患挂号后立即启动，利用 AI 提前完成基础信息采集。"
+    nodes:
+      - name: "AI 交互式预问诊"
+        actor: "ai"
+        action_description: "病患挂号成功后，通过手机端进入 AI 诊室。AI 根据病患主诉，调取历史电子病历，进行深度多轮追问，覆盖现病史、既往史、过敏史等。"
+        ai_capability: "医学知识图谱 RAG, 多轮动态逻辑对话"
+        automation_level: "high"
+        inputs: ["病患挂号信息", "历史电子病历", "病患主诉语音/文字"]
+        outputs: ["结构化预问诊报告", "疑似诊断提示"]
+        expert_review: "落地性：RAG 技术在垂直病历问答中已趋于成熟；合规性：需严格遵守医疗数据安全与病患隐私保护协议，AI 仅收集信息不提供处方建议。"
+        human_touchpoint: "全自动。通过友好、有同理心的 Prompt 设计缓解病患焦虑。"
+
+  - name: "诊前医生助理决策辅助"
+    description: "在医生接诊前，由 AI 整理精华信息，压缩医生阅读成本。"
+    nodes:
+      - name: "预问诊报告自动提炼"
+        actor: "ai"
+        action_description: "AI 将几千字的预问诊对话记录，自动提炼为符合医学规范的“诊前摘要”，并标注异常指标和关键风险点，推送到医生工作站。"
+        ai_capability: "长文本医学语义总结, 关键风险点检测"
+        automation_level: "high"
+        inputs: ["结构化预问诊报告"]
+        outputs: ["诊前摘要 (SOAP 格式)"]
+        expert_review: "实战价值：大幅缩短医生录入病历的时间（约节省 40%）；技术点：SOAP 格式的准确性需经过专科医生校验集的微调。"
+        human_touchpoint: "无感。医生在刷卡接诊的一瞬间，报告即出现在屏幕右侧。"
+
+  - name: "高效精准问诊与闭环"
+    description: "医生回归专业判断，AI 辅助事务性工作。"
+    nodes:
+      - name: "辅助诊断与方案联想"
+        actor: "hybrid"
+        action_description: "医生问诊过程中，AI 实时根据对话生成辅助诊断建议，并根据医院药品库、耗材库联想初步处方单，供医生一键勾选。"
+        ai_capability: "实时语义分析, 处方辅助决策支持 (CDSS)"
+        automation_level: "medium"
+        inputs: ["实时问诊对话", "诊前摘要", "药品目录"]
+        outputs: ["最终处方单", "随访建议"]
+        expert_review: "监管重点：AI 绝对不能代替医生下达最终处方，必须由医生确认并签名，符合国家 CDSS 二级及以上评审要求。"
+        human_touchpoint: "医生担任决策大脑。AI 负责完成 80% 的体力录入工作，医生负责最后的 20% 核心判断。"
+
+    </script>
+
+    <script>
+        // Copy YAML Functionality
+        document.getElementById('copyYamlBtn').addEventListener('click', function() {
+            const yamlContent = document.getElementById('raw-yaml').textContent.trim();
+            navigator.clipboard.writeText(yamlContent).then(() => {
+                const btn = this;
+                const originalHtml = btn.innerHTML;
+                btn.innerHTML = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Copied!`;
+                btn.classList.replace('bg-indigo-600', 'bg-emerald-600');
+                btn.classList.replace('hover:bg-indigo-500', 'hover:bg-emerald-500');
+                btn.classList.replace('shadow-indigo-500/20', 'shadow-emerald-500/20');
+                
+                setTimeout(() => {
+                    btn.innerHTML = originalHtml;
+                    btn.classList.replace('bg-emerald-600', 'bg-indigo-600');
+                    btn.classList.replace('hover:bg-emerald-500', 'hover:bg-indigo-500');
+                    btn.classList.replace('shadow-emerald-500/20', 'shadow-indigo-500/20');
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+                alert('Failed to copy YAML to clipboard.');
+            });
+        });
+    </script>
+</body>
+</html>

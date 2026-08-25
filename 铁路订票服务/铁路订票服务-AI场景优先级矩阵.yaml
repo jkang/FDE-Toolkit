@@ -1,0 +1,92 @@
+title: "铁路订票服务 AI 场景优先级评估矩阵"
+useCases:
+  - id: "1"
+    name: "候补成功率区间预测"
+    userCount: 4
+    usageFrequency: 4
+    businessValue: 5
+    dataComplexity: 4
+    aiDesignComplexity: 3
+    integrationComplexity: 2
+    knowledgeComplexity: 3
+  - id: "2"
+    name: "全行程“一张单”智能打包建议"
+    userCount: 3
+    usageFrequency: 3
+    businessValue: 4
+    dataComplexity: 3
+    aiDesignComplexity: 4
+    integrationComplexity: 4
+    knowledgeComplexity: 3
+  - id: "3"
+    name: "支付即保障：秒级自动补位引擎"
+    userCount: 3
+    usageFrequency: 2
+    businessValue: 5
+    dataComplexity: 3
+    aiDesignComplexity: 4
+    integrationComplexity: 3
+    knowledgeComplexity: 4
+  - id: "4"
+    name: "可视化队列进度条"
+    userCount: 5
+    usageFrequency: 5
+    businessValue: 4
+    dataComplexity: 2
+    aiDesignComplexity: 2
+    integrationComplexity: 2
+    knowledgeComplexity: 1
+  - id: "5"
+    name: "约车/接送站自动配时与排程"
+    userCount: 2
+    usageFrequency: 3
+    businessValue: 3
+    dataComplexity: 4
+    aiDesignComplexity: 3
+    integrationComplexity: 5
+    knowledgeComplexity: 3
+  - id: "6"
+    name: "特殊旅客主动服务管家"
+    userCount: 2
+    usageFrequency: 3
+    businessValue: 4
+    dataComplexity: 2
+    aiDesignComplexity: 3
+    integrationComplexity: 2
+    knowledgeComplexity: 4
+  - id: "7"
+    name: "智能改签决策引导助手"
+    userCount: 3
+    usageFrequency: 2
+    businessValue: 4
+    dataComplexity: 3
+    aiDesignComplexity: 4
+    integrationComplexity: 2
+    knowledgeComplexity: 4
+  - id: "8"
+    name: "晚点/停运一键式全家桶处置"
+    userCount: 3
+    usageFrequency: 2
+    businessValue: 5
+    dataComplexity: 3
+    aiDesignComplexity: 3
+    integrationComplexity: 4
+    knowledgeComplexity: 3
+  - id: "9"
+    name: "全链路事件智能摘要（全业务一张图）"
+    userCount: 2
+    usageFrequency: 5
+    businessValue: 4
+    dataComplexity: 4
+    aiDesignComplexity: 3
+    integrationComplexity: 3
+    knowledgeComplexity: 3
+  - id: "10"
+    name: "MNS-T 跨业务价值贡献模型"
+    userCount: 1
+    usageFrequency: 4
+    businessValue: 3
+    dataComplexity: 5
+    aiDesignComplexity: 4
+    integrationComplexity: 3
+    knowledgeComplexity: 4

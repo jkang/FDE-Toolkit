@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>全息超限：AI-Native 健康体检全流程</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    colors: {
+                        slate: {
+                            850: '#152033',
+                            900: '#0f172a',
+                            950: '#020617',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: #0f172a; 
+            color: #f8fafc;
+            background-image: 
+                radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), 
+                radial-gradient(at 50% 0%, hsla(225,39%,30%,0.1) 0, transparent 50%), 
+                radial-gradient(at 100% 0%, hsla(339,49%,30%,0.1) 0, transparent 50%);
+            background-attachment: fixed;
+        }
+        
+        .glass-panel { 
+            background: rgba(30, 41, 59, 0.6); 
+            backdrop-filter: blur(16px); 
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.05); 
+        }
+        
+        .node-card { 
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+        }
+        .node-card:hover { 
+            transform: translateY(-4px); 
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.3); 
+            border-color: rgba(255, 255, 255, 0.15); 
+            background: rgba(30, 41, 59, 0.8);
+        }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+        .phase-connector {
+            position: relative;
+        }
+        .phase-connector::after {
+            content: '';
+            position: absolute;
+            top: 24px;
+            right: -24px;
+            width: 24px;
+            height: 2px;
+            background: linear-gradient(90deg, rgba(99,102,241,0.5) 0%, rgba(14,165,233,0.5) 100%);
+            z-index: 0;
+        }
+        .phase-connector:last-child::after {
+            display: none;
+        }
+
+        .tag {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 0.125rem 0.375rem;
+            border-radius: 9999px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body class="min-h-screen text-slate-300">
+
+    <!-- Header -->
+    <header class="glass-panel sticky top-0 z-50 border-b border-slate-800 shadow-lg">
+        <div class="max-w-[1600px] mx-auto px-6 py-4 flex items-center justify-between">
+            <div>
+                <div class="flex items-center gap-3 mb-1">
+                    <span class="text-2xl">⚡️</span>
+                    <h1 class="text-xl font-bold text-white tracking-tight">全息超限：AI-Native 健康体检全流程</h1>
+                </div>
+                <div class="flex items-center gap-4 text-xs text-slate-400">
+                    <span class="flex items-center gap-1">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                        大健康/智慧医疗
+                    </span>
+                    <span>•</span>
+                    <span>Generated: 2026-05-07 12:04</span>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-6">
+                <!-- Stats -->
+                <div class="flex items-center gap-3 text-xs bg-slate-800/50 rounded-full px-4 py-1.5 border border-slate-700/50">
+                    <span class="font-semibold text-slate-300">Total Nodes: 8</span>
+                    <span class="w-px h-3 bg-slate-600"></span>
+                    <span class="text-indigo-400 flex items-center gap-1">🤖 AI: 5</span>
+                    <span class="text-emerald-400 flex items-center gap-1">👤 Human: 1</span>
+                    <span class="text-fuchsia-400 flex items-center gap-1">🤝 Hybrid: 2</span>
+                </div>
+                
+                <button id="copyYamlBtn" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium px-4 py-2 rounded-md transition-colors flex items-center gap-2 shadow-lg shadow-indigo-500/20">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                    Copy YAML
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-[1600px] mx-auto px-6 py-8">
+        
+        <!-- Objective / Description -->
+        
+        <div class="glass-panel p-6 rounded-xl mb-10 border-l-4 border-l-indigo-500 max-w-4xl">
+            <h2 class="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                Workflow Objective
+            </h2>
+            <p class="text-slate-200 text-lg leading-relaxed">颠覆传统体检的固定套餐与排队模式，引入多模态预诊、具身智能无感采检与数字孪生实时分析的全新医疗范式。</p>
+        </div>
+        
+
+        <!-- Horizontal Scrollable Canvas for Phases -->
+        <div class="overflow-x-auto pb-10 hide-scrollbar">
+            <div class="flex gap-6 min-w-max items-stretch">
+                
+                
+                <!-- Phase Column -->
+                <div class="w-[400px] flex-shrink-0 flex flex-col phase-connector">
+                    
+                    <!-- Phase Header -->
+                    <div class="mb-6 relative z-10">
+                        <div class="flex items-center gap-3 mb-2">
+                            <div class="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-sm font-bold text-slate-300 shadow-inner">
+                                1
+                            </div>
+                            <h3 class="text-lg font-bold text-white">居家多模态预检与动态定制</h3>
+                        </div>
+                        
+                        <p class="text-sm text-slate-400 pl-11">打破院内院外边界，体检在抵达机构前即已开始。</p>
+                        
+                    </div>
+                    
+                    <!-- Nodes Container -->
+                    <div class="flex-1 flex flex-col gap-4 pl-4 border-l-2 border-slate-800/50 ml-4 relative z-10">
+                        
+                        
+                        <!-- Node Card -->
+                        <div class="node-card glass-panel rounded-xl p-5 border-l-4 border-indigo-500 relative group">
+                            
+                            <!-- Actor Badge -->
+                            <div class="absolute -left-3.5 top-5 w-6 h-6 rounded-full bg-indigo-500/10 border border-indigo-500 flex items-center justify-center text-xs shadow-md z-20" title="Actor: AI">
+                                🤖
+                            </div>
+
+                            <div class="flex justify-between items-start mb-3">
+                                <h4 class="font-bold text-slate-100 text-base ml-2 pr-2">多源健康数字印记捕获</h4>
+                                <span class="tag bg-indigo-500/10 border-indigo-500 text-indigo-400 border flex-shrink-0 mt-0.5">AI</span>
+                            </div>
+                            
+                            <div class="space-y-4 ml-2">
+                                <!-- Action -->
+                                <div class="text-sm text-slate-300 leading-relaxed">
+                                    接入用户授权的穿戴设备数据，引导用户通过手机完成面部微距视频拍摄、声纹采集。Agent 实时进行光电容积脉搏波描记法 (rPPG) 分析与声纹健康度检测。
+                                </div>
+                                
+                                <!-- AI Capability (if exists) -->
+                                
+                                <div class="bg-indigo-900/20 border border-indigo-500/20 rounded p-2.5">
+                                    <div class="text-[0.65rem] text-indigo-400 uppercase font-semibold mb-1 flex items-center gap-1">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                                        AI Capability
+                                    </div>
+                                    <div class="text-xs text-indigo-200">多模态生物特征识别 (Multimodal Biometrics), 连续生命体征预测模型</div>
+                                </div>
+                                
+                                
+                                <!-- I/O Data Flow -->
+                                <div class="flex items-stretch gap-2">
+                                    <div class="flex-1 bg-slate-800/40 border border-slate-700/50 rounded p-2">
+                                        <div class="text-[0.65rem] text-slate-400 uppercase font-semibold mb-1">Inputs</div>
+                                        <ul class="text-xs text-slate-300 space-y-1">
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-slate-500 mt-px">→</span> <span class="truncate" title="智能穿戴时序数据">智能穿戴时序数据</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-slate-500 mt-px">→</span> <span class="truncate" title="面部视频流">面部视频流</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-slate-500 mt-px">→</span> <span class="truncate" title="声纹波形">声纹波形</span></li>
+                                            
+                                        </ul>
+                                    </div>
+                                    <div class="flex-1 bg-slate-800/40 border border-slate-700/50 rounded p-2">
+                                        <div class="text-[0.65rem] text-slate-400 uppercase font-semibold mb-1">Outputs</div>
+                                        <ul class="text-xs text-slate-300 space-y-1">
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-slate-500 mt-px">→</span> <span class="truncate" title="基础生命体征基线">基础生命体征基线</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-slate-500 mt-px">→</span> <span class="truncate" title="潜在隐患预警特征向量">潜在隐患预警特征向量</span></li>
+                                            
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <!-- Human Touchpoint (Critical for Hybrid/Human) -->
+                                
+                                <div class="border-t border-slate-700/50 pt-3 mt-3">
+                                    <div class="text-[0.65rem] text-slate-500 uppercase font-semibold mb-1 flex items-center gap-1">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                        Human Touchpoint
+                                    </div>
+                                    <div class="text-xs text-slate-400">
+                                        全自动完成。无需人工干预。
+                                    </div>
+                                </div>
+                                
+                                
+                            </div>
+                        </div>
+                        
+                        <!-- Vertical connector arrow between nodes -->
+                        
+                        <div class="h-6 ml-6 border-l-2 border-dashed border-slate-600 flex items-center">
+                            <div class="w-2 h-2 rounded-full bg-slate-600 -ml-[5px]"></div>
+                        </div>
+                        
+                        
+                        
+                        <!-- Node Card -->
+                        <div class="node-card glass-panel rounded-xl p-5 border-l-4 border-indigo-500 relative group">
+                            
+                            <!-- Actor Badge -->
+                            <div class="absolute -left-3.5 top-5 w-6 h-6 rounded-full bg-indigo-500/10 border border-indigo-500 flex items-center justify-center text-xs shadow-md z-20" title="Actor: AI">
+                                🤖
+                            </div>
+
+                            <div class="flex justify-between items-start mb-3">
+                                <h4 class="font-bold text-slate-100 text-base ml-2 pr-2">超个性化体检路径生成</h4>
+                                <span class="tag bg-indigo-500/10 border-indigo-500 text-indigo-400 border flex-shrink-0 mt-0.5">AI</span>
+                            </div>
+                            
+                            <div class="space-y-4 ml-2">
+                                <!-- Action -->
+                                <div class="text-sm text-slate-300 leading-relaxed">
+                                    基于预诊基线与基因图谱，废弃传统“体检套餐”，大模型即时推演出仅针对该个体当下最需排查的定制化高频检项矩阵与检查顺序。
+                                </div>
+                                
+                                <!-- AI Capability (if exists) -->
+                                
+                                <div class="bg-indigo-900/20 border border-indigo-500/20 rounded p-2.5">
+                                    <div class="text-[0.65rem] text-indigo-400 uppercase font-semibold mb-1 flex items-center gap-1">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                                        AI Capability
+                                    </div>
+                                    <div class="text-xs text-indigo-200">因果推断网络 (Causal Inference), 高维特征匹配</div>
+                                </div>
+                                
+                                
+                                <!-- I/O Data Flow -->
+                                <div class="flex items-stretch gap-2">
+                                    <div class="flex-1 bg-slate-800/40 border border-slate-700/50 rounded p-2">
+                                        <div class="text-[0.65rem] text-slate-400 uppercase font-semibold mb-1">Inputs</div>
+                                        <ul class="text-xs text-slate-300 space-y-1">
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-slate-500 mt-px">→</span> <span class="truncate" title="预警特征向量">预警特征向量</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-slate-500 mt-px">→</span> <span class="truncate" title="历史电子病历 (EMR)">历史电子病历 (EMR)</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-slate-500 mt-px">→</span> <span class="truncate" title="家族病史数据">家族病史数据</span></li>
+                                            
+                                        </ul>
+                                    </div>
+                                    <div class="flex-1 bg-slate-800/40 border border-slate-700/50 rounded p-2">
+                                        <div class="text-[0.65rem] text-slate-400 uppercase font-semibold mb-1">Outputs</div>
+                                        <ul class="text-xs text-slate-300 space-y-1">
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-slate-500 mt-px">→</span> <span class="truncate" title="千人千面的动态体检项目清单">千人千面的动态体检项目清单</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-slate-500 mt-px">→</span> <span class="truncate" title="最优院内导航路径">最优院内导航路径</span></li>
+                                            
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <!-- Human Touchpoint (Critical for Hybrid/Human) -->
+                                
+                                <div class="border-t border-slate-700/50 pt-3 mt-3">
+                                    <div class="text-[0.65rem] text-slate-500 uppercase font-semibold mb-1 flex items-center gap-1">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                        Human Touchpoint
+                                    </div>
+                                    <div class="text-xs text-slate-400">
+                                        全自动推演，极大提高医疗资源利用率。
+                                    </div>
+                                </div>
+                                
+                                
+                            </div>
+                        </div>
+                        
+                        <!-- Vertical connector arrow between nodes -->
+                        
+                        
+                        
+                    </div>
+                </div>
+                
+                <!-- Phase Column -->
+                <div class="w-[400px] flex-shrink-0 flex flex-col phase-connector">
+                    
+                    <!-- Phase Header -->
+                    <div class="mb-6 relative z-10">
+                        <div class="flex items-center gap-3 mb-2">
+                            <div class="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-sm font-bold text-slate-300 shadow-inner">
+                                2
+                            </div>
+                            <h3 class="text-lg font-bold text-white">院内无感穿梭与具身采检</h3>
+                        </div>
+                        
+                        <p class="text-sm text-slate-400 pl-11">消灭排队与漫长等待，利用机器人和边缘计算实现流水线般的丝滑体验。</p>
+                        
+                    </div>
+                    
+                    <!-- Nodes Container -->
+                    <div class="flex-1 flex flex-col gap-4 pl-4 border-l-2 border-slate-800/50 ml-4 relative z-10">
+                        
+                        
+                        <!-- Node Card -->
+                        <div class="node-card glass-panel rounded-xl p-5 border-l-4 border-indigo-500 relative group">
+                            
+                            <!-- Actor Badge -->
+                            <div class="absolute -left-3.5 top-5 w-6 h-6 rounded-full bg-indigo-500/10 border border-indigo-500 flex items-center justify-center text-xs shadow-md z-20" title="Actor: AI">
+                                🤖
+                            </div>
+
+                            <div class="flex justify-between items-start mb-3">
+                                <h4 class="font-bold text-slate-100 text-base ml-2 pr-2">全息动态路由调度</h4>
+                                <span class="tag bg-indigo-500/10 border-indigo-500 text-indigo-400 border flex-shrink-0 mt-0.5">AI</span>
+                            </div>
+                            
+                            <div class="space-y-4 ml-2">
+                                <!-- Action -->
+                                <div class="text-sm text-slate-300 leading-relaxed">
+                                    患者步入机构后，中控 Agent 根据实时机器空闲度、患者位置和剩余检项，通过 AR 眼镜或手机动态指示患者的下一步走向，实现零等待穿梭。
+                                </div>
+                                
+                                <!-- AI Capability (if exists) -->
+                                
+                                <div class="bg-indigo-900/20 border border-indigo-500/20 rounded p-2.5">
+                                    <div class="text-[0.65rem] text-indigo-400 uppercase font-semibold mb-1 flex items-center gap-1">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                                        AI Capability
+                                    </div>
+                                    <div class="text-xs text-indigo-200">多智能体全局强化学习 (Multi-Agent RL), 室内厘米级定位与寻路</div>
+                                </div>
+                                
+                                
+                                <!-- I/O Data Flow -->
+                                <div class="flex items-stretch gap-2">
+                                    <div class="flex-1 bg-slate-800/40 border border-slate-700/50 rounded p-2">
+                                        <div class="text-[0.65rem] text-slate-400 uppercase font-semibold mb-1">Inputs</div>
+                                        <ul class="text-xs text-slate-300 space-y-1">
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-slate-500 mt-px">→</span> <span class="truncate" title="设备实时吞吐状态">设备实时吞吐状态</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-slate-500 mt-px">→</span> <span class="truncate" title="患者当前坐标">患者当前坐标</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-slate-500 mt-px">→</span> <span class="truncate" title="剩余体检项目">剩余体检项目</span></li>
+                                            
+                                        </ul>
+                                    </div>
+                                    <div class="flex-1 bg-slate-800/40 border border-slate-700/50 rounded p-2">
+                                        <div class="text-[0.65rem] text-slate-400 uppercase font-semibold mb-1">Outputs</div>
+                                        <ul class="text-xs text-slate-300 space-y-1">
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-slate-500 mt-px">→</span> <span class="truncate" title="动态引导指令 (AR/语音)">动态引导指令 (AR/语音)</span></li>
+                                            
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <!-- Human Touchpoint (Critical for Hybrid/Human) -->
+                                
+                                <div class="border-t border-slate-700/50 pt-3 mt-3">
+                                    <div class="text-[0.65rem] text-slate-500 uppercase font-semibold mb-1 flex items-center gap-1">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                        Human Touchpoint
+                                    </div>
+                                    <div class="text-xs text-slate-400">
+                                        无人化调度。若患者偏离路线超过阈值，派出实体导诊机器人纠正。
+                                    </div>
+                                </div>
+                                
+                                
+                            </div>
+                        </div>
+                        
+                        <!-- Vertical connector arrow between nodes -->
+                        
+                        <div class="h-6 ml-6 border-l-2 border-dashed border-slate-600 flex items-center">
+                            <div class="w-2 h-2 rounded-full bg-slate-600 -ml-[5px]"></div>
+                        </div>
+                        
+                        
+                        
+                        <!-- Node Card -->
+                        <div class="node-card glass-panel rounded-xl p-5 border-l-4 border-fuchsia-500 relative group">
+                            
+                            <!-- Actor Badge -->
+                            <div class="absolute -left-3.5 top-5 w-6 h-6 rounded-full bg-fuchsia-500/10 border border-fuchsia-500 flex items-center justify-center text-xs shadow-md z-20" title="Actor: HYBRID">
+                                🤝
+                            </div>
+
+                            <div class="flex justify-between items-start mb-3">
+                                <h4 class="font-bold text-slate-100 text-base ml-2 pr-2">具身智能柔性采检</h4>
+                                <span class="tag bg-fuchsia-500/10 border-fuchsia-500 text-fuchsia-400 border flex-shrink-0 mt-0.5">HYBRID</span>
+                            </div>
+                            
+                            <div class="space-y-4 ml-2">
+                                <!-- Action -->
+                                <div class="text-sm text-slate-300 leading-relaxed">
+                                    抽血、B超等高频物理检查由搭载高精度柔性触觉传感器的机械臂完成，利用计算机视觉精准定位血管与脏器进行无痛采检。
+                                </div>
+                                
+                                <!-- AI Capability (if exists) -->
+                                
+                                <div class="bg-indigo-900/20 border border-indigo-500/20 rounded p-2.5">
+                                    <div class="text-[0.65rem] text-indigo-400 uppercase font-semibold mb-1 flex items-center gap-1">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                                        AI Capability
+                                    </div>
+                                    <div class="text-xs text-indigo-200">具身智能 (Embodied AI), 高精度 3D 视觉定位, 柔性力反馈控制</div>
+                                </div>
+                                
+                                
+                                <!-- I/O Data Flow -->
+                                <div class="flex items-stretch gap-2">
+                                    <div class="flex-1 bg-slate-800/40 border border-slate-700/50 rounded p-2">
+                                        <div class="text-[0.65rem] text-slate-400 uppercase font-semibold mb-1">Inputs</div>
+                                        <ul class="text-xs text-slate-300 space-y-1">
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-slate-500 mt-px">→</span> <span class="truncate" title="3D 解剖学影像">3D 解剖学影像</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-slate-500 mt-px">→</span> <span class="truncate" title="实时超声/红外血管反馈">实时超声/红外血管反馈</span></li>
+                                            
+                                        </ul>
+                                    </div>
+                                    <div class="flex-1 bg-slate-800/40 border border-slate-700/50 rounded p-2">
+                                        <div class="text-[0.65rem] text-slate-400 uppercase font-semibold mb-1">Outputs</div>
+                                        <ul class="text-xs text-slate-300 space-y-1">
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-slate-500 mt-px">→</span> <span class="truncate" title="标准化血样">标准化血样</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-slate-500 mt-px">→</span> <span class="truncate" title="脏器影像切片集">脏器影像切片集</span></li>
+                                            
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <!-- Human Touchpoint (Critical for Hybrid/Human) -->
+                                
+                                <div class="border-t border-slate-700/50 pt-3 mt-3">
+                                    <div class="text-[0.65rem] text-amber-400 uppercase font-semibold mb-1 flex items-center gap-1">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                        Human Touchpoint
+                                    </div>
+                                    <div class="text-xs text-slate-300">
+                                        人类护士作为超级监工。仅在患者出现极度针头恐惧、或极少数血管极细机器无法一次性穿刺成功时，由人工接管。
+                                    </div>
+                                </div>
+                                
+                                
+                            </div>
+                        </div>
+                        
+                        <!-- Vertical connector arrow between nodes -->
+                        
+                        
+                        
+                    </div>
+                </div>
+                
+                <!-- Phase Column -->
+                <div class="w-[400px] flex-shrink-0 flex flex-col phase-connector">
+                    
+                    <!-- Phase Header -->
+                    <div class="mb-6 relative z-10">
+                        <div class="flex items-center gap-3 mb-2">
+                            <div class="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-sm font-bold text-slate-300 shadow-inner">
+                                3
+                            </div>
+                            <h3 class="text-lg font-bold text-white">实时跨模态确诊与高危裁决</h3>
+                        </div>
+                        
+                        <p class="text-sm text-slate-400 pl-11">数据产生即诊断，实现从“体检完等三天”到“走出舱门即刻出结果”。</p>
+                        
+                    </div>
+                    
+                    <!-- Nodes Container -->
+                    <div class="flex-1 flex flex-col gap-4 pl-4 border-l-2 border-slate-800/50 ml-4 relative z-10">
+                        
+                        
+                        <!-- Node Card -->
+                        <div class="node-card glass-panel rounded-xl p-5 border-l-4 border-indigo-500 relative group">
+                            
+                            <!-- Actor Badge -->
+                            <div class="absolute -left-3.5 top-5 w-6 h-6 rounded-full bg-indigo-500/10 border border-indigo-500 flex items-center justify-center text-xs shadow-md z-20" title="Actor: AI">
+                                🤖
+                            </div>
+
+                            <div class="flex justify-between items-start mb-3">
+                                <h4 class="font-bold text-slate-100 text-base ml-2 pr-2">数字孪生全息病理构建</h4>
+                                <span class="tag bg-indigo-500/10 border-indigo-500 text-indigo-400 border flex-shrink-0 mt-0.5">AI</span>
+                            </div>
+                            
+                            <div class="space-y-4 ml-2">
+                                <!-- Action -->
+                                <div class="text-sm text-slate-300 leading-relaxed">
+                                    系统并行吞吐数百项生化指标与多角度医学影像，瞬间生成患者脏器与血液系统的数字孪生 3D 模型，高亮异常指标的连锁反应并生成初诊断言。
+                                </div>
+                                
+                                <!-- AI Capability (if exists) -->
+                                
+                                <div class="bg-indigo-900/20 border border-indigo-500/20 rounded p-2.5">
+                                    <div class="text-[0.65rem] text-indigo-400 uppercase font-semibold mb-1 flex items-center gap-1">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                                        AI Capability
+                                    </div>
+                                    <div class="text-xs text-indigo-200">跨模态医疗大模型 (Medical VLM), 3D 结构重建</div>
+                                </div>
+                                
+                                
+                                <!-- I/O Data Flow -->
+                                <div class="flex items-stretch gap-2">
+                                    <div class="flex-1 bg-slate-800/40 border border-slate-700/50 rounded p-2">
+                                        <div class="text-[0.65rem] text-slate-400 uppercase font-semibold mb-1">Inputs</div>
+                                        <ul class="text-xs text-slate-300 space-y-1">
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-slate-500 mt-px">→</span> <span class="truncate" title="医学影像流">医学影像流</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-slate-500 mt-px">→</span> <span class="truncate" title="生化检验原始数据">生化检验原始数据</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-slate-500 mt-px">→</span> <span class="truncate" title="基因测序结果">基因测序结果</span></li>
+                                            
+                                        </ul>
+                                    </div>
+                                    <div class="flex-1 bg-slate-800/40 border border-slate-700/50 rounded p-2">
+                                        <div class="text-[0.65rem] text-slate-400 uppercase font-semibold mb-1">Outputs</div>
+                                        <ul class="text-xs text-slate-300 space-y-1">
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-slate-500 mt-px">→</span> <span class="truncate" title="数字孪生健康图谱">数字孪生健康图谱</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-slate-500 mt-px">→</span> <span class="truncate" title="异常病灶锚点">异常病灶锚点</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-slate-500 mt-px">→</span> <span class="truncate" title="初步医疗诊断书">初步医疗诊断书</span></li>
+                                            
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <!-- Human Touchpoint (Critical for Hybrid/Human) -->
+                                
+                                <div class="border-t border-slate-700/50 pt-3 mt-3">
+                                    <div class="text-[0.65rem] text-slate-500 uppercase font-semibold mb-1 flex items-center gap-1">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                        Human Touchpoint
+                                    </div>
+                                    <div class="text-xs text-slate-400">
+                                        后台超级算力秒级完成，超越人类医生的阅片速度极限。
+                                    </div>
+                                </div>
+                                
+                                
+                            </div>
+                        </div>
+                        
+                        <!-- Vertical connector arrow between nodes -->
+                        
+                        <div class="h-6 ml-6 border-l-2 border-dashed border-slate-600 flex items-center">
+                            <div class="w-2 h-2 rounded-full bg-slate-600 -ml-[5px]"></div>
+                        </div>
+                        
+                        
+                        
+                        <!-- Node Card -->
+                        <div class="node-card glass-panel rounded-xl p-5 border-l-4 border-emerald-500 relative group">
+                            
+                            <!-- Actor Badge -->
+                            <div class="absolute -left-3.5 top-5 w-6 h-6 rounded-full bg-emerald-500/10 border border-emerald-500 flex items-center justify-center text-xs shadow-md z-20" title="Actor: HUMAN">
+                                👤
+                            </div>
+
+                            <div class="flex justify-between items-start mb-3">
+                                <h4 class="font-bold text-slate-100 text-base ml-2 pr-2">重大疾病的权威定夺</h4>
+                                <span class="tag bg-emerald-500/10 border-emerald-500 text-emerald-400 border flex-shrink-0 mt-0.5">HUMAN</span>
+                            </div>
+                            
+                            <div class="space-y-4 ml-2">
+                                <!-- Action -->
+                                <div class="text-sm text-slate-300 leading-relaxed">
+                                    当 AI 诊断出存在高度疑似恶性肿瘤、心脑血管急症等重大致命病灶时，系统立刻锁定数据链，将全息切片推送给顶级医学专家委员会进行最终裁定。
+                                </div>
+                                
+                                <!-- AI Capability (if exists) -->
+                                
+                                <div class="bg-indigo-900/20 border border-indigo-500/20 rounded p-2.5">
+                                    <div class="text-[0.65rem] text-indigo-400 uppercase font-semibold mb-1 flex items-center gap-1">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                                        AI Capability
+                                    </div>
+                                    <div class="text-xs text-indigo-200">AI 证据链溯源辅助</div>
+                                </div>
+                                
+                                
+                                <!-- I/O Data Flow -->
+                                <div class="flex items-stretch gap-2">
+                                    <div class="flex-1 bg-slate-800/40 border border-slate-700/50 rounded p-2">
+                                        <div class="text-[0.65rem] text-slate-400 uppercase font-semibold mb-1">Inputs</div>
+                                        <ul class="text-xs text-slate-300 space-y-1">
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-slate-500 mt-px">→</span> <span class="truncate" title="高危病灶锚点">高危病灶锚点</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-slate-500 mt-px">→</span> <span class="truncate" title="AI 鉴别诊断理由">AI 鉴别诊断理由</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-slate-500 mt-px">→</span> <span class="truncate" title="原始切片数据">原始切片数据</span></li>
+                                            
+                                        </ul>
+                                    </div>
+                                    <div class="flex-1 bg-slate-800/40 border border-slate-700/50 rounded p-2">
+                                        <div class="text-[0.65rem] text-slate-400 uppercase font-semibold mb-1">Outputs</div>
+                                        <ul class="text-xs text-slate-300 space-y-1">
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-slate-500 mt-px">→</span> <span class="truncate" title="最终医疗诊断结论">最终医疗诊断结论</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-slate-500 mt-px">→</span> <span class="truncate" title="急救/住院转诊单">急救/住院转诊单</span></li>
+                                            
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <!-- Human Touchpoint (Critical for Hybrid/Human) -->
+                                
+                                <div class="border-t border-slate-700/50 pt-3 mt-3">
+                                    <div class="text-[0.65rem] text-amber-400 uppercase font-semibold mb-1 flex items-center gap-1">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                        Human Touchpoint
+                                    </div>
+                                    <div class="text-xs text-slate-300">
+                                        生命至上。AI 绝不越权下达绝症判决，顶级医生利用 AI 提纯的线索进行最终的医学伦理和确诊判定。
+                                    </div>
+                                </div>
+                                
+                                
+                            </div>
+                        </div>
+                        
+                        <!-- Vertical connector arrow between nodes -->
+                        
+                        
+                        
+                    </div>
+                </div>
+                
+                <!-- Phase Column -->
+                <div class="w-[400px] flex-shrink-0 flex flex-col phase-connector">
+                    
+                    <!-- Phase Header -->
+                    <div class="mb-6 relative z-10">
+                        <div class="flex items-center gap-3 mb-2">
+                            <div class="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-sm font-bold text-slate-300 shadow-inner">
+                                4
+                            </div>
+                            <h3 class="text-lg font-bold text-white">长效干预与生命周期陪伴</h3>
+                        </div>
+                        
+                        <p class="text-sm text-slate-400 pl-11">体检不是终点，而是数据驱动的主动健康管理起点。</p>
+                        
+                    </div>
+                    
+                    <!-- Nodes Container -->
+                    <div class="flex-1 flex flex-col gap-4 pl-4 border-l-2 border-slate-800/50 ml-4 relative z-10">
+                        
+                        
+                        <!-- Node Card -->
+                        <div class="node-card glass-panel rounded-xl p-5 border-l-4 border-fuchsia-500 relative group">
+                            
+                            <!-- Actor Badge -->
+                            <div class="absolute -left-3.5 top-5 w-6 h-6 rounded-full bg-fuchsia-500/10 border border-fuchsia-500 flex items-center justify-center text-xs shadow-md z-20" title="Actor: HYBRID">
+                                🤝
+                            </div>
+
+                            <div class="flex justify-between items-start mb-3">
+                                <h4 class="font-bold text-slate-100 text-base ml-2 pr-2">数字名医共情解读</h4>
+                                <span class="tag bg-fuchsia-500/10 border-fuchsia-500 text-fuchsia-400 border flex-shrink-0 mt-0.5">HYBRID</span>
+                            </div>
+                            
+                            <div class="space-y-4 ml-2">
+                                <!-- Action -->
+                                <div class="text-sm text-slate-300 leading-relaxed">
+                                    针对常规体检者，驱动拥有专家级医学知识的拟真数字人医生，用通俗、温暖的语言逐项解读报告，并给出运动与营养处方。
+                                </div>
+                                
+                                <!-- AI Capability (if exists) -->
+                                
+                                <div class="bg-indigo-900/20 border border-indigo-500/20 rounded p-2.5">
+                                    <div class="text-[0.65rem] text-indigo-400 uppercase font-semibold mb-1 flex items-center gap-1">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                                        AI Capability
+                                    </div>
+                                    <div class="text-xs text-indigo-200">医疗垂类数字人驱动, 大语言模型 (LLM), 情感计算</div>
+                                </div>
+                                
+                                
+                                <!-- I/O Data Flow -->
+                                <div class="flex items-stretch gap-2">
+                                    <div class="flex-1 bg-slate-800/40 border border-slate-700/50 rounded p-2">
+                                        <div class="text-[0.65rem] text-slate-400 uppercase font-semibold mb-1">Inputs</div>
+                                        <ul class="text-xs text-slate-300 space-y-1">
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-slate-500 mt-px">→</span> <span class="truncate" title="数字孪生图谱">数字孪生图谱</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-slate-500 mt-px">→</span> <span class="truncate" title="医疗诊断书">医疗诊断书</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-slate-500 mt-px">→</span> <span class="truncate" title="个人生活习惯标签">个人生活习惯标签</span></li>
+                                            
+                                        </ul>
+                                    </div>
+                                    <div class="flex-1 bg-slate-800/40 border border-slate-700/50 rounded p-2">
+                                        <div class="text-[0.65rem] text-slate-400 uppercase font-semibold mb-1">Outputs</div>
+                                        <ul class="text-xs text-slate-300 space-y-1">
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-slate-500 mt-px">→</span> <span class="truncate" title="个性化解读视频/音频">个性化解读视频/音频</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-slate-500 mt-px">→</span> <span class="truncate" title="生活干预处方">生活干预处方</span></li>
+                                            
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <!-- Human Touchpoint (Critical for Hybrid/Human) -->
+                                
+                                <div class="border-t border-slate-700/50 pt-3 mt-3">
+                                    <div class="text-[0.65rem] text-amber-400 uppercase font-semibold mb-1 flex items-center gap-1">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                        Human Touchpoint
+                                    </div>
+                                    <div class="text-xs text-slate-300">
+                                        若涉及心理极度敏感或病情较重的患者，无缝转接至专属私人医生进行心理疏导与后续治疗方案沟通。
+                                    </div>
+                                </div>
+                                
+                                
+                            </div>
+                        </div>
+                        
+                        <!-- Vertical connector arrow between nodes -->
+                        
+                        <div class="h-6 ml-6 border-l-2 border-dashed border-slate-600 flex items-center">
+                            <div class="w-2 h-2 rounded-full bg-slate-600 -ml-[5px]"></div>
+                        </div>
+                        
+                        
+                        
+                        <!-- Node Card -->
+                        <div class="node-card glass-panel rounded-xl p-5 border-l-4 border-indigo-500 relative group">
+                            
+                            <!-- Actor Badge -->
+                            <div class="absolute -left-3.5 top-5 w-6 h-6 rounded-full bg-indigo-500/10 border border-indigo-500 flex items-center justify-center text-xs shadow-md z-20" title="Actor: AI">
+                                🤖
+                            </div>
+
+                            <div class="flex justify-between items-start mb-3">
+                                <h4 class="font-bold text-slate-100 text-base ml-2 pr-2">全天候主动药械履约与监控</h4>
+                                <span class="tag bg-indigo-500/10 border-indigo-500 text-indigo-400 border flex-shrink-0 mt-0.5">AI</span>
+                            </div>
+                            
+                            <div class="space-y-4 ml-2">
+                                <!-- Action -->
+                                <div class="text-sm text-slate-300 leading-relaxed">
+                                    体检结束后，Agent 挂载于用户的可穿戴设备中，持续对比体检基线。一旦发现偏离，自动触发保健品购买、药物续方或复查预约挂号。
+                                </div>
+                                
+                                <!-- AI Capability (if exists) -->
+                                
+                                <div class="bg-indigo-900/20 border border-indigo-500/20 rounded p-2.5">
+                                    <div class="text-[0.65rem] text-indigo-400 uppercase font-semibold mb-1 flex items-center gap-1">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                                        AI Capability
+                                    </div>
+                                    <div class="text-xs text-indigo-200">时间序列异常检测, Agent 工具调用 (API 调用)</div>
+                                </div>
+                                
+                                
+                                <!-- I/O Data Flow -->
+                                <div class="flex items-stretch gap-2">
+                                    <div class="flex-1 bg-slate-800/40 border border-slate-700/50 rounded p-2">
+                                        <div class="text-[0.65rem] text-slate-400 uppercase font-semibold mb-1">Inputs</div>
+                                        <ul class="text-xs text-slate-300 space-y-1">
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-slate-500 mt-px">→</span> <span class="truncate" title="干预处方基线">干预处方基线</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-slate-500 mt-px">→</span> <span class="truncate" title="每日实时穿戴数据">每日实时穿戴数据</span></li>
+                                            
+                                        </ul>
+                                    </div>
+                                    <div class="flex-1 bg-slate-800/40 border border-slate-700/50 rounded p-2">
+                                        <div class="text-[0.65rem] text-slate-400 uppercase font-semibold mb-1">Outputs</div>
+                                        <ul class="text-xs text-slate-300 space-y-1">
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-slate-500 mt-px">→</span> <span class="truncate" title="健康纠偏提醒">健康纠偏提醒</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-slate-500 mt-px">→</span> <span class="truncate" title="自动电商/挂号订单">自动电商/挂号订单</span></li>
+                                            
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <!-- Human Touchpoint (Critical for Hybrid/Human) -->
+                                
+                                <div class="border-t border-slate-700/50 pt-3 mt-3">
+                                    <div class="text-[0.65rem] text-slate-500 uppercase font-semibold mb-1 flex items-center gap-1">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                        Human Touchpoint
+                                    </div>
+                                    <div class="text-xs text-slate-400">
+                                        无需人工，实现真正的健康管理自动化闭环。
+                                    </div>
+                                </div>
+                                
+                                
+                            </div>
+                        </div>
+                        
+                        <!-- Vertical connector arrow between nodes -->
+                        
+                        
+                        
+                    </div>
+                </div>
+                
+                
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Raw YAML Data (Hidden) -->
+    <script type="application/yaml" id="raw-yaml">
+---
+title: "全息超限：AI-Native 健康体检全流程"
+business_type: "大健康/智慧医疗"
+description: "颠覆传统体检的固定套餐与排队模式，引入多模态预诊、具身智能无感采检与数字孪生实时分析的全新医疗范式。"
+phases:
+  - name: "居家多模态预检与动态定制"
+    description: "打破院内院外边界，体检在抵达机构前即已开始。"
+    nodes:
+      - name: "多源健康数字印记捕获"
+        actor: "ai"
+        action_description: "接入用户授权的穿戴设备数据，引导用户通过手机完成面部微距视频拍摄、声纹采集。Agent 实时进行光电容积脉搏波描记法 (rPPG) 分析与声纹健康度检测。"
+        ai_capability: "多模态生物特征识别 (Multimodal Biometrics), 连续生命体征预测模型"
+        automation_level: "high"
+        inputs: ["智能穿戴时序数据", "面部视频流", "声纹波形"]
+        outputs: ["基础生命体征基线", "潜在隐患预警特征向量"]
+        human_touchpoint: "全自动完成。无需人工干预。"
+
+      - name: "超个性化体检路径生成"
+        actor: "ai"
+        action_description: "基于预诊基线与基因图谱，废弃传统“体检套餐”，大模型即时推演出仅针对该个体当下最需排查的定制化高频检项矩阵与检查顺序。"
+        ai_capability: "因果推断网络 (Causal Inference), 高维特征匹配"
+        automation_level: "high"
+        inputs: ["预警特征向量", "历史电子病历 (EMR)", "家族病史数据"]
+        outputs: ["千人千面的动态体检项目清单", "最优院内导航路径"]
+        human_touchpoint: "全自动推演，极大提高医疗资源利用率。"
+
+  - name: "院内无感穿梭与具身采检"
+    description: "消灭排队与漫长等待，利用机器人和边缘计算实现流水线般的丝滑体验。"
+    nodes:
+      - name: "全息动态路由调度"
+        actor: "ai"
+        action_description: "患者步入机构后，中控 Agent 根据实时机器空闲度、患者位置和剩余检项，通过 AR 眼镜或手机动态指示患者的下一步走向，实现零等待穿梭。"
+        ai_capability: "多智能体全局强化学习 (Multi-Agent RL), 室内厘米级定位与寻路"
+        automation_level: "high"
+        inputs: ["设备实时吞吐状态", "患者当前坐标", "剩余体检项目"]
+        outputs: ["动态引导指令 (AR/语音)"]
+        human_touchpoint: "无人化调度。若患者偏离路线超过阈值，派出实体导诊机器人纠正。"
+
+      - name: "具身智能柔性采检"
+        actor: "hybrid"
+        action_description: "抽血、B超等高频物理检查由搭载高精度柔性触觉传感器的机械臂完成，利用计算机视觉精准定位血管与脏器进行无痛采检。"
+        ai_capability: "具身智能 (Embodied AI), 高精度 3D 视觉定位, 柔性力反馈控制"
+        automation_level: "medium"
+        inputs: ["3D 解剖学影像", "实时超声/红外血管反馈"]
+        outputs: ["标准化血样", "脏器影像切片集"]
+        human_touchpoint: "人类护士作为超级监工。仅在患者出现极度针头恐惧、或极少数血管极细机器无法一次性穿刺成功时，由人工接管。"
+
+  - name: "实时跨模态确诊与高危裁决"
+    description: "数据产生即诊断，实现从“体检完等三天”到“走出舱门即刻出结果”。"
+    nodes:
+      - name: "数字孪生全息病理构建"
+        actor: "ai"
+        action_description: "系统并行吞吐数百项生化指标与多角度医学影像，瞬间生成患者脏器与血液系统的数字孪生 3D 模型，高亮异常指标的连锁反应并生成初诊断言。"
+        ai_capability: "跨模态医疗大模型 (Medical VLM), 3D 结构重建"
+        automation_level: "high"
+        inputs: ["医学影像流", "生化检验原始数据", "基因测序结果"]
+        outputs: ["数字孪生健康图谱", "异常病灶锚点", "初步医疗诊断书"]
+        human_touchpoint: "后台超级算力秒级完成，超越人类医生的阅片速度极限。"
+
+      - name: "重大疾病的权威定夺"
+        actor: "human"
+        action_description: "当 AI 诊断出存在高度疑似恶性肿瘤、心脑血管急症等重大致命病灶时，系统立刻锁定数据链，将全息切片推送给顶级医学专家委员会进行最终裁定。"
+        ai_capability: "AI 证据链溯源辅助"
+        automation_level: "low"
+        inputs: ["高危病灶锚点", "AI 鉴别诊断理由", "原始切片数据"]
+        outputs: ["最终医疗诊断结论", "急救/住院转诊单"]
+        human_touchpoint: "生命至上。AI 绝不越权下达绝症判决，顶级医生利用 AI 提纯的线索进行最终的医学伦理和确诊判定。"
+
+  - name: "长效干预与生命周期陪伴"
+    description: "体检不是终点，而是数据驱动的主动健康管理起点。"
+    nodes:
+      - name: "数字名医共情解读"
+        actor: "hybrid"
+        action_description: "针对常规体检者，驱动拥有专家级医学知识的拟真数字人医生，用通俗、温暖的语言逐项解读报告，并给出运动与营养处方。"
+        ai_capability: "医疗垂类数字人驱动, 大语言模型 (LLM), 情感计算"
+        automation_level: "medium"
+        inputs: ["数字孪生图谱", "医疗诊断书", "个人生活习惯标签"]
+        outputs: ["个性化解读视频/音频", "生活干预处方"]
+        human_touchpoint: "若涉及心理极度敏感或病情较重的患者，无缝转接至专属私人医生进行心理疏导与后续治疗方案沟通。"
+
+      - name: "全天候主动药械履约与监控"
+        actor: "ai"
+        action_description: "体检结束后，Agent 挂载于用户的可穿戴设备中，持续对比体检基线。一旦发现偏离，自动触发保健品购买、药物续方或复查预约挂号。"
+        ai_capability: "时间序列异常检测, Agent 工具调用 (API 调用)"
+        automation_level: "high"
+        inputs: ["干预处方基线", "每日实时穿戴数据"]
+        outputs: ["健康纠偏提醒", "自动电商/挂号订单"]
+        human_touchpoint: "无需人工，实现真正的健康管理自动化闭环。"
+
+    </script>
+
+    <script>
+        // Copy YAML Functionality
+        document.getElementById('copyYamlBtn').addEventListener('click', function() {
+            const yamlContent = document.getElementById('raw-yaml').textContent.trim();
+            navigator.clipboard.writeText(yamlContent).then(() => {
+                const btn = this;
+                const originalHtml = btn.innerHTML;
+                btn.innerHTML = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Copied!`;
+                btn.classList.replace('bg-indigo-600', 'bg-emerald-600');
+                btn.classList.replace('hover:bg-indigo-500', 'hover:bg-emerald-500');
+                btn.classList.replace('shadow-indigo-500/20', 'shadow-emerald-500/20');
+                
+                setTimeout(() => {
+                    btn.innerHTML = originalHtml;
+                    btn.classList.replace('bg-emerald-600', 'bg-indigo-600');
+                    btn.classList.replace('hover:bg-emerald-500', 'hover:bg-indigo-500');
+                    btn.classList.replace('shadow-emerald-500/20', 'shadow-indigo-500/20');
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+                alert('Failed to copy YAML to clipboard.');
+            });
+        });
+    </script>
+</body>
+</html>

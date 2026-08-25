@@ -1,0 +1,50 @@
+---
+title: "AI-Native 客户支持全量闭环工作流"
+business_type: "ToC 智能硬件售后"
+description: "颠覆传统的“提交表单-客服分发-工程师处理”的人工体系，引入多模态预诊与全自动数字人执行的全新 AI-Native 服务流程。"
+phases:
+  - name: "多模态意图捕获与智能预诊"
+    description: "用户触点零距离接入，通过跨模态信息秒级定界问题。"
+    nodes:
+      - name: "多模态故障自证分析"
+        actor: "ai"
+        action_description: "引导用户直接通过手机摄像头拍摄硬件状态或异常声音，Agent 实时进行多模态时序流分析，初步判定故障硬件类型、损坏程度与真伪。"
+        ai_capability: "多模态视觉理解 (Multimodal Vision), 音频异常检测 (Audio Anomaly Detection)"
+        automation_level: "high"
+        inputs: ["用户拍摄的故障音视频", "设备底层 Telemetry 日志", "历史购买记录"]
+        outputs: ["结构化硬件诊断书", "故障置信度分数"]
+        expert_review: "技术可行：多模态视觉诊断已在部分高端手机售后中灰度验证；合规性：不涉及个人生物特征提取，仅分析设备外观，符合隐私法规。"
+        human_touchpoint: "无需人工。纯后台算法秒级并发处理验证。"
+
+  - name: "动态柔性协商与自动履约"
+    description: "基于诊断自动生成补偿边界，并通过智能体主动与客户促成协议。"
+    nodes:
+      - name: "数字人共情谈判与安抚"
+        actor: "hybrid"
+        action_description: "Agent 结合用户的情绪指数与生命周期价值 (LTV)，启动拟真数字人与用户进行音视频互动，在授权范围内动态给出两种备选方案（立即换新或上门修），促成一致。"
+        ai_capability: "实时语音生成 (TTS), 高精度数字人驱动, 多轮动态博弈对话, 情感分析"
+        automation_level: "medium"
+        inputs: ["结构化硬件诊断书", "用户当前情绪指数", "实时库存与仓储物流情况"]
+        outputs: ["用户接受的最终售后协议"]
+        human_touchpoint: "若在对话中感知到用户出现极端愤怒或投诉倾向，触发阈值，无缝秒转至高级客户成功经理 (CSM) 团队进行人工安抚。"
+        
+      - name: "全链路供应链调度指令下发"
+        actor: "ai"
+        action_description: "协议达成后，履约智能体自动调用 WMS 和第三方物流 API，执行补发操作或派送揽收订单给顺丰等快递。"
+        ai_capability: "Agent 工具调用 (Tool Calling), 预测性履约时效分析"
+        automation_level: "high"
+        inputs: ["售后协议", "用户退换货地址"]
+        outputs: ["物流运单号", "发货与上门时效提醒"]
+        human_touchpoint: "无缝衔接。仅在遭遇区域不可抗力或物流系统全面宕机时发送人工运营告警。"
+
+  - name: "异常工单的深度裁决与价值回收"
+    description: "处理少数 AI 无法定夺的纠纷，并将售后经验回哺到研发端。"
+    nodes:
+      - name: "复杂欺诈与高风险赔偿裁决"
+        actor: "human"
+        action_description: "对于 AI 判定属于“极高套利欺诈嫌疑”或涉及高额赔偿金的 Case，直接进入人工定夺中心，辅助提供完整的证据链与 AI 分析结论供人类审批。"
+        ai_capability: "欺诈检测辅助 (Fraud Detection), 证据链提取与知识图谱"
+        automation_level: "low"
+        inputs: ["高风险预警标记", "多模态分析报告", "用户全量行为数据日志"]
+        outputs: ["最终冻结账户或放行赔偿的决定"]
+        human_touchpoint: "人类担任最终法官。AI 仅作为提供确凿证物和初步建议的法务助手，最终裁量权和法律责任由人类承担。"

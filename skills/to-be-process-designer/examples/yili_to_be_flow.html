@@ -1,0 +1,1627 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>伊利奶粉事业部 · 分仓智能补货 To-be 流程</title>
+
+    <!-- ===== Design System: Inspire (Enterprise Tech) ===== -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+        :root {
+            --color-primary: #10213E;       /* Starry Blues */
+            --color-accent: #5DB2E2;        /* Creative Blue */
+            --color-secondary: #625D9C;     /* Amethyst */
+            --color-success: #00524C;       /* Myrtle Deep Green */
+            --color-info: #6FB1C8;          /* Cerulean Frost */
+            --color-warning: #F59E0B;       /* Warning */
+            --color-destructive: #EF4444;   /* Danger */
+            --color-background: #FFFFFF;    /* Pure White */
+            --color-bg-alt: #F5F5F6;        /* Tech Gray */
+            --color-foreground: #10213E;    /* Primary Text */
+            --color-text-muted: #64748B;    /* Text Secondary */
+            --color-border: #E2E8F0;        /* Border/Line */
+            --shadow-inspire: 0 2px 8px rgba(16, 33, 62, 0.08);
+        }
+
+        *, *::before, *::after { box-sizing: border-box !important; }
+        html, body {
+            margin: 0 !important; padding: 0 !important;
+            background: var(--color-bg-alt) !important;
+            color: var(--color-foreground) !important;
+            font-family: "MiSans", "Inter", "Microsoft YaHei", sans-serif !important;
+            line-height: 1.6 !important;
+            overflow-x: auto !important;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 9px; height: 9px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: 5px; }
+        ::-webkit-scrollbar-thumb:hover { background: #CBD5E1; }
+
+        .unified-hdr {
+            width: 100% !important;
+            background: var(--color-background) !important;
+            border-bottom: 1px solid var(--color-border) !important;
+            border-radius: 0 !important;
+            box-shadow: none !important;
+            padding: 14px 28px !important;
+            margin-bottom: 20px !important;
+            display: flex !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+            gap: 16px !important;
+            flex-wrap: wrap !important;
+        }
+        .unified-hdr-left { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+        .unified-hdr-left h1 {
+            font-size: 22px !important; font-weight: 700 !important;
+            color: var(--color-primary) !important; line-height: 1.3 !important;
+            margin: 0 !important; display: flex !important; align-items: center !important; gap: 10px !important;
+        }
+        .unified-hdr-left h1::before {
+            content: "" !important; display: inline-block !important;
+            width: 4px !important; height: 22px !important;
+            background: var(--color-accent) !important; border-radius: 2px !important; flex-shrink: 0 !important;
+        }
+        .unified-hdr-left p {
+            font-size: 13px !important; color: var(--color-text-muted) !important;
+            margin: 4px 0 0 !important; padding-left: 14px !important; line-height: 1.5 !important;
+        }
+        .unified-hdr-right { display: flex; align-items: center; gap: 12px; flex-shrink: 0; flex-wrap: wrap; }
+        .unified-hdr-stats {
+            display: flex !important; align-items: center !important; gap: 8px !important;
+            background: var(--color-bg-alt) !important; border: 1px solid var(--color-border) !important;
+            border-radius: 20px !important; padding: 4px 14px !important;
+            font-size: 12px !important; color: var(--color-text-muted) !important;
+        }
+        .unified-hdr-stats b { color: var(--color-primary); font-weight: 700; margin-right: 3px; }
+        .hdr-stat-sep { width: 1px; height: 12px; background: var(--color-border); }
+        .btn-copy-yaml {
+            background: var(--color-primary) !important; color: #FFFFFF !important;
+            border: 1px solid var(--color-primary) !important; font-size: 12px !important;
+            padding: 6px 12px !important; border-radius: 6px !important; font-weight: 600 !important;
+            cursor: pointer !important; transition: all 0.15s ease-out !important;
+        }
+        .btn-copy-yaml:hover { opacity: 0.85 !important; }
+
+        /* ===== Main ===== */
+        main { width: 100% !important; max-width: none !important; margin: 0 auto !important; padding: 4px 28px 48px !important; display: block !important; }
+
+        /* ===== Legend Panel ===== */
+        .legend-panel {
+            background: var(--color-background) !important; border: 1px solid var(--color-border) !important;
+            border-radius: 8px !important; box-shadow: var(--shadow-inspire) !important;
+            padding: 14px 18px !important; margin-bottom: 20px !important;
+            display: flex !important; flex-wrap: wrap !important; gap: 8px 28px !important; align-items: center !important;
+        }
+        .legend-item { display: flex !important; align-items: center !important; gap: 6px !important; font-size: 12px !important; color: var(--color-text-muted) !important; white-space: nowrap !important; }
+        .legend-item .lbl { font-weight: 700 !important; color: var(--color-primary) !important; margin-right: 2px !important; }
+        .legend-pill {
+            display: inline-flex !important; align-items: center !important; gap: 3px !important;
+            padding: 1px 7px !important; border-radius: 10px !important; font-size: 11px !important; font-weight: 600 !important;
+            border: 1px solid var(--color-border) !important;
+        }
+
+        /* ===== Swimlane ===== */
+        .swim-panel {
+            background: var(--color-background) !important; border: 1px solid var(--color-border) !important;
+            border-radius: 8px !important; box-shadow: var(--shadow-inspire) !important;
+            padding: 16px !important; overflow-x: auto !important; overflow-y: hidden !important;
+        }
+        .swim-wrap { min-width: max-content !important; display: flex !important; flex-direction: column !important; gap: 10px !important; }
+
+        /* Row */
+        .swim-row { display: flex !important; gap: 10px !important; align-items: stretch !important; }
+        .swim-row.swim-head { align-items: stretch !important; }
+
+        /* Lane header (left fixed column) */
+        .lane-head {
+            width: 150px !important; flex-shrink: 0 !important;
+            display: flex !important; flex-direction: column !important; justify-content: center !important;
+            padding: 10px 12px !important; border-radius: 8px !important;
+            background: var(--color-bg-alt) !important; border: 1px solid var(--color-border) !important;
+        }
+        .lane-head .lane-name { font-size: 13px !important; font-weight: 700 !important; color: var(--color-primary) !important; line-height: 1.3 !important; }
+        .lane-head .lane-group { font-size: 11px !important; color: var(--color-text-muted) !important; margin-top: 2px !important; }
+        .lane-head .lane-desc { font-size: 11px !important; color: var(--color-info) !important; margin-top: 4px !important; line-height: 1.4 !important; }
+        .lane-head.corner { background: var(--color-primary) !important; border-color: var(--color-primary) !important; }
+        .lane-head.corner .lane-name { color: #FFFFFF !important; }
+        .lane-head.corner .lane-group { color: rgba(255,255,255,0.75) !important; }
+
+        /* Phase header (top column) */
+        .phase-head {
+            flex: 1 1 0 !important; min-width: 250px !important;
+            display: flex !important; flex-direction: column !important;
+            padding: 10px 14px !important; border-radius: 8px !important;
+            background: rgba(16,33,62,0.05) !important; border: 1px solid var(--color-border) !important;
+            border-top: 3px solid var(--color-primary) !important;
+        }
+        .phase-head .ph-badge {
+            display: inline-flex !important; align-items: center !important; gap: 5px !important;
+            font-size: 13px !important; font-weight: 700 !important; color: var(--color-primary) !important;
+        }
+        .phase-head .ph-num {
+            display: inline-flex !important; align-items: center !important; justify-content: center !important;
+            width: 20px !important; height: 20px !important; border-radius: 6px !important;
+            background: var(--color-primary) !important; color: #FFFFFF !important;
+            font-size: 11px !important; font-weight: 700 !important;
+        }
+        .phase-head .ph-sub { font-size: 12px !important; color: var(--color-text-muted) !important; margin-top: 2px !important; }
+        .phase-head .ph-count { font-size: 11px !important; color: var(--color-accent) !important; font-weight: 600 !important; margin-top: 3px !important; }
+
+        /* Phase cell (crossing grid) */
+        .phase-cell {
+            flex: 1 1 0 !important; min-width: 250px !important;
+            background: var(--color-bg-alt) !important; border: 1px solid var(--color-border) !important;
+            border-radius: 8px !important; padding: 10px !important;
+            display: flex !important; flex-direction: column !important; gap: 10px !important;
+            align-items: stretch !important;
+        }
+
+        /* ===== Task Card ===== */
+        .task-card {
+            background: var(--color-background) !important; border: 1px solid var(--color-border) !important;
+            border-left: 3px solid var(--color-accent) !important; border-radius: 8px !important;
+            box-shadow: var(--shadow-inspire) !important; padding: 10px 12px !important;
+            transition: all 0.2s ease-out !important; display: flex !important; flex-direction: column !important; gap: 7px !important;
+        }
+        .task-card:hover { transform: translateY(-2px) !important; box-shadow: 0 10px 18px -6px rgba(16,33,62,0.14) !important; border-color: var(--color-accent) !important; }
+
+        .task-top { display: flex !important; align-items: flex-start !important; gap: 8px !important; }
+        .actor-badge {
+            flex-shrink: 0 !important; width: 26px !important; height: 26px !important;
+            border-radius: 50% !important; display: flex !important; align-items: center !important; justify-content: center !important;
+            font-size: 13px !important; border: 2px solid var(--color-border) !important;
+        }
+        .task-title { flex: 1 1 auto !important; font-size: 13px !important; font-weight: 700 !important; color: var(--color-primary) !important; line-height: 1.35 !important; }
+        .hitl-pill {
+            flex-shrink: 0 !important; font-size: 10px !important; font-weight: 700 !important;
+            padding: 1px 6px !important; border-radius: 8px !important; border: 1px solid var(--color-border) !important;
+            white-space: nowrap !important;
+        }
+        .task-desc { font-size: 12px !important; color: var(--color-foreground) !important; line-height: 1.5 !important; }
+
+        .anchor-row { display: flex !important; flex-wrap: wrap !important; gap: 4px !important; }
+        .anchor-pill {
+            font-size: 10.5px !important; font-weight: 600 !important; padding: 1px 8px !important;
+            border-radius: 10px !important; border: 1px solid var(--color-border) !important;
+        }
+
+        .io-rule {
+            border-top: 1px dashed var(--color-border) !important; padding-top: 7px !important;
+            display: flex !important; flex-direction: column !important; gap: 4px !important;
+        }
+        .io-item { display: flex !important; align-items: baseline !important; gap: 6px !important; }
+        .io-tag {
+            flex-shrink: 0 !important; font-size: 10px !important; font-weight: 700 !important;
+            color: var(--color-text-muted) !important; text-transform: uppercase !important; letter-spacing: 0.03em !important;
+            width: 40px !important;
+        }
+        .io-val { font-size: 11.5px !important; color: var(--color-foreground) !important; line-height: 1.4 !important; flex: 1 1 auto !important; }
+        .rule-type { font-size: 10.5px !important; color: var(--color-secondary) !important; font-weight: 600 !important; line-height: 1.4 !important; }
+
+        .exception {
+            display: flex !important; align-items: baseline !important; gap: 5px !important;
+            font-size: 11px !important; font-weight: 600 !important;
+            background: rgba(239,68,68,0.06) !important; border-radius: 6px !important; padding: 3px 7px !important;
+        }
+        .exception .ex-tag { color: var(--color-destructive) !important; }
+        .exception .ex-val { color: #B91C1C !important; }
+
+        /* ===== Footer notes ===== */
+        .notes-panel {
+            background: var(--color-background) !important; border: 1px solid var(--color-border) !important;
+            border-radius: 8px !important; box-shadow: var(--shadow-inspire) !important;
+            padding: 16px 18px !important; margin-top: 20px !important;
+            display: flex !important; flex-wrap: wrap !important; gap: 16px 24px !important;
+        }
+        .notes-col { flex: 1 1 320px !important; }
+        .notes-col h3 { font-size: 13px !important; font-weight: 700 !important; color: var(--color-secondary) !important; margin: 0 0 8px !important; display: flex !important; align-items: center !important; gap: 6px !important; }
+        .notes-col ul { margin: 0 !important; padding-left: 4px !important; list-style: none !important; }
+        .notes-col li { font-size: 12px !important; color: var(--color-text-muted) !important; line-height: 1.6 !important; padding-left: 14px !important; position: relative !important; margin-bottom: 4px !important; }
+        .notes-col li::before { content: "•" !important; position: absolute !important; left: 0 !important; color: var(--color-accent) !important; font-weight: 700 !important; }
+
+        /* Responsive (375/768/1024/1440) */
+        @media (max-width: 768px) {
+            main { padding: 4px 12px 32px !important; }
+            .unified-hdr { padding: 12px 14px !important; }
+            .lane-head { width: 120px !important; }
+            .phase-head, .phase-cell { min-width: 230px !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== Unified Header ===== -->
+    <header class="unified-hdr">
+        <div class="unified-hdr-left">
+            <h1>伊利奶粉事业部 · 分仓智能补货 To-be 流程</h1>
+            <p>SKP 阶段1 任务流程挖掘 · 步骤1.1 · SKP 阶段1方法（业务环节 L3 → 主要活动 L4 → 深度任务 L5）</p>
+        </div>
+        <div class="unified-hdr-right">
+            <div class="unified-hdr-stats">
+                <span class="hdr-stat"><b>深度任务</b> 26</span>
+                <span class="hdr-stat-sep"></span>
+                <span class="hdr-stat">🤖 18</span>
+                <span class="hdr-stat-sep"></span>
+                <span class="hdr-stat">👤 4</span>
+                <span class="hdr-stat-sep"></span>
+                <span class="hdr-stat">🤝 4</span>
+            </div>
+            <button id="copyYamlBtn" class="btn-copy-yaml" onclick="copyYAML()">复制原始 YAML</button>
+        </div>
+    </header>
+
+    <main>
+        <!-- ===== Legend ===== -->
+        <div class="legend-panel">
+            <div class="legend-item"><span class="lbl">执行主体</span>
+                
+                <span class="legend-pill" style=&#34;color:#1B6EA8; background:rgba(93,178,226,0.10); border-color:#9BD0EC;&#34;>🤖 Agent</span>
+                
+                <span class="legend-pill" style=&#34;color:#B45309; background:rgba(245,158,11,0.10); border-color:#FCD34D;&#34;>👤 人工</span>
+                
+                <span class="legend-pill" style=&#34;color:#4C4680; background:rgba(98,93,156,0.10); border-color:#B6B2DE;&#34;>🤝 混合</span>
+                
+            </div>
+            <div class="legend-item"><span class="lbl">HITL 焦点</span>
+                
+                <span class="legend-pill" style=&#34;color:#64748B; background:rgba(100,116,139,0.10); border-color:#CBD5E1;&#34;>低</span>
+                
+                <span class="legend-pill" style=&#34;color:#B45309; background:rgba(245,158,11,0.10); border-color:#FCD34D;&#34;>中</span>
+                
+                <span class="legend-pill" style=&#34;color:#B91C1C; background:rgba(239,68,68,0.10); border-color:#FCA5A5;&#34;>高</span>
+                
+                <span class="legend-pill" style=&#34;color:#B91C1C; background:rgba(239,68,68,0.10); border-color:#FCA5A5;&#34;>必停</span>
+                
+            </div>
+            
+            <div class="legend-item"><span class="lbl">流程流向</span>
+                <span class="legend-pill">角色泳道 任务泳道内转</span><span class="legend-pill">流程走向 任务正常后回填 AI</span>
+            </div>
+            
+            
+            <div class="legend-item"><span class="lbl">价值锚定</span>
+                <span class="legend-pill">分货效率</span><span class="legend-pill">分仓有货率</span><span class="legend-pill">库存周转</span><span class="legend-pill">新鲜度</span><span class="legend-pill">物流时效</span>
+            </div>
+            
+        </div>
+
+        <!-- ===== Swimlane Diagram ===== -->
+        <div class="swim-panel">
+            <div class="swim-wrap">
+                <!-- Header row (phases) -->
+                <div class="swim-row swim-head">
+                    <div class="lane-head corner">
+                        <span class="lane-name">角色泳道 \ 业务阶段</span>
+                        <span class="lane-group">L3 环节 → 泳道</span>
+                    </div>
+                    
+                    
+                    <div class="phase-head">
+                        <span class="ph-badge"><span class="ph-num">P1</span>货源评估</span>
+                        <span class="ph-sub">货源评估与分货数据准备</span>
+                        <span class="ph-count">8 个深度任务</span>
+                    </div>
+                    
+                    
+                    <div class="phase-head">
+                        <span class="ph-badge"><span class="ph-num">P2</span>分货方案</span>
+                        <span class="ph-sub">分货方案编制</span>
+                        <span class="ph-count">6 个深度任务</span>
+                    </div>
+                    
+                    
+                    <div class="phase-head">
+                        <span class="ph-badge"><span class="ph-num">P3</span>分货单</span>
+                        <span class="ph-sub">补货单生成与下发</span>
+                        <span class="ph-count">4 个深度任务</span>
+                    </div>
+                    
+                    
+                    <div class="phase-head">
+                        <span class="ph-badge"><span class="ph-num">P4</span>执行跟踪</span>
+                        <span class="ph-sub">执行跟踪与入库同步</span>
+                        <span class="ph-count">3 个深度任务</span>
+                    </div>
+                    
+                    
+                    <div class="phase-head">
+                        <span class="ph-badge"><span class="ph-num">P5</span>库存监控</span>
+                        <span class="ph-sub">库存监控与效果复盘</span>
+                        <span class="ph-count">5 个深度任务</span>
+                    </div>
+                    
+                </div>
+
+                <!-- Lane rows -->
+                
+                
+                <div class="swim-row">
+                    <div class="lane-head">
+                        <span class="lane-name">客户外部</span>
+                        <span class="lane-group">客户/外部</span>
+                        <span class="lane-desc">需求方与外部销量输入源</span>
+                    </div>
+                    
+                    
+                    <div class="phase-cell">
+                        
+                        <div class="task-card" style=&#34;border-left-color:#625D9C;&#34;>
+                            <div class="task-top">
+                                <span class="actor-badge" style=&#34;background:rgba(98,93,156,0.10); border-color:#B6B2DE;&#34; title="混合">🤝</span>
+                                <span class="task-title">分仓销量计划输入</span>
+                                <span class="hitl-pill" style=&#34;color:#64748B; background:rgba(100,116,139,0.10); border-color:#CBD5E1;&#34;>HITL 低</span>
+                            </div>
+                            <div class="task-desc">接收外部销量计划并转化为分仓需求口径</div>
+                            
+                            <div class="anchor-row">
+                                
+                                <span class="anchor-pill" style=&#34;color:#00524C; background:rgba(0,82,76,0.10); border-color:#7FB6B0;&#34;>分货效率</span>
+                                
+                            </div>
+                            
+                            <div class="io-rule">
+                                
+                                <div class="io-item"><span class="io-tag">输入</span><span class="io-val">京东 AI 计划销量转化 · 销售计划</span></div>
+                                
+                                
+                                <div class="io-item"><span class="io-tag">输出</span><span class="io-val">分仓销量需求口径</span></div>
+                                
+                            </div>
+                            <div class="rule-type">规则依据：关键信息提取要点·分货数据关键字段识别</div>
+                            
+                            <div class="exception" style=&#34;border-left:2px solid #625D9C;&#34;>
+                                <span class="ex-tag">异常</span><span class="ex-val">销量口径缺失 → 拉人</span>
+                            </div>
+                            
+                        </div>
+                        
+                    </div>
+                    
+                    
+                    <div class="phase-cell">
+                        
+                    </div>
+                    
+                    
+                    <div class="phase-cell">
+                        
+                    </div>
+                    
+                    
+                    <div class="phase-cell">
+                        
+                    </div>
+                    
+                    
+                    <div class="phase-cell">
+                        
+                    </div>
+                    
+                </div>
+                
+                
+                <div class="swim-row">
+                    <div class="lane-head">
+                        <span class="lane-name">计划采购计划部</span>
+                        <span class="lane-group">分货计划</span>
+                        <span class="lane-desc">计划与需求测算</span>
+                    </div>
+                    
+                    
+                    <div class="phase-cell">
+                        
+                        <div class="task-card" style=&#34;border-left-color:#F59E0B;&#34;>
+                            <div class="task-top">
+                                <span class="actor-badge" style=&#34;background:rgba(245,158,11,0.10); border-color:#FCD34D;&#34; title="人工">👤</span>
+                                <span class="task-title">上传销量/促销计划</span>
+                                <span class="hitl-pill" style=&#34;color:#64748B; background:rgba(100,116,139,0.10); border-color:#CBD5E1;&#34;>HITL 低</span>
+                            </div>
+                            <div class="task-desc">人工导入促销与销量计划，作为分货输入</div>
+                            
+                            <div class="anchor-row">
+                                
+                                <span class="anchor-pill" style=&#34;color:#00524C; background:rgba(0,82,76,0.10); border-color:#7FB6B0;&#34;>分货效率</span>
+                                
+                            </div>
+                            
+                            <div class="io-rule">
+                                
+                                <div class="io-item"><span class="io-tag">输入</span><span class="io-val">促销计划 · 历史销量</span></div>
+                                
+                                
+                                <div class="io-item"><span class="io-tag">输出</span><span class="io-val">分货需求得分</span></div>
+                                
+                            </div>
+                            <div class="rule-type">规则依据：关键信息提取要点·分货数据关键字段识别</div>
+                            
+                            <div class="exception" style=&#34;border-left:2px solid #F59E0B;&#34;>
+                                <span class="ex-tag">异常</span><span class="ex-val">历史数据缺失 → 拉人</span>
+                            </div>
+                            
+                        </div>
+                        
+                    </div>
+                    
+                    
+                    <div class="phase-cell">
+                        
+                    </div>
+                    
+                    
+                    <div class="phase-cell">
+                        
+                    </div>
+                    
+                    
+                    <div class="phase-cell">
+                        
+                    </div>
+                    
+                    
+                    <div class="phase-cell">
+                        
+                    </div>
+                    
+                </div>
+                
+                
+                <div class="swim-row">
+                    <div class="lane-head">
+                        <span class="lane-name">数据助理</span>
+                        <span class="lane-group">数据准备</span>
+                        <span class="lane-desc">数据抓取/校验/底表</span>
+                    </div>
+                    
+                    
+                    <div class="phase-cell">
+                        
+                        <div class="task-card" style=&#34;border-left-color:#5DB2E2;&#34;>
+                            <div class="task-top">
+                                <span class="actor-badge" style=&#34;background:rgba(93,178,226,0.10); border-color:#9BD0EC;&#34; title="Agent">🤖</span>
+                                <span class="task-title">汇总全国可分配库存与在途</span>
+                                <span class="hitl-pill" style=&#34;color:#64748B; background:rgba(100,116,139,0.10); border-color:#CBD5E1;&#34;>HITL 低</span>
+                            </div>
+                            <div class="task-desc">Agent 拉取全量库存，形成全国供需视图</div>
+                            
+                            <div class="anchor-row">
+                                
+                                <span class="anchor-pill" style=&#34;color:#00524C; background:rgba(0,82,76,0.10); border-color:#7FB6B0;&#34;>分货效率</span>
+                                
+                            </div>
+                            
+                            <div class="io-rule">
+                                
+                                <div class="io-item"><span class="io-tag">输入</span><span class="io-val">现货库存 · 在途库存 · 销售计划 · 未发订单</span></div>
+                                
+                                
+                                <div class="io-item"><span class="io-tag">输出</span><span class="io-val">全国供需视图</span></div>
+                                
+                            </div>
+                            <div class="rule-type">规则依据：关键信息提取要点·分货数据关键字段识别</div>
+                            
+                            <div class="exception" style=&#34;border-left:2px solid #5DB2E2;&#34;>
+                                <span class="ex-tag">异常</span><span class="ex-val">数据缺失/口径异常 → 拉人</span>
+                            </div>
+                            
+                        </div>
+                        
+                        <div class="task-card" style=&#34;border-left-color:#5DB2E2;&#34;>
+                            <div class="task-top">
+                                <span class="actor-badge" style=&#34;background:rgba(93,178,226,0.10); border-color:#9BD0EC;&#34; title="Agent">🤖</span>
+                                <span class="task-title">计算各仓库存天数</span>
+                                <span class="hitl-pill" style=&#34;color:#64748B; background:rgba(100,116,139,0.10); border-color:#CBD5E1;&#34;>HITL 低</span>
+                            </div>
+                            <div class="task-desc">Agent 按 DOS 口径计算各仓库存天数</div>
+                            
+                            <div class="anchor-row">
+                                
+                                <span class="anchor-pill" style=&#34;color:#10213E; background:rgba(16,33,62,0.08); border-color:#B7C2D5;&#34;>分仓有货率</span>
+                                
+                            </div>
+                            
+                            <div class="io-rule">
+                                
+                                <div class="io-item"><span class="io-tag">输入</span><span class="io-val">各仓库存 · 在途 · 日均销售计划</span></div>
+                                
+                                
+                                <div class="io-item"><span class="io-tag">输出</span><span class="io-val">各仓库存天数</span></div>
+                                
+                            </div>
+                            <div class="rule-type">规则依据：术语字典类·待检/合格/可发量/DOS口径</div>
+                            
+                            <div class="exception" style=&#34;border-left:2px solid #5DB2E2;&#34;>
+                                <span class="ex-tag">异常</span><span class="ex-val">口径异常 → 拉人</span>
+                            </div>
+                            
+                        </div>
+                        
+                        <div class="task-card" style=&#34;border-left-color:#5DB2E2;&#34;>
+                            <div class="task-top">
+                                <span class="actor-badge" style=&#34;background:rgba(93,178,226,0.10); border-color:#9BD0EC;&#34; title="Agent">🤖</span>
+                                <span class="task-title">判定缺口等级</span>
+                                <span class="hitl-pill" style=&#34;color:#64748B; background:rgba(100,116,139,0.10); border-color:#CBD5E1;&#34;>HITL 低</span>
+                            </div>
+                            <div class="task-desc">Agent 识别缺口并生成红/黄/蓝告警</div>
+                            
+                            <div class="anchor-row">
+                                
+                                <span class="anchor-pill" style=&#34;color:#10213E; background:rgba(16,33,62,0.08); border-color:#B7C2D5;&#34;>分仓有货率</span>
+                                
+                            </div>
+                            
+                            <div class="io-rule">
+                                
+                                <div class="io-item"><span class="io-tag">输入</span><span class="io-val">各仓库存天数 · 未来14天需求</span></div>
+                                
+                                
+                                <div class="io-item"><span class="io-tag">输出</span><span class="io-val">缺口告警清单(红/黄/蓝)</span></div>
+                                
+                            </div>
+                            <div class="rule-type">规则依据：决策模型类·缺口分级规则</div>
+                            
+                            <div class="exception" style=&#34;border-left:2px solid #5DB2E2;&#34;>
+                                <span class="ex-tag">异常</span><span class="ex-val">阈值边界冲突 → 拉人</span>
+                            </div>
+                            
+                        </div>
+                        
+                        <div class="task-card" style=&#34;border-left-color:#F59E0B;&#34;>
+                            <div class="task-top">
+                                <span class="actor-badge" style=&#34;background:rgba(245,158,11,0.10); border-color:#FCD34D;&#34; title="人工">👤</span>
+                                <span class="task-title">复核缺口清单</span>
+                                <span class="hitl-pill" style=&#34;color:#B45309; background:rgba(245,158,11,0.10); border-color:#FCD34D;&#34;>HITL 中</span>
+                            </div>
+                            <div class="task-desc">人工复核缺口告警，确认分级口径</div>
+                            
+                            <div class="anchor-row">
+                                
+                                <span class="anchor-pill" style=&#34;color:#10213E; background:rgba(16,33,62,0.08); border-color:#B7C2D5;&#34;>分仓有货率</span>
+                                
+                            </div>
+                            
+                            <div class="io-rule">
+                                
+                                <div class="io-item"><span class="io-tag">输入</span><span class="io-val">缺口告警清单</span></div>
+                                
+                                
+                                <div class="io-item"><span class="io-tag">输出</span><span class="io-val">确认的缺口口径</span></div>
+                                
+                            </div>
+                            <div class="rule-type">规则依据：决策模型类·缺口分级规则</div>
+                            
+                            <div class="exception" style=&#34;border-left:2px solid #F59E0B;&#34;>
+                                <span class="ex-tag">异常</span><span class="ex-val">分歧项 → 拉人</span>
+                            </div>
+                            
+                        </div>
+                        
+                        <div class="task-card" style=&#34;border-left-color:#5DB2E2;&#34;>
+                            <div class="task-top">
+                                <span class="actor-badge" style=&#34;background:rgba(93,178,226,0.10); border-color:#9BD0EC;&#34; title="Agent">🤖</span>
+                                <span class="task-title">汇总分货数据底表</span>
+                                <span class="hitl-pill" style=&#34;color:#64748B; background:rgba(100,116,139,0.10); border-color:#CBD5E1;&#34;>HITL 低</span>
+                            </div>
+                            <div class="task-desc">Agent 汇总四类数据生成分货底表</div>
+                            
+                            <div class="anchor-row">
+                                
+                                <span class="anchor-pill" style=&#34;color:#00524C; background:rgba(0,82,76,0.10); border-color:#7FB6B0;&#34;>分货效率</span>
+                                
+                            </div>
+                            
+                            <div class="io-rule">
+                                
+                                <div class="io-item"><span class="io-tag">输入</span><span class="io-val">待检 · 合格 · 在途 · 库存</span></div>
+                                
+                                
+                                <div class="io-item"><span class="io-tag">输出</span><span class="io-val">分货数据底表</span></div>
+                                
+                            </div>
+                            <div class="rule-type">规则依据：关键信息提取要点·分货数据关键字段识别</div>
+                            
+                            <div class="exception" style=&#34;border-left:2px solid #5DB2E2;&#34;>
+                                <span class="ex-tag">异常</span><span class="ex-val">字段缺失 → 拉人</span>
+                            </div>
+                            
+                        </div>
+                        
+                        <div class="task-card" style=&#34;border-left-color:#625D9C;&#34;>
+                            <div class="task-top">
+                                <span class="actor-badge" style=&#34;background:rgba(98,93,156,0.10); border-color:#B6B2DE;&#34; title="混合">🤝</span>
+                                <span class="task-title">校验底表口径完整性</span>
+                                <span class="hitl-pill" style=&#34;color:#B45309; background:rgba(245,158,11,0.10); border-color:#FCD34D;&#34;>HITL 中</span>
+                            </div>
+                            <div class="task-desc">人机协同校验底表口径，确保字段一致</div>
+                            
+                            <div class="anchor-row">
+                                
+                                <span class="anchor-pill" style=&#34;color:#00524C; background:rgba(0,82,76,0.10); border-color:#7FB6B0;&#34;>分货效率</span>
+                                
+                            </div>
+                            
+                            <div class="io-rule">
+                                
+                                <div class="io-item"><span class="io-tag">输入</span><span class="io-val">分货数据底表</span></div>
+                                
+                                
+                                <div class="io-item"><span class="io-tag">输出</span><span class="io-val">校验通过的底表</span></div>
+                                
+                            </div>
+                            <div class="rule-type">规则依据：术语字典类·待检/合格/可发量/DOS口径</div>
+                            
+                            <div class="exception" style=&#34;border-left:2px solid #625D9C;&#34;>
+                                <span class="ex-tag">异常</span><span class="ex-val">口径不一致 → 拉人</span>
+                            </div>
+                            
+                        </div>
+                        
+                    </div>
+                    
+                    
+                    <div class="phase-cell">
+                        
+                    </div>
+                    
+                    
+                    <div class="phase-cell">
+                        
+                    </div>
+                    
+                    
+                    <div class="phase-cell">
+                        
+                    </div>
+                    
+                    
+                    <div class="phase-cell">
+                        
+                    </div>
+                    
+                </div>
+                
+                
+                <div class="swim-row">
+                    <div class="lane-head">
+                        <span class="lane-name">分货评估组</span>
+                        <span class="lane-group">分货评估</span>
+                        <span class="lane-desc">方案编制/补货单/异常处理</span>
+                    </div>
+                    
+                    
+                    <div class="phase-cell">
+                        
+                    </div>
+                    
+                    
+                    <div class="phase-cell">
+                        
+                        <div class="task-card" style=&#34;border-left-color:#5DB2E2;&#34;>
+                            <div class="task-top">
+                                <span class="actor-badge" style=&#34;background:rgba(93,178,226,0.10); border-color:#9BD0EC;&#34; title="Agent">🤖</span>
+                                <span class="task-title">计算各仓备货率</span>
+                                <span class="hitl-pill" style=&#34;color:#64748B; background:rgba(100,116,139,0.10); border-color:#CBD5E1;&#34;>HITL 低</span>
+                            </div>
+                            <div class="task-desc">Agent 逐仓计算生产备货率</div>
+                            
+                            <div class="anchor-row">
+                                
+                                <span class="anchor-pill" style=&#34;color:#10213E; background:rgba(16,33,62,0.08); border-color:#B7C2D5;&#34;>分仓有货率</span>
+                                
+                            </div>
+                            
+                            <div class="io-rule">
+                                
+                                <div class="io-item"><span class="io-tag">输入</span><span class="io-val">现货 · 在途 · 本月已出库 · 销售计划</span></div>
+                                
+                                
+                                <div class="io-item"><span class="io-tag">输出</span><span class="io-val">各仓生产备货率</span></div>
+                                
+                            </div>
+                            <div class="rule-type">规则依据：决策模型类·备货率分配规则</div>
+                            
+                            <div class="exception" style=&#34;border-left:2px solid #5DB2E2;&#34;>
+                                <span class="ex-tag">异常</span><span class="ex-val">备货率异常 → 拉人</span>
+                            </div>
+                            
+                        </div>
+                        
+                        <div class="task-card" style=&#34;border-left-color:#5DB2E2;&#34;>
+                            <div class="task-top">
+                                <span class="actor-badge" style=&#34;background:rgba(93,178,226,0.10); border-color:#9BD0EC;&#34; title="Agent">🤖</span>
+                                <span class="task-title">计算目标备货率</span>
+                                <span class="hitl-pill" style=&#34;color:#64748B; background:rgba(100,116,139,0.10); border-color:#CBD5E1;&#34;>HITL 低</span>
+                            </div>
+                            <div class="task-desc">Agent 依据订单完成率计算目标备货率</div>
+                            
+                            <div class="anchor-row">
+                                
+                                <span class="anchor-pill" style=&#34;color:#10213E; background:rgba(16,33,62,0.08); border-color:#B7C2D5;&#34;>分仓有货率</span>
+                                
+                            </div>
+                            
+                            <div class="io-rule">
+                                
+                                <div class="io-item"><span class="io-tag">输入</span><span class="io-val">订单完成率 · 旬度标准进度</span></div>
+                                
+                                
+                                <div class="io-item"><span class="io-tag">输出</span><span class="io-val">各仓目标备货率</span></div>
+                                
+                            </div>
+                            <div class="rule-type">规则依据：决策模型类·备货率分配规则</div>
+                            
+                            <div class="exception" style=&#34;border-left:2px solid #5DB2E2;&#34;>
+                                <span class="ex-tag">异常</span><span class="ex-val">订单进度超限 → 拉人</span>
+                            </div>
+                            
+                        </div>
+                        
+                        <div class="task-card" style=&#34;border-left-color:#5DB2E2;&#34;>
+                            <div class="task-top">
+                                <span class="actor-badge" style=&#34;background:rgba(93,178,226,0.10); border-color:#9BD0EC;&#34; title="Agent">🤖</span>
+                                <span class="task-title">计算建议补货量</span>
+                                <span class="hitl-pill" style=&#34;color:#64748B; background:rgba(100,116,139,0.10); border-color:#CBD5E1;&#34;>HITL 低</span>
+                            </div>
+                            <div class="task-desc">Agent 计算建议补货量并核对京慧</div>
+                            
+                            <div class="anchor-row">
+                                
+                                <span class="anchor-pill" style=&#34;color:#00524C; background:rgba(0,82,76,0.10); border-color:#7FB6B0;&#34;>分货效率</span>
+                                
+                            </div>
+                            
+                            <div class="io-rule">
+                                
+                                <div class="io-item"><span class="io-tag">输入</span><span class="io-val">目标库存口径 · 当前口径库存</span></div>
+                                
+                                
+                                <div class="io-item"><span class="io-tag">输出</span><span class="io-val">建议补货量</span></div>
+                                
+                            </div>
+                            <div class="rule-type">规则依据：决策模型类·分配量调整经验</div>
+                            
+                            <div class="exception" style=&#34;border-left:2px solid #5DB2E2;&#34;>
+                                <span class="ex-tag">异常</span><span class="ex-val">建议量偏离京慧 → 拉人</span>
+                            </div>
+                            
+                        </div>
+                        
+                        <div class="task-card" style=&#34;border-left-color:#5DB2E2;&#34;>
+                            <div class="task-top">
+                                <span class="actor-badge" style=&#34;background:rgba(93,178,226,0.10); border-color:#9BD0EC;&#34; title="Agent">🤖</span>
+                                <span class="task-title">选择发货仓</span>
+                                <span class="hitl-pill" style=&#34;color:#64748B; background:rgba(100,116,139,0.10); border-color:#CBD5E1;&#34;>HITL 低</span>
+                            </div>
+                            <div class="task-desc">Agent 依据可发量与时效选择发货仓</div>
+                            
+                            <div class="anchor-row">
+                                
+                                <span class="anchor-pill" style=&#34;color:#00524C; background:rgba(0,82,76,0.10); border-color:#7FB6B0;&#34;>分货效率</span>
+                                
+                            </div>
+                            
+                            <div class="io-rule">
+                                
+                                <div class="io-item"><span class="io-tag">输入</span><span class="io-val">基地仓可发量 · 运输时效 · 距离</span></div>
+                                
+                                
+                                <div class="io-item"><span class="io-tag">输出</span><span class="io-val">推荐发货仓</span></div>
+                                
+                            </div>
+                            <div class="rule-type">规则依据：决策模型类·分配量调整经验</div>
+                            
+                            <div class="exception" style=&#34;border-left:2px solid #5DB2E2;&#34;>
+                                <span class="ex-tag">异常</span><span class="ex-val">可发量不足 → 拉人</span>
+                            </div>
+                            
+                        </div>
+                        
+                        <div class="task-card" style=&#34;border-left-color:#5DB2E2;&#34;>
+                            <div class="task-top">
+                                <span class="actor-badge" style=&#34;background:rgba(93,178,226,0.10); border-color:#9BD0EC;&#34; title="Agent">🤖</span>
+                                <span class="task-title">生成多版分配方案</span>
+                                <span class="hitl-pill" style=&#34;color:#64748B; background:rgba(100,116,139,0.10); border-color:#CBD5E1;&#34;>HITL 低</span>
+                            </div>
+                            <div class="task-desc">生成多版分配方案并纳入备货充足度管控</div>
+                            
+                            <div class="anchor-row">
+                                
+                                <span class="anchor-pill" style=&#34;color:#625D9C; background:rgba(98,93,156,0.10); border-color:#C3C0E4;&#34;>库存周转</span>
+                                
+                            </div>
+                            
+                            <div class="io-rule">
+                                
+                                <div class="io-item"><span class="io-tag">输入</span><span class="io-val">分配量 · 各仓约束</span></div>
+                                
+                                
+                                <div class="io-item"><span class="io-tag">输出</span><span class="io-val">多版分配方案</span></div>
+                                
+                            </div>
+                            <div class="rule-type">规则依据：模版范例类·分货方案模版</div>
+                            
+                            <div class="exception" style=&#34;border-left:2px solid #5DB2E2;&#34;>
+                                <span class="ex-tag">异常</span><span class="ex-val">约束冲突无法求解 → 拉人</span>
+                            </div>
+                            
+                        </div>
+                        
+                        <div class="task-card" style=&#34;border-left-color:#5DB2E2;&#34;>
+                            <div class="task-top">
+                                <span class="actor-badge" style=&#34;background:rgba(93,178,226,0.10); border-color:#9BD0EC;&#34; title="Agent">🤖</span>
+                                <span class="task-title">生成备选方案对比</span>
+                                <span class="hitl-pill" style=&#34;color:#64748B; background:rgba(100,116,139,0.10); border-color:#CBD5E1;&#34;>HITL 低</span>
+                            </div>
+                            <div class="task-desc">生成备选方案对比供审阅</div>
+                            
+                            <div class="anchor-row">
+                                
+                                <span class="anchor-pill" style=&#34;color:#10213E; background:rgba(16,33,62,0.08); border-color:#B7C2D5;&#34;>分仓有货率</span>
+                                
+                            </div>
+                            
+                            <div class="io-rule">
+                                
+                                <div class="io-item"><span class="io-tag">输入</span><span class="io-val">仓网距离 · 物流预警 · 安全水位</span></div>
+                                
+                                
+                                <div class="io-item"><span class="io-tag">输出</span><span class="io-val">备选方案对比表</span></div>
+                                
+                            </div>
+                            <div class="rule-type">规则依据：决策模型类·分配量调整经验</div>
+                            
+                            <div class="exception" style=&#34;border-left:2px solid #5DB2E2;&#34;>
+                                <span class="ex-tag">异常</span><span class="ex-val">物流预警数据缺失 → 降级提示</span>
+                            </div>
+                            
+                        </div>
+                        
+                    </div>
+                    
+                    
+                    <div class="phase-cell">
+                        
+                        <div class="task-card" style=&#34;border-left-color:#5DB2E2;&#34;>
+                            <div class="task-top">
+                                <span class="actor-badge" style=&#34;background:rgba(93,178,226,0.10); border-color:#9BD0EC;&#34; title="Agent">🤖</span>
+                                <span class="task-title">生成标准化补货单</span>
+                                <span class="hitl-pill" style=&#34;color:#64748B; background:rgba(100,116,139,0.10); border-color:#CBD5E1;&#34;>HITL 低</span>
+                            </div>
+                            <div class="task-desc">按模板生成标准化补货单</div>
+                            
+                            <div class="anchor-row">
+                                
+                                <span class="anchor-pill" style=&#34;color:#00524C; background:rgba(0,82,76,0.10); border-color:#7FB6B0;&#34;>分货效率</span>
+                                
+                            </div>
+                            
+                            <div class="io-rule">
+                                
+                                <div class="io-item"><span class="io-tag">输入</span><span class="io-val">确认的分配方案</span></div>
+                                
+                                
+                                <div class="io-item"><span class="io-tag">输出</span><span class="io-val">标准化补货单</span></div>
+                                
+                            </div>
+                            <div class="rule-type">规则依据：模版范例类·补货单模版</div>
+                            
+                            <div class="exception" style=&#34;border-left:2px solid #5DB2E2;&#34;>
+                                <span class="ex-tag">异常</span><span class="ex-val">—</span>
+                            </div>
+                            
+                        </div>
+                        
+                        <div class="task-card" style=&#34;border-left-color:#5DB2E2;&#34;>
+                            <div class="task-top">
+                                <span class="actor-badge" style=&#34;background:rgba(93,178,226,0.10); border-color:#9BD0EC;&#34; title="Agent">🤖</span>
+                                <span class="task-title">校验补货单字段</span>
+                                <span class="hitl-pill" style=&#34;color:#B45309; background:rgba(245,158,11,0.10); border-color:#FCD34D;&#34;>HITL 中</span>
+                            </div>
+                            <div class="task-desc">Agent 校验字段完整性合规性</div>
+                            
+                            <div class="anchor-row">
+                                
+                                <span class="anchor-pill" style=&#34;color:#00524C; background:rgba(0,82,76,0.10); border-color:#7FB6B0;&#34;>分货效率</span>
+                                
+                            </div>
+                            
+                            <div class="io-rule">
+                                
+                                <div class="io-item"><span class="io-tag">输入</span><span class="io-val">补货单 · SKU · 收发仓</span></div>
+                                
+                                
+                                <div class="io-item"><span class="io-tag">输出</span><span class="io-val">校验结果</span></div>
+                                
+                            </div>
+                            <div class="rule-type">规则依据：决策模型类·补货单校验规则</div>
+                            
+                            <div class="exception" style=&#34;border-left:2px solid #5DB2E2;&#34;>
+                                <span class="ex-tag">异常</span><span class="ex-val">库存不足/时效超期/字段缺失 → 拉人</span>
+                            </div>
+                            
+                        </div>
+                        
+                        <div class="task-card" style=&#34;border-left-color:#F59E0B;&#34;>
+                            <div class="task-top">
+                                <span class="actor-badge" style=&#34;background:rgba(245,158,11,0.10); border-color:#FCD34D;&#34; title="人工">👤</span>
+                                <span class="task-title">补货单异常处理</span>
+                                <span class="hitl-pill" style=&#34;color:#B45309; background:rgba(245,158,11,0.10); border-color:#FCD34D;&#34;>HITL 中</span>
+                            </div>
+                            <div class="task-desc">人工处理字段异常与需求变更</div>
+                            
+                            <div class="anchor-row">
+                                
+                                <span class="anchor-pill" style=&#34;color:#00524C; background:rgba(0,82,76,0.10); border-color:#7FB6B0;&#34;>分货效率</span>
+                                
+                            </div>
+                            
+                            <div class="io-rule">
+                                
+                                <div class="io-item"><span class="io-tag">输入</span><span class="io-val">校验异常项</span></div>
+                                
+                                
+                                <div class="io-item"><span class="io-tag">输出</span><span class="io-val">修正后的补货单</span></div>
+                                
+                            </div>
+                            <div class="rule-type">规则依据：决策模型类·补货单校验规则</div>
+                            
+                            <div class="exception" style=&#34;border-left:2px solid #F59E0B;&#34;>
+                                <span class="ex-tag">异常</span><span class="ex-val">需求变更 → 拉人</span>
+                            </div>
+                            
+                        </div>
+                        
+                        <div class="task-card" style=&#34;border-left-color:#625D9C;&#34;>
+                            <div class="task-top">
+                                <span class="actor-badge" style=&#34;background:rgba(98,93,156,0.10); border-color:#B6B2DE;&#34; title="混合">🤝</span>
+                                <span class="task-title">下发补货单</span>
+                                <span class="hitl-pill" style=&#34;color:#B91C1C; background:rgba(239,68,68,0.10); border-color:#FCA5A5;&#34;>HITL 必停</span>
+                            </div>
+                            <div class="task-desc">对外下发补货单，强制人工确认放行</div>
+                            
+                            <div class="anchor-row">
+                                
+                                <span class="anchor-pill" style=&#34;color:#00524C; background:rgba(0,82,76,0.10); border-color:#7FB6B0;&#34;>分货效率</span>
+                                
+                            </div>
+                            
+                            <div class="io-rule">
+                                
+                                <div class="io-item"><span class="io-tag">输入</span><span class="io-val">校验通过的补货单</span></div>
+                                
+                                
+                                <div class="io-item"><span class="io-tag">输出</span><span class="io-val">下发记录</span></div>
+                                
+                            </div>
+                            <div class="rule-type">规则依据：决策模型类·补货单校验规则</div>
+                            
+                            <div class="exception" style=&#34;border-left:2px solid #625D9C;&#34;>
+                                <span class="ex-tag">异常</span><span class="ex-val">对外下发 → 必停确认</span>
+                            </div>
+                            
+                        </div>
+                        
+                    </div>
+                    
+                    
+                    <div class="phase-cell">
+                        
+                    </div>
+                    
+                    
+                    <div class="phase-cell">
+                        
+                    </div>
+                    
+                </div>
+                
+                
+                <div class="swim-row">
+                    <div class="lane-head">
+                        <span class="lane-name">供应链履单</span>
+                        <span class="lane-group">履单跟踪</span>
+                        <span class="lane-desc">在途/入库/监控/复盘</span>
+                    </div>
+                    
+                    
+                    <div class="phase-cell">
+                        
+                    </div>
+                    
+                    
+                    <div class="phase-cell">
+                        
+                    </div>
+                    
+                    
+                    <div class="phase-cell">
+                        
+                    </div>
+                    
+                    
+                    <div class="phase-cell">
+                        
+                        <div class="task-card" style=&#34;border-left-color:#5DB2E2;&#34;>
+                            <div class="task-top">
+                                <span class="actor-badge" style=&#34;background:rgba(93,178,226,0.10); border-color:#9BD0EC;&#34; title="Agent">🤖</span>
+                                <span class="task-title">抓取在途定位并判定预警</span>
+                                <span class="hitl-pill" style=&#34;color:#B45309; background:rgba(245,158,11,0.10); border-color:#FCD34D;&#34;>HITL 中</span>
+                            </div>
+                            <div class="task-desc">AI 抓取 TMS 在途定位，判定延迟并预警</div>
+                            
+                            <div class="anchor-row">
+                                
+                                <span class="anchor-pill" style=&#34;color:#1B6EA8; background:rgba(93,178,226,0.10); border-color:#9BD0EC;&#34;>物流时效</span>
+                                
+                            </div>
+                            
+                            <div class="io-rule">
+                                
+                                <div class="io-item"><span class="io-tag">输入</span><span class="io-val">车辆定位 · 运输状态 · 预计到货</span></div>
+                                
+                                
+                                <div class="io-item"><span class="io-tag">输出</span><span class="io-val">在途台账 · 延误预警</span></div>
+                                
+                            </div>
+                            <div class="rule-type">规则依据：关联关系类·基地仓-销售仓-产品-SKU-渠道关联</div>
+                            
+                            <div class="exception" style=&#34;border-left:2px solid #5DB2E2;&#34;>
+                                <span class="ex-tag">异常</span><span class="ex-val">延误≧24h/48h → 拉人</span>
+                            </div>
+                            
+                        </div>
+                        
+                        <div class="task-card" style=&#34;border-left-color:#5DB2E2;&#34;>
+                            <div class="task-top">
+                                <span class="actor-badge" style=&#34;background:rgba(93,178,226,0.10); border-color:#9BD0EC;&#34; title="Agent">🤖</span>
+                                <span class="task-title">核对入库实收与差异</span>
+                                <span class="hitl-pill" style=&#34;color:#B45309; background:rgba(245,158,11,0.10); border-color:#FCD34D;&#34;>HITL 中</span>
+                            </div>
+                            <div class="task-desc">AI 同步 WMS 入库，核对实收与调拨差异</div>
+                            
+                            <div class="anchor-row">
+                                
+                                <span class="anchor-pill" style=&#34;color:#625D9C; background:rgba(98,93,156,0.10); border-color:#C3C0E4;&#34;>库存周转</span>
+                                
+                            </div>
+                            
+                            <div class="io-rule">
+                                
+                                <div class="io-item"><span class="io-tag">输入</span><span class="io-val">WMS入库验收 · 调拨数量</span></div>
+                                
+                                
+                                <div class="io-item"><span class="io-tag">输出</span><span class="io-val">差异记录</span></div>
+                                
+                            </div>
+                            <div class="rule-type">规则依据：决策模型类·入库差异判定规则</div>
+                            
+                            <div class="exception" style=&#34;border-left:2px solid #5DB2E2;&#34;>
+                                <span class="ex-tag">异常</span><span class="ex-val">差异率&gt;0.5% → 拉人</span>
+                            </div>
+                            
+                        </div>
+                        
+                        <div class="task-card" style=&#34;border-left-color:#5DB2E2;&#34;>
+                            <div class="task-top">
+                                <span class="actor-badge" style=&#34;background:rgba(93,178,226,0.10); border-color:#9BD0EC;&#34; title="Agent">🤖</span>
+                                <span class="task-title">同步库存指标</span>
+                                <span class="hitl-pill" style=&#34;color:#64748B; background:rgba(100,116,139,0.10); border-color:#CBD5E1;&#34;>HITL 低</span>
+                            </div>
+                            <div class="task-desc">同步入库后库存指标至各系统</div>
+                            
+                            <div class="anchor-row">
+                                
+                                <span class="anchor-pill" style=&#34;color:#625D9C; background:rgba(98,93,156,0.10); border-color:#C3C0E4;&#34;>库存周转</span>
+                                
+                            </div>
+                            
+                            <div class="io-rule">
+                                
+                                <div class="io-item"><span class="io-tag">输入</span><span class="io-val">实收数量 · 可发量 · 库存天数</span></div>
+                                
+                                
+                                <div class="io-item"><span class="io-tag">输出</span><span class="io-val">更新的库存指标</span></div>
+                                
+                            </div>
+                            <div class="rule-type">规则依据：术语字典类·待检/合格/可发量/DOS口径</div>
+                            
+                            <div class="exception" style=&#34;border-left:2px solid #5DB2E2;&#34;>
+                                <span class="ex-tag">异常</span><span class="ex-val">同步失败 → 重试/拉人</span>
+                            </div>
+                            
+                        </div>
+                        
+                    </div>
+                    
+                    
+                    <div class="phase-cell">
+                        
+                        <div class="task-card" style=&#34;border-left-color:#5DB2E2;&#34;>
+                            <div class="task-top">
+                                <span class="actor-badge" style=&#34;background:rgba(93,178,226,0.10); border-color:#9BD0EC;&#34; title="Agent">🤖</span>
+                                <span class="task-title">计算库存天数</span>
+                                <span class="hitl-pill" style=&#34;color:#64748B; background:rgba(100,116,139,0.10); border-color:#CBD5E1;&#34;>HITL 低</span>
+                            </div>
+                            <div class="task-desc">Agent 定期计算各仓库存天数</div>
+                            
+                            <div class="anchor-row">
+                                
+                                <span class="anchor-pill" style=&#34;color:#625D9C; background:rgba(98,93,156,0.10); border-color:#C3C0E4;&#34;>库存周转</span>
+                                
+                            </div>
+                            
+                            <div class="io-rule">
+                                
+                                <div class="io-item"><span class="io-tag">输入</span><span class="io-val">各仓库存 · 日均需求</span></div>
+                                
+                                
+                                <div class="io-item"><span class="io-tag">输出</span><span class="io-val">各仓库存天数</span></div>
+                                
+                            </div>
+                            <div class="rule-type">规则依据：决策模型类·安全水位设置经验</div>
+                            
+                            <div class="exception" style=&#34;border-left:2px solid #5DB2E2;&#34;>
+                                <span class="ex-tag">异常</span><span class="ex-val">—</span>
+                            </div>
+                            
+                        </div>
+                        
+                        <div class="task-card" style=&#34;border-left-color:#625D9C;&#34;>
+                            <div class="task-top">
+                                <span class="actor-badge" style=&#34;background:rgba(98,93,156,0.10); border-color:#B6B2DE;&#34; title="混合">🤝</span>
+                                <span class="task-title">设置安全水位</span>
+                                <span class="hitl-pill" style=&#34;color:#B91C1C; background:rgba(239,68,68,0.10); border-color:#FCA5A5;&#34;>HITL 必停</span>
+                            </div>
+                            <div class="task-desc">人机协同设置各仓安全水位并审批</div>
+                            
+                            <div class="anchor-row">
+                                
+                                <span class="anchor-pill" style=&#34;color:#625D9C; background:rgba(98,93,156,0.10); border-color:#C3C0E4;&#34;>库存周转</span>
+                                
+                            </div>
+                            
+                            <div class="io-rule">
+                                
+                                <div class="io-item"><span class="io-tag">输入</span><span class="io-val">库存天数 · 渠道差异</span></div>
+                                
+                                
+                                <div class="io-item"><span class="io-tag">输出</span><span class="io-val">各仓安全水位</span></div>
+                                
+                            </div>
+                            <div class="rule-type">规则依据：决策模型类·安全水位设置经验</div>
+                            
+                            <div class="exception" style=&#34;border-left:2px solid #625D9C;&#34;>
+                                <span class="ex-tag">异常</span><span class="ex-val">安全水位调整 → 审批</span>
+                            </div>
+                            
+                        </div>
+                        
+                        <div class="task-card" style=&#34;border-left-color:#5DB2E2;&#34;>
+                            <div class="task-top">
+                                <span class="actor-badge" style=&#34;background:rgba(93,178,226,0.10); border-color:#9BD0EC;&#34; title="Agent">🤖</span>
+                                <span class="task-title">巡检大日期库存</span>
+                                <span class="hitl-pill" style=&#34;color:#B45309; background:rgba(245,158,11,0.10); border-color:#FCD34D;&#34;>HITL 中</span>
+                            </div>
+                            <div class="task-desc">AI 监控大日期库存，生成临期预警</div>
+                            
+                            <div class="anchor-row">
+                                
+                                <span class="anchor-pill" style=&#34;color:#B45309; background:rgba(245,158,11,0.10); border-color:#FCD34D;&#34;>新鲜度</span>
+                                
+                            </div>
+                            
+                            <div class="io-rule">
+                                
+                                <div class="io-item"><span class="io-tag">输入</span><span class="io-val">大日期库存 · 效期</span></div>
+                                
+                                
+                                <div class="io-item"><span class="io-tag">输出</span><span class="io-val">临期预警</span></div>
+                                
+                            </div>
+                            <div class="rule-type">规则依据：决策模型类·安全水位设置经验</div>
+                            
+                            <div class="exception" style=&#34;border-left:2px solid #5DB2E2;&#34;>
+                                <span class="ex-tag">异常</span><span class="ex-val">临期风险 → 拉人</span>
+                            </div>
+                            
+                        </div>
+                        
+                        <div class="task-card" style=&#34;border-left-color:#5DB2E2;&#34;>
+                            <div class="task-top">
+                                <span class="actor-badge" style=&#34;background:rgba(93,178,226,0.10); border-color:#9BD0EC;&#34; title="Agent">🤖</span>
+                                <span class="task-title">统计复盘指标并生成调参建议</span>
+                                <span class="hitl-pill" style=&#34;color:#64748B; background:rgba(100,116,139,0.10); border-color:#CBD5E1;&#34;>HITL 低</span>
+                            </div>
+                            <div class="task-desc">统计复盘指标并给出调参建议</div>
+                            
+                            <div class="anchor-row">
+                                
+                                <span class="anchor-pill" style=&#34;color:#00524C; background:rgba(0,82,76,0.10); border-color:#7FB6B0;&#34;>分货效率</span>
+                                
+                            </div>
+                            
+                            <div class="io-rule">
+                                
+                                <div class="io-item"><span class="io-tag">输入</span><span class="io-val">时效达成率 · 缺货缓解率 · 周转率</span></div>
+                                
+                                
+                                <div class="io-item"><span class="io-tag">输出</span><span class="io-val">复盘报告 · 调参建议</span></div>
+                                
+                            </div>
+                            <div class="rule-type">规则依据：决策模型类·复盘调参经验</div>
+                            
+                            <div class="exception" style=&#34;border-left:2px solid #5DB2E2;&#34;>
+                                <span class="ex-tag">异常</span><span class="ex-val">指标异常恶化 → 拉人</span>
+                            </div>
+                            
+                        </div>
+                        
+                        <div class="task-card" style=&#34;border-left-color:#F59E0B;&#34;>
+                            <div class="task-top">
+                                <span class="actor-badge" style=&#34;background:rgba(245,158,11,0.10); border-color:#FCD34D;&#34; title="人工">👤</span>
+                                <span class="task-title">审批参数迭代</span>
+                                <span class="hitl-pill" style=&#34;color:#B91C1C; background:rgba(239,68,68,0.10); border-color:#FCA5A5;&#34;>HITL 必停</span>
+                            </div>
+                            <div class="task-desc">人工审批并迭代关键参数</div>
+                            
+                            <div class="anchor-row">
+                                
+                                <span class="anchor-pill" style=&#34;color:#00524C; background:rgba(0,82,76,0.10); border-color:#7FB6B0;&#34;>分货效率</span>
+                                
+                            </div>
+                            
+                            <div class="io-rule">
+                                
+                                <div class="io-item"><span class="io-tag">输入</span><span class="io-val">调参建议</span></div>
+                                
+                                
+                                <div class="io-item"><span class="io-tag">输出</span><span class="io-val">更新后的参数</span></div>
+                                
+                            </div>
+                            <div class="rule-type">规则依据：决策模型类·复盘调参经验</div>
+                            
+                            <div class="exception" style=&#34;border-left:2px solid #F59E0B;&#34;>
+                                <span class="ex-tag">异常</span><span class="ex-val">监控多轮迭代 → 拉人</span>
+                            </div>
+                            
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+                
+            </div>
+        </div>
+
+        <!-- ===== Footer Notes ===== -->
+        <div class="notes-panel">
+            
+            <div class="notes-col">
+                <h3>🔹 流程说明</h3>
+                <ul><li>主链路 P1→P2→P3→P4→P5，分货方案编制为全场景 PO（HITL 核心确认点）</li><li>决策类规则（决策模型类）在 P2/P3/P4/P5 高度密集，印证高经验痛点集中在「算多少、选哪仓、怎么判」</li><li>数据准备 P1 密集依赖「关键信息提取要点」与「术语字典类」，对应系统孤岛 / 数据经 Excel 传递的痛点</li><li>人工职责核心在台账下发、缺货审核与参数迭代；AI 覆盖绝大部分计算、监控与校验</li><li>大日期库存监控的规则依据暂挂「安全水位设置经验」作为最近邻承接，待 SRP 二轮验证后改判</li></ul>
+            </div>
+            
+            
+            <div class="notes-col">
+                <h3>📥 输入依据</h3>
+                <ul><li>SRP《01场景定义画布》（现状流程全景/To-Be用户旅程）</li><li>SRP《02数据与知识资产盘点》（知识资产清单/数据实体清单）</li><li>客户素材《OSL场景信息采集表》《奶粉分仓补货数据库表字段》</li></ul>
+            </div>
+            
+            
+            <div class="notes-col">
+                <h3>🔁 需求返回节点</h3>
+                <ul><li>需求发起/需求/订单/缺货 → 数据组/分货数据底表</li><li>分货/分货市场确定/分货 → 复盘点/出库复盘/备货端</li><li>调度/履约 → 数据组/TMS·WMS 入库验收</li></ul>
+            </div>
+            
+        </div>
+    </main>
+
+    <!-- Raw YAML Data (Hidden) -->
+    <script type="application/yaml" id="raw-yaml">
+# =============================================================================
+# 示例产物 · 伊利奶粉事业部 · 分仓智能补货 To-be 流程
+# 依据：SKP《任务流程挖掘清单：分仓智能补货》改造为泳道式 To-be 流程 YAML
+# 结构：列=L3 业务环节(P1..P5) × 行=角色泳道(L1..L5)，格内为 L5 深度任务
+# =============================================================================
+
+meta:
+  title: "伊利奶粉事业部 · 分仓智能补货 To-be 流程"
+  version: "v1.0"
+  date: "2026-08-16"
+  scenarioName: "分仓智能补货"
+  businessStage: "SKP 阶段1 任务流程挖掘 · 步骤1.1"
+  methodology: "SKP 阶段1方法（业务环节 L3 → 主要活动 L4 → 深度任务 L5）"
+  inputs:
+    - "SRP《01场景定义画布》（现状流程全景/To-Be用户旅程）"
+    - "SRP《02数据与知识资产盘点》（知识资产清单/数据实体清单）"
+    - "客户素材《OSL场景信息采集表》《奶粉分仓补货数据库表字段》"
+  sourceRef: "伊利分仓补货数据库表字段"
+  kpi:
+    - "分货效率"
+    - "分仓有货率"
+    - "库存周转率"
+    - "新鲜度"
+    - "物流时效"
+
+legend:
+  execution:
+    - { type: "agent",  label: "Agent=AI 自动执行", icon: "🤖" }
+    - { type: "human",  label: "人工=人工执行",     icon: "👤" }
+    - { type: "hybrid", label: "混合=人机协同",     icon: "🤝" }
+  hitlFocus:
+    - { level: "low",    label: "低 · 人机介入",      desc: "全自动，无人工介入" }
+    - { level: "medium", label: "中 · 人机交错/审核", desc: "AI 产出，人工抽检/确认" }
+    - { level: "high",   label: "高 · 人机终审",      desc: "人类担任最终裁决" }
+    - { level: "gate",   label: "必停确认",           desc: "对外动作，强制人工放行" }
+  flowConventions:
+    - "角色泳道 任务泳道内转"
+    - "流程走向 任务正常后回填 AI"
+  valueAnchors:
+    - "分货效率"
+    - "分仓有货率"
+    - "库存周转"
+    - "新鲜度"
+    - "物流时效"
+
+phases:
+  - { id: "P1", order: 1, name: "货源评估", fullName: "货源评估与分货数据准备", description: "汇总供需视图，识别缺口，准备分货底表" }
+  - { id: "P2", order: 2, name: "分货方案", fullName: "分货方案编制",           description: "计算备货率/分配量，编制多版与备选方案" }
+  - { id: "P3", order: 3, name: "分货单",   fullName: "补货单生成与下发",       description: "生成/校验标准补货单并对外下发" }
+  - { id: "P4", order: 4, name: "执行跟踪", fullName: "执行跟踪与入库同步",     description: "在途监控、入库验收与库存同步" }
+  - { id: "P5", order: 5, name: "库存监控", fullName: "库存监控与效果复盘",     description: "库存天数/安全水位/临期监控与效果复盘" }
+
+lanes:
+  - { id: "customer",   order: 1, name: "客户外部",     group: "客户/外部", description: "需求方与外部销量输入源" }
+  - { id: "plan",       order: 2, name: "计划采购计划部", group: "分货计划", description: "计划与需求测算" }
+  - { id: "data",       order: 3, name: "数据助理",     group: "数据准备", description: "数据抓取/校验/底表" }
+  - { id: "allocation", order: 4, name: "分货评估组",   group: "分货评估", description: "方案编制/补货单/异常处理" }
+  - { id: "delivery",   order: 5, name: "供应链履单",   group: "履单跟踪", description: "在途/入库/监控/复盘" }
+
+tasks:
+  # ===== P1 · 货源评估与分货数据准备 =====
+  - { id: "t01", order: 1, phaseId: "P1", laneId: "customer",
+      name: "分仓销量计划输入", actor: "hybrid",
+      inputs: ["京东 AI 计划销量转化", "销售计划"], outputs: ["分仓销量需求口径"],
+      ruleType: "关键信息提取要点·分货数据关键字段识别",
+      valueAnchors: ["分货效率"], hitlFocus: "low",
+      exception: "销量口径缺失 → 拉人",
+      description: "接收外部销量计划并转化为分仓需求口径" }
+
+  - { id: "t02", order: 2, phaseId: "P1", laneId: "plan",
+      name: "上传销量/促销计划", actor: "human",
+      inputs: ["促销计划", "历史销量"], outputs: ["分货需求得分"],
+      ruleType: "关键信息提取要点·分货数据关键字段识别",
+      valueAnchors: ["分货效率"], hitlFocus: "low",
+      exception: "历史数据缺失 → 拉人",
+      description: "人工导入促销与销量计划，作为分货输入" }
+
+  - { id: "t03", order: 3, phaseId: "P1", laneId: "data",
+      name: "汇总全国可分配库存与在途", actor: "agent",
+      inputs: ["现货库存", "在途库存", "销售计划", "未发订单"], outputs: ["全国供需视图"],
+      ruleType: "关键信息提取要点·分货数据关键字段识别",
+      valueAnchors: ["分货效率"], hitlFocus: "low",
+      exception: "数据缺失/口径异常 → 拉人",
+      description: "Agent 拉取全量库存，形成全国供需视图" }
+
+  - { id: "t04", order: 4, phaseId: "P1", laneId: "data",
+      name: "计算各仓库存天数", actor: "agent",
+      inputs: ["各仓库存", "在途", "日均销售计划"], outputs: ["各仓库存天数"],
+      ruleType: "术语字典类·待检/合格/可发量/DOS口径",
+      valueAnchors: ["分仓有货率"], hitlFocus: "low",
+      exception: "口径异常 → 拉人",
+      description: "Agent 按 DOS 口径计算各仓库存天数" }
+
+  - { id: "t05", order: 5, phaseId: "P1", laneId: "data",
+      name: "判定缺口等级", actor: "agent",
+      inputs: ["各仓库存天数", "未来14天需求"], outputs: ["缺口告警清单(红/黄/蓝)"],
+      ruleType: "决策模型类·缺口分级规则",
+      valueAnchors: ["分仓有货率"], hitlFocus: "low",
+      exception: "阈值边界冲突 → 拉人",
+      description: "Agent 识别缺口并生成红/黄/蓝告警" }
+
+  - { id: "t06", order: 6, phaseId: "P1", laneId: "data",
+      name: "复核缺口清单", actor: "human",
+      inputs: ["缺口告警清单"], outputs: ["确认的缺口口径"],
+      ruleType: "决策模型类·缺口分级规则",
+      valueAnchors: ["分仓有货率"], hitlFocus: "medium",
+      exception: "分歧项 → 拉人",
+      description: "人工复核缺口告警，确认分级口径" }
+
+  - { id: "t07", order: 7, phaseId: "P1", laneId: "data",
+      name: "汇总分货数据底表", actor: "agent",
+      inputs: ["待检", "合格", "在途", "库存"], outputs: ["分货数据底表"],
+      ruleType: "关键信息提取要点·分货数据关键字段识别",
+      valueAnchors: ["分货效率"], hitlFocus: "low",
+      exception: "字段缺失 → 拉人",
+      description: "Agent 汇总四类数据生成分货底表" }
+
+  - { id: "t08", order: 8, phaseId: "P1", laneId: "data",
+      name: "校验底表口径完整性", actor: "hybrid",
+      inputs: ["分货数据底表"], outputs: ["校验通过的底表"],
+      ruleType: "术语字典类·待检/合格/可发量/DOS口径",
+      valueAnchors: ["分货效率"], hitlFocus: "medium",
+      exception: "口径不一致 → 拉人",
+      description: "人机协同校验底表口径，确保字段一致" }
+
+  # ===== P2 · 分货方案编制 =====
+  - { id: "t09", order: 9, phaseId: "P2", laneId: "allocation",
+      name: "计算各仓备货率", actor: "agent",
+      inputs: ["现货", "在途", "本月已出库", "销售计划"], outputs: ["各仓生产备货率"],
+      ruleType: "决策模型类·备货率分配规则",
+      valueAnchors: ["分仓有货率"], hitlFocus: "low",
+      exception: "备货率异常 → 拉人",
+      description: "Agent 逐仓计算生产备货率" }
+
+  - { id: "t10", order: 10, phaseId: "P2", laneId: "allocation",
+      name: "计算目标备货率", actor: "agent",
+      inputs: ["订单完成率", "旬度标准进度"], outputs: ["各仓目标备货率"],
+      ruleType: "决策模型类·备货率分配规则",
+      valueAnchors: ["分仓有货率"], hitlFocus: "low",
+      exception: "订单进度超限 → 拉人",
+      description: "Agent 依据订单完成率计算目标备货率" }
+
+  - { id: "t11", order: 11, phaseId: "P2", laneId: "allocation",
+      name: "计算建议补货量", actor: "agent",
+      inputs: ["目标库存口径", "当前口径库存"], outputs: ["建议补货量"],
+      ruleType: "决策模型类·分配量调整经验",
+      valueAnchors: ["分货效率"], hitlFocus: "low",
+      exception: "建议量偏离京慧 → 拉人",
+      description: "Agent 计算建议补货量并核对京慧" }
+
+  - { id: "t12", order: 12, phaseId: "P2", laneId: "allocation",
+      name: "选择发货仓", actor: "agent",
+      inputs: ["基地仓可发量", "运输时效", "距离"], outputs: ["推荐发货仓"],
+      ruleType: "决策模型类·分配量调整经验",
+      valueAnchors: ["分货效率"], hitlFocus: "low",
+      exception: "可发量不足 → 拉人",
+      description: "Agent 依据可发量与时效选择发货仓" }
+
+  - { id: "t13", order: 13, phaseId: "P2", laneId: "allocation",
+      name: "生成多版分配方案", actor: "agent",
+      inputs: ["分配量", "各仓约束"], outputs: ["多版分配方案"],
+      ruleType: "模版范例类·分货方案模版",
+      valueAnchors: ["库存周转"], hitlFocus: "low",
+      exception: "约束冲突无法求解 → 拉人",
+      description: "生成多版分配方案并纳入备货充足度管控" }
+
+  - { id: "t14", order: 14, phaseId: "P2", laneId: "allocation",
+      name: "生成备选方案对比", actor: "agent",
+      inputs: ["仓网距离", "物流预警", "安全水位"], outputs: ["备选方案对比表"],
+      ruleType: "决策模型类·分配量调整经验",
+      valueAnchors: ["分仓有货率"], hitlFocus: "low",
+      exception: "物流预警数据缺失 → 降级提示",
+      description: "生成备选方案对比供审阅" }
+
+  # ===== P3 · 补货单生成与下发 =====
+  - { id: "t15", order: 15, phaseId: "P3", laneId: "allocation",
+      name: "生成标准化补货单", actor: "agent",
+      inputs: ["确认的分配方案"], outputs: ["标准化补货单"],
+      ruleType: "模版范例类·补货单模版",
+      valueAnchors: ["分货效率"], hitlFocus: "low",
+      exception: "—",
+      description: "按模板生成标准化补货单" }
+
+  - { id: "t16", order: 16, phaseId: "P3", laneId: "allocation",
+      name: "校验补货单字段", actor: "agent",
+      inputs: ["补货单", "SKU", "收发仓"], outputs: ["校验结果"],
+      ruleType: "决策模型类·补货单校验规则",
+      valueAnchors: ["分货效率"], hitlFocus: "medium",
+      exception: "库存不足/时效超期/字段缺失 → 拉人",
+      description: "Agent 校验字段完整性合规性" }
+
+  - { id: "t17", order: 17, phaseId: "P3", laneId: "allocation",
+      name: "补货单异常处理", actor: "human",
+      inputs: ["校验异常项"], outputs: ["修正后的补货单"],
+      ruleType: "决策模型类·补货单校验规则",
+      valueAnchors: ["分货效率"], hitlFocus: "medium",
+      exception: "需求变更 → 拉人",
+      description: "人工处理字段异常与需求变更" }
+
+  - { id: "t18", order: 18, phaseId: "P3", laneId: "allocation",
+      name: "下发补货单", actor: "hybrid",
+      inputs: ["校验通过的补货单"], outputs: ["下发记录"],
+      ruleType: "决策模型类·补货单校验规则",
+      valueAnchors: ["分货效率"], hitlFocus: "gate",
+      exception: "对外下发 → 必停确认",
+      description: "对外下发补货单，强制人工确认放行" }
+
+  # ===== P4 · 执行跟踪与入库同步 =====
+  - { id: "t19", order: 19, phaseId: "P4", laneId: "delivery",
+      name: "抓取在途定位并判定预警", actor: "agent",
+      inputs: ["车辆定位", "运输状态", "预计到货"], outputs: ["在途台账", "延误预警"],
+      ruleType: "关联关系类·基地仓-销售仓-产品-SKU-渠道关联",
+      valueAnchors: ["物流时效"], hitlFocus: "medium",
+      exception: "延误≧24h/48h → 拉人",
+      description: "AI 抓取 TMS 在途定位，判定延迟并预警" }
+
+  - { id: "t20", order: 20, phaseId: "P4", laneId: "delivery",
+      name: "核对入库实收与差异", actor: "agent",
+      inputs: ["WMS入库验收", "调拨数量"], outputs: ["差异记录"],
+      ruleType: "决策模型类·入库差异判定规则",
+      valueAnchors: ["库存周转"], hitlFocus: "medium",
+      exception: "差异率>0.5% → 拉人",
+      description: "AI 同步 WMS 入库，核对实收与调拨差异" }
+
+  - { id: "t21", order: 21, phaseId: "P4", laneId: "delivery",
+      name: "同步库存指标", actor: "agent",
+      inputs: ["实收数量", "可发量", "库存天数"], outputs: ["更新的库存指标"],
+      ruleType: "术语字典类·待检/合格/可发量/DOS口径",
+      valueAnchors: ["库存周转"], hitlFocus: "low",
+      exception: "同步失败 → 重试/拉人",
+      description: "同步入库后库存指标至各系统" }
+
+  # ===== P5 · 库存监控与效果复盘 =====
+  - { id: "t22", order: 22, phaseId: "P5", laneId: "delivery",
+      name: "计算库存天数", actor: "agent",
+      inputs: ["各仓库存", "日均需求"], outputs: ["各仓库存天数"],
+      ruleType: "决策模型类·安全水位设置经验",
+      valueAnchors: ["库存周转"], hitlFocus: "low",
+      exception: "—",
+      description: "Agent 定期计算各仓库存天数" }
+
+  - { id: "t23", order: 23, phaseId: "P5", laneId: "delivery",
+      name: "设置安全水位", actor: "hybrid",
+      inputs: ["库存天数", "渠道差异"], outputs: ["各仓安全水位"],
+      ruleType: "决策模型类·安全水位设置经验",
+      valueAnchors: ["库存周转"], hitlFocus: "gate",
+      exception: "安全水位调整 → 审批",
+      description: "人机协同设置各仓安全水位并审批" }
+
+  - { id: "t24", order: 24, phaseId: "P5", laneId: "delivery",
+      name: "巡检大日期库存", actor: "agent",
+      inputs: ["大日期库存", "效期"], outputs: ["临期预警"],
+      ruleType: "决策模型类·安全水位设置经验",
+      valueAnchors: ["新鲜度"], hitlFocus: "medium",
+      exception: "临期风险 → 拉人",
+      description: "AI 监控大日期库存，生成临期预警" }
+
+  - { id: "t25", order: 25, phaseId: "P5", laneId: "delivery",
+      name: "统计复盘指标并生成调参建议", actor: "agent",
+      inputs: ["时效达成率", "缺货缓解率", "周转率"], outputs: ["复盘报告", "调参建议"],
+      ruleType: "决策模型类·复盘调参经验",
+      valueAnchors: ["分货效率"], hitlFocus: "low",
+      exception: "指标异常恶化 → 拉人",
+      description: "统计复盘指标并给出调参建议" }
+
+  - { id: "t26", order: 26, phaseId: "P5", laneId: "delivery",
+      name: "审批参数迭代", actor: "human",
+      inputs: ["调参建议"], outputs: ["更新后的参数"],
+      ruleType: "决策模型类·复盘调参经验",
+      valueAnchors: ["分货效率"], hitlFocus: "gate",
+      exception: "监控多轮迭代 → 拉人",
+      description: "人工审批并迭代关键参数" }
+
+flowNotes:
+  - "主链路 P1→P2→P3→P4→P5，分货方案编制为全场景 PO（HITL 核心确认点）"
+  - "决策类规则（决策模型类）在 P2/P3/P4/P5 高度密集，印证高经验痛点集中在「算多少、选哪仓、怎么判」"
+  - "数据准备 P1 密集依赖「关键信息提取要点」与「术语字典类」，对应系统孤岛 / 数据经 Excel 传递的痛点"
+  - "人工职责核心在台账下发、缺货审核与参数迭代；AI 覆盖绝大部分计算、监控与校验"
+  - "大日期库存监控的规则依据暂挂「安全水位设置经验」作为最近邻承接，待 SRP 二轮验证后改判"
+
+returnNodes:
+  - "需求发起/需求/订单/缺货 → 数据组/分货数据底表"
+  - "分货/分货市场确定/分货 → 复盘点/出库复盘/备货端"
+  - "调度/履约 → 数据组/TMS·WMS 入库验收"
+
+    </script>
+
+    <script>
+        function copyYAML() {
+            const yamlContent = document.getElementById('raw-yaml').textContent.trim();
+            navigator.clipboard.writeText(yamlContent).then(() => {
+                const btn = document.getElementById('copyYamlBtn');
+                const originalHtml = btn.innerHTML;
+                btn.innerHTML = '✓ 已复制';
+                setTimeout(() => { btn.innerHTML = originalHtml; }, 1600);
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+                alert('复制失败，请手动复制。');
+            });
+        }
+    </script>
+</body>
+</html>

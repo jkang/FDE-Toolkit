@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>铁路订票服务-业务现状调研</title>
+  <script type="application/yaml" id="frontmatter">---
+title: "铁路订票服务｜Phase 1 业务现状调研"
+business: "铁路订票服务（官方渠道）"
+scope: "订票→出行→后续服务全流程"
+generated_at: "2026-07-14"
+---</script>
+  <style>
+    :root{
+      --bg:#f5f5f6;--card:#ffffff;--text:#10213E;--muted:#64748B;--border:#E2E8F0;
+      --accent:#5DB2E2;--danger:#EF4444;--ok:#00524C;
+      --font:"MiSans",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans SC","PingFang SC",Arial,sans-serif;
+    }
+    body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font);padding:56px 28px;}
+    .wrap{max-width:1100px;margin:0 auto;}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:10px;box-shadow:0 2px 8px rgba(16,33,62,.08);padding:28px;}
+    h1{margin:0 0 12px 0;font-size:22px;line-height:1.25;}
+    h2{margin:26px 0 10px 0;font-size:16px;line-height:1.25;}
+    p,li{font-size:14px;line-height:1.7;color:var(--text);}
+    .muted{color:var(--muted);}
+    .top{display:flex;gap:16px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;}
+    .btn{background:var(--text);color:#fff;border:none;border-radius:8px;padding:8px 12px;font-size:13px;font-weight:700;cursor:pointer}
+    .btn:hover{opacity:.85}
+    .kpi{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:16px}
+    .kpi .box{border:1px solid var(--border);border-radius:10px;padding:14px;background:#fff}
+    .kpi .v{font-size:18px;font-weight:800}
+    .kpi .k{font-size:12px;color:var(--muted);margin-top:4px}
+    .tag{display:inline-flex;align-items:center;border-radius:999px;border:1px solid var(--border);padding:2px 10px;font-size:12px;color:var(--muted);background:#fff}
+    pre{background:#0b1220;color:#e5e7eb;padding:14px;border-radius:10px;overflow:auto;font-size:12px;line-height:1.6}
+    a{color:var(--accent);text-decoration:none}
+    a:hover{text-decoration:underline}
+    .toast{position:fixed;right:18px;bottom:18px;background:var(--ok);color:#fff;padding:10px 14px;border-radius:10px;font-size:13px;font-weight:700;display:none}
+    @media (max-width:900px){.kpi{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <div class="top">
+        <div>
+          <div class="tag">Official Channel · End-to-End</div>
+          <h1>铁路订票服务｜Phase 1 业务现状调研</h1>
+          <div class="muted">覆盖：订票→出行→后续服务全流程｜生成时间：2026-07-14</div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:center">
+          <button class="btn" onclick="copyYAML()">复制结构化 YAML</button>
+        </div>
+      </div>
+
+      <div class="kpi">
+        <div class="box">
+          <div class="v">40.85 亿</div>
+          <div class="k">2024 国家铁路旅客发送量（公开披露）</div>
+        </div>
+        <div class="box">
+          <div class="v">80%+ / 85.3%</div>
+          <div class="k">线上/网售占比（公开披露的不同口径）</div>
+        </div>
+        <div class="box">
+          <div class="v">票务 + 出行生态</div>
+          <div class="k">订餐 / 约车 / 托运 / 旅游 / 重点旅客 等</div>
+        </div>
+      </div>
+
+      <h2>事实来源</h2>
+      <ul>
+        <li><a href="https://wap.china-railway.com.cn/xwzx/zhxw/202503/t20250305_143296.html" target="_blank" rel="noreferrer">国铁集团《2024年统计公报》</a></li>
+        <li><a href="http://m.chinanews.com/wap/detail/chs/sp/8989684.shtml" target="_blank" rel="noreferrer">记者会：网上售票比例超过 80%</a>；<a href="http://www.chinanews.com/gn/2019/12-20/9038877.shtml" target="_blank" rel="noreferrer">春运：12306 网售占比 85.3%</a></li>
+        <li><a href="https://www.12306.cn/index/" target="_blank" rel="noreferrer">官网能力入口聚合（订餐/重点旅客/遗失物品/约车/托运/旅游/保险等）</a></li>
+        <li><a href="https://www.samr.gov.cn/fldys/sjdt/gzdt/art/2026/art_c49189fc7bc94f8cbdb87a85bb2facb4.html" target="_blank" rel="noreferrer">市场监管总局：约谈第三方平台（候补帮抢/付费选座/隐私）</a></li>
+        <li><a href="https://kyfw.12306.cn/otn/gonggao/privacyPolicy_web.html" target="_blank" rel="noreferrer">隐私政策</a>；<a href="https://kyfw.12306.cn/otn/gonggao/sdkService_other.html" target="_blank" rel="noreferrer">第三方 SDK 披露</a></li>
+      </ul>
+
+      <h2>关键旅程（订票→出行→后续服务）</h2>
+      <ol>
+        <li>意图形成 → 查询与筛选 → 方案决策</li>
+        <li>实名与规则校验 → 下单与支付 → 出票与凭证</li>
+        <li>出行前服务：改签退票 / 候补兑现 / 订餐 / 约车 / 重点旅客</li>
+        <li>站内/乘车：检票核验、运行变更处置</li>
+        <li>出行后服务：售后、遗失物品、投诉与客服</li>
+      </ol>
+
+      <h2>系统难点（含推断）</h2>
+      <ul>
+        <li>峰值并发 + 公平性要求：高峰的关键指标不是日常吞吐，而是“可解释的排队与一致规则”</li>
+        <li>规则复杂：票种/优惠/改签退票/候补/运行变更等造成高失败成本</li>
+        <li>合规与隐私：最小必要、明示同意、第三方 SDK 信息披露</li>
+        <li>反爬与异常流量：对高频刷票等异常行为的识别与限速/拒绝</li>
+      </ul>
+
+      <h2>结构化 YAML</h2>
+      <pre id="yamlBlock"></pre>
+    </div>
+  </div>
+
+  <div class="toast" id="toast">已复制</div>
+
+  <script>
+    const yamlText = `title: "铁路订票服务｜Phase 1 业务现状调研"
+business: "铁路订票服务（官方渠道）"
+scope: "订票→出行→后续服务全流程"
+generated_at: "2026-07-14"
+facts:
+  rail_passenger_volume_2024:
+    value: "40.85"
+    unit: "亿人次"
+  online_ticketing_share:
+    value: "80%+ / 85.3%"
+    unit: "占比"
+north_star_candidates:
+  - name: "月度有效出行人次"
+    definition: "出票成功且完成核验的出行人次（若可获取核验事件）"
+  - name: "月度有效出行订单数"
+    definition: "出票成功且未在发车前退票的订单数（缺核验事件时可用）"`;
+
+    document.getElementById("yamlBlock").textContent = yamlText;
+
+    async function copyYAML() {
+      try {
+        await navigator.clipboard.writeText(yamlText);
+        showToast();
+      } catch (e) {
+        const ta = document.createElement("textarea");
+        ta.value = yamlText;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand("copy");
+        ta.remove();
+        showToast();
+      }
+    }
+
+    function showToast() {
+      const t = document.getElementById("toast");
+      t.style.display = "block";
+      setTimeout(() => t.style.display = "none", 1200);
+    }
+  </script>
+</body>
+</html>
+

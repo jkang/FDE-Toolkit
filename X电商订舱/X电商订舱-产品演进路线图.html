@@ -1,0 +1,1344 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>X 电商订舱业务产品演进路线图（2026-2027） - Roadmap | Inspire</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      /* Inspire Design System Tokens (Standard Light Mode) */
+      --color-primary: #10213E;      /* Starry Blues */
+      --color-accent: #5DB2E2;       /* Creative Blue */
+      --color-secondary: #625D9C;    /* Amethyst */
+      --color-success: #00524C;      /* Myrtle Deep Green */
+      --color-info: #6FB1C8;         /* Cerulean Frost */
+      --color-warning: #F59E0B;      /* Warning */
+      --color-destructive: #EF4444;  /* Danger */
+      --color-background: #FFFFFF;   /* Pure White */
+      --color-bg-alt: #F5F5F6;       /* Tech Gray */
+      --color-foreground: #10213E;   /* Primary Text */
+      --color-text-muted: #64748B;   /* Text Secondary */
+      --color-border: #E2E8F0;       /* Border/Line */
+      
+      --shadow-sm: 0 2px 8px rgba(16, 33, 62, 0.08);
+      --shadow-md: 0 10px 15px -3px rgba(16, 33, 62, 0.1);
+      --radius-sm: 4px;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+      --font-family: 'MiSans', 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --transition: 0.15s ease-out;
+    }
+
+    /* Reset & Base */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--font-family);
+      background-color: var(--color-bg-alt);
+      color: var(--color-foreground);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ===== Page Container ===== */
+    .page-wrap {
+      background: var(--color-background);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-md);
+      padding: 40px;
+      width: 85%;
+      margin: 48px auto;
+      overflow: hidden;
+      border: 1px solid var(--color-border);
+      min-height: calc(100vh - 96px);
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Standardized Header */
+    .page-header {
+      margin-bottom: 40px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--color-border);
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+
+    .header-left {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .page-header h1 {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--color-primary);
+      line-height: 1.2;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .page-header h1::before {
+      content: "";
+      display: block;
+      width: 4px;
+      height: 24px;
+      background: var(--color-accent);
+      border-radius: 2px;
+    }
+
+    .page-subtitle {
+      font-size: 16px;
+      color: var(--color-text-muted);
+      font-weight: 500;
+      padding-left: 16px;
+    }
+
+    .header-right {
+      text-align: right;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .meta-info {
+      font-size: 12px;
+      color: var(--color-text-muted);
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 12px;
+      margin-top: 8px;
+      justify-content: flex-end;
+    }
+
+    .btn-primary {
+      background: var(--color-primary);
+      color: white;
+      padding: 10px 20px;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+    .btn-primary:hover { opacity: 0.85; transform: translateY(-1px); }
+
+    .btn-secondary {
+      background: white;
+      color: var(--color-primary);
+      border: 1px solid var(--color-border);
+      padding: 10px 20px;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+    .btn-secondary:hover { background: var(--color-bg-alt); }
+
+    /* Main Viewport */
+    .viewport {
+      padding: 0;
+      overflow-x: auto;
+      flex: 1;
+    }
+
+    /* Phases Layout */
+    .phases-row {
+      display: flex;
+      gap: 32px;
+      padding-bottom: 32px;
+      align-items: flex-start;
+    }
+
+    .phase-column {
+      flex: 1;
+      min-width: 360px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    /* Phase Header Box */
+    .ph-header {
+      background: var(--color-background);
+      border-radius: var(--radius-md);
+      padding: 32px 24px;
+      text-align: center;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--color-border);
+      position: relative;
+      overflow: hidden;
+      transition: var(--transition);
+    }
+    .ph-header:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
+    
+    .ph-header::before {
+      content: "";
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 6px;
+      background: var(--color-accent);
+    }
+
+    .ph-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--color-primary);
+      margin-bottom: 12px;
+    }
+
+    .ph-desc {
+      font-size: 14px;
+      color: var(--color-text-muted);
+      line-height: 1.6;
+    }
+
+    .ph-time {
+      display: inline-block;
+      font-size: 13px;
+      padding: 6px 20px;
+      border-radius: 999px;
+      margin-top: 20px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      box-shadow: var(--shadow-sm);
+      background-color: var(--ph-tag-bg, var(--color-bg-alt));
+      color: var(--ph-tag-text, var(--color-primary));
+    }
+
+    /* Blocks */
+    .block-card {
+      background: var(--color-background);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--color-border);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: var(--transition);
+    }
+    .block-card:hover { box-shadow: var(--shadow-md); }
+
+    .block-header {
+      padding: 14px 20px;
+      background: var(--color-bg-alt);
+      border-bottom: 1px solid var(--color-border);
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--color-primary);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .block-header svg { color: var(--color-accent); }
+    .block-header.top-border { border-top: 1px solid var(--color-border); }
+    .block-content { padding: 20px; }
+
+    /* Objective Rows */
+    .obj-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 12px;
+      border-radius: var(--radius-sm);
+      transition: var(--transition);
+      margin-bottom: 6px;
+    }
+    .obj-row:hover { background: var(--color-bg-alt); }
+
+    .obj-badge {
+      font-size: 11px;
+      padding: 4px 10px;
+      border-radius: 4px;
+      background: var(--color-primary);
+      color: #fff;
+      flex-shrink: 0;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .obj-text {
+      font-size: 14px;
+      color: var(--color-foreground);
+      line-height: 1.6;
+    }
+
+    .empty-state {
+      font-size: 13px;
+      font-style: italic;
+      color: var(--color-text-muted);
+      text-align: center;
+      padding: 16px 0;
+    }
+
+    /* Metric Rows */
+    .metric-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 12px;
+      border-radius: var(--radius-sm);
+      transition: var(--transition);
+      margin-bottom: 4px;
+    }
+    .metric-row:hover { background: var(--color-bg-alt); }
+
+    .metric-name {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--color-foreground);
+    }
+
+    .metric-target {
+      font-size: 12px;
+      padding: 4px 12px;
+      background: #F0F9FF;
+      border: 1px solid var(--color-info);
+      color: var(--color-primary);
+      border-radius: 4px;
+      font-weight: 700;
+    }
+
+    /* Initiative Items */
+    .init-group {
+      border-bottom: 1px solid var(--color-border);
+      padding-bottom: 20px;
+      margin-bottom: 20px;
+    }
+    .init-group:last-child { border-bottom: none; padding-bottom: 0; margin-bottom: 0; }
+
+    .init-title-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .init-cat {
+      font-size: 11px;
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      background-color: var(--cat-bg, var(--color-bg-alt));
+      color: var(--cat-text, var(--color-primary));
+    }
+
+    .init-name {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--color-primary);
+    }
+
+    .init-desc {
+      font-size: 14px;
+      color: var(--color-text-muted);
+      margin-bottom: 16px;
+      line-height: 1.6;
+    }
+
+    .init-bullets {
+      list-style-type: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .init-bullet {
+      font-size: 14px;
+      color: var(--color-foreground);
+      padding: 10px 14px;
+      background: var(--color-bg-alt);
+      border-radius: var(--radius-sm);
+      line-height: 1.5;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-left: 3px solid var(--color-accent);
+    }
+    .init-bullet:hover { background: #E2E8F0; }
+
+    .footer { 
+      text-align: center; 
+      font-size: 13px; 
+      color: var(--color-text-muted); 
+      padding: 48px 0; 
+      border-top: 1px solid var(--color-border); 
+      margin-top: 40px;
+      background: var(--color-background);
+    }
+
+    .toast {
+      position: fixed; bottom: 32px; right: 32px;
+      background: var(--color-success); color: white;
+      padding: 14px 28px; border-radius: 8px;
+      font-size: 14px; font-weight: 600;
+      display: none; z-index: 1000;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+
+    /* Strategic Overview Bar */
+    .strategy-bar {
+      background: linear-gradient(135deg, #1B2B47 0%, #4A9FD8 100%);
+      color: #fff;
+      border-radius: var(--radius-md);
+      padding: 20px 28px;
+      margin-bottom: 36px;
+      display: flex;
+      gap: 20px;
+      align-items: flex-start;
+      box-shadow: var(--shadow-md);
+    }
+    .strategy-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--color-accent);
+      white-space: nowrap;
+      padding-top: 3px;
+      flex-shrink: 0;
+    }
+    .strategy-desc {
+      font-size: 14px;
+      line-height: 1.7;
+      color: rgba(255,255,255,0.94);
+    }
+
+    .icon { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+    
+    @media print {
+      .page-header, .btn-group { display: none !important; }
+      body { background: white; }
+      .page-wrap { width: 100%; margin: 0; border: none; box-shadow: none; }
+    }
+  </style>
+</head>
+<body>
+  
+  <div class="page-wrap">
+    <header class="page-header">
+      <div class="header-left">
+        <h1><svg class="icon" style="width: 28px; height: 28px; color: var(--color-accent);" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+          X 电商订舱业务产品演进路线图（2026-2027）</h1>
+      </div>
+      <div class="header-right">
+        <div class="btn-group">
+          <button class="btn-secondary" onclick="window.print()">导出 PDF / 打印</button>
+          <button class="btn-primary" onclick="copyYAML()">复制原始 YAML</button>
+        </div>
+      </div>
+    </header>
+
+    
+    <div class="strategy-bar">
+      <div class="strategy-label">战略概述</div>
+      <div class="strategy-desc">北极星：电商订舱渗透率 25%[推断] → 12 个月 35-40%[推断]。沿「基建与速赢 → 规模化渗透 → 智能供应链与生态」三阶段演进，对齐策略优先级 P0（FreightSmart 升级 + 无代理化直客能力）→ P1（AI 深化 + 绿色增值商业化）→ P2（渠道平衡与 ROI 稳健经营），并按 AI 场景 Top 10 优先级落地。来源标注：〔P3〕= phase3_strategy_derivation.md；〔矩阵〕= X电商订舱-AI场景优先级矩阵.yaml；〔P1〕= phase1_business_research.md；〔P2〕= phase2_swot_analysis.md。</div>
+    </div>
+    
+
+    <div class="viewport">
+      <main class="phases-row">
+        
+        <section class="phase-column">
+          
+          <div class="ph-header">
+            <h3 class="ph-title">Phase 0 基建与速赢</h3>
+            <p class="ph-desc">2026 H2 · 体验底座 + 速赢：矩阵 Quick Wins 第一梯队（AI 自动认证、首单预填、智能补件、分钟级自动确认）上线，确立 KPI 基线与口径，为规模化渗透铺路〔矩阵〕。</p>
+            
+            <div class="ph-time" style=&#34;--ph-tag-bg: #dcfce7; --ph-tag-text: #166534&#34;>
+              2026 H2
+            </div>
+            
+          </div>
+
+          <div class="block-card">
+            <div class="block-header">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+              阶段目标
+            </div>
+            <div class="block-content">
+              
+                
+                <div class="obj-row">
+                  <span class="obj-badge">产品体验</span>
+                  <span class="obj-text">新一代询价界面 + 微信小程序全链路打通，SME 首访到首单全程提速〔P1〕</span>
+                </div>
+                
+                <div class="obj-row">
+                  <span class="obj-badge">效率</span>
+                  <span class="obj-text">分钟级自动确认规则扩围，平均确认时效向 ≤4 小时收敛（KPI 3）〔P3〕</span>
+                </div>
+                
+                <div class="obj-row">
+                  <span class="obj-badge">增长</span>
+                  <span class="obj-text">电商订舱量年化 240 万 TEU、FreightSmart 活跃客户 3 万（6 个月目标）〔P3〕</span>
+                </div>
+                
+              
+            </div>
+
+            <div class="block-header top-border">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20V10M18 20V4M6 20V16"/></svg>
+              核心指标
+            </div>
+            <div class="block-content">
+              
+                
+                <div class="metric-row">
+                  <span class="metric-name">电商渠道订舱量（年化）〔P3〕</span>
+                  
+                  <span class="metric-target">240 万 TEU</span>
+                  
+                </div>
+                
+                <div class="metric-row">
+                  <span class="metric-name">在线订舱确认时效〔P3〕</span>
+                  
+                  <span class="metric-target">平均 ≤4 小时</span>
+                  
+                </div>
+                
+                <div class="metric-row">
+                  <span class="metric-name">FreightSmart 活跃客户〔P3〕</span>
+                  
+                  <span class="metric-target">3 万</span>
+                  
+                </div>
+                
+                <div class="metric-row">
+                  <span class="metric-name">AI 服务分流率〔P3〕</span>
+                  
+                  <span class="metric-target">25%</span>
+                  
+                </div>
+                
+                <div class="metric-row">
+                  <span class="metric-name">企业认证时效〔矩阵〕</span>
+                  
+                  <span class="metric-target">3 工作日 → 分钟级</span>
+                  
+                </div>
+                
+              
+            </div>
+          </div>
+
+          <div class="block-card">
+            <div class="block-header">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+              关键举措
+            </div>
+            <div class="block-content">
+              
+                
+                <div class="init-group">
+                  <div class="init-title-row">
+                    
+                    <span class="init-cat" style=&#34;--cat-bg: #dbeafe; --cat-text: #1e40af&#34;>
+                      产品功能
+                    </span>
+                    
+                    <span class="init-name">FreightSmart 平台升级</span>
+                  </div>
+                  
+                  <p class="init-desc">承接 2026 平台规划：新一代询价界面、智能数据整合、个性化推荐〔P1〕</p>
+                  
+                  
+                  <ul class="init-bullets">
+                    
+                    <li class="init-bullet">新一代一站式询价界面升级</li>
+                    
+                    <li class="init-bullet">微信小程序全渠道功能补齐</li>
+                    
+                    <li class="init-bullet">Smart Push 个性化推荐深化</li>
+                    
+                  </ul>
+                </div>
+                
+                <div class="init-group">
+                  <div class="init-title-row">
+                    
+                    <span class="init-cat" style=&#34;--cat-bg: #f3e8ff; --cat-text: #6b21a8&#34;>
+                      AI 技术
+                    </span>
+                    
+                    <span class="init-name">速赢场景集中上线</span>
+                  </div>
+                  
+                  <p class="init-desc">矩阵 Quick Wins（高收益/低成本）第一梯队：集中获客与订舱环节〔矩阵〕</p>
+                  
+                  
+                  <ul class="init-bullets">
+                    
+                    <li class="init-bullet">AI 自动认证审核（分钟级开户）</li>
+                    
+                    <li class="init-bullet">首单智能预填（单据 OCR 预填）</li>
+                    
+                    <li class="init-bullet">智能补件检查（提交前校验）</li>
+                    
+                    <li class="init-bullet">分钟级自动确认（规则扩围）</li>
+                    
+                  </ul>
+                </div>
+                
+                <div class="init-group">
+                  <div class="init-title-row">
+                    
+                    <span class="init-cat" style=&#34;--cat-bg: #ffedd5; --cat-text: #9a3412&#34;>
+                      运营获客
+                    </span>
+                    
+                    <span class="init-name">SME 分层获客启动</span>
+                  </div>
+                  
+                  <p class="init-desc">PlumSmart 分层运营 + E-Spot 闪促 + 承接南美新市场〔P1〕</p>
+                  
+                  
+                  <ul class="init-bullets">
+                    
+                    <li class="init-bullet">PlumSmart 会员分层运营上线</li>
+                    
+                    <li class="init-bullet">E-Spot 闪购常态化与控投</li>
+                    
+                    <li class="init-bullet">南美（巴西/秘鲁）本地化获客</li>
+                    
+                  </ul>
+                </div>
+                
+                <div class="init-group">
+                  <div class="init-title-row">
+                    
+                    <span class="init-cat" style=&#34;--cat-bg: #f3e8ff; --cat-text: #6b21a8&#34;>
+                      技术基建
+                    </span>
+                    
+                    <span class="init-name">数据基线与规则引擎</span>
+                  </div>
+                  
+                  <p class="init-desc">为 KPI 8 成本口径与后续 AI 模型打地基〔P3〕</p>
+                  
+                  
+                  <ul class="init-bullets">
+                    
+                    <li class="init-bullet">KPI 口径与基线数据看板</li>
+                    
+                    <li class="init-bullet">订舱校验规则引擎扩围（&gt;200 条）</li>
+                    
+                    <li class="init-bullet">客户行为事件埋点启动</li>
+                    
+                  </ul>
+                </div>
+                
+                <div class="init-group">
+                  <div class="init-title-row">
+                    
+                    <span class="init-cat" style=&#34;--cat-bg: #f3f4f6; --cat-text: #1f2937&#34;>
+                      合规风控
+                    </span>
+                    
+                    <span class="init-name">合规底座先行</span>
+                  </div>
+                  
+                  <p class="init-desc">跨境数据合规 + 算法可解释性框架启动〔P3〕</p>
+                  
+                  
+                  <ul class="init-bullets">
+                    
+                    <li class="init-bullet">跨境数据合规评估（含母集团边界）</li>
+                    
+                    <li class="init-bullet">算法可解释性框架设计</li>
+                    
+                  </ul>
+                </div>
+                
+              
+            </div>
+          </div>
+
+        </section>
+        
+        <section class="phase-column">
+          
+          <div class="ph-header">
+            <h3 class="ph-title">Phase 1 规模化渗透</h3>
+            <p class="ph-desc">2027 H1 · 渗透率攻坚：P0 双策略（FreightSmart 规模化获客 + 无代理化自助直客）与 AI Big Bets（智能订舱 Agent、全航线智能报价、智能舱位预测分配）落地，直客化与 SME 规模化并进〔P3〕〔矩阵〕。</p>
+            
+            <div class="ph-time" style=&#34;--ph-tag-bg: #fef9c3; --ph-tag-text: #854d0e&#34;>
+              2027 H1
+            </div>
+            
+          </div>
+
+          <div class="block-card">
+            <div class="block-header">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+              阶段目标
+            </div>
+            <div class="block-content">
+              
+                
+                <div class="obj-row">
+                  <span class="obj-badge">增长</span>
+                  <span class="obj-text">电商订舱渗透率 35%+[推断]、FreightSmart 活跃客户 5 万+、直客占比向 30% 爬坡〔P3〕</span>
+                </div>
+                
+                <div class="obj-row">
+                  <span class="obj-badge">效率</span>
+                  <span class="obj-text">平均确认时效 ≤2 小时，分钟级自动确认规模化覆盖（KPI 3）〔P3〕</span>
+                </div>
+                
+                <div class="obj-row">
+                  <span class="obj-badge">质量</span>
+                  <span class="obj-text">E-Spot 舱位保证 SLA 化，兑现率 95%+（KPI 5）〔P3〕</span>
+                </div>
+                
+              
+            </div>
+
+            <div class="block-header top-border">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20V10M18 20V4M6 20V16"/></svg>
+              核心指标
+            </div>
+            <div class="block-content">
+              
+                
+                <div class="metric-row">
+                  <span class="metric-name">电商订舱渗透率〔P3〕</span>
+                  
+                  <span class="metric-target">35%+ [推断]</span>
+                  
+                </div>
+                
+                <div class="metric-row">
+                  <span class="metric-name">电商渠道订舱量（年化）〔P3〕</span>
+                  
+                  <span class="metric-target">300 万 TEU</span>
+                  
+                </div>
+                
+                <div class="metric-row">
+                  <span class="metric-name">在线订舱确认时效〔P3〕</span>
+                  
+                  <span class="metric-target">平均 ≤2 小时</span>
+                  
+                </div>
+                
+                <div class="metric-row">
+                  <span class="metric-name">直客订单占比〔P3〕</span>
+                  
+                  <span class="metric-target">30%+</span>
+                  
+                </div>
+                
+                <div class="metric-row">
+                  <span class="metric-name">舱位保证兑现率〔P3〕</span>
+                  
+                  <span class="metric-target">95%+</span>
+                  
+                </div>
+                
+              
+            </div>
+          </div>
+
+          <div class="block-card">
+            <div class="block-header">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+              关键举措
+            </div>
+            <div class="block-content">
+              
+                
+                <div class="init-group">
+                  <div class="init-title-row">
+                    
+                    <span class="init-cat" style=&#34;--cat-bg: #dbeafe; --cat-text: #1e40af&#34;>
+                      产品功能
+                    </span>
+                    
+                    <span class="init-name">无代理化自助直客能力</span>
+                  </div>
+                  
+                  <p class="init-desc">P0 策略：API/ERP 集成订舱 + E-Spot SLA + 直客 CRM 数据资产〔P3〕</p>
+                  
+                  
+                  <ul class="init-bullets">
+                    
+                    <li class="init-bullet">API/EDI 集成订舱通道上线</li>
+                    
+                    <li class="init-bullet">E-Spot 舱位保证升级 SLA</li>
+                    
+                    <li class="init-bullet">直客 CRM 与数据资产建设</li>
+                    
+                  </ul>
+                </div>
+                
+                <div class="init-group">
+                  <div class="init-title-row">
+                    
+                    <span class="init-cat" style=&#34;--cat-bg: #f3e8ff; --cat-text: #6b21a8&#34;>
+                      AI 技术
+                    </span>
+                    
+                    <span class="init-name">AI Big Bets 攻坚</span>
+                  </div>
+                  
+                  <p class="init-desc">矩阵第二梯队（高收益/高成本）：渗透率核心引擎，12 个月兑现 ROI〔矩阵〕</p>
+                  
+                  
+                  <ul class="init-bullets">
+                    
+                    <li class="init-bullet">全航线智能报价（指数+成交价）</li>
+                    
+                    <li class="init-bullet">个性化报价推荐升级</li>
+                    
+                    <li class="init-bullet">智能订舱 Agent（Ask Fin 可执行）</li>
+                    
+                    <li class="init-bullet">智能舱位预测与分配（兑现率约束）</li>
+                    
+                  </ul>
+                </div>
+                
+                <div class="init-group">
+                  <div class="init-title-row">
+                    
+                    <span class="init-cat" style=&#34;--cat-bg: #f3e8ff; --cat-text: #6b21a8&#34;>
+                      AI 技术
+                    </span>
+                    
+                    <span class="init-name">跟踪预警类型攻坚</span>
+                  </div>
+                  
+                  <p class="init-desc">矩阵类型优先级第一（avg 7.73）：控制塔预警启动〔矩阵〕</p>
+                  
+                  
+                  <ul class="init-bullets">
+                    
+                    <li class="init-bullet">多源轨迹融合（船司/码头/AIS）</li>
+                    
+                    <li class="init-bullet">AI 预测性预警初版（ETA 延误预测）</li>
+                    
+                    <li class="init-bullet">智能改配与补偿方案预研</li>
+                    
+                  </ul>
+                </div>
+                
+                <div class="init-group">
+                  <div class="init-title-row">
+                    
+                    <span class="init-cat" style=&#34;--cat-bg: #ffedd5; --cat-text: #9a3412&#34;>
+                      运营获客
+                    </span>
+                    
+                    <span class="init-name">SME 规模化获客</span>
+                  </div>
+                  
+                  <p class="init-desc">会员分层运营 + 区域化智能营销双轮驱动〔P3〕〔P1〕</p>
+                  
+                  
+                  <ul class="init-bullets">
+                    
+                    <li class="init-bullet">PlumSmart 分层权益与升级路径</li>
+                    
+                    <li class="init-bullet">区域化智能营销（多语言触达）</li>
+                    
+                    <li class="init-bullet">货代转介绍与协同获客</li>
+                    
+                  </ul>
+                </div>
+                
+                <div class="init-group">
+                  <div class="init-title-row">
+                    
+                    <span class="init-cat" style=&#34;--cat-bg: #dcfce7; --cat-text: #166534&#34;>
+                      增长市场
+                    </span>
+                    
+                    <span class="init-name">渠道平衡机制</span>
+                  </div>
+                  
+                  <p class="init-desc">直客化与货代利益平衡，规避 T4 渠道冲突〔P2〕〔P3〕</p>
+                  
+                  
+                  <ul class="init-bullets">
+                    
+                    <li class="init-bullet">货代协同数字化工具</li>
+                    
+                    <li class="init-bullet">直客转化节奏与分成设计</li>
+                    
+                  </ul>
+                </div>
+                
+                <div class="init-group">
+                  <div class="init-title-row">
+                    
+                    <span class="init-cat" style=&#34;--cat-bg: #f3e8ff; --cat-text: #6b21a8&#34;>
+                      技术基建
+                    </span>
+                    
+                    <span class="init-name">运价与舱位模型底座</span>
+                  </div>
+                  
+                  <p class="init-desc">动态定价与舱位分配的数据管道〔CKD 映射〕</p>
+                  
+                  
+                  <ul class="init-bullets">
+                    
+                    <li class="init-bullet">SCFI/CCFI 指数接入与特征库</li>
+                    
+                    <li class="init-bullet">历史成交价库统一建模</li>
+                    
+                  </ul>
+                </div>
+                
+              
+            </div>
+          </div>
+
+        </section>
+        
+        <section class="phase-column">
+          
+          <div class="ph-header">
+            <h3 class="ph-title">Phase 2 智能供应链与生态</h3>
+            <p class="ph-desc">2027 H2 · 智能供应链闭环 + 绿色数字化增值商业化：控制塔 AI 预测性预警、多源轨迹融合、IQAX One + eBL 无纸化闭环、X Green / EU ETS 合规数字产品变现，兑现 ROI 与 40%[推断] 渗透率〔P3〕。</p>
+            
+            <div class="ph-time" style=&#34;--ph-tag-bg: #f3e8ff; --ph-tag-text: #6b21a8&#34;>
+              2027 H2
+            </div>
+            
+          </div>
+
+          <div class="block-card">
+            <div class="block-header">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+              阶段目标
+            </div>
+            <div class="block-content">
+              
+                
+                <div class="obj-row">
+                  <span class="obj-badge">生态</span>
+                  <span class="obj-text">IQAX One + eBL 无纸化闭环，eBL 渗透率 30%+（KPI 6）〔P3〕</span>
+                </div>
+                
+                <div class="obj-row">
+                  <span class="obj-badge">商业</span>
+                  <span class="obj-text">绿色数字化增值服务商业化，单箱服务成本 -20%（KPI 8）〔P3〕</span>
+                </div>
+                
+                <div class="obj-row">
+                  <span class="obj-badge">质量</span>
+                  <span class="obj-text">AI 预测性预警（提前 24-72h）+ AI 服务分流率 30%+（KPI 4）〔P3〕</span>
+                </div>
+                
+              
+            </div>
+
+            <div class="block-header top-border">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20V10M18 20V4M6 20V16"/></svg>
+              核心指标
+            </div>
+            <div class="block-content">
+              
+                
+                <div class="metric-row">
+                  <span class="metric-name">电商订舱渗透率〔P3〕</span>
+                  
+                  <span class="metric-target">40% [推断]</span>
+                  
+                </div>
+                
+                <div class="metric-row">
+                  <span class="metric-name">AI 服务分流率〔P3〕</span>
+                  
+                  <span class="metric-target">30%+</span>
+                  
+                </div>
+                
+                <div class="metric-row">
+                  <span class="metric-name">eBL 渗透率〔P3〕</span>
+                  
+                  <span class="metric-target">30%+</span>
+                  
+                </div>
+                
+                <div class="metric-row">
+                  <span class="metric-name">单箱服务成本降幅〔P3〕</span>
+                  
+                  <span class="metric-target">-20%</span>
+                  
+                </div>
+                
+                <div class="metric-row">
+                  <span class="metric-name">直客订单占比〔P3〕</span>
+                  
+                  <span class="metric-target">40%</span>
+                  
+                </div>
+                
+              
+            </div>
+          </div>
+
+          <div class="block-card">
+            <div class="block-header">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+              关键举措
+            </div>
+            <div class="block-content">
+              
+                
+                <div class="init-group">
+                  <div class="init-title-row">
+                    
+                    <span class="init-cat" style=&#34;--cat-bg: #dbeafe; --cat-text: #1e40af&#34;>
+                      产品功能
+                    </span>
+                    
+                    <span class="init-name">控制塔智能预警闭环</span>
+                  </div>
+                  
+                  <p class="init-desc">预警规模化 + 自动处置建议（来源：P3 P1 策略〔P3〕〔矩阵〕）</p>
+                  
+                  
+                  <ul class="init-bullets">
+                    
+                    <li class="init-bullet">AI 预测性预警规模化（提前 24-72h）</li>
+                    
+                    <li class="init-bullet">多源轨迹融合全节点覆盖</li>
+                    
+                    <li class="init-bullet">智能改配与补偿方案生成</li>
+                    
+                  </ul>
+                </div>
+                
+                <div class="init-group">
+                  <div class="init-title-row">
+                    
+                    <span class="init-cat" style=&#34;--cat-bg: #f3e8ff; --cat-text: #6b21a8&#34;>
+                      AI 技术
+                    </span>
+                    
+                    <span class="init-name">单证与会员数据智能</span>
+                  </div>
+                  
+                  <p class="init-desc">智慧单证增强 + 会员智能运营 + 智能对账〔矩阵〕</p>
+                  
+                  
+                  <ul class="init-bullets">
+                    
+                    <li class="init-bullet">智慧单证增强（多语言纠错）</li>
+                    
+                    <li class="init-bullet">复购预测与流失挽留</li>
+                    
+                    <li class="init-bullet">智能对账与本地化收付</li>
+                    
+                  </ul>
+                </div>
+                
+                <div class="init-group">
+                  <div class="init-title-row">
+                    
+                    <span class="init-cat" style=&#34;--cat-bg: #ffedd5; --cat-text: #9a3412&#34;>
+                      商业增值
+                    </span>
+                    
+                    <span class="init-name">绿色数字化增值商业化</span>
+                  </div>
+                  
+                  <p class="init-desc">P1 策略：X Green 电商化 + EU ETS 合规数字产品〔P3〕</p>
+                  
+                  
+                  <ul class="init-bullets">
+                    
+                    <li class="init-bullet">X Green 电商化销售</li>
+                    
+                    <li class="init-bullet">EU ETS 碳足迹合规数字产品</li>
+                    
+                    <li class="init-bullet">碳数据与运费结算联动</li>
+                    
+                  </ul>
+                </div>
+                
+                <div class="init-group">
+                  <div class="init-title-row">
+                    
+                    <span class="init-cat" style=&#34;--cat-bg: #f3f4f6; --cat-text: #1f2937&#34;>
+                      生态协同
+                    </span>
+                    
+                    <span class="init-name">eBL 与双品牌生态</span>
+                  </div>
+                  
+                  <p class="init-desc">IQAX One 生态渗透 + 母集团双品牌运力协同〔P1〕〔P3〕</p>
+                  
+                  
+                  <ul class="init-bullets">
+                    
+                    <li class="init-bullet">LCL eBL 试点扩面与渗透引导</li>
+                    
+                    <li class="init-bullet">母集团双品牌运力协同调度</li>
+                    
+                    <li class="init-bullet">跨境电商端到端方案</li>
+                    
+                  </ul>
+                </div>
+                
+                <div class="init-group">
+                  <div class="init-title-row">
+                    
+                    <span class="init-cat" style=&#34;--cat-bg: #f3f4f6; --cat-text: #1f2937&#34;>
+                      合规风控
+                    </span>
+                    
+                    <span class="init-name">合规审计与 ROI 复盘</span>
+                  </div>
+                  
+                  <p class="init-desc">P2 稳健经营：算法审计 + ROI 季度复盘 + ETS 合规披露〔P3〕</p>
+                  
+                  
+                  <ul class="init-bullets">
+                    
+                    <li class="init-bullet">算法可解释性审计</li>
+                    
+                    <li class="init-bullet">数字化 ROI 季度复盘机制</li>
+                    
+                    <li class="init-bullet">EU ETS 合规核算与披露</li>
+                    
+                  </ul>
+                </div>
+                
+              
+            </div>
+          </div>
+
+        </section>
+        
+      </main>
+    </div>
+
+    <footer class="footer">
+      Generated by roadmap-generator &middot; 2026-08-21 16:14 &middot; &copy; 2026 Inspire AI4PM
+    </footer>
+  </div>
+
+  <div class="toast" id="toast">已成功复制 YAML 数据</div>
+  
+  <script type="application/yaml" id="raw-yaml">
+title: &#34;X 电商订舱业务产品演进路线图（2026-2027）&#34;
+description: &#34;北极星：电商订舱渗透率 25%[推断] → 12 个月 35-40%[推断]。沿「基建与速赢 → 规模化渗透 → 智能供应链与生态」三阶段演进，对齐策略优先级 P0（FreightSmart 升级 + 无代理化直客能力）→ P1（AI 深化 + 绿色增值商业化）→ P2（渠道平衡与 ROI 稳健经营），并按 AI 场景 Top 10 优先级落地。来源标注：〔P3〕= phase3_strategy_derivation.md；〔矩阵〕= X电商订舱-AI场景优先级矩阵.yaml；〔P1〕= phase1_business_research.md；〔P2〕= phase2_swot_analysis.md。&#34;
+configuration:
+  timeframe: &#34;2026 - 2027&#34;
+  version: &#34;1.0&#34;
+  status: &#34;规划中（草案）&#34;
+  owner: &#34;电子商务部 × 信息科技部&#34;
+  lastUpdated: &#34;2026-08-21&#34;
+phases:
+  - name: &#34;Phase 0 基建与速赢&#34;
+    description: &#34;2026 H2 · 体验底座 + 速赢：矩阵 Quick Wins 第一梯队（AI 自动认证、首单预填、智能补件、分钟级自动确认）上线，确立 KPI 基线与口径，为规模化渗透铺路〔矩阵〕。&#34;
+    timeframe: &#34;2026 H2&#34;
+    objectives:
+      - category: &#34;产品体验&#34;
+        description: &#34;新一代询价界面 + 微信小程序全链路打通，SME 首访到首单全程提速〔P1〕&#34;
+      - category: &#34;效率&#34;
+        description: &#34;分钟级自动确认规则扩围，平均确认时效向 ≤4 小时收敛（KPI 3）〔P3〕&#34;
+      - category: &#34;增长&#34;
+        description: &#34;电商订舱量年化 240 万 TEU、FreightSmart 活跃客户 3 万（6 个月目标）〔P3〕&#34;
+    metrics:
+      - name: &#34;电商渠道订舱量（年化）〔P3〕&#34;
+        target: &#34;240 万 TEU&#34;
+      - name: &#34;在线订舱确认时效〔P3〕&#34;
+        target: &#34;平均 ≤4 小时&#34;
+      - name: &#34;FreightSmart 活跃客户〔P3〕&#34;
+        target: &#34;3 万&#34;
+      - name: &#34;AI 服务分流率〔P3〕&#34;
+        target: &#34;25%&#34;
+      - name: &#34;企业认证时效〔矩阵〕&#34;
+        target: &#34;3 工作日 → 分钟级&#34;
+    initiatives:
+      - category: &#34;产品功能&#34;
+        name: &#34;FreightSmart 平台升级&#34;
+        description: &#34;承接 2026 平台规划：新一代询价界面、智能数据整合、个性化推荐〔P1〕&#34;
+        items:
+          - &#34;新一代一站式询价界面升级&#34;
+          - &#34;微信小程序全渠道功能补齐&#34;
+          - &#34;Smart Push 个性化推荐深化&#34;
+      - category: &#34;AI 技术&#34;
+        name: &#34;速赢场景集中上线&#34;
+        description: &#34;矩阵 Quick Wins（高收益/低成本）第一梯队：集中获客与订舱环节〔矩阵〕&#34;
+        items:
+          - &#34;AI 自动认证审核（分钟级开户）&#34;
+          - &#34;首单智能预填（单据 OCR 预填）&#34;
+          - &#34;智能补件检查（提交前校验）&#34;
+          - &#34;分钟级自动确认（规则扩围）&#34;
+      - category: &#34;运营获客&#34;
+        name: &#34;SME 分层获客启动&#34;
+        description: &#34;PlumSmart 分层运营 + E-Spot 闪促 + 承接南美新市场〔P1〕&#34;
+        items:
+          - &#34;PlumSmart 会员分层运营上线&#34;
+          - &#34;E-Spot 闪购常态化与控投&#34;
+          - &#34;南美（巴西/秘鲁）本地化获客&#34;
+      - category: &#34;技术基建&#34;
+        name: &#34;数据基线与规则引擎&#34;
+        description: &#34;为 KPI 8 成本口径与后续 AI 模型打地基〔P3〕&#34;
+        items:
+          - &#34;KPI 口径与基线数据看板&#34;
+          - &#34;订舱校验规则引擎扩围（&gt;200 条）&#34;
+          - &#34;客户行为事件埋点启动&#34;
+      - category: &#34;合规风控&#34;
+        name: &#34;合规底座先行&#34;
+        description: &#34;跨境数据合规 + 算法可解释性框架启动〔P3〕&#34;
+        items:
+          - &#34;跨境数据合规评估（含母集团边界）&#34;
+          - &#34;算法可解释性框架设计&#34;
+  - name: &#34;Phase 1 规模化渗透&#34;
+    description: &#34;2027 H1 · 渗透率攻坚：P0 双策略（FreightSmart 规模化获客 + 无代理化自助直客）与 AI Big Bets（智能订舱 Agent、全航线智能报价、智能舱位预测分配）落地，直客化与 SME 规模化并进〔P3〕〔矩阵〕。&#34;
+    timeframe: &#34;2027 H1&#34;
+    objectives:
+      - category: &#34;增长&#34;
+        description: &#34;电商订舱渗透率 35%+[推断]、FreightSmart 活跃客户 5 万+、直客占比向 30% 爬坡〔P3〕&#34;
+      - category: &#34;效率&#34;
+        description: &#34;平均确认时效 ≤2 小时，分钟级自动确认规模化覆盖（KPI 3）〔P3〕&#34;
+      - category: &#34;质量&#34;
+        description: &#34;E-Spot 舱位保证 SLA 化，兑现率 95%+（KPI 5）〔P3〕&#34;
+    metrics:
+      - name: &#34;电商订舱渗透率〔P3〕&#34;
+        target: &#34;35%+ [推断]&#34;
+      - name: &#34;电商渠道订舱量（年化）〔P3〕&#34;
+        target: &#34;300 万 TEU&#34;
+      - name: &#34;在线订舱确认时效〔P3〕&#34;
+        target: &#34;平均 ≤2 小时&#34;
+      - name: &#34;直客订单占比〔P3〕&#34;
+        target: &#34;30%+&#34;
+      - name: &#34;舱位保证兑现率〔P3〕&#34;
+        target: &#34;95%+&#34;
+    initiatives:
+      - category: &#34;产品功能&#34;
+        name: &#34;无代理化自助直客能力&#34;
+        description: &#34;P0 策略：API/ERP 集成订舱 + E-Spot SLA + 直客 CRM 数据资产〔P3〕&#34;
+        items:
+          - &#34;API/EDI 集成订舱通道上线&#34;
+          - &#34;E-Spot 舱位保证升级 SLA&#34;
+          - &#34;直客 CRM 与数据资产建设&#34;
+      - category: &#34;AI 技术&#34;
+        name: &#34;AI Big Bets 攻坚&#34;
+        description: &#34;矩阵第二梯队（高收益/高成本）：渗透率核心引擎，12 个月兑现 ROI〔矩阵〕&#34;
+        items:
+          - &#34;全航线智能报价（指数+成交价）&#34;
+          - &#34;个性化报价推荐升级&#34;
+          - &#34;智能订舱 Agent（Ask Fin 可执行）&#34;
+          - &#34;智能舱位预测与分配（兑现率约束）&#34;
+      - category: &#34;AI 技术&#34;
+        name: &#34;跟踪预警类型攻坚&#34;
+        description: &#34;矩阵类型优先级第一（avg 7.73）：控制塔预警启动〔矩阵〕&#34;
+        items:
+          - &#34;多源轨迹融合（船司/码头/AIS）&#34;
+          - &#34;AI 预测性预警初版（ETA 延误预测）&#34;
+          - &#34;智能改配与补偿方案预研&#34;
+      - category: &#34;运营获客&#34;
+        name: &#34;SME 规模化获客&#34;
+        description: &#34;会员分层运营 + 区域化智能营销双轮驱动〔P3〕〔P1〕&#34;
+        items:
+          - &#34;PlumSmart 分层权益与升级路径&#34;
+          - &#34;区域化智能营销（多语言触达）&#34;
+          - &#34;货代转介绍与协同获客&#34;
+      - category: &#34;增长市场&#34;
+        name: &#34;渠道平衡机制&#34;
+        description: &#34;直客化与货代利益平衡，规避 T4 渠道冲突〔P2〕〔P3〕&#34;
+        items:
+          - &#34;货代协同数字化工具&#34;
+          - &#34;直客转化节奏与分成设计&#34;
+      - category: &#34;技术基建&#34;
+        name: &#34;运价与舱位模型底座&#34;
+        description: &#34;动态定价与舱位分配的数据管道〔CKD 映射〕&#34;
+        items:
+          - &#34;SCFI/CCFI 指数接入与特征库&#34;
+          - &#34;历史成交价库统一建模&#34;
+  - name: &#34;Phase 2 智能供应链与生态&#34;
+    description: &#34;2027 H2 · 智能供应链闭环 + 绿色数字化增值商业化：控制塔 AI 预测性预警、多源轨迹融合、IQAX One + eBL 无纸化闭环、X Green / EU ETS 合规数字产品变现，兑现 ROI 与 40%[推断] 渗透率〔P3〕。&#34;
+    timeframe: &#34;2027 H2&#34;
+    objectives:
+      - category: &#34;生态&#34;
+        description: &#34;IQAX One + eBL 无纸化闭环，eBL 渗透率 30%+（KPI 6）〔P3〕&#34;
+      - category: &#34;商业&#34;
+        description: &#34;绿色数字化增值服务商业化，单箱服务成本 -20%（KPI 8）〔P3〕&#34;
+      - category: &#34;质量&#34;
+        description: &#34;AI 预测性预警（提前 24-72h）+ AI 服务分流率 30%+（KPI 4）〔P3〕&#34;
+    metrics:
+      - name: &#34;电商订舱渗透率〔P3〕&#34;
+        target: &#34;40% [推断]&#34;
+      - name: &#34;AI 服务分流率〔P3〕&#34;
+        target: &#34;30%+&#34;
+      - name: &#34;eBL 渗透率〔P3〕&#34;
+        target: &#34;30%+&#34;
+      - name: &#34;单箱服务成本降幅〔P3〕&#34;
+        target: &#34;-20%&#34;
+      - name: &#34;直客订单占比〔P3〕&#34;
+        target: &#34;40%&#34;
+    initiatives:
+      - category: &#34;产品功能&#34;
+        name: &#34;控制塔智能预警闭环&#34;
+        description: &#34;预警规模化 + 自动处置建议（来源：P3 P1 策略〔P3〕〔矩阵〕）&#34;
+        items:
+          - &#34;AI 预测性预警规模化（提前 24-72h）&#34;
+          - &#34;多源轨迹融合全节点覆盖&#34;
+          - &#34;智能改配与补偿方案生成&#34;
+      - category: &#34;AI 技术&#34;
+        name: &#34;单证与会员数据智能&#34;
+        description: &#34;智慧单证增强 + 会员智能运营 + 智能对账〔矩阵〕&#34;
+        items:
+          - &#34;智慧单证增强（多语言纠错）&#34;
+          - &#34;复购预测与流失挽留&#34;
+          - &#34;智能对账与本地化收付&#34;
+      - category: &#34;商业增值&#34;
+        name: &#34;绿色数字化增值商业化&#34;
+        description: &#34;P1 策略：X Green 电商化 + EU ETS 合规数字产品〔P3〕&#34;
+        items:
+          - &#34;X Green 电商化销售&#34;
+          - &#34;EU ETS 碳足迹合规数字产品&#34;
+          - &#34;碳数据与运费结算联动&#34;
+      - category: &#34;生态协同&#34;
+        name: &#34;eBL 与双品牌生态&#34;
+        description: &#34;IQAX One 生态渗透 + 母集团双品牌运力协同〔P1〕〔P3〕&#34;
+        items:
+          - &#34;LCL eBL 试点扩面与渗透引导&#34;
+          - &#34;母集团双品牌运力协同调度&#34;
+          - &#34;跨境电商端到端方案&#34;
+      - category: &#34;合规风控&#34;
+        name: &#34;合规审计与 ROI 复盘&#34;
+        description: &#34;P2 稳健经营：算法审计 + ROI 季度复盘 + ETS 合规披露〔P3〕&#34;
+        items:
+          - &#34;算法可解释性审计&#34;
+          - &#34;数字化 ROI 季度复盘机制&#34;
+          - &#34;EU ETS 合规核算与披露&#34;
+
+  </script>
+
+  <script>
+    function copyYAML() {
+      const yaml = document.getElementById('raw-yaml').textContent.trim();
+      navigator.clipboard.writeText(yaml).then(() => {
+        const toast = document.getElementById('toast');
+        toast.style.display = 'block';
+        setTimeout(() => { toast.style.display = 'none'; }, 2500);
+      });
+    }
+  </script>
+</body>
+</html>

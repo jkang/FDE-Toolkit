@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background: #0a0e27;
+            color: #e2e8f0;
+            overflow: hidden;
+        }
+        .bp-canvas {
+            min-width: var(--canvas-width);
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #fff;
+        }
+        .app-container {
+            display: flex;
+            height: 100vh;
+        }
+        .sidebar {
+            width: 320px;
+            background: linear-gradient(180deg, #0f1535 0%, #1a1f3a 100%);
+            border-right: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            overflow-x: hidden;
+            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+        .sidebar.collapsed {
+            width: 80px;
+        }
+        .sidebar-header {
+            padding: 24px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            position: relative;
+        }
+        .sidebar.collapsed .sidebar-header {
+            padding: 24px 12px;
+        }
+        .sidebar-toggle {
+            position: absolute;
+            top: 24px;
+            right: 16px;
+            width: 28px;
+            height: 28px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #94a3b8;
+            z-index: 10;
+        }
+        .sidebar-toggle:hover {
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+        }
+        .sidebar.collapsed .sidebar-toggle {
+            right: 50%;
+            transform: translateX(50%) rotate(180deg);
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #f59e0b, #ef4444);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 18px;
+            color: white;
+        }
+        .logo-text {
+            font-size: 18px;
+            font-weight: 700;
+            color: #fff;
+        }
+        .sidebar-subtitle {
+            font-size: 12px;
+            color: #64748b;
+            margin-top: 4px;
+        }
+        .nav-menu {
+            padding: 16px 0;
+            flex: 1;
+        }
+        .nav-section {
+            margin-bottom: 8px;
+        }
+        .nav-section-title {
+            padding: 8px 24px;
+            font-size: 11px;
+            font-weight: 600;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 24px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-left: 3px solid transparent;
+            text-decoration: none;
+            color: #94a3b8;
+        }
+        .nav-item:hover {
+            background: rgba(255,255,255,0.05);
+            color: #e2e8f0;
+        }
+        .nav-item.active {
+            background: rgba(59, 130, 246, 0.1);
+            border-left-color: #3b82f6;
+            color: #60a5fa;
+        }
+        .nav-item-icon {
+            width: 20px;
+            height: 20px;
+            margin-right: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+        .nav-item-text {
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .nav-badge {
+            margin-left: auto;
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        /* Collapsed State Overrides */
+        .sidebar.collapsed .logo-text,
+        .sidebar.collapsed .sidebar-subtitle,
+        .sidebar.collapsed .nav-item-text,
+        .sidebar.collapsed .nav-badge,
+        .sidebar.collapsed .sidebar-footer {
+            display: none;
+        }
+        .sidebar.collapsed .nav-section-title {
+            height: 1px;
+            background: rgba(255,255,255,0.1);
+            margin: 16px 12px;
+            padding: 0;
+            display: block;
+            text-indent: -9999px;
+            overflow: hidden;
+        }
+        .sidebar.collapsed .logo {
+            justify-content: center;
+            margin-right: 0;
+        }
+        .sidebar.collapsed .nav-item {
+            justify-content: center;
+            padding: 12px 0;
+        }
+        .sidebar.collapsed .nav-item-icon {
+            margin-right: 0;
+            font-size: 18px;
+        }
+        .sidebar-footer {
+            padding: 16px 24px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            font-size: 12px;
+            color: #64748b;
+        }
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .content-header {
+            height: 64px;
+            background: rgba(15, 21, 53, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 32px;
+        }
+        .content-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #fff;
+        }
+        .content-actions {
+            display: flex;
+            gap: 12px;
+        }
+        .action-btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            border: 1px solid rgba(255,255,255,0.2);
+            background: transparent;
+            color: #e2e8f0;
+            transition: all 0.2s;
+        }
+        .action-btn:hover {
+            background: rgba(255,255,255,0.1);
+        }
+        .action-btn.primary {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            border: none;
+            color: white;
+        }
+        .action-btn.primary:hover {
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+        }
+        .content-frame {
+            flex: 1;
+            overflow: hidden;
+            background: #0a0e27;
+        }
+        .content-frame iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        .cover-page {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 50%, #0f1535 100%);
+            text-align: center;
+            padding: 40px;
+            overflow-y: auto;
+        }
+        .cover-badge {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(239, 68, 68, 0.2));
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 13px;
+            color: #f59e0b;
+            font-weight: 600;
+            margin-bottom: 32px;
+            letter-spacing: 2px;
+        }
+        .cover-title {
+            font-size: 48px;
+            font-weight: 800;
+            color: #fff;
+            margin-bottom: 16px;
+            line-height: 1.2;
+            background: linear-gradient(135deg, #fff 0%, #94a3b8 100%);
+            --bg-clip: text;
+            -webkit-background-clip: var(--bg-clip);
+            background-clip: var(--bg-clip);
+            -webkit-text-fill-color: transparent;
+        }
+        .cover-subtitle {
+            font-size: 20px;
+            color: #64748b;
+            margin-bottom: 48px;
+            max-width: 600px;
+        }
+        .cover-stats {
+            display: flex;
+            gap: 48px;
+            margin-bottom: 48px;
+        }
+        .stat-item {
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 36px;
+            font-weight: 800;
+            color: #3b82f6;
+            margin-bottom: 8px;
+        }
+        .stat-label {
+            font-size: 13px;
+            color: #64748b;
+        }
+        .cover-toc {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            max-width: 900px;
+            width: 100%;
+        }
+        .toc-card {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: left;
+        }
+        .toc-card:hover {
+            background: rgba(255,255,255,0.1);
+            border-color: rgba(59, 130, 246, 0.5);
+            transform: translateY(-2px);
+        }
+        .toc-card-number {
+            font-size: 24px;
+            font-weight: 800;
+            color: #3b82f6;
+            margin-bottom: 8px;
+        }
+        .toc-card-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #e2e8f0;
+            margin-bottom: 4px;
+        }
+        .toc-card-desc {
+            font-size: 12px;
+            color: #64748b;
+        }
+        .cover-footer {
+            margin-top: 48px;
+            font-size: 12px;
+            color: #475569;
+        }
+        @media (max-width: 1024px) {
+            .sidebar { width: 280px; }
+            .cover-toc { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 768px) {
+            .sidebar { display: none; }
+            .cover-toc { grid-template-columns: 1fr; }
+            .cover-stats { flex-direction: column; gap: 24px; }
+        }
+    </style>
+    {% if custom_styles %}
+    <style id="custom-styles">
+        /* custom-styles-placeholder */
+        {{ custom_styles | safe }}
+    </style>
+    {% endif %}
+</head>
+<body>
+    <div class="app-container">
+        <nav class="sidebar" id="sidebar">
+            <div class="sidebar-toggle" onclick="toggleSidebar()" title="切换侧边栏">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+            </div>
+            <div class="sidebar-header">
+                <div class="logo">
+                    <div class="logo-icon">{{ logo_icon }}</div>
+                    <div class="logo-text">{{ logo_text }}</div>
+                </div>
+                {% if logo_subtitle %}
+                <div class="sidebar-subtitle">{{ logo_subtitle }}</div>
+                {% endif %}
+            </div>
+            
+            <div class="nav-menu">
+                {% for nav in navigation %}
+                <div class="nav-section">
+                    <div class="nav-section-title">{{ nav.section }}</div>
+                    {% for item in nav.get('items') or nav.get('children') or [] %}
+                    <a class="nav-item {% if loop.first and nav == navigation[0] %}active{% endif %}" href="#" onclick="loadReport('{{ item.id }}'); return false;">
+                        <span class="nav-item-icon">{{ item.icon }}</span>
+                        <span class="nav-item-text">{{ item.title }}</span>
+                        {% if item.badge %}
+                        <span class="nav-badge">{{ item.badge }}</span>
+                        {% endif %}
+                    </a>
+                    {% endfor %}
+                </div>
+                {% endfor %}
+            </div>
+            
+            {% if footer_text or footer_subtext %}
+            <div class="sidebar-footer">
+                {% if footer_text %}{{ footer_text }}<br>{% endif %}
+                {% if footer_subtext %}{{ footer_subtext }}{% endif %}
+            </div>
+            {% endif %}
+        </nav>
+        
+        <main class="main-content">
+            <div class="content-header">
+                <div class="content-title" id="page-title">{{ title }}</div>
+                <div class="content-actions">
+                    <button class="action-btn" onclick="showCover()">返回首页</button>
+                    <button class="action-btn primary" onclick="window.print()">打印报告</button>
+                </div>
+            </div>
+            
+            <div class="content-frame" id="content-frame">
+                <div class="cover-page" id="cover-page">
+                    {% if logo_badge %}
+                    <div class="cover-badge">{{ logo_badge }}</div>
+                    {% endif %}
+                    <h1 class="cover-title">{{ title }}</h1>
+                    <p class="cover-subtitle">{{ subtitle }}</p>
+                    
+                    <div class="cover-stats">
+                        {% for stat in stats %}
+                        <div class="stat-item">
+                            <div class="stat-number">{{ stat.number }}</div>
+                            <div class="stat-label">{{ stat.label }}</div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    
+                    <div class="cover-toc">
+                        {% for card in cards %}
+                        <div class="toc-card" onclick="loadReport('{{ card.id }}')">
+                            <div class="toc-card-number">{{ card.number }}</div>
+                            <div class="toc-card-title">{{ card.title }}</div>
+                            <div class="toc-card-desc">{{ card.desc }}</div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    
+                    <div class="cover-footer">
+                        点击上方卡片或左侧菜单查看详细报告
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <script>
+        // Inject reports mapping from Jinja2
+        const reports = {{ reports | tojson | safe }};
+        const initialCoverHTML = document.getElementById('cover-page').outerHTML;
+        
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('collapsed');
+            localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
+        }
+
+        // Restore sidebar state
+        if (localStorage.getItem('sidebarCollapsed') === 'true') {
+            document.getElementById('sidebar').classList.add('collapsed');
+        }
+        
+        function showCover() {
+            const frame = document.getElementById('content-frame');
+            frame.innerHTML = initialCoverHTML;
+            document.getElementById('page-title').textContent = '{{ title }}';
+            updateActiveNav(null);
+        }
+        
+        function loadReport(reportId) {
+            const report = reports[reportId];
+            if (!report) return;
+            
+            const frame = document.getElementById('content-frame');
+            document.getElementById('page-title').textContent = report.title || '{{ title }}';
+            
+            if (report.file) {
+                frame.innerHTML = `<iframe src="${report.file}" sandbox="allow-same-origin allow-scripts"></iframe>`;
+            } else {
+                showCover();
+            }
+            
+            updateActiveNav(reportId);
+        }
+        
+        function updateActiveNav(reportId) {
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            if (reportId) {
+                const activeItem = document.querySelector(`[onclick*="${reportId}"]`);
+                if (activeItem) activeItem.classList.add('active');
+            } else {
+                const firstItem = document.querySelector('.nav-item');
+                if (firstItem) firstItem.classList.add('active');
+            }
+        }
+        
+        showCover();
+    </script>
+</body>
+</html>

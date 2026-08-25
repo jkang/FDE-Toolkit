@@ -1,0 +1,116 @@
+# UX-Optimizer · X电商订舱 / 智能订舱Agent 定制设计系统
+# 由 brand_business_matrix.md 推导：企业品牌(科技深蓝·严谨流程·专业细分·B2B货主) × 业务主题(供应链物流·订舱Agent)
+# 产品级 MVP，与 design.md 解耦；侧栏工作台 + 卡片/表格/对话/表单/上传/时间线
+meta:
+  company: "X电商订舱"
+  scenario: "智能订舱Agent"
+  businessDomain: "供应链"
+  productName: "X 智能订舱 Agent"
+  mode: "Modern SaaS 工作台"
+  brandSource: "domain 推断 + 用户指定主题"
+
+brandProfile:
+  primaryTone: "科技深蓝"
+  primaryColor: "#10213E"
+  userGroup: "客户"
+  seriousness: "严谨流程"
+  maturity: "专业细分"
+
+designLanguage:
+  colors:
+    primary: "#10213E"
+    primaryDark: "#0b1a33"
+    primaryLight: "#3a5a8a"
+    accent: "#5DB2E2"
+    action: "#1E6FB8"
+    success: "#16a34a"
+    warning: "#f59e0b"
+    danger: "#ef4444"
+    info: "#0ea5e9"
+    neutral:
+      text: "#1e293b"
+      textSecondary: "#64748b"
+      border: "#e2e8f0"
+      bg: "#ffffff"
+      bgAlt: "#f8fafc"
+    gradient:
+      from: "#10213E"
+      to: "#5DB2E2"
+  typography:
+    fontFamily: "MiSans, Inter, -apple-system, 'Microsoft YaHei', sans-serif"
+    h1: { size: 26, weight: "600", lineHeight: 1.2, spacing: "-0.02em" }
+    h2: { size: 20, weight: "500", lineHeight: 1.3, spacing: "0" }
+    h3: { size: 16, weight: "500", lineHeight: 1.4, spacing: "0" }
+    body: { size: 14, weight: "400", lineHeight: 1.5, spacing: "0" }
+    label: { size: 12, weight: "600", lineHeight: 1.2, spacing: "0.05em", uppercase: true }
+    caption: { size: 12, weight: "300", lineHeight: 1.4, spacing: "0" }
+  spacing:
+    scale: [4, 8, 12, 16, 24, 32, 48]
+    contentMaxWidth: 1440
+    cardPadding: 24
+    sectionGap: 24
+    elementGap: 16
+  radius:
+    sm: 6
+    md: 8
+    lg: 12
+    pill: 999
+  shadow:
+    card: "0 2px 8px rgba(16, 33, 62, 0.08)"
+    raised: "0 4px 16px rgba(16, 33, 62, 0.12)"
+  border:
+    color: "#e2e8f0"
+    width: 1
+  components:
+    card: { radius: 8, shadow: "card", background: "#ffffff", border: true }
+    button: { radius: 6, transition: "0.15s ease-out", hoverOpacity: 0.85 }
+    table: { density: "compact", rowHover: true, headerBg: "#f8fafc" }
+    input: { radius: 6, focusOutline: "#5DB2E2" }
+  states:
+    hoverTime: "0.15s ease-out"
+    focusOutline: "#5DB2E2"
+    loadingType: "skeleton"
+    emptyStyle: "icon + hint + cta"
+  layout:
+    mode: "side"
+    siderWidth: 216
+    headerHeight: 56
+  motion:
+    transition: "0.15s ease-out"
+    enableSpring: false
+  responsive:
+    breakpoints: [375, 768, 1024, 1440]
+
+componentSpecs:
+  - element: "steps"
+    v2: { style: "progress accent; 当前步主标签 + 历史步已完成; 用强调色高亮进行中" }
+  - element: "uploadCard"
+    v2: { style: "drag zone focus ring; 虚线+强调色描边; hover 填充浅色; 文件选中显示名/大小/移除" }
+  - element: "aiResultCard"
+    v2: { style: "AI insight panel; 左上 AI 徽章 + 强调色 4px 左边框; loading 用骨架屏" }
+  - element: "table"
+    v2: { style: "rowsZebra headerSticky; 表头浅底加粗; 行 hover; 状态列 Tag 着色(色+文)" }
+  - element: "statRow"
+    v2: { style: "metric hero; 大数字 + 强调色前缀图标 + 单位小字; 卡片微阴影" }
+  - element: "buttonRow"
+    v2: { style: "primaryFullBleed hoverLift; 主操作在前强调色; 次操作描边; hover 提升" }
+  - element: "alert"
+    v2: { style: "showIcon bordered; 左边框语义色 + 浅色底; 交付文案可读" }
+  - element: "timeline"
+    v2: { style: "state tracker; 节点语义色圆点(成功绿/进行中蓝/待到达灰); 当前高亮" }
+  - element: "chatPanel"
+    v2: { style: "AI copilot; 气泡左右分色(用户右蓝/AI左灰); 推荐指令 chips; typing indicator" }
+  - element: "formCard"
+    v2: { style: "field group labelAbove; 字段间距 16; 必填星标; 校验失败红框" }
+  - element: "tagRow"
+    v2: { style: "status chips pill; 语义色浅底 + 深色字; 可筛选" }
+
+diffChecklist:
+  - "自定义主色 #10213E 已注入 ConfigProvider + CSS 变量（修复 colorWarning 误用 accent 的语义错位）"
+  - "MiSans 字体系统覆盖全局 + 标题层级（H1 26 / H2 20 / H3 16）"
+  - "间距统一为 8pt 体系，卡片内距 24 / 卡间距 16"
+  - "圆角 8px、蓝色相阴影 rgba(16,33,62,0.08) 替代默认 antd 质感"
+  - "11 类元素按 componentSpecs 升级（step/upload/aiResult/table/stat/button/alert/timeline/chat/form/tag）"
+  - "六态完备：hover(0.15s)/focus(#5DB2E2 Outline)/empty/loading(骨架)/error/disabled"
+  - "响应式断点 375/768/1024/1440 生效"
+  - "cursor-pointer 加到所有可交互区"

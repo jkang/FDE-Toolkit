@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI 动态定价与锁价风控（运价预测 + 舱位保证）</title>
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans SC", "PingFang SC", Arial, sans-serif;
+      background: #f8fafc;
+      padding: 32px;
+      color: #1e293b;
+    }
+
+    .canvas-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+      display: flex;
+      flex-direction: column;
+      min-height: 800px;
+    }
+
+    .canvas-header {
+      padding: 24px 32px;
+    }
+    
+    .canvas-title {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #0f172a;
+      margin-bottom: 6px;
+    }
+
+    .canvas-desc {
+      font-size: 0.95rem;
+      color: #64748b;
+      line-height: 1.5;
+    }
+
+    .canvas-body {
+      padding: 0 32px 32px 32px;
+      display: flex;
+      flex: 1;
+      gap: 16px;
+      overflow-x: auto;
+    }
+
+    /* 5 columns Grid */
+    .column {
+      flex: 1;
+      min-width: 260px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    /* Card Base */
+    .card {
+      background: white;
+      border-radius: 10px;
+      overflow: hidden;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+      border-width: 2px;
+      border-style: solid;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 20px;
+      border-bottom-width: 1px;
+      border-bottom-style: solid;
+    }
+
+    .header-text {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .card-title {
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: #1e293b;
+      letter-spacing: 0.5px;
+    }
+
+    .card-subtitle {
+      font-size: 0.65rem;
+      color: #64748b;
+    }
+
+    .card-header-icon {
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      background: transparent;
+    }
+
+    .card-header-icon svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    .card-body {
+      padding: 20px;
+      font-size: 0.85rem;
+      color: #334155;
+      line-height: 1.7;
+      flex: 1;
+      background: white;
+    }
+
+    .card-body ul, .card-body ol {
+      list-style: none;
+    }
+
+    .card-body li {
+      margin-bottom: 12px;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      color: #475569;
+      font-weight: 500;
+    }
+    .card-body li:last-child {
+      margin-bottom: 0;
+    }
+
+    .bullet {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: #cbd5e1;
+      margin-top: 9px;
+      flex-shrink: 0;
+    }
+    
+    .number-bullet {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: #64748b;
+      margin-top: 1px;
+      flex-shrink: 0;
+    }
+
+    /* 1. Roles (Indigo) */
+    .theme-roles { border-color: #e0e7ff; }
+    .theme-roles .card-header { background-color: #eef2ff; border-bottom-color: #e0e7ff; }
+    .theme-roles .card-header-icon { color: #6366f1; }
+
+    /* 2. Pains (Amber) */
+    .theme-pains { border-color: #fef08a; }
+    .theme-pains .card-header { background-color: #fef9c3; border-bottom-color: #fef08a; }
+    .theme-pains .card-header-icon { color: #d97706; }
+
+    /* 3. Input (Blue) */
+    .theme-input { border-color: #dbeafe; }
+    .theme-input .card-header { background-color: #eff6ff; border-bottom-color: #dbeafe; }
+    .theme-input .card-header-icon { color: #3b82f6; }
+
+    /* 4. Data (Slate) */
+    .theme-data { border-color: #f1f5f9; }
+    .theme-data .card-header { background-color: #f8fafc; border-bottom-color: #f1f5f9; }
+    .theme-data .card-header-icon { color: #475569; }
+
+    /* 5. Workflow (Slate) */
+    .theme-workflow { border-color: #f1f5f9; }
+    .theme-workflow .card-header { background-color: #f8fafc; border-bottom-color: #f1f5f9; }
+    .theme-workflow .card-header-icon { color: #475569; }
+
+    /* 6. Capabilities (Blue) */
+    .theme-cap { border-color: #dbeafe; }
+    .theme-cap .card-header { background-color: #eff6ff; border-bottom-color: #dbeafe; }
+    .theme-cap .card-header-icon { color: #3b82f6; }
+
+    /* 7. Output (Fuchsia) */
+    .theme-output { border-color: #fae8ff; }
+    .theme-output .card-header { background-color: #fdf4ff; border-bottom-color: #fae8ff; }
+    .theme-output .card-header-icon { color: #d946ef; }
+
+    /* 8. Tools (Cyan) */
+    .theme-tools { border-color: #cffafe; }
+    .theme-tools .card-header { background-color: #ecfeff; border-bottom-color: #cffafe; }
+    .theme-tools .card-header-icon { color: #06b6d4; }
+
+    /* 9. Product (Emerald) */
+    .theme-product { border-color: #d1fae5; }
+    .theme-product .card-header { background-color: #ecfdf5; border-bottom-color: #d1fae5; }
+    .theme-product .card-header-icon { color: #10b981; }
+
+    /* 10. Gains (Emerald) */
+    .theme-gains { border-color: #d1fae5; }
+    .theme-gains .card-header { background-color: #ecfdf5; border-bottom-color: #d1fae5; }
+    .theme-gains .card-header-icon { color: #10b981; }
+
+  </style>
+</head>
+<body>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
+  <div class="canvas-container">
+    <div class="canvas-header">
+      <h1 class="canvas-title">AI 动态定价与锁价风控（运价预测 + 舱位保证）</h1>
+      <p class="canvas-desc">基于历史成交、市场运价指数（SCFI/CCFI）与舱位余量构建动态定价与锁价风险对冲能力，支撑 E-Spot 即期报价、Secured E-Quote 锁价产品与舱位保证（Space Protection）承诺，解决"锁价后运价下行客户弃约"与"旺季 SME 甩柜"两大信任缺口（对应 KPI 5 舱位兑现率 95%+）。</p>
+    </div>
+
+    <div class="canvas-body">
+      
+      <!-- Col 1: userRoles & userPains -->
+      <div class="column">
+        <!-- userRoles -->
+        <div class="card theme-roles">
+          <div class="card-header">
+            <div class="header-text">
+              <div class="card-title">用户角色</div>
+              <div class="card-subtitle">使用该AI场景的用户角色和群体</div>
+            </div>
+            <div class="card-header-icon">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+  </div>
+          </div>
+          <div class="card-body">
+            <ul>
+              
+                <li><span class="bullet"></span>收益管理分析师</li>
+              
+                <li><span class="bullet"></span>舱位管理 / 航线运力管理者</li>
+              
+                <li><span class="bullet"></span>SME 货主（锁价与即期报价使用者）</li>
+              
+                <li><span class="bullet"></span>财务 / 风险控制团队</li>
+              
+            </ul>
+          </div>
+        </div>
+        <!-- userPains -->
+        <div class="card theme-pains">
+          <div class="card-header">
+            <div class="header-text">
+              <div class="card-title">用户痛点</div>
+              <div class="card-subtitle">用户当前面临的问题 and 挑战</div>
+            </div>
+            <div class="card-header-icon">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2v1"/><path d="M12 6a6 6 0 0 1 6 6c0 1.66-.67 3.16-1.76 4.25a2.99 2.99 0 0 0-.88 2.12v.63h-6v-.63c0-.8-.31-1.55-.88-2.12A5.99 5.99 0 0 1 6 12a6 6 0 0 1 6-6Z"/></svg>
+  </div>
+          </div>
+          <div class="card-body">
+            <ul>
+              
+                <li><span class="bullet"></span>Secured E-Quote 锁价后若市场运价大幅下行，客户相对成本劣势与弃约风险（来源：C-体验旅程图-动态锁价风控；B-L2 high 痛点）</li>
+              
+                <li><span class="bullet"></span>即期报价仅覆盖特定 X 航次，部分港口无透明报价 [推断]（来源：B-L2 medium 痛点）</li>
+              
+                <li><span class="bullet"></span>旺季/运力波动期舱位向高价值客户倾斜，SME 甩柜或改船风险上升（来源：B-L2 high 痛点）</li>
+              
+                <li><span class="bullet"></span>运价波动（2025 年关税 / 红海扰动）传导至锁价成本，缺乏对冲模型</li>
+              
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Col 2: aiInput & dataKnowledge -->
+      <div class="column">
+        <div class="card theme-input">
+          <div class="card-header">
+            <div class="header-text">
+              <div class="card-title">AI 场景输入</div>
+              <div class="card-subtitle">AI系统需要的输入数据和格式</div>
+            </div>
+            <div class="card-header-icon">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+  </div>
+          </div>
+          <div class="card-body">
+            <ul>
+              
+                <li><span class="bullet"></span>客户询价请求（起运港 / 目的港 / 货量 / 箱型 / 船期偏好）</li>
+              
+                <li><span class="bullet"></span>当前市场运价指数（SCFI / CCFI）与航线即期报价行情</li>
+              
+                <li><span class="bullet"></span>目标航次舱位余量与装载率快照</li>
+              
+                <li><span class="bullet"></span>锁价产品参数（期限、条款、Secured E-Quote 规格）</li>
+              
+            </ul>
+          </div>
+        </div>
+        <div class="card theme-data">
+          <div class="card-header">
+            <div class="header-text">
+              <div class="card-title">数据/知识</div>
+              <div class="card-subtitle">AI系统需要的数据 and 领域知识</div>
+            </div>
+            <div class="card-header-icon">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5V19A9 3 0 0 0 21 19V5"/><path d="M3 12A9 3 0 0 0 21 12"/></svg>
+  </div>
+          </div>
+          <div class="card-body">
+            <ul>
+              
+                <li><span class="bullet"></span>历史成交价库：电商渠道历次 E-Spot / E-Quote 成交记录（200 万+ TEU 电商货量沉淀 [推断]）</li>
+              
+                <li><span class="bullet"></span>市场运价指数时序（SCFI / CCFI / 附加费 BAF/THC 规则）</li>
+              
+                <li><span class="bullet"></span>航线网络与船期计划（海洋联盟 DAY9/DAY10 运力配置）</li>
+              
+                <li><span class="bullet"></span>客户价值分级与会员等级数据（PlumSmart 权益规则）</li>
+              
+                <li><span class="bullet"></span>历史运价波动事件库（关税政策 / 红海绕航 / 运力过剩周期）</li>
+              
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Col 3: workflow & modelUsage (Core Capabilities) -->
+      <div class="column">
+        <div class="card theme-workflow">
+          <div class="card-header">
+            <div class="header-text">
+              <div class="card-title">AI 处理 WORKFLOW</div>
+              <div class="card-subtitle">AI系统的工作流程和步骤</div>
+            </div>
+            <div class="card-header-icon">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="8" x="2" y="2" rx="2"/><path d="M14 2c1.1 0 2 .9 2 2v4c0 1.1-.9 2-2 2"/><path d="M20 2c1.1 0 2 .9 2 2v4c0 1.1-.9 2-2 2"/><path d="M10 18H5c-1.7 0-3-1.3-3-3v-1"/><polyline points="7 21 10 18 7 15"/><rect width="8" height="8" x="14" y="14" rx="2"/></svg>
+  </div>
+          </div>
+          <div class="card-body">
+            <ol>
+              
+                <li><span class="number-bullet">1.</span>特征工程：聚合历史成交价、市场指数、舱位余量与事件特征</li>
+              
+                <li><span class="number-bullet">2.</span>需求预测：预测航线未来 4-12 周装载率与运价走势</li>
+              
+                <li><span class="number-bullet">3.</span>风险定价：对锁价产品计算波动风险敞口与对冲成本</li>
+              
+                <li><span class="number-bullet">4.</span>报价生成：生成全航线即期报价与个性化锁价区间建议</li>
+              
+                <li><span class="number-bullet">5.</span>承诺校验：以电商舱位保证兑现率为硬约束做舱位分配预演</li>
+              
+                <li><span class="number-bullet">6.</span>监控反馈：实际成交与兑现数据回流，持续校准模型</li>
+              
+            </ol>
+          </div>
+        </div>
+        <div class="card theme-cap">
+          <div class="card-header">
+            <div class="header-text">
+              <div class="card-title">核心能力</div>
+              <div class="card-subtitle">场景所需的关键 AI 及工程能力</div>
+            </div>
+            <div class="card-header-icon">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 11 2-2"/><path d="m19 11-2-2"/><path d="M12 2v2"/><path d="m18 6 1-1"/><path d="m6 6-1-1"/><path d="M12 10a2 2 0 1 0 0 4 2 2 0 0 0 0-4Z"/><path d="M7 14a5 5 0 0 0 10 0"/></svg>
+  </div>
+          </div>
+          <div class="card-body">
+            <ul>
+              
+                <li><span class="bullet"></span>时序预测：Prophet / LightGBM / XGBoost 或深度时序模型（运价与装载率预测）</li>
+              
+                <li><span class="bullet"></span>风险建模：蒙特卡洛模拟（锁价风险敞口与 VaR 测算）</li>
+              
+                <li><span class="bullet"></span>推荐排序：运价推荐模型（Smart Push 升级，个性化报价排序）</li>
+              
+                <li><span class="bullet"></span>大语言模型：生成客户可解释的报价说明与锁价条款解释</li>
+              
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Col 4: aiOutput & tools -->
+      <div class="column">
+        <div class="card theme-output">
+          <div class="card-header">
+            <div class="header-text">
+              <div class="card-title">AI 输出</div>
+              <div class="card-subtitle">AI系统产生的输出结果 and 格式</div>
+            </div>
+            <div class="card-header-icon">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M3 5h4"/></svg>
+  </div>
+          </div>
+          <div class="card-body">
+            <ul>
+              
+                <li><span class="bullet"></span>全航线即期报价（填补透明报价盲区）</li>
+              
+                <li><span class="bullet"></span>锁价区间建议与弃约补偿条款（Secured E-Quote 升级）</li>
+              
+                <li><span class="bullet"></span>舱位分配预演报告（SME 舱位保证兑现率测算）</li>
+              
+                <li><span class="bullet"></span>运价走势与风险预警简报（面向收益管理团队）</li>
+              
+            </ul>
+          </div>
+        </div>
+        <div class="card theme-tools">
+          <div class="card-header">
+            <div class="header-text">
+              <div class="card-title">工具调用</div>
+              <div class="card-subtitle">AI系统需要调用的内外部 API</div>
+            </div>
+            <div class="card-header-icon">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+  </div>
+          </div>
+          <div class="card-body">
+            <ul>
+              
+                <li><span class="bullet"></span>收益管理系统（舱位分配 / 运价配置）</li>
+              
+                <li><span class="bullet"></span>市场运价指数数据源（SCFI / CCFI API）</li>
+              
+                <li><span class="bullet"></span>电商报价引擎（E-Spot / E-Quote / All-in-One 询价接口）</li>
+              
+                <li><span class="bullet"></span>船舶动态与船期系统（海洋联盟运力数据）</li>
+              
+                <li><span class="bullet"></span>BI / 数据仓库（历史成交与财务数据）</li>
+              
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Col 5: productType & userGains -->
+      <div class="column">
+        <div class="card theme-product">
+          <div class="card-header">
+            <div class="header-text">
+              <div class="card-title">产品形态</div>
+              <div class="card-subtitle">AI系统的产品形式 and 交互方式</div>
+            </div>
+            <div class="card-header-icon">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="M10 4v4"/><path d="M2 8h20"/><path d="M6 4v4"/></svg>
+  </div>
+          </div>
+          <div class="card-body">
+            <ul>
+              
+                <li><span class="bullet"></span>报价引擎内置 AI 定价模块（后端能力，前端无感）</li>
+              
+                <li><span class="bullet"></span>收益管理团队决策辅助看板（运价预测 + 风险预警）</li>
+              
+                <li><span class="bullet"></span>面向客户的"锁价风险可视化"页面（[推断]扩展方向）</li>
+              
+            </ul>
+          </div>
+        </div>
+        <div class="card theme-gains">
+          <div class="card-header">
+            <div class="header-text">
+              <div class="card-title">用户收益</div>
+              <div class="card-subtitle">用户通过使用该AI场景获得的好处</div>
+            </div>
+            <div class="card-header-icon">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+  </div>
+          </div>
+          <div class="card-body">
+            <ul>
+              
+                <li><span class="bullet"></span>舱位保证兑现率向 95%+（KPI 5）收敛，SME 复购与信任提升</li>
+              
+                <li><span class="bullet"></span>锁价弃约率下降，收益风险敞口受控（对冲 2025 年溢利 -41.3% 的运价波动冲击）</li>
+              
+                <li><span class="bullet"></span>全航线透明报价覆盖扩大，减少 SME 跨平台比价流失</li>
+              
+                <li><span class="bullet"></span>电商单箱服务成本向 -20%（KPI 8）目标贡献定价自动化红利</li>
+              
+            </ul>
+          </div>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div style="text-align: right; margin-top: 16px; font-size: 0.75rem; color: #94a3b8; max-width: 1400px; margin-left: auto; margin-right: auto;">
+    Generated by ai-canvas-generator &middot; Offline Engine
+  </div>
+
+</body>
+</html>

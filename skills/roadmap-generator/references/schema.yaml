@@ -1,0 +1,46 @@
+title: "移动电商应用演进路线图"
+description: "这里可以填写对于路线图战略和方向的一句话概括或总结描述"
+configuration:
+  timeframe: "2026-2027"
+  version: "1.0"
+  status: "规划中"
+  owner: "产品团队"
+  lastUpdated: "2026-05-01"
+phases:
+  - name: "版本 1.0 - 基础闭环"
+    description: "可选的短描述"
+    timeframe: "2026 Q1"
+    objectives:
+      - category: "用户体验" # 分类标签，渲染为左侧小badge，例如用户、业务等
+        description: "建立核心购物体验与履约流程"
+    metrics:
+      - name: "用户注册数"
+        target: "10,000"
+      - name: "订单转化率"
+        target: "2%"
+    initiatives:
+      - category: "产品功能" # 分类标签，渲染为 badge，如产品、运营、市场、技术
+        name: "核心交易系统" # 可选项
+        description: "底座能力搭建" # 可选项
+        items:
+          - "用户注册与登录组件"
+          - "基础商品搜索与浏览"
+          - "购物车与支付全链路重构"
+      - category: "技术基建"
+        items:
+          - "压测与容灾平台搭建"
+  - name: "版本 2.0 - 社交与体验增强"
+    timeframe: "2026 Q2"
+    objectives:
+      - category: "商业"
+        description: "提升用户留存与活跃"
+    metrics:
+      - name: "月活跃用户 (MAU)"
+        target: "50,000"
+    initiatives:
+      - category: "运营策略"
+        name: "社交裂变体系"
+        items:
+          - "个性化商品推荐算法"
+          - "社交拼团与拼单功能"
+          - "用户评价和种草社区"

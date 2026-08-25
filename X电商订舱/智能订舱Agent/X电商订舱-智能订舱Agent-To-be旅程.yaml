@@ -1,0 +1,301 @@
+title: "智能订舱 Agent · To-be 旅程设计"
+meta:
+  mode: "to-be"
+  source: "AI画布: X电商订舱-AI画布-01智能订舱Agent.yaml"
+  scenarioName: "智能订舱 Agent（Ask Fin 升级为可执行订舱 Agent）"
+  productType: "独立电商平台内嵌 AI 助手（网页端 + 微信小程序）+ X Mobile App 全天候聊天机器人"
+personas:
+  - id: "sme_shipper"
+    name: "王静"
+    role: "SME 货主直客"
+    department: "贸易公司 · 供应链部"
+    background: "跨境电商家居用品贸易公司供应链经理，月均订舱 8~15 个 40HQ 标准柜，主走华东—美西/欧洲航线，通过 X 电商订舱平台与微信小程序自助订舱"
+    goals:
+      - "拿到透明可信的报价与舱位，减少多平台比价"
+      - "全流程自助完成订舱，不被客服与补件流程牵着走"
+      - "旺季货期有保障，甩柜/延误提前知晓"
+    painPoints:
+      - "询价→订舱→跟单全流程信息不对称、依赖人工客服（来源：phase3 应解决的核心痛点）"
+      - "多平台比价耗时，SME 议价能力弱（来源：As-Is 体验旅程图·询价与比价）"
+      - "新客首单无历史数据，Smart Push 预填不可用，首单仍偏慢（来源：AI Canvas userPains）"
+    dataProfile:
+      typicalValues:
+        - "月度 8~15 TEU，常用 40HQ，华东—美西/欧洲"
+        - "单票货值 USD 8,000~15,000，SME 信用账期 30 天"
+      frequency: "高频（月询价 10+ 次）"
+      commonErrors:
+        - "SI 品名与 HS 编码不一致"
+        - "VGM 截止前漏报"
+  - id: "sme_operator"
+    name: "陈浩"
+    role: "订舱操作员"
+    department: "货主企业 · 单证组"
+    background: "负责企业日常订舱执行与单证提交，每周处理 6~10 票订舱，熟悉 3 步订舱表单与智慧单证系统"
+    goals:
+      - "减少表单重复录入与往返补件"
+      - "订舱一次提交通过率提升"
+      - "订舱状态与单证进度自动同步"
+    painPoints:
+      - "3 步表单字段多，手工录入易错（来源：服务蓝图·订舱受理）"
+      - "资料不全被退单，往返补件拉长订舱周期（来源：As-Is 体验旅程图·补充资料与补件）"
+      - "SI 长尾字段仍需人工复核，偶尔退单返工（来源：As-Is 体验旅程图·提交 SI 与 VGM）"
+    dataProfile:
+      typicalValues:
+        - "每周 6~10 票，单票 1~2 个 40HQ"
+        - "SI 字段 15+ 项（品名/唛头/件数/毛重/体积/HS/VGM）"
+      frequency: "高频（周 10+ 次交互）"
+      commonErrors:
+        - "品名翻译不规范，HS 编码映射错误"
+        - "VGM 与装箱单毛重不一致"
+  - id: "csr_lin"
+    name: "林晓"
+    role: "人工客服 CSR"
+    department: "X 电商客服中心"
+    background: "X 电商订舱平台客服，日均处理 40+ 会话，承接复杂改船/投诉/补件类问题，日常使用 AI 客服（Ask Fin/小飞）辅助"
+    goals:
+      - "复杂问题一次性解决率提升，不再重复收集上下文"
+      - "标准订舱交由 Agent 分流，专注高价值复杂场景"
+    painPoints:
+      - "AI 问答对复杂多单、多单证场景处理有限，需频繁转人工（来源：AI Canvas userPains）"
+      - "复杂问题转人工时需重复提供上下文，一次性解决率低（来源：AI Canvas userPains）"
+    dataProfile:
+      typicalValues:
+        - "日均 40+ 会话，转人工占比约 25% [推断]"
+        - "2025 年 AI 互动 150 万+ 次（同比 +43%，X 年报口径）"
+      frequency: "高频"
+      commonErrors:
+        - "会话上下文在转人工时丢失"
+        - "工单信息不完整，需二次回访"
+scenarios:
+  - id: "s1"
+    name: "新客首单直达"
+    personaId: "sme_shipper"
+    trigger: "新注册 SME 首次订舱，无历史交易数据（Smart Push 预填不可用）"
+    businessData:
+      - "首单询价：上海→洛杉矶 40HQ，期望 ETD 2026-10-08"
+      - "PI-2026-0902.pdf（品名/数量/金额）+ 企业认证资料"
+    goal: "首单从询价到获得 Booking Confirmation ≤2 小时（KPI 3），全程无人工介入"
+  - id: "s2"
+    name: "旺季舱位变更"
+    personaId: "sme_shipper"
+    trigger: "旺季原定航次被甩柜，Agent 提前 72h 主动预警并给出改配方案"
+    businessData:
+      - "订舱号 BK-2026-0901-001，原航次 X-PRIDE 101E（ETD 09-12）[推断]"
+      - "Delay in Transit 条款（2025.12 上线）保障状态"
+    goal: "5 分钟内获得改配方案与舱位保证承诺，延误赔付自动预判"
+  - id: "s3"
+    name: "批量日常订舱"
+    personaId: "sme_operator"
+    trigger: "每周一基于出货计划批量提交订舱与 SI"
+    businessData:
+      - "出货计划表（3 票：美西 2 票 + 欧洲 1 票）"
+      - "装箱单/发票各 3 份（品名/件数/毛重/体积/HS 字段）"
+    goal: "3 票 SI 批量预填 15 分钟内完成，异常项一次补全"
+stages:
+  - name: "询价对话"
+    actions:
+      - name: "自然语言发起询价"
+        owner: "SME 货主直客"
+        touchpoints: "独立电商平台 · Agent 对话窗（网页/微信小程序）"
+        thoughts:
+          - "希望像聊天一样把货送走，别再填一堆表单"
+          - "AI 能理解我要的航线吗？"
+        userInputs:
+          - type: "自然语言"
+            name: "询价咨询"
+            format: "文本/语音"
+            example: "上海到洛杉矶 40HQ，10月8日截关的船有吗？全包价多少？"
+            content: "起运港、目的港、箱型、期望 ETD、货量（TEU）"
+        aiInteraction:
+          aiAction: "意图识别（询价）→ 调用 E-Spot 报价引擎 → 输出即期报价并逐项解读（全包价构成/有效期/舱位保证）"
+          suggestions:
+            - "给我一份可锁价的报价单"
+            - "对比 10 月上旬全部航次"
+            - "查询 Space Protection 舱位保证条款"
+        visibleData:
+          - "报价卡：上海→洛杉矶 40HQ，All-in USD 2,450/40HQ，有效期至 2026-09-30（E-Spot 产品）"
+          - "解读：含海运费+BAF，不含目的港 THC/D&D；市场基准 SCFI 美西约 USD 2,300~2,600 [推断]"
+        designNotes:
+          - "询价→报价由数小时压缩至秒级，对齐 KPI 3（在线订舱确认时效 ≤2h）"
+          - "报价解读附费用构成与市场基准，消除 SME 信息不对称（phase3 核心痛点）"
+  - name: "报价解读与舱位推荐"
+    actions:
+      - name: "确认 Agent 推荐舱位"
+        owner: "SME 货主直客"
+        touchpoints: "Agent 对话窗 · 推荐卡片"
+        thoughts:
+          - "AI 推荐的航次为什么更优？舱位靠不靠谱？"
+        userInputs:
+          - type: "系统自动带入"
+            name: "会话上下文 + 会员画像"
+            format: "OMS/CRM API"
+            example: "PlumSmart Silver 等级 · 近 3 个月 12 TEU"
+            content: "客户画像、历史偏好航线、会员等级权益"
+        aiInteraction:
+          aiAction: "按装载率/中转/ETA 置信度/舱位保证综合排序推荐 Top 3，并解释推荐理由（可解释性）"
+          suggestions:
+            - "预订方案 A（E-Spot 舱位保证）"
+            - "切换 Secured E-Quote 锁价"
+            - "查看 3 个方案对比表"
+        visibleData:
+          - "推荐 Top 3：A. E-Spot 即期 USD 2,450 12 天 舱位保证 92 分；B. Secured E-Quote USD 2,580 14 天 舱位保证 88 分；C. E-Quote 长协 USD 2,380 15 天 需确认 81 分"
+          - "推荐理由：A 航次装载率 78% 余舱充足、ETA 置信度 94% [推断]"
+        designNotes:
+          - "舱位推荐逻辑透明可解释（装载率/ETA 置信度/得分），支撑 KPI 5 舱位保证兑现率 95%+"
+          - "旺季改船场景 5 分钟给出改配方案（承接 Canvas workflow·状态查询与异常处置）"
+  - name: "一键订舱确认"
+    actions:
+      - name: "对话内一键订舱"
+        owner: "SME 货主直客"
+        touchpoints: "Agent 对话窗 · 确认卡片 / 微信小程序"
+        thoughts:
+          - "点确认就能下单吗？字段都齐了吗？"
+        userInputs:
+          - type: "自动预填"
+            name: "3 步表单字段"
+            format: "OMS 规则引擎"
+            example: "货方/收货方/港口对/箱型/货量/品名（从会话与画像提取）"
+            content: "订舱必填字段 + 校验规则（>200 条，来源：CKD S1 订舱校验规则引擎）"
+        aiInteraction:
+          aiAction: "自动预填 3 步表单 → 规则校验（费率/信用/航线）→ 提交订舱请求 → 签发 Booking Confirmation"
+          suggestions:
+            - "确认提交订舱"
+            - "先核对预填字段"
+            - "暂存草稿稍后提交"
+        visibleData:
+          - "预填校验：12/12 字段通过（费率参考号、货方信息、港口对等）"
+          - "Booking Confirmation：BK-2026-0901-001，最快 1 分钟签发（标准 SME 订单；X 官方口径新版 3 步表单最快 1 分钟）"
+        designNotes:
+          - "标准 SME 订单自动校验扩围 → 平均确认时效向 ≤2h（KPI 3）收敛，头部向分钟级靠拢"
+          - "新客首单由 Smart Push 不可用 → 会话上下文+画像兜底预填（对应 AI Canvas userPains 首单痛点）"
+  - name: "单证预填（SI 自动生成）"
+    actions:
+      - name: "上传单据生成 SI"
+        owner: "订舱操作员"
+        touchpoints: "智慧单证 · AI 文件撷取"
+        thoughts:
+          - "上传 PI 和装箱单就能生成 SI 吗？别再让我手敲 15 个字段"
+        userInputs:
+          - type: "文件上传"
+            name: "贸易单据（PI/装箱单/发票）"
+            format: "PDF/图片/Excel"
+            example: "PI-2026-0902.pdf + 装箱单-0902.xlsx"
+            content: "品名、唛头、件数、毛重、体积、HS 编码、金额"
+        aiInteraction:
+          aiAction: "OCR 抽取 SI 字段 → 多语言品名规范 + HS 编码映射 → 规则校验（>300 条单证规则，来源：CKD S4）"
+          suggestions:
+            - "一键确认并提交 SI"
+            - "查看校验明细"
+            - "修正品名翻译"
+        visibleData:
+          - "SI 预填 8/10 字段通过：品名（家居收纳用品）、唛头 N/M、件数 480 CTNS、毛重 12,480 KG、体积 42.6 CBM、HS 9403.20"
+          - "2 项异常：VGM 缺失（标黄）、毛重与 VGM 差异 3.2%（待复核）"
+        designNotes:
+          - "SI 录入由约 30 分钟降至 5 分钟，复用智慧单证年 35 万份自动处理基座（来源：CKD S4 / X 年报口径）"
+          - "多语言品名/长尾字段人工复核比例下降（对应 As-Is 痛点：提交 SI 与 VGM）"
+  - name: "异常补件"
+    actions:
+      - name: "按 AI 提示一次补全"
+        owner: "订舱操作员"
+        touchpoints: "Agent 对话窗 · 补件卡片 / 微信小程序"
+        thoughts:
+          - "缺什么、怎么填，能一次说清楚吗？"
+        userInputs:
+          - type: "表单补录"
+            name: "缺失字段（VGM/收货人税号）"
+            format: "页内表单 + 示例"
+            example: "VGM 12,900 KG（装柜后过磅）"
+            content: "缺件字段值 + 填写示例"
+        aiInteraction:
+          aiAction: "缺件实时提示 + 生成填写示例 + 合规校验（VGM 截止时间、监管申报）"
+          suggestions:
+            - "提交补件"
+            - "查看示例模板"
+            - "转人工协助（附完整上下文摘要）"
+        visibleData:
+          - "补件清单：VGM（示例：12,900 KG）、收货人税号（示例：US/EIN 88-1234567）"
+          - "提交后校验：全部通过，SI 已推送单证系统"
+        designNotes:
+          - "往返补件由 2~3 轮压缩至 1 轮，一次提交通过率提升（对应 As-Is 痛点：资料不全被退单）"
+          - "复杂场景转人工时附完整对话摘要与客户画像（承接 Canvas workflow·智能升级）"
+  - name: "支付"
+    actions:
+      - name: "在线支付运费"
+        owner: "SME 货主直客"
+        touchpoints: "支付网关 / 微信小程序"
+        thoughts:
+          - "外币付款手续费能低一点吗？"
+        userInputs:
+          - type: "支付确认"
+            name: "运费与结算币种"
+            format: "支付网关"
+            example: "USD 2,450/40HQ × 1 = USD 2,450"
+            content: "订舱号、金额、币种（USD/CNY/EUR）、支付方式"
+        aiInteraction:
+          aiAction: "费用试算（多币种汇率/手续费）→ 生成支付链接 → 支付后自动开票核销"
+          suggestions:
+            - "选择本地支付通道"
+            - "申请 30 天信用账期"
+            - "查看运费明细"
+        visibleData:
+          - "费用试算：USD 2,450 ≈ CNY 17,640（汇率 7.2，手续费 1.2% [推断]）"
+          - "支付成功：发票 INV-2026-0903-001 已生成，OMS 状态同步"
+        designNotes:
+          - "多币种结算与本地支付通道覆盖，降低 SME 小额高频支付成本（对应 As-Is 痛点：外币支付手续费高）"
+          - "支付-开票-核销自动化，减少人工对账（对应服务蓝图：多渠道对账成本高）"
+  - name: "出运跟踪交互"
+    actions:
+      - name: "对话查船期与里程碑"
+        owner: "SME 货主直客"
+        touchpoints: "控制塔 / Cargo Tracking+ / Agent 对话窗"
+        thoughts:
+          - "货到哪了？直接问 Agent 就行"
+        userInputs:
+          - type: "自然语言"
+            name: "跟踪咨询"
+            format: "文本"
+            example: "BK-2026-0901-001 现在到哪了？"
+            content: "订舱号 / 提单号 / 箱号"
+        aiInteraction:
+          aiAction: "调用 OMS/控制塔 API 拉取里程碑 → 对话式播报 + 异常节点高亮 + 订阅通知"
+          suggestions:
+            - "订阅里程碑通知"
+            - "预测到港时间 ETA"
+            - "设置延误提醒"
+        visibleData:
+          - "里程碑：开船 09-12 完成 · 中转港釜山 09-18 进行中 · ETA 洛杉矶 10-02"
+          - "AI 预测：洛杉矶码头拥堵指数高企，ETA 延误概率 68% [推断]，预计延误 2~3 天"
+        designNotes:
+          - "跟踪咨询由人工查询转 Agent 秒级响应，支撑 AI 分流率 30%+（KPI 4）"
+          - "ETA 从事后通知升级为预测性预警（对应 As-Is 痛点：ETA 延误多为事后通知）"
+  - name: "售后/复购"
+    actions:
+      - name: "售后咨询与会员复购"
+        owner: "SME 货主直客"
+        touchpoints: "AI 客服（Ask Fin/小飞）/ PlumSmart / Agent 对话窗"
+        thoughts:
+          - "D&D 费用怎么算的？下个月舱位能先锁吗？"
+        userInputs:
+          - type: "自然语言"
+            name: "售后咨询"
+            format: "文本"
+            example: "这票免箱期几天？超期 D&D 怎么算？"
+            content: "订舱号、费用类型、会员诉求"
+        aiInteraction:
+          aiAction: "D&D 规则智能解读（各港免箱期）→ 超期预警 → 会员复购与舱位预留推荐"
+          suggestions:
+            - "申请免箱期豁免"
+            - "预留下月美西舱位"
+            - "查看复购优惠"
+        visibleData:
+          - "免箱期解读：洛杉矶 7 天免费（超出 USD 50/天/40HQ [推断]），预计 10-06 前提柜无超期风险"
+          - "复购推荐：基于近 3 个月 12 TEU 订舱量，预留下月美西舱位保证额度（PlumSmart Silver）"
+        designNotes:
+          - "D&D 前置透明 + 超期预警，费用争议下降（对应 As-Is 痛点：免箱期规则复杂）"
+          - "AI 主动关怀关键节点，驱动直客（非货代）订单占比向 40%（KPI 7）演进"
+handoff:
+  paths:
+    - "主路径：对话询价 → 报价解读与舱位推荐 → 一键订舱 → 单证预填（SI）→ 异常补件 → 支付 → 出运跟踪 → 售后复购"
+    - "分支：旺季甩柜 → Agent 72h 主动预警 → 改配方案 + 舱位保证（Delay in Transit，2025.12 上线）赔付预判"
+    - "异常：SI 字段缺失 / VGM 未报 → AI 追问补录并给出填写示例，不阻塞主流程；复杂问题转人工时附完整上下文摘要"
+    - "边界：新客首单无历史数据 → 以会话上下文 + PI/装箱单 OCR 预填兜底，并标注置信度"

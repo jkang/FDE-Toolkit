@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能制造故障诊断助手 CKD 映射报告 - Agentic AI Asset Architecture</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root {
+            --bg-main: #fcfcfd;
+            --glass-bg: rgba(255, 255, 255, 0.75);
+            --border-soft: rgba(226, 232, 240, 0.6);
+            --accent-blue: #2563eb;
+            --text-slate: #475569;
+        }
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background-color: var(--bg-main);
+            color: #0f172a;
+            padding: 60px 40px;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(37, 99, 235, 0.03) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(139, 92, 246, 0.03) 0px, transparent 50%),
+                url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%239C92AC' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2v-4h4v-2h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2v-4h4v-2H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+        h1, h2, h3 { font-family: 'Outfit', sans-serif; }
+        
+        /* Stats Section */
+        .stat-card {
+            background: white;
+            border: 1px solid var(--border-soft);
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
+            transition: all 0.3s ease;
+        }
+        .stat-card:hover { transform: translateY(-2px); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05); }
+
+        /* Matrix Styles */
+        .matrix-wrapper {
+            position: relative;
+            border-radius: 32px;
+            overflow: hidden;
+            border: 1px solid var(--border-soft);
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.04);
+            margin-top: 48px;
+        }
+        
+        .scroll-container {
+            overflow-x: auto;
+            max-width: 100%;
+        }
+
+        table {
+            border-collapse: separate;
+            border-spacing: 0;
+            min-width: 100%;
+        }
+
+        th, td {
+            padding: 28px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-soft);
+            border-right: 1px solid var(--border-soft);
+            min-width: 320px;
+        }
+
+        /* Dimension Label Column (Sticky) */
+        .dim-label {
+            position: sticky;
+            left: 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(12px);
+            z-index: 20;
+            font-weight: 800;
+            color: #64748b;
+            text-transform: uppercase;
+            font-size: 0.7rem;
+            letter-spacing: 0.15em;
+            width: 180px;
+            min-width: 180px;
+            border-right: 3px solid var(--accent-blue);
+        }
+
+        /* Step Header (Sticky Top) */
+        .step-header {
+            position: sticky;
+            top: 0;
+            background: #0f172a;
+            color: white;
+            z-index: 30;
+            padding: 24px 32px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            letter-spacing: -0.02em;
+        }
+        
+        .step-header-corner {
+            position: sticky;
+            left: 0;
+            top: 0;
+            background: #1e293b;
+            z-index: 40;
+        }
+
+        /* Cell Content Styling */
+        .asset-group { display: flex; flex-direction: column; gap: 20px; }
+        .asset-item { position: relative; }
+        .asset-item:not(:last-child)::after {
+            content: "";
+            display: block;
+            height: 1px;
+            background: var(--border-soft);
+            margin: 20px 0;
+        }
+
+        .context-name {
+            font-weight: 800;
+            color: #1e293b;
+            font-size: 1.1rem;
+            margin-bottom: 4px;
+            display: block;
+            letter-spacing: -0.01em;
+        }
+
+        .type-pill {
+            display: inline-flex;
+            padding: 3px 10px;
+            border-radius: 6px;
+            background: #f1f5f9;
+            color: #475569;
+            font-size: 0.65rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .ai-init-sparkle {
+            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 800;
+            font-size: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 700;
+            font-size: 0.75rem;
+        }
+        .dot { width: 8px; height: 8px; border-radius: 50%; }
+        .dot-ready { background: #10b981; box-shadow: 0 0 10px rgba(16, 185, 129, 0.4); }
+        .dot-progress { background: #f59e0b; box-shadow: 0 0 10px rgba(245, 158, 11, 0.4); }
+        .dot-todo { background: #94a3b8; }
+
+        tr:last-child td { border-bottom: none; }
+        td:last-child { border-right: none; }
+
+        /* Animations */
+        @keyframes slideUpFade {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-in { animation: slideUpFade 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+        
+        @media print {
+            body { padding: 20px; background: white; }
+            .matrix-wrapper { overflow: visible; box-shadow: none; border: 1px solid #e2e8f0; }
+            .dim-label, .step-header { position: static; background: #f8fafc; color: black; border: 1px solid #e2e8f0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="max-w-[2000px] mx-auto">
+        <!-- Header -->
+        <header class="animate-in flex justify-between items-end mb-12">
+            <div class="space-y-4">
+                <div class="inline-flex items-center gap-2 px-3 py-1 bg-blue-50 text-blue-600 rounded-lg text-xs font-bold uppercase tracking-widest">
+                    <i data-lucide="layers" class="w-4 h-4"></i>
+                    <span>Knowledge Graph & Data Inventory</span>
+                </div>
+                <h1 class="text-5xl font-black tracking-tight text-slate-900">智能制造故障诊断助手 CKD 映射报告</h1>
+                <p class="text-xl text-slate-500 font-medium max-w-3xl leading-relaxed">
+                    通过对工业设备故障诊断工作流的梳理，明确从设备建模、异常检测到维修建议生成全链路所需的知识基座与实时数据依赖。
+                </p>
+            </div>
+            
+            <div class="flex gap-4">
+                <div class="stat-card">
+                    <span class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Process Steps</span>
+                    <span class="text-3xl font-black text-slate-900">3</span>
+                </div>
+                <div class="stat-card">
+                    <span class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Asset Entities</span>
+                    
+                    
+                    <span class="text-3xl font-black text-slate-900">0</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Matrix Board -->
+        <div class="matrix-wrapper animate-in" style="animation-delay: 0.2s;">
+            <div class="scroll-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th class="step-header-corner dim-label">流程节点 \ 维度</th>
+                            
+                            <th class="step-header">1. 全息画像构建</th>
+                            
+                            <th class="step-header">2. 智能诊断 (定义层)</th>
+                            
+                            <th class="step-header">3. 方案生成 (执行层)</th>
+                            
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- 上下文名称/描述 -->
+                        <tr>
+                            <td class="dim-label">核心资产与定义</td>
+                            
+                            <td>
+                                <div class="asset-group">
+                                    
+                                    <div class="asset-item">
+                                        <span class="context-name">设备静态台账 (CMDB)</span>
+                                        <p class="text-sm text-slate-500 leading-relaxed">设备的“身份证”，包含型号、固件版本、BOM 结构等基础信息。</p>
+                                    </div>
+                                    
+                                    <div class="asset-item">
+                                        <span class="context-name">实时运行日志</span>
+                                        <p class="text-sm text-slate-500 leading-relaxed">设备最近的遥测数据（电压、电流、温度）及系统日志，用于判断环境状态。</p>
+                                    </div>
+                                    
+                                </div>
+                            </td>
+                            
+                            <td>
+                                <div class="asset-group">
+                                    
+                                    <div class="asset-item">
+                                        <span class="context-name">故障代码映射表 (DTC)</span>
+                                        <p class="text-sm text-slate-500 leading-relaxed">机器语言转自然语言的字典，定义 Hex 码对应的标准故障名称及等级。</p>
+                                    </div>
+                                    
+                                    <div class="asset-item">
+                                        <span class="context-name">诊断决策树</span>
+                                        <p class="text-sm text-slate-500 leading-relaxed">专家定义的排查逻辑流，用于引导 AI 进行逻辑推理而非盲目预测。</p>
+                                    </div>
+                                    
+                                </div>
+                            </td>
+                            
+                            <td>
+                                <div class="asset-group">
+                                    
+                                    <div class="asset-item">
+                                        <span class="context-name">历史维修案例库</span>
+                                        <p class="text-sm text-slate-500 leading-relaxed">非结构化的历史维修记录、专家笔记，用于通过相似度检索解决疑难杂症。</p>
+                                    </div>
+                                    
+                                    <div class="asset-item">
+                                        <span class="context-name">标准作业指导书 (SOP)</span>
+                                        <p class="text-sm text-slate-500 leading-relaxed">针对具体故障的原子化维修步骤、扭矩要求及安全警示。</p>
+                                    </div>
+                                    
+                                </div>
+                            </td>
+                            
+                        </tr>
+
+                        <!-- 类型 -->
+                        <tr>
+                            <td class="dim-label">资产类型</td>
+                            
+                            <td>
+                                <div class="asset-group">
+                                    
+                                    <div class="asset-item"><span class="type-pill">关系型数据</span></div>
+                                    
+                                    <div class="asset-item"><span class="type-pill">时序数据</span></div>
+                                    
+                                </div>
+                            </td>
+                            
+                            <td>
+                                <div class="asset-group">
+                                    
+                                    <div class="asset-item"><span class="type-pill">静态字典</span></div>
+                                    
+                                    <div class="asset-item"><span class="type-pill">图谱 / 规则链</span></div>
+                                    
+                                </div>
+                            </td>
+                            
+                            <td>
+                                <div class="asset-group">
+                                    
+                                    <div class="asset-item"><span class="type-pill">向量嵌入</span></div>
+                                    
+                                    <div class="asset-item"><span class="type-pill">结构化文档</span></div>
+                                    
+                                </div>
+                            </td>
+                            
+                        </tr>
+
+                        <!-- 存储与检索 -->
+                        <tr>
+                            <td class="dim-label">存储方式 / 检索</td>
+                            
+                            <td>
+                                <div class="asset-group">
+                                    
+                                    <div class="asset-item">
+                                        <div class="text-sm font-bold text-slate-800">MySQL / 关系型数据库</div>
+                                        <div class="text-xs text-slate-400 mt-1 uppercase font-bold">设备 ID 精确查询</div>
+                                    </div>
+                                    
+                                    <div class="asset-item">
+                                        <div class="text-sm font-bold text-slate-800">InfluxDB / 时序库</div>
+                                        <div class="text-xs text-slate-400 mt-1 uppercase font-bold">时间窗口查询</div>
+                                    </div>
+                                    
+                                </div>
+                            </td>
+                            
+                            <td>
+                                <div class="asset-group">
+                                    
+                                    <div class="asset-item">
+                                        <div class="text-sm font-bold text-slate-800">Redis / 内存缓存</div>
+                                        <div class="text-xs text-slate-400 mt-1 uppercase font-bold">Key-Value 查询</div>
+                                    </div>
+                                    
+                                    <div class="asset-item">
+                                        <div class="text-sm font-bold text-slate-800">JSON / 配置文件</div>
+                                        <div class="text-xs text-slate-400 mt-1 uppercase font-bold">逻辑路径匹配</div>
+                                    </div>
+                                    
+                                </div>
+                            </td>
+                            
+                            <td>
+                                <div class="asset-group">
+                                    
+                                    <div class="asset-item">
+                                        <div class="text-sm font-bold text-slate-800">Milvus / 向量数据库</div>
+                                        <div class="text-xs text-slate-400 mt-1 uppercase font-bold">语义相似度检索</div>
+                                    </div>
+                                    
+                                    <div class="asset-item">
+                                        <div class="text-sm font-bold text-slate-800">MongoDB / 文档库</div>
+                                        <div class="text-xs text-slate-400 mt-1 uppercase font-bold">标签匹配 + 关键词</div>
+                                    </div>
+                                    
+                                </div>
+                            </td>
+                            
+                        </tr>
+
+                        <!-- 数据量与频度 -->
+                        <tr>
+                            <td class="dim-label">规模 / 更新频度</td>
+                            
+                            <td>
+                                <div class="asset-group">
+                                    
+                                    <div class="asset-item">
+                                        <div class="text-sm font-black">50k+ 设备记录</div>
+                                        <div class="text-[10px] text-blue-500 font-bold mt-1 uppercase tracking-tighter">低频 (设备变更)</div>
+                                    </div>
+                                    
+                                    <div class="asset-item">
+                                        <div class="text-sm font-black">单台每日 MB 级</div>
+                                        <div class="text-[10px] text-blue-500 font-bold mt-1 uppercase tracking-tighter">极高频 (秒级)</div>
+                                    </div>
+                                    
+                                </div>
+                            </td>
+                            
+                            <td>
+                                <div class="asset-group">
+                                    
+                                    <div class="asset-item">
+                                        <div class="text-sm font-black">< 2,000 个故障码</div>
+                                        <div class="text-[10px] text-blue-500 font-bold mt-1 uppercase tracking-tighter">低频 (协议更新)</div>
+                                    </div>
+                                    
+                                    <div class="asset-item">
+                                        <div class="text-sm font-black">< 200 个核心逻辑</div>
+                                        <div class="text-[10px] text-blue-500 font-bold mt-1 uppercase tracking-tighter">季度更新</div>
+                                    </div>
+                                    
+                                </div>
+                            </td>
+                            
+                            <td>
+                                <div class="asset-group">
+                                    
+                                    <div class="asset-item">
+                                        <div class="text-sm font-black">> 10,000 个案例</div>
+                                        <div class="text-[10px] text-blue-500 font-bold mt-1 uppercase tracking-tighter">月度沉淀</div>
+                                    </div>
+                                    
+                                    <div class="asset-item">
+                                        <div class="text-sm font-black">< 500 个标准 SOP</div>
+                                        <div class="text-[10px] text-blue-500 font-bold mt-1 uppercase tracking-tighter">低频 (新机型)</div>
+                                    </div>
+                                    
+                                </div>
+                            </td>
+                            
+                        </tr>
+
+                        <!-- AI 辅助 & 状态 -->
+                        <tr>
+                            <td class="dim-label">AI 初始化 / 支持状态</td>
+                            
+                            <td>
+                                <div class="asset-group">
+                                    
+                                    <div class="asset-item flex items-center justify-between">
+                                        <div>
+                                            
+                                            <span class="text-slate-300 text-[10px] font-bold">—</span>
+                                            
+                                        </div>
+                                        <div class="status-indicator">
+                                            
+                                            <div class="dot dot-ready"></div>
+                                            <span class="text-[10px] font-black uppercase text-slate-400">已支持</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="asset-item flex items-center justify-between">
+                                        <div>
+                                            
+                                            <span class="text-slate-300 text-[10px] font-bold">—</span>
+                                            
+                                        </div>
+                                        <div class="status-indicator">
+                                            
+                                            <div class="dot dot-ready"></div>
+                                            <span class="text-[10px] font-black uppercase text-slate-400">已支持</span>
+                                        </div>
+                                    </div>
+                                    
+                                </div>
+                            </td>
+                            
+                            <td>
+                                <div class="asset-group">
+                                    
+                                    <div class="asset-item flex items-center justify-between">
+                                        <div>
+                                            
+                                            <span class="text-slate-300 text-[10px] font-bold">—</span>
+                                            
+                                        </div>
+                                        <div class="status-indicator">
+                                            
+                                            <div class="dot dot-ready"></div>
+                                            <span class="text-[10px] font-black uppercase text-slate-400">已支持</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="asset-item flex items-center justify-between">
+                                        <div>
+                                            
+                                            <div class="ai-init-sparkle">
+                                                <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+                                                <span>AI READY</span>
+                                            </div>
+                                            
+                                        </div>
+                                        <div class="status-indicator">
+                                            
+                                            <div class="dot dot-progress"></div>
+                                            <span class="text-[10px] font-black uppercase text-slate-400">建设中</span>
+                                        </div>
+                                    </div>
+                                    
+                                </div>
+                            </td>
+                            
+                            <td>
+                                <div class="asset-group">
+                                    
+                                    <div class="asset-item flex items-center justify-between">
+                                        <div>
+                                            
+                                            <div class="ai-init-sparkle">
+                                                <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+                                                <span>AI READY</span>
+                                            </div>
+                                            
+                                        </div>
+                                        <div class="status-indicator">
+                                            
+                                            <div class="dot dot-progress"></div>
+                                            <span class="text-[10px] font-black uppercase text-slate-400">建设中</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="asset-item flex items-center justify-between">
+                                        <div>
+                                            
+                                            <div class="ai-init-sparkle">
+                                                <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+                                                <span>AI READY</span>
+                                            </div>
+                                            
+                                        </div>
+                                        <div class="status-indicator">
+                                            
+                                            <div class="dot dot-todo"></div>
+                                            <span class="text-[10px] font-black uppercase text-slate-400">部分支持</span>
+                                        </div>
+                                    </div>
+                                    
+                                </div>
+                            </td>
+                            
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <footer class="mt-24 pb-12 flex justify-between items-center animate-in" style="animation-delay: 0.4s;">
+            <div class="text-xs font-black text-slate-300 uppercase tracking-[0.3em]">
+                Industrial AI Diagnosis Agent &bull; Asset Mapping
+            </div>
+            <div class="text-xs text-slate-400 font-medium">
+                Generated by <span class="font-bold text-slate-900">AI Workshop Skill</span> &copy; 2026
+            </div>
+        </footer>
+    </div>
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+</html>

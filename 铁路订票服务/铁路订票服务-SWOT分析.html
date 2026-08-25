@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>铁路订票服务-SWOT分析</title>
+  <script type="application/yaml" id="frontmatter">---
+title: "铁路订票服务｜Phase 2 SWOT 分析"
+business: "铁路订票服务（官方渠道）"
+scope: "订票→出行→后续服务全流程"
+generated_at: "2026-07-14"
+---</script>
+  <style>
+    :root{
+      --bg:#f5f5f6;--card:#ffffff;--text:#10213E;--muted:#64748B;--border:#E2E8F0;
+      --accent:#5DB2E2;--danger:#EF4444;--ok:#00524C;--warn:#F59E0B;
+      --font:"MiSans",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans SC","PingFang SC",Arial,sans-serif;
+    }
+    body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font);padding:56px 28px;}
+    .wrap{max-width:1100px;margin:0 auto;}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:10px;box-shadow:0 2px 8px rgba(16,33,62,.08);padding:28px;}
+    h1{margin:0 0 12px 0;font-size:22px;line-height:1.25;}
+    h2{margin:22px 0 10px 0;font-size:15px;line-height:1.25;}
+    p,li{font-size:14px;line-height:1.7;color:var(--text);}
+    .muted{color:var(--muted);}
+    .top{display:flex;gap:16px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;}
+    .btn{background:var(--text);color:#fff;border:none;border-radius:8px;padding:8px 12px;font-size:13px;font-weight:700;cursor:pointer}
+    .btn:hover{opacity:.85}
+    .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:14px}
+    .box{border:1px solid var(--border);border-radius:10px;padding:14px;background:#fff}
+    .box .t{display:flex;justify-content:space-between;align-items:center}
+    .pill{font-size:12px;font-weight:800;border-radius:999px;padding:2px 10px;border:1px solid var(--border);color:var(--muted)}
+    .pill.s{background:#eff6ff;color:#2563eb;border-color:#bfdbfe}
+    .pill.w{background:#fef2f2;color:#dc2626;border-color:#fecaca}
+    .pill.o{background:#f0fdf4;color:#16a34a;border-color:#bbf7d0}
+    .pill.t{background:#fffbeb;color:#d97706;border-color:#fde68a}
+    pre{background:#0b1220;color:#e5e7eb;padding:14px;border-radius:10px;overflow:auto;font-size:12px;line-height:1.6}
+    a{color:var(--accent);text-decoration:none}
+    a:hover{text-decoration:underline}
+    .toast{position:fixed;right:18px;bottom:18px;background:var(--ok);color:#fff;padding:10px 14px;border-radius:10px;font-size:13px;font-weight:700;display:none}
+    @media (max-width:900px){.grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <div class="top">
+        <div>
+          <h1>铁路订票服务｜Phase 2 SWOT 分析</h1>
+          <div class="muted">输入：Phase 1 业务现状调研｜覆盖：订票→出行→后续服务全流程</div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:center">
+          <button class="btn" onclick="copyYAML()">复制结构化 YAML</button>
+        </div>
+      </div>
+
+      <h2>来源（用于支撑部分事实点）</h2>
+      <ul>
+        <li><a href="https://wap.china-railway.com.cn/xwzx/zhxw/202503/t20250305_143296.html" target="_blank" rel="noreferrer">国铁集团统计公报（客运规模）</a></li>
+        <li><a href="https://www.12306.cn/index/" target="_blank" rel="noreferrer">官网能力入口聚合（订餐/约车/托运/旅游等）</a></li>
+        <li><a href="https://www.samr.gov.cn/fldys/sjdt/gzdt/art/2026/art_c49189fc7bc94f8cbdb87a85bb2facb4.html" target="_blank" rel="noreferrer">监管通报（票务领域宣传与隐私治理）</a></li>
+        <li><a href="https://kyfw.12306.cn/otn/gonggao/privacyPolicy_web.html" target="_blank" rel="noreferrer">隐私政策</a></li>
+      </ul>
+
+      <div class="grid">
+        <div class="box">
+          <div class="t"><h2 style="margin:0">Strengths</h2><span class="pill s">S</span></div>
+          <ul>
+            <li>S1 官方一致规则与状态机（可解释、可追溯）</li>
+            <li>S2 极大规模与高频入口（2024 旅客发送量 40.85 亿）</li>
+            <li>S3 服务生态扩展能力（订餐/约车/托运/旅游等）</li>
+            <li>S4 合规基础设施（隐私政策与 SDK 披露体系）</li>
+          </ul>
+        </div>
+        <div class="box">
+          <div class="t"><h2 style="margin:0">Weaknesses</h2><span class="pill w">W</span></div>
+          <ul>
+            <li>W1 公共服务属性导致商业化空间受限（避免“体验换收费”争议）</li>
+            <li>W2 峰值稳定性压力常态化</li>
+            <li>W3 规则复杂导致体验不可控与高失败成本</li>
+            <li>W4 风险治理成本高（反爬/反黄牛/账号安全/误伤）</li>
+          </ul>
+        </div>
+        <div class="box">
+          <div class="t"><h2 style="margin:0">Opportunities</h2><span class="pill o">O</span></div>
+          <ul>
+            <li>O1 一站式出行生态（酒店/接驳/餐饮/旅游）</li>
+            <li>O2 峰值体验产品化（排队透明、替代方案、失败补救）</li>
+            <li>O3 重点旅客/团队/差旅数字化</li>
+            <li>O4 合规数据驱动供需匹配（匿名化/汇总优化）</li>
+          </ul>
+        </div>
+        <div class="box">
+          <div class="t"><h2 style="margin:0">Threats</h2><span class="pill t">T</span></div>
+          <ul>
+            <li>T1 监管持续收紧（宣传、隐私、附加服务）</li>
+            <li>T2 隐私与安全事件风险</li>
+            <li>T3 供给侧不确定性（停运/晚点/运力调整）</li>
+            <li>T4 跨方式竞争（航司/公路/自驾分流）</li>
+          </ul>
+        </div>
+      </div>
+
+      <h2>交叉策略（摘要）</h2>
+      <ul>
+        <li>SO1：用官方一致规则把峰值体验做成可解释、可追溯的标准能力</li>
+        <li>WO1：商业化放在生态增值模块（酒店/接驳/餐饮/旅游），避免“公平性争议”</li>
+        <li>ST1：合规前置：最小必要数据 + 可审计实验机制</li>
+        <li>WT1：极端事件预案与客服联动（停运/晚点/大面积失败）</li>
+      </ul>
+
+      <h2>结构化 YAML</h2>
+      <pre id="yamlBlock"></pre>
+    </div>
+  </div>
+
+  <div class="toast" id="toast">已复制</div>
+
+  <script>
+    const yamlText = `title: "铁路订票服务｜Phase 2 SWOT 分析"
+business: "铁路订票服务（官方渠道）"
+scope: "订票→出行→后续服务全流程"
+generated_at: "2026-07-14"
+swot:
+  strengths:
+    - id: "S1"
+      name: "官方一致规则与状态机"
+    - id: "S2"
+      name: "极大规模与高频入口"
+    - id: "S3"
+      name: "服务生态扩展能力"
+    - id: "S4"
+      name: "合规基础设施"
+  weaknesses:
+    - id: "W1"
+      name: "商业化空间受限"
+    - id: "W2"
+      name: "峰值稳定性压力"
+    - id: "W3"
+      name: "规则复杂导致体验不可控"
+    - id: "W4"
+      name: "风险治理成本高"
+  opportunities:
+    - id: "O1"
+      name: "一站式出行生态"
+    - id: "O2"
+      name: "峰值体验产品化"
+    - id: "O3"
+      name: "重点旅客/团队/差旅数字化"
+    - id: "O4"
+      name: "合规数据驱动供需匹配"
+  threats:
+    - id: "T1"
+      name: "监管持续收紧"
+    - id: "T2"
+      name: "隐私与安全事件风险"
+    - id: "T3"
+      name: "供给侧不确定性"
+    - id: "T4"
+      name: "跨方式竞争"`;
+
+    document.getElementById("yamlBlock").textContent = yamlText;
+
+    async function copyYAML() {
+      try {
+        await navigator.clipboard.writeText(yamlText);
+        showToast();
+      } catch (e) {
+        const ta = document.createElement("textarea");
+        ta.value = yamlText;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand("copy");
+        ta.remove();
+        showToast();
+      }
+    }
+
+    function showToast() {
+      const t = document.getElementById("toast");
+      t.style.display = "block";
+      setTimeout(() => t.style.display = "none", 1200);
+    }
+  </script>
+</body>
+</html>
+

@@ -1,0 +1,35 @@
+# macOS 系统文件
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+
+# AI 工具 / 编辑器的内部目录（不入库）
+.opencode/
+.opencode-router/
+.sisyphus/
+.trae/
+.openwork-enterprise-creators
+
+# 本地客户案例目录（不入库）
+追觅科技供应链/
+伊利奶粉-分仓补货/
+
+# 依赖与构建产物
+node_modules/
+dist/
+.vite/
+*.js.map
+
+# 日志 / 临时 / 缓存
+*.log
+*.tmp
+*.cache
+__pycache__/
+*.pyc
+
+# 本地密钥
+.env
+.env.*
+*.local

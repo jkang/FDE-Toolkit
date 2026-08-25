@@ -1,0 +1,246 @@
+title: "X电商订舱 SME 货主直客体验旅程图（As-Is 现状诊断）"
+config:
+  mode: "as-is"
+  height:
+    experienceScore: 150
+stages:
+  - name: "认知与注册认证"
+    actions:
+      - name: "发现平台并浏览资讯"
+        owner: "SME 货主"
+        touchpoints: "独立电商平台官网/搜索引擎/行业展会"
+        experienceScore: 7
+        thoughts:
+          - "想找到比货代更透明的运价渠道"
+          - "担心小单量是否被重视"
+        painPoints:
+          - "平台认知度低于行业头部，主动搜索到达有限 [推断]"
+        aiusecase:
+          name: "智能获客与内容触达"
+          description: "基于货主搜索意图、贸易流向与航线的个性化内容推荐与精准触达，提升 SME 认知与首访转化。"
+      - name: "提交企业认证资料"
+        owner: "SME 货主"
+        touchpoints: "独立电商平台注册页"
+        experienceScore: 4
+        thoughts:
+          - "注册字段怎么这么多"
+          - "为什么认证要等这么久"
+        painPoints:
+          - "企业认证约需 3 个工作日，等待期无法订舱（X 官方口径）"
+        aiusecase:
+          name: "AI 自动认证审核"
+          description: "基于营业执照 OCR 与多源验真的分钟级自动开户，同步开通订舱权限，消灭等待窗口。"
+  - name: "询价与比价"
+    actions:
+      - name: "查询即期运价（E-Spot）"
+        owner: "SME 货主"
+        touchpoints: "独立电商平台报价页"
+        experienceScore: 8
+        thoughts:
+          - "运价透明还能锁舱，很好"
+          - "希望航次覆盖更多"
+        painPoints:
+          - "即期报价仅覆盖特定 X 航次，部分港口对无透明报价 [推断]"
+        aiusecase:
+          name: "全航线智能报价"
+          description: "结合市场运价指数（SCFI/CCFI）与舱位余量生成全航线即期报价，缩小透明报价盲区。"
+      - name: "长时效报价与锁价"
+        owner: "SME 货主"
+        touchpoints: "报价单页面（E-Quote/Secured E-Quote）"
+        experienceScore: 6
+        thoughts:
+          - "锁价能控制成本"
+          - "担心锁价后运价下跌吃亏"
+        painPoints:
+          - "Secured E-Quote 锁价后若市场运价大幅下行，相对成本劣势"
+        aiusecase:
+          name: "动态锁价风控"
+          description: "基于运价波动预测提供锁价区间建议与弃约补偿条款，平衡双方风险。"
+      - name: "多平台比价"
+        owner: "SME 货主"
+        touchpoints: "第三方货代平台/其他船司平台"
+        experienceScore: 5
+        thoughts:
+          - "比价真耗时"
+          - "货代报价有时更灵活"
+        painPoints:
+          - "人工多平台比价耗时，SME 议价能力弱"
+        aiusecase:
+          name: "All-in-One 比价助手"
+          description: "基于历史成交与市场指数的一站式询价与到岸成本试算（All-in-One 2026.03），减少跨平台比价摩擦。"
+  - name: "下单订舱"
+    actions:
+      - name: "3 步订舱表单提交"
+        owner: "SME 货主"
+        touchpoints: "独立电商平台/官网订舱表单"
+        experienceScore: 7
+        thoughts:
+          - "3 步流程很顺畅"
+          - "Smart Push 预填帮我省了时间"
+        painPoints:
+          - "新客无历史数据，Smart Push 预填不可用，首单仍偏慢"
+        aiusecase:
+          name: "首单智能预填"
+          description: "基于贸易单据（PI/装箱单）OCR 自动预填订舱字段，首单耗时压缩至分钟级。"
+      - name: "补充资料与补件"
+        owner: "SME 货主"
+        touchpoints: "客服/邮件"
+        experienceScore: 4
+        thoughts:
+          - "为什么又缺资料"
+          - "来回补件很烦"
+        painPoints:
+          - "资料不全被退单，往返补件拉长订舱周期"
+        aiusecase:
+          name: "智能补件检查"
+          description: "提交前 AI 校验必填项与合规字段，缺件实时提示并给出填写示例，一次提交通过率提升。"
+  - name: "舱位确认"
+    actions:
+      - name: "收到 Booking Confirmation"
+        owner: "SME 货主"
+        touchpoints: "邮件/微信小程序通知"
+        experienceScore: 8
+        thoughts:
+          - "最快 1 分钟拿到确认，体验很好"
+        painPoints:
+          - "最快 1 分钟仅限特定条款客户，多数 SME 仍需等待人工确认 [推断]"
+        aiusecase:
+          name: "分钟级自动确认"
+          description: "自动校验规则扩围，对标准 SME 订单自动签发 Booking Confirmation 并预告舱位保证状态。"
+      - name: "旺季舱位变更处理"
+        owner: "SME 货主"
+        touchpoints: "客服/控制塔"
+        experienceScore: 3
+        thoughts:
+          - "又被改船了"
+          - "我的货期怎么办"
+        painPoints:
+          - "旺季甩柜/改船后补偿与改配方案被动，SME 货期被打乱"
+        aiusecase:
+          name: "舱位保证 SLA 承诺"
+          description: "舱位保证产品化（含改配自动方案与 Delay in Transit 赔付，2025.12），提升旺季确定性。"
+  - name: "单证与支付"
+    actions:
+      - name: "提交 SI 与 VGM"
+        owner: "SME 货主"
+        touchpoints: "智慧单证系统"
+        experienceScore: 7
+        thoughts:
+          - "系统能自动校验和纠错，省心"
+        painPoints:
+          - "多语言品名/长尾字段仍需人工复核，退单返工偶尔发生"
+        aiusecase:
+          name: "智慧单证增强"
+          description: "扩展多语言品名识别与合规校验（年 35 万份自动处理基础），进一步压缩人工复核比例。"
+      - name: "电子提单签发（eBL）"
+        owner: "SME 货主"
+        touchpoints: "IQAX eBL / GSBN 区块链"
+        experienceScore: 5
+        thoughts:
+          - "电子提单很好，但收货人没接入"
+          - "银行还是只认纸质"
+        painPoints:
+          - "目的港收货人/银行未接入 eBL，退回纸质流程"
+        aiusecase:
+          name: "eBL 生态渗透"
+          description: "面向收货人与银行提供轻量 eBL 门户与互操作引导（LCL eBL 试点 2026.06），加速贸易链数字化。"
+      - name: "在线支付运费"
+        owner: "SME 货主"
+        touchpoints: "支付系统"
+        experienceScore: 6
+        thoughts:
+          - "在线支付很方便"
+          - "外币付款手续费不低"
+        painPoints:
+          - "多币种小额高频支付汇率与手续费成本高"
+        aiusecase:
+          name: "本地化收付"
+          description: "覆盖新兴市场本地支付通道，提供多币种结算优化与费用试算。"
+  - name: "提箱装箱与陆运清关"
+    actions:
+      - name: "提箱与装箱"
+        owner: "SME 货主"
+        touchpoints: "码头/堆场/E-Trucking"
+        experienceScore: 6
+        thoughts:
+          - "希望能约到当天的拖车"
+        painPoints:
+          - "旺季拖车资源紧张，提箱排队时间长"
+        aiusecase:
+          name: "智能拖车调度"
+          description: "基于箱量与港口拥堵预测的动态拖车调度与预约（Door Haulage/E-Trucking），缩短提箱等待。"
+      - name: "出口清关"
+        owner: "SME 货主"
+        touchpoints: "E-Customs/报关行"
+        experienceScore: 4
+        thoughts:
+          - "关税政策又变了"
+          - "查验很耽误时间"
+        painPoints:
+          - "美国关税/301 等政策变化导致清关异常，扣货延误风险高"
+        aiusecase:
+          name: "合规智能清关"
+          description: "将监管政策数字化并前置申报校验，异常清关自动预警并推荐替代方案（E-Customs 增强）。"
+  - name: "出运跟踪"
+    actions:
+      - name: "控制塔查看运输状态"
+        owner: "SME 货主"
+        touchpoints: "控制塔/Cargo Tracking+/移动App"
+        experienceScore: 8
+        thoughts:
+          - "全订单可视化很清晰"
+        painPoints:
+          - "码头作业等部分节点更新延迟，实时性受外部数据源限制"
+        aiusecase:
+          name: "多源轨迹融合"
+          description: "融合船司/码头/AIS 多源数据补齐节点盲区，跟踪里程碑实时化（新版 Cargo Tracking 2026.07）。"
+      - name: "收到延误通知与处置"
+        owner: "SME 货主"
+        touchpoints: "控制塔异常通知/客服"
+        experienceScore: 3
+        thoughts:
+          - "通知太晚了"
+          - "延误了怎么办"
+        painPoints:
+          - "ETA 延误多为事后通知，缺乏预测性预警，下游备货计划被打乱"
+        aiusecase:
+          name: "AI 预测性预警"
+          description: "基于历史与实时数据预测 ETA 延误概率并提前推送，附自动改配建议，控制塔从可视化走向可预测。"
+  - name: "到港交付与售后"
+    actions:
+      - name: "D&D 费用管理"
+        owner: "SME 货主"
+        touchpoints: "D&D 计算器"
+        experienceScore: 5
+        thoughts:
+          - "免箱期计算复杂"
+          - "费用为什么这么高"
+        painPoints:
+          - "免箱期与滞箱费规则复杂，费用明细争议频发"
+        aiusecase:
+          name: "前置费用透明"
+          description: "订舱环节即展示目的港免箱期与 D&D 预估，超期自动预警并提供豁免申请入口。"
+      - name: "提货与放货完成"
+        owner: "SME 货主"
+        touchpoints: "目的港码头/IQAX eBL"
+        experienceScore: 7
+        thoughts:
+          - "eBL 放货很快"
+          - "希望收货人也能用上"
+        painPoints:
+          - "收货人未接入 eBL 时退回纸质，放货周期变长"
+        aiusecase:
+          name: "端到端无纸化放货"
+          description: "向收货人提供 eBL 快速接入引导，实现订舱到放货全链路无纸化闭环。"
+      - name: "售后与会员权益"
+        owner: "SME 货主"
+        touchpoints: "PlumSmart/AI 客服"
+        experienceScore: 6
+        thoughts:
+          - "AI 客服响应很快"
+          - "会员权益还不大了解"
+        painPoints:
+          - "会员等级晋升复杂，专属权益感知弱，复购激励不足"
+        aiusecase:
+          name: "会员智能运营"
+          description: "基于订舱行为自动推荐升级路径与专属舱位权益，AI 客服主动关怀关键节点，驱动复购留存。"

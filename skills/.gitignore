@@ -1,0 +1,8 @@
+scripts/install_skills_to_trae.sh
+
+# macOS 元数据
+**/.DS_Store
+
+# Python 构建产物
+**/__pycache__/
+**/*.pyc

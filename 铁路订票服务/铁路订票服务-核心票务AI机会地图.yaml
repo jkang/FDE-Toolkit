@@ -1,0 +1,80 @@
+title: "铁路订票服务 — AI 机会场景地图（核心票务主业务流）"
+stages:
+  - name: "查询与方案匹配"
+    steps:
+      - activity: "出行条件输入与方案计算"
+        role: "旅客/票务引擎"
+        touchpoint: "车次列表页"
+        repetitive_tasks:
+          - "反复切换日期和站点进行余票查询"
+        cognitive_tasks:
+          - "评估候补成功的概率与换乘风险"
+        ai_opportunities:
+          - type: "cognitive"
+            name: "候补成功率区间预测"
+            description: "「旅客」在「候补决策」下提供[基于历史兑现数据的概率区间预估]能力，以「消除等待焦虑并辅助决策」。"
+          - type: "innovation"
+            name: "换乘稳定性自动评估引擎"
+            description: "「旅客」在「换乘查询」下提供[基于前序列车准点率大数据的接续风险预警]能力，以「提升行程的确定性」。"
+
+  - name: "下单与实名校验"
+    steps:
+      - activity: "乘车人确认与实名规则核验"
+        role: "系统/旅客"
+        touchpoint: "确认订单页"
+        repetitive_tasks:
+          - "重复输入乘车人信息并核对资质"
+        cognitive_tasks:
+          - "在高并发下判断是否满足购票资格"
+        ai_opportunities:
+          - type: "repetitive"
+            name: "实名资质自动识别与预校验"
+            description: "「系统」在「订单提交」下提供[OCR 证件识别与优惠资质智能预审]能力，以「降低下单后的校验失败率」。"
+          - type: "cognitive"
+            name: "可视化队列进度条"
+            description: "「旅客」在「高峰购票」下提供[基于瞬时并发的透明化排队进度预估]能力，以「通过信息透明度缓解系统拥堵焦虑」。"
+
+  - name: "支付与出票履约"
+    steps:
+      - activity: "支付反馈与库存锁定确认"
+        role: "履约引擎"
+        touchpoint: "支付反馈页"
+        repetitive_tasks:
+          - "监控支付回调与出票状态"
+        cognitive_tasks:
+          - "出票失败后秒级检索邻近席别补位"
+        ai_opportunities:
+          - type: "innovation"
+            name: "支付即保障：秒级自动补位引擎"
+            description: "「系统」在「出票异常」下提供[跨席别/邻近方案的自动化对冲重订]能力，以「确保支付契约的最终履行」。"
+
+  - name: "出行前变更与行程保障"
+    steps:
+      - activity: "候补兑现、改签与退票决策"
+        role: "旅客/智能助手"
+        touchpoint: "候补列表 / 改签退票页"
+        repetitive_tasks:
+          - "查询退票阶梯费率与改签车次"
+        cognitive_tasks:
+          - "评估改签方案是否能赶上后续行程"
+        ai_opportunities:
+          - type: "cognitive"
+            name: "退改签服务助手"
+            description: "「旅客」在「售后变更」下提供[规则白话化解释与改签方案智能排序]能力，以「消除规则差导致的争议与焦虑」。"
+          - type: "innovation"
+            name: "智能改签决策引导助手"
+            description: "「旅客」在「变更处置」下提供[基于行程紧急程度与偏好的方案智能排序]能力，以「确保旅客在紧急情况下能秒级选出最优替代方案」。"
+
+  - name: "乘车核验与售后回流"
+    steps:
+      - activity: "核验乘车与工单处理"
+        role: "客服/系统"
+        touchpoint: "闸机 / 客服中心"
+        repetitive_tasks:
+          - "查询分散在各系统的订单日志"
+        cognitive_tasks:
+          - "秒级定位出票或核验异常的根因"
+        ai_opportunities:
+          - type: "repetitive"
+            name: "全链路事件智能摘要（票务版）"
+            description: "「客服」在「争议定责」下提供[订单、支付、出票、通知日志的因果关联摘要]能力，以「大幅缩短主票务问题的解决时长」。"

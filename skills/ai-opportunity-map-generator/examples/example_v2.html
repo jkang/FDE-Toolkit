@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>零售门店全生命周期 AI 机会发现地图 - AI Opportunity Map</title>
+    <style>
+        :root {
+            /* Inspire Design System Tokens */
+            --color-primary: #10213E;
+            --color-accent: #5DB2E2;
+            --color-secondary: #625D9C;
+            --color-success: #00524C;
+            --color-info: #6FB1C8;
+            --color-warning: #F59E0B;
+            --color-destructive: #EF4444;
+            --color-background: #FFFFFF;
+            --color-bg-alt: #F5F5F6;
+            --color-foreground: #10213E;
+            --color-text-muted: #64748B;
+            --color-border: #E2E8F0;
+            
+            --radius-lg: 12px;
+            --radius-md: 8px;
+            --shadow-sm: 0 2px 8px rgba(16, 33, 62, 0.08);
+
+            /* Local Layout Tokens */
+            --header-width: 180px;
+            --cell-width: 320px;
+            
+            /* AI Scenario Types */
+            --repetitive-bg: #FFFFFF;
+            --repetitive-border: #F59E0B;
+            --cognitive-bg: #FFFFFF;
+            --cognitive-border: #5DB2E2;
+            --longtail-bg: #FFFFFF;
+            --longtail-border: #625D9C;
+            --innovation-bg: #FFFFFF;
+            --innovation-border: #00524C;
+        }
+
+        * { box-sizing: border-box; }
+        
+        body { 
+            font-family: 'MiSans', 'Microsoft YaHei', 'Inter', sans-serif;
+            background-color: var(--color-bg-alt); 
+            margin: 0; 
+            padding: 40px 0; 
+            color: var(--color-foreground);
+            line-height: 1.5;
+        }
+
+        /* 85% Centered Container */
+        .page-container {
+            width: 85%;
+            margin: 0 auto;
+            background: var(--color-background);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Standardized Header */
+        .page-header {
+            margin-bottom: 40px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid var(--color-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 32px 40px;
+        }
+
+        .header-left {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .page-header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--color-primary);
+            line-height: 1.2;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 0;
+        }
+
+        .page-header h1::before {
+            content: "";
+            display: block;
+            width: 4px;
+            height: 24px;
+            background: var(--color-accent);
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+
+        .page-subtitle {
+            font-size: 16px;
+            color: var(--color-text-muted);
+            font-weight: 500;
+            padding-left: 16px;
+            margin: 0;
+        }
+
+        .header-right {
+            text-align: right;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+
+        .meta-info {
+            font-size: 12px;
+            color: var(--color-text-muted);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+
+        .btn-primary {
+            background: var(--color-primary);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all 0.15s ease-out;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+
+        .btn-secondary {
+            background: white;
+            color: var(--color-primary);
+            border: 1px solid var(--color-border);
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s ease-out;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn-secondary:hover { background: var(--color-bg-alt); }
+
+        /* Filter Panel */
+        .filter-panel { 
+            padding: 20px 40px; 
+            background: #fcfcfd;
+            border-bottom: 1px solid var(--color-border);
+            display: flex; 
+            gap: 24px; 
+            align-items: center; 
+            font-size: 13px; 
+        }
+        
+        .filter-panel strong { color: var(--color-primary); }
+        
+        .filter-label { 
+            display: flex; 
+            align-items: center; 
+            gap: 8px; 
+            cursor: pointer; 
+            color: var(--color-text-muted); 
+            font-weight: 500;
+        }
+        
+        .filter-label input[type="checkbox"] { 
+            width: 15px;
+            height: 15px;
+            accent-color: var(--color-accent);
+        }
+
+        /* Map Structure */
+        .map-wrapper {
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .scroll-container {
+            overflow-x: auto;
+            position: relative;
+        }
+
+        .lane-row { 
+            display: flex; 
+            width: max-content; 
+            border-bottom: 1px solid var(--color-border);
+            align-items: stretch;
+        }
+        
+        .lane-row:last-child { border-bottom: none; }
+        
+        .lane-header { 
+            width: var(--header-width); 
+            flex-shrink: 0; 
+            background-color: var(--color-bg-alt); 
+            border-right: 2px solid var(--color-border); 
+            font-weight: 700; 
+            font-size: 13px; 
+            color: var(--color-primary); 
+            position: sticky; 
+            left: 0; 
+            z-index: 20;
+            padding: 24px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+        
+        .lane-body { display: flex; }
+        
+        .step-cell { 
+            width: var(--cell-width); 
+            flex-shrink: 0; 
+            padding: 24px 20px; 
+            border-right: 1px solid var(--color-border);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .step-cell:last-child { border-right: none; }
+
+        /* Stages Row */
+        .row-stage { background-color: var(--color-bg-alt); }
+        .stage-badge {
+            background: var(--color-primary);
+            color: white;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        /* Activity Card */
+        .activity-card {
+            background: var(--color-background);
+            border: 2px solid var(--color-primary);
+            padding: 16px;
+            border-radius: 12px;
+            font-weight: 700;
+            text-align: center;
+            color: var(--color-primary);
+        }
+
+        /* Touchpoints */
+        .touchpoint-info {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            font-size: 13px;
+        }
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--color-text-muted);
+        }
+        .info-item b { color: var(--color-foreground); font-weight: 600; }
+
+        /* Task List */
+        ul.task-list { 
+            margin: 0; 
+            padding-left: 1.25rem; 
+            font-size: 13px; 
+            color: var(--color-foreground); 
+        }
+        ul.task-list li { margin-bottom: 8px; }
+
+        /* AI Opportunity Cards - Optimized Contrast */
+        .ai-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .ai-card {
+            padding: 16px;
+            border-radius: 10px;
+            border: 1px solid var(--color-border);
+            border-left-width: 6px;
+            background: var(--color-background);
+            transition: all 0.2s;
+            box-shadow: 0 1px 3px rgba(16, 33, 62, 0.05);
+        }
+        .ai-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .theme-repetitive { border-left-color: var(--repetitive-border); }
+        .theme-cognitive { border-left-color: var(--cognitive-border); }
+        .theme-longtail { border-left-color: var(--longtail-border); }
+        .theme-innovation { border-left-color: var(--innovation-border); }
+
+        .ai-title {
+            font-weight: 700;
+            font-size: 14px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: var(--color-primary);
+        }
+        .ai-desc {
+            font-size: 13px;
+            color: var(--color-text-muted);
+            line-height: 1.6;
+        }
+
+        .badge {
+            font-size: 10px;
+            padding: 2px 8px;
+            border-radius: 4px;
+            color: white;
+            text-transform: uppercase;
+            font-weight: 700;
+        }
+        .badge-repetitive { background-color: var(--repetitive-border); }
+        .badge-cognitive { background-color: var(--cognitive-border); }
+        .badge-longtail { background-color: var(--longtail-border); }
+        .badge-innovation { background-color: var(--innovation-border); }
+
+        /* Empty State */
+        .empty-text {
+            color: var(--color-text-muted);
+            font-style: italic;
+            font-size: 12px;
+            text-align: center;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed; bottom: 32px; right: 32px;
+            background: var(--color-primary); color: #fff;
+            padding: 12px 24px; border-radius: 8px;
+            font-size: 14px; font-weight: 600;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+            display: none; z-index: 1000;
+        }
+
+        /* Print Styles */
+        @media print {
+            body { padding: 0; background: white; }
+            .page-container { width: 100%; box-shadow: none; border: none; }
+            .btn-group, .filter-panel, .toast { display: none !important; }
+            .lane-header { position: relative !important; }
+        }
+    </style>
+</head>
+<body>
+    <div class="page-container">
+        <header class="page-header">
+            <div class="header-left">
+                <h1>零售门店全生命周期 AI 机会发现地图</h1>
+                <p class="page-subtitle">AI Opportunity Scenarios & Workflow Mapping</p>
+            </div>
+            <div class="header-right">
+                <div class="meta-info">Generated by AI Opportunity Map Generator</div>
+                <div class="meta-info">2026-05-21 22:16:50</div>
+                <div class="btn-group">
+                    <button class="btn-secondary" onclick="window.print()">导出 PDF / 打印</button>
+                    <button class="btn-primary" onclick="copyYAML()">复制原始 YAML</button>
+                </div>
+            </div>
+        </header>
+
+        <div class="filter-panel">
+            <strong>筛选场景：</strong>
+            <label class="filter-label"><input type="checkbox" checked value="repetitive" onchange="filterCards()"> 🟡 重复性替代</label>
+            <label class="filter-label"><input type="checkbox" checked value="cognitive" onchange="filterCards()"> 🔵 高认知辅助</label>
+            <label class="filter-label"><input type="checkbox" checked value="longtail" onchange="filterCards()"> 🟣 长尾场景</label>
+            <label class="filter-label"><input type="checkbox" checked value="innovation" onchange="filterCards()"> 🟢 流程创新</label>
+        </div>
+
+        <div class="map-wrapper">
+            <div class="scroll-container">
+                <!-- Header Row: Stages -->
+                <div class="lane-row row-stage">
+                    <div class="lane-header">阶段 / Stages</div>
+                    <div class="lane-body">
+                        
+                        <div class="step-cell" style="--total-steps: 2; width: calc(var(--total-steps) * 320px); align-items: center; justify-content: center;">
+                            <span class="stage-badge">进店与接待阶段</span>
+                        </div>
+                        
+                        <div class="step-cell" style="--total-steps: 1; width: calc(var(--total-steps) * 320px); align-items: center; justify-content: center;">
+                            <span class="stage-badge">挑选与试穿阶段</span>
+                        </div>
+                        
+                    </div>
+                </div>
+
+                <!-- Row 2: Activity -->
+                <div class="lane-row">
+                    <div class="lane-header">用户活动 / Activities</div>
+                    <div class="lane-body">
+                        
+                            
+                            <div class="step-cell">
+                                <div class="activity-card">门店客流监控</div>
+                            </div>
+                            
+                            <div class="step-cell">
+                                <div class="activity-card">初步需求沟通</div>
+                            </div>
+                            
+                        
+                            
+                            <div class="step-cell">
+                                <div class="activity-card">商品挑选</div>
+                            </div>
+                            
+                        
+                    </div>
+                </div>
+
+                <!-- Row 3: Role & Touchpoint -->
+                <div class="lane-row">
+                    <div class="lane-header">执行角色与系统</div>
+                    <div class="lane-body">
+                        
+                            
+                            <div class="step-cell">
+                                <div class="touchpoint-info">
+                                    <div class="info-item">👤 <b>角色:</b> 门店经理</div>
+                                    <div class="info-item">💻 <b>系统:</b> 监控大屏 / ERP系统</div>
+                                </div>
+                            </div>
+                            
+                            <div class="step-cell">
+                                <div class="touchpoint-info">
+                                    <div class="info-item">👤 <b>角色:</b> 导购员</div>
+                                    <div class="info-item">💻 <b>系统:</b> 门店移动Pad</div>
+                                </div>
+                            </div>
+                            
+                        
+                            
+                            <div class="step-cell">
+                                <div class="touchpoint-info">
+                                    <div class="info-item">👤 <b>角色:</b> 顾客</div>
+                                    <div class="info-item">💻 <b>系统:</b> 陈列货架</div>
+                                </div>
+                            </div>
+                            
+                        
+                    </div>
+                </div>
+
+                <!-- Row 4: Pain Points -->
+                <div class="lane-row">
+                    <div class="lane-header">业务痛点 / 繁琐任务</div>
+                    <div class="lane-body">
+                        
+                            
+                            <div class="step-cell">
+                                
+                                <ul class="task-list">
+                                    
+                                    <li>人工记录进店人数</li>
+                                    
+                                    <li>每日定时导出报表</li>
+                                    
+                                </ul>
+                                
+                            </div>
+                            
+                            <div class="step-cell">
+                                
+                                <ul class="task-list">
+                                    
+                                    <li>手工录入客户基础信息</li>
+                                    
+                                    <li>查询库存状态</li>
+                                    
+                                </ul>
+                                
+                            </div>
+                            
+                        
+                            
+                            <div class="step-cell">
+                                
+                                <ul class="task-list">
+                                    
+                                    <li>对比同款不同色库存</li>
+                                    
+                                </ul>
+                                
+                            </div>
+                            
+                        
+                    </div>
+                </div>
+
+                <!-- Row 5: AI Opportunities -->
+                <div class="lane-row">
+                    <div class="lane-header">AI 机会场景</div>
+                    <div class="lane-body">
+                        
+                            
+                            <div class="step-cell">
+                                <div class="ai-container">
+                                    
+                                    <div class="ai-card theme-repetitive" data-type="repetitive">
+                                        <div class="ai-title">
+                                            <span>💡 智能客流统计</span>
+                                            <span class="badge badge-repetitive">重复性</span>
+                                        </div>
+                                        <div class="ai-desc">「门店经理」在「监控客流」下提供[视觉自动计数]能力，以「释放人力数据录入」。</div>
+                                    </div>
+                                    
+                                    <div class="ai-card theme-innovation" data-type="innovation">
+                                        <div class="ai-title">
+                                            <span>💡 无人化前置接待</span>
+                                            <span class="badge badge-innovation">流程创新</span>
+                                        </div>
+                                        <div class="ai-desc">「进店顾客」在「等候接待」下提供[全息导购互动]能力，以「重构传统排队模式开创自助导览」。</div>
+                                    </div>
+                                    
+                                    
+                                </div>
+                            </div>
+                            
+                            <div class="step-cell">
+                                <div class="ai-container">
+                                    
+                                    <div class="ai-card theme-cognitive" data-type="cognitive">
+                                        <div class="ai-title">
+                                            <span>💡 AI 客户画像推荐</span>
+                                            <span class="badge badge-cognitive">高认知</span>
+                                        </div>
+                                        <div class="ai-desc">「导购员」在「需求沟通」下提供[历史行为画像分析]能力，以「精准推荐提高首谈成功率」。</div>
+                                    </div>
+                                    
+                                    
+                                </div>
+                            </div>
+                            
+                        
+                            
+                            <div class="step-cell">
+                                <div class="ai-container">
+                                    
+                                    <div class="ai-card theme-longtail" data-type="longtail">
+                                        <div class="ai-title">
+                                            <span>💡 个性化穿搭助手</span>
+                                            <span class="badge badge-longtail">长尾场景</span>
+                                        </div>
+                                        <div class="ai-desc">「顾客」在「挑选商品」下提供[风格迁移与穿搭建议]能力，以「解决小众风格搭配难题」。</div>
+                                    </div>
+                                    
+                                    
+                                </div>
+                            </div>
+                            
+                        
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    
+    <footer style="margin-top: 40px; padding-top: 24px; border-top: 1px solid var(--color-border); text-align: center; font-size: 12px; color: var(--color-text-muted);">
+        Generated by ai-opportunity-map-generator · 2026-05-21 22:16:50 · &copy; 2026 Inspire AI4PM
+    </footer>
+
+    <div class="toast" id="toast">已成功复制 YAML 数据</div>
+    
+    <script type="application/yaml" id="raw-yaml">
+title: "零售门店全生命周期 AI 机会发现地图"
+stages:
+  - name: "进店与接待阶段"
+    steps:
+      - activity: "门店客流监控"
+        role: "门店经理"
+        touchpoint: "监控大屏 / ERP系统"
+        repetitive_tasks:
+          - "人工记录进店人数"
+          - "每日定时导出报表"
+        cognitive_tasks:
+          - "通过监控预判客流高峰"
+          - "根据客流调整店员排班"
+        ai_opportunities:
+          - type: "repetitive"
+            name: "智能客流统计"
+            description: "「门店经理」在「监控客流」下提供[视觉自动计数]能力，以「释放人力数据录入」。"
+          - type: "innovation"
+            name: "无人化前置接待"
+            description: "「进店顾客」在「等候接待」下提供[全息导购互动]能力，以「重构传统排队模式开创自助导览」。"
+      
+      - activity: "初步需求沟通"
+        role: "导购员"
+        touchpoint: "门店移动Pad"
+        repetitive_tasks:
+          - "手工录入客户基础信息"
+          - "查询库存状态"
+        cognitive_tasks:
+          - "判断客户潜在消费层级"
+          - "推荐适合当季的商品"
+        ai_opportunities:
+          - type: "cognitive"
+            name: "AI 客户画像推荐"
+            description: "「导购员」在「需求沟通」下提供[历史行为画像分析]能力，以「精准推荐提高首谈成功率」。"
+
+  - name: "挑选与试穿阶段"
+    steps:
+      - activity: "商品挑选"
+        role: "顾客"
+        touchpoint: "陈列货架"
+        repetitive_tasks:
+          - "对比同款不同色库存"
+        cognitive_tasks:
+          - "评估穿搭风格是否契合"
+        ai_opportunities:
+          - type: "longtail"
+            name: "个性化穿搭助手"
+            description: "「顾客」在「挑选商品」下提供[风格迁移与穿搭建议]能力，以「解决小众风格搭配难题」。"
+    </script>
+
+    <script>
+        function filterCards() {
+            const checkboxes = document.querySelectorAll('.filter-panel input[type="checkbox"]');
+            const activeTypes = Array.from(checkboxes).filter(cb => cb.checked).map(cb => cb.value);
+            
+            const allCards = document.querySelectorAll('.ai-card');
+            allCards.forEach(card => {
+                const type = card.getAttribute('data-type');
+                if (activeTypes.includes(type)) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        function copyYAML() {
+            const yaml = document.getElementById('raw-yaml').textContent.trim();
+            navigator.clipboard.writeText(yaml).then(() => {
+                const toast = document.getElementById('toast');
+                toast.style.display = 'block';
+                setTimeout(() => { toast.style.display = 'none'; }, 2500);
+            });
+        }
+    </script>
+</body>
+</html>

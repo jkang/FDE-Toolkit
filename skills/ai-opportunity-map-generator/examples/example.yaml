@@ -1,0 +1,48 @@
+title: "零售门店全生命周期 AI 机会发现地图"
+stages:
+  - name: "进店与接待阶段"
+    steps:
+      - activity: "门店客流监控"
+        role: "门店经理"
+        touchpoint: "监控大屏 / ERP系统"
+        repetitive_tasks:
+          - "人工记录进店人数"
+          - "每日定时导出报表"
+        cognitive_tasks:
+          - "通过监控预判客流高峰"
+          - "根据客流调整店员排班"
+        ai_opportunities:
+          - type: "repetitive"
+            name: "智能客流统计"
+            description: "「门店经理」在「监控客流」下提供[视觉自动计数]能力，以「释放人力数据录入」。"
+          - type: "innovation"
+            name: "无人化前置接待"
+            description: "「进店顾客」在「等候接待」下提供[全息导购互动]能力，以「重构传统排队模式开创自助导览」。"
+      
+      - activity: "初步需求沟通"
+        role: "导购员"
+        touchpoint: "门店移动Pad"
+        repetitive_tasks:
+          - "手工录入客户基础信息"
+          - "查询库存状态"
+        cognitive_tasks:
+          - "判断客户潜在消费层级"
+          - "推荐适合当季的商品"
+        ai_opportunities:
+          - type: "cognitive"
+            name: "AI 客户画像推荐"
+            description: "「导购员」在「需求沟通」下提供[历史行为画像分析]能力，以「精准推荐提高首谈成功率」。"
+
+  - name: "挑选与试穿阶段"
+    steps:
+      - activity: "商品挑选"
+        role: "顾客"
+        touchpoint: "陈列货架"
+        repetitive_tasks:
+          - "对比同款不同色库存"
+        cognitive_tasks:
+          - "评估穿搭风格是否契合"
+        ai_opportunities:
+          - type: "longtail"
+            name: "个性化穿搭助手"
+            description: "「顾客」在「挑选商品」下提供[风格迁移与穿搭建议]能力，以「解决小众风格搭配难题」。"

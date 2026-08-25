@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ title }} - Roadmap | Inspire</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      /* Inspire Design System Tokens (Standard Light Mode) */
+      --color-primary: #10213E;      /* Starry Blues */
+      --color-accent: #5DB2E2;       /* Creative Blue */
+      --color-secondary: #625D9C;    /* Amethyst */
+      --color-success: #00524C;      /* Myrtle Deep Green */
+      --color-info: #6FB1C8;         /* Cerulean Frost */
+      --color-warning: #F59E0B;      /* Warning */
+      --color-destructive: #EF4444;  /* Danger */
+      --color-background: #FFFFFF;   /* Pure White */
+      --color-bg-alt: #F5F5F6;       /* Tech Gray */
+      --color-foreground: #10213E;   /* Primary Text */
+      --color-text-muted: #64748B;   /* Text Secondary */
+      --color-border: #E2E8F0;       /* Border/Line */
+      
+      --shadow-sm: 0 2px 8px rgba(16, 33, 62, 0.08);
+      --shadow-md: 0 10px 15px -3px rgba(16, 33, 62, 0.1);
+      --radius-sm: 4px;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+      --font-family: 'MiSans', 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --transition: 0.15s ease-out;
+    }
+
+    /* Reset & Base */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--font-family);
+      background-color: var(--color-bg-alt);
+      color: var(--color-foreground);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ===== Page Container ===== */
+    .page-wrap {
+      background: var(--color-background);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-md);
+      padding: 40px;
+      width: 85%;
+      margin: 48px auto;
+      overflow: hidden;
+      border: 1px solid var(--color-border);
+      min-height: calc(100vh - 96px);
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Standardized Header */
+    .page-header {
+      margin-bottom: 40px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--color-border);
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+
+    .header-left {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .page-header h1 {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--color-primary);
+      line-height: 1.2;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .page-header h1::before {
+      content: "";
+      display: block;
+      width: 4px;
+      height: 24px;
+      background: var(--color-accent);
+      border-radius: 2px;
+    }
+
+    .page-subtitle {
+      font-size: 16px;
+      color: var(--color-text-muted);
+      font-weight: 500;
+      padding-left: 16px;
+    }
+
+    .header-right {
+      text-align: right;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .meta-info {
+      font-size: 12px;
+      color: var(--color-text-muted);
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 12px;
+      margin-top: 8px;
+      justify-content: flex-end;
+    }
+
+    .btn-primary {
+      background: var(--color-primary);
+      color: white;
+      padding: 10px 20px;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+    .btn-primary:hover { opacity: 0.85; transform: translateY(-1px); }
+
+    .btn-secondary {
+      background: white;
+      color: var(--color-primary);
+      border: 1px solid var(--color-border);
+      padding: 10px 20px;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+    .btn-secondary:hover { background: var(--color-bg-alt); }
+
+    /* Main Viewport */
+    .viewport {
+      padding: 0;
+      overflow-x: auto;
+      flex: 1;
+    }
+
+    /* Phases Layout */
+    .phases-row {
+      display: flex;
+      gap: 32px;
+      padding-bottom: 32px;
+      align-items: flex-start;
+    }
+
+    .phase-column {
+      flex: 1;
+      min-width: 360px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    /* Phase Header Box */
+    .ph-header {
+      background: var(--color-background);
+      border-radius: var(--radius-md);
+      padding: 32px 24px;
+      text-align: center;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--color-border);
+      position: relative;
+      overflow: hidden;
+      transition: var(--transition);
+    }
+    .ph-header:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
+    
+    .ph-header::before {
+      content: "";
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 6px;
+      background: var(--color-accent);
+    }
+
+    .ph-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--color-primary);
+      margin-bottom: 12px;
+    }
+
+    .ph-desc {
+      font-size: 14px;
+      color: var(--color-text-muted);
+      line-height: 1.6;
+    }
+
+    .ph-time {
+      display: inline-block;
+      font-size: 13px;
+      padding: 6px 20px;
+      border-radius: 999px;
+      margin-top: 20px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      box-shadow: var(--shadow-sm);
+      background-color: var(--ph-tag-bg, var(--color-bg-alt));
+      color: var(--ph-tag-text, var(--color-primary));
+    }
+
+    /* Blocks */
+    .block-card {
+      background: var(--color-background);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--color-border);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: var(--transition);
+    }
+    .block-card:hover { box-shadow: var(--shadow-md); }
+
+    .block-header {
+      padding: 14px 20px;
+      background: var(--color-bg-alt);
+      border-bottom: 1px solid var(--color-border);
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--color-primary);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .block-header svg { color: var(--color-accent); }
+    .block-header.top-border { border-top: 1px solid var(--color-border); }
+    .block-content { padding: 20px; }
+
+    /* Objective Rows */
+    .obj-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 12px;
+      border-radius: var(--radius-sm);
+      transition: var(--transition);
+      margin-bottom: 6px;
+    }
+    .obj-row:hover { background: var(--color-bg-alt); }
+
+    .obj-badge {
+      font-size: 11px;
+      padding: 4px 10px;
+      border-radius: 4px;
+      background: var(--color-primary);
+      color: #fff;
+      flex-shrink: 0;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .obj-text {
+      font-size: 14px;
+      color: var(--color-foreground);
+      line-height: 1.6;
+    }
+
+    .empty-state {
+      font-size: 13px;
+      font-style: italic;
+      color: var(--color-text-muted);
+      text-align: center;
+      padding: 16px 0;
+    }
+
+    /* Metric Rows */
+    .metric-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 12px;
+      border-radius: var(--radius-sm);
+      transition: var(--transition);
+      margin-bottom: 4px;
+    }
+    .metric-row:hover { background: var(--color-bg-alt); }
+
+    .metric-name {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--color-foreground);
+    }
+
+    .metric-target {
+      font-size: 12px;
+      padding: 4px 12px;
+      background: #F0F9FF;
+      border: 1px solid var(--color-info);
+      color: var(--color-primary);
+      border-radius: 4px;
+      font-weight: 700;
+    }
+
+    /* Initiative Items */
+    .init-group {
+      border-bottom: 1px solid var(--color-border);
+      padding-bottom: 20px;
+      margin-bottom: 20px;
+    }
+    .init-group:last-child { border-bottom: none; padding-bottom: 0; margin-bottom: 0; }
+
+    .init-title-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .init-cat {
+      font-size: 11px;
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      background-color: var(--cat-bg, var(--color-bg-alt));
+      color: var(--cat-text, var(--color-primary));
+    }
+
+    .init-name {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--color-primary);
+    }
+
+    .init-desc {
+      font-size: 14px;
+      color: var(--color-text-muted);
+      margin-bottom: 16px;
+      line-height: 1.6;
+    }
+
+    .init-bullets {
+      list-style-type: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .init-bullet {
+      font-size: 14px;
+      color: var(--color-foreground);
+      padding: 10px 14px;
+      background: var(--color-bg-alt);
+      border-radius: var(--radius-sm);
+      line-height: 1.5;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-left: 3px solid var(--color-accent);
+    }
+    .init-bullet:hover { background: #E2E8F0; }
+
+    .footer { 
+      text-align: center; 
+      font-size: 13px; 
+      color: var(--color-text-muted); 
+      padding: 48px 0; 
+      border-top: 1px solid var(--color-border); 
+      margin-top: 40px;
+      background: var(--color-background);
+    }
+
+    .toast {
+      position: fixed; bottom: 32px; right: 32px;
+      background: var(--color-success); color: white;
+      padding: 14px 28px; border-radius: 8px;
+      font-size: 14px; font-weight: 600;
+      display: none; z-index: 1000;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+
+    /* Strategic Overview Bar */
+    .strategy-bar {
+      background: linear-gradient(135deg, #1B2B47 0%, #4A9FD8 100%);
+      color: #fff;
+      border-radius: var(--radius-md);
+      padding: 20px 28px;
+      margin-bottom: 36px;
+      display: flex;
+      gap: 20px;
+      align-items: flex-start;
+      box-shadow: var(--shadow-md);
+    }
+    .strategy-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--color-accent);
+      white-space: nowrap;
+      padding-top: 3px;
+      flex-shrink: 0;
+    }
+    .strategy-desc {
+      font-size: 14px;
+      line-height: 1.7;
+      color: rgba(255,255,255,0.94);
+    }
+
+    .icon { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+    
+    @media print {
+      .page-header, .btn-group { display: none !important; }
+      body { background: white; }
+      .page-wrap { width: 100%; margin: 0; border: none; box-shadow: none; }
+    }
+  </style>
+
+    <!-- ===== Unified Report Shell: 撑满容器 + 精简 Header + 溢出滚动 ===== -->
+    <style>
+      *, *::before, *::after { box-sizing: border-box !important; }
+      html, body { margin: 0 !important; padding: 0 !important; background: #F5F5F6 !important; overflow-x: auto !important; }
+      .page-wrap {
+        width: 100% !important;
+        max-width: none !important;
+        margin: 0 auto !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        border: none !important;
+        padding: 24px 28px 48px !important;
+        overflow-x: auto !important;
+      }
+      .page-header { margin-bottom: 20px !important; align-items: center !important; }
+      .page-header h1 { font-size: 22px !important; line-height: 1.3 !important; margin: 0 !important; }
+    
+      /* ===== Unified Header (v2) ===== */
+      .page-header {
+        background: #FFFFFF !important;
+        border-bottom: 1px solid #E2E8F0 !important;
+        border-radius: 0 !important;
+        padding: 12px 0 !important;
+        margin-bottom: 20px !important;
+        min-height: auto !important;
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        gap: 16px !important;
+        flex-wrap: wrap !important;
+      }
+      .page-header h1 {
+        font-size: 22px !important;
+        font-weight: 700 !important;
+        color: #10213E !important;
+        line-height: 1.3 !important;
+        margin: 0 !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 10px !important;
+      }
+      .page-header h1::before {
+        content: "" !important;
+        display: inline-block !important;
+        width: 4px !important;
+        height: 22px !important;
+        background: #5DB2E2 !important;
+        border-radius: 2px !important;
+        flex-shrink: 0 !important;
+      }
+      .page-header h1 svg, .page-header h1 .icon, .page-header h1 img {
+        width: 20px !important;
+        height: 20px !important;
+        flex-shrink: 0 !important;
+      }
+      .page-subtitle, .header-meta, .meta-scenario, .header-left p, .header-content p {
+        font-size: 13px !important;
+        color: #64748B !important;
+        margin: 4px 0 0 !important;
+        padding-left: 14px !important;
+      }
+      .meta-badge, .badge, .brand-tag {
+        font-size: 12px !important;
+        color: #64748B !important;
+        background: #F5F5F6 !important;
+        border-radius: 10px !important;
+        padding: 2px 10px !important;
+      }
+      .page-header .btn-group, .header-right, .header-right > div {
+        display: flex !important;
+        align-items: center !important;
+        gap: 8px !important;
+      }
+      .btn-secondary, .btn-primary, .btn-copy-yaml {
+        font-size: 12px !important;
+        padding: 6px 12px !important;
+        border-radius: 6px !important;
+        font-weight: 600 !important;
+      }
+      .btn-secondary {
+        background: #FFFFFF !important;
+        color: #10213E !important;
+        border: 1px solid #E2E8F0 !important;
+      }
+      .btn-primary {
+        background: #10213E !important;
+        color: #FFFFFF !important;
+        border: 1px solid #10213E !important;
+      }
+</style>
+
+
+</head>
+<body>
+  
+  <div class="page-wrap">
+    <header class="page-header">
+      <div class="header-left">
+        <h1><svg class="icon" style="width: 28px; height: 28px; color: var(--color-accent);" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+          {{ title }}</h1>
+      </div>
+      <div class="header-right">
+        <div class="btn-group">
+          <button class="btn-secondary" onclick="window.print()">导出 PDF / 打印</button>
+          <button class="btn-primary" onclick="copyYAML()">复制原始 YAML</button>
+        </div>
+      </div>
+    </header>
+
+    {% if description %}
+    <div class="strategy-bar">
+      <div class="strategy-label">战略概述</div>
+      <div class="strategy-desc">{{ description }}</div>
+    </div>
+    {% endif %}
+
+    <div class="viewport">
+      <main class="phases-row">
+        {% for phase in phases %}
+        <section class="phase-column">
+          
+          <div class="ph-header">
+            <h3 class="ph-title">{{ phase.name }}</h3>
+            {% if phase.description %}<p class="ph-desc">{{ phase.description }}</p>{% endif %}
+            {% if phase.timeframe %}
+            <div class="ph-time" {{ 'style="--ph-tag-bg: ' ~ (phase._tag_bg or 'var(--color-bg-alt)') ~ '; --ph-tag-text: ' ~ (phase._tag_text or 'var(--color-primary)') ~ '"' }}>
+              {{ phase.timeframe }}
+            </div>
+            {% endif %}
+          </div>
+
+          <div class="block-card">
+            <div class="block-header">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+              阶段目标
+            </div>
+            <div class="block-content">
+              {% if phase.objectives %}
+                {% for obj in phase.objectives %}
+                <div class="obj-row">
+                  <span class="obj-badge">{{ obj.category if obj.category else obj.name }}</span>
+                  <span class="obj-text">{{ obj.description }}</span>
+                </div>
+                {% endfor %}
+              {% else %}
+                <p class="empty-state">暂无目标</p>
+              {% endif %}
+            </div>
+
+            <div class="block-header top-border">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20V10M18 20V4M6 20V16"/></svg>
+              核心指标
+            </div>
+            <div class="block-content">
+              {% if phase.metrics %}
+                {% for met in phase.metrics %}
+                <div class="metric-row">
+                  <span class="metric-name">{{ met.name }}</span>
+                  {% if met.target %}
+                  <span class="metric-target">{{ met.target }}</span>
+                  {% endif %}
+                </div>
+                {% endfor %}
+              {% else %}
+                <p class="empty-state">暂无指标</p>
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="block-card">
+            <div class="block-header">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+              关键举措
+            </div>
+            <div class="block-content">
+              {% if phase.initiatives %}
+                {% for init in phase.initiatives %}
+                <div class="init-group">
+                  <div class="init-title-row">
+                    {% if init.category %}
+                    <span class="init-cat" {{ 'style="--cat-bg: ' ~ (init._cat_bg or 'var(--color-bg-alt)') ~ '; --cat-text: ' ~ (init._cat_text or 'var(--color-primary)') ~ '"' }}>
+                      {{ init.category }}
+                    </span>
+                    {% endif %}
+                    {% if init.name %}<span class="init-name">{{ init.name }}</span>{% endif %}
+                  </div>
+                  {% if init.description %}
+                  <p class="init-desc">{{ init.description }}</p>
+                  {% endif %}
+                  
+                  <ul class="init-bullets">
+                    {% for item in init.action_items %}
+                    <li class="init-bullet">{{ item }}</li>
+                    {% endfor %}
+                  </ul>
+                </div>
+                {% endfor %}
+              {% else %}
+                <p class="empty-state">暂无举措</p>
+              {% endif %}
+            </div>
+          </div>
+
+        </section>
+        {% endfor %}
+      </main>
+    </div>
+
+    <footer class="footer">
+      Generated by roadmap-generator &middot; {{ generated_at }} &middot; &copy; 2026 Inspire AI4PM
+    </footer>
+  </div>
+
+  <div class="toast" id="toast">已成功复制 YAML 数据</div>
+  
+  <script type="application/yaml" id="raw-yaml">
+{{ raw_yaml }}
+  </script>
+
+  <script>
+    function copyYAML() {
+      const yaml = document.getElementById('raw-yaml').textContent.trim();
+      navigator.clipboard.writeText(yaml).then(() => {
+        const toast = document.getElementById('toast');
+        toast.style.display = 'block';
+        setTimeout(() => { toast.style.display = 'none'; }, 2500);
+      });
+    }
+  </script>
+</body>
+</html>

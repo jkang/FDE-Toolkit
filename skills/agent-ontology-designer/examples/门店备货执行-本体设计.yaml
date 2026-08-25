@@ -1,0 +1,431 @@
+title: 门店备货执行-Agent本体设计
+domain: 零售门店执行
+scenario_description: "门店从接收调拨计划到完成收货核验、活动陈列准备和人员安排的端到端执行场景"
+target_agent_role: 门店执行协调助手（Store Execution Assistant）
+
+entities:
+  - id: transfer_order
+    name: 调拨单（Transfer Order）
+    type: reference
+    description: "系统生成的到货计划文件，说明预期到货的 SKU 和数量，不等于实际收货"
+    attributes:
+      - name: status
+        type: enum
+        values: [pending, in_transit, delivered, cancelled]
+        description: 调拨状态
+      - name: expected_skus
+        type: string
+        description: 预计到货的 SKU 列表
+      - name: eta
+        type: datetime
+        description: 预计到店时间
+      - name: source_location
+        type: string
+        description: 货物来源仓库或门店
+    key_distinctions:
+      - "调拨单只证明「预计」到货，不能用作实际库存依据"
+      - "调拨单 delivered ≠ 门店已完成收货扫描"
+      - "调拨单数量 ≠ 实际到货数量（可能有差异）"
+
+  - id: delivery
+    name: 到货记录（Delivery）
+    type: event
+    description: "货物实际到达门店的事件记录，含到店时间和箱数，是收货核验的起点"
+    attributes:
+      - name: carton_count
+        type: number
+        description: 实际到达箱数
+      - name: arrival_time
+        type: datetime
+        description: 实际到店时间
+      - name: signed_by
+        type: string
+        description: 签收人
+    key_distinctions:
+      - "到货记录只证明货到了门店，不证明已完成 SKU 核验"
+      - "箱数到齐不代表 SKU 和数量正确"
+
+  - id: carton_scan
+    name: 箱号扫描（Carton Scan）
+    type: event
+    description: "对每个到货箱子进行扫描，确认 SKU、尺码、颜色和数量的实际记录"
+    attributes:
+      - name: sku_id
+        type: string
+        description: 扫描的 SKU 编码
+      - name: color
+        type: string
+        description: 颜色
+      - name: size
+        type: string
+        description: 尺码
+      - name: quantity_received
+        type: number
+        description: 实际到货数量
+      - name: has_discrepancy
+        type: boolean
+        description: 是否存在差异
+    key_distinctions:
+      - "只有完成 Carton Scan 的 SKU 才能被视为可用库存"
+      - "存在差异未关闭时，受影响 SKU 不能进入上架流程"
+
+  - id: fixture
+    name: 陈列位置（Fixture）
+    type: core
+    description: "门店内的物理陈列空间，活动陈列和日常补货均依赖其可用状态"
+    attributes:
+      - name: status
+        type: enum
+        values: [available, occupied, reserved]
+        description: 当前可用状态
+      - name: assigned_campaign
+        type: string
+        description: 已分配的活动名称（occupied 时）
+      - name: location
+        type: string
+        description: 门店内位置描述
+    key_distinctions:
+      - "Fixture occupied 时不能开始新活动陈列准备，即使活动日期紧迫"
+      - "Fixture reserved 仅表示规划，不代表已释放可用"
+
+  - id: campaign
+    name: 活动（Campaign）
+    type: reference
+    description: "商品推广活动，通常要求特定陈列位置、特定商品到位和上市前准备工作"
+    attributes:
+      - name: launch_date
+        type: datetime
+        description: 上市日期
+      - name: required_skus
+        type: string
+        description: 活动必须到位的 SKU 列表
+      - name: required_fixtures
+        type: string
+        description: 活动所需陈列位置
+      - name: prep_tasks
+        type: string
+        description: 上市前须完成的准备任务列表
+    key_distinctions:
+      - "活动上市日期临近不代表准备工作已完成"
+      - "活动计划存在 ≠ 活动物料和商品已到位"
+
+  - id: staff
+    name: 员工（Staff）
+    type: reference
+    description: "门店员工，具备不同技能，某些任务（如 VM 陈列）只能由认证员工执行"
+    attributes:
+      - name: skills
+        type: string
+        description: "技能标签，如 VM（视觉陈列）"
+      - name: shift_status
+        type: enum
+        values: [on_shift, confirmed, unconfirmed]
+        description: 当日班次状态
+    key_distinctions:
+      - "员工在班 ≠ 具备对应任务技能"
+      - "员工「可能」到店 ≠ 已确认可用产能，不能计入计划"
+
+  - id: pullback_list
+    name: 撤货清单（Pullback List）
+    type: core
+    description: "指示门店哪些商品需要从陈列撤回、打包发出的操作清单"
+    attributes:
+      - name: sku_list
+        type: string
+        description: 需要撤货的 SKU 列表
+      - name: deadline
+        type: datetime
+        description: 撤货完成截止时间
+    key_distinctions:
+      - "撤货清单上的商品可能仍在陈列位置占用中，需先完成撤货才能释放 Fixture"
+
+relationships:
+  - from: transfer_order
+    to: delivery
+    label: 触发
+    cardinality: "1:N"
+    description: "一张调拨单可能对应多次到货记录（分批到货）"
+  - from: delivery
+    to: carton_scan
+    label: 包含
+    cardinality: "1:N"
+    description: "一次到货包含多个箱子，每个箱子需要独立扫描"
+  - from: campaign
+    to: fixture
+    label: 依赖
+    cardinality: "N:N"
+    description: "活动需要特定陈列位置处于 available 状态"
+  - from: campaign
+    to: carton_scan
+    label: 依赖
+    cardinality: "N:N"
+    description: "活动需要相关 SKU 已完成收货扫描才能开始陈列准备"
+  - from: staff
+    to: campaign
+    label: 执行
+    cardinality: "N:N"
+    description: "具备 VM 技能的员工才能执行活动陈列准备工作"
+  - from: pullback_list
+    to: fixture
+    label: 约束
+    cardinality: "N:N"
+    description: "撤货完成前，相关 Fixture 处于 occupied 状态无法释放"
+
+action_boundaries:
+  - id: ab_campaign_readiness
+    situation: 活动上市日期临近（48小时内）
+    situation_description: "活动上市日期在 48 小时内，需要确认商品到货、陈列位置和准备工作的实际状态"
+    required_evidence:
+      - source: "Delivery record / Carton scan"
+        checks: "活动相关 SKU 是否已实际到店并完成扫描，无未关闭差异"
+      - source: "Fixture status"
+        checks: "活动所需陈列位置是否为 available 状态"
+      - source: "Store task list"
+        checks: "熨烫、打标、暂存、上架等准备工作是否已全部完成"
+    valid_actions:
+      - "检查活动相关 SKU 的到货和扫描状态"
+      - "检查活动所需陈列位置当前状态"
+      - "盘点剩余准备工作清单并评估是否能在上市前完成"
+      - "如存在阻塞条件，标记活动准备风险并触发升级"
+    invalid_actions:
+      - action: "在未核验 Carton scan 前，标记活动商品已到位"
+        reason: "调拨单不能证明实际收货，标记会产生错误假设并延误风险识别"
+      - action: "在 Fixture 仍被占用时，开始新活动陈列准备"
+        reason: "会与现有陈列产生物理冲突，且旧陈列未完成撤货"
+      - action: "仅凭调拨单或上级口头确认，宣布活动已就绪"
+        reason: "调拨单 ≠ 实际收货，口头确认无可验证证据"
+    exception_triggers:
+      - condition: "活动上市日期临近，但关键 SKU 的 Delivery 显示延迟或未到店"
+        action: "标记活动准备风险，升级至商品计划团队评估影响范围"
+      - condition: "活动所需 Fixture 在上市 24 小时前仍处于 occupied 状态"
+        action: "标记陈列位置冲突，触发跨团队协调流程"
+      - condition: "准备任务工时预估显示无法在上市前完成"
+        action: "触发门店经理升级，评估推迟或应急方案"
+
+  - id: ab_receiving_scan
+    situation: 货物已到店但扫描未完成
+    situation_description: "Delivery 记录显示货已到店，但 Carton scan 尚未完成，或扫描发现差异待处理"
+    required_evidence:
+      - source: "Delivery record"
+        checks: "确认实际到货箱数"
+      - source: "Carton scan records"
+        checks: "已扫描箱数、发现差异的 SKU 列表"
+    valid_actions:
+      - "按箱号逐一扫描并记录实际 SKU、尺码、颜色和数量"
+      - "发现差异时立即记录并开启异常工单"
+      - "跟进差异关闭进度"
+      - "扫描完成后确认可用 SKU 清单，通知下游流程"
+    invalid_actions:
+      - action: "将未扫描的商品直接计入可用库存或上架"
+        reason: "未扫描 SKU 的实际数量未经证实，可能导致库存错误"
+      - action: "差异未关闭时将受影响 SKU 推入上架或活动准备"
+        reason: "差异可能导致实际数量与系统不符，会影响后续履约"
+    exception_triggers:
+      - condition: "到货箱数少于调拨单预期，且缺口影响活动或顾客承诺"
+        action: "立即标记差异并通知商品计划团队评估补货或承诺调整"
+
+  - id: ab_staff_allocation
+    situation: 多类型任务并行且技能资源紧张
+    situation_description: "当天需要完成活动陈列（需 VM 技能）、到货支持和撤货，但具备 VM 技能的员工数量有限"
+    required_evidence:
+      - source: "Staff shift list"
+        checks: "具备 VM 技能的员工是否在班且已确认到店（非 unconfirmed）"
+      - source: "Task list"
+        checks: "各任务对技能的要求及预计所需工时"
+    valid_actions:
+      - "优先将已确认在班的 VM 技能员工分配至活动陈列任务"
+      - "将不需要特殊技能的任务（到货搬运、撤货打包）分配给普通员工"
+      - "调整后回到计划看板确认整体执行状态无遗漏"
+    invalid_actions:
+      - action: "将 unconfirmed 员工计入活动陈列的可用产能"
+        reason: "未确认员工无法保证到场，会导致活动陈列无人执行"
+      - action: "将 VM 技能员工用于不需要该技能的搬运或撤货任务"
+        reason: "稀缺技能资源被低效占用，活动陈列任务可能无人处理"
+    exception_triggers:
+      - condition: "唯一的 VM 技能员工临时无法到班"
+        action: "立即升级门店经理，评估推迟活动陈列或从其他门店借调"
+
+  - id: ab_customer_pickup
+    situation: 顾客取货承诺兑现确认
+    situation_description: "顾客有预约取货记录，需要确认对应 SKU 实际库存可用后才能通知顾客取货"
+    required_evidence:
+      - source: "Carton scan / Stock records"
+        checks: "顾客预约 SKU 是否有实际确认的可用库存"
+    valid_actions:
+      - "核实顾客预约 SKU 的实际库存状态"
+      - "库存确认可用后，通知顾客取货时间"
+      - "库存不足时，主动联系顾客说明情况并提供替代方案"
+    invalid_actions:
+      - action: "仅凭调拨单预计数量，提前向顾客承诺取货时间"
+        reason: "调拨单 ≠ 实际到货，过早承诺会导致顾客体验受损"
+    exception_triggers:
+      - condition: "顾客取货日期临近，但所需 SKU 仍在延迟到货状态"
+        action: "主动联系顾客说明延迟，重新约定取货时间或讨论退款"
+
+workstreams:
+  - id: ws_transfer_receiving
+    name: 到货接收
+    description: "从接收调拨计划到完成 SKU 核验、处理差异的完整执行流"
+    anchor_objects:
+      - transfer_order
+      - delivery
+      - carton_scan
+    states:
+      - id: s_pending_arrival
+        name: 预计到货
+        description: "调拨单已下发，货物尚在运输中，门店可见证据仅为调拨单数据"
+        transitions:
+          - to_state: s_arrived_unscanned
+            trigger_action: 确认到货状态
+            required_evidence: "Delivery record 显示货已到店，箱数已签收"
+            type: normal
+          - to_state: s_delayed
+            trigger_action: 检查 ETA 或 Delivery status
+            required_evidence: "Delivery status 显示延迟，或 ETA 已过仍无 Delivery 记录"
+            type: exception
+      - id: s_arrived_unscanned
+        name: 到货待扫描
+        description: "货已到店（Delivery record 存在），但 Carton scan 尚未完成，商品不可用"
+        transitions:
+          - to_state: s_receiving_complete
+            trigger_action: 完成所有箱号扫描并核验
+            required_evidence: "全部 Carton scan 完成，无差异记录"
+            type: normal
+          - to_state: s_discrepancy
+            trigger_action: 记录差异并开启异常工单
+            required_evidence: "Carton scan 发现 SKU/数量/尺码不符"
+            type: exception
+      - id: s_discrepancy
+        name: 差异处理中
+        description: "扫描发现差异，异常工单已开启，受影响 SKU 暂不可进入后续流程"
+        transitions:
+          - to_state: s_receiving_complete
+            trigger_action: 跟进并关闭差异工单
+            required_evidence: "exception ticket 显示差异已关闭或经授权处理"
+            type: recovery
+      - id: s_receiving_complete
+        name: 收货完成
+        description: "所有 SKU 已扫描核验，差异已处理，商品可进入上架和活动准备流程"
+        transitions: []
+      - id: s_delayed
+        name: 到货延迟
+        description: "到货已超出预期时间或 Delivery 状态显示延迟，门店需等待并追踪"
+        transitions:
+          - to_state: s_arrived_unscanned
+            trigger_action: 确认新 ETA 并等待实际到货
+            required_evidence: "Delivery record 显示货已到店"
+            type: recovery
+    guardrails:
+      - "调拨单只能证明预计到货，不能用作实际库存或上架依据"
+      - "未完成 Carton scan 的 SKU 不能进入上架或活动准备流程"
+      - "差异未关闭时，受影响 SKU 不能被视为已确认可用"
+      - "到货延迟不能通过直接修改系统状态跳过，必须等待实际到货证据"
+    dependency_mapping:
+      - workstream: ws_campaign_prep
+        condition: "活动相关 SKU 处于 s_discrepancy 或 s_delayed 状态"
+        impact: "活动准备流程被阻塞，需立即标记活动准备风险"
+      - workstream: ws_replenishment
+        condition: "常规补货 SKU 到达 s_receiving_complete 状态"
+        impact: "常规补货流程解除等待，可继续推进上架"
+
+  - id: ws_campaign_prep
+    name: 活动陈列准备
+    description: "从确认活动商品到货到完成陈列准备、活动可上线的执行流"
+    anchor_objects:
+      - campaign
+      - fixture
+      - carton_scan
+      - staff
+    states:
+      - id: cp_waiting_goods
+        name: 等待商品到位
+        description: "活动已计划，但关联 SKU 尚未完成收货扫描，不能开始陈列准备"
+        transitions:
+          - to_state: cp_goods_ready
+            trigger_action: 确认活动相关 SKU 的 Carton scan 完成
+            required_evidence: "所有活动 SKU 的 Carton scan 完成，无未关闭差异"
+            type: normal
+          - to_state: cp_at_risk
+            trigger_action: 检查关联到货延迟风险
+            required_evidence: "活动 SKU 对应 Delivery 显示延迟且上市日期临近"
+            type: exception
+      - id: cp_goods_ready
+        name: 商品已到位
+        description: "活动 SKU 已完成收货扫描，等待陈列位置释放"
+        transitions:
+          - to_state: cp_in_progress
+            trigger_action: 确认 Fixture 可用后开始陈列准备
+            required_evidence: "Fixture status = available，所有活动 SKU 已收货"
+            type: normal
+          - to_state: cp_at_risk
+            trigger_action: 检查 Fixture 冲突状态
+            required_evidence: "Fixture status = occupied 且活动上市日期在 24 小时内"
+            type: exception
+      - id: cp_in_progress
+        name: 准备进行中
+        description: "陈列准备工作正在执行（熨烫、打标、上架、陈列调整），需要 VM 技能员工"
+        transitions:
+          - to_state: cp_ready
+            trigger_action: 确认所有准备任务完成
+            required_evidence: "Store task list 中活动准备任务全部标记完成"
+            type: normal
+      - id: cp_ready
+        name: 活动已就绪
+        description: "所有准备工作完成，陈列已设置，活动可以按计划上线"
+        transitions: []
+      - id: cp_at_risk
+        name: 准备有风险
+        description: "活动准备存在阻塞（商品延迟 / Fixture 占用 / 准备工作不足），需升级处理"
+        transitions:
+          - to_state: cp_waiting_goods
+            trigger_action: 等待商品延迟解决
+            required_evidence: "Delivery 延迟已解除，新 ETA 已确认"
+            type: recovery
+          - to_state: cp_in_progress
+            trigger_action: Fixture 释放后继续准备
+            required_evidence: "Fixture status 已变为 available"
+            type: recovery
+    guardrails:
+      - "Fixture occupied 时不能开始新活动陈列，即使活动日期紧迫"
+      - "活动 SKU 未完成 Carton scan 不能开始陈列准备"
+      - "不能仅凭上级口头确认将活动标记为已就绪"
+      - "具备 VM 技能的员工未到位时，不能开始需要 VM 技能的陈列任务"
+    dependency_mapping:
+      - workstream: ws_transfer_receiving
+        condition: "活动 SKU 仍在 s_pending_arrival、s_arrived_unscanned 或 s_discrepancy 状态"
+        impact: "活动准备必须等待收货流程完成，不能提前推进"
+
+  - id: ws_replenishment
+    name: 常规补货
+    description: "基于门店库存水平，将到货商品补货到销售楼面的执行流"
+    anchor_objects:
+      - carton_scan
+      - fixture
+    states:
+      - id: rp_waiting_receiving
+        name: 等待收货完成
+        description: "补货所需 SKU 尚未完成收货扫描，无法确认可用库存"
+        transitions:
+          - to_state: rp_ready_to_replenish
+            trigger_action: 确认相关 SKU 收货完成
+            required_evidence: "相关 SKU 的 Carton scan 完成，无未关闭差异"
+            type: normal
+      - id: rp_ready_to_replenish
+        name: 可执行补货
+        description: "SKU 已收货确认，Fixture 可用，可以执行上架补货"
+        transitions:
+          - to_state: rp_complete
+            trigger_action: 完成上架并更新库存
+            required_evidence: "商品已上架，库存系统已更新"
+            type: normal
+      - id: rp_complete
+        name: 补货完成
+        description: "商品已完成上架，楼面库存已更新"
+        transitions: []
+    guardrails:
+      - "未完成 Carton scan 的 SKU 不能进入补货上架流程"
+      - "活动专属 SKU 在活动陈列准备完成前，不能用于常规补货上架"
+    dependency_mapping:
+      - workstream: ws_transfer_receiving
+        condition: "补货 SKU 完成收货"
+        impact: "常规补货流程解除等待，进入可执行状态"

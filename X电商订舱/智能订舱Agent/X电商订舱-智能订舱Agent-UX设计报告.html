@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>X电商订舱-智能订舱Agent-UX设计报告</title>
+<style>
+  :root {
+    --p: #10213E;
+    --p-dark: #0b1a33;
+    --accent: #5DB2E2;
+    --success: #16a34a;
+    --warning: #f59e0b;
+    --danger: #ef4444;
+    --text: #1e293b;
+    --text2: #64748b;
+    --border: #e2e8f0;
+    --bg: #ffffff;
+    --bg-alt: #f8fafc;
+    --radius: 8px;
+    --shadow: 0 2px 8px rgba(16, 33, 62, 0.08);
+    --font: MiSans, Inter, -apple-system, 'Microsoft YaHei', sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: var(--font); background: var(--bg-alt); color: var(--text); line-height: 1.5; }
+  .container { max-width: 1400px; margin: 0 auto; padding: 32px 24px; }
+  .header { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); padding: 28px 32px; position: relative; overflow: hidden; }
+  .header::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 6px; background: var(--accent); }
+  .header h1 { margin: 0 0 8px 12px; font-size: 28px; }
+  .header .sub { color: var(--text2); margin-left: 12px; }
+  .badges { display: flex; gap: 10px; margin: 16px 0 0 12px; flex-wrap: wrap; }
+  .badge { font-size: 12px; padding: 4px 12px; border-radius: 999px; background: var(--bg-alt); color: var(--text2); border: 1px solid var(--border); }
+  .badge.dom { background: var(--p); color: #fff; border: none; }
+  .badge.mode { background: var(--accent); color: #fff; border: none; }
+  h2.sec { margin: 32px 0 16px; font-size: 22px; display: flex; align-items: center; gap: 10px; }
+  h2.sec::before { content: ""; width: 4px; height: 22px; background: var(--accent); border-radius: 2px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
+  .card { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); padding: 20px; }
+  .card h3 { margin: 0 0 12px; font-size: 15px; color: var(--p-dark); }
+  .spec-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px dashed var(--border); font-size: 14px; }
+  .spec-item:last-child { border-bottom: none; }
+  .spec-item .k { color: var(--text2); }
+  .spec-item .v { font-weight: 600; }
+  .swatch { display: flex; align-items: center; gap: 10px; padding: 8px 0; }
+  .swatch .dot { width: 34px; height: 34px; border-radius: 8px; border: 1px solid var(--border); flex-shrink: 0; }
+  .radar-wrap { display: grid; grid-template-columns: 280px 1fr; gap: 24px; align-items: center; background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); padding: 24px; }
+  .radar-legend { display: flex; flex-direction: column; gap: 12px; }
+  .radar-legend .row { display: flex; align-items: center; gap: 8px; }
+  .radar-legend .bar { flex: 1; height: 10px; background: var(--bg-alt); border-radius: 5px; overflow: hidden; }
+  .radar-legend .fill { height: 100%; background: var(--p); border-radius: 5px; }
+  table.cmp { width: 100%; border-collapse: collapse; background: var(--bg); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
+  table.cmp th, table.cmp td { padding: 12px 16px; text-align: left; border-bottom: 1px solid var(--border); font-size: 14px; }
+  table.cmp th { background: var(--bg-alt); font-weight: 600; }
+  table.cmp tr:last-child td { border-bottom: none; }
+  .pill { font-size: 12px; padding: 2px 10px; border-radius: 999px; }
+  .pill.old { background: #f1f5f9; color: var(--text2); }
+  .pill.new { background: rgba(37,99,235,.12); color: var(--p); font-weight: 600; }
+  .footer { text-align: center; color: var(--text2); font-size: 12px; margin: 40px 0 20px; }
+  .btn-actions { display: flex; gap: 12px; }
+  .btn { font-size: 13px; padding: 8px 16px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text); cursor: pointer; transition: all .15s ease-out; }
+  .btn:hover { box-shadow: var(--shadow); }
+  .btn.primary { background: var(--p); color: #fff; border: none; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <div style="position:absolute;right:24px;top:24px;" class="btn-actions">
+      <button class="btn" onclick="window.print()">导出 PDF / 打印</button>
+      <button class="btn primary" onclick="copyYaml()">复制原始 YAML</button>
+    </div>
+    <h1>X电商订舱 · 智能订舱Agent</h1>
+    <div class="sub">UX 定制设计系统 · UX-Optimizer</div>
+    <div class="badges">
+      <span class="badge dom">业务域：供应链</span>
+      <span class="badge mode">产品 UI 模式：Modern SaaS 工作台</span>
+      <span class="badge">品牌来源：domain 推断 + 用户指定主题</span>
+      <span class="badge">主色：#10213E</span>
+    </div>
+  </div>
+
+  <h2 class="sec">企业品牌画像（人格）</h2>
+  <div class="grid">
+    <div class="card">
+      <h3>品牌基调</h3>
+      <div class="spec-item"><span class="k">主色调性</span><span class="v">科技深蓝</span></div>
+      <div class="spec-item"><span class="k">主色</span><span class="v">#10213E</span></div>
+    </div>
+    <div class="card">
+      <h3>用户与场景</h3>
+      <div class="spec-item"><span class="k">用户群体</span><span class="v">客户</span></div>
+      <div class="spec-item"><span class="k">场景严肃度</span><span class="v">严谨流程</span></div>
+      <div class="spec-item"><span class="k">品牌成熟度</span><span class="v">专业细分</span></div>
+    </div>
+  </div>
+
+  <h2 class="sec">定制设计语言（8 维）</h2>
+  <div class="grid">
+    <div class="card">
+      <h3>① 色彩系统</h3>
+      <div class="swatch"><span class="dot" style="background:#10213E"></span><span>主色 #10213E</span></div>
+      <div class="swatch"><span class="dot" style="background:#5DB2E2"></span><span>强调 #5DB2E2</span></div>
+      <div class="swatch"><span class="dot" style="background:#16a34a"></span><span>成功 #16a34a</span></div>
+      <div class="swatch"><span class="dot" style="background:#f59e0b"></span><span>警告 #f59e0b</span></div>
+      <div class="swatch"><span class="dot" style="background:#ef4444"></span><span>危险 #ef4444</span></div>
+    </div>
+    <div class="card">
+      <h3>② 字体系统</h3>
+      <div class="spec-item"><span class="k">字体</span><span class="v">MiSans, Inter, -apple-system, 'Microsoft YaHei', sans-serif</span></div>
+      <div class="spec-item"><span class="k">H1</span><span class="v">26px / 600</span></div>
+      <div class="spec-item"><span class="k">H2</span><span class="v">20px / 500</span></div>
+      <div class="spec-item"><span class="k">正文</span><span class="v">14px / 1.5</span></div>
+    </div>
+    <div class="card">
+      <h3>③ 间距 & 栅格</h3>
+      <div class="spec-item"><span class="k">8pt scale</span><span class="v">4 / 8 / 12 / 16 / 24 / 32 / 48</span></div>
+      <div class="spec-item"><span class="k">内容最大宽</span><span class="v">1440px</span></div>
+      <div class="spec-item"><span class="k">卡片内距</span><span class="v">24px</span></div>
+    </div>
+    <div class="card">
+      <h3>④ 圆角 / 阴影</h3>
+      <div class="spec-item"><span class="k">圆角 sm/md/lg</span><span class="v">6/8/12</span></div>
+      <div class="spec-item"><span class="k">卡片阴影</span><span class="v" style="font-size:11px">0 2px 8px rgba(16, 33, 62, 0.08)</span></div>
+    </div>
+    <div class="card">
+      <h3>⑥ 状态体系</h3>
+      <div class="spec-item"><span class="k">过渡</span><span class="v">0.15s ease-out</span></div>
+      <div class="spec-item"><span class="k">焦点轮廓</span><span class="v">#5DB2E2</span></div>
+      <div class="spec-item"><span class="k">Loading</span><span class="v">skeleton</span></div>
+    </div>
+    <div class="card">
+      <h3>⑧ 微交互 & 响应式</h3>
+      <div class="spec-item"><span class="k">过渡</span><span class="v">0.15s ease-out</span></div>
+      <div class="spec-item"><span class="k">断点</span><span class="v">375 / 768 / 1024 / 1440</span></div>
+    </div>
+  </div>
+
+  <h2 class="sec">六维 UX 专业评分（figma_expertise）</h2>
+  <div class="radar-wrap">
+    <div class="radar-legend">
+      <div class="row">
+        <span style="width:130px;font-weight:600;font-size:13px">布局&栅格</span>
+        <div class="bar"><div class="fill" style="width:80%"></div></div>
+        <span style="width:32px;text-align:right;font-size:13px">8</span>
+      </div>
+      <div class="row">
+        <span style="width:130px;font-weight:600;font-size:13px">视觉层级&排版</span>
+        <div class="bar"><div class="fill" style="width:80%"></div></div>
+        <span style="width:32px;text-align:right;font-size:13px">8</span>
+      </div>
+      <div class="row">
+        <span style="width:130px;font-weight:600;font-size:13px">色彩&对比度</span>
+        <div class="bar"><div class="fill" style="width:90%"></div></div>
+        <span style="width:32px;text-align:right;font-size:13px">9</span>
+      </div>
+      <div class="row">
+        <span style="width:130px;font-weight:600;font-size:13px">组件状态</span>
+        <div class="bar"><div class="fill" style="width:80%"></div></div>
+        <span style="width:32px;text-align:right;font-size:13px">8</span>
+      </div>
+      <div class="row">
+        <span style="width:130px;font-weight:600;font-size:13px">微交互&动效</span>
+        <div class="bar"><div class="fill" style="width:70%"></div></div>
+        <span style="width:32px;text-align:right;font-size:13px">7</span>
+      </div>
+      <div class="row">
+        <span style="width:130px;font-weight:600;font-size:13px">可访问&响应式</span>
+        <div class="bar"><div class="fill" style="width:80%"></div></div>
+        <span style="width:32px;text-align:right;font-size:13px">8</span>
+      </div>
+    </div>
+    <div style="text-align:center;">
+      <div style="font-size:42px;font-weight:700;color:var(--p)">8.0</div>
+      <div style="color:var(--text2);font-size:13px">综合 UX 评级（满分 10）</div>
+    </div>
+  </div>
+
+  <h2 class="sec">组件专业化（componentSpecs）</h2>
+  <table class="cmp">
+    <tr><th>元素</th><th>升级方向</th></tr>
+    <tr><td style="font-weight:600">steps</td><td>progress accent; 当前步主标签 + 历史步已完成; 用强调色高亮进行中</td></tr>
+    <tr><td style="font-weight:600">uploadCard</td><td>drag zone focus ring; 虚线+强调色描边; hover 填充浅色; 文件选中显示名/大小/移除</td></tr>
+    <tr><td style="font-weight:600">aiResultCard</td><td>AI insight panel; 左上 AI 徽章 + 强调色 4px 左边框; loading 用骨架屏</td></tr>
+    <tr><td style="font-weight:600">table</td><td>rowsZebra headerSticky; 表头浅底加粗; 行 hover; 状态列 Tag 着色(色+文)</td></tr>
+    <tr><td style="font-weight:600">statRow</td><td>metric hero; 大数字 + 强调色前缀图标 + 单位小字; 卡片微阴影</td></tr>
+    <tr><td style="font-weight:600">buttonRow</td><td>primaryFullBleed hoverLift; 主操作在前强调色; 次操作描边; hover 提升</td></tr>
+    <tr><td style="font-weight:600">alert</td><td>showIcon bordered; 左边框语义色 + 浅色底; 交付文案可读</td></tr>
+    <tr><td style="font-weight:600">timeline</td><td>state tracker; 节点语义色圆点(成功绿/进行中蓝/待到达灰); 当前高亮</td></tr>
+    <tr><td style="font-weight:600">chatPanel</td><td>AI copilot; 气泡左右分色(用户右蓝/AI左灰); 推荐指令 chips; typing indicator</td></tr>
+    <tr><td style="font-weight:600">formCard</td><td>field group labelAbove; 字段间距 16; 必填星标; 校验失败红框</td></tr>
+    <tr><td style="font-weight:600">tagRow</td><td>status chips pill; 语义色浅底 + 深色字; 可筛选</td></tr>
+  </table>
+
+  <h2 class="sec">Before / After 对照</h2>
+  <table class="cmp">
+    <tr><th>维度</th><th>优化前（默认 antd/arco）</th><th>优化后（定制设计系统）</th></tr>
+    <tr>
+      <td style="font-weight:600">主色语义</td>
+      <td><span class="pill old">colorWarning 误用 emphasize 色</span></td>
+      <td><span class="pill new">success/warning/danger/info 各归其位</span></td>
+    </tr>
+    <tr>
+      <td style="font-weight:600">字体</td>
+      <td><span class="pill old">默认系统字体</span></td>
+      <td><span class="pill new">MiSans + 标题层级(H1 26/H2 20/H3 16)</span></td>
+    </tr>
+    <tr>
+      <td style="font-weight:600">卡片</td>
+      <td><span class="pill old">默认平铺</span></td>
+      <td><span class="pill new">8px 圆角 + 蓝色相阴影 rgba(16,33,62,0.08)</span></td>
+    </tr>
+    <tr>
+      <td style="font-weight:600">表格</td>
+      <td><span class="pill old">默认</span></td>
+      <td><span class="pill new">表头浅底加粗 + 行 hover + 状态列 Tag 着色</span></td>
+    </tr>
+    <tr>
+      <td style="font-weight:600">AI 结果卡</td>
+      <td><span class="pill old">普通 Card</span></td>
+      <td><span class="pill new">AI 徽章 + 强调色左边框 + 骨架 loading</span></td>
+    </tr>
+    <tr>
+      <td style="font-weight:600">状态</td>
+      <td><span class="pill old">未完备</span></td>
+      <td><span class="pill new">六态完备(focus Outline #5DB2E2)</span></td>
+    </tr>
+  </table>
+
+  <h2 class="sec">交付核对（ux_checklist）</h2>
+  <div class="card" style="font-size:14px;">
+    <ul style="margin:0;padding-left:18px;line-height:2;">
+    </ul>
+  </div>
+
+  <div class="footer">UX-Optimizer · X电商订舱-智能订舱Agent · 定制设计系统报告（产品级 MVP，与 design.md 解耦）</div>
+</div>
+
+<script id="raw-yaml" type="application/yaml">
+# UX-Optimizer · X电商订舱 / 智能订舱Agent 定制设计系统
+# 由 brand_business_matrix.md 推导：企业品牌(科技深蓝·严谨流程·专业细分·B2B货主) × 业务主题(供应链物流·订舱Agent)
+# 产品级 MVP，与 design.md 解耦；侧栏工作台 + 卡片/表格/对话/表单/上传/时间线
+meta:
+  company: "X电商订舱"
+  scenario: "智能订舱Agent"
+  businessDomain: "供应链"
+  productName: "X 智能订舱 Agent"
+  mode: "Modern SaaS 工作台"
+  brandSource: "domain 推断 + 用户指定主题"
+
+brandProfile:
+  primaryTone: "科技深蓝"
+  primaryColor: "#10213E"
+  userGroup: "客户"
+  seriousness: "严谨流程"
+  maturity: "专业细分"
+
+designLanguage:
+  colors:
+    primary: "#10213E"
+    primaryDark: "#0b1a33"
+    primaryLight: "#3a5a8a"
+    accent: "#5DB2E2"
+    action: "#1E6FB8"
+    success: "#16a34a"
+    warning: "#f59e0b"
+    danger: "#ef4444"
+    info: "#0ea5e9"
+    neutral:
+      text: "#1e293b"
+      textSecondary: "#64748b"
+      border: "#e2e8f0"
+      bg: "#ffffff"
+      bgAlt: "#f8fafc"
+    gradient:
+      from: "#10213E"
+      to: "#5DB2E2"
+  typography:
+    fontFamily: "MiSans, Inter, -apple-system, 'Microsoft YaHei', sans-serif"
+    h1: { size: 26, weight: "600", lineHeight: 1.2, spacing: "-0.02em" }
+    h2: { size: 20, weight: "500", lineHeight: 1.3, spacing: "0" }
+    h3: { size: 16, weight: "500", lineHeight: 1.4, spacing: "0" }
+    body: { size: 14, weight: "400", lineHeight: 1.5, spacing: "0" }
+    label: { size: 12, weight: "600", lineHeight: 1.2, spacing: "0.05em", uppercase: true }
+    caption: { size: 12, weight: "300", lineHeight: 1.4, spacing: "0" }
+  spacing:
+    scale: [4, 8, 12, 16, 24, 32, 48]
+    contentMaxWidth: 1440
+    cardPadding: 24
+    sectionGap: 24
+    elementGap: 16
+  radius:
+    sm: 6
+    md: 8
+    lg: 12
+    pill: 999
+  shadow:
+    card: "0 2px 8px rgba(16, 33, 62, 0.08)"
+    raised: "0 4px 16px rgba(16, 33, 62, 0.12)"
+  border:
+    color: "#e2e8f0"
+    width: 1
+  components:
+    card: { radius: 8, shadow: "card", background: "#ffffff", border: true }
+    button: { radius: 6, transition: "0.15s ease-out", hoverOpacity: 0.85 }
+    table: { density: "compact", rowHover: true, headerBg: "#f8fafc" }
+    input: { radius: 6, focusOutline: "#5DB2E2" }
+  states:
+    hoverTime: "0.15s ease-out"
+    focusOutline: "#5DB2E2"
+    loadingType: "skeleton"
+    emptyStyle: "icon + hint + cta"
+  layout:
+    mode: "side"
+    siderWidth: 216
+    headerHeight: 56
+  motion:
+    transition: "0.15s ease-out"
+    enableSpring: false
+  responsive:
+    breakpoints: [375, 768, 1024, 1440]
+
+componentSpecs:
+  - element: "steps"
+    v2: { style: "progress accent; 当前步主标签 + 历史步已完成; 用强调色高亮进行中" }
+  - element: "uploadCard"
+    v2: { style: "drag zone focus ring; 虚线+强调色描边; hover 填充浅色; 文件选中显示名/大小/移除" }
+  - element: "aiResultCard"
+    v2: { style: "AI insight panel; 左上 AI 徽章 + 强调色 4px 左边框; loading 用骨架屏" }
+  - element: "table"
+    v2: { style: "rowsZebra headerSticky; 表头浅底加粗; 行 hover; 状态列 Tag 着色(色+文)" }
+  - element: "statRow"
+    v2: { style: "metric hero; 大数字 + 强调色前缀图标 + 单位小字; 卡片微阴影" }
+  - element: "buttonRow"
+    v2: { style: "primaryFullBleed hoverLift; 主操作在前强调色; 次操作描边; hover 提升" }
+  - element: "alert"
+    v2: { style: "showIcon bordered; 左边框语义色 + 浅色底; 交付文案可读" }
+  - element: "timeline"
+    v2: { style: "state tracker; 节点语义色圆点(成功绿/进行中蓝/待到达灰); 当前高亮" }
+  - element: "chatPanel"
+    v2: { style: "AI copilot; 气泡左右分色(用户右蓝/AI左灰); 推荐指令 chips; typing indicator" }
+  - element: "formCard"
+    v2: { style: "field group labelAbove; 字段间距 16; 必填星标; 校验失败红框" }
+  - element: "tagRow"
+    v2: { style: "status chips pill; 语义色浅底 + 深色字; 可筛选" }
+
+diffChecklist:
+  - "自定义主色 #10213E 已注入 ConfigProvider + CSS 变量（修复 colorWarning 误用 accent 的语义错位）"
+  - "MiSans 字体系统覆盖全局 + 标题层级（H1 26 / H2 20 / H3 16）"
+  - "间距统一为 8pt 体系，卡片内距 24 / 卡间距 16"
+  - "圆角 8px、蓝色相阴影 rgba(16,33,62,0.08) 替代默认 antd 质感"
+  - "11 类元素按 componentSpecs 升级（step/upload/aiResult/table/stat/button/alert/timeline/chat/form/tag）"
+  - "六态完备：hover(0.15s)/focus(#5DB2E2 Outline)/empty/loading(骨架)/error/disabled"
+  - "响应式断点 375/768/1024/1440 生效"
+  - "cursor-pointer 加到所有可交互区"
+
+</script>
+<script>
+function copyYaml() {
+  const el = document.getElementById('raw-yaml');
+  const text = el.textContent.trim();
+  navigator.clipboard.writeText(text).then(() => alert('已复制 YAML 到剪贴板'));
+}
+</script>
+</body>
+</html>

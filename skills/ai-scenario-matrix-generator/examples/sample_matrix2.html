@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能客服系统 AI 场景评估</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --font: 'Inter', 'Noto Sans SC', sans-serif;
+            --bg-page: #f3f4f6;
+            --bg-card: #ffffff;
+            --text-primary: #111827;
+            --text-sub: #6b7280;
+            --border: #e5e7eb;
+            --radius: 12px;
+            --shadow: 0 4px 12px rgba(0,0,0,.08);
+        }
+
+        body {
+            font-family: var(--font);
+            background: var(--bg-page);
+            color: var(--text-primary);
+            margin: 0; padding: 40px 20px;
+            line-height: 1.6;
+        }
+
+        .container { max-width: 1200px; margin: 0 auto; }
+
+        header {
+            display: flex; align-items: center; gap: 12px;
+            margin-bottom: 32px; padding-bottom: 16px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .header-icon {
+            width: 36px; height: 36px;
+            background: #111827; color: #fff;
+            border-radius: 8px; display: flex;
+            align-items: center; justify-content: center;
+            font-weight: 800; font-size: 18px;
+        }
+
+        h1 { font-size: 24px; font-weight: 700; margin: 0; }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 24px; margin-bottom: 24px;
+        }
+
+        .section-title {
+            font-size: 18px; font-weight: 600; margin-bottom: 20px;
+            display: flex; align-items: center; gap: 8px;
+        }
+
+        /* Table Styles */
+        .table-wrap { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+        th {
+            padding: 12px; text-align: left; background: #f9fafb;
+            border-bottom: 2px solid var(--border); font-weight: 600;
+        }
+        td { padding: 12px; border-bottom: 1px solid #f3f4f6; }
+        .id-badge {
+            width: 24px; height: 24px; border-radius: 50%;
+            display: inline-flex; align-items: center; justify-content: center;
+            color: #fff; font-size: 11px; font-weight: 700;
+        }
+        .score-bold { font-weight: 700; font-size: 15px; }
+
+        /* Matrix Styles */
+        .matrix-wrap { position: relative; margin: 40px 0; }
+        .matrix-grid {
+            display: grid;
+            grid-template-columns: 100px repeat(5, 1fr);
+            gap: 4px;
+        }
+        .y-label {
+            display: flex; align-items: center; justify-content: flex-end;
+            padding-right: 15px; font-size: 12px; font-weight: 500;
+            color: var(--text-sub); text-align: right; min-height: 100px;
+        }
+        .grid-cell {
+            position: relative; min-height: 120px;
+            border: 1px solid rgba(255,255,255,0.8);
+            border-radius: 4px;
+        }
+        .cell-items {
+            position: absolute; inset: 0;
+            display: flex; flex-direction: column; padding: 10px;
+            gap: 8px; align-items: center; justify-content: center;
+            overflow-y: auto;
+        }
+        .cell-card {
+            background: #fff;
+            border-radius: 8px;
+            padding: 12px 8px 8px;
+            width: 90%;
+            position: relative;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+            display: flex; flex-direction: column; align-items: center;
+            text-align: center;
+        }
+        .cell-id-badge {
+            position: absolute;
+            top: -12px; left: 50%;
+            transform: translateX(-50%);
+            width: 24px; height: 24px;
+            border-radius: 50%;
+            color: #fff; font-size: 11px; font-weight: 800;
+            display: flex; align-items: center; justify-content: center;
+            border: 2px solid #fff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .cell-name-text {
+            font-size: 11px;
+            font-weight: 700;
+            color: #1a1a1a;
+            line-height: 1.3;
+            word-break: break-word;
+            margin-top: 4px;
+        }
+
+        .x-labels-row { display: contents; }
+        .corner { grid-column: 1; }
+        .x-label {
+            padding-top: 12px; text-align: center;
+            font-size: 12px; font-weight: 500; color: var(--text-sub);
+        }
+
+        .matrix-axis-title {
+            text-align: center; font-size: 14px; font-weight: 600;
+            color: var(--text-sub); margin-top: 12px;
+        }
+        .matrix-axis-y {
+            position: absolute; left: -40px; top: 50%;
+            transform: rotate(-90deg) translate(50%, 0);
+            font-size: 14px; font-weight: 600; color: var(--text-sub);
+        }
+
+        .legend {
+            display: flex; justify-content: center; gap: 24px;
+            margin-top: 32px; font-size: 12px; color: var(--text-sub);
+        }
+        .legend-item { display: flex; align-items: center; gap: 8px; }
+        .legend-box { width: 16px; height: 16px; border-radius: 3px; border: 1px solid var(--border); }
+
+        @media print {
+            body { padding: 0; background: #fff; }
+            .card { box-shadow: none; border: 1px solid #ddd; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-icon">AI</div>
+            <h1>智能客服系统 AI 场景评估</h1>
+        </header>
+
+        <!-- Use Case Table -->
+        <div class="card">
+            <div class="section-title">📊 场景评估清单 (按优先级排序)</div>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width: 40px">#</th>
+                            <th>使用场景名称</th>
+                            <th>收益评分 (Avg)</th>
+                            <th>成本评分 (Avg)</th>
+                            <th>优先级分数</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        
+                        <tr>
+                            <td><span class="id-badge" style="background: #f97316">1</span></td>
+                            <td><strong>意图识别助手</strong></td>
+                            <td>4.67</td>
+                            <td>2.0</td>
+                            <td class="score-bold">2.33</td>
+                        </tr>
+                        
+                        <tr>
+                            <td><span class="id-badge" style="background: #f59e0b">2</span></td>
+                            <td><strong>自动摘要总结</strong></td>
+                            <td>3.33</td>
+                            <td>1.5</td>
+                            <td class="score-bold">2.22</td>
+                        </tr>
+                        
+                        <tr>
+                            <td><span class="id-badge" style="background: #84cc16">4</span></td>
+                            <td><strong>新员工培训助手</strong></td>
+                            <td>2.33</td>
+                            <td>1.5</td>
+                            <td class="score-bold">1.56</td>
+                        </tr>
+                        
+                        <tr>
+                            <td><span class="id-badge" style="background: #eab308">3</span></td>
+                            <td><strong>复杂故障预测</strong></td>
+                            <td>2.33</td>
+                            <td>4.25</td>
+                            <td class="score-bold">0.55</td>
+                        </tr>
+                        
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Priority Matrix -->
+        <div class="card">
+            <div class="section-title">🎯 优先级矩阵 (5×5)</div>
+            
+            <div class="matrix-wrap">
+                <div class="matrix-axis-y">业务价值 (Benefit)</div>
+                <div class="matrix-grid">
+                    
+                    
+                    <div class="y-label">5: 非常高收益</div>
+                    
+                    <div class="grid-cell" style="background: #f0fdf4">
+                        <div class="cell-items">
+                            
+                        </div>
+                    </div>
+                    
+                    <div class="grid-cell" style="background: #f0fdf4">
+                        <div class="cell-items">
+                            
+                            <div class="cell-card">
+                                <div class="cell-id-badge" style="background: #f97316">
+                                    1
+                                </div>
+                                <div class="cell-name-text">
+                                    意图识别助手
+                                </div>
+                            </div>
+                            
+                        </div>
+                    </div>
+                    
+                    <div class="grid-cell" style="background: #fffcf0">
+                        <div class="cell-items">
+                            
+                        </div>
+                    </div>
+                    
+                    <div class="grid-cell" style="background: #fffbeb">
+                        <div class="cell-items">
+                            
+                        </div>
+                    </div>
+                    
+                    <div class="grid-cell" style="background: #fffbeb">
+                        <div class="cell-items">
+                            
+                        </div>
+                    </div>
+                    
+                    
+                    <div class="y-label">4: 高收益</div>
+                    
+                    <div class="grid-cell" style="background: #f0fdf4">
+                        <div class="cell-items">
+                            
+                        </div>
+                    </div>
+                    
+                    <div class="grid-cell" style="background: #f0fdf4">
+                        <div class="cell-items">
+                            
+                        </div>
+                    </div>
+                    
+                    <div class="grid-cell" style="background: #fffcf0">
+                        <div class="cell-items">
+                            
+                        </div>
+                    </div>
+                    
+                    <div class="grid-cell" style="background: #fffbeb">
+                        <div class="cell-items">
+                            
+                        </div>
+                    </div>
+                    
+                    <div class="grid-cell" style="background: #fffbeb">
+                        <div class="cell-items">
+                            
+                        </div>
+                    </div>
+                    
+                    
+                    <div class="y-label">3: 中等收益</div>
+                    
+                    <div class="grid-cell" style="background: #fffcf0">
+                        <div class="cell-items">
+                            
+                        </div>
+                    </div>
+                    
+                    <div class="grid-cell" style="background: #fffcf0">
+                        <div class="cell-items">
+                            
+                            <div class="cell-card">
+                                <div class="cell-id-badge" style="background: #f59e0b">
+                                    2
+                                </div>
+                                <div class="cell-name-text">
+                                    自动摘要总结
+                                </div>
+                            </div>
+                            
+                        </div>
+                    </div>
+                    
+                    <div class="grid-cell" style="background: #fffcf0">
+                        <div class="cell-items">
+                            
+                        </div>
+                    </div>
+                    
+                    <div class="grid-cell" style="background: #fffcf0">
+                        <div class="cell-items">
+                            
+                        </div>
+                    </div>
+                    
+                    <div class="grid-cell" style="background: #fffcf0">
+                        <div class="cell-items">
+                            
+                        </div>
+                    </div>
+                    
+                    
+                    <div class="y-label">2: 低收益</div>
+                    
+                    <div class="grid-cell" style="background: #f8fafc">
+                        <div class="cell-items">
+                            
+                        </div>
+                    </div>
+                    
+                    <div class="grid-cell" style="background: #f8fafc">
+                        <div class="cell-items">
+                            
+                            <div class="cell-card">
+                                <div class="cell-id-badge" style="background: #84cc16">
+                                    4
+                                </div>
+                                <div class="cell-name-text">
+                                    新员工培训助手
+                                </div>
+                            </div>
+                            
+                        </div>
+                    </div>
+                    
+                    <div class="grid-cell" style="background: #fffcf0">
+                        <div class="cell-items">
+                            
+                        </div>
+                    </div>
+                    
+                    <div class="grid-cell" style="background: #fef2f2">
+                        <div class="cell-items">
+                            
+                            <div class="cell-card">
+                                <div class="cell-id-badge" style="background: #eab308">
+                                    3
+                                </div>
+                                <div class="cell-name-text">
+                                    复杂故障预测
+                                </div>
+                            </div>
+                            
+                        </div>
+                    </div>
+                    
+                    <div class="grid-cell" style="background: #fef2f2">
+                        <div class="cell-items">
+                            
+                        </div>
+                    </div>
+                    
+                    
+                    <div class="y-label">1: 非常低收益</div>
+                    
+                    <div class="grid-cell" style="background: #f8fafc">
+                        <div class="cell-items">
+                            
+                        </div>
+                    </div>
+                    
+                    <div class="grid-cell" style="background: #f8fafc">
+                        <div class="cell-items">
+                            
+                        </div>
+                    </div>
+                    
+                    <div class="grid-cell" style="background: #fffcf0">
+                        <div class="cell-items">
+                            
+                        </div>
+                    </div>
+                    
+                    <div class="grid-cell" style="background: #fef2f2">
+                        <div class="cell-items">
+                            
+                        </div>
+                    </div>
+                    
+                    <div class="grid-cell" style="background: #fef2f2">
+                        <div class="cell-items">
+                            
+                        </div>
+                    </div>
+                    
+                    
+
+                    <div class="corner"></div>
+                    
+                    
+                    <div class="x-label">1: 非常低成本</div>
+                    
+                    <div class="x-label">2: 低成本</div>
+                    
+                    <div class="x-label">3: 中等成本</div>
+                    
+                    <div class="x-label">4: 高成本</div>
+                    
+                    <div class="x-label">5: 非常高成本</div>
+                    
+                </div>
+                <div class="matrix-axis-title">实施复杂度 (Cost)</div>
+            </div>
+
+            <div class="legend">
+                <div class="legend-item"><div class="legend-box" style="background: #f0fdf4"></div> Quick Wins</div>
+                <div class="legend-item"><div class="legend-box" style="background: #fffbeb"></div> Big Bets</div>
+                <div class="legend-item"><div class="legend-box" style="background: #f8fafc"></div> Fill-ins</div>
+                <div class="legend-item"><div class="legend-box" style="background: #fef2f2"></div> Avoid</div>
+            </div>
+        </div>
+
+    </div>
+</body>
+</html>

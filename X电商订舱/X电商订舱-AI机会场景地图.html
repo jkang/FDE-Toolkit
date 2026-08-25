@@ -1,0 +1,1517 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>X电商订舱业务AI机会场景地图（基于业务流程分析/体验旅程/服务蓝图痛点挖掘）</title>
+    <style>
+        :root {
+            --bg-page: #f8fafc;
+            --bg-card: #ffffff;
+            --border-color: #e2e8f0;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --primary: #3b82f6;
+            
+            --repetitive-bg: #fffbeb;
+            --repetitive-border: #eab308;
+            --cognitive-bg: #eff6ff;
+            --cognitive-border: #3b82f6;
+            --longtail-bg: #fdf4ff;
+            --longtail-border: #d946ef;
+            --innovation-bg: #f0fdf4;
+            --innovation-border: #22c55e;
+            
+            --header-width: 200px;
+            --cell-width: 320px;
+        }
+
+        * { box-sizing: border-box; }
+        
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; 
+            background-color: var(--bg-page); 
+            margin: 0; 
+            padding: 32px; 
+            color: var(--text-main);
+            line-height: 1.5;
+        }
+
+        .dashboard-container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .dashboard-header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: flex-end; 
+            margin-bottom: 24px; 
+            padding-bottom: 16px;
+            border-bottom: 2px solid var(--border-color);
+        }
+        
+        .header-left h1 { 
+            font-size: 28px; 
+            font-weight: 800; 
+            margin: 0; 
+            background: linear-gradient(135deg, #0f172a 0%, #334155 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .header-left p {
+            margin: 4px 0 0 0;
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        .meta-info {
+            font-size: 12px;
+            color: #94a3b8;
+            text-align: right;
+        }
+
+        .filter-panel { 
+            background: white; 
+            padding: 16px 24px; 
+            margin-bottom: 24px; 
+            border-radius: 12px; 
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05); 
+            display: flex; 
+            gap: 24px; 
+            align-items: center; 
+            font-size: 14px; 
+            border-left: 4px solid var(--primary);
+        }
+        
+        .filter-panel strong { color: #334155; }
+        
+        .filter-label { 
+            display: flex; 
+            align-items: center; 
+            gap: 8px; 
+            cursor: pointer; 
+            color: var(--text-muted); 
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        
+        .filter-label:hover { color: var(--text-main); }
+        .filter-label input[type="checkbox"] { 
+            width: 16px;
+            height: 16px;
+            cursor: pointer; 
+        }
+
+        /* Table Structure */
+        .map-wrapper {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .scroll-container {
+            overflow-x: auto;
+            position: relative;
+        }
+
+        .lane-row { 
+            display: flex; 
+            width: max-content; 
+            border-bottom: 1px solid var(--border-color);
+            align-items: stretch;
+        }
+        
+        .lane-row:last-child { border-bottom: none; }
+        
+        .lane-header { 
+            width: var(--header-width); 
+            flex-shrink: 0; 
+            background-color: #f1f5f9; 
+            border-right: 2px solid #cbd5e1; 
+            font-weight: 700; 
+            font-size: 14px; 
+            color: #475569; 
+            position: sticky; 
+            left: 0; 
+            z-index: 20;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .lane-body { display: flex; }
+        
+        .step-cell { 
+            width: var(--cell-width); 
+            flex-shrink: 0; 
+            padding: 20px; 
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .step-cell:last-child { border-right: none; }
+
+        /* Row Specific Styles */
+        .row-stage { background-color: #f8fafc; }
+        .row-stage .lane-header { background-color: #f8fafc; }
+        .stage-badge {
+            background: #334155;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .activity-card {
+            background: white;
+            border: 2px solid #334155;
+            padding: 16px;
+            border-radius: 12px;
+            font-weight: 700;
+            text-align: center;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+        }
+
+        .touchpoint-info {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            font-size: 13px;
+        }
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-muted);
+        }
+        .info-item b { color: var(--text-main); font-weight: 600; }
+
+        ul.task-list { 
+            margin: 0; 
+            padding-left: 1.25rem; 
+            font-size: 13px; 
+            color: var(--text-main); 
+        }
+        ul.task-list li { margin-bottom: 6px; }
+
+        /* AI Opportunity Cards */
+        .ai-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .ai-card {
+            padding: 16px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            border-left-width: 6px;
+            background: white;
+            transition: transform 0.2s, box-shadow 0.2s;
+            position: relative;
+        }
+        .ai-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+        }
+
+        .theme-repetitive { background-color: var(--repetitive-bg); border-left-color: var(--repetitive-border); }
+        .theme-cognitive { background-color: var(--cognitive-bg); border-left-color: var(--cognitive-border); }
+        .theme-longtail { background-color: var(--longtail-bg); border-left-color: var(--longtail-border); }
+        .theme-innovation { background-color: var(--innovation-bg); border-left-color: var(--innovation-border); }
+
+        .ai-title {
+            font-weight: 800;
+            font-size: 15px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .ai-desc {
+            font-size: 13px;
+            color: #475569;
+            line-height: 1.6;
+        }
+
+        .badge {
+            font-size: 10px;
+            padding: 2px 8px;
+            border-radius: 4px;
+            color: white;
+            text-transform: uppercase;
+            font-weight: 700;
+        }
+        .badge-repetitive { background-color: var(--repetitive-border); }
+        .badge-cognitive { background-color: var(--cognitive-border); }
+        .badge-longtail { background-color: var(--longtail-border); }
+        .badge-innovation { background-color: var(--innovation-border); }
+
+        .hide-card { display: none !important; }
+
+        /* Empty State */
+        .empty-text {
+            color: #cbd5e1;
+            font-style: italic;
+            font-size: 12px;
+            text-align: center;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <div class="dashboard-header">
+            <div class="header-left">
+                <h1>X电商订舱业务AI机会场景地图（基于业务流程分析/体验旅程/服务蓝图痛点挖掘）</h1>
+                <p>业务流程智能化机会深度挖掘与场景映射</p>
+            </div>
+            <div class="meta-info">
+                Generated by AI Opportunity Map Generator<br>
+                2026-08-21 16:04:28
+            </div>
+        </div>
+
+        <div class="filter-panel">
+            <strong>筛选场景：</strong>
+            <label class="filter-label"><input type="checkbox" checked value="repetitive" onchange="filterCards()"> 🟡 重复性替代</label>
+            <label class="filter-label"><input type="checkbox" checked value="cognitive" onchange="filterCards()"> 🔵 高认知辅助</label>
+            <label class="filter-label"><input type="checkbox" checked value="longtail" onchange="filterCards()"> 🟣 长尾场景</label>
+            <label class="filter-label"><input type="checkbox" checked value="innovation" onchange="filterCards()"> 🟢 流程创新</label>
+        </div>
+
+        <div class="map-wrapper">
+            <div class="scroll-container">
+                <!-- Header Row: Stages -->
+                <div class="lane-row row-stage">
+                    <div class="lane-header">阶段</div>
+                    <div class="lane-body">
+                        
+                        <div class="step-cell" style="--total-steps: 2; width: calc(var(--total-steps) * 320px); align-items: center; justify-content: center;">
+                            <span class="stage-badge">认知与注册认证</span>
+                        </div>
+                        
+                        <div class="step-cell" style="--total-steps: 3; width: calc(var(--total-steps) * 320px); align-items: center; justify-content: center;">
+                            <span class="stage-badge">询价与报价</span>
+                        </div>
+                        
+                        <div class="step-cell" style="--total-steps: 3; width: calc(var(--total-steps) * 320px); align-items: center; justify-content: center;">
+                            <span class="stage-badge">下单订舱与舱位确认</span>
+                        </div>
+                        
+                        <div class="step-cell" style="--total-steps: 3; width: calc(var(--total-steps) * 320px); align-items: center; justify-content: center;">
+                            <span class="stage-badge">单证与支付</span>
+                        </div>
+                        
+                        <div class="step-cell" style="--total-steps: 2; width: calc(var(--total-steps) * 320px); align-items: center; justify-content: center;">
+                            <span class="stage-badge">陆运清关履约</span>
+                        </div>
+                        
+                        <div class="step-cell" style="--total-steps: 2; width: calc(var(--total-steps) * 320px); align-items: center; justify-content: center;">
+                            <span class="stage-badge">出运跟踪与异常管理</span>
+                        </div>
+                        
+                        <div class="step-cell" style="--total-steps: 2; width: calc(var(--total-steps) * 320px); align-items: center; justify-content: center;">
+                            <span class="stage-badge">到港交付与售后</span>
+                        </div>
+                        
+                        <div class="step-cell" style="--total-steps: 3; width: calc(var(--total-steps) * 320px); align-items: center; justify-content: center;">
+                            <span class="stage-badge">会员运营与供应链协同</span>
+                        </div>
+                        
+                    </div>
+                </div>
+
+                <!-- Row 2: Activity -->
+                <div class="lane-row">
+                    <div class="lane-header">用户活动</div>
+                    <div class="lane-body">
+                        
+                            
+                            <div class="step-cell">
+                                <div class="activity-card">平台触达与内容浏览</div>
+                            </div>
+                            
+                            <div class="step-cell">
+                                <div class="activity-card">企业注册与资质认证</div>
+                            </div>
+                            
+                        
+                            
+                            <div class="step-cell">
+                                <div class="activity-card">即期与长时效报价查询</div>
+                            </div>
+                            
+                            <div class="step-cell">
+                                <div class="activity-card">智能报价推荐与锁价</div>
+                            </div>
+                            
+                            <div class="step-cell">
+                                <div class="activity-card">多平台比价与成本测算</div>
+                            </div>
+                            
+                        
+                            
+                            <div class="step-cell">
+                                <div class="activity-card">3 步订舱表单提交与预填</div>
+                            </div>
+                            
+                            <div class="step-cell">
+                                <div class="activity-card">订舱请求受理与自动确认</div>
+                            </div>
+                            
+                            <div class="step-cell">
+                                <div class="activity-card">舱位分配与旺季保障</div>
+                            </div>
+                            
+                        
+                            
+                            <div class="step-cell">
+                                <div class="activity-card">SI 提交与智慧单证</div>
+                            </div>
+                            
+                            <div class="step-cell">
+                                <div class="activity-card">eBL 签发与互操作渗透</div>
+                            </div>
+                            
+                            <div class="step-cell">
+                                <div class="activity-card">在线支付与对账</div>
+                            </div>
+                            
+                        
+                            
+                            <div class="step-cell">
+                                <div class="activity-card">提箱装箱与陆运调度</div>
+                            </div>
+                            
+                            <div class="step-cell">
+                                <div class="activity-card">出口清关与合规</div>
+                            </div>
+                            
+                        
+                            
+                            <div class="step-cell">
+                                <div class="activity-card">控制塔全订单可视化</div>
+                            </div>
+                            
+                            <div class="step-cell">
+                                <div class="activity-card">异常预警与预测性处置</div>
+                            </div>
+                            
+                        
+                            
+                            <div class="step-cell">
+                                <div class="activity-card">D&D 费用管理</div>
+                            </div>
+                            
+                            <div class="step-cell">
+                                <div class="activity-card">放货与售后客服</div>
+                            </div>
+                            
+                        
+                            
+                            <div class="step-cell">
+                                <div class="activity-card">会员计划运营</div>
+                            </div>
+                            
+                            <div class="step-cell">
+                                <div class="activity-card">促销与营销触达</div>
+                            </div>
+                            
+                            <div class="step-cell">
+                                <div class="activity-card">供应链协同与绿色增值</div>
+                            </div>
+                            
+                        
+                    </div>
+                </div>
+
+                <!-- Row 3: Role & Touchpoint -->
+                <div class="lane-row">
+                    <div class="lane-header">执行角色 / 接触点</div>
+                    <div class="lane-body">
+                        
+                            
+                            <div class="step-cell">
+                                <div class="touchpoint-info">
+                                    <div class="info-item">👤 <b>角色:</b> SME 货主</div>
+                                    <div class="info-item">💻 <b>系统:</b> 独立电商平台官网 / 搜索引擎 / 行业展会</div>
+                                </div>
+                            </div>
+                            
+                            <div class="step-cell">
+                                <div class="touchpoint-info">
+                                    <div class="info-item">👤 <b>角色:</b> SME 货主 / 电商运营</div>
+                                    <div class="info-item">💻 <b>系统:</b> 独立电商平台注册页 / CRM / 风控系统</div>
+                                </div>
+                            </div>
+                            
+                        
+                            
+                            <div class="step-cell">
+                                <div class="touchpoint-info">
+                                    <div class="info-item">👤 <b>角色:</b> SME 货主</div>
+                                    <div class="info-item">💻 <b>系统:</b> 独立电商平台报价页（E-Spot / E-Quote）</div>
+                                </div>
+                            </div>
+                            
+                            <div class="step-cell">
+                                <div class="touchpoint-info">
+                                    <div class="info-item">👤 <b>角色:</b> AI 助手（Ask Fin / 小飞 Fin）+ 收益管理</div>
+                                    <div class="info-item">💻 <b>系统:</b> AI 报价引擎 / All-in-One 询价 / Secured E-Quote</div>
+                                </div>
+                            </div>
+                            
+                            <div class="step-cell">
+                                <div class="touchpoint-info">
+                                    <div class="info-item">👤 <b>角色:</b> SME 货主</div>
+                                    <div class="info-item">💻 <b>系统:</b> 第三方货代平台 / 其他船司平台</div>
+                                </div>
+                            </div>
+                            
+                        
+                            
+                            <div class="step-cell">
+                                <div class="touchpoint-info">
+                                    <div class="info-item">👤 <b>角色:</b> SME 货主</div>
+                                    <div class="info-item">💻 <b>系统:</b> 订舱表单 / 微信小程序</div>
+                                </div>
+                            </div>
+                            
+                            <div class="step-cell">
+                                <div class="touchpoint-info">
+                                    <div class="info-item">👤 <b>角色:</b> 订舱运营 / CSR</div>
+                                    <div class="info-item">💻 <b>系统:</b> OMS / CRM / 邮件与小程序通知</div>
+                                </div>
+                            </div>
+                            
+                            <div class="step-cell">
+                                <div class="touchpoint-info">
+                                    <div class="info-item">👤 <b>角色:</b> 舱位管理 / 收益管理系统</div>
+                                    <div class="info-item">💻 <b>系统:</b> 舱位分配引擎 / 收益管理系统</div>
+                                </div>
+                            </div>
+                            
+                        
+                            
+                            <div class="step-cell">
+                                <div class="touchpoint-info">
+                                    <div class="info-item">👤 <b>角色:</b> 客户 + 智慧单证系统</div>
+                                    <div class="info-item">💻 <b>系统:</b> 智慧单证系统</div>
+                                </div>
+                            </div>
+                            
+                            <div class="step-cell">
+                                <div class="touchpoint-info">
+                                    <div class="info-item">👤 <b>角色:</b> 单证团队 + IQAX</div>
+                                    <div class="info-item">💻 <b>系统:</b> IQAX eBL / GSBN 区块链</div>
+                                </div>
+                            </div>
+                            
+                            <div class="step-cell">
+                                <div class="touchpoint-info">
+                                    <div class="info-item">👤 <b>角色:</b> 财务 / 结算团队</div>
+                                    <div class="info-item">💻 <b>系统:</b> 支付系统 / 结算系统 / 集团 ERP</div>
+                                </div>
+                            </div>
+                            
+                        
+                            
+                            <div class="step-cell">
+                                <div class="touchpoint-info">
+                                    <div class="info-item">👤 <b>角色:</b> 客户 + 拖车承运商</div>
+                                    <div class="info-item">💻 <b>系统:</b> E-Trucking / Door Haulage</div>
+                                </div>
+                            </div>
+                            
+                            <div class="step-cell">
+                                <div class="touchpoint-info">
+                                    <div class="info-item">👤 <b>角色:</b> 客户 / 报关行 + E-Customs</div>
+                                    <div class="info-item">💻 <b>系统:</b> E-Customs / 海关申报系统</div>
+                                </div>
+                            </div>
+                            
+                        
+                            
+                            <div class="step-cell">
+                                <div class="touchpoint-info">
+                                    <div class="info-item">👤 <b>角色:</b> SME 货主 / 客服</div>
+                                    <div class="info-item">💻 <b>系统:</b> 控制塔 / Cargo Tracking+ / 移动 App</div>
+                                </div>
+                            </div>
+                            
+                            <div class="step-cell">
+                                <div class="touchpoint-info">
+                                    <div class="info-item">👤 <b>角色:</b> 控制塔运营团队 + 客服</div>
+                                    <div class="info-item">💻 <b>系统:</b> 控制塔异常管理 / AI 预警 / Delay in Transit</div>
+                                </div>
+                            </div>
+                            
+                        
+                            
+                            <div class="step-cell">
+                                <div class="touchpoint-info">
+                                    <div class="info-item">👤 <b>角色:</b> SME 货主 / 收货人</div>
+                                    <div class="info-item">💻 <b>系统:</b> D&D 计算器 / 到港通知</div>
+                                </div>
+                            </div>
+                            
+                            <div class="step-cell">
+                                <div class="touchpoint-info">
+                                    <div class="info-item">👤 <b>角色:</b> AI 客服（Ask Fin）+ 人工客服</div>
+                                    <div class="info-item">💻 <b>系统:</b> AI 聊天机器人 / 客服工单系统 / IQAX eBL</div>
+                                </div>
+                            </div>
+                            
+                        
+                            
+                            <div class="step-cell">
+                                <div class="touchpoint-info">
+                                    <div class="info-item">👤 <b>角色:</b> 电商运营</div>
+                                    <div class="info-item">💻 <b>系统:</b> PlumSmart 会员系统 / CRM</div>
+                                </div>
+                            </div>
+                            
+                            <div class="step-cell">
+                                <div class="touchpoint-info">
+                                    <div class="info-item">👤 <b>角色:</b> 数字营销团队</div>
+                                    <div class="info-item">💻 <b>系统:</b> 促销引擎 / 微信小程序 / 营销自动化</div>
+                                </div>
+                            </div>
+                            
+                            <div class="step-cell">
+                                <div class="touchpoint-info">
+                                    <div class="info-item">👤 <b>角色:</b> 供应链 / 航线管理</div>
+                                    <div class="info-item">💻 <b>系统:</b> 控制塔 / X Green / IQAX One</div>
+                                </div>
+                            </div>
+                            
+                        
+                    </div>
+                </div>
+
+                <!-- Row 4: Repetitive Tasks -->
+                <div class="lane-row">
+                    <div class="lane-header">重复性任务<br>(Pain Points)</div>
+                    <div class="lane-body">
+                        
+                            
+                            <div class="step-cell">
+                                
+                                <ul class="task-list">
+                                    
+                                    <li>多语言、多区域营销内容的人工制作与投放</li>
+                                    
+                                    <li>人工筛选潜在货主名单并逐个触达</li>
+                                    
+                                </ul>
+                                
+                            </div>
+                            
+                            <div class="step-cell">
+                                
+                                <ul class="task-list">
+                                    
+                                    <li>人工核对营业执照、贸易资质等上传文件</li>
+                                    
+                                    <li>逐条录入企业信息与联系人数据</li>
+                                    
+                                </ul>
+                                
+                            </div>
+                            
+                        
+                            
+                            <div class="step-cell">
+                                
+                                <ul class="task-list">
+                                    
+                                    <li>跨航次反复查询比对各港即期运价</li>
+                                    
+                                </ul>
+                                
+                            </div>
+                            
+                            <div class="step-cell">
+                                
+                                <ul class="task-list">
+                                    
+                                    <li>人工维护与推送长时效报价单</li>
+                                    
+                                </ul>
+                                
+                            </div>
+                            
+                            <div class="step-cell">
+                                
+                                <ul class="task-list">
+                                    
+                                    <li>人工跨平台收集报价并整理比价表</li>
+                                    
+                                </ul>
+                                
+                            </div>
+                            
+                        
+                            
+                            <div class="step-cell">
+                                
+                                <ul class="task-list">
+                                    
+                                    <li>手工录入费率参考号、货量、箱型与货方信息</li>
+                                    
+                                    <li>资料不全时往返补件</li>
+                                    
+                                </ul>
+                                
+                            </div>
+                            
+                            <div class="step-cell">
+                                
+                                <ul class="task-list">
+                                    
+                                    <li>人工逐单校验费率、信用与航线可用性</li>
+                                    
+                                    <li>人工签发 Booking Confirmation</li>
+                                    
+                                </ul>
+                                
+                            </div>
+                            
+                            <div class="step-cell">
+                                
+                                <ul class="task-list">
+                                    
+                                    <li>旺季人工排查舱位超订与甩柜名单</li>
+                                    
+                                </ul>
+                                
+                            </div>
+                            
+                        
+                            
+                            <div class="step-cell">
+                                
+                                <ul class="task-list">
+                                    
+                                    <li>人工复核多语言品名、唛头与长尾字段</li>
+                                    
+                                    <li>退单返工重复提交</li>
+                                    
+                                </ul>
+                                
+                            </div>
+                            
+                            <div class="step-cell">
+                                
+                                <ul class="task-list">
+                                    
+                                    <li>纸质提单的打印、快递与回收管理</li>
+                                    
+                                </ul>
+                                
+                            </div>
+                            
+                            <div class="step-cell">
+                                
+                                <ul class="task-list">
+                                    
+                                    <li>人工核对电商与货代 EDI 渠道账单</li>
+                                    
+                                    <li>多币种小额高频支付的手工处理</li>
+                                    
+                                </ul>
+                                
+                            </div>
+                            
+                        
+                            
+                            <div class="step-cell">
+                                
+                                <ul class="task-list">
+                                    
+                                    <li>旺季人工排队约车与电话调度</li>
+                                    
+                                    <li>人工跟踪拖车到场与进港状态</li>
+                                    
+                                </ul>
+                                
+                            </div>
+                            
+                            <div class="step-cell">
+                                
+                                <ul class="task-list">
+                                    
+                                    <li>人工准备报关单、装箱单与许可证</li>
+                                    
+                                    <li>逐票跟踪海关查验状态</li>
+                                    
+                                </ul>
+                                
+                            </div>
+                            
+                        
+                            
+                            <div class="step-cell">
+                                
+                                <ul class="task-list">
+                                    
+                                    <li>人工在多系统间查询船、箱、单证状态</li>
+                                    
+                                    <li>高频回答货到哪了类问询</li>
+                                    
+                                </ul>
+                                
+                            </div>
+                            
+                            <div class="step-cell">
+                                
+                                <ul class="task-list">
+                                    
+                                    <li>事后人工排查延误清单并逐个通知</li>
+                                    
+                                </ul>
+                                
+                            </div>
+                            
+                        
+                            
+                            <div class="step-cell">
+                                
+                                <ul class="task-list">
+                                    
+                                    <li>人工查阅各目的港免箱期规则</li>
+                                    
+                                    <li>逐单核算滞箱费争议</li>
+                                    
+                                </ul>
+                                
+                            </div>
+                            
+                            <div class="step-cell">
+                                
+                                <ul class="task-list">
+                                    
+                                    <li>人工答复高频重复问题（运价、船期、单证）</li>
+                                    
+                                    <li>复杂问题转人工时重复收集上下文</li>
+                                    
+                                </ul>
+                                
+                            </div>
+                            
+                        
+                            
+                            <div class="step-cell">
+                                
+                                <ul class="task-list">
+                                    
+                                    <li>人工核算等级积分与权益发放</li>
+                                    
+                                </ul>
+                                
+                            </div>
+                            
+                            <div class="step-cell">
+                                
+                                <ul class="task-list">
+                                    
+                                    <li>多语言多区域促销物料的人工制作</li>
+                                    
+                                </ul>
+                                
+                            </div>
+                            
+                            <div class="step-cell">
+                                
+                                <ul class="task-list">
+                                    
+                                    <li>人工整合多式联运与供应商 SLA 数据</li>
+                                    
+                                </ul>
+                                
+                            </div>
+                            
+                        
+                    </div>
+                </div>
+
+                <!-- Row 5: Cognitive Tasks -->
+                <div class="lane-row">
+                    <div class="lane-header">高认知负荷任务<br>(Complexity)</div>
+                    <div class="lane-body">
+                        
+                            
+                            <div class="step-cell">
+                                
+                                <ul class="task-list">
+                                    
+                                    <li>判断不同贸易区域与货主画像的内容偏好</li>
+                                    
+                                    <li>评估营销线索的成单潜力</li>
+                                    
+                                </ul>
+                                
+                            </div>
+                            
+                            <div class="step-cell">
+                                
+                                <ul class="task-list">
+                                    
+                                    <li>判断资质真伪与经营合规风险</li>
+                                    
+                                    <li>决定是否放行订舱权限</li>
+                                    
+                                </ul>
+                                
+                            </div>
+                            
+                        
+                            
+                            <div class="step-cell">
+                                
+                                <ul class="task-list">
+                                    
+                                    <li>判断当前报价相对市场行情的合理性与可成交性</li>
+                                    
+                                </ul>
+                                
+                            </div>
+                            
+                            <div class="step-cell">
+                                
+                                <ul class="task-list">
+                                    
+                                    <li>评估锁价产品在运价波动下的风险敞口</li>
+                                    
+                                    <li>权衡客户价值与舱位收益给出报价组合</li>
+                                    
+                                </ul>
+                                
+                            </div>
+                            
+                            <div class="step-cell">
+                                
+                                <ul class="task-list">
+                                    
+                                    <li>测算海运、陆运、清关、免箱期的到岸总成本</li>
+                                    
+                                </ul>
+                                
+                            </div>
+                            
+                        
+                            
+                            <div class="step-cell">
+                                
+                                <ul class="task-list">
+                                    
+                                    <li>判断哪些资料缺失、填写是否符合规范</li>
+                                    
+                                </ul>
+                                
+                            </div>
+                            
+                            <div class="step-cell">
+                                
+                                <ul class="task-list">
+                                    
+                                    <li>判断订单风险等级与是否放行自动确认</li>
+                                    
+                                </ul>
+                                
+                            </div>
+                            
+                            <div class="step-cell">
+                                
+                                <ul class="task-list">
+                                    
+                                    <li>在收益最大化与电商承诺兑现（Space Protection）之间权衡</li>
+                                    
+                                    <li>预测航线装载率与需求波动</li>
+                                    
+                                </ul>
+                                
+                            </div>
+                            
+                        
+                            
+                            <div class="step-cell">
+                                
+                                <ul class="task-list">
+                                    
+                                    <li>判断品名申报是否符合监管与舱单要求</li>
+                                    
+                                </ul>
+                                
+                            </div>
+                            
+                            <div class="step-cell">
+                                
+                                <ul class="task-list">
+                                    
+                                    <li>判断收货人与银行对 eBL 的接受度并引导接入</li>
+                                    
+                                </ul>
+                                
+                            </div>
+                            
+                            <div class="step-cell">
+                                
+                                <ul class="task-list">
+                                    
+                                    <li>判断汇率风险与最优本地化支付通道</li>
+                                    
+                                </ul>
+                                
+                            </div>
+                            
+                        
+                            
+                            <div class="step-cell">
+                                
+                                <ul class="task-list">
+                                    
+                                    <li>判断拖车资源与船期衔接的最优窗口</li>
+                                    
+                                </ul>
+                                
+                            </div>
+                            
+                            <div class="step-cell">
+                                
+                                <ul class="task-list">
+                                    
+                                    <li>判断关税政策（美国关税 / 301、欧盟 ETS）对申报的影响</li>
+                                    
+                                    <li>预判查验与扣货风险</li>
+                                    
+                                </ul>
+                                
+                            </div>
+                            
+                        
+                            
+                            <div class="step-cell">
+                                
+                                <ul class="task-list">
+                                    
+                                    <li>融合码头 / AIS / 船司多源数据判断真实位置</li>
+                                    
+                                </ul>
+                                
+                            </div>
+                            
+                            <div class="step-cell">
+                                
+                                <ul class="task-list">
+                                    
+                                    <li>预测 ETA 延误概率与影响窗口</li>
+                                    
+                                    <li>生成改配、延保或赔付建议</li>
+                                    
+                                </ul>
+                                
+                            </div>
+                            
+                        
+                            
+                            <div class="step-cell">
+                                
+                                <ul class="task-list">
+                                    
+                                    <li>判断超期风险并规划提货窗口</li>
+                                    
+                                </ul>
+                                
+                            </div>
+                            
+                            <div class="step-cell">
+                                
+                                <ul class="task-list">
+                                    
+                                    <li>处理多订单、多单证的复杂咨询</li>
+                                    
+                                    <li>识别客户情绪与升级诉求</li>
+                                    
+                                </ul>
+                                
+                            </div>
+                            
+                        
+                            
+                            <div class="step-cell">
+                                
+                                <ul class="task-list">
+                                    
+                                    <li>设计让 SME 感知度高的权益组合</li>
+                                    
+                                    <li>预测客户流失与复购窗口</li>
+                                    
+                                </ul>
+                                
+                            </div>
+                            
+                            <div class="step-cell">
+                                
+                                <ul class="task-list">
+                                    
+                                    <li>判断闪购舱位放量与承诺的平衡</li>
+                                    
+                                </ul>
+                                
+                            </div>
+                            
+                            <div class="step-cell">
+                                
+                                <ul class="task-list">
+                                    
+                                    <li>优化多式联运与舱位协同决策</li>
+                                    
+                                    <li>测算 EU ETS / 碳合规成本并转化为客户价值</li>
+                                    
+                                </ul>
+                                
+                            </div>
+                            
+                        
+                    </div>
+                </div>
+
+                <!-- Row 6: AI Opportunities -->
+                <div class="lane-row">
+                    <div class="lane-header">AI 机会场景</div>
+                    <div class="lane-body">
+                        
+                            
+                            <div class="step-cell">
+                                <div class="ai-container">
+                                    
+                                    <div class="ai-card theme-repetitive" data-type="repetitive">
+                                        <div class="ai-title">
+                                            <span>💡 智能获客与内容触达</span>
+                                            <span class="badge badge-repetitive">重复性</span>
+                                        </div>
+                                        <div class="ai-desc">「数字营销团队」在「获客触达」下提供[基于贸易流向与货主搜索意图的个性化内容生成与精准投放]能力，以「提升 SME 首访转化率、降低单线索获客成本」。（来源：C-体验旅程图-智能获客与内容触达）</div>
+                                    </div>
+                                    
+                                    <div class="ai-card theme-cognitive" data-type="cognitive">
+                                        <div class="ai-title">
+                                            <span>💡 贸易画像智能分级</span>
+                                            <span class="badge badge-cognitive">高认知</span>
+                                        </div>
+                                        <div class="ai-desc">「销售团队」在「线索管理」下提供[基于货量、航线与行业特征的潜在客户价值评分]能力，以「优先触达高价值 SME 长尾客户、提升营销 ROI」。（来源：B-售后与会员运营-复购激励痛点 [推断]）</div>
+                                    </div>
+                                    
+                                    
+                                </div>
+                            </div>
+                            
+                            <div class="step-cell">
+                                <div class="ai-container">
+                                    
+                                    <div class="ai-card theme-repetitive" data-type="repetitive">
+                                        <div class="ai-title">
+                                            <span>💡 AI 自动认证审核</span>
+                                            <span class="badge badge-repetitive">重复性</span>
+                                        </div>
+                                        <div class="ai-desc">「电商运营」在「资质审核」下提供[营业执照 OCR + 多源验真的分钟级自动开户]能力，以「将企业认证从约 3 个工作日压缩至分钟级、消灭 SME 首单等待窗口」。（来源：B-L2 资质审核（high 痛点）/C-体验旅程图；X 官方口径认证约 3 个工作日）</div>
+                                    </div>
+                                    
+                                    <div class="ai-card theme-longtail" data-type="longtail">
+                                        <div class="ai-title">
+                                            <span>💡 非标资质智能复核</span>
+                                            <span class="badge badge-longtail">长尾场景</span>
+                                        </div>
+                                        <div class="ai-desc">「风控审核员」在「疑难资质复核」下提供[对多法人、多币种等非标注册结构的风险提示与人工复核辅助]能力，以「降低风控误判与返工、守住合规底线」。（来源：D-服务蓝图-合规与信用风控痛点）</div>
+                                    </div>
+                                    
+                                    
+                                </div>
+                            </div>
+                            
+                        
+                            
+                            <div class="step-cell">
+                                <div class="ai-container">
+                                    
+                                    <div class="ai-card theme-cognitive" data-type="cognitive">
+                                        <div class="ai-title">
+                                            <span>💡 全航线智能报价</span>
+                                            <span class="badge badge-cognitive">高认知</span>
+                                        </div>
+                                        <div class="ai-desc">「SME 货主」在「即期询价」下提供[结合市场运价指数（SCFI/CCFI）与舱位余量的全航线即期报价生成]能力，以「填补部分港口无透明报价的盲区、减少跨平台比价流失」。（来源：C-体验旅程图-全航线智能报价；B 即期报价覆盖仅限特定航次 [推断]）</div>
+                                    </div>
+                                    
+                                    
+                                </div>
+                            </div>
+                            
+                            <div class="step-cell">
+                                <div class="ai-container">
+                                    
+                                    <div class="ai-card theme-cognitive" data-type="cognitive">
+                                        <div class="ai-title">
+                                            <span>💡 动态锁价风控</span>
+                                            <span class="badge badge-cognitive">高认知</span>
+                                        </div>
+                                        <div class="ai-desc">「收益管理」在「锁价定价」下提供[基于历史成交与运价波动预测的锁价区间建议与对冲模型]能力，以「降低锁价弃约风险、平衡 Secured E-Quote 双方风险敞口」。（来源：C-体验旅程图-动态锁价风控；B 锁价与市场运价脱钩（high 痛点）[推断]）</div>
+                                    </div>
+                                    
+                                    <div class="ai-card theme-cognitive" data-type="cognitive">
+                                        <div class="ai-title">
+                                            <span>💡 个性化报价推荐</span>
+                                            <span class="badge badge-cognitive">高认知</span>
+                                        </div>
+                                        <div class="ai-desc">「SME 货主」在「智能询价」下提供[基于历史交易与偏好的港口对/航次/附加费组合推荐（Smart Push 升级）]能力，以「提升报价采纳率与一站式成交率」。（来源：B-L2 智能报价推荐与锁价）</div>
+                                    </div>
+                                    
+                                    
+                                </div>
+                            </div>
+                            
+                            <div class="step-cell">
+                                <div class="ai-container">
+                                    
+                                    <div class="ai-card theme-innovation" data-type="innovation">
+                                        <div class="ai-title">
+                                            <span>💡 All-in-One 比价与到岸成本试算</span>
+                                            <span class="badge badge-innovation">流程创新</span>
+                                        </div>
+                                        <div class="ai-desc">「SME 货主」在「比价决策」下提供[一站式询价 + 端到端到岸成本（All-in）智能试算]能力，以「将多平台比价耗时从小时级压缩至分钟级、提升成交转化」。（来源：C-体验旅程图-All-in-One 比价助手；All-in-One 询价 2026.03 上线）</div>
+                                    </div>
+                                    
+                                    
+                                </div>
+                            </div>
+                            
+                        
+                            
+                            <div class="step-cell">
+                                <div class="ai-container">
+                                    
+                                    <div class="ai-card theme-repetitive" data-type="repetitive">
+                                        <div class="ai-title">
+                                            <span>💡 首单智能预填</span>
+                                            <span class="badge badge-repetitive">重复性</span>
+                                        </div>
+                                        <div class="ai-desc">「SME 货主」在「订舱表单」下提供[基于贸易单据（PI/装箱单）OCR 自动预填订舱字段]能力，以「将新客首单耗时压缩至分钟级、补齐 Smart Push 对无历史新客的空白」。（来源：C-体验旅程图-首单智能预填；B 新客无历史数据（low 痛点））</div>
+                                    </div>
+                                    
+                                    <div class="ai-card theme-longtail" data-type="longtail">
+                                        <div class="ai-title">
+                                            <span>💡 智能补件检查</span>
+                                            <span class="badge badge-longtail">长尾场景</span>
+                                        </div>
+                                        <div class="ai-desc">「SME 货主」在「订舱提交」下提供[提交前 AI 必填项与合规字段校验 + 缺件实时提示]能力，以「提升一次提交通过率、缩短订舱周期」。（来源：C-体验旅程图-智能补件检查；B 往返补件痛点）</div>
+                                    </div>
+                                    
+                                    
+                                </div>
+                            </div>
+                            
+                            <div class="step-cell">
+                                <div class="ai-container">
+                                    
+                                    <div class="ai-card theme-repetitive" data-type="repetitive">
+                                        <div class="ai-title">
+                                            <span>💡 分钟级自动确认</span>
+                                            <span class="badge badge-repetitive">重复性</span>
+                                        </div>
+                                        <div class="ai-desc">「订舱运营」在「订舱受理」下提供[自动校验规则扩围 + 标准 SME 订单自动签发 Booking Confirmation]能力，以「将平均确认时效向 ≤2 小时（KPI 3）收敛、对标行业头部分钟级体验」。（来源：C-体验旅程图-分钟级自动确认；B 最快 1 分钟仅限特定条款客户（high 痛点））</div>
+                                    </div>
+                                    
+                                    
+                                </div>
+                            </div>
+                            
+                            <div class="step-cell">
+                                <div class="ai-container">
+                                    
+                                    <div class="ai-card theme-cognitive" data-type="cognitive">
+                                        <div class="ai-title">
+                                            <span>💡 智能舱位预测与分配</span>
+                                            <span class="badge badge-cognitive">高认知</span>
+                                        </div>
+                                        <div class="ai-desc">「舱位管理」在「舱位分配」下提供[基于历史订舱与市场需求的装载率预测 + 以电商承诺兑现率为硬约束的智能分配]能力，以「将舱位保证兑现率提升至 95%+（KPI 5）、压降旺季甩柜」。（来源：B 旺季 SME 甩柜/改船（high 痛点）；KPI 5）</div>
+                                    </div>
+                                    
+                                    <div class="ai-card theme-cognitive" data-type="cognitive">
+                                        <div class="ai-title">
+                                            <span>💡 智能改配与补偿方案</span>
+                                            <span class="badge badge-cognitive">高认知</span>
+                                        </div>
+                                        <div class="ai-desc">「客服/控制塔」在「改船处置」下提供[延误时自动生成改配方案并预判 Delay in Transit 赔付]能力，以「将旺季改船从被动通知转为主动预案、保护 SME 货期」。（来源：C-体验旅程图-舱位保证 SLA 承诺；Delay in Transit 2025.12 上线）</div>
+                                    </div>
+                                    
+                                    
+                                </div>
+                            </div>
+                            
+                        
+                            
+                            <div class="step-cell">
+                                <div class="ai-container">
+                                    
+                                    <div class="ai-card theme-repetitive" data-type="repetitive">
+                                        <div class="ai-title">
+                                            <span>💡 智慧单证增强</span>
+                                            <span class="badge badge-repetitive">重复性</span>
+                                        </div>
+                                        <div class="ai-desc">「客户」在「SI 提交」下提供[多语言品名识别 + 合规校验 + 自动纠错回填（在年 35 万份自动处理基础上扩展）]能力，以「进一步压缩人工复核比例、降低退单返工」。（来源：B 非结构化 SI 人工复核（medium 痛点）；X 2025 年报智慧单证约 35 万份）</div>
+                                    </div>
+                                    
+                                    
+                                </div>
+                            </div>
+                            
+                            <div class="step-cell">
+                                <div class="ai-container">
+                                    
+                                    <div class="ai-card theme-innovation" data-type="innovation">
+                                        <div class="ai-title">
+                                            <span>💡 eBL 生态渗透助手</span>
+                                            <span class="badge badge-innovation">流程创新</span>
+                                        </div>
+                                        <div class="ai-desc">「单证团队」在「eBL 推广」下提供[面向收货人/银行的轻量 eBL 门户与接入引导 + 互操作状态智能预判]能力，以「加速 eBL 渗透率向 30%+（KPI 6）演进、减少退回纸质流程」。（来源：B eBL 渗透率拐点（high 痛点）；IQAX eBL 获 IG P&I 批准 2024.12 / LCL eBL 试点 2026.06）</div>
+                                    </div>
+                                    
+                                    
+                                </div>
+                            </div>
+                            
+                            <div class="step-cell">
+                                <div class="ai-container">
+                                    
+                                    <div class="ai-card theme-repetitive" data-type="repetitive">
+                                        <div class="ai-title">
+                                            <span>💡 智能对账与本地化收付</span>
+                                            <span class="badge badge-repetitive">重复性</span>
+                                        </div>
+                                        <div class="ai-desc">「财务」在「结算对账」下提供[电商/EDI 账单自动匹配核销 + 多币种结算优化]能力，以「降低对账人力成本并覆盖南美等新兴市场本地支付通道」。（来源：B 多币种支付摩擦（medium 痛点）/ 账期对账人工合并（low 痛点））</div>
+                                    </div>
+                                    
+                                    
+                                </div>
+                            </div>
+                            
+                        
+                            
+                            <div class="step-cell">
+                                <div class="ai-container">
+                                    
+                                    <div class="ai-card theme-cognitive" data-type="cognitive">
+                                        <div class="ai-title">
+                                            <span>💡 智能拖车调度</span>
+                                            <span class="badge badge-cognitive">高认知</span>
+                                        </div>
+                                        <div class="ai-desc">「陆运运营」在「拖车调度」下提供[基于箱量预测与港口拥堵的运力动态分配 + 智能路由]能力，以「缩短旺季提箱等待、降低误船改配率」。（来源：C-体验旅程图-智能拖车调度；B 内陆拖车资源紧张（high 痛点））</div>
+                                    </div>
+                                    
+                                    
+                                </div>
+                            </div>
+                            
+                            <div class="step-cell">
+                                <div class="ai-container">
+                                    
+                                    <div class="ai-card theme-cognitive" data-type="cognitive">
+                                        <div class="ai-title">
+                                            <span>💡 合规智能清关</span>
+                                            <span class="badge badge-cognitive">高认知</span>
+                                        </div>
+                                        <div class="ai-desc">「清关专员」在「出口申报」下提供[监管政策数字化 + 申报前置校验 + 异常清关自动预警与替代方案推荐]能力，以「降低扣货延误风险、稳定端到端 SLA」。（来源：B 出口清关（critical 痛点）；C-体验旅程图-合规智能清关）</div>
+                                    </div>
+                                    
+                                    <div class="ai-card theme-longtail" data-type="longtail">
+                                        <div class="ai-title">
+                                            <span>💡 政策变化智能解读</span>
+                                            <span class="badge badge-longtail">长尾场景</span>
+                                        </div>
+                                        <div class="ai-desc">「SME 货主」在「合规应对」下提供[关税 / ETS 等政策变动的多语言摘要与影响测算]能力，以「让 SME 在政策突变时快速调整贸易与物流安排」。（来源：B 监管政策多变（critical 痛点）[推断部分能力]）</div>
+                                    </div>
+                                    
+                                    
+                                </div>
+                            </div>
+                            
+                        
+                            
+                            <div class="step-cell">
+                                <div class="ai-container">
+                                    
+                                    <div class="ai-card theme-repetitive" data-type="repetitive">
+                                        <div class="ai-title">
+                                            <span>💡 多源轨迹融合</span>
+                                            <span class="badge badge-repetitive">重复性</span>
+                                        </div>
+                                        <div class="ai-desc">「客服」在「状态查询」下提供[融合船司 / 码头 / AIS 多源数据补齐节点盲区的实时轨迹]能力，以「减少人工查询量、让直客自助跟踪覆盖全节点」。（来源：C-体验旅程图-多源轨迹融合；B 跟踪粒度受外部数据源限制（high 痛点）；新版 Cargo Tracking 2026.07）</div>
+                                    </div>
+                                    
+                                    
+                                </div>
+                            </div>
+                            
+                            <div class="step-cell">
+                                <div class="ai-container">
+                                    
+                                    <div class="ai-card theme-cognitive" data-type="cognitive">
+                                        <div class="ai-title">
+                                            <span>💡 AI 预测性预警</span>
+                                            <span class="badge badge-cognitive">高认知</span>
+                                        </div>
+                                        <div class="ai-desc">「控制塔运营」在「异常管理」下提供[基于历史与实时数据的 ETA 延误概率预测 + 提前推送 + 自动处置建议]能力，以「将异常通知从事后转为提前 24-72 小时预测、保护下游备货计划」。（来源：B 异常预警事后通知（critical 痛点）；C-体验旅程图-AI 预测性预警 [推断模型待建设]）</div>
+                                    </div>
+                                    
+                                    <div class="ai-card theme-innovation" data-type="innovation">
+                                        <div class="ai-title">
+                                            <span>💡 智能供应链协同</span>
+                                            <span class="badge badge-innovation">流程创新</span>
+                                        </div>
+                                        <div class="ai-desc">「货主 / 收货人」在「供应链协同」下提供[基于异常预测的备货 / 改配 / 保险决策建议 + 与母集团双品牌运力协同调度]能力，以「提升端到端履约确定性」。（来源：SWOT O3/O4；phase3 P1 策略-控制塔智能预警；协同能力 [推断]）</div>
+                                    </div>
+                                    
+                                    
+                                </div>
+                            </div>
+                            
+                        
+                            
+                            <div class="step-cell">
+                                <div class="ai-container">
+                                    
+                                    <div class="ai-card theme-cognitive" data-type="cognitive">
+                                        <div class="ai-title">
+                                            <span>💡 前置费用透明与超期预警</span>
+                                            <span class="badge badge-cognitive">高认知</span>
+                                        </div>
+                                        <div class="ai-desc">「SME 货主」在「D&D 管理」下提供[订舱即展示目的港免箱期与 D&D 预估 + 超期自动预警与豁免申请入口]能力，以「减少费用争议投诉、提升结算体验」。（来源：C-体验旅程图-前置费用透明；B D&D 规则复杂（medium 痛点））</div>
+                                    </div>
+                                    
+                                    
+                                </div>
+                            </div>
+                            
+                            <div class="step-cell">
+                                <div class="ai-container">
+                                    
+                                    <div class="ai-card theme-innovation" data-type="innovation">
+                                        <div class="ai-title">
+                                            <span>💡 智能订舱 Agent</span>
+                                            <span class="badge badge-innovation">流程创新</span>
+                                        </div>
+                                        <div class="ai-desc">「SME 货主」在「全流程服务」下提供[从问答升级为可执行订舱 / 单证 / 异常查询与处理的 Agent（Ask Fin 升级）]能力，以「将 AI 分流率提升至 30%+（KPI 4）、人工客服成本显著下降」。（来源：phase3 AI 规划①智能订舱助手；B AI 客服复杂场景受限（medium 痛点））</div>
+                                    </div>
+                                    
+                                    <div class="ai-card theme-cognitive" data-type="cognitive">
+                                        <div class="ai-title">
+                                            <span>💡 情绪识别与智能升级</span>
+                                            <span class="badge badge-cognitive">高认知</span>
+                                        </div>
+                                        <div class="ai-desc">「客服」在「投诉处理」下提供[对话情感分析与工单自动摘要 + 上下文无缝转人工]能力，以「提升复杂问题一次性解决率与客户满意度」。（来源：B AI 会话转人工率未披露（low 痛点）[推断]）</div>
+                                    </div>
+                                    
+                                    <div class="ai-card theme-longtail" data-type="longtail">
+                                        <div class="ai-title">
+                                            <span>💡 eBL 放货快速接入引导</span>
+                                            <span class="badge badge-longtail">长尾场景</span>
+                                        </div>
+                                        <div class="ai-desc">「收货人」在「目的港放货」下提供[eBL 快速接入与无纸化放货引导]能力，以「缩短正本流转周期、减少额外 D&D」。（来源：C-体验旅程图-端到端无纸化放货；B 收货人未接入 eBL（high 痛点））</div>
+                                    </div>
+                                    
+                                    
+                                </div>
+                            </div>
+                            
+                        
+                            
+                            <div class="step-cell">
+                                <div class="ai-container">
+                                    
+                                    <div class="ai-card theme-cognitive" data-type="cognitive">
+                                        <div class="ai-title">
+                                            <span>💡 会员智能运营</span>
+                                            <span class="badge badge-cognitive">高认知</span>
+                                        </div>
+                                        <div class="ai-desc">「电商运营」在「会员运营」下提供[基于订舱行为的升级路径推荐 + 专属舱位 / 服务权益个性化]能力，以「提升 SME 会员活跃度与感知价值、驱动复购」。（来源：C-体验旅程图-会员智能运营；B 会员权益感知弱（medium 痛点））</div>
+                                    </div>
+                                    
+                                    <div class="ai-card theme-cognitive" data-type="cognitive">
+                                        <div class="ai-title">
+                                            <span>💡 复购预测与流失挽留</span>
+                                            <span class="badge badge-cognitive">高认知</span>
+                                        </div>
+                                        <div class="ai-desc">「电商运营」在「客户留存」下提供[基于交易序列的复购概率预测与流失预警 + 自动挽留动作]能力，以「提升客户生命周期价值、摊薄获客成本」。（来源：B 复购依赖价格敏感驱动（high 痛点）[推断模型]）</div>
+                                    </div>
+                                    
+                                    
+                                </div>
+                            </div>
+                            
+                            <div class="step-cell">
+                                <div class="ai-container">
+                                    
+                                    <div class="ai-card theme-repetitive" data-type="repetitive">
+                                        <div class="ai-title">
+                                            <span>💡 区域化智能营销</span>
+                                            <span class="badge badge-repetitive">重复性</span>
+                                        </div>
+                                        <div class="ai-desc">「数字营销」在「促销触达」下提供[本地化内容自动生成 + 与舱位余量强耦合的 E-Spot 闪购推荐]能力，以「提升拉新转化、覆盖南美等新市场」。（来源：B 多语言多地区触达成本高（medium 痛点）；FreightSmart 2026.06 登陆南美）</div>
+                                    </div>
+                                    
+                                    
+                                </div>
+                            </div>
+                            
+                            <div class="step-cell">
+                                <div class="ai-container">
+                                    
+                                    <div class="ai-card theme-innovation" data-type="innovation">
+                                        <div class="ai-title">
+                                            <span>💡 供应链协同智能（含绿色增值）</span>
+                                            <span class="badge badge-innovation">流程创新</span>
+                                        </div>
+                                        <div class="ai-desc">「供应链管理」在「端到端协同」下提供[多式联运需求预测 + 供应商 SLA 智能管理 + 碳足迹 / EU ETS 合规自动测算]能力，以「提升增值服务渗透率并支撑绿色产品商业化」。（来源：B 供应商 SLA 不统一（high 痛点）/ 绿色服务普及率有限（low 痛点）；phase3 P1 绿色数字化增值服务策略）</div>
+                                    </div>
+                                    
+                                    
+                                </div>
+                            </div>
+                            
+                        
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function filterCards() {
+            const checkboxes = document.querySelectorAll('.filter-panel input[type="checkbox"]');
+            const activeTypes = Array.from(checkboxes).filter(cb => cb.checked).map(cb => cb.value);
+            
+            const allCards = document.querySelectorAll('.ai-card');
+            allCards.forEach(card => {
+                const type = card.getAttribute('data-type');
+                if (activeTypes.includes(type)) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,427 @@
+title: "铁路订票服务业务流程深度分析"
+company: "铁路订票服务"
+domain: "铁路票务与出行服务"
+description: "基于前序业务现状、SWOT、NSM 与 OSM 分析，对官方铁路订票渠道从订票到后续服务的全流程进行深度梳理，输出业务类型、L1 价值流、L2 流程及关键痛点。"
+
+business_types:
+  - name: "官方核心票务"
+    model: "B2C官方直连"
+    product_type: "公共票务服务"
+    market_type: "大众市场"
+    description: "围绕查询、下单、支付、出票、改签退票、乘车核验等核心旅客交易与履约服务，强调公平性、稳定性与可解释性。"
+  - name: "官方出行延伸服务"
+    model: "B2C生态服务"
+    product_type: "出行增值服务"
+    market_type: "大众市场"
+    description: "围绕订餐、约车/接送站、重点旅客、托运、旅游等出行后续服务，强调订单绑定、一体化体验与运行变更协同。"
+
+l1_value_streams:
+  - name: "核心票务履约价值流"
+    description: "从用户形成出行需求到完成核验乘车及售后回流的端到端票务主链路。"
+    business_type: "官方核心票务"
+    stages:
+      - name: "查询与方案匹配"
+        description: "基于日期、线路、席别与规则为用户提供可买、可候补或替代方案。"
+        order: 1
+        type: "process"
+        l2_processes:
+          - name: "出行条件输入"
+            role: "旅客"
+            system: "App/Web 查询前台"
+            inputs:
+              - "出发地/到达地"
+              - "日期"
+              - "乘车偏好"
+            outputs:
+              - "查询请求"
+            description: "用户输入出行条件并发起查询。"
+            order: 1
+            pain_points:
+              - severity: "medium"
+                description: "用户输入条件后无法快速判断当日是否有可行方案，容易反复切换日期和站点重试。"
+                impact: "增加无效查询量，放大高峰期查询压力，也拉长用户决策时长。"
+                root_cause: "缺少对“可买/可候补/无票”状态的一体化引导与替代建议。"
+          - name: "可用方案计算"
+            role: "票务引擎"
+            system: "余票/方案推荐引擎"
+            inputs:
+              - "查询请求"
+              - "余票库存"
+              - "候补规则"
+            outputs:
+              - "可用车次与席别方案"
+            description: "系统综合余票、候补和换乘规则生成方案列表。"
+            order: 2
+            pain_points:
+              - severity: "high"
+                description: "高峰时段同线路瞬时并发极高，查询链路容易因为重复刷新和热点线路而抖动。"
+                impact: "方案返回延迟上升，用户误以为系统不可用，进一步加剧刷新行为。"
+                root_cause: "高峰流量集中、热点线路读压力极高，且替代方案前置能力不足。"
+          - name: "方案展示与决策"
+            role: "旅客"
+            system: "App/Web 方案页"
+            inputs:
+              - "可用车次与席别方案"
+            outputs:
+              - "选定方案或候补意向"
+            description: "用户比较车次、席别、换乘与候补方案并做出选择。"
+            order: 3
+            pain_points:
+              - severity: "high"
+                description: "换乘、候补、席别降级等策略缺少统一解释，用户难以判断最优行动。"
+                impact: "方案页停留时间长，转化下降，后续客服咨询和售后争议增加。"
+                root_cause: "规则展示碎片化，方案排序更偏信息罗列而非决策辅助。"
+
+      - name: "下单与实名校验"
+        description: "在用户选定方案后，完成乘车人确认、实名规则校验与库存锁定。"
+        order: 2
+        type: "process"
+        l2_processes:
+          - name: "乘车人选择与信息确认"
+            role: "旅客"
+            system: "订单确认页"
+            inputs:
+              - "选定方案"
+              - "乘车人档案"
+            outputs:
+              - "待校验订单"
+            description: "用户选择乘车人并确认票种、证件及优惠信息。"
+            order: 1
+            pain_points:
+              - severity: "medium"
+                description: "学生票、儿童票、多人同行等规则复杂，用户常在提交前后才发现条件不满足。"
+                impact: "订单提交失败率上升，用户产生挫败感，重复操作增多。"
+                root_cause: "复杂规则校验未充分前置，页面解释与失败提示不够清晰。"
+          - name: "实名与规则校验"
+            role: "规则引擎"
+            system: "实名核验/规则校验服务"
+            inputs:
+              - "待校验订单"
+              - "实名信息"
+              - "票务规则"
+            outputs:
+              - "校验结果"
+            description: "校验乘车人身份、票种资格、限制规则与订单合法性。"
+            order: 2
+            pain_points:
+              - severity: "high"
+                description: "高峰期实名与规则校验失败时，用户很难区分是信息错误、网络抖动还是资格不符。"
+                impact: "重复提交、换端重试与投诉上升，损耗宝贵购票窗口。"
+                root_cause: "失败原因码没有被充分翻译成用户可理解的提示与补救路径。"
+          - name: "库存锁定与订单生成"
+            role: "订单系统"
+            system: "订单中心/库存锁定服务"
+            inputs:
+              - "校验通过订单"
+              - "余票库存"
+            outputs:
+              - "待支付订单"
+            description: "系统尝试锁定库存并生成待支付订单。"
+            order: 3
+            pain_points:
+              - severity: "critical"
+                description: "库存变化极快时，用户在确认页看到可买但提交后仍可能因瞬时库存不足而失败。"
+                impact: "形成“明明有票却买不到”的强烈负面感知，损害平台信任。"
+                root_cause: "高峰下库存竞争激烈，前台展示与最终锁定存在瞬时不一致。"
+
+      - name: "支付与出票履约"
+        description: "完成支付请求、支付结果回调、出票确认及异常补救。"
+        order: 3
+        type: "process"
+        l2_processes:
+          - name: "支付发起与结果回调"
+            role: "旅客/支付系统"
+            system: "支付网关/订单中心"
+            inputs:
+              - "待支付订单"
+              - "支付凭证"
+            outputs:
+              - "支付结果"
+            description: "用户完成支付后，系统接收支付结果并更新订单状态。"
+            order: 1
+            pain_points:
+              - severity: "high"
+                description: "支付成功但前端状态刷新不及时，用户担心重复扣款或订单丢失。"
+                impact: "引发重复支付尝试、客服咨询与退款压力。"
+                root_cause: "支付回调、前端刷新与订单状态同步链路存在时延。"
+          - name: "出票处理"
+            role: "票务履约引擎"
+            system: "出票服务"
+            inputs:
+              - "支付结果"
+              - "锁定库存"
+            outputs:
+              - "出票成功订单"
+              - "出票失败结果"
+            description: "支付完成后执行出票并回写订单结果。"
+            order: 2
+            pain_points:
+              - severity: "critical"
+                description: "用户已支付但出票失败时，体验极差且最容易触发投诉。"
+                impact: "直接冲击平台信任，也会把客服和退款链路推到高压状态。"
+                root_cause: "异常补救、替代建议与人工兜底的自动化编排仍不够强。"
+          - name: "异常补救与替代推荐"
+            role: "客服系统/规则引擎"
+            system: "异常补救编排服务"
+            inputs:
+              - "出票失败结果"
+              - "可替代车次/候补方案"
+            outputs:
+              - "补救结果"
+            description: "系统对出票失败或局部异常订单进行自动重试、候补或替代建议。"
+            order: 3
+            pain_points:
+              - severity: "high"
+                description: "多人订单部分成功时，用户面临拆单、改签、取消等复杂选择，容易做错决策。"
+                impact: "放大售后复杂度和不满意率，也增加人工介入成本。"
+                root_cause: "面向复杂异常场景的标准化决策辅助仍不足。"
+
+      - name: "出行前变更与行程保障"
+        description: "围绕候补兑现、改签退票、运行变更通知与用户行前准备。"
+        order: 4
+        type: "process"
+        l2_processes:
+          - name: "候补与订单状态跟踪"
+            role: "旅客/订单系统"
+            system: "候补管理服务"
+            inputs:
+              - "候补订单"
+              - "库存释放信息"
+            outputs:
+              - "候补兑现结果"
+            description: "系统持续跟踪候补订单状态并反馈兑现结果。"
+            order: 1
+            pain_points:
+              - severity: "medium"
+                description: "候补的进度感与成功预期弱，用户常靠反复查看页面确认状态。"
+                impact: "加大高频访问与焦虑感，降低用户对候补机制的信任。"
+                root_cause: "候补过程缺少更透明的状态提示和区间化预期表达。"
+          - name: "改签退票处理"
+            role: "旅客"
+            system: "售后规则引擎/订单中心"
+            inputs:
+              - "已出票订单"
+              - "退改规则"
+            outputs:
+              - "改签/退票结果"
+            description: "用户根据出行变化执行改签或退票。"
+            order: 2
+            pain_points:
+              - severity: "high"
+                description: "不同车次、时间窗与票种的退改规则复杂，用户经常在关键节点理解不清。"
+                impact: "自助处理率下降，客服工单与争议率上升。"
+                root_cause: "规则复杂度高，规则解释与场景化引导不足。"
+          - name: "运行变更触达与保障"
+            role: "运营系统"
+            system: "通知中心/运行变更处理服务"
+            inputs:
+              - "停运/晚点/变更事件"
+              - "受影响订单"
+            outputs:
+              - "触达通知"
+              - "替代处理建议"
+            description: "系统识别受影响用户并推送改签、退票或替代方案。"
+            order: 3
+            pain_points:
+              - severity: "high"
+                description: "大面积晚点或停运时，通知、规则说明和替代方案下发容易滞后。"
+                impact: "用户集中涌入客服，处理时长急剧上升，负面舆情风险扩大。"
+                root_cause: "批量影响识别、自动化处置与客服联动能力需要进一步增强。"
+
+      - name: "乘车核验与售后回流"
+        description: "完成进站核验、乘车完成确认及售后工单、投诉和数据回流。"
+        order: 5
+        type: "process"
+        l2_processes:
+          - name: "进站检票与核验"
+            role: "旅客/车站系统"
+            system: "闸机/核验系统"
+            inputs:
+              - "已出票订单"
+              - "实名信息"
+            outputs:
+              - "核验结果"
+            description: "旅客在进站环节完成证件和订单核验。"
+            order: 1
+            pain_points:
+              - severity: "medium"
+                description: "订单、证件与现场核验结果出现不一致时，用户线下解决成本高。"
+                impact: "影响准点乘车，也容易将问题转化为现场投诉。"
+                root_cause: "线上订单状态与线下核验异常协同闭环不够顺畅。"
+          - name: "售后工单与投诉处理"
+            role: "客服"
+            system: "客服工单系统/CRM"
+            inputs:
+              - "用户投诉"
+              - "订单链路日志"
+            outputs:
+              - "处理结论"
+            description: "针对出票失败、误扣款、规则争议等问题进行工单处置。"
+            order: 2
+            pain_points:
+              - severity: "high"
+                description: "复杂订单问题需要跨系统查日志，客服定位问题慢。"
+                impact: "平均处理时长长，用户满意度下降，内部协同成本高。"
+                root_cause: "订单、支付、出票、通知等系统之间缺少统一事件视图。"
+          - name: "数据复盘与规则优化"
+            role: "产品/运营/技术"
+            system: "数据分析平台"
+            inputs:
+              - "链路埋点数据"
+              - "工单与投诉数据"
+            outputs:
+              - "优化策略"
+              - "规则调整方案"
+            description: "复盘流程异常、规则争议和峰值表现，持续优化系统与规则。"
+            order: 3
+            pain_points:
+              - severity: "medium"
+                description: "缺少围绕“有效出行”统一口径的数据闭环，复盘容易停留在局部指标。"
+                impact: "优化动作容易偏向单点修补，难形成全链路改进。"
+                root_cause: "NSM、流程事件与投诉数据尚未完全打通到同一分析视角。"
+
+  - name: "出行延伸服务价值流"
+    description: "围绕订餐、约车、重点旅客、托运等延伸服务的触达、履约、变更协同与售后闭环。"
+    business_type: "官方出行延伸服务"
+    stages:
+      - name: "服务触发与需求识别"
+        description: "根据订单节点和用户场景识别可用的增值与保障服务。"
+        order: 1
+        type: "process"
+        l2_processes:
+          - name: "服务可用性匹配"
+            role: "推荐引擎"
+            system: "服务编排/推荐系统"
+            inputs:
+              - "已购票订单"
+              - "站点与列车能力"
+            outputs:
+              - "可用服务列表"
+            description: "根据车站、车次、时间和人群特征匹配可订餐、约车、重点旅客等服务。"
+            order: 1
+            pain_points:
+              - severity: "medium"
+                description: "服务入口分散，用户不容易理解自己当前订单能用哪些后续服务。"
+                impact: "服务渗透率低，也影响一体化出行体验。"
+                root_cause: "订单与服务能力的绑定展示不够集中，触发时机不够精准。"
+          - name: "服务推荐与确认"
+            role: "旅客"
+            system: "订单详情页/服务页"
+            inputs:
+              - "可用服务列表"
+            outputs:
+              - "服务选择结果"
+            description: "用户选择订餐、接送站、重点旅客预约等服务。"
+            order: 2
+            pain_points:
+              - severity: "low"
+                description: "用户需在多个入口之间跳转，难形成“订单即服务台”的直觉体验。"
+                impact: "增加操作成本，降低服务转化率。"
+                root_cause: "服务入口布局仍偏功能分发，未完全按行程节点组织。"
+
+      - name: "服务预订与履约协同"
+        description: "完成服务预订、资源确认与履约状态同步。"
+        order: 2
+        type: "process"
+        l2_processes:
+          - name: "服务下单与资源确认"
+            role: "旅客/服务系统"
+            system: "服务订单中心"
+            inputs:
+              - "服务选择结果"
+              - "资源库存"
+            outputs:
+              - "服务订单"
+            description: "创建延伸服务订单并向服务供应侧确认资源。"
+            order: 1
+            pain_points:
+              - severity: "medium"
+                description: "部分服务依赖外部资源确认，订单结果反馈不够实时。"
+                impact: "用户对是否预订成功没有稳定预期，体验打折。"
+                root_cause: "服务订单中心与外部履约方的状态回传一致性不足。"
+          - name: "订单信息同步"
+            role: "系统编排服务"
+            system: "订单编排中心"
+            inputs:
+              - "主票务订单"
+              - "服务订单"
+            outputs:
+              - "统一行程视图"
+            description: "将服务状态同步回主订单视图，保持乘车人、时间、站点等信息一致。"
+            order: 2
+            pain_points:
+              - severity: "high"
+                description: "主订单变更后，延伸服务未必同步更新，容易出现时间和站点错配。"
+                impact: "用户现场无法使用服务，导致投诉和赔付。"
+                root_cause: "主订单与服务订单的事件联动、补偿和回滚机制不够完善。"
+
+      - name: "运行变更下的服务联动"
+        description: "在晚点、停运、改签等情况下，联动处理相关延伸服务。"
+        order: 3
+        type: "process"
+        l2_processes:
+          - name: "变更影响识别"
+            role: "规则引擎"
+            system: "运行变更联动服务"
+            inputs:
+              - "主订单变更事件"
+              - "服务订单"
+            outputs:
+              - "受影响服务清单"
+            description: "识别哪些延伸服务会受到票务订单变更影响。"
+            order: 1
+            pain_points:
+              - severity: "high"
+                description: "当晚点或改签发生时，受影响服务识别常滞后于用户实际需要。"
+                impact: "造成订餐失效、约车错时、重点旅客服务错配等问题。"
+                root_cause: "票务变更事件与服务履约系统之间的自动联动不够实时。"
+          - name: "服务重订或取消处置"
+            role: "旅客/客服"
+            system: "服务售后系统"
+            inputs:
+              - "受影响服务清单"
+            outputs:
+              - "调整后的服务结果"
+            description: "系统支持用户或客服对受影响服务进行改期、取消或重新预约。"
+            order: 2
+            pain_points:
+              - severity: "medium"
+                description: "服务售后规则与主订单规则不统一，用户难理解该找谁处理、如何处理。"
+                impact: "增加多头咨询和跨团队协同成本。"
+                root_cause: "缺少围绕“单一行程”的统一售后规则与入口设计。"
+
+      - name: "服务售后与体验回流"
+        description: "处理服务异常、用户反馈并回流到产品与运营优化。"
+        order: 4
+        type: "process"
+        l2_processes:
+          - name: "服务异常工单处理"
+            role: "客服/运营"
+            system: "服务工单系统"
+            inputs:
+              - "服务投诉"
+              - "服务履约日志"
+            outputs:
+              - "处理结论"
+            description: "处理订餐失约、接送站错配、重点旅客预约失败等问题。"
+            order: 1
+            pain_points:
+              - severity: "medium"
+                description: "服务异常往往横跨主订单与外部履约方，定位责任边界困难。"
+                impact: "处理周期拉长，也影响用户对整个平台的整体评价。"
+                root_cause: "缺少统一的服务履约视图和外部协同标准。"
+          - name: "服务效果复盘与优化"
+            role: "产品/运营"
+            system: "数据分析平台"
+            inputs:
+              - "服务使用数据"
+              - "服务工单数据"
+            outputs:
+              - "服务优化方案"
+            description: "分析服务触达、转化、履约与投诉表现，优化服务流程。"
+            order: 2
+            pain_points:
+              - severity: "low"
+                description: "服务指标更多停留在单点使用率，缺乏与主票务成功出行的联动分析。"
+                impact: "难以判断哪些服务真正提升了完整旅程体验。"
+                root_cause: "主票务 NSM 与服务指标还没有形成统一的价值衡量框架。"

@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>租车服务用户故事地图 MVP 迭代计划</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root {
+            --primary-blue: #3b82f6;
+            --primary-purple: #a855f7;
+            --bg-slate: #f1f5f9;
+        }
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: #f8fafc;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.05) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(168, 85, 247, 0.05) 0px, transparent 50%);
+            color: #0f172a;
+            overflow-x: hidden;
+        }
+        h1, h2, h3 { font-family: 'Outfit', sans-serif; }
+        
+        .board-wrapper {
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transform-origin: top left;
+        }
+
+        .board-container {
+            display: flex;
+            gap: 24px;
+            padding: 40px;
+            overflow-x: auto;
+            min-height: calc(100vh - 220px);
+            align-items: flex-start;
+        }
+
+        .iteration-column {
+            width: 340px;
+            flex-shrink: 0;
+            background: rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            border-radius: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            padding: 10px;
+        }
+
+        .iteration-header {
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            color: white;
+            padding: 24px;
+            border-radius: 20px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .iteration-header::after {
+            content: "";
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            transform: rotate(45deg);
+        }
+
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 18px;
+            border: 1px solid rgba(0,0,0,0.03);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            position: relative;
+        }
+
+        .card:hover {
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+            border-color: rgba(59, 130, 246, 0.2);
+        }
+
+        .card-userstory { border-top: 5px solid var(--primary-blue); }
+        .card-supporting { border-top: 5px solid var(--primary-purple); }
+        
+        .badge-must {
+            background: #fee2e2;
+            color: #ef4444;
+            font-size: 10px;
+            font-weight: 800;
+            padding: 3px 10px;
+            border-radius: 99px;
+            letter-spacing: 0.05em;
+        }
+
+        .dependency-label {
+            background: #fff7ed;
+            color: #ea580c;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 8px;
+            border: 1px solid #ffedd5;
+        }
+
+        .glass-nav {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+
+        /* Highlight Mode */
+        .card.dimmed { opacity: 0.3; filter: grayscale(0.5); }
+        .card.highlighted { 
+            transform: scale(1.05); 
+            box-shadow: 0 0 0 3px var(--primary-blue), 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            z-index: 10;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 10px; height: 10px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; border: 3px solid transparent; background-clip: content-box; }
+        ::-webkit-scrollbar-thumb:hover { background: #cbd5e1; border: 3px solid transparent; background-clip: content-box; }
+
+        @media print {
+            .glass-nav, .toolbar { display: none !important; }
+            body { background: white; }
+            .board-container { flex-wrap: wrap; gap: 40px; padding: 0; }
+            .iteration-column { width: 100%; page-break-after: always; background: none; border: none; }
+            .iteration-header { color: black; background: #f8fafc; border: 1px solid #e2e8f0; box-shadow: none; }
+        }
+    </style>
+</head>
+<body class="p-0 m-0">
+    <!-- Header -->
+    <header class="glass-nav sticky top-0 z-50 px-10 py-6">
+        <div class="max-w-[1900px] mx-auto flex justify-between items-center">
+            <div class="space-y-1">
+                <div class="flex items-center gap-3 text-xs text-slate-400 font-bold uppercase tracking-widest">
+                    <i data-lucide="layout-panel-left" class="w-4 h-4"></i>
+                    <span>MVP Iteration Roadmap</span>
+                    <span class="opacity-30">|</span>
+                    <span class="text-blue-500">Agile View</span>
+                </div>
+                <h1 class="text-3xl font-extrabold tracking-tight text-slate-900">租车服务用户故事地图 MVP 迭代计划</h1>
+                <p class="text-slate-500 font-medium text-sm">基于用户故事地图中的 must have 需求，规划 14 个迭代实现核心功能</p>
+            </div>
+
+            <!-- Stats & Toolbar -->
+            <div class="flex items-center gap-8">
+                <div class="flex items-center gap-6 text-sm font-semibold text-slate-600">
+                    <div class="flex flex-col items-end">
+                        <span class="text-[10px] uppercase text-slate-400 tracking-wider">Iterations</span>
+                        <span class="text-lg text-slate-900">3</span>
+                    </div>
+                    <div class="w-[1px] h-8 bg-slate-200"></div>
+                    <div class="flex flex-col items-end">
+                        <span class="text-[10px] uppercase text-slate-400 tracking-wider">Velocity</span>
+                        <span class="text-lg text-slate-900">5 <small class="text-xs">pts</small></span>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-3">
+                    <button onclick="window.print()" class="flex items-center gap-2 px-5 py-2.5 bg-slate-900 text-white rounded-xl text-sm font-bold shadow-lg hover:bg-slate-800 transition-all hover:scale-105 active:scale-95">
+                        <i data-lucide="printer" class="w-4 h-4"></i>
+                        打印计划
+                    </button>
+                    <div class="flex items-center gap-1 bg-white border border-slate-200 rounded-xl p-1 shadow-sm">
+                        <button onclick="changeZoom(-0.1)" class="p-2 hover:bg-slate-50 rounded-lg text-slate-500"><i data-lucide="zoom-out" class="w-4 h-4"></i></button>
+                        <span id="zoom-label" class="px-3 text-xs font-bold text-slate-600 w-12 text-center">100%</span>
+                        <button onclick="changeZoom(0.1)" class="p-2 hover:bg-slate-50 rounded-lg text-slate-500"><i data-lucide="zoom-in" class="w-4 h-4"></i></button>
+                        <button onclick="resetZoom()" class="p-2 hover:bg-slate-50 rounded-lg text-slate-500"><i data-lucide="refresh-cw" class="w-4 h-4"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Board Wrapper -->
+    <div id="board-wrapper" class="board-wrapper">
+        <div class="board-container">
+            
+            <div class="iteration-column">
+                <!-- Iteration Header -->
+                <div class="iteration-header space-y-5">
+                    <div class="flex justify-between items-center">
+                        <div class="px-3 py-1 bg-white/20 backdrop-blur-md rounded-lg text-[10px] font-black uppercase tracking-widest text-white">
+                            迭代 1
+                        </div>
+                        <div class="flex items-center gap-1.5 px-3 py-1 bg-black/20 rounded-full text-[10px] font-bold">
+                            <i data-lucide="layers" class="w-3 h-3"></i>
+                            <span>3 Cards</span>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-2">
+                        <div class="flex items-center gap-2 text-white/70">
+                            <i data-lucide="target" class="w-4 h-4"></i>
+                            <span class="text-[10px] font-bold uppercase tracking-widest">Sprint Goal</span>
+                        </div>
+                        <p class="text-sm font-bold leading-snug text-white">建立基础平台和搜索曝光能力，用户可发现小程序</p>
+                    </div>
+
+                    <div class="pt-2 flex items-center justify-between">
+                        <div class="flex -space-x-2">
+                            
+                            <div class="w-6 h-6 rounded-full bg-blue-500 border-2 border-slate-800 flex items-center justify-center" title="User Story">
+                                <i data-lucide="user" class="w-2 h-2 text-white"></i>
+                            </div>
+                            
+                            <div class="w-6 h-6 rounded-full bg-blue-500 border-2 border-slate-800 flex items-center justify-center" title="User Story">
+                                <i data-lucide="user" class="w-2 h-2 text-white"></i>
+                            </div>
+                            
+                            
+                            <div class="w-6 h-6 rounded-full bg-purple-500 border-2 border-slate-800 flex items-center justify-center" title="Supporting Requirement">
+                                <i data-lucide="zap" class="w-2 h-2 text-white"></i>
+                            </div>
+                            
+                        </div>
+                        <div class="text-[10px] font-bold text-white/40">VALUE CLUSTER</div>
+                    </div>
+                </div>
+
+                <!-- Cards -->
+                <div class="flex flex-col gap-4">
+                    
+                    <div 
+                        id="card-1" 
+                        class="card card-userstory space-y-4"
+                        data-deps=""
+                        onclick="highlightCard('card-1')"
+                    >
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-blue-500">
+                                
+                                <i data-lucide="file-text" class="w-3.5 h-3.5"></i>
+                                <span>Story</span>
+                                
+                            </div>
+                            <span class="badge-must">MUST</span>
+                        </div>
+
+                        <p class="text-[13px] font-bold leading-relaxed text-slate-800">
+                            作为潜在客户，我想通过微信搜索找到租车小程序，以便比较不同服务商的价格和评价
+                        </p>
+
+                        <div class="pt-2 border-t border-slate-50 space-y-2">
+                            <div class="flex items-center justify-between text-[10px] font-bold">
+                                <span class="text-slate-400">STAGE</span>
+                                <span class="text-slate-600 bg-slate-100 px-2 py-0.5 rounded">租车前准备</span>
+                            </div>
+                            <div class="flex items-center justify-between text-[10px] font-bold">
+                                <span class="text-slate-400">ACTIVITY</span>
+                                <span class="text-slate-600">搜索租车服务</span>
+                            </div>
+                        </div>
+
+                        
+                        <div class="flex justify-end pt-1">
+                            <span class="text-[9px] font-black text-slate-200 uppercase">#card-1</span>
+                        </div>
+                        
+                    </div>
+                    
+                    <div 
+                        id="card-2" 
+                        class="card card-supporting space-y-4"
+                        data-deps="card-1"
+                        onclick="highlightCard('card-2')"
+                    >
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-purple-500">
+                                
+                                <i data-lucide="settings-2" class="w-3.5 h-3.5"></i>
+                                <span>Support</span>
+                                
+                            </div>
+                            <span class="badge-must">MUST</span>
+                        </div>
+
+                        <p class="text-[13px] font-bold leading-relaxed text-slate-800">
+                            实现微信小程序搜索优化策略，提高在微信生态中的曝光率
+                        </p>
+
+                        <div class="pt-2 border-t border-slate-50 space-y-2">
+                            <div class="flex items-center justify-between text-[10px] font-bold">
+                                <span class="text-slate-400">STAGE</span>
+                                <span class="text-slate-600 bg-slate-100 px-2 py-0.5 rounded">租车前准备</span>
+                            </div>
+                            <div class="flex items-center justify-between text-[10px] font-bold">
+                                <span class="text-slate-400">ACTIVITY</span>
+                                <span class="text-slate-600">搜索租车服务</span>
+                            </div>
+                        </div>
+
+                        
+                        <div class="flex items-center justify-between pt-1">
+                            <div class="flex items-center gap-1.5 dependency-label">
+                                <i data-lucide="link" class="w-3 h-3"></i>
+                                <span>DEPS: 1</span>
+                            </div>
+                            <span class="text-[9px] font-black text-slate-300 uppercase">#card-2</span>
+                        </div>
+                        
+                    </div>
+                    
+                    <div 
+                        id="card-3" 
+                        class="card card-userstory space-y-4"
+                        data-deps="card-1"
+                        onclick="highlightCard('card-3')"
+                    >
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-blue-500">
+                                
+                                <i data-lucide="file-text" class="w-3.5 h-3.5"></i>
+                                <span>Story</span>
+                                
+                            </div>
+                            <span class="badge-must">MUST</span>
+                        </div>
+
+                        <p class="text-[13px] font-bold leading-relaxed text-slate-800">
+                            作为潜在客户，我想看到租车服务的评价和评分，以便选择信誉良好的服务商
+                        </p>
+
+                        <div class="pt-2 border-t border-slate-50 space-y-2">
+                            <div class="flex items-center justify-between text-[10px] font-bold">
+                                <span class="text-slate-400">STAGE</span>
+                                <span class="text-slate-600 bg-slate-100 px-2 py-0.5 rounded">租车前准备</span>
+                            </div>
+                            <div class="flex items-center justify-between text-[10px] font-bold">
+                                <span class="text-slate-400">ACTIVITY</span>
+                                <span class="text-slate-600">搜索租车服务</span>
+                            </div>
+                        </div>
+
+                        
+                        <div class="flex items-center justify-between pt-1">
+                            <div class="flex items-center gap-1.5 dependency-label">
+                                <i data-lucide="link" class="w-3 h-3"></i>
+                                <span>DEPS: 1</span>
+                            </div>
+                            <span class="text-[9px] font-black text-slate-300 uppercase">#card-3</span>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+            </div>
+            
+            <div class="iteration-column">
+                <!-- Iteration Header -->
+                <div class="iteration-header space-y-5">
+                    <div class="flex justify-between items-center">
+                        <div class="px-3 py-1 bg-white/20 backdrop-blur-md rounded-lg text-[10px] font-black uppercase tracking-widest text-white">
+                            迭代 2
+                        </div>
+                        <div class="flex items-center gap-1.5 px-3 py-1 bg-black/20 rounded-full text-[10px] font-bold">
+                            <i data-lucide="layers" class="w-3 h-3"></i>
+                            <span>3 Cards</span>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-2">
+                        <div class="flex items-center gap-2 text-white/70">
+                            <i data-lucide="target" class="w-4 h-4"></i>
+                            <span class="text-[10px] font-bold uppercase tracking-widest">Sprint Goal</span>
+                        </div>
+                        <p class="text-sm font-bold leading-snug text-white">完成车辆浏览与筛选功能，用户可查看车辆列表与详情</p>
+                    </div>
+
+                    <div class="pt-2 flex items-center justify-between">
+                        <div class="flex -space-x-2">
+                            
+                            <div class="w-6 h-6 rounded-full bg-blue-500 border-2 border-slate-800 flex items-center justify-center" title="User Story">
+                                <i data-lucide="user" class="w-2 h-2 text-white"></i>
+                            </div>
+                            
+                            <div class="w-6 h-6 rounded-full bg-blue-500 border-2 border-slate-800 flex items-center justify-center" title="User Story">
+                                <i data-lucide="user" class="w-2 h-2 text-white"></i>
+                            </div>
+                            
+                            <div class="w-6 h-6 rounded-full bg-blue-500 border-2 border-slate-800 flex items-center justify-center" title="User Story">
+                                <i data-lucide="user" class="w-2 h-2 text-white"></i>
+                            </div>
+                            
+                            
+                        </div>
+                        <div class="text-[10px] font-bold text-white/40">VALUE CLUSTER</div>
+                    </div>
+                </div>
+
+                <!-- Cards -->
+                <div class="flex flex-col gap-4">
+                    
+                    <div 
+                        id="card-4" 
+                        class="card card-userstory space-y-4"
+                        data-deps="card-1"
+                        onclick="highlightCard('card-4')"
+                    >
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-blue-500">
+                                
+                                <i data-lucide="file-text" class="w-3.5 h-3.5"></i>
+                                <span>Story</span>
+                                
+                            </div>
+                            <span class="badge-must">MUST</span>
+                        </div>
+
+                        <p class="text-[13px] font-bold leading-relaxed text-slate-800">
+                            作为潜在客户，我想浏览不同车型和价格，以便选择符合我需求的车辆
+                        </p>
+
+                        <div class="pt-2 border-t border-slate-50 space-y-2">
+                            <div class="flex items-center justify-between text-[10px] font-bold">
+                                <span class="text-slate-400">STAGE</span>
+                                <span class="text-slate-600 bg-slate-100 px-2 py-0.5 rounded">租车前准备</span>
+                            </div>
+                            <div class="flex items-center justify-between text-[10px] font-bold">
+                                <span class="text-slate-400">ACTIVITY</span>
+                                <span class="text-slate-600">浏览租车选项</span>
+                            </div>
+                        </div>
+
+                        
+                        <div class="flex items-center justify-between pt-1">
+                            <div class="flex items-center gap-1.5 dependency-label">
+                                <i data-lucide="link" class="w-3 h-3"></i>
+                                <span>DEPS: 1</span>
+                            </div>
+                            <span class="text-[9px] font-black text-slate-300 uppercase">#card-4</span>
+                        </div>
+                        
+                    </div>
+                    
+                    <div 
+                        id="card-5" 
+                        class="card card-userstory space-y-4"
+                        data-deps="card-4"
+                        onclick="highlightCard('card-5')"
+                    >
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-blue-500">
+                                
+                                <i data-lucide="file-text" class="w-3.5 h-3.5"></i>
+                                <span>Story</span>
+                                
+                            </div>
+                            <span class="badge-must">MUST</span>
+                        </div>
+
+                        <p class="text-[13px] font-bold leading-relaxed text-slate-800">
+                            作为潜在客户，我想查看车辆的详细信息如配置图片里程数，以便全面了解车辆状况
+                        </p>
+
+                        <div class="pt-2 border-t border-slate-50 space-y-2">
+                            <div class="flex items-center justify-between text-[10px] font-bold">
+                                <span class="text-slate-400">STAGE</span>
+                                <span class="text-slate-600 bg-slate-100 px-2 py-0.5 rounded">租车前准备</span>
+                            </div>
+                            <div class="flex items-center justify-between text-[10px] font-bold">
+                                <span class="text-slate-400">ACTIVITY</span>
+                                <span class="text-slate-600">浏览租车选项</span>
+                            </div>
+                        </div>
+
+                        
+                        <div class="flex items-center justify-between pt-1">
+                            <div class="flex items-center gap-1.5 dependency-label">
+                                <i data-lucide="link" class="w-3 h-3"></i>
+                                <span>DEPS: 1</span>
+                            </div>
+                            <span class="text-[9px] font-black text-slate-300 uppercase">#card-5</span>
+                        </div>
+                        
+                    </div>
+                    
+                    <div 
+                        id="card-6" 
+                        class="card card-userstory space-y-4"
+                        data-deps="card-4"
+                        onclick="highlightCard('card-6')"
+                    >
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-blue-500">
+                                
+                                <i data-lucide="file-text" class="w-3.5 h-3.5"></i>
+                                <span>Story</span>
+                                
+                            </div>
+                            <span class="badge-must">MUST</span>
+                        </div>
+
+                        <p class="text-[13px] font-bold leading-relaxed text-slate-800">
+                            作为潜在客户，我想筛选和排序车辆，以便快速找到目标车辆
+                        </p>
+
+                        <div class="pt-2 border-t border-slate-50 space-y-2">
+                            <div class="flex items-center justify-between text-[10px] font-bold">
+                                <span class="text-slate-400">STAGE</span>
+                                <span class="text-slate-600 bg-slate-100 px-2 py-0.5 rounded">租车前准备</span>
+                            </div>
+                            <div class="flex items-center justify-between text-[10px] font-bold">
+                                <span class="text-slate-400">ACTIVITY</span>
+                                <span class="text-slate-600">浏览租车选项</span>
+                            </div>
+                        </div>
+
+                        
+                        <div class="flex items-center justify-between pt-1">
+                            <div class="flex items-center gap-1.5 dependency-label">
+                                <i data-lucide="link" class="w-3 h-3"></i>
+                                <span>DEPS: 1</span>
+                            </div>
+                            <span class="text-[9px] font-black text-slate-300 uppercase">#card-6</span>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+            </div>
+            
+            <div class="iteration-column">
+                <!-- Iteration Header -->
+                <div class="iteration-header space-y-5">
+                    <div class="flex justify-between items-center">
+                        <div class="px-3 py-1 bg-white/20 backdrop-blur-md rounded-lg text-[10px] font-black uppercase tracking-widest text-white">
+                            迭代 3
+                        </div>
+                        <div class="flex items-center gap-1.5 px-3 py-1 bg-black/20 rounded-full text-[10px] font-bold">
+                            <i data-lucide="layers" class="w-3 h-3"></i>
+                            <span>3 Cards</span>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-2">
+                        <div class="flex items-center gap-2 text-white/70">
+                            <i data-lucide="target" class="w-4 h-4"></i>
+                            <span class="text-[10px] font-bold uppercase tracking-widest">Sprint Goal</span>
+                        </div>
+                        <p class="text-sm font-bold leading-snug text-white">提升系统性能与可用性，支持高并发浏览</p>
+                    </div>
+
+                    <div class="pt-2 flex items-center justify-between">
+                        <div class="flex -space-x-2">
+                            
+                            <div class="w-6 h-6 rounded-full bg-blue-500 border-2 border-slate-800 flex items-center justify-center" title="User Story">
+                                <i data-lucide="user" class="w-2 h-2 text-white"></i>
+                            </div>
+                            
+                            <div class="w-6 h-6 rounded-full bg-blue-500 border-2 border-slate-800 flex items-center justify-center" title="User Story">
+                                <i data-lucide="user" class="w-2 h-2 text-white"></i>
+                            </div>
+                            
+                            
+                            <div class="w-6 h-6 rounded-full bg-purple-500 border-2 border-slate-800 flex items-center justify-center" title="Supporting Requirement">
+                                <i data-lucide="zap" class="w-2 h-2 text-white"></i>
+                            </div>
+                            
+                        </div>
+                        <div class="text-[10px] font-bold text-white/40">VALUE CLUSTER</div>
+                    </div>
+                </div>
+
+                <!-- Cards -->
+                <div class="flex flex-col gap-4">
+                    
+                    <div 
+                        id="card-7" 
+                        class="card card-supporting space-y-4"
+                        data-deps="card-4"
+                        onclick="highlightCard('card-7')"
+                    >
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-purple-500">
+                                
+                                <i data-lucide="settings-2" class="w-3.5 h-3.5"></i>
+                                <span>Support</span>
+                                
+                            </div>
+                            <span class="badge-must">MUST</span>
+                        </div>
+
+                        <p class="text-[13px] font-bold leading-relaxed text-slate-800">
+                            保障高并发场景下的系统性能和响应时间
+                        </p>
+
+                        <div class="pt-2 border-t border-slate-50 space-y-2">
+                            <div class="flex items-center justify-between text-[10px] font-bold">
+                                <span class="text-slate-400">STAGE</span>
+                                <span class="text-slate-600 bg-slate-100 px-2 py-0.5 rounded">租车前准备</span>
+                            </div>
+                            <div class="flex items-center justify-between text-[10px] font-bold">
+                                <span class="text-slate-400">ACTIVITY</span>
+                                <span class="text-slate-600">浏览租车选项</span>
+                            </div>
+                        </div>
+
+                        
+                        <div class="flex items-center justify-between pt-1">
+                            <div class="flex items-center gap-1.5 dependency-label">
+                                <i data-lucide="link" class="w-3 h-3"></i>
+                                <span>DEPS: 1</span>
+                            </div>
+                            <span class="text-[9px] font-black text-slate-300 uppercase">#card-7</span>
+                        </div>
+                        
+                    </div>
+                    
+                    <div 
+                        id="card-8" 
+                        class="card card-userstory space-y-4"
+                        data-deps="card-5"
+                        onclick="highlightCard('card-8')"
+                    >
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-blue-500">
+                                
+                                <i data-lucide="file-text" class="w-3.5 h-3.5"></i>
+                                <span>Story</span>
+                                
+                            </div>
+                            <span class="badge-must">MUST</span>
+                        </div>
+
+                        <p class="text-[13px] font-bold leading-relaxed text-slate-800">
+                            作为客户，我想选择取车和还车的时间和地点，以便规划我的行程
+                        </p>
+
+                        <div class="pt-2 border-t border-slate-50 space-y-2">
+                            <div class="flex items-center justify-between text-[10px] font-bold">
+                                <span class="text-slate-400">STAGE</span>
+                                <span class="text-slate-600 bg-slate-100 px-2 py-0.5 rounded">预订流程</span>
+                            </div>
+                            <div class="flex items-center justify-between text-[10px] font-bold">
+                                <span class="text-slate-400">ACTIVITY</span>
+                                <span class="text-slate-600">选择租车时间和地点</span>
+                            </div>
+                        </div>
+
+                        
+                        <div class="flex items-center justify-between pt-1">
+                            <div class="flex items-center gap-1.5 dependency-label">
+                                <i data-lucide="link" class="w-3 h-3"></i>
+                                <span>DEPS: 1</span>
+                            </div>
+                            <span class="text-[9px] font-black text-slate-300 uppercase">#card-8</span>
+                        </div>
+                        
+                    </div>
+                    
+                    <div 
+                        id="card-9" 
+                        class="card card-userstory space-y-4"
+                        data-deps="card-8"
+                        onclick="highlightCard('card-9')"
+                    >
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-blue-500">
+                                
+                                <i data-lucide="file-text" class="w-3.5 h-3.5"></i>
+                                <span>Story</span>
+                                
+                            </div>
+                            <span class="badge-must">MUST</span>
+                        </div>
+
+                        <p class="text-[13px] font-bold leading-relaxed text-slate-800">
+                            作为客户，查看不同时间段和门店的车辆可用性，以便确保能租到车
+                        </p>
+
+                        <div class="pt-2 border-t border-slate-50 space-y-2">
+                            <div class="flex items-center justify-between text-[10px] font-bold">
+                                <span class="text-slate-400">STAGE</span>
+                                <span class="text-slate-600 bg-slate-100 px-2 py-0.5 rounded">预订流程</span>
+                            </div>
+                            <div class="flex items-center justify-between text-[10px] font-bold">
+                                <span class="text-slate-400">ACTIVITY</span>
+                                <span class="text-slate-600">选择租车时间和地点</span>
+                            </div>
+                        </div>
+
+                        
+                        <div class="flex items-center justify-between pt-1">
+                            <div class="flex items-center gap-1.5 dependency-label">
+                                <i data-lucide="link" class="w-3 h-3"></i>
+                                <span>DEPS: 1</span>
+                            </div>
+                            <span class="text-[9px] font-black text-slate-300 uppercase">#card-9</span>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+            </div>
+            
+        </div>
+    </div>
+
+    <!-- Overlay for closing highlight -->
+    <div id="overlay" onclick="resetHighlight()" class="fixed inset-0 z-40 bg-slate-900/10 backdrop-blur-[2px] hidden"></div>
+
+    <script>
+        lucide.createIcons();
+
+        let currentZoom = 1.0;
+        const boardWrapper = document.getElementById('board-wrapper');
+        const zoomLabel = document.getElementById('zoom-label');
+
+        function changeZoom(delta) {
+            currentZoom = Math.max(0.5, Math.min(1.5, currentZoom + delta));
+            updateZoom();
+        }
+
+        function resetZoom() {
+            currentZoom = 1.0;
+            updateZoom();
+        }
+
+        function updateZoom() {
+            boardWrapper.style.transform = `scale(${currentZoom})`;
+            zoomLabel.innerText = `${Math.round(currentZoom * 100)}%`;
+        }
+
+        function highlightCard(cardId) {
+            const card = document.getElementById(cardId);
+            const deps = card.getAttribute('data-deps').split(',').filter(d => d);
+            const allCards = document.querySelectorAll('.card');
+            const overlay = document.getElementById('overlay');
+
+            allCards.forEach(c => {
+                c.classList.add('dimmed');
+                c.classList.remove('highlighted');
+            });
+
+            card.classList.remove('dimmed');
+            card.classList.add('highlighted');
+            overlay.classList.remove('hidden');
+
+            deps.forEach(depId => {
+                const depCard = document.getElementById(depId);
+                if (depCard) {
+                    depCard.classList.remove('dimmed');
+                    depCard.classList.add('highlighted');
+                }
+            });
+        }
+
+        function resetHighlight() {
+            const allCards = document.querySelectorAll('.card');
+            const overlay = document.getElementById('overlay');
+            allCards.forEach(c => {
+                c.classList.remove('dimmed');
+                c.classList.remove('highlighted');
+            });
+            overlay.classList.add('hidden');
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,38 @@
+title: "智能客服系统 AI 场景评估"
+useCases:
+  - id: "1"
+    name: "意图识别助手"
+    userCount: 5
+    usageFrequency: 5
+    businessValue: 4
+    dataComplexity: 2
+    aiDesignComplexity: 2
+    integrationComplexity: 1
+    knowledgeComplexity: 3
+  - id: "2"
+    name: "自动摘要总结"
+    userCount: 3
+    usageFrequency: 4
+    businessValue: 3
+    dataComplexity: 1
+    aiDesignComplexity: 2
+    integrationComplexity: 1
+    knowledgeComplexity: 2
+  - id: "3"
+    name: "复杂故障预测"
+    userCount: 2
+    usageFrequency: 2
+    businessValue: 3
+    dataComplexity: 4
+    aiDesignComplexity: 4
+    integrationComplexity: 5
+    knowledgeComplexity: 4
+  - id: "4"
+    name: "新员工培训助手"
+    userCount: 2
+    usageFrequency: 3
+    businessValue: 2
+    dataComplexity: 1
+    aiDesignComplexity: 2
+    integrationComplexity: 1
+    knowledgeComplexity: 2

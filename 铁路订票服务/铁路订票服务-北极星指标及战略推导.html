@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>铁路订票服务 — 以“服务体验”为核心的北极星指标分析</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif', 'Noto Sans SC'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            900: '#0c4a6e',
+                        },
+                        slate: {
+                            850: '#152033',
+                            900: '#0f172a',
+                            950: '#020617',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700&display=swap');
+        
+        body { 
+            font-family: 'Inter', 'Noto Sans SC', sans-serif; 
+            background-color: #f8fafc; 
+            color: #1e293b;
+        }
+
+        .pyramid-container {
+            perspective: 1000px;
+        }
+
+        .kpi-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .kpi-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        .pyramid-level-1 { width: 100%; max-width: 320px; margin: 0 auto; z-index: 30; position: relative; }
+        .pyramid-level-2 { width: 100%; margin-top: 32px; display: flex; gap: 24px; justify-content: center; z-index: 20; position: relative; }
+
+        .connector-line {
+            position: absolute;
+            background: #cbd5e1;
+            z-index: 10;
+        }
+        
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        /* Inspire Design System Tokens */
+        :root {
+            --color-primary: #10213E;
+            --color-accent: #5DB2E2;
+            --color-border: #E2E8F0;
+            --color-text-muted: #64748B;
+            --color-bg-alt: #F5F5F6;
+        }
+
+        /* Standardized Header */
+        .page-header {
+            margin-bottom: 40px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid var(--color-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 32px 0;
+            font-family: 'MiSans', 'Inter', sans-serif;
+        }
+
+        .header-left {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .page-header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--color-primary);
+            line-height: 1.2;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 0;
+        }
+
+        .page-header h1::before {
+            content: "";
+            display: block;
+            width: 4px;
+            height: 24px;
+            background: var(--color-accent);
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+
+        .page-subtitle {
+            font-size: 16px;
+            color: var(--color-text-muted);
+            font-weight: 500;
+            padding-left: 16px;
+            margin: 0;
+        }
+
+        .header-right {
+            text-align: right;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+
+        .meta-info {
+            font-size: 12px;
+            color: var(--color-text-muted);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+
+        .btn-primary {
+            background: var(--color-primary);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all 0.15s ease-out;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+
+        .btn-secondary {
+            background: white;
+            color: var(--color-primary);
+            border: 1px solid var(--color-border);
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s ease-out;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn-secondary:hover { background: var(--color-bg-alt); }
+
+        @media print {
+            .page-header, .btn-group { display: none !important; }
+        }
+    </style>
+</head>
+<body class="p-8 md:p-12">
+    <div class="max-w-6xl mx-auto">
+        <!-- Header -->
+        <header class="page-header">
+      <div class="header-left">
+        <h1>铁路订票服务 — 以“服务体验”为核心的北极星指标分析</h1>
+      </div>
+      <div class="header-right">
+        <div class="btn-group">
+          <button class="btn-secondary" onclick="window.print()">导出 PDF / 打印</button>
+          <button class="btn-primary" onclick="copyYAML()">复制原始 YAML</button>
+        </div>
+      </div>
+    </header>
+
+        <!-- Main Section: North Star & KPI Pyramid -->
+        <section class="mb-12">
+            <div class="flex items-center gap-2 mb-8">
+                <h2 class="text-xl font-bold text-slate-800 uppercase tracking-widest">3.3 KPI 指标金字塔</h2>
+                <div class="h-px flex-1 bg-slate-200"></div>
+            </div>
+
+            <div class="pyramid-container relative py-6">
+                <!-- North Star Level -->
+                <div class="pyramid-level-1">
+                    <div class="kpi-card bg-white border-2 border-brand-500 rounded-2xl shadow-xl overflow-hidden">
+                        <div class="bg-brand-500 px-6 py-1.5 text-center">
+                            <span class="text-[9px] font-black text-white uppercase tracking-[0.2em]">北极星指标 / North Star Metric</span>
+                        </div>
+                        <div class="p-5 text-center">
+                            <h3 class="text-xl font-bold text-slate-900 mb-1">月度净满意出行人次 (MNS-T)</h3>
+                            <div class="text-brand-600 font-mono text-2xl font-black mb-2">
+                                [推断] 2.5 - 3.2 亿 人次/月（基于有效出行 * 满意度系数）<span class="text-xs font-bold ml-1">人次/月</span>
+                            </div>
+                            <p class="text-slate-500 text-[11px] leading-relaxed max-w-[240px] mx-auto">当月完成检票核验且用户反馈无负面体验（或通过服务闭环解决）的出行人次。计算公式：有效出行人次 * (1 - 负向服务事件率)。</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Connectors (Hidden on small screens) -->
+                <div class="hidden md:block">
+                    <div class="connector-line w-0.5 h-8 left-1/2 -translate-x-1/2 top-[180px]"></div>
+                    <div class="connector-line w-[80%] h-0.5 left-[10%] top-[212px]"></div>
+                </div>
+
+                <!-- KPI Level -->
+                <div class="pyramid-level-2 flex-wrap md:flex-nowrap">
+                    
+                    <div class="flex-1 min-w-[280px] bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col kpi-card">
+                        <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
+                            <h4 class="font-bold text-slate-800 flex items-center gap-2">
+                                <span class="w-2 h-2 rounded-full bg-brand-500"></span>
+                                服务体验
+                            </h4>
+                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">核心体验指标</span>
+                        </div>
+                        <div class="p-5 flex-1 bg-slate-50/30">
+                            <ul class="space-y-4">
+                                
+                                <li class="flex items-start gap-3">
+                                    <div class="w-5 h-5 rounded-md bg-white border border-slate-200 flex items-center justify-center text-[10px] font-bold text-slate-400 mt-0.5 shadow-sm">
+                                        1
+                                    </div>
+                                    <div>
+                                        <div class="text-sm font-bold text-slate-800 mb-0.5">服务净推荐值 (NPS)</div>
+                                        
+                                        <div class="text-xs font-semibold text-brand-600">目标: ≥ 45%</div>
+                                        
+                                        
+                                        <div class="text-[11px] text-slate-400 mt-1 leading-snug">用户对全流程服务质量的推荐意愿</div>
+                                        
+                                    </div>
+                                </li>
+                                
+                                <li class="flex items-start gap-3">
+                                    <div class="w-5 h-5 rounded-md bg-white border border-slate-200 flex items-center justify-center text-[10px] font-bold text-slate-400 mt-0.5 shadow-sm">
+                                        2
+                                    </div>
+                                    <div>
+                                        <div class="text-sm font-bold text-slate-800 mb-0.5">服务解决率 (FCR)</div>
+                                        
+                                        <div class="text-xs font-semibold text-brand-600">目标: ≥ 90%</div>
+                                        
+                                        
+                                        <div class="text-[11px] text-slate-400 mt-1 leading-snug">用户问题在首次触达（自助/人工）时得到解决的比例</div>
+                                        
+                                    </div>
+                                </li>
+                                
+                                <li class="flex items-start gap-3">
+                                    <div class="w-5 h-5 rounded-md bg-white border border-slate-200 flex items-center justify-center text-[10px] font-bold text-slate-400 mt-0.5 shadow-sm">
+                                        3
+                                    </div>
+                                    <div>
+                                        <div class="text-sm font-bold text-slate-800 mb-0.5">主动服务覆盖率</div>
+                                        
+                                        <div class="text-xs font-semibold text-brand-600">目标: ≥ 60%</div>
+                                        
+                                        
+                                        <div class="text-[11px] text-slate-400 mt-1 leading-snug">系统在延误、停运等异常发生前，主动触达并提供方案的比例</div>
+                                        
+                                    </div>
+                                </li>
+                                
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="flex-1 min-w-[280px] bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col kpi-card">
+                        <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
+                            <h4 class="font-bold text-slate-800 flex items-center gap-2">
+                                <span class="w-2 h-2 rounded-full bg-brand-500"></span>
+                                售后与变更韧性
+                            </h4>
+                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">服务闭环指标</span>
+                        </div>
+                        <div class="p-5 flex-1 bg-slate-50/30">
+                            <ul class="space-y-4">
+                                
+                                <li class="flex items-start gap-3">
+                                    <div class="w-5 h-5 rounded-md bg-white border border-slate-200 flex items-center justify-center text-[10px] font-bold text-slate-400 mt-0.5 shadow-sm">
+                                        1
+                                    </div>
+                                    <div>
+                                        <div class="text-sm font-bold text-slate-800 mb-0.5">退改签自助完成率</div>
+                                        
+                                        <div class="text-xs font-semibold text-brand-600">目标: ≥ 95%</div>
+                                        
+                                        
+                                        <div class="text-[11px] text-slate-400 mt-1 leading-snug">无需人工介入，通过 AI 助手或自助流程完成的退改签比例</div>
+                                        
+                                    </div>
+                                </li>
+                                
+                                <li class="flex items-start gap-3">
+                                    <div class="w-5 h-5 rounded-md bg-white border border-slate-200 flex items-center justify-center text-[10px] font-bold text-slate-400 mt-0.5 shadow-sm">
+                                        2
+                                    </div>
+                                    <div>
+                                        <div class="text-sm font-bold text-slate-800 mb-0.5">变更处置中位时长</div>
+                                        
+                                        <div class="text-xs font-semibold text-brand-600">目标: ≤ 3min</div>
+                                        
+                                        
+                                        <div class="text-[11px] text-slate-400 mt-1 leading-snug">从接收运行变更通知到用户选定替代方案的平均决策与操作耗时</div>
+                                        
+                                    </div>
+                                </li>
+                                
+                                <li class="flex items-start gap-3">
+                                    <div class="w-5 h-5 rounded-md bg-white border border-slate-200 flex items-center justify-center text-[10px] font-bold text-slate-400 mt-0.5 shadow-sm">
+                                        3
+                                    </div>
+                                    <div>
+                                        <div class="text-sm font-bold text-slate-800 mb-0.5">售后规则争议率</div>
+                                        
+                                        <div class="text-xs font-semibold text-brand-600">目标: ≤ 0.1%</div>
+                                        
+                                        
+                                        <div class="text-[11px] text-slate-400 mt-1 leading-snug">因退改签费率、资格等规则理解偏差导致的投诉或人工介入比例</div>
+                                        
+                                    </div>
+                                </li>
+                                
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="flex-1 min-w-[280px] bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col kpi-card">
+                        <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
+                            <h4 class="font-bold text-slate-800 flex items-center gap-2">
+                                <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                                交易韧性
+                            </h4>
+                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">质量指标</span>
+                        </div>
+                        <div class="p-5 flex-1 bg-slate-50/30">
+                            <ul class="space-y-4">
+                                
+                                <li class="flex items-start gap-3">
+                                    <div class="w-5 h-5 rounded-md bg-white border border-slate-200 flex items-center justify-center text-[10px] font-bold text-slate-400 mt-0.5 shadow-sm">
+                                        1
+                                    </div>
+                                    <div>
+                                        <div class="text-sm font-bold text-slate-800 mb-0.5">出票成功率</div>
+                                        
+                                        <div class="text-xs font-semibold text-brand-600">目标: ≥ 99.5%（日常） / ≥ 98.5%（高峰）</div>
+                                        
+                                        
+                                        <div class="text-[11px] text-slate-400 mt-1 leading-snug">支付后最终出票成功的占比，重点关注高峰期的补救成功率</div>
+                                        
+                                    </div>
+                                </li>
+                                
+                                <li class="flex items-start gap-3">
+                                    <div class="w-5 h-5 rounded-md bg-white border border-slate-200 flex items-center justify-center text-[10px] font-bold text-slate-400 mt-0.5 shadow-sm">
+                                        2
+                                    </div>
+                                    <div>
+                                        <div class="text-sm font-bold text-slate-800 mb-0.5">异常补救成功率</div>
+                                        
+                                        <div class="text-xs font-semibold text-brand-600">目标: ≥ 75%</div>
+                                        
+                                        
+                                        <div class="text-[11px] text-slate-400 mt-1 leading-snug">出票失败、停运、变更等情况下，通过系统自动推荐/改签最终成功的占比</div>
+                                        
+                                    </div>
+                                </li>
+                                
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="flex-1 min-w-[280px] bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col kpi-card">
+                        <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
+                            <h4 class="font-bold text-slate-800 flex items-center gap-2">
+                                <span class="w-2 h-2 rounded-full bg-brand-500"></span>
+                                信息透明
+                            </h4>
+                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">效率指标</span>
+                        </div>
+                        <div class="p-5 flex-1 bg-slate-50/30">
+                            <ul class="space-y-4">
+                                
+                                <li class="flex items-start gap-3">
+                                    <div class="w-5 h-5 rounded-md bg-white border border-slate-200 flex items-center justify-center text-[10px] font-bold text-slate-400 mt-0.5 shadow-sm">
+                                        1
+                                    </div>
+                                    <div>
+                                        <div class="text-sm font-bold text-slate-800 mb-0.5">候补进度透明度</div>
+                                        
+                                        <div class="text-xs font-semibold text-brand-600">目标: 100%</div>
+                                        
+                                        
+                                        <div class="text-[11px] text-slate-400 mt-1 leading-snug">所有候补订单均提供进度提示与成功率区间预估</div>
+                                        
+                                    </div>
+                                </li>
+                                
+                                <li class="flex items-start gap-3">
+                                    <div class="w-5 h-5 rounded-md bg-white border border-slate-200 flex items-center justify-center text-[10px] font-bold text-slate-400 mt-0.5 shadow-sm">
+                                        2
+                                    </div>
+                                    <div>
+                                        <div class="text-sm font-bold text-slate-800 mb-0.5">运行变更实时感知时延</div>
+                                        
+                                        <div class="text-xs font-semibold text-brand-600">目标: ≤ 5min</div>
+                                        
+                                        
+                                        <div class="text-[11px] text-slate-400 mt-1 leading-snug">从运行图调整到受影响旅客收到通知的时间差</div>
+                                        
+                                    </div>
+                                </li>
+                                
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="flex-1 min-w-[280px] bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col kpi-card">
+                        <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
+                            <h4 class="font-bold text-slate-800 flex items-center gap-2">
+                                <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+                                系统稳健
+                            </h4>
+                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">健康指标</span>
+                        </div>
+                        <div class="p-5 flex-1 bg-slate-50/30">
+                            <ul class="space-y-4">
+                                
+                                <li class="flex items-start gap-3">
+                                    <div class="w-5 h-5 rounded-md bg-white border border-slate-200 flex items-center justify-center text-[10px] font-bold text-slate-400 mt-0.5 shadow-sm">
+                                        1
+                                    </div>
+                                    <div>
+                                        <div class="text-sm font-bold text-slate-800 mb-0.5">高峰期投诉率</div>
+                                        
+                                        <div class="text-xs font-semibold text-brand-600">目标: ≤ 0.05%</div>
+                                        
+                                        
+                                        <div class="text-[11px] text-slate-400 mt-1 leading-snug">高峰期间每万单投诉量</div>
+                                        
+                                    </div>
+                                </li>
+                                
+                                <li class="flex items-start gap-3">
+                                    <div class="w-5 h-5 rounded-md bg-white border border-slate-200 flex items-center justify-center text-[10px] font-bold text-slate-400 mt-0.5 shadow-sm">
+                                        2
+                                    </div>
+                                    <div>
+                                        <div class="text-sm font-bold text-slate-800 mb-0.5">隐私与合规事件数</div>
+                                        
+                                        <div class="text-xs font-semibold text-brand-600">目标: 0</div>
+                                        
+                                        
+                                        <div class="text-[11px] text-slate-400 mt-1 leading-snug">确保服务提升不以牺牲合规为代价</div>
+                                        
+                                    </div>
+                                </li>
+                                
+                            </ul>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+        </section>
+
+        <!-- Strategies Section -->
+        <section class="mb-16">
+            <div class="flex items-center gap-2 mb-8">
+                <h2 class="text-xl font-bold text-slate-800 uppercase tracking-widest">核心业务策略</h2>
+                <div class="h-px flex-1 bg-slate-200"></div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                
+                <div class="glass-panel rounded-2xl p-6 border border-slate-200 flex flex-col h-full group hover:border-brand-300 transition-colors">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center font-bold shadow-lg">
+                                P0
+                            </div>
+                            <h3 class="font-bold text-lg text-slate-900">从“被动响应”转向“主动关怀”的服务体系</h3>
+                        </div>
+                        <span class="text-[10px] font-bold bg-slate-100 text-slate-500 px-2 py-1 rounded-md">
+                            SWOT: S1 x O2
+                        </span>
+                    </div>
+                    
+                    <p class="text-slate-600 text-sm leading-relaxed mb-6 flex-1">
+                        利用 AI 识别潜在的行程中断风险（如晚点导致无法换乘），在用户感知前提供替代方案，将服务前置。
+                    </p>
+
+                    <div class="space-y-3">
+                        <div class="flex items-center gap-2">
+                            <span class="text-[10px] font-bold text-slate-400 uppercase w-16">核心动作</span>
+                            <div class="flex-1 flex flex-wrap gap-2">
+                                
+                                <span class="text-[11px] font-medium bg-brand-50 text-brand-700 px-2 py-0.5 rounded-full border border-brand-100">
+                                    构建全链路异常监控：天气、运行图、库存波动、换乘紧迫度
+                                </span>
+                                
+                                <span class="text-[11px] font-medium bg-brand-50 text-brand-700 px-2 py-0.5 rounded-full border border-brand-100">
+                                    建立主动触达矩阵：App Push、短信、站内信，提供一键式补救入口
+                                </span>
+                                
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-[10px] font-bold text-slate-400 uppercase w-16">支撑指标</span>
+                            <span class="text-xs font-bold text-slate-700">主动服务覆盖率 / 服务解决率 (FCR)</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="glass-panel rounded-2xl p-6 border border-slate-200 flex flex-col h-full group hover:border-brand-300 transition-colors">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center font-bold shadow-lg">
+                                P1
+                            </div>
+                            <h3 class="font-bold text-lg text-slate-900">极端场景下的“透明化”与“确定性”保障</h3>
+                        </div>
+                        <span class="text-[10px] font-bold bg-slate-100 text-slate-500 px-2 py-1 rounded-md">
+                            SWOT: W2 x O2
+                        </span>
+                    </div>
+                    
+                    <p class="text-slate-600 text-sm leading-relaxed mb-6 flex-1">
+                        在高峰期和运行变更时，通过数据透明消除焦虑。即使无法出票，也要给用户清晰的“为什么”和“下一步建议”。
+                    </p>
+
+                    <div class="space-y-3">
+                        <div class="flex items-center gap-2">
+                            <span class="text-[10px] font-bold text-slate-400 uppercase w-16">核心动作</span>
+                            <div class="flex-1 flex flex-wrap gap-2">
+                                
+                                <span class="text-[11px] font-medium bg-brand-50 text-brand-700 px-2 py-0.5 rounded-full border border-brand-100">
+                                    候补/排队透明化：展示当前排队位置、预估等待时间、历史成功参考
+                                </span>
+                                
+                                <span class="text-[11px] font-medium bg-brand-50 text-brand-700 px-2 py-0.5 rounded-full border border-brand-100">
+                                    规则白话化：将复杂的退改签、报销、学生票规则通过交互式助手解释清晰
+                                </span>
+                                
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-[10px] font-bold text-slate-400 uppercase w-16">支撑指标</span>
+                            <span class="text-xs font-bold text-slate-700">候补进度透明度 / NPS</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="glass-panel rounded-2xl p-6 border border-slate-200 flex flex-col h-full group hover:border-brand-300 transition-colors">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center font-bold shadow-lg">
+                                P2
+                            </div>
+                            <h3 class="font-bold text-lg text-slate-900">全链路服务韧性：出票失败即补偿/补救</h3>
+                        </div>
+                        <span class="text-[10px] font-bold bg-slate-100 text-slate-500 px-2 py-1 rounded-md">
+                            SWOT: S2 x O3
+                        </span>
+                    </div>
+                    
+                    <p class="text-slate-600 text-sm leading-relaxed mb-6 flex-1">
+                        把“支付成功”视为契约的开始。一旦由于系统或库存原因导致出票失败，必须由系统发起更高优先级的自动补位或替代推荐。
+                    </p>
+
+                    <div class="space-y-3">
+                        <div class="flex items-center gap-2">
+                            <span class="text-[10px] font-bold text-slate-400 uppercase w-16">核心动作</span>
+                            <div class="flex-1 flex flex-wrap gap-2">
+                                
+                                <span class="text-[11px] font-medium bg-brand-50 text-brand-700 px-2 py-0.5 rounded-full border border-brand-100">
+                                    自动补位引擎：出票失败后自动扫描跨席别、换乘、后续车次，提供快速确认通道
+                                </span>
+                                
+                                <span class="text-[11px] font-medium bg-brand-50 text-brand-700 px-2 py-0.5 rounded-full border border-brand-100">
+                                    服务联动：票务变更自动同步订餐、接送站、行程单等延伸服务
+                                </span>
+                                
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-[10px] font-bold text-slate-400 uppercase w-16">支撑指标</span>
+                            <span class="text-xs font-bold text-slate-700">异常补救成功率 / 出票成功率</span>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+        </section>
+    </div>
+
+    <!-- Raw YAML Data (Hidden) -->
+    <script type="application/yaml" id="raw-yaml">
+title: "铁路订票服务 — 以“服务体验”为核心的北极星指标分析"
+planning_cycle: "2026 H2 - 2027 H1"
+nsm:
+  name: "月度净满意出行人次 (MNS-T)"
+  target: "[推断] 2.5 - 3.2 亿 人次/月（基于有效出行 * 满意度系数）"
+  unit: "人次/月"
+  definition: "当月完成检票核验且用户反馈无负面体验（或通过服务闭环解决）的出行人次。计算公式：有效出行人次 * (1 - 负向服务事件率)。"
+kpi_pyramid:
+  - name: "服务体验"
+    type: "核心体验指标"
+    metrics:
+      - name: "服务净推荐值 (NPS)"
+        target: "≥ 45%"
+        desc: "用户对全流程服务质量的推荐意愿"
+      - name: "服务解决率 (FCR)"
+        target: "≥ 90%"
+        desc: "用户问题在首次触达（自助/人工）时得到解决的比例"
+      - name: "主动服务覆盖率"
+        target: "≥ 60%"
+        desc: "系统在延误、停运等异常发生前，主动触达并提供方案的比例"
+  - name: "售后与变更韧性"
+    type: "服务闭环指标"
+    metrics:
+      - name: "退改签自助完成率"
+        target: "≥ 95%"
+        desc: "无需人工介入，通过 AI 助手或自助流程完成的退改签比例"
+      - name: "变更处置中位时长"
+        target: "≤ 3min"
+        desc: "从接收运行变更通知到用户选定替代方案的平均决策与操作耗时"
+      - name: "售后规则争议率"
+        target: "≤ 0.1%"
+        desc: "因退改签费率、资格等规则理解偏差导致的投诉或人工介入比例"
+  - name: "交易韧性"
+    type: "质量指标"
+    metrics:
+      - name: "出票成功率"
+        target: "≥ 99.5%（日常） / ≥ 98.5%（高峰）"
+        desc: "支付后最终出票成功的占比，重点关注高峰期的补救成功率"
+      - name: "异常补救成功率"
+        target: "≥ 75%"
+        desc: "出票失败、停运、变更等情况下，通过系统自动推荐/改签最终成功的占比"
+  - name: "信息透明"
+    type: "效率指标"
+    metrics:
+      - name: "候补进度透明度"
+        target: "100%"
+        desc: "所有候补订单均提供进度提示与成功率区间预估"
+      - name: "运行变更实时感知时延"
+        target: "≤ 5min"
+        desc: "从运行图调整到受影响旅客收到通知的时间差"
+  - name: "系统稳健"
+    type: "健康指标"
+    metrics:
+      - name: "高峰期投诉率"
+        target: "≤ 0.05%"
+        desc: "高峰期间每万单投诉量"
+      - name: "隐私与合规事件数"
+        target: "0"
+        desc: "确保服务提升不以牺牲合规为代价"
+strategies:
+  - name: "从“被动响应”转向“主动关怀”的服务体系"
+    priority: 0
+    swot_ref: "S1 x O2"
+    description: "利用 AI 识别潜在的行程中断风险（如晚点导致无法换乘），在用户感知前提供替代方案，将服务前置。"
+    actions:
+      - "构建全链路异常监控：天气、运行图、库存波动、换乘紧迫度"
+      - "建立主动触达矩阵：App Push、短信、站内信，提供一键式补救入口"
+    kpi_ref: "主动服务覆盖率 / 服务解决率 (FCR)"
+  - name: "极端场景下的“透明化”与“确定性”保障"
+    priority: 1
+    swot_ref: "W2 x O2"
+    description: "在高峰期和运行变更时，通过数据透明消除焦虑。即使无法出票，也要给用户清晰的“为什么”和“下一步建议”。"
+    actions:
+      - "候补/排队透明化：展示当前排队位置、预估等待时间、历史成功参考"
+      - "规则白话化：将复杂的退改签、报销、学生票规则通过交互式助手解释清晰"
+    kpi_ref: "候补进度透明度 / NPS"
+  - name: "全链路服务韧性：出票失败即补偿/补救"
+    priority: 2
+    swot_ref: "S2 x O3"
+    description: "把“支付成功”视为契约的开始。一旦由于系统或库存原因导致出票失败，必须由系统发起更高优先级的自动补位或替代推荐。"
+    actions:
+      - "自动补位引擎：出票失败后自动扫描跨席别、换乘、后续车次，提供快速确认通道"
+      - "服务联动：票务变更自动同步订餐、接送站、行程单等延伸服务"
+    kpi_ref: "异常补救成功率 / 出票成功率"
+
+    </script>
+
+    <div id="toast" class="fixed bottom-8 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-6 py-3 rounded-xl shadow-2xl text-sm font-bold transform transition-all duration-300 translate-y-20 opacity-0 z-50">
+        已成功复制 YAML 数据
+    </div>
+
+    <script>
+        document.getElementById('copyYamlBtn').addEventListener('click', function() {
+            const yamlContent = document.getElementById('raw-yaml').textContent.trim();
+            navigator.clipboard.writeText(yamlContent).then(() => {
+                const toast = document.getElementById('toast');
+                toast.classList.remove('translate-y-20', 'opacity-0');
+                setTimeout(() => {
+                    toast.classList.add('translate-y-20', 'opacity-0');
+                }, 2000);
+            });
+        });
+    </script>
+</body>
+</html>

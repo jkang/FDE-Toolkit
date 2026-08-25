@@ -1,0 +1,65 @@
+title: "铁路订票服务 — AI 机会场景地图（出行延伸服务价值流）"
+stages:
+  - name: "服务预订与履约协同"
+    steps:
+      - activity: "服务下单与资源确认"
+        role: "旅客/服务系统"
+        touchpoint: "服务详情页 / 订单详情页"
+        repetitive_tasks:
+          - "在不同入口重复输入行程与乘车人信息"
+        cognitive_tasks:
+          - "评估接送站服务的预留时间是否充足"
+        ai_opportunities:
+          - type: "innovation"
+            name: "全行程“一张单”智能打包建议"
+            description: "「旅客」在「行程规划」下提供[基于票务订单自动匹配餐饮、约车、重点旅客服务的组合推荐]能力，以「实现从“买票”到“买行程”的体验升级」。"
+
+  - name: "行程中服务实时履约"
+    steps:
+      - activity: "餐饮配送与约车接送协同"
+        role: "服务系统/旅客"
+        touchpoint: "行程管家 / 车站终端"
+        repetitive_tasks:
+          - "在车上反复确认订餐配送进度"
+          - "到达后寻找约车司机的具体位置"
+        cognitive_tasks:
+          - "在列车晚点时评估对后续约车、订餐服务的影响"
+          - "识别旅客在车上的突发服务需求"
+        ai_opportunities:
+          - type: "innovation"
+            name: "约车/接送站自动配时与排程"
+            description: "「系统」在「延伸服务履约」下提供[基于列车实时位置自动调整约车接送时间]能力，以「解决“车等人”或“人等车”的摩擦点」。"
+          - type: "cognitive"
+            name: "特殊旅客主动服务管家"
+            description: "「旅客」在「乘车准备」下提供[基于人群特征（老人/儿童）的差异化行程指引]能力，以「体现官方渠道的温度与关怀」。"
+
+  - name: "运行变更下的服务联动"
+    steps:
+      - activity: "受影响服务识别与联动处置"
+        role: "规则引擎/旅客"
+        touchpoint: "通知中心 / 售后首页"
+        repetitive_tasks:
+          - "主票退改后逐个取消关联的餐饮、约车服务"
+        cognitive_tasks:
+          - "评估改签后是否还能赶上后续的延伸服务预订"
+        ai_opportunities:
+          - type: "innovation"
+            name: "晚点/停运一键式全家桶处置"
+            description: "「旅客」在「行程波动」下提供[主票务与关联服务订单的同步联动退改]能力，以「提供端到端的一致性售后保障」。"
+
+  - name: "服务售后与体验回流"
+    steps:
+      - activity: "服务异常工单定责与复盘"
+        role: "客服/运营"
+        touchpoint: "CRM / 数据中心"
+        repetitive_tasks:
+          - "拼凑主票与延伸服务的碎裂日志"
+        cognitive_tasks:
+          - "识别用户对全旅程服务的 NPS 贬损主因"
+        ai_opportunities:
+          - type: "repetitive"
+            name: "全链路事件智能摘要（全业务版）"
+            description: "「客服」在「争议定责」下提供[跨票务、餐饮、约车系统的日志因果关联摘要]能力，以「大幅缩短全场景问题的解决时长」。"
+          - type: "cognitive"
+            name: "MNS-T 跨业务价值贡献模型"
+            description: "「运营」在「战略复盘」下提供[基于满意度损耗的延伸服务对主票务的价值贡献度分析]能力，以「指导全链路服务的生态投入比」。"

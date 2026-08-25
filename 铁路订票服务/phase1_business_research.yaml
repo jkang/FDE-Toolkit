@@ -1,0 +1,84 @@
+title: "铁路订票服务｜Phase 1 业务现状调研"
+business: "铁路订票服务（官方渠道）"
+scope: "订票→出行→后续服务全流程"
+generated_at: "2026-07-14"
+sources:
+  - name: "国铁集团《2024年统计公报》"
+    url: "https://wap.china-railway.com.cn/xwzx/zhxw/202503/t20250305_143296.html"
+  - name: "线上售票比例（记者会）"
+    url: "http://m.chinanews.com/wap/detail/chs/sp/8989684.shtml"
+  - name: "春运网售占比（12306 85.3%）"
+    url: "http://www.chinanews.com/gn/2019/12-20/9038877.shtml"
+  - name: "官网能力入口聚合"
+    url: "https://www.12306.cn/index/"
+  - name: "订餐与旅游列车规模（国铁要闻）"
+    url: "http://wap.china-railway.com.cn/xwzx/ywsl/202501/t20250116_140928.html"
+  - name: "监管约谈第三方平台（候补帮抢/付费选座/隐私）"
+    url: "https://www.samr.gov.cn/fldys/sjdt/gzdt/art/2026/art_c49189fc7bc94f8cbdb87a85bb2facb4.html"
+  - name: "公开 Q&A 转引（第三方合作/加速包/异常识别）"
+    url: "http://www.ce.cn/xwzx/shgj/gdxw/202501/21/t20250121_39273600.shtml"
+  - name: "隐私政策"
+    url: "https://kyfw.12306.cn/otn/gonggao/privacyPolicy_web.html"
+  - name: "第三方 SDK 披露"
+    url: "https://kyfw.12306.cn/otn/gonggao/sdkService_other.html"
+facts:
+  rail_passenger_volume_2024:
+    value: "40.85"
+    unit: "亿人次"
+    note: "国家铁路旅客发送量"
+    source_url: "https://wap.china-railway.com.cn/xwzx/zhxw/202503/t20250305_143296.html"
+  online_ticketing_share:
+    value: "80%+ / 85.3%"
+    unit: "占比"
+    note: "不同场景公开披露的线上/网售口径"
+    source_urls:
+      - "http://m.chinanews.com/wap/detail/chs/sp/8989684.shtml"
+      - "http://www.chinanews.com/gn/2019/12-20/9038877.shtml"
+service_scope:
+  core_ticketing:
+    - "查询/筛选/推荐"
+    - "下单/支付/出票"
+    - "候补"
+    - "改签/退票"
+    - "乘车人/实名校验"
+    - "电子客票与凭证"
+  station_train_services:
+    - "重点旅客预约"
+    - "遗失物品查找"
+  value_added_services:
+    - "互联网订餐"
+    - "约车/接送站"
+    - "便民托运"
+    - "铁路旅游"
+    - "铁路保险"
+user_journey:
+  - "意图形成"
+  - "查询与筛选"
+  - "方案决策"
+  - "乘车人/规则校验"
+  - "下单与支付"
+  - "出票与凭证"
+  - "出行前服务（改签退票/候补/订餐/约车/重点旅客）"
+  - "站内/乘车（核验/运行变更处置）"
+  - "出行后服务（售后/遗失物品/投诉客服）"
+risks_and_constraints:
+  - "峰值并发 + 公平性要求"
+  - "规则复杂导致高失败成本"
+  - "隐私合规与第三方 SDK 合规披露"
+  - "反爬反抢票与异常流量治理"
+business_model_notes:
+  facts:
+    - "平台已具备多项出行延伸与增值服务入口（订餐/约车/托运/旅游等）"
+  inferences:
+    - "票务本体商业化空间受限，增值与生态更适合作为收益与体验闭环承载"
+north_star_candidates:
+  - name: "月度有效出行人次"
+    definition: "出票成功且完成闸机/核验的出行人次（若可获取核验事件）"
+  - name: "月度有效出行订单数"
+    definition: "出票成功且未在发车前退票的订单数（缺核验事件时可用）"
+guardrails:
+  - "隐私与合规事件数"
+  - "峰值期间关键链路错误率"
+  - "用户投诉率/工单量"
+  - "公平性（异常拦截误杀率、排队一致性）"
+

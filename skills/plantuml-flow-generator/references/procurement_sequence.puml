@@ -1,0 +1,37 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+!include style_pack.puml
+
+' ============ 采购订单自动生成 - 时序图 ============
+title 采购订单自动生成 - 时序图
+
+actor 采购专员 as Buyer
+participant "SRM系统" as SRM
+participant "采购Agent" as Agent
+database "ERP系统" as ERP
+database "供应商协同平台" as Supplier
+
+Buyer -> Agent: 提交采购需求 (生产计划 + 库存水位)
+activate Agent
+
+Agent -> ERP: 查询当前库存水位
+ERP --> Agent: 返回实时库存数据
+
+Agent -> Agent: 计算物料净需求\n(需求 = 计划 - 安全库存 - 在途)
+Agent -> Agent: 匹配供应商目录 & 比价
+
+alt 库存充足
+    Agent --> Buyer: 无需采购，返回库存提示
+else 库存不足
+    Agent -> SRM: 生成采购订单草稿\n(数量/交期/价格)
+    SRM --> Buyer: 推送审批待办
+    Buyer -> SRM: 审批通过
+    SRM -> Supplier: 自动下发采购订单
+    Supplier --> SRM: 确认接单
+    SRM -> ERP: 同步更新订单状态
+end
+
+Agent --> Buyer: 完成通知 + 异常预警 (缺料/交期冲突)
+deactivate Agent
+
+@enduml

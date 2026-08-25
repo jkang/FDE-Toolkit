@@ -1,0 +1,39 @@
+' Premium Skinparams for PlantUML
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam DefaultFontName "Inter", "Segoe UI", sans-serif
+skinparam DefaultFontSize 14
+skinparam dpi 150
+
+' Sequence Diagram specific
+skinparam sequence {
+    ArrowColor #6366F1
+    ActorBorderColor #6366F1
+    LifeLineBorderColor #CBD5E1
+    LifeLineBackgroundColor #F8FAFC
+    ParticipantBorderColor #E2E8F0
+    ParticipantBackgroundColor #FFFFFF
+    ParticipantFontSize 14
+    ParticipantFontStyle bold
+    BoxPadding 10
+}
+
+' Activity/Flowchart specific
+skinparam activity {
+    BackgroundColor #FFFFFF
+    BorderColor #6366F1
+    BarColor #6366F1
+    StartColor #22C55E
+    EndColor #EF4444
+    DiamondBackgroundColor #F8FAFC
+    DiamondBorderColor #94A3B8
+    FontSize 14
+}
+
+' Note styling
+skinparam note {
+    BackgroundColor #FEFCE8
+    BorderColor #FDE047
+    FontSize 12
+}

@@ -1,0 +1,98 @@
+# =============================================================================
+# to-be-process-designer · YAML 数据契约 (Schema / Source of Truth)
+# 用途：将「现状流程 + 问题痛点 + AI 机会点画布」推导为 AI 场景的 To-be 流程，
+#       呈现为「列=业务阶段(Phase) × 行=角色泳道(Lane)」的深度任务序列图。
+# 本文件是「LLM 产物」与「HTML 编译器」之间的唯一契约。
+# 完整实例见 examples/ 目录；此处展示结构与代表行。
+# =============================================================================
+
+meta:
+  title: "伊利奶粉事业部 · 分仓智能补货 To-be 流程"   # 主标题（页眉 H1）
+  version: "v1.0"                                     # 版本号
+  date: "2026-08-16"                                  # 更新日期
+  scenarioName: "分仓智能补货"                         # 所属 AI 场景名
+  businessStage: "SKP 阶段1 任务流程挖掘 · 步骤1.1"    # 对应业务阶段
+  methodology: "SKP 阶段1方法（业务环节 L3 → 主要活动 L4 → 深度任务 L5）"
+  inputs:                                            # 输入依据（上游 SRP 产物清单）
+    - "SRP《01场景定义画布》（现状流程全景/To-Be用户旅程）"
+    - "SRP《02数据与知识资产盘点》（知识资产清单/数据实体清单）"
+    - "客户素材《OSL场景信息采集表》"
+  sourceRef: "伊利分仓补货数据库表字段"                # 生成时引用的业务素材锚点
+  kpi:                                               # 场景要服务的价值锚定
+    - "分货效率"
+    - "分仓有货率"
+    - "库存周转率"
+    - "新鲜度"
+    - "物流时效"
+
+# ---- 图例区（页眉下方一行）----
+legend:
+  execution:                                         # 执行主体图例（与 task.actor 对应）
+    - { type: "agent",  label: "Agent=AI 自动执行", icon: "🤖" }
+    - { type: "human",  label: "人工=人工执行",     icon: "👤" }
+    - { type: "hybrid", label: "混合=人机协同",     icon: "🤝" }
+  hitlFocus:                                         # HITL 焦点档位（单元格小徽标）
+    - { level: "low",    label: "低 · 人机介入",      desc: "全自动，无人工介入" }
+    - { level: "medium", label: "中 · 人机交错/审核", desc: "AI 产出，人工抽检/确认" }
+    - { level: "high",   label: "高 · 人机终审",      desc: "人类担任最终裁决" }
+    - { level: "gate",   label: "必停确认",           desc: "对外动作，强制人工放行" }
+  flowConventions:                                   # 流程流向约定
+    - "角色泳道 任务泳道内转"
+    - "流程走向 任务正常后回填 AI"
+  valueAnchors:                                      # 价值锚定清单
+    - "分货效率"
+    - "分仓有货率"
+    - "库存周转"
+    - "新鲜度"
+    - "物流时效"
+
+# ---- 业务阶段（列）----
+phases:
+  - { id: "P1", order: 1, name: "货源评估", fullName: "货源评估与分货数据准备", description: "汇总供需视图，识别缺口，准备分货底表" }
+  - { id: "P2", order: 2, name: "分货方案", fullName: "分货方案编制",           description: "计算备货率/分配量，编制多版与备选方案" }
+  - { id: "P3", order: 3, name: "分货单",   fullName: "补货单生成与下发",       description: "生成/校验标准补货单并对外下发" }
+  - { id: "P4", order: 4, name: "执行跟踪", fullName: "执行跟踪与入库同步",     description: "在途监控、入库验收与库存同步" }
+  - { id: "P5", order: 5, name: "库存监控", fullName: "库存监控与效果复盘",     description: "库存天数/安全水位/临期监控与效果复盘" }
+
+# ---- 角色泳道（行）----
+lanes:
+  - { id: "customer",   order: 1, name: "客户外部",     group: "客户/外部", description: "需求方与外部输入源" }
+  - { id: "plan",       order: 2, name: "计划采购计划部", group: "分货计划", description: "计划与需求测算" }
+  - { id: "data",       order: 3, name: "数据助理",     group: "数据准备", description: "数据抓取/校验/底表" }
+  - { id: "allocation", order: 4, name: "分货评估组",   group: "分货评估", description: "方案编制/补货单/异常处理" }
+  - { id: "delivery",   order: 5, name: "供应链履单",   group: "履单跟踪", description: "在途/入库/监控/复盘" }
+
+# ---- 深度任务（L5）----
+# 核心字段：actor / valueAnchors / ruleType / exception / hitlFocus
+tasks:
+  - { id: "t01", order: 1, phaseId: "P1", laneId: "data",
+      name: "汇总全国可分配库存与在途", actor: "agent",
+      inputs: ["现货库存", "在途库存", "未发订单"], outputs: ["全国供需视图"],
+      ruleType: "关键信息提取要点·分货数据关键字段识别",
+      valueAnchors: ["分货效率"], hitlFocus: "low",
+      exception: "数据缺失/口径异常 → 拉人",
+      description: "Agent 拉取全量库存，形成全国供需视图" }
+
+  - { id: "t02", order: 2, phaseId: "P1", laneId: "data",
+      name: "计算各仓库存天数", actor: "agent",
+      inputs: ["各仓库存", "在途", "日均销售计划"], outputs: ["各仓库存天数"],
+      ruleType: "术语字典类·待检/合格/可发量/DOS口径",
+      valueAnchors: ["分仓有货率"], hitlFocus: "low",
+      exception: "口径异常 → 拉人",
+      description: "Agent 按 DOS 口径计算各仓库存天数" }
+
+  - { id: "t03", order: 3, phaseId: "P1", laneId: "data",
+      name: "判定缺口等级", actor: "agent",
+      inputs: ["各仓库存天数", "未来14天需求"], outputs: ["缺口告警清单(红/黄/蓝)"],
+      ruleType: "决策模型类·缺口分级规则",
+      valueAnchors: ["分仓有货率"], hitlFocus: "low",
+      exception: "阈值边界冲突 → 拉人",
+      description: "Agent 识别缺口并生成红/黄/蓝告警" }
+
+  # ... 更多 P2·P3·P4·P5 深度任务（完整实例见 examples/yili_to_be_flow.yaml）
+
+# ---- 底部注释 ----
+flowNotes:
+  - "主链路 P1→P2→P3→P4→P5，分货方案编制为全场景 PO（HITL 核心确认点）"
+returnNodes:
+  - "需求发起/需求/订单/缺货/需求 → 数据组/分货数据"

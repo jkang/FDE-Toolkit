@@ -1,0 +1,295 @@
+title: "X电商订舱业务AI机会场景地图（基于业务流程分析/体验旅程/服务蓝图痛点挖掘）"
+stages:
+  - name: "认知与注册认证"
+    steps:
+      - activity: "平台触达与内容浏览"
+        role: "SME 货主"
+        touchpoint: "独立电商平台官网 / 搜索引擎 / 行业展会"
+        repetitive_tasks:
+          - "多语言、多区域营销内容的人工制作与投放"
+          - "人工筛选潜在货主名单并逐个触达"
+        cognitive_tasks:
+          - "判断不同贸易区域与货主画像的内容偏好"
+          - "评估营销线索的成单潜力"
+        ai_opportunities:
+          - type: "repetitive"
+            name: "智能获客与内容触达"
+            description: "「数字营销团队」在「获客触达」下提供[基于贸易流向与货主搜索意图的个性化内容生成与精准投放]能力，以「提升 SME 首访转化率、降低单线索获客成本」。（来源：C-体验旅程图-智能获客与内容触达）"
+          - type: "cognitive"
+            name: "贸易画像智能分级"
+            description: "「销售团队」在「线索管理」下提供[基于货量、航线与行业特征的潜在客户价值评分]能力，以「优先触达高价值 SME 长尾客户、提升营销 ROI」。（来源：B-售后与会员运营-复购激励痛点 [推断]）"
+      - activity: "企业注册与资质认证"
+        role: "SME 货主 / 电商运营"
+        touchpoint: "独立电商平台注册页 / CRM / 风控系统"
+        repetitive_tasks:
+          - "人工核对营业执照、贸易资质等上传文件"
+          - "逐条录入企业信息与联系人数据"
+        cognitive_tasks:
+          - "判断资质真伪与经营合规风险"
+          - "决定是否放行订舱权限"
+        ai_opportunities:
+          - type: "repetitive"
+            name: "AI 自动认证审核"
+            description: "「电商运营」在「资质审核」下提供[营业执照 OCR + 多源验真的分钟级自动开户]能力，以「将企业认证从约 3 个工作日压缩至分钟级、消灭 SME 首单等待窗口」。（来源：B-L2 资质审核（high 痛点）/C-体验旅程图；X 官方口径认证约 3 个工作日）"
+          - type: "longtail"
+            name: "非标资质智能复核"
+            description: "「风控审核员」在「疑难资质复核」下提供[对多法人、多币种等非标注册结构的风险提示与人工复核辅助]能力，以「降低风控误判与返工、守住合规底线」。（来源：D-服务蓝图-合规与信用风控痛点）"
+
+  - name: "询价与报价"
+    steps:
+      - activity: "即期与长时效报价查询"
+        role: "SME 货主"
+        touchpoint: "独立电商平台报价页（E-Spot / E-Quote）"
+        repetitive_tasks:
+          - "跨航次反复查询比对各港即期运价"
+        cognitive_tasks:
+          - "判断当前报价相对市场行情的合理性与可成交性"
+        ai_opportunities:
+          - type: "cognitive"
+            name: "全航线智能报价"
+            description: "「SME 货主」在「即期询价」下提供[结合市场运价指数（SCFI/CCFI）与舱位余量的全航线即期报价生成]能力，以「填补部分港口无透明报价的盲区、减少跨平台比价流失」。（来源：C-体验旅程图-全航线智能报价；B 即期报价覆盖仅限特定航次 [推断]）"
+      - activity: "智能报价推荐与锁价"
+        role: "AI 助手（Ask Fin / 小飞 Fin）+ 收益管理"
+        touchpoint: "AI 报价引擎 / All-in-One 询价 / Secured E-Quote"
+        repetitive_tasks:
+          - "人工维护与推送长时效报价单"
+        cognitive_tasks:
+          - "评估锁价产品在运价波动下的风险敞口"
+          - "权衡客户价值与舱位收益给出报价组合"
+        ai_opportunities:
+          - type: "cognitive"
+            name: "动态锁价风控"
+            description: "「收益管理」在「锁价定价」下提供[基于历史成交与运价波动预测的锁价区间建议与对冲模型]能力，以「降低锁价弃约风险、平衡 Secured E-Quote 双方风险敞口」。（来源：C-体验旅程图-动态锁价风控；B 锁价与市场运价脱钩（high 痛点）[推断]）"
+          - type: "cognitive"
+            name: "个性化报价推荐"
+            description: "「SME 货主」在「智能询价」下提供[基于历史交易与偏好的港口对/航次/附加费组合推荐（Smart Push 升级）]能力，以「提升报价采纳率与一站式成交率」。（来源：B-L2 智能报价推荐与锁价）"
+      - activity: "多平台比价与成本测算"
+        role: "SME 货主"
+        touchpoint: "第三方货代平台 / 其他船司平台"
+        repetitive_tasks:
+          - "人工跨平台收集报价并整理比价表"
+        cognitive_tasks:
+          - "测算海运、陆运、清关、免箱期的到岸总成本"
+        ai_opportunities:
+          - type: "innovation"
+            name: "All-in-One 比价与到岸成本试算"
+            description: "「SME 货主」在「比价决策」下提供[一站式询价 + 端到端到岸成本（All-in）智能试算]能力，以「将多平台比价耗时从小时级压缩至分钟级、提升成交转化」。（来源：C-体验旅程图-All-in-One 比价助手；All-in-One 询价 2026.03 上线）"
+
+  - name: "下单订舱与舱位确认"
+    steps:
+      - activity: "3 步订舱表单提交与预填"
+        role: "SME 货主"
+        touchpoint: "订舱表单 / 微信小程序"
+        repetitive_tasks:
+          - "手工录入费率参考号、货量、箱型与货方信息"
+          - "资料不全时往返补件"
+        cognitive_tasks:
+          - "判断哪些资料缺失、填写是否符合规范"
+        ai_opportunities:
+          - type: "repetitive"
+            name: "首单智能预填"
+            description: "「SME 货主」在「订舱表单」下提供[基于贸易单据（PI/装箱单）OCR 自动预填订舱字段]能力，以「将新客首单耗时压缩至分钟级、补齐 Smart Push 对无历史新客的空白」。（来源：C-体验旅程图-首单智能预填；B 新客无历史数据（low 痛点））"
+          - type: "longtail"
+            name: "智能补件检查"
+            description: "「SME 货主」在「订舱提交」下提供[提交前 AI 必填项与合规字段校验 + 缺件实时提示]能力，以「提升一次提交通过率、缩短订舱周期」。（来源：C-体验旅程图-智能补件检查；B 往返补件痛点）"
+      - activity: "订舱请求受理与自动确认"
+        role: "订舱运营 / CSR"
+        touchpoint: "OMS / CRM / 邮件与小程序通知"
+        repetitive_tasks:
+          - "人工逐单校验费率、信用与航线可用性"
+          - "人工签发 Booking Confirmation"
+        cognitive_tasks:
+          - "判断订单风险等级与是否放行自动确认"
+        ai_opportunities:
+          - type: "repetitive"
+            name: "分钟级自动确认"
+            description: "「订舱运营」在「订舱受理」下提供[自动校验规则扩围 + 标准 SME 订单自动签发 Booking Confirmation]能力，以「将平均确认时效向 ≤2 小时（KPI 3）收敛、对标行业头部分钟级体验」。（来源：C-体验旅程图-分钟级自动确认；B 最快 1 分钟仅限特定条款客户（high 痛点））"
+      - activity: "舱位分配与旺季保障"
+        role: "舱位管理 / 收益管理系统"
+        touchpoint: "舱位分配引擎 / 收益管理系统"
+        repetitive_tasks:
+          - "旺季人工排查舱位超订与甩柜名单"
+        cognitive_tasks:
+          - "在收益最大化与电商承诺兑现（Space Protection）之间权衡"
+          - "预测航线装载率与需求波动"
+        ai_opportunities:
+          - type: "cognitive"
+            name: "智能舱位预测与分配"
+            description: "「舱位管理」在「舱位分配」下提供[基于历史订舱与市场需求的装载率预测 + 以电商承诺兑现率为硬约束的智能分配]能力，以「将舱位保证兑现率提升至 95%+（KPI 5）、压降旺季甩柜」。（来源：B 旺季 SME 甩柜/改船（high 痛点）；KPI 5）"
+          - type: "cognitive"
+            name: "智能改配与补偿方案"
+            description: "「客服/控制塔」在「改船处置」下提供[延误时自动生成改配方案并预判 Delay in Transit 赔付]能力，以「将旺季改船从被动通知转为主动预案、保护 SME 货期」。（来源：C-体验旅程图-舱位保证 SLA 承诺；Delay in Transit 2025.12 上线）"
+
+  - name: "单证与支付"
+    steps:
+      - activity: "SI 提交与智慧单证"
+        role: "客户 + 智慧单证系统"
+        touchpoint: "智慧单证系统"
+        repetitive_tasks:
+          - "人工复核多语言品名、唛头与长尾字段"
+          - "退单返工重复提交"
+        cognitive_tasks:
+          - "判断品名申报是否符合监管与舱单要求"
+        ai_opportunities:
+          - type: "repetitive"
+            name: "智慧单证增强"
+            description: "「客户」在「SI 提交」下提供[多语言品名识别 + 合规校验 + 自动纠错回填（在年 35 万份自动处理基础上扩展）]能力，以「进一步压缩人工复核比例、降低退单返工」。（来源：B 非结构化 SI 人工复核（medium 痛点）；X 2025 年报智慧单证约 35 万份）"
+      - activity: "eBL 签发与互操作渗透"
+        role: "单证团队 + IQAX"
+        touchpoint: "IQAX eBL / GSBN 区块链"
+        repetitive_tasks:
+          - "纸质提单的打印、快递与回收管理"
+        cognitive_tasks:
+          - "判断收货人与银行对 eBL 的接受度并引导接入"
+        ai_opportunities:
+          - type: "innovation"
+            name: "eBL 生态渗透助手"
+            description: "「单证团队」在「eBL 推广」下提供[面向收货人/银行的轻量 eBL 门户与接入引导 + 互操作状态智能预判]能力，以「加速 eBL 渗透率向 30%+（KPI 6）演进、减少退回纸质流程」。（来源：B eBL 渗透率拐点（high 痛点）；IQAX eBL 获 IG P&I 批准 2024.12 / LCL eBL 试点 2026.06）"
+      - activity: "在线支付与对账"
+        role: "财务 / 结算团队"
+        touchpoint: "支付系统 / 结算系统 / 集团 ERP"
+        repetitive_tasks:
+          - "人工核对电商与货代 EDI 渠道账单"
+          - "多币种小额高频支付的手工处理"
+        cognitive_tasks:
+          - "判断汇率风险与最优本地化支付通道"
+        ai_opportunities:
+          - type: "repetitive"
+            name: "智能对账与本地化收付"
+            description: "「财务」在「结算对账」下提供[电商/EDI 账单自动匹配核销 + 多币种结算优化]能力，以「降低对账人力成本并覆盖南美等新兴市场本地支付通道」。（来源：B 多币种支付摩擦（medium 痛点）/ 账期对账人工合并（low 痛点））"
+
+  - name: "陆运清关履约"
+    steps:
+      - activity: "提箱装箱与陆运调度"
+        role: "客户 + 拖车承运商"
+        touchpoint: "E-Trucking / Door Haulage"
+        repetitive_tasks:
+          - "旺季人工排队约车与电话调度"
+          - "人工跟踪拖车到场与进港状态"
+        cognitive_tasks:
+          - "判断拖车资源与船期衔接的最优窗口"
+        ai_opportunities:
+          - type: "cognitive"
+            name: "智能拖车调度"
+            description: "「陆运运营」在「拖车调度」下提供[基于箱量预测与港口拥堵的运力动态分配 + 智能路由]能力，以「缩短旺季提箱等待、降低误船改配率」。（来源：C-体验旅程图-智能拖车调度；B 内陆拖车资源紧张（high 痛点））"
+      - activity: "出口清关与合规"
+        role: "客户 / 报关行 + E-Customs"
+        touchpoint: "E-Customs / 海关申报系统"
+        repetitive_tasks:
+          - "人工准备报关单、装箱单与许可证"
+          - "逐票跟踪海关查验状态"
+        cognitive_tasks:
+          - "判断关税政策（美国关税 / 301、欧盟 ETS）对申报的影响"
+          - "预判查验与扣货风险"
+        ai_opportunities:
+          - type: "cognitive"
+            name: "合规智能清关"
+            description: "「清关专员」在「出口申报」下提供[监管政策数字化 + 申报前置校验 + 异常清关自动预警与替代方案推荐]能力，以「降低扣货延误风险、稳定端到端 SLA」。（来源：B 出口清关（critical 痛点）；C-体验旅程图-合规智能清关）"
+          - type: "longtail"
+            name: "政策变化智能解读"
+            description: "「SME 货主」在「合规应对」下提供[关税 / ETS 等政策变动的多语言摘要与影响测算]能力，以「让 SME 在政策突变时快速调整贸易与物流安排」。（来源：B 监管政策多变（critical 痛点）[推断部分能力]）"
+
+  - name: "出运跟踪与异常管理"
+    steps:
+      - activity: "控制塔全订单可视化"
+        role: "SME 货主 / 客服"
+        touchpoint: "控制塔 / Cargo Tracking+ / 移动 App"
+        repetitive_tasks:
+          - "人工在多系统间查询船、箱、单证状态"
+          - "高频回答货到哪了类问询"
+        cognitive_tasks:
+          - "融合码头 / AIS / 船司多源数据判断真实位置"
+        ai_opportunities:
+          - type: "repetitive"
+            name: "多源轨迹融合"
+            description: "「客服」在「状态查询」下提供[融合船司 / 码头 / AIS 多源数据补齐节点盲区的实时轨迹]能力，以「减少人工查询量、让直客自助跟踪覆盖全节点」。（来源：C-体验旅程图-多源轨迹融合；B 跟踪粒度受外部数据源限制（high 痛点）；新版 Cargo Tracking 2026.07）"
+      - activity: "异常预警与预测性处置"
+        role: "控制塔运营团队 + 客服"
+        touchpoint: "控制塔异常管理 / AI 预警 / Delay in Transit"
+        repetitive_tasks:
+          - "事后人工排查延误清单并逐个通知"
+        cognitive_tasks:
+          - "预测 ETA 延误概率与影响窗口"
+          - "生成改配、延保或赔付建议"
+        ai_opportunities:
+          - type: "cognitive"
+            name: "AI 预测性预警"
+            description: "「控制塔运营」在「异常管理」下提供[基于历史与实时数据的 ETA 延误概率预测 + 提前推送 + 自动处置建议]能力，以「将异常通知从事后转为提前 24-72 小时预测、保护下游备货计划」。（来源：B 异常预警事后通知（critical 痛点）；C-体验旅程图-AI 预测性预警 [推断模型待建设]）"
+          - type: "innovation"
+            name: "智能供应链协同"
+            description: "「货主 / 收货人」在「供应链协同」下提供[基于异常预测的备货 / 改配 / 保险决策建议 + 与母集团双品牌运力协同调度]能力，以「提升端到端履约确定性」。（来源：SWOT O3/O4；phase3 P1 策略-控制塔智能预警；协同能力 [推断]）"
+
+  - name: "到港交付与售后"
+    steps:
+      - activity: "D&D 费用管理"
+        role: "SME 货主 / 收货人"
+        touchpoint: "D&D 计算器 / 到港通知"
+        repetitive_tasks:
+          - "人工查阅各目的港免箱期规则"
+          - "逐单核算滞箱费争议"
+        cognitive_tasks:
+          - "判断超期风险并规划提货窗口"
+        ai_opportunities:
+          - type: "cognitive"
+            name: "前置费用透明与超期预警"
+            description: "「SME 货主」在「D&D 管理」下提供[订舱即展示目的港免箱期与 D&D 预估 + 超期自动预警与豁免申请入口]能力，以「减少费用争议投诉、提升结算体验」。（来源：C-体验旅程图-前置费用透明；B D&D 规则复杂（medium 痛点））"
+      - activity: "放货与售后客服"
+        role: "AI 客服（Ask Fin）+ 人工客服"
+        touchpoint: "AI 聊天机器人 / 客服工单系统 / IQAX eBL"
+        repetitive_tasks:
+          - "人工答复高频重复问题（运价、船期、单证）"
+          - "复杂问题转人工时重复收集上下文"
+        cognitive_tasks:
+          - "处理多订单、多单证的复杂咨询"
+          - "识别客户情绪与升级诉求"
+        ai_opportunities:
+          - type: "innovation"
+            name: "智能订舱 Agent"
+            description: "「SME 货主」在「全流程服务」下提供[从问答升级为可执行订舱 / 单证 / 异常查询与处理的 Agent（Ask Fin 升级）]能力，以「将 AI 分流率提升至 30%+（KPI 4）、人工客服成本显著下降」。（来源：phase3 AI 规划①智能订舱助手；B AI 客服复杂场景受限（medium 痛点））"
+          - type: "cognitive"
+            name: "情绪识别与智能升级"
+            description: "「客服」在「投诉处理」下提供[对话情感分析与工单自动摘要 + 上下文无缝转人工]能力，以「提升复杂问题一次性解决率与客户满意度」。（来源：B AI 会话转人工率未披露（low 痛点）[推断]）"
+          - type: "longtail"
+            name: "eBL 放货快速接入引导"
+            description: "「收货人」在「目的港放货」下提供[eBL 快速接入与无纸化放货引导]能力，以「缩短正本流转周期、减少额外 D&D」。（来源：C-体验旅程图-端到端无纸化放货；B 收货人未接入 eBL（high 痛点））"
+
+  - name: "会员运营与供应链协同"
+    steps:
+      - activity: "会员计划运营"
+        role: "电商运营"
+        touchpoint: "PlumSmart 会员系统 / CRM"
+        repetitive_tasks:
+          - "人工核算等级积分与权益发放"
+        cognitive_tasks:
+          - "设计让 SME 感知度高的权益组合"
+          - "预测客户流失与复购窗口"
+        ai_opportunities:
+          - type: "cognitive"
+            name: "会员智能运营"
+            description: "「电商运营」在「会员运营」下提供[基于订舱行为的升级路径推荐 + 专属舱位 / 服务权益个性化]能力，以「提升 SME 会员活跃度与感知价值、驱动复购」。（来源：C-体验旅程图-会员智能运营；B 会员权益感知弱（medium 痛点））"
+          - type: "cognitive"
+            name: "复购预测与流失挽留"
+            description: "「电商运营」在「客户留存」下提供[基于交易序列的复购概率预测与流失预警 + 自动挽留动作]能力，以「提升客户生命周期价值、摊薄获客成本」。（来源：B 复购依赖价格敏感驱动（high 痛点）[推断模型]）"
+      - activity: "促销与营销触达"
+        role: "数字营销团队"
+        touchpoint: "促销引擎 / 微信小程序 / 营销自动化"
+        repetitive_tasks:
+          - "多语言多区域促销物料的人工制作"
+        cognitive_tasks:
+          - "判断闪购舱位放量与承诺的平衡"
+        ai_opportunities:
+          - type: "repetitive"
+            name: "区域化智能营销"
+            description: "「数字营销」在「促销触达」下提供[本地化内容自动生成 + 与舱位余量强耦合的 E-Spot 闪购推荐]能力，以「提升拉新转化、覆盖南美等新市场」。（来源：B 多语言多地区触达成本高（medium 痛点）；FreightSmart 2026.06 登陆南美）"
+      - activity: "供应链协同与绿色增值"
+        role: "供应链 / 航线管理"
+        touchpoint: "控制塔 / X Green / IQAX One"
+        repetitive_tasks:
+          - "人工整合多式联运与供应商 SLA 数据"
+        cognitive_tasks:
+          - "优化多式联运与舱位协同决策"
+          - "测算 EU ETS / 碳合规成本并转化为客户价值"
+        ai_opportunities:
+          - type: "innovation"
+            name: "供应链协同智能（含绿色增值）"
+            description: "「供应链管理」在「端到端协同」下提供[多式联运需求预测 + 供应商 SLA 智能管理 + 碳足迹 / EU ETS 合规自动测算]能力，以「提升增值服务渗透率并支撑绿色产品商业化」。（来源：B 供应商 SLA 不统一（high 痛点）/ 绿色服务普及率有限（low 痛点）；phase3 P1 绿色数字化增值服务策略）"

@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>铁路订票服务 — 退改签智能助手 AI 画布</title>
+  <style>
+    :root {
+      --color-primary: #10213E;
+      --color-accent: #5DB2E2;
+      --color-secondary: #625D9C;
+      --color-success: #00524C;
+      --color-info: #6FB1C8;
+      --color-warning: #F59E0B;
+      --color-destructive: #EF4444;
+      --color-background: #FFFFFF;
+      --color-bg-alt: #F5F5F6;
+      --color-foreground: #10213E;
+      --color-text-muted: #64748B;
+      --color-border: #E2E8F0;
+      --shadow-sm: 0 2px 8px rgba(16, 33, 62, 0.08);
+      --radius-md: 8px;
+      --font-family: "MiSans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans SC", "PingFang SC", Arial, sans-serif;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-family);
+      background: var(--color-bg-alt);
+      padding: 32px;
+      color: var(--color-foreground);
+      line-height: 1.5;
+    }
+
+    .canvas-container {
+      max-width: 1440px;
+      margin: 0 auto;
+      background: var(--color-background);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      min-height: 800px;
+    }
+
+    /* Standardized Header */
+    .page-header {
+      padding: 32px 40px;
+      border-bottom: 1px solid var(--color-border);
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+
+    .header-left {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .page-header h1 {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--color-primary);
+      line-height: 1.2;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .page-header h1::before {
+      content: "";
+      display: block;
+      width: 4px;
+      height: 24px;
+      background: var(--color-accent);
+      border-radius: 2px;
+      flex-shrink: 0;
+    }
+
+    .page-subtitle {
+      font-size: 16px;
+      color: var(--color-text-muted);
+      font-weight: 500;
+      padding-left: 16px;
+    }
+
+    .header-right {
+      text-align: right;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .meta-info {
+      font-size: 12px;
+      color: var(--color-text-muted);
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 12px;
+      justify-content: flex-end;
+    }
+
+    .btn-primary {
+      background: var(--color-primary);
+      color: white;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      transition: all 0.15s ease-out;
+    }
+    .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+
+    .btn-secondary {
+      background: white;
+      color: var(--color-primary);
+      border: 1px solid var(--color-border);
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease-out;
+    }
+    .btn-secondary:hover { background: var(--color-bg-alt); }
+
+    .toast {
+      position: fixed; bottom: 24px; right: 24px;
+      background: var(--color-primary); color: #fff;
+      padding: 12px 24px; border-radius: var(--radius-md);
+      font-size: 14px; font-weight: 600;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      display: none; z-index: 1000;
+    }
+
+    .canvas-body {
+      padding: 24px 40px 40px 40px;
+      display: flex;
+      flex: 1;
+      gap: 16px;
+      overflow-x: auto;
+    }
+
+    /* 5 columns Grid */
+    .column {
+      flex: 1;
+      min-width: 260px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    /* Card Base */
+    .card {
+      background: var(--color-background);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--color-border);
+      transition: transform 0.15s ease-out;
+    }
+    .card:hover {
+      transform: translateY(-2px);
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--color-border);
+      background: var(--color-bg-alt);
+    }
+
+    .header-text {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .card-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--color-primary);
+    }
+
+    .card-subtitle {
+      font-size: 11px;
+      color: var(--color-text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .card-header-icon {
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      border-radius: 6px;
+      background: rgba(16, 33, 62, 0.05);
+      color: var(--color-primary);
+    }
+
+    .card-header-icon svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    .card-body {
+      padding: 20px;
+      font-size: 14px;
+      color: var(--color-foreground);
+      line-height: 1.6;
+      flex: 1;
+    }
+
+    .card-body ul, .card-body ol {
+      list-style: none;
+    }
+
+    .card-body li {
+      margin-bottom: 12px;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+    .card-body li:last-child {
+      margin-bottom: 0;
+    }
+
+    .bullet {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--color-accent);
+      margin-top: 8px;
+      flex-shrink: 0;
+    }
+    
+    .number-bullet {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--color-accent);
+      margin-top: 1px;
+      flex-shrink: 0;
+    }
+
+    /* Color Overrides for specific cards */
+    .theme-roles { border-left: 4px solid var(--color-secondary); }
+    .theme-pains { border-left: 4px solid var(--color-destructive); }
+    .theme-input { border-left: 4px solid var(--color-accent); }
+    .theme-data { border-left: 4px solid var(--color-info); }
+    .theme-workflow { border-left: 4px solid var(--color-primary); }
+    .theme-cap { border-left: 4px solid var(--color-secondary); }
+    .theme-output { border-left: 4px solid var(--color-accent); }
+    .theme-tools { border-left: 4px solid var(--color-info); }
+    .theme-product { border-left: 4px solid var(--color-success); }
+    .theme-gains { border-left: 4px solid var(--color-success); }
+
+  </style>
+</head>
+<body>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
+  <div class="canvas-container">
+    <header class="page-header">
+      <div class="header-left">
+        <h1>铁路订票服务 — 退改签智能助手 AI 画布</h1>
+      </div>
+      <div class="header-right">
+        <div class="btn-group">
+          <button class="btn-secondary" onclick="window.print()">导出 PDF / 打印</button>
+          <button class="btn-primary" onclick="copyYAML()">复制原始 YAML</button>
+        </div>
+      </div>
+    </header>
+
+    <div class="canvas-body">
+      
+      <!-- Col 1: userRoles & userPains -->
+      <div class="column">
+        <!-- userRoles -->
+        <div class="card theme-roles">
+          <div class="card-header">
+            <div class="header-text">
+              <div class="card-title">用户角色</div>
+              <div class="card-subtitle">使用该AI场景的用户角色和群体</div>
+            </div>
+            <div class="card-header-icon">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+  </div>
+          </div>
+          <div class="card-body">
+            <ul>
+              
+                <li><span class="bullet"></span>核心票务旅客（日常/通勤/商务）</li>
+              
+                <li><span class="bullet"></span>节假日/春运高峰期旅客</li>
+              
+                <li><span class="bullet"></span>车站窗口/热线一线客服（辅助）</li>
+              
+            </ul>
+          </div>
+        </div>
+        <!-- userPains -->
+        <div class="card theme-pains">
+          <div class="card-header">
+            <div class="header-text">
+              <div class="card-title">用户痛点</div>
+              <div class="card-subtitle">用户当前面临的问题 and 挑战</div>
+            </div>
+            <div class="card-header-icon">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2v1"/><path d="M12 6a6 6 0 0 1 6 6c0 1.66-.67 3.16-1.76 4.25a2.99 2.99 0 0 0-.88 2.12v.63h-6v-.63c0-.8-.31-1.55-.88-2.12A5.99 5.99 0 0 1 6 12a6 6 0 0 1 6-6Z"/></svg>
+  </div>
+          </div>
+          <div class="card-body">
+            <ul>
+              
+                <li><span class="bullet"></span>规则理解难：退改签阶梯费率描述专业生涩，用户无法直观预估损失。</li>
+              
+                <li><span class="bullet"></span>决策成本高：在运行变更（晚点/停运）时，面对数十个备选改签方案难以快速锁定最优解。</li>
+              
+                <li><span class="bullet"></span>流程碎片化：主票退改后，关联的餐饮、约车、行程单服务需手动逐个处理，易遗漏导致损失。</li>
+              
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Col 2: aiInput & dataKnowledge -->
+      <div class="column">
+        <div class="card theme-input">
+          <div class="card-header">
+            <div class="header-text">
+              <div class="card-title">AI 场景输入</div>
+              <div class="card-subtitle">AI系统需要的输入数据和格式</div>
+            </div>
+            <div class="card-header-icon">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+  </div>
+          </div>
+          <div class="card-body">
+            <ul>
+              
+                <li><span class="bullet"></span>原订单详情（车次、座席、票价、乘车人）</li>
+              
+                <li><span class="bullet"></span>当前时间点与发车时间差</li>
+              
+                <li><span class="bullet"></span>外部触发：列车实时运行状态（晚点时长、停运信息）</li>
+              
+                <li><span class="bullet"></span>旅客偏好（如：希望尽早出发、不接受换乘、席别必须一致等）</li>
+              
+            </ul>
+          </div>
+        </div>
+        <div class="card theme-data">
+          <div class="card-header">
+            <div class="header-text">
+              <div class="card-title">数据/知识</div>
+              <div class="card-subtitle">AI系统需要的数据 and 领域知识</div>
+            </div>
+            <div class="card-header-icon">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5V19A9 3 0 0 0 21 19V5"/><path d="M3 12A9 3 0 0 0 21 12"/></svg>
+  </div>
+          </div>
+          <div class="card-body">
+            <ul>
+              
+                <li><span class="bullet"></span>12306 官方票务与退改签费率知识库</li>
+              
+                <li><span class="bullet"></span>实时列车运行图与余票动态库存</li>
+              
+                <li><span class="bullet"></span>历史同场景改签成功率大数据模型</li>
+              
+                <li><span class="bullet"></span>跨业务订单关联协议（票务、餐饮、约车、接送站）</li>
+              
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Col 3: workflow & modelUsage (Core Capabilities) -->
+      <div class="column">
+        <div class="card theme-workflow">
+          <div class="card-header">
+            <div class="header-text">
+              <div class="card-title">AI 处理 WORKFLOW</div>
+              <div class="card-subtitle">AI系统的工作流程和步骤</div>
+            </div>
+            <div class="card-header-icon">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="8" x="2" y="2" rx="2"/><path d="M14 2c1.1 0 2 .9 2 2v4c0 1.1-.9 2-2 2"/><path d="M20 2c1.1 0 2 .9 2 2v4c0 1.1-.9 2-2 2"/><path d="M10 18H5c-1.7 0-3-1.3-3-3v-1"/><polyline points="7 21 10 18 7 15"/><rect width="8" height="8" x="14" y="14" rx="2"/></svg>
+  </div>
+          </div>
+          <div class="card-body">
+            <ol>
+              
+                <li><span class="number-bullet">1.</span>场景识别：根据用户操作或外部运行变更事件，自动拉起服务助手。</li>
+              
+                <li><span class="number-bullet">2.</span>规则转译：AI 将生涩的法律条文式规则实时转译为当前订单下的“大白话”说明。</li>
+              
+                <li><span class="number-bullet">3.</span>方案计算：基于用户偏好与实时余票，并发检索直达、候补、换乘等最优改签策略。</li>
+              
+                <li><span class="number-bullet">4.</span>一体化处置：确认方案后，自动发起主票退改及所有关联延伸服务的同步注销或更新。</li>
+              
+            </ol>
+          </div>
+        </div>
+        <div class="card theme-cap">
+          <div class="card-header">
+            <div class="header-text">
+              <div class="card-title">核心能力</div>
+              <div class="card-subtitle">场景所需的关键 AI 及工程能力</div>
+            </div>
+            <div class="card-header-icon">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 11 2-2"/><path d="m19 11-2-2"/><path d="M12 2v2"/><path d="m18 6 1-1"/><path d="m6 6-1-1"/><path d="M12 10a2 2 0 1 0 0 4 2 2 0 0 0 0-4Z"/><path d="M7 14a5 5 0 0 0 10 0"/></svg>
+  </div>
+          </div>
+          <div class="card-body">
+            <ul>
+              
+                <li><span class="bullet"></span>策略决策：使用具有强逻辑推理能力的模型（如 Claude 3.5 Sonnet）进行多约束方案寻优。</li>
+              
+                <li><span class="bullet"></span>意图转译：轻量化模型进行用户诉求理解与规则摘要输出。</li>
+              
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Col 4: aiOutput & tools -->
+      <div class="column">
+        <div class="card theme-output">
+          <div class="card-header">
+            <div class="header-text">
+              <div class="card-title">AI 输出</div>
+              <div class="card-subtitle">AI系统产生的输出结果 and 格式</div>
+            </div>
+            <div class="card-header-icon">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M3 5h4"/></svg>
+  </div>
+          </div>
+          <div class="card-body">
+            <ul>
+              
+                <li><span class="bullet"></span>可视化费用对比表（退票损失 vs 改签成本）</li>
+              
+                <li><span class="bullet"></span>智能排序的 Top 3 改签方案卡片（含风险评估）</li>
+              
+                <li><span class="bullet"></span>一体化服务同步清单与确认状态</li>
+              
+            </ul>
+          </div>
+        </div>
+        <div class="card theme-tools">
+          <div class="card-header">
+            <div class="header-text">
+              <div class="card-title">工具调用</div>
+              <div class="card-subtitle">AI系统需要调用的内外部 API</div>
+            </div>
+            <div class="card-header-icon">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+  </div>
+          </div>
+          <div class="card-body">
+            <ul>
+              
+                <li><span class="bullet"></span>票务核心交易接口（退/改/订）</li>
+              
+                <li><span class="bullet"></span>实时列车运行监控 API</li>
+              
+                <li><span class="bullet"></span>全业务订单协同中心（餐饮/约车联动）</li>
+              
+                <li><span class="bullet"></span>智能客服工单系统（异常自动建单）</li>
+              
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Col 5: productType & userGains -->
+      <div class="column">
+        <div class="card theme-product">
+          <div class="card-header">
+            <div class="header-text">
+              <div class="card-title">产品形态</div>
+              <div class="card-subtitle">AI系统的产品形式 and 交互方式</div>
+            </div>
+            <div class="card-header-icon">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="M10 4v4"/><path d="M2 8h20"/><path d="M6 4v4"/></svg>
+  </div>
+          </div>
+          <div class="card-body">
+            <ul>
+              
+                <li><span class="bullet"></span>12306 App/Web 订单详情页深度集成组件</li>
+              
+                <li><span class="bullet"></span>运行变更 Push 通知卡片（一键式处置入口）</li>
+              
+                <li><span class="bullet"></span>站内智能终端（触摸屏）助手模式</li>
+              
+            </ul>
+          </div>
+        </div>
+        <div class="card theme-gains">
+          <div class="card-header">
+            <div class="header-text">
+              <div class="card-title">用户收益</div>
+              <div class="card-subtitle">用户通过使用该AI场景获得的好处</div>
+            </div>
+            <div class="card-header-icon">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+  </div>
+          </div>
+          <div class="card-body">
+            <ul>
+              
+                <li><span class="bullet"></span>决策耗时：由原来平均 15-20 分钟缩短至秒级推荐，提升高峰期改签成功率。</li>
+              
+                <li><span class="bullet"></span>服务成本：提升退改签场景自助率（目标 ≥95%），显著降低人工客服进线量。</li>
+              
+                <li><span class="bullet"></span>用户心智：消除“退费陷阱”误解，将售后危机转化为“官方关怀”的品牌溢价。</li>
+              
+            </ul>
+          </div>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div style="text-align: center; margin-top: 16px; font-size: 12px; color: var(--color-text-muted); max-width: 1440px; margin-left: auto; margin-right: auto; padding: 16px 0 8px;">
+    Generated by ai-canvas-generator &middot; &copy; 2026 Inspire AI4PM
+  </div>
+
+  <div class="toast" id="toast">已成功复制 YAML 数据</div>
+  
+  <script type="application/yaml" id="raw-yaml">
+title: "铁路订票服务 — 退改签智能助手 AI 画布"
+description: "针对铁路出行中“退票、改签、运行变更”这一高焦虑、高复杂度的售后场景，利用 AI 提供规则实时解释、最优方案推荐与一体化处置能力，提升旅客自主解决率并降低平台投诉。"
+userRoles:
+  - 核心票务旅客（日常/通勤/商务）
+  - 节假日/春运高峰期旅客
+  - 车站窗口/热线一线客服（辅助）
+userPains:
+  - 规则理解难：退改签阶梯费率描述专业生涩，用户无法直观预估损失。
+  - 决策成本高：在运行变更（晚点/停运）时，面对数十个备选改签方案难以快速锁定最优解。
+  - 流程碎片化：主票退改后，关联的餐饮、约车、行程单服务需手动逐个处理，易遗漏导致损失。
+aiInput:
+  - 原订单详情（车次、座席、票价、乘车人）
+  - 当前时间点与发车时间差
+  - 外部触发：列车实时运行状态（晚点时长、停运信息）
+  - 旅客偏好（如：希望尽早出发、不接受换乘、席别必须一致等）
+dataKnowledge:
+  - 12306 官方票务与退改签费率知识库
+  - 实时列车运行图与余票动态库存
+  - 历史同场景改签成功率大数据模型
+  - 跨业务订单关联协议（票务、餐饮、约车、接送站）
+workflow:
+  - 场景识别：根据用户操作或外部运行变更事件，自动拉起服务助手。
+  - 规则转译：AI 将生涩的法律条文式规则实时转译为当前订单下的“大白话”说明。
+  - 方案计算：基于用户偏好与实时余票，并发检索直达、候补、换乘等最优改签策略。
+  - 一体化处置：确认方案后，自动发起主票退改及所有关联延伸服务的同步注销或更新。
+modelUsage:
+  - 策略决策：使用具有强逻辑推理能力的模型（如 Claude 3.5 Sonnet）进行多约束方案寻优。
+  - 意图转译：轻量化模型进行用户诉求理解与规则摘要输出。
+aiOutput:
+  - 可视化费用对比表（退票损失 vs 改签成本）
+  - 智能排序的 Top 3 改签方案卡片（含风险评估）
+  - 一体化服务同步清单与确认状态
+tools:
+  - 票务核心交易接口（退/改/订）
+  - 实时列车运行监控 API
+  - 全业务订单协同中心（餐饮/约车联动）
+  - 智能客服工单系统（异常自动建单）
+productType:
+  - 12306 App/Web 订单详情页深度集成组件
+  - 运行变更 Push 通知卡片（一键式处置入口）
+  - 站内智能终端（触摸屏）助手模式
+userGains:
+  - 决策耗时：由原来平均 15-20 分钟缩短至秒级推荐，提升高峰期改签成功率。
+  - 服务成本：提升退改签场景自助率（目标 ≥95%），显著降低人工客服进线量。
+  - 用户心智：消除“退费陷阱”误解，将售后危机转化为“官方关怀”的品牌溢价。
+  </script>
+
+  <script>
+    function copyYAML() {
+      const yaml = document.getElementById('raw-yaml').textContent.trim();
+      navigator.clipboard.writeText(yaml).then(() => {
+        const toast = document.getElementById('toast');
+        toast.style.display = 'block';
+        setTimeout(() => { toast.style.display = 'none'; }, 2500);
+      });
+    }
+  </script>
+</body>
+</html>

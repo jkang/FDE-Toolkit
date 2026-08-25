@@ -1,0 +1,48 @@
+title: "海运理赔助手测试数据集"
+product_name: "海运理赔助手"
+summary:
+  total_cases: 3
+  distribution:
+    golden: 50
+    hard: 30
+    edge: 20
+test_cases:
+  - id: "C-001"
+    scenario: "航班延误理赔"
+    type: "Golden Path"
+    input: |
+      {
+        "claim_type": "delay",
+        "policy_id": "POL-9982",
+        "evidence": ["boarding_pass.jpg", "delay_cert.pdf"],
+        "description": "航班延误 48 小时，申请理赔。"
+      }
+    expected_intermediate: "命中条款 3.2 (延误赔付标准)；提取 delay_hours=48。"
+    expected_output: "决策：批准；赔付金额：¥1,000。"
+    notes: "常规理赔流程验证。"
+
+  - id: "C-012"
+    scenario: "禁运物品识别"
+    type: "Edge Case"
+    input: |
+      {
+        "claim_type": "damage",
+        "items": ["lithium_battery_bulk"],
+        "description": "批量锂电池在运输中损坏。"
+      }
+    expected_intermediate: "命中条款 2.4 (禁运清单)；关键词：锂电池。"
+    expected_output: "决策：拒赔；原因：属于禁运目录物品。"
+    notes: "测试政策红线拒答能力。"
+
+  - id: "C-025"
+    scenario: "证据冲突案例"
+    type: "Hard Case"
+    input: |
+      {
+        "claim_type": "loss",
+        "description": "货物完全丢失，但附件中有签收单照片。",
+        "evidence": ["delivery_receipt.jpg"]
+      }
+    expected_intermediate: "检测到 description (loss) 与 evidence (receipt) 矛盾。"
+    expected_output: "决策：待补充；要求用户澄清是否已签收。"
+    notes: "测试模型逻辑一致性校验。"

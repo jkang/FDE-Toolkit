@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>铁路订票服务 — AI 规划汇总报告</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background: #0a0e27;
+            color: #e2e8f0;
+            overflow: hidden;
+        }
+        .bp-canvas {
+            min-width: var(--canvas-width);
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #fff;
+        }
+        .app-container {
+            display: flex;
+            height: 100vh;
+        }
+        .sidebar {
+            width: 320px;
+            background: linear-gradient(180deg, #0f1535 0%, #1a1f3a 100%);
+            border-right: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            overflow-x: hidden;
+            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+        .sidebar.collapsed {
+            width: 80px;
+        }
+        .sidebar-header {
+            padding: 24px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            position: relative;
+        }
+        .sidebar.collapsed .sidebar-header {
+            padding: 24px 12px;
+        }
+        .sidebar-toggle {
+            position: absolute;
+            top: 24px;
+            right: 16px;
+            width: 28px;
+            height: 28px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #94a3b8;
+            z-index: 10;
+        }
+        .sidebar-toggle:hover {
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+        }
+        .sidebar.collapsed .sidebar-toggle {
+            right: 50%;
+            transform: translateX(50%) rotate(180deg);
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #f59e0b, #ef4444);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 18px;
+            color: white;
+        }
+        .logo-text {
+            font-size: 18px;
+            font-weight: 700;
+            color: #fff;
+        }
+        .sidebar-subtitle {
+            font-size: 12px;
+            color: #64748b;
+            margin-top: 4px;
+        }
+        .nav-menu {
+            padding: 16px 0;
+            flex: 1;
+        }
+        .nav-section {
+            margin-bottom: 8px;
+        }
+        .nav-section-title {
+            padding: 8px 24px;
+            font-size: 11px;
+            font-weight: 600;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 24px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-left: 3px solid transparent;
+            text-decoration: none;
+            color: #94a3b8;
+        }
+        .nav-item:hover {
+            background: rgba(255,255,255,0.05);
+            color: #e2e8f0;
+        }
+        .nav-item.active {
+            background: rgba(59, 130, 246, 0.1);
+            border-left-color: #3b82f6;
+            color: #60a5fa;
+        }
+        .nav-item-icon {
+            width: 20px;
+            height: 20px;
+            margin-right: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+        .nav-item-text {
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .nav-badge {
+            margin-left: auto;
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        /* Collapsed State Overrides */
+        .sidebar.collapsed .logo-text,
+        .sidebar.collapsed .sidebar-subtitle,
+        .sidebar.collapsed .nav-item-text,
+        .sidebar.collapsed .nav-badge,
+        .sidebar.collapsed .sidebar-footer {
+            display: none;
+        }
+        .sidebar.collapsed .nav-section-title {
+            height: 1px;
+            background: rgba(255,255,255,0.1);
+            margin: 16px 12px;
+            padding: 0;
+            display: block;
+            text-indent: -9999px;
+            overflow: hidden;
+        }
+        .sidebar.collapsed .logo {
+            justify-content: center;
+            margin-right: 0;
+        }
+        .sidebar.collapsed .nav-item {
+            justify-content: center;
+            padding: 12px 0;
+        }
+        .sidebar.collapsed .nav-item-icon {
+            margin-right: 0;
+            font-size: 18px;
+        }
+        .sidebar-footer {
+            padding: 16px 24px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            font-size: 12px;
+            color: #64748b;
+        }
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .content-header {
+            height: 64px;
+            background: rgba(15, 21, 53, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 32px;
+        }
+        .content-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #fff;
+        }
+        .content-actions {
+            display: flex;
+            gap: 12px;
+        }
+        .action-btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            border: 1px solid rgba(255,255,255,0.2);
+            background: transparent;
+            color: #e2e8f0;
+            transition: all 0.2s;
+        }
+        .action-btn:hover {
+            background: rgba(255,255,255,0.1);
+        }
+        .action-btn.primary {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            border: none;
+            color: white;
+        }
+        .action-btn.primary:hover {
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+        }
+        .content-frame {
+            flex: 1;
+            overflow: hidden;
+            background: #0a0e27;
+        }
+        .content-frame iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        .cover-page {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 50%, #0f1535 100%);
+            text-align: center;
+            padding: 40px;
+            overflow-y: auto;
+        }
+        .cover-badge {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(239, 68, 68, 0.2));
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 13px;
+            color: #f59e0b;
+            font-weight: 600;
+            margin-bottom: 32px;
+            letter-spacing: 2px;
+        }
+        .cover-title {
+            font-size: 48px;
+            font-weight: 800;
+            color: #fff;
+            margin-bottom: 16px;
+            line-height: 1.2;
+            background: linear-gradient(135deg, #fff 0%, #94a3b8 100%);
+            --bg-clip: text;
+            -webkit-background-clip: var(--bg-clip);
+            background-clip: var(--bg-clip);
+            -webkit-text-fill-color: transparent;
+        }
+        .cover-subtitle {
+            font-size: 20px;
+            color: #64748b;
+            margin-bottom: 48px;
+            max-width: 600px;
+        }
+        .cover-stats {
+            display: flex;
+            gap: 48px;
+            margin-bottom: 48px;
+        }
+        .stat-item {
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 36px;
+            font-weight: 800;
+            color: #3b82f6;
+            margin-bottom: 8px;
+        }
+        .stat-label {
+            font-size: 13px;
+            color: #64748b;
+        }
+        .cover-toc {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            max-width: 900px;
+            width: 100%;
+        }
+        .toc-card {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: left;
+        }
+        .toc-card:hover {
+            background: rgba(255,255,255,0.1);
+            border-color: rgba(59, 130, 246, 0.5);
+            transform: translateY(-2px);
+        }
+        .toc-card-number {
+            font-size: 24px;
+            font-weight: 800;
+            color: #3b82f6;
+            margin-bottom: 8px;
+        }
+        .toc-card-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #e2e8f0;
+            margin-bottom: 4px;
+        }
+        .toc-card-desc {
+            font-size: 12px;
+            color: #64748b;
+        }
+        .cover-footer {
+            margin-top: 48px;
+            font-size: 12px;
+            color: #475569;
+        }
+        @media (max-width: 1024px) {
+            .sidebar { width: 280px; }
+            .cover-toc { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 768px) {
+            .sidebar { display: none; }
+            .cover-toc { grid-template-columns: 1fr; }
+            .cover-stats { flex-direction: column; gap: 24px; }
+        }
+    </style>
+    
+</head>
+<body>
+    <div class="app-container">
+        <nav class="sidebar" id="sidebar">
+            <div class="sidebar-toggle" onclick="toggleSidebar()" title="切换侧边栏">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+            </div>
+            <div class="sidebar-header">
+                <div class="logo">
+                    <div class="logo-icon">TL</div>
+                    <div class="logo-text">铁路订票服务</div>
+                </div>
+                
+                <div class="sidebar-subtitle">AI4PM 战略规划</div>
+                
+            </div>
+            
+            <div class="nav-menu">
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">首页概览</div>
+                    
+                    <a class="nav-item active" href="#" onclick="loadReport('cover'); return false;">
+                        <span class="nav-item-icon">🏠</span>
+                        <span class="nav-item-text">报告首页</span>
+                        
+                    </a>
+                    
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">现状与诊断</div>
+                    
+                    <a class="nav-item " href="#" onclick="loadReport('research'); return false;">
+                        <span class="nav-item-icon">📋</span>
+                        <span class="nav-item-text">业务现状调研</span>
+                        
+                    </a>
+                    
+                    <a class="nav-item " href="#" onclick="loadReport('swot'); return false;">
+                        <span class="nav-item-icon">⚡</span>
+                        <span class="nav-item-text">SWOT 分析</span>
+                        
+                    </a>
+                    
+                    <a class="nav-item " href="#" onclick="loadReport('process'); return false;">
+                        <span class="nav-item-icon">⚙️</span>
+                        <span class="nav-item-text">业务流程分析</span>
+                        
+                    </a>
+                    
+                    <a class="nav-item " href="#" onclick="loadReport('blueprint'); return false;">
+                        <span class="nav-item-icon">📐</span>
+                        <span class="nav-item-text">服务蓝图分析</span>
+                        
+                    </a>
+                    
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">指标与策略</div>
+                    
+                    <a class="nav-item " href="#" onclick="loadReport('nsm'); return false;">
+                        <span class="nav-item-icon">🎯</span>
+                        <span class="nav-item-text">北极星指标</span>
+                        
+                    </a>
+                    
+                    <a class="nav-item " href="#" onclick="loadReport('osm'); return false;">
+                        <span class="nav-item-icon">🗺️</span>
+                        <span class="nav-item-text">OSM 战略地图</span>
+                        
+                    </a>
+                    
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">AI 机会与定义</div>
+                    
+                    <a class="nav-item " href="#" onclick="loadReport('ai_map_core'); return false;">
+                        <span class="nav-item-icon">🎫</span>
+                        <span class="nav-item-text">AI 机会地图 (核心)</span>
+                        
+                    </a>
+                    
+                    <a class="nav-item " href="#" onclick="loadReport('ai_map_extended'); return false;">
+                        <span class="nav-item-icon">💡</span>
+                        <span class="nav-item-text">AI 机会地图 (延伸)</span>
+                        
+                    </a>
+                    
+                    <a class="nav-item " href="#" onclick="loadReport('ai_matrix'); return false;">
+                        <span class="nav-item-icon">📊</span>
+                        <span class="nav-item-text">场景优先级矩阵</span>
+                        
+                    </a>
+                    
+                    <a class="nav-item " href="#" onclick="loadReport('ai_canvas'); return false;">
+                        <span class="nav-item-icon">🖼️</span>
+                        <span class="nav-item-text">AI 画布定义</span>
+                        
+                    </a>
+                    
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">演进路径</div>
+                    
+                    <a class="nav-item " href="#" onclick="loadReport('milestone'); return false;">
+                        <span class="nav-item-icon">🚩</span>
+                        <span class="nav-item-text">里程碑计划</span>
+                        
+                    </a>
+                    
+                </div>
+                
+            </div>
+            
+            
+            <div class="sidebar-footer">
+                铁路订票服务 — AI4PM 统一规划报告<br>
+                Generated by Unified Report Dashboard Generator · 2026-07-14
+            </div>
+            
+        </nav>
+        
+        <main class="main-content">
+            <div class="content-header">
+                <div class="content-title" id="page-title">铁路订票服务 — AI 规划汇总报告</div>
+                <div class="content-actions">
+                    <button class="action-btn" onclick="showCover()">返回首页</button>
+                    <button class="action-btn primary" onclick="window.print()">打印报告</button>
+                </div>
+            </div>
+            
+            <div class="content-frame" id="content-frame">
+                <div class="cover-page" id="cover-page">
+                    
+                    <div class="cover-badge">OFFICIAL</div>
+                    
+                    <h1 class="cover-title">铁路订票服务 — AI 规划汇总报告</h1>
+                    <p class="cover-subtitle">2026-2027 AI 驱动服务体验演进全景报告</p>
+                    
+                    <div class="cover-stats">
+                        
+                        <div class="stat-item">
+                            <div class="stat-number">11</div>
+                            <div class="stat-label">分析维度</div>
+                        </div>
+                        
+                        <div class="stat-item">
+                            <div class="stat-number">23</div>
+                            <div class="stat-label">业务痛点</div>
+                        </div>
+                        
+                        <div class="stat-item">
+                            <div class="stat-number">10</div>
+                            <div class="stat-label">AI 场景</div>
+                        </div>
+                        
+                        <div class="stat-item">
+                            <div class="stat-number">9</div>
+                            <div class="stat-label">里程碑任务</div>
+                        </div>
+                        
+                    </div>
+                    
+                    <div class="cover-toc">
+                        
+                        <div class="toc-card" onclick="loadReport('research')">
+                            <div class="toc-card-number">01</div>
+                            <div class="toc-card-title">业务现状调研</div>
+                            <div class="toc-card-desc">全流程业务现状与挑战分析</div>
+                        </div>
+                        
+                        <div class="toc-card" onclick="loadReport('swot')">
+                            <div class="toc-card-number">02</div>
+                            <div class="toc-card-title">SWOT 战略分析</div>
+                            <div class="toc-card-desc">优势、劣势、机会与威胁评估</div>
+                        </div>
+                        
+                        <div class="toc-card" onclick="loadReport('process')">
+                            <div class="toc-card-number">03</div>
+                            <div class="toc-card-title">业务流程深度分析</div>
+                            <div class="toc-card-desc">价值流识别与痛点挖掘</div>
+                        </div>
+                        
+                        <div class="toc-card" onclick="loadReport('blueprint')">
+                            <div class="toc-card-number">04</div>
+                            <div class="toc-card-title">服务蓝图分析</div>
+                            <div class="toc-card-desc">前后台协同与认知负荷评估</div>
+                        </div>
+                        
+                        <div class="toc-card" onclick="loadReport('nsm')">
+                            <div class="toc-card-number">05</div>
+                            <div class="toc-card-title">北极星指标及战略</div>
+                            <div class="toc-card-desc">以 MNS-T 为核心的增长逻辑</div>
+                        </div>
+                        
+                        <div class="toc-card" onclick="loadReport('osm')">
+                            <div class="toc-card-number">06</div>
+                            <div class="toc-card-title">OSM 战略地图</div>
+                            <div class="toc-card-desc">目标、策略与度量的层级映射</div>
+                        </div>
+                        
+                        <div class="toc-card" onclick="loadReport('ai_map_core')">
+                            <div class="toc-card-number">07</div>
+                            <div class="toc-card-title">AI 机会地图 (核心票务)</div>
+                            <div class="toc-card-desc">核心票务主业务流专项</div>
+                        </div>
+                        
+                        <div class="toc-card" onclick="loadReport('ai_map_extended')">
+                            <div class="toc-card-number">08</div>
+                            <div class="toc-card-title">AI 机会地图 (延伸服务)</div>
+                            <div class="toc-card-desc">出行延伸服务价值流专项</div>
+                        </div>
+                        
+                        <div class="toc-card" onclick="loadReport('ai_matrix')">
+                            <div class="toc-card-number">09</div>
+                            <div class="toc-card-title">AI 场景优先级矩阵</div>
+                            <div class="toc-card-desc">ROI 与复杂度双维度评估</div>
+                        </div>
+                        
+                        <div class="toc-card" onclick="loadReport('ai_canvas')">
+                            <div class="toc-card-number">10</div>
+                            <div class="toc-card-title">退改签助手 AI 画布</div>
+                            <div class="toc-card-desc">核心场景的原子化定义</div>
+                        </div>
+                        
+                        <div class="toc-card" onclick="loadReport('milestone')">
+                            <div class="toc-card-number">11</div>
+                            <div class="toc-card-title">2 年演进里程碑</div>
+                            <div class="toc-card-desc">三阶段敏捷交付路径</div>
+                        </div>
+                        
+                    </div>
+                    
+                    <div class="cover-footer">
+                        点击上方卡片或左侧菜单查看详细报告
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <script>
+        // Inject reports mapping from Jinja2
+        const reports = {"ai_canvas": {"file": "\u94c1\u8def\u8ba2\u7968\u670d\u52a1-\u9000\u6539\u7b7e\u667a\u80fd\u52a9\u624bAI\u753b\u5e03.html", "title": "\u9000\u6539\u7b7e\u52a9\u624b AI \u753b\u5e03"}, "ai_map_core": {"file": "\u94c1\u8def\u8ba2\u7968\u670d\u52a1-\u6838\u5fc3\u7968\u52a1AI\u673a\u4f1a\u5730\u56fe.html", "title": "AI \u673a\u4f1a\u5730\u56fe (\u6838\u5fc3\u7968\u52a1)"}, "ai_map_extended": {"file": "\u94c1\u8def\u8ba2\u7968\u670d\u52a1-\u51fa\u884c\u5ef6\u4f38\u670d\u52a1AI\u673a\u4f1a\u5730\u56fe.html", "title": "AI \u673a\u4f1a\u5730\u56fe (\u5ef6\u4f38\u670d\u52a1)"}, "ai_matrix": {"file": "\u94c1\u8def\u8ba2\u7968\u670d\u52a1-AI\u573a\u666f\u4f18\u5148\u7ea7\u77e9\u9635.html", "title": "AI \u573a\u666f\u4f18\u5148\u7ea7\u77e9\u9635"}, "blueprint": {"file": "\u94c1\u8def\u8ba2\u7968\u670d\u52a1-\u670d\u52a1\u84dd\u56fe\u5206\u6790.html", "title": "\u670d\u52a1\u84dd\u56fe\u5206\u6790"}, "cover": {"file": null, "title": "\u62a5\u544a\u9996\u9875"}, "milestone": {"file": "\u94c1\u8def\u8ba2\u7968\u670d\u52a1-\u91cc\u7a0b\u7891\u8ba1\u5212.html", "title": "2 \u5e74\u6f14\u8fdb\u91cc\u7a0b\u7891"}, "nsm": {"file": "\u94c1\u8def\u8ba2\u7968\u670d\u52a1-\u5317\u6781\u661f\u6307\u6807\u53ca\u6218\u7565\u63a8\u5bfc.html", "title": "\u5317\u6781\u661f\u6307\u6807\u53ca\u6218\u7565"}, "osm": {"file": "\u94c1\u8def\u8ba2\u7968\u670d\u52a1-OSM\u6218\u7565\u5730\u56fe.html", "title": "OSM \u6218\u7565\u5730\u56fe"}, "process": {"file": "\u94c1\u8def\u8ba2\u7968\u670d\u52a1-\u4e1a\u52a1\u6d41\u7a0b\u6df1\u5ea6\u5206\u6790.html", "title": "\u4e1a\u52a1\u6d41\u7a0b\u6df1\u5ea6\u5206\u6790"}, "research": {"file": "\u94c1\u8def\u8ba2\u7968\u670d\u52a1-\u4e1a\u52a1\u73b0\u72b6\u8c03\u7814.html", "title": "\u4e1a\u52a1\u73b0\u72b6\u8c03\u7814"}, "swot": {"file": "\u94c1\u8def\u8ba2\u7968\u670d\u52a1-SWOT\u5206\u6790.html", "title": "SWOT \u6218\u7565\u5206\u6790"}};
+        const initialCoverHTML = document.getElementById('cover-page').outerHTML;
+        
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('collapsed');
+            localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
+        }
+
+        // Restore sidebar state
+        if (localStorage.getItem('sidebarCollapsed') === 'true') {
+            document.getElementById('sidebar').classList.add('collapsed');
+        }
+        
+        function showCover() {
+            const frame = document.getElementById('content-frame');
+            frame.innerHTML = initialCoverHTML;
+            document.getElementById('page-title').textContent = '铁路订票服务 — AI 规划汇总报告';
+            updateActiveNav(null);
+        }
+        
+        function loadReport(reportId) {
+            const report = reports[reportId];
+            if (!report) return;
+            
+            const frame = document.getElementById('content-frame');
+            document.getElementById('page-title').textContent = report.title || '铁路订票服务 — AI 规划汇总报告';
+            
+            if (report.file) {
+                frame.innerHTML = `<iframe src="${report.file}" sandbox="allow-same-origin allow-scripts"></iframe>`;
+            } else {
+                showCover();
+            }
+            
+            updateActiveNav(reportId);
+        }
+        
+        function updateActiveNav(reportId) {
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            if (reportId) {
+                const activeItem = document.querySelector(`[onclick*="${reportId}"]`);
+                if (activeItem) activeItem.classList.add('active');
+            } else {
+                const firstItem = document.querySelector('.nav-item');
+                if (firstItem) firstItem.classList.add('active');
+            }
+        }
+        
+        showCover();
+    </script>
+</body>
+</html>

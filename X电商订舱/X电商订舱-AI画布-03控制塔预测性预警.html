@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>控制塔 AI 预测性预警（ETA 预测与异常管理）</title>
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans SC", "PingFang SC", Arial, sans-serif;
+      background: #f8fafc;
+      padding: 32px;
+      color: #1e293b;
+    }
+
+    .canvas-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+      display: flex;
+      flex-direction: column;
+      min-height: 800px;
+    }
+
+    .canvas-header {
+      padding: 24px 32px;
+    }
+    
+    .canvas-title {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #0f172a;
+      margin-bottom: 6px;
+    }
+
+    .canvas-desc {
+      font-size: 0.95rem;
+      color: #64748b;
+      line-height: 1.5;
+    }
+
+    .canvas-body {
+      padding: 0 32px 32px 32px;
+      display: flex;
+      flex: 1;
+      gap: 16px;
+      overflow-x: auto;
+    }
+
+    /* 5 columns Grid */
+    .column {
+      flex: 1;
+      min-width: 260px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    /* Card Base */
+    .card {
+      background: white;
+      border-radius: 10px;
+      overflow: hidden;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+      border-width: 2px;
+      border-style: solid;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 20px;
+      border-bottom-width: 1px;
+      border-bottom-style: solid;
+    }
+
+    .header-text {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .card-title {
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: #1e293b;
+      letter-spacing: 0.5px;
+    }
+
+    .card-subtitle {
+      font-size: 0.65rem;
+      color: #64748b;
+    }
+
+    .card-header-icon {
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      background: transparent;
+    }
+
+    .card-header-icon svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    .card-body {
+      padding: 20px;
+      font-size: 0.85rem;
+      color: #334155;
+      line-height: 1.7;
+      flex: 1;
+      background: white;
+    }
+
+    .card-body ul, .card-body ol {
+      list-style: none;
+    }
+
+    .card-body li {
+      margin-bottom: 12px;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      color: #475569;
+      font-weight: 500;
+    }
+    .card-body li:last-child {
+      margin-bottom: 0;
+    }
+
+    .bullet {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: #cbd5e1;
+      margin-top: 9px;
+      flex-shrink: 0;
+    }
+    
+    .number-bullet {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: #64748b;
+      margin-top: 1px;
+      flex-shrink: 0;
+    }
+
+    /* 1. Roles (Indigo) */
+    .theme-roles { border-color: #e0e7ff; }
+    .theme-roles .card-header { background-color: #eef2ff; border-bottom-color: #e0e7ff; }
+    .theme-roles .card-header-icon { color: #6366f1; }
+
+    /* 2. Pains (Amber) */
+    .theme-pains { border-color: #fef08a; }
+    .theme-pains .card-header { background-color: #fef9c3; border-bottom-color: #fef08a; }
+    .theme-pains .card-header-icon { color: #d97706; }
+
+    /* 3. Input (Blue) */
+    .theme-input { border-color: #dbeafe; }
+    .theme-input .card-header { background-color: #eff6ff; border-bottom-color: #dbeafe; }
+    .theme-input .card-header-icon { color: #3b82f6; }
+
+    /* 4. Data (Slate) */
+    .theme-data { border-color: #f1f5f9; }
+    .theme-data .card-header { background-color: #f8fafc; border-bottom-color: #f1f5f9; }
+    .theme-data .card-header-icon { color: #475569; }
+
+    /* 5. Workflow (Slate) */
+    .theme-workflow { border-color: #f1f5f9; }
+    .theme-workflow .card-header { background-color: #f8fafc; border-bottom-color: #f1f5f9; }
+    .theme-workflow .card-header-icon { color: #475569; }
+
+    /* 6. Capabilities (Blue) */
+    .theme-cap { border-color: #dbeafe; }
+    .theme-cap .card-header { background-color: #eff6ff; border-bottom-color: #dbeafe; }
+    .theme-cap .card-header-icon { color: #3b82f6; }
+
+    /* 7. Output (Fuchsia) */
+    .theme-output { border-color: #fae8ff; }
+    .theme-output .card-header { background-color: #fdf4ff; border-bottom-color: #fae8ff; }
+    .theme-output .card-header-icon { color: #d946ef; }
+
+    /* 8. Tools (Cyan) */
+    .theme-tools { border-color: #cffafe; }
+    .theme-tools .card-header { background-color: #ecfeff; border-bottom-color: #cffafe; }
+    .theme-tools .card-header-icon { color: #06b6d4; }
+
+    /* 9. Product (Emerald) */
+    .theme-product { border-color: #d1fae5; }
+    .theme-product .card-header { background-color: #ecfdf5; border-bottom-color: #d1fae5; }
+    .theme-product .card-header-icon { color: #10b981; }
+
+    /* 10. Gains (Emerald) */
+    .theme-gains { border-color: #d1fae5; }
+    .theme-gains .card-header { background-color: #ecfdf5; border-bottom-color: #d1fae5; }
+    .theme-gains .card-header-icon { color: #10b981; }
+
+  </style>
+</head>
+<body>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
+  <div class="canvas-container">
+    <div class="canvas-header">
+      <h1 class="canvas-title">控制塔 AI 预测性预警（ETA 预测与异常管理）</h1>
+      <p class="canvas-desc">将控制塔（Control Tower，2022.09）从"可视化"升级为"可预测"，基于多源船箱数据（AIS / 码头接口 / 船期计划）预测 ETA 延误概率并提前 24-72 小时推送预警与自动处置建议，解决"异常预警事后通知、下游备货计划被打乱"的 critical 级痛点（来源：B-L2 异常预警与处置）。</p>
+    </div>
+
+    <div class="canvas-body">
+      
+      <!-- Col 1: userRoles & userPains -->
+      <div class="column">
+        <!-- userRoles -->
+        <div class="card theme-roles">
+          <div class="card-header">
+            <div class="header-text">
+              <div class="card-title">用户角色</div>
+              <div class="card-subtitle">使用该AI场景的用户角色和群体</div>
+            </div>
+            <div class="card-header-icon">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+  </div>
+          </div>
+          <div class="card-body">
+            <ul>
+              
+                <li><span class="bullet"></span>控制塔运营团队</li>
+              
+                <li><span class="bullet"></span>SME 货主 / 收货人（下游备货决策者）</li>
+              
+                <li><span class="bullet"></span>人工客服（问询与异常处置）</li>
+              
+                <li><span class="bullet"></span>目的港代理</li>
+              
+            </ul>
+          </div>
+        </div>
+        <!-- userPains -->
+        <div class="card theme-pains">
+          <div class="card-header">
+            <div class="header-text">
+              <div class="card-title">用户痛点</div>
+              <div class="card-subtitle">用户当前面临的问题 and 挑战</div>
+            </div>
+            <div class="card-header-icon">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2v1"/><path d="M12 6a6 6 0 0 1 6 6c0 1.66-.67 3.16-1.76 4.25a2.99 2.99 0 0 0-.88 2.12v.63h-6v-.63c0-.8-.31-1.55-.88-2.12A5.99 5.99 0 0 1 6 12a6 6 0 0 1 6-6Z"/></svg>
+  </div>
+          </div>
+          <div class="card-body">
+            <ul>
+              
+                <li><span class="bullet"></span>ETA 延误多为事后通知，缺乏预测性预警，下游备货 / 生产计划被打乱（来源：C-体验旅程图-AI 预测性预警；B-L2 critical 痛点）</li>
+              
+                <li><span class="bullet"></span>跟踪粒度受码头 / 船司数据源限制，部分节点更新延迟（来源：B-L2 high 痛点）</li>
+              
+                <li><span class="bullet"></span>直客 SME 高频咨询"货到哪了"，客服查询量高企</li>
+              
+                <li><span class="bullet"></span>旺季甩柜 / 改船后补偿与改配方案被动，SME 货期被打乱（来源：C-体验旅程图）</li>
+              
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Col 2: aiInput & dataKnowledge -->
+      <div class="column">
+        <div class="card theme-input">
+          <div class="card-header">
+            <div class="header-text">
+              <div class="card-title">AI 场景输入</div>
+              <div class="card-subtitle">AI系统需要的输入数据和格式</div>
+            </div>
+            <div class="card-header-icon">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+  </div>
+          </div>
+          <div class="card-body">
+            <ul>
+              
+                <li><span class="bullet"></span>实时船舶动态（AIS 位置 / 航速 / 历史航迹）</li>
+              
+                <li><span class="bullet"></span>码头作业状态（靠泊 / 装卸 / 拥堵指数）</li>
+              
+                <li><span class="bullet"></span>船期计划与联盟运力调整信息（DAY9/DAY10）</li>
+              
+                <li><span class="bullet"></span>订舱 / 箱动态（箱号、状态里程碑、转船记录）</li>
+              
+                <li><span class="bullet"></span>客户订阅偏好与通知渠道（邮件 / 小程序 / App）</li>
+              
+            </ul>
+          </div>
+        </div>
+        <div class="card theme-data">
+          <div class="card-header">
+            <div class="header-text">
+              <div class="card-title">数据/知识</div>
+              <div class="card-subtitle">AI系统需要的数据 and 领域知识</div>
+            </div>
+            <div class="card-header-icon">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5V19A9 3 0 0 0 21 19V5"/><path d="M3 12A9 3 0 0 0 21 12"/></svg>
+  </div>
+          </div>
+          <div class="card-body">
+            <ul>
+              
+                <li><span class="bullet"></span>历史延误案例库（延误原因、时长分布、港口/航线特征）</li>
+              
+                <li><span class="bullet"></span>港口拥堵特征库（码头作业效率、季节性拥堵模式）</li>
+              
+                <li><span class="bullet"></span>航线基础数据（航程、挂靠港顺序、联盟船期）</li>
+              
+                <li><span class="bullet"></span>Delay in Transit（2025.12）保障条款与赔付规则</li>
+              
+                <li><span class="bullet"></span>改配与补偿 SOP（改船方案模板、免箱期政策）</li>
+              
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Col 3: workflow & modelUsage (Core Capabilities) -->
+      <div class="column">
+        <div class="card theme-workflow">
+          <div class="card-header">
+            <div class="header-text">
+              <div class="card-title">AI 处理 WORKFLOW</div>
+              <div class="card-subtitle">AI系统的工作流程和步骤</div>
+            </div>
+            <div class="card-header-icon">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="8" x="2" y="2" rx="2"/><path d="M14 2c1.1 0 2 .9 2 2v4c0 1.1-.9 2-2 2"/><path d="M20 2c1.1 0 2 .9 2 2v4c0 1.1-.9 2-2 2"/><path d="M10 18H5c-1.7 0-3-1.3-3-3v-1"/><polyline points="7 21 10 18 7 15"/><rect width="8" height="8" x="14" y="14" rx="2"/></svg>
+  </div>
+          </div>
+          <div class="card-body">
+            <ol>
+              
+                <li><span class="number-bullet">1.</span>多源数据接入：聚合 AIS / 码头 / 船司 / 内部 OMS 数据</li>
+              
+                <li><span class="number-bullet">2.</span>ETA 预测：对每个里程碑（离港 / 中转 / 到港）预测概率分布</li>
+              
+                <li><span class="number-bullet">3.</span>延误判定：超过阈值触发预警并评估影响窗口</li>
+              
+                <li><span class="number-bullet">4.</span>处置建议生成：自动匹配改配方案 / 延保 / 赔付预案</li>
+              
+                <li><span class="number-bullet">5.</span>主动推送：按客户订阅偏好多渠道提前通知</li>
+              
+                <li><span class="number-bullet">6.</span>闭环学习：实际到港时间回流校正预测模型</li>
+              
+            </ol>
+          </div>
+        </div>
+        <div class="card theme-cap">
+          <div class="card-header">
+            <div class="header-text">
+              <div class="card-title">核心能力</div>
+              <div class="card-subtitle">场景所需的关键 AI 及工程能力</div>
+            </div>
+            <div class="card-header-icon">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 11 2-2"/><path d="m19 11-2-2"/><path d="M12 2v2"/><path d="m18 6 1-1"/><path d="m6 6-1-1"/><path d="M12 10a2 2 0 1 0 0 4 2 2 0 0 0 0-4Z"/><path d="M7 14a5 5 0 0 0 10 0"/></svg>
+  </div>
+          </div>
+          <div class="card-body">
+            <ul>
+              
+                <li><span class="bullet"></span>ETA 预测：图神经网络 / 时序模型（泊位-港口-航线多维预测）或 GBDT 集成</li>
+              
+                <li><span class="bullet"></span>异常检测：聚类 + 阈值规则（识别异常停留、绕航、超时节点）</li>
+              
+                <li><span class="bullet"></span>大语言模型：生成面向客户的可解释预警文案与处置建议摘要</li>
+              
+                <li><span class="bullet"></span>强化学习（远期）：改配方案的多目标优化（[推断]扩展）</li>
+              
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Col 4: aiOutput & tools -->
+      <div class="column">
+        <div class="card theme-output">
+          <div class="card-header">
+            <div class="header-text">
+              <div class="card-title">AI 输出</div>
+              <div class="card-subtitle">AI系统产生的输出结果 and 格式</div>
+            </div>
+            <div class="card-header-icon">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M3 5h4"/></svg>
+  </div>
+          </div>
+          <div class="card-body">
+            <ul>
+              
+                <li><span class="bullet"></span>ETA 延误概率预测（里程碑级，提前 24-72 小时）</li>
+              
+                <li><span class="bullet"></span>主动预警通知（含延误原因、影响分析与建议动作）</li>
+              
+                <li><span class="bullet"></span>自动改配方案与赔付预判（Delay in Transit 联动）</li>
+              
+                <li><span class="bullet"></span>控制塔"可预测"看板（风险订单红黄绿分级）</li>
+              
+            </ul>
+          </div>
+        </div>
+        <div class="card theme-tools">
+          <div class="card-header">
+            <div class="header-text">
+              <div class="card-title">工具调用</div>
+              <div class="card-subtitle">AI系统需要调用的内外部 API</div>
+            </div>
+            <div class="card-header-icon">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+  </div>
+          </div>
+          <div class="card-body">
+            <ul>
+              
+                <li><span class="bullet"></span>AIS 数据服务（船舶位置与航迹）</li>
+              
+                <li><span class="bullet"></span>码头作业接口 / 港口拥堵数据源</li>
+              
+                <li><span class="bullet"></span>控制塔平台与 Cargo Tracking+（2026.07 新版）</li>
+              
+                <li><span class="bullet"></span>消息推送网关（邮件 / 微信小程序 / App 推送）</li>
+              
+                <li><span class="bullet"></span>OMS 与改配系统（自动改配执行）</li>
+              
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Col 5: productType & userGains -->
+      <div class="column">
+        <div class="card theme-product">
+          <div class="card-header">
+            <div class="header-text">
+              <div class="card-title">产品形态</div>
+              <div class="card-subtitle">AI系统的产品形式 and 交互方式</div>
+            </div>
+            <div class="card-header-icon">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="M10 4v4"/><path d="M2 8h20"/><path d="M6 4v4"/></svg>
+  </div>
+          </div>
+          <div class="card-body">
+            <ul>
+              
+                <li><span class="bullet"></span>控制塔 AI 预警模块（平台内置，客户零安装）</li>
+              
+                <li><span class="bullet"></span>面向 SME 的"风险订阅"通知服务（可配置预警规则）</li>
+              
+                <li><span class="bullet"></span>移动 App 预测性通知（推送 ETA 变更）</li>
+              
+            </ul>
+          </div>
+        </div>
+        <div class="card theme-gains">
+          <div class="card-header">
+            <div class="header-text">
+              <div class="card-title">用户收益</div>
+              <div class="card-subtitle">用户通过使用该AI场景获得的好处</div>
+            </div>
+            <div class="card-header-icon">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+  </div>
+          </div>
+          <div class="card-body">
+            <ul>
+              
+                <li><span class="bullet"></span>关键异常从"事后通知"转为"提前 24-72 小时预测"，下游备货计划保护</li>
+              
+                <li><span class="bullet"></span>客服查询量下降（AI 分流率 KPI 4 间接拉动）</li>
+              
+                <li><span class="bullet"></span>改配成本与赔付金额下降（Delay in Transit 联动）</li>
+              
+                <li><span class="bullet"></span>直客与 SME 对 X 端到端确定性的信任增强 → 渗透率长期提升</li>
+              
+            </ul>
+          </div>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div style="text-align: right; margin-top: 16px; font-size: 0.75rem; color: #94a3b8; max-width: 1400px; margin-left: auto; margin-right: auto;">
+    Generated by ai-canvas-generator &middot; Offline Engine
+  </div>
+
+</body>
+</html>

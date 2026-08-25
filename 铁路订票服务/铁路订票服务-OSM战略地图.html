@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>铁路订票服务 — OSM 战略地图（核心聚焦：客户服务体验提升）</title>
+  <style>
+    :root {
+      /* Inspire Design System Tokens (Standard Light Mode) */
+      --color-primary: #10213E;      /* Starry Blues */
+      --color-accent: #5DB2E2;       /* Creative Blue */
+      --color-secondary: #625D9C;    /* Amethyst */
+      --color-success: #00524C;      /* Myrtle Deep Green */
+      --color-info: #6FB1C8;         /* Cerulean Frost */
+      --color-warning: #F59E0B;      /* Warning */
+      --color-destructive: #EF4444;  /* Danger */
+      --color-background: #FFFFFF;   /* Pure White */
+      --color-bg-alt: #F5F5F6;       /* Tech Gray */
+      --color-foreground: #10213E;   /* Primary Text */
+      --color-text-muted: #64748B;   /* Text Secondary */
+      --color-border: #E2E8F0;       /* Border/Line */
+      
+      --shadow-sm: 0 2px 8px rgba(16, 33, 62, 0.08);
+      --shadow-md: 0 8px 16px -4px rgba(16, 33, 62, 0.1);
+      --radius-sm: 4px;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+      --font-family: 'MiSans', 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --transition: 0.15s ease-out;
+    }
+
+    /* ===== Reset & Base ===== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body {
+      font-family: var(--font-family);
+      background: var(--color-bg-alt);
+      padding: 48px 24px;
+      color: var(--color-foreground);
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ===== Page Container ===== */
+    .page-wrap {
+      background: var(--color-background);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-md);
+      padding: 40px;
+      width: 95%;
+      max-width: 1600px;
+      margin: 0 auto;
+      border: 1px solid var(--color-border);
+    }
+
+    /* Standardized Header */
+    .page-header {
+      margin-bottom: 40px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--color-border);
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+
+    .header-left {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .page-header h1 {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--color-primary);
+      line-height: 1.2;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .page-header h1::before {
+      content: "";
+      display: block;
+      width: 4px;
+      height: 24px;
+      background: var(--color-accent);
+      border-radius: 2px;
+    }
+
+    .page-subtitle {
+      font-size: 16px;
+      color: var(--color-text-muted);
+      font-weight: 500;
+    }
+
+    .header-right {
+      text-align: right;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .meta-info {
+      font-size: 12px;
+      color: var(--color-text-muted);
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 12px;
+      margin-top: 8px;
+      justify-content: flex-end;
+    }
+
+    .btn-primary {
+      background: var(--color-primary);
+      color: white;
+      padding: 10px 20px;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+    .btn-primary:hover { opacity: 0.85; transform: translateY(-1px); }
+
+    .btn-secondary {
+      background: white;
+      color: var(--color-primary);
+      border: 1px solid var(--color-border);
+      padding: 10px 20px;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+    .btn-secondary:hover { background: var(--color-bg-alt); }
+    
+    .toast {
+      position: fixed; bottom: 32px; right: 32px;
+      background: var(--color-primary); color: #fff;
+      padding: 16px 32px; border-radius: var(--radius-md);
+      font-size: 14px; font-weight: 700;
+      display: none; z-index: 1000;
+      box-shadow: var(--shadow-md);
+      animation: slideUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(40px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    /* ===== OSM Outer Container (Scrollable) ===== */
+    .osm-outer-container {
+      width: 100%;
+      overflow: auto;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      background: var(--color-bg-alt);
+      max-height: 85vh;
+      position: relative;
+    }
+
+    /* ===== OSM Canvas ===== */
+    .osm-canvas {
+      display: flex;
+      min-width: var(--osm-canvas-width, 960px);
+      position: relative;
+      background: var(--color-background);
+    }
+
+    /* ===== Lane Label (sticky left column) ===== */
+    .label-col {
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      position: sticky;
+      left: 0;
+      z-index: 100;
+      background: var(--color-bg-alt);
+      border-right: 2px solid var(--color-border);
+      box-shadow: 4px 0 8px rgba(0,0,0,0.05);
+    }
+
+    .lane-label {
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--color-text-muted);
+      background: var(--color-bg-alt);
+      border-bottom: 1px solid var(--color-border);
+      width: 120px;
+      min-width: 120px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      line-height: 1.5;
+      text-align: center;
+      justify-content: center;
+    }
+    .lane-label.obj { height: var(--osm-obj-lane-h, 200px); }
+    .lane-label.sub { height: var(--osm-sub-lane-h, 600px); }
+
+    /* ===== Content Lanes ===== */
+    .content-col { display: flex; flex-direction: column; flex-grow: 1; }
+
+    .obj-lane {
+      position: relative;
+      height: var(--osm-obj-lane-h, 200px);
+      border-bottom: 1px solid var(--color-border);
+      background: var(--color-bg-alt);
+    }
+    .sub-lane {
+      position: relative;
+      height: var(--osm-sub-lane-h, 600px);
+      background: var(--color-background);
+    }
+
+    /* ===== SVG connector overlay ===== */
+    .connector-svg {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+      z-index: 1;
+      overflow: visible;
+    }
+    .connector-path {
+      fill: none;
+      stroke: var(--color-border);
+      stroke-width: 2;
+      stroke-dasharray: 4 4;
+    }
+
+    /* ===== Objective Nodes ===== */
+    .node-obj {
+      position: absolute;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      background: var(--color-background);
+      border: 2px solid var(--color-accent);
+      border-radius: var(--radius-md);
+      padding: 16px 20px;
+      text-align: center;
+      box-shadow: var(--shadow-sm);
+      z-index: 10;
+      transition: var(--transition);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .node-obj:hover { transform: translate(-50%, -54%); box-shadow: var(--shadow-md); }
+    .node-obj .name { font-size: 16px; font-weight: 700; color: var(--color-primary); line-height: 1.4; }
+    .node-obj .val  { font-size: 13px; font-weight: 600; color: var(--color-accent); display: flex; align-items: center; justify-content: center; gap: 6px; }
+
+    .node-sub {
+      position: absolute;
+      transform: translateX(-50%);
+      background: var(--color-background);
+      border: 2px solid var(--color-success);
+      border-radius: var(--radius-md);
+      padding: 12px 18px;
+      text-align: center;
+      box-shadow: var(--shadow-sm);
+      z-index: 10;
+      transition: var(--transition);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .node-sub:hover { transform: translate(-50%, -4px); box-shadow: var(--shadow-md); }
+    .node-sub .name { font-size: 14px; font-weight: 700; color: var(--color-success); line-height: 1.4; }
+    .node-sub .val  { font-size: 12px; font-weight: 600; color: var(--color-text-muted); display: flex; align-items: center; justify-content: center; gap: 6px; }
+
+    /* ===== Card Blocks (Strategy / Metric / Scenario) ===== */
+    .card-block {
+      position: absolute;
+      transform: translateX(-50%);
+      background: var(--color-background);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      box-shadow: var(--shadow-sm);
+      overflow-y: auto;
+      z-index: 5;
+      transition: var(--transition);
+    }
+    .card-block:hover { box-shadow: var(--shadow-md); border-color: var(--color-accent); }
+    .card-block.strategy  { width: var(--osm-box-w, 200px); height: 180px; }
+    .card-block.metric    { width: var(--osm-box-w, 200px); height: 180px; }
+    .card-block.scenario  { width: var(--osm-box-w, 200px); } /* height auto */
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--color-border);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .card-header.blue   { color: var(--color-accent); }
+    .card-header.green  { color: var(--color-success); }
+    .card-header.purple { color: var(--color-secondary); }
+
+    /* Strategy list */
+    .strat-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+    .strat-item {
+      font-size: 13px;
+      color: var(--color-foreground);
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      line-height: 1.5;
+    }
+    .strat-dot {
+      flex-shrink: 0;
+      width: 6px; height: 6px;
+      background: var(--color-accent);
+      border-radius: 50%;
+      margin-top: 7px;
+    }
+
+    /* Metric item */
+    .metric-item {
+      font-size: 13px;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--color-bg-alt);
+    }
+    .metric-item:last-child { border-bottom: none; }
+    .metric-name { font-weight: 700; color: var(--color-primary); margin-bottom: 4px; }
+    .metric-calc { font-style: italic; color: var(--color-text-muted); font-size: 11px; margin-bottom: 4px; }
+    .metric-val  { display: flex; align-items: center; gap: 6px; color: var(--color-primary); font-weight: 600; }
+
+    /* Scenario item */
+    .scenario-item {
+      border-left: 4px solid var(--color-secondary);
+      padding: 12px;
+      margin-bottom: 12px;
+      background: var(--color-bg-alt);
+      border-radius: 0 var(--radius-md) var(--radius-md) 0;
+      transition: var(--transition);
+    }
+    .scenario-item:hover { background: #E2E8F0; }
+    .scenario-item:last-child { margin-bottom: 0; }
+    .scenario-name { font-weight: 700; font-size: 14px; color: var(--color-primary); margin-bottom: 6px; }
+    .scenario-desc { font-size: 13px; color: var(--color-text-muted); line-height: 1.6; }
+
+    /* ===== Trend icons (inline SVG, color via CSS) ===== */
+    .icon-up    { color: var(--color-success); }
+    .icon-down  { color: var(--color-destructive); }
+    .icon-stable{ color: var(--color-warning); }
+    
+    .footer {
+      font-size: 12px;
+      color: var(--color-text-muted);
+      margin-top: 32px;
+      text-align: right;
+      letter-spacing: 0.02em;
+    }
+
+    /* ===== Custom Scrollbar ===== */
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: var(--color-bg-alt); }
+    ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
+  </style>
+  <style>
+    /* Jinja2-injected dynamic layout values */
+    :root {
+      --osm-canvas-width: 1320px;
+      --osm-obj-lane-h:   100px;
+      --osm-sub-lane-h:   700px;
+      --osm-box-w:        280px;
+    }
+  </style>
+</head>
+<body>
+  <div class="page-wrap">
+    <header class="page-header">
+      <div class="header-left">
+        <h1>铁路订票服务 — OSM 战略地图（核心聚焦：客户服务体验提升）</h1>
+      </div>
+      <div class="header-right">
+        <div class="btn-group">
+          <button class="btn-secondary" onclick="window.print()">导出 PDF / 打印</button>
+          <button class="btn-primary" onclick="copyYAML()">复制原始 YAML</button>
+        </div>
+      </div>
+    </header>
+
+    <div class="osm-outer-container">
+    <main class="osm-canvas">
+
+      <!-- Sticky Lane Labels -->
+      <div class="label-col">
+        <div class="lane-label obj">目标<br>Objective</div>
+        <div class="lane-label sub">策略与度量<br>Actions</div>
+      </div>
+
+      <!-- Content Area -->
+      <div class="content-col">
+
+        <!-- ── Row 1: Top-level Objective Bar ── -->
+        <div class="obj-lane">
+          <!-- SVG connectors from top-level objectives down to sub-objectives -->
+          <svg class="connector-svg" id="svg-top">
+            
+            <path class="connector-path" d="M 645.0 73.0 C 645.0 101.5 180.0 101.5 180.0 130"/>
+            
+            <path class="connector-path" d="M 645.0 73.0 C 645.0 101.5 490.0 101.5 490.0 130"/>
+            
+            <path class="connector-path" d="M 645.0 73.0 C 645.0 101.5 800.0 101.5 800.0 130"/>
+            
+            <path class="connector-path" d="M 645.0 73.0 C 645.0 101.5 1110.0 101.5 1110.0 130"/>
+            
+          </svg>
+          
+          <div class="node-obj" style="left:645.0px; width:280px;">
+            <div class="name">月度净满意出行人次 (MNS-T) 持续增长</div>
+            
+            <div class="val">[推断] 2.5 - 3.2 亿人次/月（基于有效出行 * 满意度系数）<svg class="icon-up" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg></div>
+            
+          </div>
+          
+        </div>
+
+        <!-- ── Row 2: Sub-objectives + Cards ── -->
+        <div class="sub-lane">
+          <!-- SVG connectors within sub-lane (sub→strategy→metric→scenario) -->
+          <svg class="connector-svg" id="svg-sub">
+            
+            <path class="connector-path" d="M 180.0 74 L 180.0 102"/>
+            
+            <path class="connector-path" d="M 180.0 252 L 180.0 280"/>
+            
+            <path class="connector-path" d="M 180.0 430 L 180.0 458"/>
+            
+            <path class="connector-path" d="M 490.0 74 L 490.0 102"/>
+            
+            <path class="connector-path" d="M 490.0 252 L 490.0 280"/>
+            
+            <path class="connector-path" d="M 490.0 430 L 490.0 458"/>
+            
+            <path class="connector-path" d="M 800.0 74 L 800.0 102"/>
+            
+            <path class="connector-path" d="M 800.0 252 L 800.0 280"/>
+            
+            <path class="connector-path" d="M 800.0 430 L 800.0 458"/>
+            
+            <path class="connector-path" d="M 1110.0 74 L 1110.0 102"/>
+            
+            <path class="connector-path" d="M 1110.0 252 L 1110.0 280"/>
+            
+            <path class="connector-path" d="M 1110.0 430 L 1110.0 458"/>
+            
+          </svg>
+
+          
+          <!-- Sub-objective title -->
+          <div class="node-sub" style="left:180.0px; top:30px; width:280px;">
+            <div class="name">提升“主动关怀”与预判能力</div>
+            
+            <div class="val">主动服务覆盖率 ≥ 60%<svg class="icon-up" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg></div>
+            
+          </div>
+
+          <!-- Strategy card -->
+          
+          <div class="card-block strategy" style="left:180.0px; top:102px;">
+            <div class="card-header blue">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>
+              策略 / Strategies
+            </div>
+            <ul class="strat-list">
+              
+              <li class="strat-item"><span class="strat-dot"></span><span>全链路异常感知：实时监控运行图、天气、换乘压力，预判受影响旅客</span></li>
+              
+              <li class="strat-item"><span class="strat-dot"></span><span>前置服务推送：在风险发生前，主动向受影响旅客推送替代方案或补救建议</span></li>
+              
+              <li class="strat-item"><span class="strat-dot"></span><span>个性化出行提醒：基于用户画像（如老人、儿童、商务）提供差异化的行程引导</span></li>
+              
+            </ul>
+          </div>
+          
+
+          <!-- Metric card -->
+          
+          <div class="card-block metric" style="left:180.0px; top:280px;">
+            <div class="card-header green">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+              指标 / Metrics
+            </div>
+            
+            <div class="metric-item">
+              <div class="metric-name">主动服务覆盖率</div>
+              <div class="metric-calc">系统主动发起的服务触达人次 / 受异常/变更影响的总人次</div>
+              <div class="metric-val">目标：≥ 60%<svg class="icon-up" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg></div>
+            </div>
+            
+            <div class="metric-item">
+              <div class="metric-name">服务触发后的点击/确认率</div>
+              <div class="metric-calc">用户点击主动推送并确认建议的比例</div>
+              <div class="metric-val">目标：≥ 35%<svg class="icon-up" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg></div>
+            </div>
+            
+          </div>
+          
+
+          <!-- Scenario card -->
+          
+          <div class="card-block scenario" style="left:180.0px; top:458px;">
+            <div class="card-header purple">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
+              业务场景 / Scenarios
+            </div>
+            
+            <div class="scenario-item">
+              <div class="scenario-name">晚点预警与换乘自动评估</div>
+              <div class="scenario-desc">当第一程列车预计晚点导致第二程换乘时间不足时，系统主动弹出预警，并列出可改签的后续车次方案，支持一键锁定座位。</div>
+            </div>
+            
+            <div class="scenario-item">
+              <div class="scenario-name">特殊旅客主动协助</div>
+              <div class="scenario-desc">识别到订单包含高龄老人或重点旅客时，主动推送车站无障碍设施位置、重点旅客预约入口及行程节点语音提示。</div>
+            </div>
+            
+          </div>
+          
+
+          
+          <!-- Sub-objective title -->
+          <div class="node-sub" style="left:490.0px; top:30px; width:280px;">
+            <div class="name">增强信息透明度与预期管理</div>
+            
+            <div class="val">候补进度透明度 100%<svg class="icon-up" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg></div>
+            
+          </div>
+
+          <!-- Strategy card -->
+          
+          <div class="card-block strategy" style="left:490.0px; top:102px;">
+            <div class="card-header blue">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>
+              策略 / Strategies
+            </div>
+            <ul class="strat-list">
+              
+              <li class="strat-item"><span class="strat-dot"></span><span>候补/排队可视化：将“黑盒”等待变为“进度条”式体验，展示预估等待时间</span></li>
+              
+              <li class="strat-item"><span class="strat-dot"></span><span>规则“人话化”解释：利用 AI 交互将复杂的退改阶梯费率、报销规则解释清楚</span></li>
+              
+              <li class="strat-item"><span class="strat-dot"></span><span>库存变动实时透明：对收藏/关注的车次提供库存回升的“秒级”推送</span></li>
+              
+            </ul>
+          </div>
+          
+
+          <!-- Metric card -->
+          
+          <div class="card-block metric" style="left:490.0px; top:280px;">
+            <div class="card-header green">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+              指标 / Metrics
+            </div>
+            
+            <div class="metric-item">
+              <div class="metric-name">候补进度透明度</div>
+              <div class="metric-calc">提供进度展示的候补订单数 / 总候补订单数</div>
+              <div class="metric-val">目标：100%<svg class="icon-up" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg></div>
+            </div>
+            
+            <div class="metric-item">
+              <div class="metric-name">售后规则争议率</div>
+              <div class="metric-calc">因规则理解偏差导致的售后咨询数 / 总售后业务量</div>
+              <div class="metric-val">目标：≤ 0.1%<svg class="icon-down" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="22 17 13.5 8.5 8.5 13.5 2 7"/><polyline points="16 17 22 17 22 11"/></svg></div>
+            </div>
+            
+            <div class="metric-item">
+              <div class="metric-name">服务净推荐值 (NPS)</div>
+              <div class="metric-calc">用户调研中（推荐者% - 贬损者%）</div>
+              <div class="metric-val">目标：≥ 45%<svg class="icon-up" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg></div>
+            </div>
+            
+          </div>
+          
+
+          <!-- Scenario card -->
+          
+          <div class="card-block scenario" style="left:490.0px; top:458px;">
+            <div class="card-header purple">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
+              业务场景 / Scenarios
+            </div>
+            
+            <div class="scenario-item">
+              <div class="scenario-name">候补订单的“定心丸”体验</div>
+              <div class="scenario-desc">候补页面不仅显示“候补中”，还显示“当前排第 N 位”、“预计 1 小时内兑现概率 80%”，并建议“若急需，可尝试换乘方案 X”。</div>
+            </div>
+            
+            <div class="scenario-item">
+              <div class="scenario-name">退改签费用争议自助处理</div>
+              <div class="scenario-desc">用户对退改签费用有疑问时，助手通过时间轴清晰展示：购票时间、发车时间、退票发起时间及对应的费率阶梯，消除信息差。</div>
+            </div>
+            
+          </div>
+          
+
+          
+          <!-- Sub-objective title -->
+          <div class="node-sub" style="left:800.0px; top:30px; width:280px;">
+            <div class="name">强化全链路服务韧性（变更与补救）</div>
+            
+            <div class="val">异常补救成功率 ≥ 75%<svg class="icon-up" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg></div>
+            
+          </div>
+
+          <!-- Strategy card -->
+          
+          <div class="card-block strategy" style="left:800.0px; top:102px;">
+            <div class="card-header blue">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>
+              策略 / Strategies
+            </div>
+            <ul class="strat-list">
+              
+              <li class="strat-item"><span class="strat-dot"></span><span>出票失败即自动重订：支付成功但库存锁定失败时，立即在后台发起同席别/邻近席别重试</span></li>
+              
+              <li class="strat-item"><span class="strat-dot"></span><span>停运/变更的一键化协同：主票退改后，关联的餐饮、接送站、行程单等服务自动同步处置</span></li>
+              
+              <li class="strat-item"><span class="strat-dot"></span><span>改签决策智能化：根据用户行程紧急程度（如换乘、商务）智能排序最优改签方案</span></li>
+              
+              <li class="strat-item"><span class="strat-dot"></span><span>跨渠道服务一致性：确保 App、12306 客服热线、站内窗口的数据实时同步，不踢皮球</span></li>
+              
+            </ul>
+          </div>
+          
+
+          <!-- Metric card -->
+          
+          <div class="card-block metric" style="left:800.0px; top:280px;">
+            <div class="card-header green">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+              指标 / Metrics
+            </div>
+            
+            <div class="metric-item">
+              <div class="metric-name">异常补救成功率</div>
+              <div class="metric-calc">通过系统补救方案最终成功的出行人次 / 初始订单失败的人次</div>
+              <div class="metric-val">目标：≥ 75%<svg class="icon-up" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg></div>
+            </div>
+            
+            <div class="metric-item">
+              <div class="metric-name">退改签自助完成率</div>
+              <div class="metric-calc">自助渠道（App/Web）闭环处理的变更量 / 总变更量</div>
+              <div class="metric-val">目标：≥ 95%<svg class="icon-up" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg></div>
+            </div>
+            
+            <div class="metric-item">
+              <div class="metric-name">服务解决率 (FCR)</div>
+              <div class="metric-calc">首次自助或人工触达即可闭环解决问题的比例</div>
+              <div class="metric-val">目标：≥ 90%<svg class="icon-up" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg></div>
+            </div>
+            
+          </div>
+          
+
+          <!-- Scenario card -->
+          
+          <div class="card-block scenario" style="left:800.0px; top:458px;">
+            <div class="card-header purple">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
+              业务场景 / Scenarios
+            </div>
+            
+            <div class="scenario-item">
+              <div class="scenario-name">“支付即保障”的出票补救</div>
+              <div class="scenario-desc">用户支付后出票失败，系统在 30 秒内自动匹配到 5 分钟后另一趟同方向列车有票，主动询问用户是否接受“平移”，用户确认后无需再次支付。</div>
+            </div>
+            
+            <div class="scenario-item">
+              <div class="scenario-name">停运场景下的全家桶式退订</div>
+              <div class="scenario-desc">列车停运后，系统自动发起退票流程，并询问：“您的订餐与约车服务也将受影响，是否一键取消并全额退款？”</div>
+            </div>
+            
+          </div>
+          
+
+          
+          <!-- Sub-objective title -->
+          <div class="node-sub" style="left:1110.0px; top:30px; width:280px;">
+            <div class="name">保障峰值公平与体验底线</div>
+            
+            <div class="val">高峰投诉率 ≤ 0.05%<svg class="icon-down" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="22 17 13.5 8.5 8.5 13.5 2 7"/><polyline points="16 17 22 17 22 11"/></svg></div>
+            
+          </div>
+
+          <!-- Strategy card -->
+          
+          <div class="card-block strategy" style="left:1110.0px; top:102px;">
+            <div class="card-header blue">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>
+              策略 / Strategies
+            </div>
+            <ul class="strat-list">
+              
+              <li class="strat-item"><span class="strat-dot"></span><span>峰值队列公平性：确保真实用户的请求按序排队，严厉打击脚本刷票，维护公平感</span></li>
+              
+              <li class="strat-item"><span class="strat-dot"></span><span>误伤控制护栏：在反作弊策略升级时，将正常用户的“误拦截率”作为一票否决指标</span></li>
+              
+              <li class="strat-item"><span class="strat-dot"></span><span>合规与隐私底线：在提升服务（如行程分析）时，严格遵循最小必要原则，不触碰隐私红线</span></li>
+              
+            </ul>
+          </div>
+          
+
+          <!-- Metric card -->
+          
+          <div class="card-block metric" style="left:1110.0px; top:280px;">
+            <div class="card-header green">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+              指标 / Metrics
+            </div>
+            
+            <div class="metric-item">
+              <div class="metric-name">高峰期投诉率</div>
+              <div class="metric-calc">高峰期间每万笔订单产生的服务投诉数</div>
+              <div class="metric-val">目标：≤ 0.05%<svg class="icon-down" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="22 17 13.5 8.5 8.5 13.5 2 7"/><polyline points="16 17 22 17 22 11"/></svg></div>
+            </div>
+            
+            <div class="metric-item">
+              <div class="metric-name">异常拦截误伤率</div>
+              <div class="metric-calc">正常用户被系统拦截并申诉成功的比例</div>
+              <div class="metric-val">目标：≤ 0.5%<svg class="icon-down" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="22 17 13.5 8.5 8.5 13.5 2 7"/><polyline points="16 17 22 17 22 11"/></svg></div>
+            </div>
+            
+          </div>
+          
+
+          <!-- Scenario card -->
+          
+          <div class="card-block scenario" style="left:1110.0px; top:458px;">
+            <div class="card-header purple">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
+              业务场景 / Scenarios
+            </div>
+            
+            <div class="scenario-item">
+              <div class="scenario-name">春运/大促期间的“公平排队”告知</div>
+              <div class="scenario-desc">在极高并发下，系统引导用户进入“公平排队区”，明确告知当前前方人数和预计处理速度，缓解用户“狂点刷新”的挫败感。</div>
+            </div>
+            
+            <div class="scenario-item">
+              <div class="scenario-name">隐私透明的行程管家</div>
+              <div class="scenario-desc">系统提供“行程助手”分析建议时，明确展示所需权限及数据用途，并支持用户随时关闭，确保服务感不变成“监控感”。</div>
+            </div>
+            
+          </div>
+          
+
+          
+        </div>
+
+      </div><!-- /content-col -->
+    </main><!-- /osm-canvas -->
+    </div><!-- /osm-outer-container -->
+
+    <footer style="margin-top: 40px; padding-top: 24px; border-top: 1px solid var(--color-border); text-align: center; font-size: 12px; color: var(--color-text-muted);">
+      Generated by osm-map-generator · 2026-07-14 17:26 · &copy; 2026 Inspire AI4PM
+    </footer>
+  </div>
+  
+  <div class="toast" id="toast">已成功复制 YAML 数据</div>
+  <script type="application/yaml" id="raw-yaml">
+title: "铁路订票服务 — OSM 战略地图（核心聚焦：客户服务体验提升）"
+config:
+  height:
+    objectiveScore: 100
+objectives:
+  - name: "月度净满意出行人次 (MNS-T) 持续增长"
+    value: "[推断] 2.5 - 3.2 亿人次/月（基于有效出行 * 满意度系数）"
+    trend: "up"
+    subObjectives:
+      - name: "提升“主动关怀”与预判能力"
+        value: "主动服务覆盖率 ≥ 60%"
+        trend: "up"
+        strategies:
+          - "全链路异常感知：实时监控运行图、天气、换乘压力，预判受影响旅客"
+          - "前置服务推送：在风险发生前，主动向受影响旅客推送替代方案或补救建议"
+          - "个性化出行提醒：基于用户画像（如老人、儿童、商务）提供差异化的行程引导"
+        metrics:
+          - name: "主动服务覆盖率"
+            calculation: "系统主动发起的服务触达人次 / 受异常/变更影响的总人次"
+            value: "目标：≥ 60%"
+            trend: "up"
+          - name: "服务触发后的点击/确认率"
+            calculation: "用户点击主动推送并确认建议的比例"
+            value: "目标：≥ 35%"
+            trend: "up"
+        relatedScenarios:
+          scenarios:
+            - name: "晚点预警与换乘自动评估"
+              description: "当第一程列车预计晚点导致第二程换乘时间不足时，系统主动弹出预警，并列出可改签的后续车次方案，支持一键锁定座位。"
+            - name: "特殊旅客主动协助"
+              description: "识别到订单包含高龄老人或重点旅客时，主动推送车站无障碍设施位置、重点旅客预约入口及行程节点语音提示。"
+
+      - name: "增强信息透明度与预期管理"
+        value: "候补进度透明度 100%"
+        trend: "up"
+        strategies:
+          - "候补/排队可视化：将“黑盒”等待变为“进度条”式体验，展示预估等待时间"
+          - "规则“人话化”解释：利用 AI 交互将复杂的退改阶梯费率、报销规则解释清楚"
+          - "库存变动实时透明：对收藏/关注的车次提供库存回升的“秒级”推送"
+        metrics:
+          - name: "候补进度透明度"
+            calculation: "提供进度展示的候补订单数 / 总候补订单数"
+            value: "目标：100%"
+            trend: "up"
+          - name: "售后规则争议率"
+            calculation: "因规则理解偏差导致的售后咨询数 / 总售后业务量"
+            value: "目标：≤ 0.1%"
+            trend: "down"
+          - name: "服务净推荐值 (NPS)"
+            calculation: "用户调研中（推荐者% - 贬损者%）"
+            value: "目标：≥ 45%"
+            trend: "up"
+        relatedScenarios:
+          scenarios:
+            - name: "候补订单的“定心丸”体验"
+              description: "候补页面不仅显示“候补中”，还显示“当前排第 N 位”、“预计 1 小时内兑现概率 80%”，并建议“若急需，可尝试换乘方案 X”。"
+            - name: "退改签费用争议自助处理"
+              description: "用户对退改签费用有疑问时，助手通过时间轴清晰展示：购票时间、发车时间、退票发起时间及对应的费率阶梯，消除信息差。"
+
+      - name: "强化全链路服务韧性（变更与补救）"
+        value: "异常补救成功率 ≥ 75%"
+        trend: "up"
+        strategies:
+          - "出票失败即自动重订：支付成功但库存锁定失败时，立即在后台发起同席别/邻近席别重试"
+          - "停运/变更的一键化协同：主票退改后，关联的餐饮、接送站、行程单等服务自动同步处置"
+          - "改签决策智能化：根据用户行程紧急程度（如换乘、商务）智能排序最优改签方案"
+          - "跨渠道服务一致性：确保 App、12306 客服热线、站内窗口的数据实时同步，不踢皮球"
+        metrics:
+          - name: "异常补救成功率"
+            calculation: "通过系统补救方案最终成功的出行人次 / 初始订单失败的人次"
+            value: "目标：≥ 75%"
+            trend: "up"
+          - name: "退改签自助完成率"
+            calculation: "自助渠道（App/Web）闭环处理的变更量 / 总变更量"
+            value: "目标：≥ 95%"
+            trend: "up"
+          - name: "服务解决率 (FCR)"
+            calculation: "首次自助或人工触达即可闭环解决问题的比例"
+            value: "目标：≥ 90%"
+            trend: "up"
+        relatedScenarios:
+          scenarios:
+            - name: "“支付即保障”的出票补救"
+              description: "用户支付后出票失败，系统在 30 秒内自动匹配到 5 分钟后另一趟同方向列车有票，主动询问用户是否接受“平移”，用户确认后无需再次支付。"
+            - name: "停运场景下的全家桶式退订"
+              description: "列车停运后，系统自动发起退票流程，并询问：“您的订餐与约车服务也将受影响，是否一键取消并全额退款？”"
+
+      - name: "保障峰值公平与体验底线"
+        value: "高峰投诉率 ≤ 0.05%"
+        trend: "down"
+        strategies:
+          - "峰值队列公平性：确保真实用户的请求按序排队，严厉打击脚本刷票，维护公平感"
+          - "误伤控制护栏：在反作弊策略升级时，将正常用户的“误拦截率”作为一票否决指标"
+          - "合规与隐私底线：在提升服务（如行程分析）时，严格遵循最小必要原则，不触碰隐私红线"
+        metrics:
+          - name: "高峰期投诉率"
+            calculation: "高峰期间每万笔订单产生的服务投诉数"
+            value: "目标：≤ 0.05%"
+            trend: "down"
+          - name: "异常拦截误伤率"
+            calculation: "正常用户被系统拦截并申诉成功的比例"
+            value: "目标：≤ 0.5%"
+            trend: "down"
+        relatedScenarios:
+          scenarios:
+            - name: "春运/大促期间的“公平排队”告知"
+              description: "在极高并发下，系统引导用户进入“公平排队区”，明确告知当前前方人数和预计处理速度，缓解用户“狂点刷新”的挫败感。"
+            - name: "隐私透明的行程管家"
+              description: "系统提供“行程助手”分析建议时，明确展示所需权限及数据用途，并支持用户随时关闭，确保服务感不变成“监控感”。"
+
+  </script>
+  <script>
+    function copyYAML() {
+      const yaml = document.getElementById('raw-yaml').textContent.trim();
+      navigator.clipboard.writeText(yaml).then(() => {
+        const toast = document.getElementById('toast');
+        toast.style.display = 'block';
+        setTimeout(() => { toast.style.display = 'none'; }, 2500);
+      });
+    }
+  </script>
+</body>
+</html>

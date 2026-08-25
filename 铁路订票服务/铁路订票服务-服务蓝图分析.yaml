@@ -1,0 +1,151 @@
+title: "铁路订票服务 — 以“服务体验”为核心的服务蓝图"
+config:
+  height:
+    customerLayer: 180
+    frontstageLayer: 200
+    backstageLayer: 180
+
+phases:
+  - name: "行程规划与方案决策"
+    customerLayer:
+      journeyStage: "需求表达与策略权衡"
+      actions:
+        - name: "输入行程与偏好"
+          touchpoints: "App/Web 首页"
+          painPoints: ["高峰期频繁切换日期重试", "难以直观判断当日出行成功率"]
+          expectations: ["秒级获取多方案建议", "获得候补/换乘的确定性提示"]
+          experienceScore: 5
+        - name: "权衡方案并锁定"
+          touchpoints: "方案详情页"
+          painPoints: ["规则文本过于生涩", "不同方案的优劣对比不清晰"]
+          expectations: ["场景化规则解释", "一键式方案对比助手"]
+          experienceScore: 4
+    frontstageLayer:
+      processStage: "智能引导与规则转译"
+      activities:
+        - name: "方案智能排序与推荐"
+          role: "旅客"
+          systemTouchpoints: "推荐引擎/方案页"
+          painPoints: ["仅信息堆砌，缺乏决策优先级建议"]
+          cognitiveLoad: high
+        - name: "交互式规则问答"
+          role: "AI 助手"
+          systemTouchpoints: "智能客服入口"
+          painPoints: ["用户需跳出当前页去查规则"]
+          cognitiveLoad: medium
+    backstageLayer:
+      supportProcess: "大数据分析与库存预判"
+      activities:
+        - name: "候补成功率实时预测"
+          role: "数据模型"
+          systemTouchpoints: "大数据平台"
+          painPoints: ["历史数据与瞬时波动联动不足"]
+          cognitiveLoad: high
+
+  - name: "确定性交易与履约"
+    customerLayer:
+      journeyStage: "契约达成与收票确认"
+      actions:
+        - name: "提交并确认支付"
+          touchpoints: "收银台"
+          painPoints: ["付完钱后进入等待焦虑期", "担心因系统延迟导致出票失败"]
+          expectations: ["支付即出票的承诺", "失败后的秒级自动补救"]
+          experienceScore: 4
+        - name: "获取电子客票"
+          touchpoints: "订单中心/Push"
+          painPoints: ["状态刷新不及时", "出票失败后的退款等待久"]
+          expectations: ["全链路状态实时可见"]
+          experienceScore: 6
+    frontstageLayer:
+      processStage: "交易韧性保障与实时反馈"
+      activities:
+        - name: "全链路状态机实时推送"
+          role: "旅客"
+          systemTouchpoints: "通知中心"
+          painPoints: ["异步出票状态同步有时延"]
+          cognitiveLoad: low
+        - name: "异常补救方案编排"
+          role: "履约引擎"
+          systemTouchpoints: "自动补救服务"
+          painPoints: ["失败后的补救动作缺乏个性化"]
+          cognitiveLoad: critical
+    backstageLayer:
+      supportProcess: "高并发库存竞争与自动对冲"
+      activities:
+        - name: "瞬时库存锁定与对冲"
+          role: "订单/库存系统"
+          systemTouchpoints: "核心交易集群"
+          painPoints: ["极高并发下的库存一致性挑战"]
+          cognitiveLoad: critical
+
+  - name: "行程管理与主动关怀"
+    customerLayer:
+      journeyStage: "行前准备与异常应对"
+      actions:
+        - name: "查看行程管家"
+          touchpoints: "行程页"
+          painPoints: ["晚点通知往往比现场慢", "延伸服务（如约车）需手动同步"]
+          expectations: ["异常主动推送", "一键联动改签服务全家桶"]
+          experienceScore: 5
+        - name: "办理退改签/处理变更"
+          touchpoints: "改签退票页/通知中心"
+          painPoints: ["对阶梯退票费计算有争议", "在多个备选改签方案中难以抉择"]
+          expectations: ["自动计算最优退改方案", "智能排序推荐改签车次"]
+          experienceScore: 3
+    frontstageLayer:
+      processStage: "前置预警与决策引导"
+      activities:
+        - name: "运行变更主动告知"
+          role: "旅客"
+          systemTouchpoints: "行程管家"
+          painPoints: ["通知内容缺少下一步行动建议"]
+          cognitiveLoad: high
+        - name: "智能改签建议呈现"
+          role: "AI 助手"
+          systemTouchpoints: "改签引导页"
+          painPoints: ["仅列出余票，缺乏对行程连续性的评估"]
+          cognitiveLoad: high
+        - name: "全业务订单协同处理"
+          role: "系统编排"
+          systemTouchpoints: "售后中心"
+          painPoints: ["主票退改与延伸服务断开"]
+          cognitiveLoad: high
+    backstageLayer:
+      supportProcess: "运行图联动与决策编排"
+      activities:
+        - name: "变更影响范围自动识别"
+          role: "监控引擎"
+          systemTouchpoints: "调度系统"
+          painPoints: ["晚点数据流到业务端有延迟"]
+          cognitiveLoad: medium
+        - name: "最优改签方案算力引擎"
+          role: "策略模型"
+          systemTouchpoints: "算法中心"
+          painPoints: ["用户偏好识别不足"]
+          cognitiveLoad: medium
+
+  - name: "服务解决与复盘"
+    customerLayer:
+      journeyStage: "争议解决与反馈"
+      actions:
+        - name: "发起投诉/咨询"
+          touchpoints: "客服/机器人"
+          painPoints: ["复述问题成本高", "定位原因慢"]
+          expectations: ["客服秒懂我的订单问题", "公平且快速的解决方案"]
+          experienceScore: 3
+    frontstageLayer:
+      processStage: "智能定责与快速补偿"
+      activities:
+        - name: "全链路事件一张图展示"
+          role: "客服"
+          systemTouchpoints: "智能 CRM"
+          painPoints: ["跨系统日志检索效率低"]
+          cognitiveLoad: high
+    backstageLayer:
+      supportProcess: "体验归因与系统进化"
+      activities:
+        - name: "MNS-T 贬损点挖掘"
+          role: "分析师/AI"
+          systemTouchpoints: "数据复盘平台"
+          painPoints: ["负面体验的自动聚类与归因弱"]
+          cognitiveLoad: medium

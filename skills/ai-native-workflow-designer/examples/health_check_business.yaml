@@ -1,0 +1,88 @@
+---
+title: "职场人亚健康全量狙击：AI-Native 体检工作流"
+business_type: "B2B2C 职场大健康服务"
+description: "彻底推翻‘盲选套餐-排队闯关-焦虑看报告’的工业时代体检模式，专为 25-45 岁白领打造的基于生活数字印记的动态定制与全天候干预体系。"
+phases:
+  - name: "生活数字印记解析与高维排雷定制"
+    description: "体检不再从抽血开始，而是从授权数字生活数据的那一刻开始。"
+    nodes:
+      - name: "办公/生活数字指纹抓取"
+        actor: "ai"
+        action_description: "用户授权后，Agent 静默接入智能手表时序数据、办公设备使用习惯（打字时长、屏幕姿态）以及外卖消费标签，利用多模态大模型实时测算用户的‘慢性疲劳指数’与‘骨骼肌劳损基线’。"
+        ai_capability: "多模态时序分析 (Multimodal Time-Series), 联邦学习数据脱敏推理"
+        automation_level: "high"
+        inputs: ["穿戴设备心率变异性(HRV)", "办公设备屏幕驻留时间", "生活轨迹/外卖标签"]
+        outputs: ["个体高危亚健康特征图谱"]
+        human_touchpoint: "全自动静默分析。人类完全无需感知此数据收集过程。"
+
+      - name: "因果图谱驱动的动态检项生成"
+        actor: "ai"
+        action_description: "废除固定的 A/B/C 套餐。大模型基于个体的亚健康图谱，动态推演出唯一的检查路径。例如：常年熬夜且久坐者，自动砍掉常规肺活量测试，加入高精颈椎 MRI 与皮质醇压力荷尔蒙监测。"
+        ai_capability: "因果推断网络 (Causal Inference), 高维特征组合推荐"
+        automation_level: "high"
+        inputs: ["高危亚健康特征图谱", "企业采购预算额度约束"]
+        outputs: ["千人千面的动态体检项目清单", "最优预约时间槽"]
+        human_touchpoint: "无需人工介入，彻底消灭 HR 采购固定套餐导致的资源浪费与漏检风险。"
+
+  - name: "沉浸式极速院内巡检"
+    description: "消灭医疗建筑内的等待时间，实现零排队穿梭与极客级采检。"
+    nodes:
+      - name: "运筹学动态游走调度"
+        actor: "ai"
+        action_description: "患者步入机构瞬间，边缘中控 AI 根据全院百台机器的实时空闲度与人员位置，通过用户手机或现场 AR 投影动态指示下一步走向，计算绝对全局最优解，实现零等待入室。"
+        ai_capability: "多智能体全局强化学习 (Multi-Agent RL), 实时室内定位寻路"
+        automation_level: "high"
+        inputs: ["设备实时吞吐状态", "用户室内坐标", "定制检项清单"]
+        outputs: ["实时动态导航指令"]
+        human_touchpoint: "绝对无人化调度。只有系统宕机或用户迷失超过 2 分钟，才派送实体护士引导。"
+
+      - name: "AI 增强超声与靶向采血"
+        actor: "hybrid"
+        action_description: "抽血与 B 超等由人类技师操作，但设备搭载 AI 增强视觉引擎。抽血通过红外视觉自动标记静脉深度；B 超自动追踪并高亮肝脏脂肪浸润度与甲状腺微小结节，技师仅需顺势移动探头。"
+        ai_capability: "计算机视觉医疗影像增强, 实时病灶锚定"
+        automation_level: "medium"
+        inputs: ["实时超声影像流", "红外血管反馈"]
+        outputs: ["带置信度的脏器影像切片", "精准抽血样本"]
+        human_touchpoint: "技师从‘找结节’的繁重劳动中解放，专注于安抚体检者的紧张情绪和舒适度调整。"
+
+  - name: "亚健康全息切片与风险阻断裁决"
+    description: "数据产生即诊断，实现从生化指标到数字孪生体的 3D 映射。"
+    nodes:
+      - name: "跨系统生化指标 3D 映射"
+        actor: "ai"
+        action_description: "AI 并行吞吐所有血液指标与医学影像，瞬间生成用户的 3D 数字孪生体。用高亮红色直接标注出‘胰岛素抵抗趋势’或‘颈椎曲度变直’等亚健康危机，并生成干预预测模型。"
+        ai_capability: "跨模态医疗大模型 (Medical VLM), 3D 结构重建"
+        automation_level: "high"
+        inputs: ["医学影像流", "生化检验原始数据"]
+        outputs: ["数字孪生亚健康图谱", "异常病灶锚点", "初步趋势干预报告"]
+        human_touchpoint: "后台超级算力秒级完成，大幅超越人类医生的数据统合极限。"
+
+      - name: "濒危亚健康阈值裁决"
+        actor: "human"
+        action_description: "对于 AI 判定属于‘极重度慢性疲劳综合征’或存在猝死先兆风险的职场高危人群，直接阻断流程，转入资深功能医学专家进行临床干预裁决。"
+        ai_capability: "AI 证据链溯源与危急值告警"
+        automation_level: "low"
+        inputs: ["高危猝死/衰竭预警", "AI 鉴别诊断理由", "原始切片数据"]
+        outputs: ["最终医疗干预结论", "立刻休假/转诊强制执行单"]
+        human_touchpoint: "人类担任健康红线最后的守门人，承担极度复杂的医学伦理判断并提供重量级临床警告。"
+
+  - name: "全天候行为纠偏与生活方式外包"
+    description: "检后并非终点，而是 AI 将健康干预“强行”插入用户日常生活的起点。"
+    nodes:
+      - name: "拟真健康管家面诊"
+        actor: "hybrid"
+        action_description: "驱动拥有心理学知识的拟真数字人教练，以朋友的口吻用通俗语言为用户解读报告。数字人会展示未来 3 年不改变习惯的 3D 衰老预测，并敲定一份 90 天生活重启计划。"
+        ai_capability: "数字人驱动, 大语言模型 (LLM), 情感计算与说服力引擎"
+        automation_level: "medium"
+        inputs: ["数字孪生亚健康图谱", "趋势干预报告"]
+        outputs: ["个性化解读视频", "90天生活重启协议"]
+        human_touchpoint: "若涉及心理极度敏感或病情较重的患者，无缝转接至人类资深健康管理师进行情绪疏导与后续方案沟通。"
+
+      - name: "自动化履约与“送药到嘴”"
+        actor: "ai"
+        action_description: "基于协议，Agent 直接打通用户的电商与日程 APP：自动下单定制营养素、根据 Outlook 日程表在每周三下午自动预约公司楼下的理疗师、拦截高糖外卖订单。"
+        ai_capability: "Agent 跨平台生态调用 (Tool Calling), 预测性行为干预"
+        automation_level: "high"
+        inputs: ["90天生活重启协议", "用户日历权限", "外卖平台权限"]
+        outputs: ["保健品电商订单", "理疗日程锁定", "异常点餐提醒"]
+        human_touchpoint: "彻底消灭‘检而不管’。无需用户主动靠自制力坚持，全自动化闭环履约。"
