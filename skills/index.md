@@ -5,7 +5,8 @@
 
 ## AI场景探索与规划
 
-> 🤖 **[Discovery Agent（全链路编排器）](discovery-agent/SKILL.md)**：宏 Agent。接受客户名称 + 业务领域，自动按顺序调度下方第 1-12 个 Skill，最终生成统一报告仪表盘。适合完整项目启动场景。
+> 🤖 **[Discovery Agent（全链路编排器）](discovery-agent/SKILL.md)**：宏 Agent。接受客户名称 + 业务领域，自动按顺序调度下方各 Skill，最终生成统一报告仪表盘。适合完整项目启动场景。
+> 🗂️ **[统一报告仪表盘 (Unified Report Dashboard)](unified-report-dashboard/SKILL.md)**：将多个分析步骤（NSM、业务流程、服务蓝图、AI 机会地图、AI 画布、里程碑计划等）的 HTML 输出整合为一个带侧边栏导航的报告仪表盘，供汇报与交付使用（Discovery Agent 的最终输出端）。
 
 ### 1. 客户洞察与业务梳理
 在介入具体业务前，深入了解客户的 AI 战略地位与就绪度。梳理现状（As-Is），识别业务中的断点与痛点。
@@ -47,9 +48,7 @@
 - **[业务规则挖掘器 (Business Rule Miner)](business-rule-miner/SKILL.md)**: 承接任务流程拆解产物（使用点）+ SRP 已识别规则类型 + 调研素材，以 SKP 阶段2「任务处理规则挖掘」视角，把每个任务依据什么处理深挖为五类可消费的业务知识结构（决策模型/模版范例/术语字典/关键信息提取要点/关联关系），每条规则/样本绑定使用点、来源可追溯，并做 P1↔P2 双向可追踪交叉核对，输出《任务处理规则挖掘清单》HTML + YAML。
 - **[Agentic 工作流设计 (Agentic Workflow Designer)](agentic-workflow-designer/SKILL.md)**: 承接 To-be 旅程，识别其中的各 AI 能力（不同目的/输入输出即拆分，HITL 中间环节不拆），为每个能力生成 PlantUML 活动序列图；以 Agentic 架构专家视角显式设计达成场景 KPI 所需的 Agent 编排（Agent 分解/编排模式/推理循环/护栏/人机协同/失败兜底），关键活动高亮渲染进 HTML。
 - **[MVP 原型生成器 (Prototype Generator)](prototype-generator/SKILL.md)**: 输入 AI Canvas + To-be Journey，编译输出可启动运行的前后端一体化 MVP 应用（React/Vue + Express + Mock AI/业务服务），含启动验证。
-- **[UX 优化器 (UX-Optimizer)](ux-optimizer/SKILL.md)**: 面向 MVP-prototype 产品级 UI，按「企业品牌 × 业务主题」定制独立产品设计系统，以覆盖层无侵入注入 tokens + 组件规范，并产出 UX 设计报告（与 design.md 解耦）。
-- **[功能架构图 (Functional Architecture Generator)](functional-arch-generator/SKILL.md)**: 生成带权重布局与状态标识的产品功能架构图。
-- **[Draw.io 架构图 (Drawio Arch Generator)](drawio-arch-generator/SKILL.md)**: 自动创建符合 C4 模型标准的 Draw.io 系统架构图。
+- **[UX 优化器 (UX-Optimizer)](ux-optimizer/SKILL.md)**: 面向 MVP-prototype 产品级 UI，按「企业品牌 × 业务主题」定制独立产品设计系统，以覆盖层无侵入注入 tokens + 组件规范，并产出 UX 设计报告（自含设计系统，不依赖全局 design.md）。
 - **[PlantUML 流程图 (PlantUML Flow Generator)](plantuml-flow-generator/SKILL.md)**: 绘制专业的 PlantUML 时序图、活动图等技术流程图。
 
 ### 2. 需求拆解
@@ -64,17 +63,11 @@
 - **[MVP 测试数据集 (AI Test Dataset Generator)](ai-test-dataset-generator/SKILL.md)**: 自动生成符合“三层三类”结构的 AI MVP 测试数据集。
 - **[MVP 成效指标体系 (MVP Metrics Generator)](mvp-metrics-generator/SKILL.md)**: 设计 MVP 成效指标与上线门禁句（Go/No-Go）。
 
-### 4. 需求详述与设计
-为具体功能提供详尽的研发标准、验收条件与交互细节。
-
-- **[用户故事详述 (Story Narrative Generator)](story-narrative-generator/SKILL.md)**: 为 User Story 生成包含验收标准（AC）与交互细节的详尽文档。
-- **[Story 原型生成 (Story Prototype Generator)](story-prototype-generator/SKILL.md)**: 针对单个用户故事快速生成交互式前端原型 HTML。
-
 ---
 
 ## 使用建议
 - **全局业务诊断与规划**: 优先使用 `NSM Analysis` 进行端到端的企业调研、竞争态势分析及北极星指标推导。
 - **初次拜访/数字化评估**: 优先使用 `AI Maturity Assessment` 和 `Business Process Deep Analyzer`。
 - **方案与 Agent 规则设计**: 组合使用 `AI Opportunity Map` -> `AI Canvas` -> `Agent Ontology Designer` -> `AI Scenario Matrix`；进入设计落地时，若要呈现「AI 场景 To-be 流程全景」用 `To-be Process Designer`（流程/任务挖掘视角，供 Agent 本体与规则绑定），若要细化用户体验用 `To-be Journey`，随后衔接 `Agentic Workflow` -> `MVP Prototype` -> `UX-Optimizer`。
-- **需求交付**: 组合使用 `Story Map` -> `Story Narrative` -> `Story Prototype`。
+- **需求梳理**: 使用 `Story Map` 构建「阶段-活动-接触点-用户故事」四层需求骨架。
 - **MVP 评测**: 组合使用 `MVP Metrics` + `AI Test Dataset`（委派 `mvp-evaluator` / `/mvp-eval`），为 MVP 提供 Go/No-Go 依据。

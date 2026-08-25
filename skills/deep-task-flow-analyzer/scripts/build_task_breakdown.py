@@ -8,9 +8,9 @@ Usage:
 设计要点：
 - 数据契约见 references/schema.yaml：meta / overview / legend / stages(L3→L4→L5) /
   readingFlow / focusDrill/before-evidence-after / focusSequence / taskTable / ioChain / learning。
-- 视觉配色严格遵循 skills/design.md 的 Inspire 品牌标量（Starry Blues #10213E、
+- 视觉配色严格遵循 Inspire 品牌标量（Starry Blues #10213E、
   Creative Blue #5DB2E2、Amethyst #625D9C 等）+ 统一精简页眉。
-- 遵循 agent.md §5.1：Jinja 内联样式隐患通过「类 + 安全拼接」规避（style 整串拼接输出）。
+- 遵循全局开发约定：Jinja 内联样式隐患通过「类 + 安全拼接」规避（style 整串拼接输出）。
 """
 
 import sys
@@ -52,7 +52,7 @@ def ensure_str(val) -> str:
 
 
 # --------------------------------------------------------------------------- #
-# 执行主体样式（遵循 design.md Inspire 品牌标量）
+# 执行主体样式（遵循 Inspire 品牌标量）
 # --------------------------------------------------------------------------- #
 def get_actor_styles(actor: str):
     a = (actor or "").lower().strip()

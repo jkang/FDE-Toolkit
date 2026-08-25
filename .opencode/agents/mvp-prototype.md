@@ -35,15 +35,15 @@ UX 定制优化（企业品牌 × 业务主题 → 定制产品设计系统，�
 > 用户故事级需求（Story 详述、Story 原型）属另一套流程，不在此 Agent 范围。
 
 ## 执行前必读
-1. 读取项目根目录 `skills/agent.md`，严格遵守其中三条全局规范（双重输出、输出路径与命名、视觉设计）。
-2. 若涉及视觉样式，参考项目根目录 `skills/design.md`。
+1. 严格遵守三条全局规范：① 双重输出（结构化 YAML + 交互式 HTML）；② 输出路径与命名（公司/业务级 vs 场景级分层）；③ 视觉设计（按本 skill `references/` 规范）。
+2. 若涉及视觉样式，遵循本 skill `references/` 内的视觉规范与示例。
 3. 所有 Skill 相关文件以开发目录 `skills/` 为准（禁止修改 `.opencode/skills/` 等副本）。
 
 ## 核心负责技能（必读对应 SKILL.md）
 - `skills/agent-product-proposal-generator/SKILL.md` — **Agent 产品方案设计**：输入理需求/场景定义/挖知识/本体 → 生成一份 Markdown 设计文档（产品定位 → 形态架构 → 演示故事线 → 功能与 UI 组件 → Agent 行为 → 规则消费门禁），可直接照单施工；产物为单一 Markdown（不走视觉 HTML 双输出，见其 SKILL.md 例外声明）。
 - `skills/ai-product-journey-generator/SKILL.md` — **To-be 旅程设计**：输入 AI Canvas YAML → 细化用户角色(Personas)、典型使用场景、带 AI 交互细节（上传数据示例/推荐操作指令/可见数据）的 To-be 旅程泳道图。
 - `skills/prototype-generator/SKILL.md` — **MVP 原型生成**：输入 AI Canvas + To-be Journey → 推演 mvp_spec.yaml → 脚手架编译前后端一体化 MVP（含 Mock AI / Mock 业务服务）→ 启动验证。
-- `skills/ux-optimizer/SKILL.md` — **UX 定制优化**：按「企业品牌 × 业务主题」推导该客户/场景专属产品设计系统（与 design.md 解耦），产出 ux-audit.yaml + UX设计报告.html，并以无侵入覆盖层注入 mvp-prototype。
+- `skills/ux-optimizer/SKILL.md` — **UX 定制优化**：按「企业品牌 × 业务主题」推导该客户/场景专属产品设计系统（自含设计系统，不依赖全局 design.md），产出 ux-audit.yaml + UX设计报告.html，并以无侵入覆盖层注入 mvp-prototype。
 
 ## 工作流程（核心链路：产品方案 → 旅程 → 原型 → UX 优化）
 
@@ -62,7 +62,7 @@ UX 定制优化（企业品牌 × 业务主题 → 定制产品设计系统，�
 6. **交付**：返回产物文件清单、启动方式、验证结果。
 7. **Step D · UX 定制优化（默认自动）**：MVP 原型验证通过后，按 `ux-optimizer/SKILL.md` 执行：
    - 读取 mvp_spec + mvp-prototype + 企业品牌资料（discovery 提取 → 用户 1 句 → domain 推断三层兜底）+ 业务域/场景。
-   - 推导该客户/场景的**定制产品设计系统**（企业品牌×业务主题，与 design.md 解耦）。
+   - 推导该客户/场景的**定制产品设计系统**（企业品牌×业务主题，自含设计系统）。
    - 产出 `[公司]-[场景]-ux-audit.yaml` + `[公司]-[场景]-UX设计报告.html`（场景级）。
    - 用 `apply_ux_enhance.py` 以无侵入覆盖层注入 mvp-prototype（UX tokens + 组件样式）。
    - 重启/构建验证 + 浏览器逐页检查定制还原度 + before/after 截图。

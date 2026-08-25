@@ -32,8 +32,8 @@ AI 场景定义（AI Canvas / To-be 旅程 / 服务蓝图 / 自然语言）
 > 故事详述 / Story 原型属 `prototype-designer` 流程，均不在此 Agent 范围。
 
 ## 执行前必读
-1. 读取项目根目录 `skills/agent.md`，严格遵守其中三条全局规范（双重输出、输出路径与命名、视觉设计）。
-2. 若涉及视觉样式，参考项目根目录 `skills/design.md`。
+1. 严格遵守三条全局规范：① 双重输出（结构化 YAML + 交互式 HTML）；② 输出路径与命名（公司/业务级 vs 场景级分层）；③ 视觉设计（按本 skill `references/` 规范）。
+2. 若涉及视觉样式，遵循本 skill `references/` 内的视觉规范与示例。
 3. 所有 Skill 相关文件以开发目录 `skills/` 为准（禁止修改 `.opencode/skills/` 等副本）。
 
 ## 核心负责技能（必读对应 SKILL.md）

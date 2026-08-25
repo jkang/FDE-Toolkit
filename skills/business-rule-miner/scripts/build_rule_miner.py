@@ -8,9 +8,9 @@ Usage:
 设计要点：
 - 数据契约见 references/schema.yaml：meta / overview / legend /
   categories{decision,template,dictionary,extraction,relation} / reconciliation。
-- 视觉配色遵循 skills/design.md 的 Inspire 品牌标量（Starry Blues #10213E、
+- 视觉配色遵循 Inspire 品牌标量（Starry Blues #10213E、
   Amethyst #625D9C、Creative Blue #5DB2E2、Myrtle Deep Green #00524C 等）+ 统一精简页眉。
-- 遵循 agent.md §5.1：Jinja 内联样式隐患通过「类 + 安全拼接」规避。
+- 遵循全局开发约定：Jinja 内联样式隐患通过「类 + 安全拼接」规避。
 """
 
 import sys

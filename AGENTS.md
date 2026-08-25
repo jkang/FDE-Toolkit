@@ -17,7 +17,7 @@
 ```
 
 - 这是本工具包内 AI4PM 技能库的**唯一源头（Source of Truth）**。
-- 开发规范参考 `skills/agent.md`（双重输出 / 输出路径命名 / 视觉设计）与 `skills/design.md`。
+- 开发规范要点：双重输出（结构化 YAML + 交互式 HTML）、输出路径与命名（公司/业务级 vs 场景级）、视觉设计（各 skill 自带 references/schema）。
 - 新增 Skill 时在此目录创建 `skill-name/SKILL.md` + `references/` + `scripts/` + `templates/` + `examples/`，并同步登记到 `skills/index.md`。
 
 ### 2. 禁止在库外维护副本
