@@ -123,6 +123,7 @@ def main():
     # ---- 端到端 stage chain：stages[].groups[].tasks[].actor 样式化 ---- #
     stages = []
     total_l5 = 0
+    total_groups = 0
     actor_counts = {"agent": 0, "human": 0, "mixed": 0}
     focus_count = 0
 
@@ -135,6 +136,7 @@ def main():
             num = f"{int(num):02d}"
         groups = []
         for grp in ensure_list(stage.get("groups")):
+            total_groups += 1
             tasks = []
             for t in ensure_list(grp.get("tasks")):
                 actor = ensure_str(t.get("actor"))
@@ -227,6 +229,12 @@ def main():
     with open(input_yaml, "r", encoding="utf-8") as f:
         raw_yaml_content = f.read()
 
+    # 用自动统计覆盖 overview 数量，避免 YAML 手工填写不一致
+    render_overview = dict(overview)
+    render_overview["l3Count"] = len(stages)
+    render_overview["l4Count"] = total_groups
+    render_overview["l5Count"] = total_l5
+
     html = template.render(
         lang="zh-CN",
         title=ensure_str(meta.get("title", "端到端深度任务流程地图")),
@@ -239,13 +247,13 @@ def main():
         inputs=ensure_list(meta.get("inputs")),
         source_ref=ensure_str(meta.get("sourceRef", "")),
         kpi=ensure_list(meta.get("kpi")),
-        overview=overview,
+        overview=render_overview,
         legend_execution=legend_execution,
         legend_focus=legend_focus,
         legend_convention=legend_convention,
         stages=stages,
         reading_flow=ensure_list(data.get("readingFlow")),
-        focus_drill=focus_drill,
+        focusDrill=focus_drill,
         focus_sequence=focus_sequence,
         task_table=task_table,
         io_chain=ensure_list(data.get("ioChain")),

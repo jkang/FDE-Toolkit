@@ -42,6 +42,7 @@
 
 - **[To-be 旅程设计 (AI Product Journey Generator)](ai-product-journey-generator/SKILL.md)**: 基于 AI 场景定义（AI Canvas），细化用户角色与典型使用场景，设计含 AI 交互细节（上传数据示例/推荐操作指令/可见数据）的 To-be User Journey，为原型生成提供输入。
 - **[To-be 流程泳道图 (To-be Process Designer)](to-be-process-designer/SKILL.md)**: 输入现状流程 + 问题痛点 + AI 机会点画布，以流程挖掘（SKP 阶段1）视角重排为「列=业务阶段(L3) × 行=角色泳道」的深度任务(L5)序列，登记执行主体 / HITL 焦点 / 规则依据类型 / 价值锚定 / 异常链路，输出结构化 YAML + 泳道式 HTML 流程图。
+- **[任务流程拆解图 (Deep Task Flow Analyzer)](deep-task-flow-analyzer/SKILL.md)**: 承接 AI 场景定义（AI Canvas / To-be 旅程 / 服务蓝图），以 SKP 阶段1「任务流程挖掘」视角把业务按「L3 业务阶段 → L4 活动分组 → L5 可执行动作」三层纵切，登记每个 L5 的执行主体 / 输入输出 / 规则依据 / 异常·HITL，并聚焦高价值 L4（P0）下钻为 L5 深度任务序列，输出「端到端深度任务流程地图」HTML + YAML。与 To-be 泳道图互补：泳道图答「谁在何时做」，本 Skill 答「一件事拆成几个原子动作、每步依据与异常」。
 - **[Agentic 工作流设计 (Agentic Workflow Designer)](agentic-workflow-designer/SKILL.md)**: 承接 To-be 旅程，识别其中的各 AI 能力（不同目的/输入输出即拆分，HITL 中间环节不拆），为每个能力生成 PlantUML 活动序列图；以 Agentic 架构专家视角显式设计达成场景 KPI 所需的 Agent 编排（Agent 分解/编排模式/推理循环/护栏/人机协同/失败兜底），关键活动高亮渲染进 HTML。
 - **[MVP 原型生成器 (Prototype Generator)](prototype-generator/SKILL.md)**: 输入 AI Canvas + To-be Journey，编译输出可启动运行的前后端一体化 MVP 应用（React/Vue + Express + Mock AI/业务服务），含启动验证。
 - **[UX 优化器 (UX-Optimizer)](ux-optimizer/SKILL.md)**: 面向 MVP-prototype 产品级 UI，按「企业品牌 × 业务主题」定制独立产品设计系统，以覆盖层无侵入注入 tokens + 组件规范，并产出 UX 设计报告（与 design.md 解耦）。
@@ -50,14 +51,18 @@
 - **[PlantUML 流程图 (PlantUML Flow Generator)](plantuml-flow-generator/SKILL.md)**: 绘制专业的 PlantUML 时序图、活动图等技术流程图。
 
 ### 2. 需求拆解
-将宏观规划向下拆解为可执行、可度量的需求卡片与测试计划。
+将宏观规划向下拆解为可执行、可度量的需求卡片与迭代计划。
 
 - **[用户故事地图 (Story Map Generator)](story-map-generator/SKILL.md)**: 构建“阶段-活动-接触点-用户故事”的四层需求骨架。
 - **[MVP 迭代计划 (MVP Plan Generator)](mvp-plan-generator/SKILL.md)**: 针对 Must-Have 需求列表，自动规划 MVP 迭代计划与看板。
+
+### 3. MVP 评测与验证
+为 MVP 提供「能否上线」的可量化依据——测试数据集（怎么测）与成效指标/门禁（够不够好）。
+
 - **[MVP 测试数据集 (AI Test Dataset Generator)](ai-test-dataset-generator/SKILL.md)**: 自动生成符合“三层三类”结构的 AI MVP 测试数据集。
 - **[MVP 成效指标体系 (MVP Metrics Generator)](mvp-metrics-generator/SKILL.md)**: 设计 MVP 成效指标与上线门禁句（Go/No-Go）。
 
-### 3. 需求详述与设计
+### 4. 需求详述与设计
 为具体功能提供详尽的研发标准、验收条件与交互细节。
 
 - **[用户故事详述 (Story Narrative Generator)](story-narrative-generator/SKILL.md)**: 为 User Story 生成包含验收标准（AC）与交互细节的详尽文档。
@@ -70,3 +75,4 @@
 - **初次拜访/数字化评估**: 优先使用 `AI Maturity Assessment` 和 `Business Process Deep Analyzer`。
 - **方案与 Agent 规则设计**: 组合使用 `AI Opportunity Map` -> `AI Canvas` -> `Agent Ontology Designer` -> `AI Scenario Matrix`；进入设计落地时，若要呈现「AI 场景 To-be 流程全景」用 `To-be Process Designer`（流程/任务挖掘视角，供 Agent 本体与规则绑定），若要细化用户体验用 `To-be Journey`，随后衔接 `Agentic Workflow` -> `MVP Prototype` -> `UX-Optimizer`。
 - **需求交付**: 组合使用 `Story Map` -> `Story Narrative` -> `Story Prototype`。
+- **MVP 评测**: 组合使用 `MVP Metrics` + `AI Test Dataset`（委派 `mvp-evaluator` / `/mvp-eval`），为 MVP 提供 Go/No-Go 依据。

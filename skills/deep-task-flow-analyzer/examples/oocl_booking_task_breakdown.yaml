@@ -37,51 +37,81 @@ legend:
     - "L5 可执行动作"
 
 stages:
-  - { id: "S1", num: "01", name: "询价报价", l5Count: 4, isFocus: false,
-      groups:
-        - { id: "G1_1", name: "询价与报价服务", isP0: false,
-            tasks:
-              - { id: "t01", name: "自然语言发起询价", actor: "human" }
-              - { id: "t02", name: "意图识别与路由",   actor: "agent" }
-              - { id: "t03", name: "实时报价数据返回", actor: "agent" }
-              - { id: "t04", name: "报价逐项解读",     actor: "agent" } }
+  - id: "S1"
+    num: "01"
+    name: "询价报价"
+    l5Count: 4
+    isFocus: false
+    groups:
+      - id: "G1_1"
+        name: "询价与报价服务"
+        isP0: false
+        tasks:
+          - { id: "t01", name: "自然语言发起询价", actor: "human" }
+          - { id: "t02", name: "意图识别与路由",   actor: "agent" }
+          - { id: "t03", name: "实时报价数据返回", actor: "agent" }
+          - { id: "t04", name: "报价逐项解读",     actor: "agent" }
 
-  - { id: "S2", num: "02", name: "舱位推荐", l5Count: 4, isFocus: false,
-      groups:
-        - { id: "G2_1", name: "舱位推荐与解释", isP0: false,
-            tasks:
-              - { id: "t05", name: "舱位余量/船期数据返回", actor: "agent" }
-              - { id: "t06", name: "综合排序推荐 Top3",     actor: "agent" }
-              - { id: "t07", name: "解释推荐理由",           actor: "agent" }
-              - { id: "t08", name: "确认 Agent 推荐舱位",    actor: "mixed" } }
+  - id: "S2"
+    num: "02"
+    name: "舱位推荐"
+    l5Count: 4
+    isFocus: false
+    groups:
+      - id: "G2_1"
+        name: "舱位推荐与解释"
+        isP0: false
+        tasks:
+          - { id: "t05", name: "舱位余量/船期数据返回", actor: "agent" }
+          - { id: "t06", name: "综合排序推荐 Top3",     actor: "agent" }
+          - { id: "t07", name: "解释推荐理由",           actor: "agent" }
+          - { id: "t08", name: "确认 Agent 推荐舱位",    actor: "mixed" }
 
-  - { id: "S3", num: "03", name: "在线订舱", l5Count: 6, isFocus: true,
-      groups:
-        - { id: "G3_1", name: "一键订舱与确认", isP0: true,
-            tasks:
-              - { id: "t09", name: "3 步表单自动预填",         actor: "agent" }
-              - { id: "t10", name: "订舱规则校验",             actor: "agent" }
-              - { id: "t11", name: "一键订舱确认",             actor: "mixed" }
-              - { id: "t12", name: "订舱受理与状态回写",       actor: "agent" }
-              - { id: "t13", name: "签发 Booking Confirmation", actor: "agent" }
-              - { id: "t14", name: "异常订舱人工终审",         actor: "human" } } }
+  - id: "S3"
+    num: "03"
+    name: "在线订舱"
+    l5Count: 6
+    isFocus: true
+    groups:
+      - id: "G3_1"
+        name: "一键订舱与确认"
+        isP0: true
+        tasks:
+          - { id: "t09", name: "3 步表单自动预填",          actor: "agent" }
+          - { id: "t10", name: "订舱规则校验",              actor: "agent" }
+          - { id: "t11", name: "一键订舱确认",              actor: "mixed" }
+          - { id: "t12", name: "订舱受理与状态回写",        actor: "agent" }
+          - { id: "t13", name: "签发 Booking Confirmation", actor: "agent" }
+          - { id: "t14", name: "异常订舱人工终审",          actor: "human" }
 
-  - { id: "S4", num: "04", name: "单证处理", l5Count: 5, isFocus: false,
-      groups:
-        - { id: "G4_1", name: "单证预填（SI 生成）", isP0: false,
-            tasks:
-              - { id: "t15", name: "上传贸易单据",       actor: "human" }
-              - { id: "t16", name: "OCR 抽取 SI 字段",   actor: "agent" }
-              - { id: "t17", name: "品名规范与 HS 映射", actor: "agent" }
-              - { id: "t18", name: "单证规则校验",       actor: "agent" }
-              - { id: "t19", name: "确认并提交 SI",      actor: "mixed" } } }
+  - id: "S4"
+    num: "04"
+    name: "单证处理"
+    l5Count: 5
+    isFocus: false
+    groups:
+      - id: "G4_1"
+        name: "单证预填（SI 生成）"
+        isP0: false
+        tasks:
+          - { id: "t15", name: "上传贸易单据",       actor: "human" }
+          - { id: "t16", name: "OCR 抽取 SI 字段",   actor: "agent" }
+          - { id: "t17", name: "品名规范与 HS 映射", actor: "agent" }
+          - { id: "t18", name: "单证规则校验",       actor: "agent" }
+          - { id: "t19", name: "确认并提交 SI",      actor: "mixed" }
 
-  - { id: "S5", num: "05", name: "出运跟踪", l5Count: 2, isFocus: false,
-      groups:
-        - { id: "G5_1", name: "出运跟踪交互", isP0: false,
-            tasks:
-              - { id: "t20", name: "对话查里程碑",       actor: "human" }
-              - { id: "t21", name: "ETA 预测与延误预警", actor: "agent" } } }
+  - id: "S5"
+    num: "05"
+    name: "出运跟踪"
+    l5Count: 2
+    isFocus: false
+    groups:
+      - id: "G5_1"
+        name: "出运跟踪交互"
+        isP0: false
+        tasks:
+          - { id: "t20", name: "对话查里程碑",       actor: "human" }
+          - { id: "t21", name: "ETA 预测与延误预警", actor: "agent" }
 
 readingFlow:
   - "<b>先看全链路</b>：从询价到复购，最终形成闭环"
