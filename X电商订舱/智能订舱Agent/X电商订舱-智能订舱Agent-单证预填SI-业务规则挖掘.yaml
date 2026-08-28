@@ -1,15 +1,15 @@
 meta:
   title: "X电商订舱 · 智能订舱 Agent · 单证预填（SI 生成）业务规则挖掘"
-  subtitle: "来自 SKP 阶段2 · P2 任务处理规则挖掘（聚焦 SI 生成环节）"
+  subtitle: "来自 挖知识阶段2 · P2 任务处理规则挖掘（聚焦 SI 生成环节）"
   version: "v1.0"
   date: "2026-08-25"
   scenarioName: "智能订舱 Agent · 单证预填（SI 生成）"
-  businessStage: "SKP 阶段2 任务处理规则挖掘 · P2（环节级深钻）"
-  methodology: "SKP 阶段2方法（五类任务处理规则：决策/模板/术语/提取点/关联）"
+  businessStage: "挖知识阶段2 任务处理规则挖掘 · P2（环节级深钻）"
+  methodology: "挖知识阶段2方法（五类任务处理规则：决策/模板/术语/提取点/关联）"
   inputs:
-    - "SKP《单证预填SI-任务流程拆解》（动作使用点 + 输入输出 + 规则依据类型）"
-    - "SRP《智能订舱Agent-本体设计》（ab_si_document 行动边界 + si_document 状态迁移 + 护栏）"
-    - "SRP《智能订舱Agent-Agentic工作流》cap_02（单证校验规则 >300 条 / HS 映射字典 / 护栏）"
+    - "挖知识《单证预填SI-任务流程拆解》（动作使用点 + 输入输出 + 规则依据类型）"
+    - "定场景《智能订舱Agent-本体设计》（ab_si_document 行动边界 + si_document 状态迁移 + 护栏）"
+    - "定场景《智能订舱Agent-Agentic工作流》cap_02（单证校验规则 >300 条 / HS 映射字典 / 护栏）"
     - "客户素材《智能订舱 Agent 规则清单》（访谈/制度/SOP/单证样例/补件案例）"
   sourceRef: "智能订舱Agent-单证预填SI-任务流程拆解.yaml 使用点 + 本体设计 ab_si_document + Agentic cap_02"
   kpi:

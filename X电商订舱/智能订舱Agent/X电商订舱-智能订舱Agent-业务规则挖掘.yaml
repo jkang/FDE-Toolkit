@@ -1,16 +1,16 @@
 meta:
   title: "X电商订舱 · 智能订舱 Agent 业务规则挖掘清单"
-  subtitle: "来自 SKP 阶段2 · P2 任务处理规则挖掘"
+  subtitle: "来自 挖知识阶段2 · P2 任务处理规则挖掘"
   version: "v1.0"
   date: "2026-08-25"
   scenarioName: "智能订舱 Agent（Ask Fin 升级为可执行订舱 Agent）"
-  businessStage: "SKP 阶段2 任务处理规则挖掘 · P2"
-  methodology: "SKP 阶段2方法（五类任务处理规则：决策/模板/术语/提取点/关联）"
+  businessStage: "挖知识阶段2 任务处理规则挖掘 · P2"
+  methodology: "挖知识阶段2方法（五类任务处理规则：决策/模板/术语/提取点/关联）"
   inputs:
-    - "SKP《智能订舱Agent-任务流程拆解》（深度任务使用点 + 输入输出 + 规则依据类型）"
-    - "SRP《AI画布-01智能订舱Agent》（dataKnowledge/workflow 识别的规则类型）"
-    - "SRP《智能订舱Agent-本体设计》（实体/关系/状态迁移/护栏，业务语义锚点）"
-    - "SRP《智能订舱Agent-Agentic工作流》（订舱校验引擎/单证规则/D&D/ETA 的边界与护栏）"
+    - "挖知识《智能订舱Agent-任务流程拆解》（深度任务使用点 + 输入输出 + 规则依据类型）"
+    - "定场景《AI画布-01智能订舱Agent》（dataKnowledge/workflow 识别的规则类型）"
+    - "定场景《智能订舱Agent-本体设计》（实体/关系/状态迁移/护栏，业务语义锚点）"
+    - "定场景《智能订舱Agent-Agentic工作流》（订舱校验引擎/单证规则/D&D/ETA 的边界与护栏）"
     - "客户素材《智能订舱 Agent 规则清单》（访谈/制度/SOP/表单样例/案例）"
   sourceRef: "智能订舱Agent-任务流程拆解.yaml 使用点 + 本体设计业务语义 + Agentic工作流护栏"
   kpi:
