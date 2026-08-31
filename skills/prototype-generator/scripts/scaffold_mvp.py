@@ -837,7 +837,7 @@ def main():
     parser = argparse.ArgumentParser(description="MVP 脚手架编译引擎")
     parser.add_argument("spec", help="mvp_spec.yaml 路径")
     parser.add_argument("--output", default=None, help="输出目录（默认 <case>/<scenario>/mvp-prototype 或 ./mvp-prototype）")
-    parser.add_argument("--case", default=None, help="客户/案例目录名（如 追觅科技供应链），产物置于 <case>/<scenario>/mvp-prototype")
+    parser.add_argument("--case", default=None, help="客户/案例目录名（如 X电商订舱），产物置于 <case>/<scenario>/mvp-prototype")
     parser.add_argument("--scenario", default=None, help="场景子目录名（如 采购订单自动生成）")
     parser.add_argument("--force", action="store_true", help="覆盖已存在目录")
     args = parser.parse_args()

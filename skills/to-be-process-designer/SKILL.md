@@ -122,7 +122,7 @@ to-be-process-designer/
 ├── scripts/
 │   └── build_to_be_flow.py         # YAML → HTML 编译引擎（含泳道网格构建 & 防呆清洗）
 └── examples/                       # 示例产物 (.yaml & .html)
-    └── yili_to_be_flow.yaml / .html
+    └── X电商订舱-智能订舱Agent-To-be流程.yaml / .html（见 X电商订舱/）
 ```
 
 ---

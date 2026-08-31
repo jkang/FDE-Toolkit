@@ -1,7 +1,7 @@
 title: "采购订单自动生成 · To-be 旅程设计"
 meta:
   mode: "to-be"
-  source: "AI画布: dreame_canvas_1_procurement.yaml"
+  source: "AI画布: X电商订舱-AI画布-01智能订舱Agent.yaml"
   scenarioName: "采购订单自动生成"
   productType: "嵌入SRM系统的智能下单模块 + 采购专员工作台待办"
 personas:

@@ -2,7 +2,7 @@ title: "采购订单自动生成 · Agentic 工作流设计"
 
 meta:
   mode: "agentic-workflow"
-  source: "To-be旅程: dreame_to_be_1_procurement.yaml"
+  source: "To-be旅程: X电商订舱-智能订舱Agent-To-be旅程.yaml"
   scenarioName: "采购订单自动生成"
   architecture: "Orchestrator-Worker 并行编排 + 人工审批门禁（HITL）"
 

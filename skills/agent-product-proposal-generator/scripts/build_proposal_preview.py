@@ -8,7 +8,7 @@ Agent 产品方案 · Markdown → 自包含 HTML 预览
     读取产品方案 Markdown，渲染为单文件、可被 iframe 内嵌的 HTML 预览。
     - Markdown 用 marked（CDN）在客户端解析；< / & 按 agent.md 规则预转义，避免误判成 HTML。
     - mermaid 流程块用 mermaid（CDN）渲染成图。
-    - 样式对齐 Refresher Workshop 主题（深海军蓝/紫 accent、圆角、浅色底），与课件视觉一致。
+    - 样式对齐 Refresher Workshop 主题（深海军蓝/紫 accent、圆角、浅色底）。
 依赖: 仅标准库；运行端为浏览器加载 marked + mermaid CDN。
 """
 import sys

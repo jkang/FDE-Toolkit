@@ -75,7 +75,7 @@ author: KK
 ## 工作流 SOP
 
 ### Step 1 · 解析输入
-- **优先**：读取 To-be 旅程 YAML（如 `ai-product-journey-generator/examples/dreame_to_be_1_procurement.yaml`），
+- **优先**：读取 To-be 旅程 YAML（如 `X电商订舱/智能订舱Agent/X电商订舱-智能订舱Agent-To-be旅程.yaml`），
   提取 `stages→actions` 的 `aiInteraction`、`userInputs`、`visibleData`、`designNotes`、`scenarios.goal`。
 - **兜底**：用户以自然语言描述（或提供 AI Canvas YAML）时，先自行推演旅程语义，再进入 Step 2。
 

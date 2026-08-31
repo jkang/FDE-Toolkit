@@ -144,7 +144,7 @@ prototype-generator/
 │   └── scaffold_mvp.py             # 脚手架编译引擎（--case/--scenario/--output/--force）
 ├── assets/_legacy/                 # 旧 Next.js 模板归档
 └── examples/
-    └── dreame_mvp_spec.yaml        # 演示：dreame 采购订单场景
+    └── X电商订舱-智能订舱Agent-mvp-spec.yaml  # 演示：X 电商订舱智能订舱 Agent 场景（见 X电商订舱/）
 ```
 
 ---
