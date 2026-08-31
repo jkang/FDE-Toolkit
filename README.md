@@ -14,7 +14,7 @@
 
 ## 2. 环境准备（详细安装配置指南）
 
-本课程用 **opencode**（AI 编程/分析 Agent）来运行 skills 工具链。请按以下步骤完成环境准备，**务必在你自己的电脑上装好并配置完成，课前我们会有环境自检**。
+本课程用 **opencode**（AI 编程/分析 Agent）来运行 skills 工具链，推荐大家使用；也可以用 **Qoder**（国际版，见 2.5，API 已配好，装好即用）。请按以下步骤完成环境准备，**务必在你自己的电脑上装好并配置完成，课前我们会有环境自检**。
 
 ### 2.1 安装 opencode 桌面端
 
@@ -120,6 +120,16 @@
 
 > 环境受限也没关系：课上教练会用现成案例当示例，你先学方法，再逐步上手。
 
+### 2.5 （可选）使用 Qoder（国际版）
+
+如果你习惯用 **Qoder**，也可以直接用它运行本工具链（仓库已内置 `.qoder/` 的 skills / commands / agents，克隆即用）：
+
+1. 安装 **Qoder 国际版**（从 [qoder.ai](https://qoder.ai) 下载，区别于 qoder.cn 中文版）。
+2. Qoder 的模型 API 已由组织配置好，**无需额外设置**。
+3. 用 Qoder 打开本仓库目录（`FDE-Toolkit/`），在对话里输入 `/agent-arch`、`/mvp-prototype` 等命令即可调用演练 Agent（与 opencode 的 `/command` 用法一致）。
+
+> 主推 opencode 的原因：本工具链的 skills 以 opencode 目录（`.opencode/`）为基准同步，Qoder（`.qoder/`）为配套分发，两者体验一致；个别命令细节以课上实际演示为准。
+
 ## 3. 课前准备三步
 
 ```bash
@@ -138,8 +148,8 @@ rsync -a --delete skills/ ~/.config/opencode/skills/
 
 ## 4. 课前自检清单
 
-- [ ] **opencode 桌面端已安装**，能正常打开主界面。
-- [ ] **私有化 API 已配置**，opencode 里发消息能收到回复。
+- [ ] **opencode 桌面端已安装**（或用 Qoder 国际版），能正常打开主界面。
+- [ ] **私有化 API 已配置**（opencode 需手动配置；Qoder 已配好），发消息能收到回复。
 - [ ] **git 已安装**，能 `git clone` 本仓库。
 - [ ] 能在这个工具里调用 skills 技能，跑通一次「生成报告」。
 - [ ] （可选）Node.js 已安装，能启动 MVP 原型（`npm install && npm run dev`）并打开页面。
@@ -151,7 +161,8 @@ rsync -a --delete skills/ ~/.config/opencode/skills/
 FDE-Toolkit/
 ├── skills/                技能工具链（30+，演练用，勿开发副本）
 │   └── index.md           技能总索引
-├── .opencode/             演练 Agent / Command 定义（/command → 技能 串联）
+├── .opencode/             演练 Agent / Command 定义（opencode，/command → 技能 串联）
+├── .qoder/                演练 Agent / Command / Skill 定义（Qoder 国际版配套）
 ├── X电商订舱/             案例：航运电商订舱（四步法真实样例）
 ├── 铁路订票服务/           案例：铁路订票服务
 └── AGENTS.md              工具包协作规范（可迁移、无绝对路径）

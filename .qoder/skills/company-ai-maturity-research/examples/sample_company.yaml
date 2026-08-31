@@ -1,0 +1,284 @@
+# AI 就绪度评估 · 标准 YAML 数据契约示例
+# 本文件提供完整的字段结构和示例数据，供 LLM 生成时参考
+
+company:
+  name: "智造科技有限公司"
+  name_en: "ZhiZao Tech Co., Ltd."
+  headquarters: "深圳，中国"
+  founded: 2015
+  employee_count: "800-1200"
+  revenue_range: "5-10亿人民币"
+  funding_stage: "C轮"
+  website: "https://www.zhizaotech.com"
+  industry:
+    primary: "智能制造"
+    secondary: ["工业互联网", "机器视觉"]
+  business_model: "B2B"
+  core_products:
+    - "智能质检系统 - 基于机器视觉的工业产品缺陷检测平台"
+    - "工业数据中台 - 面向制造企业的数据采集、治理与分析平台"
+    - "MES+ 系统 - 集成AI排产的生产执行系统"
+  key_executives:
+    - name: "张明远"
+      title: "创始人兼CEO"
+      background: "前华为工业互联网事业部总监，15年智能制造经验"
+    - name: "李婷"
+      title: "CTO"
+      background: "前百度AI算法专家，哥伦比亚大学计算机博士"
+
+digital_maturity:
+  overall_score: 3
+  dimensions:
+    cloud_adoption:
+      score: 3
+      description: "核心业务系统部署在华为云，非核心系统仍在使用私有IDC，云化率约55%"
+      evidence: "华为云合作案例页面"
+    system_integration:
+      score: 2
+      description: "ERP、MES、CRM各自独立，通过ETL工具做离线数据同步，尚无统一数据总线"
+      evidence: "招聘JD中提到'系统集成工程师'岗位"
+    data_infrastructure:
+      score: 3
+      description: "已建设数据仓库（基于ClickHouse），但数据治理标准不统一，各产线数据质量参差不齐"
+      evidence: "公司技术博客"
+    process_automation:
+      score: 2
+      description: "财务和HR流程已实现RPA自动化，但核心生产流程自动化率仅约30%"
+      evidence: ""
+    digital_talent_density:
+      score: 3
+      description: "技术团队约200人（占25%），其中AI相关约30人，高端算法人才招聘困难"
+      evidence: "LinkedIn公司主页"
+  key_systems:
+    - name: "用友U8 ERP"
+      category: "ERP"
+      status: "已部署"
+      description: "2019年上线，负责财务、采购、库存管理"
+    - name: "自研MES+"
+      category: "MES"
+      status: "已部署"
+      description: "自研生产执行系统，2022年集成AI排产模块"
+    - name: "Salesforce CRM"
+      category: "CRM"
+      status: "已部署"
+      description: "销售团队使用，但与ERP数据未打通"
+  tech_debt_notes: "自研MES+系统架构为2018年单体架构，扩展性受限，计划2025年重构为微服务"
+
+ai_current_state:
+  overall_maturity: 2
+  ai_team:
+    exists: true
+    headcount: "30-40人"
+    organization: "分散在各业务线"
+    key_roles: ["算法工程师", "数据工程师", "AI产品经理", "ML运维工程师"]
+  use_cases:
+    - name: "智能质检 - 外观缺陷检测"
+      category: "计算机视觉"
+      status: "生产中"
+      maturity: 4
+      description: "基于YOLOv8的工业缺陷检测，已部署在3条产线，缺陷检出率从人工的92%提升至98.5%，误报率降低60%"
+      department: "质检部"
+    - name: "智能排产优化"
+      category: "其他"
+      status: "试点中"
+      maturity: 3
+      description: "基于运筹优化+强化学习的生产排程，在1条产线试点，排产效率提升约15%"
+      department: "生产部"
+    - name: "设备预测性维护"
+      category: "预测性维护"
+      status: "规划中"
+      maturity: 1
+      description: "计划基于传感器时序数据建模，预测关键设备故障，目前处于数据采集阶段"
+      department: "设备部"
+    - name: "供应链需求预测"
+      category: "其他"
+      status: "规划中"
+      maturity: 1
+      description: "计划基于历史订单和外部市场数据构建需求预测模型，减少库存积压"
+      department: "供应链部"
+  tech_stack:
+    model_platform: "华为ModelArts（训练）+ 自建推理服务"
+    mlops_tools: "MLflow"
+    llm_usage: "2024年初开始探索，使用通义千问API搭建内部技术文档问答助手（试点中）"
+    key_vendors: ["华为云", "百度智能云"]
+  recent_investments: "2023年AI相关投入约800万，主要用于智能质检系统升级和AI团队扩编"
+  ai_talent_gap: "高端算法人才（特别是强化学习和时序预测方向）招聘困难，目前依赖猎头和高薪挖角"
+
+ai_strategy:
+  vision_statement: "成为工业AI视觉检测领域的领导者，通过AI驱动制造业质量变革"
+  ambition_level: "务实"
+  stated_initiatives:
+    - "2024年目标：智能质检覆盖全部产线（从3条扩展至12条）"
+    - "筹建工业AI实验室，与华南理工大学共建"
+    - "探索大模型在工业知识管理中的应用"
+  investment_priority_areas: ["智能质检", "生产排程优化", "设备预测性维护"]
+  organizational_intent: "暂无设立首席AI官的公开计划，AI相关工作由CTO直接管理"
+  regulatory_stance: "关注工业数据安全相关法规，但未参与行业标准制定"
+  executive_quotes:
+    - quote: "未来三年，AI将是我们最核心的竞争力来源。我们不只是做软件的公司，我们是用AI重新定义质量管理的公司。"
+      source: "2023中国智能制造峰会演讲"
+      date: "2023-11"
+      implication: "CEO将AI定位为公司核心战略，而非辅助工具"
+    - quote: "工业AI最大的挑战不是算法，而是数据。我们这两年花最多时间的，就是把产线数据采回来、洗干净、用起来。"
+      source: "36氪专访"
+      date: "2024-01"
+      implication: "CTO认识到数据是工业AI的关键瓶颈，正在系统性解决"
+  strategic_contradictions: "CEO公开强调AI优先，但AI团队仅30人且分散在各业务线，缺乏统一的AI中台"
+
+industry_benchmark:
+  industry_name: "智能制造"
+  ai_adoption_rate: "约20-25%的制造企业已规模化部署AI应用（含试点）"
+  maturity_distribution:
+    leaders_pct: 3
+    advanced_pct: 10
+    followers_pct: 25
+    beginners_pct: 35
+    observers_pct: 27
+  industry_specific_opportunities:
+    - opportunity: "工业视觉检测"
+      potential_impact: "高"
+      description: "质检是制造业最大的人工成本项之一，AI视觉检测ROI清晰，落地速度最快"
+    - opportunity: "生产排程优化"
+      potential_impact: "高"
+      description: "多品种小批量趋势下，传统排程方法已无法满足需求，AI排程可带来显著效率提升"
+    - opportunity: "预测性维护"
+      potential_impact: "中"
+      description: "减少非计划停机是制造企业的刚需，但数据采集和模型训练周期较长"
+  industry_challenges:
+    - challenge: "工业数据质量差"
+      severity: "高"
+      description: "多数工厂设备老旧，传感器覆盖不足，数据采集不完整、不标准"
+    - challenge: "AI人才匮乏"
+      severity: "高"
+      description: "既懂AI又懂工业的复合型人才极度稀缺，主要集中在头部企业"
+    - challenge: "ROI难以量化"
+      severity: "中"
+      description: "除视觉检测外，多数AI项目的投资回报周期较长，管理层信心不足"
+  benchmark_companies:
+    - name: "工业富联（富士康工业互联网）"
+      ai_maturity_score: 5
+      key_differentiator: "全球最大规模的工业AI部署，灯塔工厂认证，自研AI平台"
+      relevance: "行业绝对标杆，智能制造头部企业"
+    - name: "创新奇智"
+      ai_maturity_score: 4
+      key_differentiator: "专精制造业AI解决方案，已服务数百家客户，IPO上市"
+      relevance: "直接竞对，同赛道AI公司"
+    - name: "树根互联"
+      ai_maturity_score: 4
+      key_differentiator: "三一重工孵化，工业互联网平台+AI应用"
+      relevance: "间接竞对，工业互联网赛道"
+  company_relative_position:
+    overall_rank: "行业中上游（前25-30%）"
+    strengths_vs_peers: ["智能质检场景落地成熟度高", "自研MES系统积累了深厚的行业数据"]
+    gaps_vs_peers: ["AI团队规模和集中度不足", "缺乏统一的AI平台/中台", "大模型应用处于早期探索"]
+
+gap_opportunity:
+  gap_summary: "企业在工业视觉检测领域已建立初步优势，但AI组织能力、平台能力和数据治理能力与行业领先企业仍有1-2个层级的差距"
+  quantitative_gaps:
+    - dimension: "AI团队规模与集中度"
+      current_level: "30人分散在各业务线"
+      industry_benchmark: "行业领先者通常有50-100人集中AI团队"
+      gap_size: "大"
+      description: "分散的组织结构导致人才复用困难，难以攻克跨产线的通用AI能力"
+    - dimension: "AI平台能力"
+      current_level: "华为ModelArts+自建推理服务"
+      industry_benchmark: "行业领先者通常自研AI平台并支持MLOps全流程"
+      gap_size: "中"
+      description: "现有工具链基本满足需求，但缺乏统一的实验管理、模型版本管理和自动化部署"
+    - dimension: "大模型应用"
+      current_level: "试点阶段（内部问答）"
+      industry_benchmark: "领先者已在探索工业知识图谱、智能工艺推荐等深度应用"
+      gap_size: "中"
+      description: "大模型在工业场景的应用还处于行业早期，是弯道超车的机会窗口"
+  quick_wins:
+    - name: "质检AI能力复制推广"
+      category: "效率提升"
+      estimated_timeline: "3-6个月"
+      estimated_impact: "高"
+      prerequisites: ["标准化产线数据采集规范", "训练可复用的模型迁移方案"]
+      description: "将已成熟的智能质检方案快速复制到其他产线，预估6个月可覆盖8条产线，质检人力减少40%"
+    - name: "大模型内部知识库增强"
+      category: "效率提升"
+      estimated_timeline: "3个月"
+      estimated_impact: "中"
+      prerequisites: ["整理和清洗内部技术文档", "建立知识更新机制"]
+      description: "将现有的大模型问答系统从技术文档扩展到操作规程、故障案例库，降低一线工程师的学习成本"
+  strategic_bets:
+    - name: "构建工业AI中台"
+      category: "差异化竞争"
+      estimated_timeline: "12-18个月"
+      estimated_impact: "高"
+      risk_level: "中"
+      description: "统一数据管理、模型训练、部署和监控的平台能力，从项目制转向平台化，支撑AI能力的规模化复制"
+    - name: "工业大模型应用深耕"
+      category: "生态位抢占"
+      estimated_timeline: "18-24个月"
+      estimated_impact: "高"
+      risk_level: "高"
+      description: "基于自研MES积累的工业数据，构建行业垂直大模型，在工艺推荐、故障诊断等场景建立壁垒"
+  risk_flags:
+    - risk: "AI团队被竞对挖角"
+      severity: "高"
+      mitigation: "建议客户建立AI人才激励计划（期权+项目奖金+学术发表支持）"
+    - risk: "数据合规风险（工业数据出境监管）"
+      severity: "中"
+      mitigation: "建议优先使用国内云平台和模型，建立数据分级分类管理制度"
+    - risk: "CEO高期望与实际落地速度不匹配"
+      severity: "中"
+      mitigation: "建议设置阶段性里程碑和可见的快赢成果，保持管理层信心"
+
+conversation_strategy:
+  meeting_objective: "了解客户AI战略全貌，建立信任关系，识别可切入的AI咨询服务机会"
+  core_narrative: "贵公司在工业视觉检测领域已经走在行业前列，但要从'单点AI应用'升级到'系统性AI能力'，需要在组织、平台和数据三个维度进行战略性投入——这正是我们可以帮助您的。"
+  key_topics:
+    - topic: "AI战略定位与优先级"
+      rationale: "了解CEO对AI的真正决心和资源投入意愿"
+      angle: "从智能质检的成功经验切入——'您认为这个成功在多大程度上可以复制到其他场景？'"
+    - topic: "AI组织能力"
+      rationale: "判断客户对组织变革的准备度"
+      angle: "从团队分散现状切入——'您是否考虑过将AI能力集中化，建立AI中台或CoE？'"
+    - topic: "数据资产价值"
+      rationale: "MES数据是核心壁垒，需了解客户的数据战略"
+      angle: "从CTO'数据是最大挑战'的言论切入——'你们MES积累的数据，是否已经开始发挥超出生产管理之外的价值？'"
+  probing_questions:
+    - priority: 1
+      question: "您对三年后公司的AI能力有一个什么样的画面？比如，您希望客户提到智造科技时，第一反应是什么？"
+      purpose: "了解AI愿景和野心水平"
+      expected_response_pattern: "大概率会描述一个理想状态，从中判断是务实还是激进"
+    - priority: 2
+      question: "过去两年在AI上的投入，哪些地方让您觉得'钱花得值'，哪些地方让您觉得'效果不如预期'？"
+      purpose: "了解投资回报敏感度，发现隐性痛点"
+      expected_response_pattern: "质检应该是正反馈，其他场景可能有失望点"
+    - priority: 3
+      question: "如果现在拨给您一笔不受限制的AI预算，您会优先花在哪三个地方？"
+      purpose: "验证投资优先级假设，发现CEO心中的真·优先级"
+      expected_response_pattern: "可能提到人才引进、平台建设或新场景探索"
+    - priority: 4
+      question: "在推进AI落地的过程中，最大的阻力来自技术、人才、组织还是数据？"
+      purpose: "诊断核心瓶颈，为后续提案定位"
+      expected_response_pattern: "CTO应该会说数据，CEO可能提到人才"
+    - priority: 5
+      question: "您怎么看大模型对你们行业的影响？是威胁、机会还是炒作？"
+      purpose: "了解对新兴技术的判断力，发现认知差距"
+      expected_response_pattern: "务实派CEO可能认为炒作成分大，但仍会关注"
+  value_proposition_angles:
+    - angle: "从单点AI到系统AI能力"
+      talking_points:
+        - "质检的成功证明AI在贵司场景下可行，但单点成功难以持续——竞争对手也在做"
+        - "真正拉开差距的，是把AI能力变成'可复制的组织能力'，而不是一个又一个的项目"
+      target_concern: "如何持续保持竞争力"
+    - angle: "数据资产变现"
+      talking_points:
+        - "你们的MES系统积累了可能是行业最宝贵的工业数据资产"
+        - "这些数据除了支撑生产管理，还可以成为AI模型训练的核心壁垒——这是竞争对手无法复制的"
+      target_concern: "如何把已有投入转化为护城河"
+  objection_anticipation:
+    - objection: "我们现在的AI团队也能做这些事，为什么要找外部顾问？"
+      likelihood: "中"
+      response_strategy: "认可内部团队能力，强调外部顾问的'加速'价值——我们带来的不是技术能力，而是方法论、行业对标和风险规避经验"
+    - objection: "AI投入太大了，我们得先聚焦业务增长"
+      likelihood: "中"
+      response_strategy: "不争论AI vs 业务增长，强调AI是业务增长的杠杆——用快赢机会（3-6个月见效）作为切入点，降低决策门槛"
+    - objection: "大模型现在还不成熟，我们等一等再看"
+      likelihood: "高"
+      response_strategy: "认可审慎态度，但提示'等待成本'——建议先用低风险方式（如内部知识库）积累经验，等生态成熟时可以快速发力"

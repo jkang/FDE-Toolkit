@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{ title }}</title>
+<script src="https://cdn.jsdelivr.net/npm/plantuml-encoder@1.4.0/dist/plantuml-encoder.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/svg-pan-zoom@3.6.1/dist/svg-pan-zoom.min.js"></script>
+<style>
+:root {
+    --color-primary: #10213E;
+    --color-accent: #5DB2E2;
+    --color-secondary: #625D9C;
+    --color-success: #00524C;
+    --color-info: #6FB1C8;
+    --color-warning: #F59E0B;
+    --color-destructive: #EF4444;
+    --color-background: #FFFFFF;
+    --color-bg-alt: #F5F5F6;
+    --color-foreground: #10213E;
+    --color-text-muted: #64748B;
+    --color-border: #E2E8F0;
+    --shadow-sm: 0 2px 8px rgba(16, 33, 62, 0.08);
+    --shadow-md: 0 4px 16px rgba(16, 33, 62, 0.12);
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --font-family: "MiSans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans SC", "PingFang SC", Arial, sans-serif;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+    font-family: var(--font-family);
+    background: var(--color-bg-alt);
+    color: var(--color-foreground);
+    line-height: 1.6;
+}
+.wrap { width: 85%; max-width: 1440px; margin: 0 auto; padding: 32px 0 64px; }
+
+/* ===== Header ===== */
+.site-header {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 20px 0 16px; border-bottom: 1px solid var(--color-border);
+    margin-bottom: 28px;
+}
+.site-header .left h1 { font-size: 28px; font-weight: 600; color: var(--color-primary); letter-spacing: -0.02em; }
+.site-header .left .sub { font-size: 13px; color: var(--color-text-muted); margin-top: 4px; }
+.site-header .right { text-align: right; font-size: 12px; color: var(--color-text-muted); }
+.site-header .right .gen { text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; }
+
+/* ===== Cards ===== */
+.card {
+    background: var(--color-background);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    padding: 24px;
+    margin-bottom: 24px;
+}
+.section-title {
+    font-size: 18px; font-weight: 600; color: var(--color-primary);
+    margin-bottom: 14px; display: flex; align-items: center; gap: 8px;
+}
+.section-title .tag { font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-accent); font-weight: 700; }
+
+/* ===== 场景概览 ===== */
+.arch-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--color-primary); color: #fff;
+    padding: 6px 14px; border-radius: 6px; font-size: 13px; font-weight: 600;
+    margin-bottom: 12px;
+}
+.principles { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+.principles .chip {
+    background: var(--color-bg-alt); border: 1px solid var(--color-border);
+    border-radius: 20px; padding: 4px 12px; font-size: 12px; color: var(--color-foreground);
+}
+.kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+.kpi-card {
+    border: 1px solid var(--color-border); border-radius: var(--radius-md);
+    padding: 16px; background: var(--color-background);
+}
+.kpi-card .kpi-name { font-size: 14px; font-weight: 600; color: var(--color-primary); margin-bottom: 4px; }
+.kpi-card .kpi-metric { font-size: 12px; color: var(--color-text-muted); margin-bottom: 10px; }
+.kpi-card .kpi-flow { display: flex; align-items: center; gap: 10px; font-size: 13px; font-weight: 600; }
+.kpi-card .baseline { color: var(--color-text-muted); text-decoration: line-through; }
+.kpi-card .arrow { color: var(--color-accent); }
+.kpi-card .target { color: var(--color-success); }
+.kpi-card .linked { margin-top: 10px; font-size: 11px; color: var(--color-text-muted); }
+.kpi-card .linked b { color: var(--color-secondary); }
+
+/* ===== Tab 导航 ===== */
+.tab-nav { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; }
+.tab-btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    border: 1px solid var(--color-border); background: var(--color-background);
+    border-radius: 8px; padding: 10px 18px; font-size: 14px; font-weight: 600;
+    color: var(--color-foreground); cursor: pointer;
+    transition: all 0.15s ease-out;
+}
+.tab-btn:hover { border-color: var(--color-primary); color: var(--color-primary); }
+.tab-btn.active { background: var(--color-primary); color: #fff; border-color: var(--color-primary); }
+.tab-btn .type-badge {
+    font-size: 11px; padding: 2px 8px; border-radius: 10px;
+    background: var(--color-bg-alt); color: var(--color-text-muted); font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.03em;
+}
+.tab-btn.active .type-badge { background: rgba(255,255,255,0.18); color: #fff; }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* ===== 能力头卡 ===== */
+.cap-header { display: grid; grid-template-columns: 1fr 1.2fr; gap: 24px; }
+.cap-header .block { padding: 14px; background: var(--color-bg-alt); border-radius: var(--radius-md); }
+.cap-header .block .lbl { font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; color: var(--color-accent); margin-bottom: 6px; }
+.cap-header .block .val { font-size: 13px; color: var(--color-foreground); }
+.cap-header .goal-card { border-left: 4px solid var(--color-accent); }
+.cap-header .goal-card .lbl { color: var(--color-success); }
+.type-pill {
+    display: inline-block; font-size: 11px; font-weight: 700; padding: 2px 10px;
+    border-radius: 10px; text-transform: uppercase; letter-spacing: 0.04em;
+    vertical-align: middle; margin-left: 6px;
+}
+.type-perception   { background: #DBEAFE; color: #1E40AF; }
+.type-reasoning    { background: #EDE9FE; color: #5B21B6; }
+.type-generation   { background: #E0F2FE; color: #075985; }
+.type-decision     { background: #FEF3C7; color: #92400E; }
+.type-automation   { background: #D1FAE5; color: #065F46; }
+
+/* ===== Agentic 设计卡 ===== */
+.agent-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 8px; }
+.agent-table th { text-align: left; padding: 8px 10px; background: var(--color-primary); color: #fff; font-size: 12px; letter-spacing: 0.03em; }
+.agent-table td { padding: 8px 10px; border-bottom: 1px solid var(--color-border); vertical-align: top; }
+.agent-table tr:nth-child(even) td { background: var(--color-bg-alt); }
+.agent-table .tools { font-size: 12px; color: var(--color-secondary); }
+.pattern-badge {
+    display: inline-block; background: var(--color-secondary); color: #fff;
+    font-size: 12px; font-weight: 700; padding: 4px 12px; border-radius: 4px;
+    text-transform: uppercase; letter-spacing: 0.04em; margin-right: 8px;
+}
+.why-box { margin-top: 12px; padding: 12px 14px; background: var(--color-bg-alt); border-radius: var(--radius-md); font-size: 13px; border-left: 3px solid var(--color-secondary); }
+.why-box .kpi-link { color: var(--color-success); font-weight: 600; }
+
+/* ===== PlantUML 渲染区 ===== */
+.diagram-head { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 12px; }
+.diagram-actions { display: flex; gap: 8px; }
+.btn {
+    padding: 6px 14px; border-radius: 6px; font-size: 13px; font-weight: 600;
+    border: 1px solid var(--color-border); background: #fff; color: var(--color-foreground);
+    cursor: pointer; transition: all 0.15s ease-out;
+    display: inline-flex; align-items: center; gap: 6px;
+}
+.btn:hover { background: var(--color-bg-alt); border-color: var(--color-primary); color: var(--color-primary); }
+.btn-primary { background: var(--color-primary); color: #fff; border-color: var(--color-primary); }
+.btn-primary:hover { opacity: 0.9; color: #fff; }
+.diagram-wrapper {
+    border: 1px solid var(--color-border); border-radius: var(--radius-md);
+    background: #fff; padding: 16px; min-height: 420px;
+    display: flex; justify-content: center; align-items: flex-start;
+    overflow: auto; position: relative;
+}
+.diagram-wrapper svg { max-width: 100%; height: auto; }
+.render-state { font-size: 12px; color: var(--color-text-muted); }
+.render-error {
+    width: 100%; text-align: center; color: var(--color-destructive);
+    padding: 40px 16px; font-size: 14px;
+}
+.render-error pre { text-align: left; margin-top: 12px; padding: 12px; background: var(--color-bg-alt); border-radius: 6px; overflow: auto; font-size: 12px; color: var(--color-text-muted); white-space: pre-wrap; }
+
+/* 高亮图例 */
+.legend-bar { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
+.legend-item {
+    display: inline-flex; align-items: center; gap: 8px;
+    border: 1px solid var(--color-border); border-radius: 8px; padding: 6px 12px;
+    background: var(--color-background); font-size: 12px;
+}
+.legend-item .swatch { width: 16px; height: 16px; border-radius: 4px; border: 1px solid rgba(16,33,62,0.15); }
+.legend-item .kpi-reason { color: var(--color-text-muted); }
+
+/* ===== 护栏 / 失败处理 ===== */
+.guard-list { list-style: none; }
+.guard-list li { padding: 8px 12px; padding-left: 32px; position: relative; font-size: 13px; border-bottom: 1px dashed var(--color-border); }
+.guard-list li:last-child { border-bottom: none; }
+.guard-list li::before {
+    content: "⚠"; position: absolute; left: 8px; top: 7px;
+    font-size: 14px; color: var(--color-warning);
+}
+.failure-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.failure-table th { text-align: left; padding: 8px 10px; background: var(--color-primary); color: #fff; font-size: 12px; }
+.failure-table td { padding: 8px 10px; border-bottom: 1px solid var(--color-border); }
+.failure-table tr:nth-child(even) td { background: var(--color-bg-alt); }
+.type-tag { font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 10px; background: #FFEDD5; color: #9A3412; }
+
+/* ===== PUML 源码 ===== */
+.src-block { margin-top: 14px; }
+.src-toggle { font-size: 12px; color: var(--color-accent); cursor: pointer; user-select: none; text-decoration: underline; }
+.src-pre {
+    display: none; margin-top: 8px; background: var(--color-primary); color: #E2E8F0;
+    padding: 16px; border-radius: var(--radius-md); font-family: "Fira Code", Menlo, monospace;
+    font-size: 12px; overflow: auto; white-space: pre; max-height: 360px;
+}
+.src-pre.show { display: block; }
+
+/* ===== 双列布局 ===== */
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+@media (max-width: 1024px) { .two-col, .cap-header { grid-template-columns: 1fr; } }
+
+/* ===== KPI 矩阵 ===== */
+.matrix-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.matrix-table th { padding: 10px; text-align: center; background: var(--color-primary); color: #fff; font-size: 12px; }
+.matrix-table th:first-child { text-align: left; }
+.matrix-table td { padding: 8px 10px; text-align: center; border-bottom: 1px solid var(--color-border); }
+.matrix-table tr:nth-child(even) td { background: var(--color-bg-alt); }
+.matrix-table .cap-name { text-align: left; font-weight: 600; }
+.matrix-table .dot { color: var(--color-success); font-size: 16px; }
+.matrix-table .dash { color: var(--color-border); font-size: 14px; }
+
+.footer-note { margin-top: 24px; text-align: center; color: var(--color-text-muted); font-size: 12px; text-transform: uppercase; letter-spacing: 0.1em; }
+
+/* Toast */
+.toast {
+    position: fixed; bottom: 24px; right: 24px; background: var(--color-success); color: #fff;
+    padding: 10px 20px; border-radius: 6px; font-size: 13px; font-weight: 600;
+    display: none; z-index: 1000; box-shadow: var(--shadow-md);
+}
+</style>
+
+    <!-- ===== Unified Report Shell: 撑满容器 + 精简 Header + 溢出滚动 ===== -->
+    <style>
+      *, *::before, *::after { box-sizing: border-box !important; }
+      html, body { margin: 0 !important; padding: 0 !important; background: #F5F5F6 !important; overflow-x: auto !important; }
+      .wrap {
+        width: 100% !important;
+        max-width: none !important;
+        margin: 0 auto !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        border: none !important;
+        padding: 24px 28px 48px !important;
+        overflow-x: auto !important;
+      }
+      .site-header { margin-bottom: 20px !important; align-items: center !important; }
+      .site-header h1 { font-size: 22px !important; line-height: 1.3 !important; margin: 0 !important; }
+    
+      /* ===== Unified Header (v2) ===== */
+      .site-header {
+        background: #FFFFFF !important;
+        border-bottom: 1px solid #E2E8F0 !important;
+        border-radius: 0 !important;
+        padding: 12px 0 !important;
+        margin-bottom: 20px !important;
+        min-height: auto !important;
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        gap: 16px !important;
+        flex-wrap: wrap !important;
+      }
+      .site-header h1 {
+        font-size: 22px !important;
+        font-weight: 700 !important;
+        color: #10213E !important;
+        line-height: 1.3 !important;
+        margin: 0 !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 10px !important;
+      }
+      .site-header h1::before {
+        content: "" !important;
+        display: inline-block !important;
+        width: 4px !important;
+        height: 22px !important;
+        background: #5DB2E2 !important;
+        border-radius: 2px !important;
+        flex-shrink: 0 !important;
+      }
+      .site-header h1 svg, .site-header h1 .icon, .site-header h1 img {
+        width: 20px !important;
+        height: 20px !important;
+        flex-shrink: 0 !important;
+      }
+      .site-header .sub, .site-header .description, .site-header .gen, .site-header .header-meta {
+        font-size: 13px !important;
+        color: #64748B !important;
+        margin: 4px 0 0 !important;
+        padding-left: 14px !important;
+      }
+      .btn-secondary, .btn-primary, .btn-copy-yaml {
+        font-size: 12px !important;
+        padding: 6px 12px !important;
+        border-radius: 6px !important;
+        font-weight: 600 !important;
+      }
+      .btn-secondary {
+        background: #FFFFFF !important;
+        color: #10213E !important;
+        border: 1px solid #E2E8F0 !important;
+      }
+      .btn-primary {
+        background: #10213E !important;
+        color: #FFFFFF !important;
+        border: 1px solid #10213E !important;
+      }
+</style>
+
+
+</head>
+<body>
+<div class="wrap">
+
+    <!-- ===== Header ===== -->
+    <header class="site-header">
+        <div class="left">
+            <h1>{{ title }}</h1>
+            <div class="sub">{{ meta.scenarioName }} · 输入源：{{ meta.source }}</div>
+        </div>
+        <div class="right">
+            <div class="gen">Generated by agentic-workflow-designer</div>
+            <div>{{ generated_at }}</div>
+        </div>
+    </header>
+
+    <!-- ===== 场景概览 ===== -->
+    <section class="card">
+        <div class="arch-badge">⚙ 总体架构 · {{ meta.architecture }}</div>
+        <div class="section-title">目标 KPI <span class="tag">scenarioKpis</span></div>
+        <div class="kpi-grid">
+            {% for kpi in kpis %}
+            <div class="kpi-card">
+                <div class="kpi-name">{{ kpi.name }}</div>
+                <div class="kpi-metric">{{ kpi.metric }}</div>
+                <div class="kpi-flow">
+                    <span class="baseline">{{ kpi.baseline }}</span>
+                    <span class="arrow">→</span>
+                    <span class="target">{{ kpi.target }}</span>
+                </div>
+                {% if kpi.linkedCapabilities %}
+                <div class="linked">支撑能力：<b>{{ kpi.linkedCapabilities | join('、') }}</b></div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        <div class="section-title" style="margin-top:20px;">全局设计原则 <span class="tag">designPrinciples</span></div>
+        <div class="principles">
+            {% for p in principles %}<span class="chip">{{ p }}</span>{% endfor %}
+        </div>
+    </section>
+
+    <!-- ===== 能力 Tab ===== -->
+    <nav class="tab-nav">
+        {% for cap in capabilities %}
+        <button class="tab-btn" data-cap="{{ cap.id }}" onclick="switchTab('{{ cap.id }}')">
+            {{ cap.name }}
+            <span class="type-badge">{{ cap.type }}</span>
+        </button>
+        {% endfor %}
+    </nav>
+
+    <!-- ===== 能力面板 ===== -->
+    {% for cap in capabilities %}
+    <section class="tab-panel card" id="panel-{{ cap.id }}" data-cap="{{ cap.id }}">
+        <!-- 能力头卡 -->
+        <div class="cap-header">
+            <div>
+                <div class="block">
+                    <div class="lbl">AI 能力 / 类型</div>
+                    <div class="val">
+                        <b>{{ cap.name }}</b>
+                        <span class="type-pill type-{{ cap.type }}">{{ cap.type }}</span>
+                    </div>
+                </div>
+                <div class="block" style="margin-top:12px;">
+                    <div class="lbl">对齐 To-be 旅程</div>
+                    <div class="val">
+                        阶段：{{ cap.journeyRef.stages | join(' / ') }}<br>
+                        行为：{{ cap.journeyRef.actions | join(' / ') }}
+                    </div>
+                </div>
+            </div>
+            <div>
+                <div class="block">
+                    <div class="lbl">触发（输入）</div>
+                    <div class="val">
+                        <b>{{ cap.trigger.userAction }}</b><br>
+                        输入数据：{{ cap.trigger.inputData }}<br>
+                        系统上下文：{{ cap.trigger.systemContext }}
+                    </div>
+                </div>
+                <div class="block goal-card" style="margin-top:12px;">
+                    <div class="lbl">目标（输出 · KPI 影响）</div>
+                    <div class="val">
+                        输出：{{ cap.goal.output }}<br>
+                        <span class="kpi-link">KPI：{{ cap.goal.kpiImpact }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Agentic 架构摘要 -->
+        <div class="section-title" style="margin-top:24px;">Agentic 架构设计 <span class="tag">agenticDesign</span></div>
+        <div style="margin-bottom:8px;">
+            <span class="pattern-badge">{{ cap.agenticDesign.pattern }}</span>
+            <span style="font-size:13px;color:var(--color-text-muted);">编排模式</span>
+        </div>
+        <table class="agent-table">
+            <thead><tr><th>Agent / 工具</th><th>角色</th><th>模型</th><th>工具依赖</th><th>记忆</th></tr></thead>
+            <tbody>
+            {% for a in cap.agenticDesign.agents %}
+                <tr>
+                    <td><b>{{ a.name }}</b></td>
+                    <td>{{ a.role }}</td>
+                    <td>{{ a.model }}</td>
+                    <td class="tools">{{ a.tools | join('、') }}</td>
+                    <td>{{ a.memory }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        <div class="why-box">
+            <b>Why Pattern：</b>{{ cap.agenticDesign.whyPattern }}<br>
+            <span class="kpi-link">🎯 KPI 对齐：{{ cap.agenticDesign.kpiLink }}</span>
+        </div>
+
+        <!-- PlantUML 活动序列图 -->
+        <div class="section-title" style="margin-top:24px;">活动序列图 <span class="tag">PlantUML · 输入→输出</span></div>
+        <div class="diagram-head">
+            <div class="render-state" id="state-{{ cap.id }}">等待渲染…</div>
+            <div class="diagram-actions">
+                <button class="btn" onclick="resetZoom('{{ cap.id }}')">重置缩放</button>
+                <button class="btn" onclick="downloadImage('{{ cap.id }}')">下载图片</button>
+                <button class="btn btn-primary" onclick="copyPuml('{{ cap.id }}')">复制 PUML</button>
+            </div>
+        </div>
+        <div class="diagram-wrapper" id="diagram-{{ cap.id }}">
+            <div class="render-state">正在加载 PlantUML 渲染器…</div>
+        </div>
+
+        {% if cap.highlightLegend %}
+        <div class="legend-bar">
+            {% for h in cap.highlightLegend %}
+            <div class="legend-item">
+                <span class="swatch" {{ 'style="background:%s;"' | format(h.highlight) }}></span>
+                <span><b>{{ h.segment }}</b></span>
+                <span class="kpi-reason">{{ h.kpiReason }}</span>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="src-block">
+            <span class="src-toggle" onclick="toggleSrc('{{ cap.id }}')">查看 PlantUML 源码 ▼</span>
+            <pre class="src-pre" id="src-{{ cap.id }}">{{ cap.puml }}</pre>
+        </div>
+
+        <!-- 护栏 + 失败处理 -->
+        <div class="two-col" style="margin-top:24px;">
+            <div>
+                <div class="section-title">护栏 <span class="tag">guardrails</span></div>
+                <ul class="guard-list">
+                    {% for g in cap.guardrails %}<li>{{ g }}</li>{% endfor %}
+                </ul>
+            </div>
+            <div>
+                <div class="section-title">失败处理 <span class="tag">failure</span></div>
+                <table class="failure-table">
+                    <thead><tr><th>触发</th><th>处理</th><th>类型</th></tr></thead>
+                    <tbody>
+                    {% for f in cap.failure %}
+                        <tr>
+                            <td>{{ f.trigger }}</td>
+                            <td>{{ f.action }}</td>
+                            <td>{% if f.type %}<span class="type-tag">{{ f.type }}</span>{% endif %}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+    {% endfor %}
+
+    <!-- ===== KPI ↔ 能力矩阵 ===== -->
+    <section class="card">
+        <div class="section-title">KPI ↔ 能力支撑矩阵</div>
+        <table class="matrix-table">
+            <thead>
+                <tr>
+                    <th>AI 能力</th>
+                    {% for kpi in kpis %}<th>{{ kpi.name }}</th>{% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+            {% for row in kpi_matrix %}
+                <tr>
+                    <td class="cap-name">{{ row.cap.name }}</td>
+                    {% for cell in row.cells %}
+                    <td>{% if cell.linked %}<span class="dot">●</span>{% else %}<span class="dash">—</span>{% endif %}</td>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </section>
+
+    <div class="footer-note">Generated by agentic-workflow-designer · AI4PM Skills</div>
+</div>
+
+<div class="toast" id="toast">已复制 PUML 代码</div>
+
+<!-- ===== PlantUML 源码（按能力） ===== -->
+{% for cap in capabilities %}
+<script type="application/x-puml" id="puml-{{ cap.id }}">{{ cap.puml }}</script>
+{% endfor %}
+
+<script>
+const panZoomInstances = {};
+const rendered = {};
+const activeTabId = '{{ capabilities[0].id if capabilities else "" }}';
+
+function switchTab(capId) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.cap === capId));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.dataset.cap === capId));
+    renderDiagram(capId);
+}
+
+function getPuml(capId) {
+    const el = document.getElementById('puml-' + capId);
+    return el ? el.textContent.trim() : '';
+}
+
+function encodeUrl(capId) {
+    try {
+        const puml = getPuml(capId);
+        if (!puml) throw new Error('空 PUML');
+        return 'https://www.plantuml.com/plantuml/svg/' + plantumlEncoder.encode(puml);
+    } catch (e) {
+        return null;
+    }
+}
+
+function renderDiagram(capId) {
+    if (rendered[capId]) return;
+    rendered[capId] = true;
+    const container = document.getElementById('diagram-' + capId);
+    const state = document.getElementById('state-' + capId);
+    if (!container) return;
+
+    const url = encodeUrl(capId);
+    if (!url) {
+        container.innerHTML = '<div class="render-error">⚠ PUML 源码为空或格式不正确，请查看下方源码。</div>';
+        state.textContent = '渲染失败';
+        return;
+    }
+
+    container.innerHTML = '<div class="render-state">正在渲染 PlantUML…</div>';
+    fetch(url)
+        .then(res => {
+            if (!res.ok) throw new Error('PlantUML 渲染请求失败 (' + res.status + ')');
+            return res.text();
+        })
+        .then(svgData => {
+            container.innerHTML = svgData;
+            const svgEl = container.querySelector('svg');
+            if (!svgEl) throw new Error('响应中未找到 SVG');
+            svgEl.setAttribute('id', 'svg-' + capId);
+            svgEl.style.maxWidth = '100%';
+            svgEl.style.height = 'auto';
+            panZoomInstances[capId] = svgPanZoom('#svg-' + capId, {
+                zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true
+            });
+            state.textContent = '✅ 渲染成功（可缩放 / 复制 / 下载）';
+        })
+        .catch(err => {
+            container.innerHTML = '<div class="render-error">⚠ 渲染失败：需要网络访问 plantuml.com。' +
+                '（源码仍可查看/复制，不影响数据）<pre>' + err.message + '</pre></div>';
+            state.textContent = '渲染失败（离线）';
+            console.error(err);
+        });
+}
+
+function resetZoom(capId) { if (panZoomInstances[capId]) panZoomInstances[capId].reset(); }
+
+function downloadImage(capId) {
+    const url = encodeUrl(capId);
+    if (url) window.open(url.replace('/svg/', '/png/'), '_blank');
+}
+
+function copyPuml(capId) {
+    const puml = getPuml(capId);
+    if (!puml) return;
+    navigator.clipboard.writeText(puml).then(() => {
+        const t = document.getElementById('toast');
+        t.style.display = 'block';
+        setTimeout(() => { t.style.display = 'none'; }, 2500);
+    });
+}
+
+function toggleSrc(capId) {
+    const el = document.getElementById('src-' + capId);
+    if (el) el.classList.toggle('show');
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+    if (activeTabId) switchTab(activeTabId);
+});
+</script>
+</body>
+</html>

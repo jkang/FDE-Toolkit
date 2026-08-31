@@ -1,0 +1,1087 @@
+<!DOCTYPE html>
+<html lang="{{ lang }}">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{ title }}</title>
+<style>
+:root {
+  --ivory: {{ colors.ivory }};
+  --navy: {{ colors.navy }};
+  --white: {{ colors.white }};
+  --mck-blue: {{ colors.mck_blue }};
+  --gray: {{ colors.gray }};
+  --light-gray: {{ colors.light_gray }};
+  --light-blue: {{ colors.light_blue }};
+  --danger: {{ colors.danger }};
+  --warning: {{ colors.warning }};
+  --success: {{ colors.success }};
+  --info: {{ colors.info }};
+}
+
+/* Score-based Colors */
+.score-c-1 { color: #EF4444 !important; }
+.score-c-2 { color: #F59E0B !important; }
+.score-c-3 { color: #3B82F6 !important; }
+.score-c-4 { color: #10B981 !important; }
+.score-c-5 { color: #059669 !important; }
+
+.score-b-1 { background: #EF4444 !important; }
+.score-b-2 { background: #F59E0B !important; }
+.score-b-3 { background: #3B82F6 !important; }
+.score-b-4 { background: #10B981 !important; }
+.score-b-5 { background: #059669 !important; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  color: #1a1a2e;
+  background: var(--ivory);
+  line-height: 1.7;
+  font-size: 15px;
+}
+
+/* ── Container ───────────────────────────────────────────────── */
+.container { max-width: 1200px; margin: 0 auto; padding: 50px 40px 60px; }
+
+/* ── Section Titles ──────────────────────────────────────────── */
+.section { margin-bottom: 60px; }
+.section-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--navy);
+  border-left: 5px solid var(--mck-blue);
+  padding-left: 18px;
+  margin-bottom: 28px;
+  letter-spacing: 1px;
+}
+
+/* ── Executive Summary ───────────────────────────────────────── */
+.exec-summary {
+  background: var(--white);
+  border-radius: 8px;
+  padding: 36px 40px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+}
+.exec-summary .grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+}
+.exec-summary h3 {
+  font-size: 16px;
+  color: var(--mck-blue);
+  margin-bottom: 14px;
+  font-weight: 700;
+}
+.exec-summary ul {
+  list-style: none;
+  padding: 0;
+}
+.exec-summary li {
+  position: relative;
+  padding-left: 20px;
+  margin-bottom: 10px;
+  font-size: 14.5px;
+  line-height: 1.6;
+}
+.exec-summary li::before {
+  content: "•";
+  position: absolute;
+  left: 0;
+  color: var(--mck-blue);
+  font-weight: bold;
+}
+
+/* ── Card Grid ───────────────────────────────────────────────── */
+.card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 20px; }
+.card-grid.cols-3 { grid-template-columns: repeat(3, 1fr); }
+.card-grid.cols-2 { grid-template-columns: repeat(2, 1fr); }
+.card {
+  background: var(--white);
+  border-radius: 8px;
+  padding: 26px 28px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+  border-top: 4px solid var(--mck-blue);
+}
+.card h4 {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--navy);
+  margin-bottom: 12px;
+}
+.card p, .card li { font-size: 13.5px; color: var(--gray); line-height: 1.65; }
+.card ul, .card ol { padding-left: 18px; margin-top: 6px; }
+.card li { margin-bottom: 4px; }
+.card .tag {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  margin: 2px 4px 2px 0;
+}
+.tag-primary { background: #E8F4FD; color: var(--mck-blue); }
+.tag-secondary { background: #F0F2F5; color: var(--gray); }
+
+/* ── Score Bar ───────────────────────────────────────────────── */
+.score-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 14px;
+  gap: 14px;
+}
+.score-row .label {
+  width: 100px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--navy);
+  flex-shrink: 0;
+}
+.score-row .bar-wrap {
+  flex: 1;
+  height: 10px;
+  background: var(--light-gray);
+  border-radius: 6px;
+  overflow: hidden;
+}
+.score-row .bar-fill {
+  height: 100%;
+  border-radius: 6px;
+  transition: width 0.4s ease;
+}
+.score-row .score-num {
+  width: 60px;
+  text-align: right;
+  font-size: 13px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.score-row .score-level {
+  width: 70px;
+  font-size: 12px;
+  color: var(--gray);
+  flex-shrink: 0;
+}
+
+/* ── Overall Score Badge ─────────────────────────────────────── */
+.overall-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 24px;
+  background: var(--light-blue);
+  border-radius: 8px;
+  margin-bottom: 24px;
+}
+.overall-badge .big-score {
+  font-size: 42px;
+  font-weight: 800;
+  line-height: 1;
+}
+.overall-badge .big-label {
+  font-size: 14px;
+  color: var(--gray);
+}
+
+/* ── Use Case Table ──────────────────────────────────────────── */
+.uc-table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+.uc-table thead th {
+  background: var(--navy);
+  color: white;
+  padding: 12px 16px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 12px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+.uc-table tbody td {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--light-gray);
+  vertical-align: top;
+}
+.uc-table tbody tr:hover { background: #F8FAFD; }
+.status-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+.status-prod  { background: #D1FAE5; color: #065F46; }
+.status-pilot { background: #FEF3C7; color: #92400E; }
+.status-plan  { background: #E0E7FF; color: #3730A3; }
+
+/* ── Radar Chart (Pure CSS) ──────────────────────────────────── */
+.radar-wrap { display: flex; justify-content: center; margin: 30px 0; }
+.radar-chart {
+  position: relative;
+  width: 380px; height: 380px;
+}
+.radar-svg { width: 100%; height: 100%; }
+.radar-legend {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 16px;
+}
+.radar-legend .legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--gray);
+}
+.legend-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+
+/* ── Executive Quotes ────────────────────────────────────────── */
+.quote-block {
+  background: linear-gradient(135deg, var(--light-blue) 0%, var(--white) 100%);
+  border-left: 4px solid var(--mck-blue);
+  padding: 20px 24px;
+  margin-bottom: 16px;
+  border-radius: 0 6px 6px 0;
+}
+.quote-block .quote-text {
+  font-size: 15px;
+  font-style: italic;
+  color: var(--navy);
+  line-height: 1.65;
+  margin-bottom: 10px;
+}
+.quote-block .quote-meta {
+  font-size: 12px;
+  color: var(--gray);
+}
+.quote-block .quote-implication {
+  font-size: 13px;
+  color: var(--mck-blue);
+  margin-top: 6px;
+}
+
+/* ── Gap Analysis ────────────────────────────────────────────── */
+.gap-table { width: 100%; border-collapse: collapse; font-size: 13.5px; margin-top: 16px; }
+.gap-table thead th {
+  background: var(--navy);
+  color: white;
+  padding: 12px 16px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 12px;
+  letter-spacing: 1px;
+}
+.gap-table tbody td {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--light-gray);
+}
+.gap-size-big   { color: var(--danger); font-weight: 700; }
+.gap-size-mid   { color: var(--warning); font-weight: 700; }
+.gap-size-small { color: var(--success); font-weight: 700; }
+
+/* ── Quick Wins / Strategic Bets ─────────────────────────────── */
+.opportunity-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 20px; margin-top: 16px; }
+.opp-card {
+  background: var(--white);
+  border-radius: 8px;
+  padding: 24px 26px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+}
+.opp-card .opp-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.opp-card h4 { font-size: 15px; color: var(--navy); }
+.opp-card .opp-pill {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 12px;
+  letter-spacing: 0.5px;
+}
+.pill-timeline { background: #E0E7FF; color: var(--info); }
+.pill-impact-high { background: #D1FAE5; color: #065F46; }
+.pill-impact-mid  { background: #FEF3C7; color: #92400E; }
+.pill-risk  { font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 10px; }
+.pill-risk-high { background: #FEE2E2; color: var(--danger); }
+.pill-risk-mid  { background: #FEF3C7; color: var(--warning); }
+.pill-risk-low  { background: #D1FAE5; color: var(--success); }
+
+/* ── Conversation Strategy ───────────────────────────────────── */
+.accordion { margin-top: 16px; }
+.accordion-item {
+  background: var(--white);
+  border: 1px solid var(--light-gray);
+  border-radius: 8px;
+  margin-bottom: 10px;
+  overflow: hidden;
+}
+.accordion-header {
+  padding: 16px 20px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 15px;
+  color: var(--navy);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  user-select: none;
+}
+.accordion-header:hover { background: var(--light-blue); }
+.accordion-header .arrow {
+  font-size: 12px;
+  transition: transform 0.25s ease;
+}
+.accordion-item.open .accordion-header .arrow {
+  transform: rotate(180deg);
+}
+.accordion-body {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease, padding 0.3s ease;
+  padding: 0 20px;
+  font-size: 14px;
+  color: var(--gray);
+  line-height: 1.65;
+}
+.accordion-item.open .accordion-body {
+  max-height: 800px;
+  padding: 0 20px 20px;
+}
+.accordion-body ul { padding-left: 18px; }
+.accordion-body li { margin-bottom: 6px; }
+
+/* ── Risk Flags ──────────────────────────────────────────────── */
+.risk-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 16px 20px;
+  background: var(--white);
+  border-radius: 8px;
+  margin-bottom: 10px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+}
+.risk-icon { font-size: 22px; flex-shrink: 0; }
+
+/* ── Industry Maturity Bar Chart ─────────────────────────────── */
+.maturity-bar-chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  height: 220px;
+  padding: 20px 0;
+}
+.maturity-bar-chart .bar-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+.maturity-bar-chart .bar-fill {
+  width: 100%;
+  border-radius: 6px 6px 0 0;
+  transition: height 0.4s ease;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 8px;
+}
+.maturity-bar-chart .bar-pct {
+  font-size: 16px;
+  font-weight: 800;
+  color: white;
+}
+.maturity-bar-chart .bar-label {
+  font-size: 12px;
+  color: var(--gray);
+  text-align: center;
+}
+
+/* ── Topic Cards ─────────────────────────────────────────────── */
+.topic-card {
+  background: var(--white);
+  border-radius: 8px;
+  padding: 20px 24px;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+}
+.topic-card h4 { font-size: 15px; color: var(--navy); margin-bottom: 6px; }
+.topic-card .angle { font-size: 13px; color: var(--mck-blue); font-style: italic; }
+
+/* ── Divider ─────────────────────────────────────────────────── */
+.divider { border: none; border-top: 1px solid #e0e5ec; margin: 20px 0; }
+
+/* ── Print ───────────────────────────────────────────────────── */
+@media print {
+  body { background: white; font-size: 12px; }
+  .container { max-width: 100%; padding: 20px; }
+  .accordion-body { max-height: none !important; }
+  .section { margin-bottom: 30px; page-break-inside: avoid; }
+}
+
+.btn-copy-yaml {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-top: 20px;
+}
+.btn-copy-yaml:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.toast {
+  position: fixed; bottom: 24px; right: 24px;
+  background: #10b981; color: #fff;
+  padding: 10px 20px; border-radius: 8px;
+  font-size: 13px; font-weight: 600;
+  display: none; z-index: 1000;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+</style>
+
+    <!-- ===== Unified Report Shell: 撑满容器 + 精简 Header + 溢出滚动 ===== -->
+    <style>
+      *, *::before, *::after { box-sizing: border-box !important; }
+      html, body { margin: 0 !important; padding: 0 !important; background: #F5F5F6 !important; overflow-x: auto !important; }
+      .container {
+        width: 100% !important;
+        max-width: none !important;
+        margin: 0 auto !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        border: none !important;
+        padding: 24px 28px 48px !important;
+        overflow-x: auto !important;
+      }
+    
+
+      /* ===== Unified Header: 结构样式 ===== */
+      .unified-hdr {
+        background: #FFFFFF !important;
+        border-bottom: 1px solid #E2E8F0 !important;
+        padding: 14px 40px !important;
+        margin: 0 !important;
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        gap: 16px !important;
+        flex-wrap: wrap !important;
+      }
+      .unified-hdr-left { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+      .unified-hdr-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+      .unified-hdr h1 {
+        font-size: 22px !important;
+        font-weight: 700 !important;
+        color: #10213E !important;
+        line-height: 1.3 !important;
+        margin: 0 !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 10px !important;
+      }
+      .unified-hdr h1::before {
+        content: "" !important;
+        display: inline-block !important;
+        width: 4px !important;
+        height: 22px !important;
+        background: #5DB2E2 !important;
+        border-radius: 2px !important;
+        flex-shrink: 0 !important;
+      }
+      .unified-hdr p {
+        font-size: 13px !important;
+        color: #64748B !important;
+        margin: 4px 0 0 !important;
+        padding-left: 14px !important;
+      }
+      .unified-hdr .btn-copy-yaml, .unified-hdr button {
+        font-size: 12px !important;
+        padding: 6px 12px !important;
+        border-radius: 6px !important;
+        font-weight: 600 !important;
+        background: #10213E !important;
+        color: #FFFFFF !important;
+        border: 1px solid #10213E !important;
+      }
+</style>
+
+
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════════════════ -->
+<!--  COVER                                                         -->
+<!-- ══════════════════════════════════════════════════════════════ -->
+
+
+<!-- ===== Unified Header ===== -->
+<header class="unified-hdr">
+  <div class="unified-hdr-left">
+    <h1>AI 就绪度战略简报</h1>
+    <p>{{ company.name }}{% if company.name_en %} / {{ company.name_en }}{% endif %} · {{ company.industry.primary }}</p>
+  </div>
+  <div class="unified-hdr-right">
+    <button class="btn-copy-yaml" onclick="copyYAML()">复制原始 YAML</button>
+  </div>
+</header>
+
+<div class="container">
+
+<!-- ══════════════════════════════════════════════════════════════ -->
+<!--  EXECUTIVE SUMMARY                                             -->
+<!-- ══════════════════════════════════════════════════════════════ -->
+<div class="section">
+  <h2 class="section-title">执行摘要</h2>
+  <div class="exec-summary">
+    <div class="grid">
+      <div>
+        <h3>📊 现状判断</h3>
+        <ul>
+          <li><strong>AI 成熟度：{{ ai_current.overall_maturity }}/5 · {{ SCORE_LABELS[ai_current.overall_maturity] }}</strong> — {{ ai_current.ai_team.organization }}，已有 {{ ai_current.use_cases|length }} 个 AI 场景落地</li>
+          <li><strong>数字化基础：{{ digital.overall_score }}/5 · {{ digital.overall_label }}</strong> — {{ digital.dimensions[0].description[:60] }}{% if digital.dimensions[0].description|length > 60 %}...{% endif %}</li>
+          <li><strong>行业位置：{{ benchmark.company_relative_position.overall_rank }}</strong> — {{ benchmark.industry_name }}整体 AI 采纳率：{{ benchmark.ai_adoption_rate }}</li>
+          <li><strong>战略野心：{{ ai_strategy.ambition_level }}</strong> — {{ ai_strategy.vision_statement[:60] }}{% if ai_strategy.vision_statement|length > 60 %}...{% endif %}</li>
+        </ul>
+      </div>
+      <div>
+        <h3>💡 建议方向</h3>
+        <ul>
+          {% for qw in gap_opp.quick_wins[:3] %}
+          <li><strong>{{ qw.name }}</strong>：{{ qw.description[:50] }}{% if qw.description|length > 50 %}...{% endif %}（{{ qw.estimated_timeline }}）</li>
+          {% endfor %}
+          {% if gap_opp.strategic_bets %}
+          <li><strong>战略布局</strong>：关注 {{ gap_opp.strategic_bets[0].name }}{% if gap_opp.strategic_bets|length > 1 %} 与 {{ gap_opp.strategic_bets[1].name }}{% endif %}</li>
+          {% endif %}
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════ -->
+<!--  COMPANY FUNDAMENTALS                                          -->
+<!-- ══════════════════════════════════════════════════════════════ -->
+<div class="section">
+  <h2 class="section-title">一、企业基本面</h2>
+  <div class="card-grid cols-3">
+    <div class="card">
+      <h4>📌 基本信息</h4>
+      <p><strong>{{ company.name }}</strong>{% if company.name_en %} ({{ company.name_en }}){% endif %}</p>
+      <p>📍 {{ company.headquarters }} · 成立于 {{ company.founded }}</p>
+      <p>👥 {{ company.employee_count }} · 💰 {{ company.revenue_range }}</p>
+      <p>🏷️ {{ company.funding_stage }} · {{ company.business_model }}</p>
+    </div>
+    <div class="card">
+      <h4>🏭 行业定位</h4>
+      <p><strong>{{ company.industry.primary }}</strong></p>
+      <p>
+        {% for s in company.industry.secondary %}
+        <span class="tag tag-primary">{{ s }}</span>
+        {% endfor %}
+      </p>
+      <hr class="divider">
+      <p><strong>核心产品/服务：</strong></p>
+      <ul>
+        {% for p in company.core_products %}
+        <li>{{ p }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+    <div class="card">
+      <h4>👤 核心高管</h4>
+      {% for exec in company.key_executives %}
+      <p style="margin-bottom: 8px;"><strong>{{ exec.name }}</strong><br><span class="tag tag-secondary">{{ exec.title }}</span></p>
+      <p style="font-size: 12px; color: #5A6570;">{{ exec.background[:80] }}{% if exec.background|length > 80 %}...{% endif %}</p>
+      {% if not loop.last %}<hr class="divider">{% endif %}
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════ -->
+<!--  DIGITAL TRANSFORMATION MATURITY                               -->
+<!-- ══════════════════════════════════════════════════════════════ -->
+<div class="section">
+  <h2 class="section-title">二、数字化转型成熟度</h2>
+  <div class="overall-badge">
+    <span class="big-score score-c-{{ digital.overall_score | int }}">{{ digital.overall_score }}</span>
+    <span>/ 5</span>
+    <span class="big-label">{{ digital.overall_label }}</span>
+  </div>
+  <div class="card-grid cols-2">
+    <div class="card">
+      <h4>📊 五维评分</h4>
+      {% for dim in digital.dimensions %}
+      <div class="score-row">
+        <span class="label">{{ dim.label }}</span>
+        <div class="bar-wrap"><div class="bar-fill score-b-{{ dim.score | int }}" data-w="{{ dim.bar_pct }}%"></div></div>
+        <span class="score-num">{{ dim.score }}/5</span>
+        <span class="score-level">{{ dim.label_text }}</span>
+      </div>
+      <p style="font-size:12px; color:#5A6570; margin-top:2px; padding-left:100px;">{{ dim.description[:80] }}{% if dim.description|length > 80 %}...{% endif %}</p>
+      {% endfor %}
+    </div>
+    <div class="card">
+      <h4>💻 关键系统</h4>
+      {% for sys in digital.key_systems %}
+      <p style="margin-bottom:8px;">
+        <span class="tag tag-primary">{{ sys.category }}</span>
+        <strong>{{ sys.name }}</strong>
+        <span class="tag tag-secondary">{{ sys.status }}</span>
+      </p>
+      <p style="font-size:12px; color:#5A6570;">{{ sys.description }}</p>
+      {% if not loop.last %}<hr class="divider">{% endif %}
+      {% endfor %}
+      {% if digital.tech_debt_notes %}
+      <hr class="divider">
+      <p style="font-size: 12px; color: #EF4444;">⚠️ <strong>技术债务：</strong>{{ digital.tech_debt_notes[:120] }}{% if digital.tech_debt_notes|length > 120 %}...{% endif %}</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════ -->
+<!--  AI CURRENT STATE                                              -->
+<!-- ══════════════════════════════════════════════════════════════ -->
+<div class="section">
+  <h2 class="section-title">三、AI 应用现状</h2>
+  <div class="overall-badge">
+    <span class="big-score score-c-{{ ai_current.overall_maturity | int }}">{{ ai_current.overall_maturity }}</span>
+    <span>/ 5</span>
+    <span class="big-label">{{ SCORE_LABELS[ai_current.overall_maturity] }}</span>
+  </div>
+
+  <!-- AI Team -->
+  <div class="card-grid cols-2" style="margin-bottom:28px;">
+    <div class="card">
+      <h4>🧑‍💻 AI 团队</h4>
+      {% if ai_current.ai_team.exists %}
+      <p><strong>规模：</strong>{{ ai_current.ai_team.headcount }}</p>
+      <p><strong>组织：</strong>{{ ai_current.ai_team.organization }}</p>
+      <p>
+        <strong>关键角色：</strong>
+        {% for r in ai_current.ai_team.key_roles %}
+        <span class="tag tag-primary">{{ r }}</span>
+        {% endfor %}
+      </p>
+      {% else %}
+      <p>⚠️ 尚无专职 AI 团队</p>
+      {% endif %}
+      {% if ai_current.ai_talent_gap %}
+      <p style="font-size: 12px; color: #EF4444; margin-top: 8px;">⚠️ {{ ai_current.ai_talent_gap[:80] }}{% if ai_current.ai_talent_gap|length > 80 %}...{% endif %}</p>
+      {% endif %}
+    </div>
+    <div class="card">
+      <h4>🔧 技术栈</h4>
+      <p><strong>模型平台：</strong>{{ ai_current.tech_stack.model_platform }}</p>
+      <p><strong>MLOps：</strong>{{ ai_current.tech_stack.mlops_tools }}</p>
+      <p><strong>大模型：</strong>{{ ai_current.tech_stack.llm_usage[:80] }}{% if ai_current.tech_stack.llm_usage|length > 80 %}...{% endif %}</p>
+      <p>
+        <strong>合作伙伴：</strong>
+        {% for v in ai_current.tech_stack.key_vendors %}
+        <span class="tag tag-secondary">{{ v }}</span>
+        {% endfor %}
+      </p>
+      {% if ai_current.recent_investments %}
+      <p style="font-size:12px; margin-top:8px;"><strong>近期投入：</strong>{{ ai_current.recent_investments[:100] }}{% if ai_current.recent_investments|length > 100 %}...{% endif %}</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Use Cases Table -->
+  <div class="card" style="padding: 0; overflow: hidden;">
+    <table class="uc-table">
+      <thead>
+        <tr>
+          <th>场景</th>
+          <th>类别</th>
+          <th>状态</th>
+          <th>成熟度</th>
+          <th>描述</th>
+          <th>部门</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for uc in ai_current.use_cases %}
+        <tr>
+          <td><strong>{{ uc.name }}</strong></td>
+          <td><span class="tag tag-secondary">{{ uc.category }}</span></td>
+          <td>
+            {% if uc.status == "生产中" %}<span class="status-badge status-prod">🟢 {{ uc.status }}</span>
+            {% elif uc.status == "试点中" %}<span class="status-badge status-pilot">🟡 {{ uc.status }}</span>
+            {% else %}<span class="status-badge status-plan">🔵 {{ uc.status }}</span>
+            {% endif %}
+          </td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="bar-wrap" style="width: 80px;"><div class="bar-fill score-b-{{ uc.maturity | int }}" data-w="{{ uc.maturity_bar_pct }}%"></div></div>
+              <span style="font-size: 12px;">{{ uc.maturity }}/5</span>
+            </div>
+          </td>
+          <td style="max-width:280px;">{{ uc.description[:120] }}{% if uc.description|length > 120 %}...{% endif %}</td>
+          <td>{{ uc.department }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════ -->
+<!--  AI STRATEGY                                                   -->
+<!-- ══════════════════════════════════════════════════════════════ -->
+<div class="section">
+  <h2 class="section-title">四、AI 战略解读</h2>
+
+  <div class="card-grid cols-2">
+    <div class="card">
+      <h4>🎯 愿景与野心</h4>
+      <p style="font-style:italic;">"{{ ai_strategy.vision_statement[:150] }}{% if ai_strategy.vision_statement|length > 150 %}...{% endif %}"</p>
+      <p style="margin-top:10px;"><strong>野心水平：</strong>
+        {% if ai_strategy.ambition_level == "激进" %}<span class="tag tag-primary" style="background:#FEE2E2;color:#DC2626;">🔴 {{ ai_strategy.ambition_level }}</span>
+        {% elif ai_strategy.ambition_level == "务实" %}<span class="tag tag-primary" style="background:#FEF3C7;color:#92400E;">🟡 {{ ai_strategy.ambition_level }}</span>
+        {% else %}<span class="tag tag-secondary">{{ ai_strategy.ambition_level }}</span>
+        {% endif %}
+      </p>
+    </div>
+    <div class="card">
+      <h4>📋 公开举措与优先级</h4>
+      <ul>
+        {% for si in ai_strategy.stated_initiatives %}
+        <li>{{ si }}</li>
+        {% endfor %}
+      </ul>
+      <p style="margin-top:8px;"><strong>投资优先级：</strong></p>
+      {% for area in ai_strategy.investment_priority_areas %}
+      <span class="tag tag-primary">{{ area }}</span>
+      {% endfor %}
+    </div>
+    <div class="card">
+      <h4>🏛️ 组织与治理</h4>
+      <p><strong>组织变革意图：</strong>{{ ai_strategy.organizational_intent }}</p>
+      <p><strong>监管立场：</strong>{{ ai_strategy.regulatory_stance }}</p>
+    </div>
+    <div class="card">
+      <h4>⚡ 战略矛盾点</h4>
+      <p style="font-size:13px; color:#DC2626;">{{ ai_strategy.strategic_contradictions[:150] }}{% if ai_strategy.strategic_contradictions|length > 150 %}...{% endif %}</p>
+    </div>
+  </div>
+
+  <!-- Executive Quotes -->
+  {% if ai_strategy.executive_quotes %}
+  <h4 style="margin-top:28px; margin-bottom:14px; color: var(--navy);">💬 高管公开言论</h4>
+  {% for eq in ai_strategy.executive_quotes %}
+  <div class="quote-block">
+    <div class="quote-text">"{{ eq.quote }}"</div>
+    <div class="quote-meta">📎 {{ eq.source }} · {{ eq.date }}</div>
+    <div class="quote-implication">🔍 <strong>解读：</strong>{{ eq.implication }}</div>
+  </div>
+  {% endfor %}
+  {% endif %}
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════ -->
+<!--  INDUSTRY AI MATURITY BENCHMARKING                             -->
+<!-- ══════════════════════════════════════════════════════════════ -->
+<div class="section">
+  <h2 class="section-title">五、行业 AI 成熟度对标</h2>
+  <p style="color: var(--gray); margin-bottom:20px;">行业：<strong>{{ benchmark.industry_name }}</strong> · AI 采纳率：{{ benchmark.ai_adoption_rate }}</p>
+
+  <div class="card-grid cols-2">
+    <!-- Distribution Bar Chart -->
+    <div class="card">
+      <h4>📊 行业 AI 成熟度分布</h4>
+      {% set dist = benchmark.maturity_distribution %}
+      <div class="maturity-bar-chart">
+        <div class="bar-col">
+          <div class="bar-fill" data-h="{{ (dist.leaders_pct * 2.5) | int }}px" style="background: #0077C8;"><span class="bar-pct">{{ dist.leaders_pct }}%</span></div>
+          <span class="bar-label">领先者</span>
+        </div>
+        <div class="bar-col">
+          <div class="bar-fill" data-h="{{ (dist.advanced_pct * 2.5) | int }}px" style="background: #10B981;"><span class="bar-pct">{{ dist.advanced_pct }}%</span></div>
+          <span class="bar-label">先进者</span>
+        </div>
+        <div class="bar-col">
+          <div class="bar-fill" data-h="{{ (dist.followers_pct * 2.5) | int }}px" style="background: #FBBF24;"><span class="bar-pct">{{ dist.followers_pct }}%</span></div>
+          <span class="bar-label">跟进者</span>
+        </div>
+        <div class="bar-col">
+          <div class="bar-fill" data-h="{{ (dist.beginners_pct * 2.5) | int }}px" style="background: #F59E0B;"><span class="bar-pct">{{ dist.beginners_pct }}%</span></div>
+          <span class="bar-label">起步者</span>
+        </div>
+        <div class="bar-col">
+          <div class="bar-fill" data-h="{{ (dist.observers_pct * 2.5) | int }}px" style="background: #EF4444;"><span class="bar-pct">{{ dist.observers_pct }}%</span></div>
+          <span class="bar-label">观望者</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Company Position -->
+    <div class="card">
+      <h4>📍 企业相对位置</h4>
+      <p><strong>行业排名：</strong>{{ benchmark.company_relative_position.overall_rank }}</p>
+      <hr class="divider">
+      <p><strong>✅ 相对优势：</strong></p>
+      <ul>
+        {% for s in benchmark.company_relative_position.strengths_vs_peers %}
+        <li>{{ s }}</li>
+        {% endfor %}
+      </ul>
+      <p style="margin-top:8px;"><strong>⚠️ 相对差距：</strong></p>
+      <ul>
+        {% for g in benchmark.company_relative_position.gaps_vs_peers %}
+        <li>{{ g }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+
+  <!-- Benchmark Companies -->
+  <h4 style="margin-top:28px; margin-bottom:14px; color: var(--navy);">🏆 行业对标企业</h4>
+  <div class="card" style="padding:0; overflow:hidden;">
+    <table class="uc-table">
+      <thead><tr><th>企业</th><th>AI 成熟度</th><th>差异化</th><th>对标意义</th></tr></thead>
+      <tbody>
+        {% for bc in benchmark.benchmark_companies %}
+        <tr>
+          <td><strong>{{ bc.name }}</strong></td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="bar-wrap" style="width: 60px;"><div class="bar-fill score-b-{{ bc.ai_maturity_score | int }}" data-w="{{ (bc.ai_maturity_score * 20) | int }}%"></div></div>
+              <span>{{ bc.ai_maturity_score }}/5</span>
+            </div>
+          </td>
+          <td style="max-width: 200px;">{{ bc.key_differentiator[:80] }}{% if bc.key_differentiator|length > 80 %}...{% endif %}</td>
+          <td>{{ bc.relevance }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Industry Opportunities & Challenges -->
+  <div class="card-grid cols-2" style="margin-top:20px;">
+    <div class="card">
+      <h4>🎯 行业 AI 机会</h4>
+      {% for o in benchmark.industry_specific_opportunities %}
+      <p style="margin-bottom:8px;">
+        <strong>{{ o.opportunity }}</strong>
+        <span class="tag {% if o.potential_impact == '高' %}tag-primary{% else %}tag-secondary{% endif %}">{{ o.potential_impact }}影响</span>
+      </p>
+      <p style="font-size:12px; color: var(--gray);">{{ o.description[:100] }}{% if o.description|length > 100 %}...{% endif %}</p>
+      {% if not loop.last %}<hr class="divider">{% endif %}
+      {% endfor %}
+    </div>
+    <div class="card">
+      <h4>🚧 行业 AI 挑战</h4>
+      {% for c in benchmark.industry_challenges %}
+      <p style="margin-bottom:8px;">
+        <strong>{{ c.challenge }}</strong>
+        <span class="tag {% if c.severity == '高' %}tag-primary{% else %}tag-secondary{% endif %}">{{ c.severity }}严重</span>
+      </p>
+      <p style="font-size:12px; color: var(--gray);">{{ c.description[:100] }}{% if c.description|length > 100 %}...{% endif %}</p>
+      {% if not loop.last %}<hr class="divider">{% endif %}
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════ -->
+<!--  GAP & OPPORTUNITY ANALYSIS                                    -->
+<!-- ══════════════════════════════════════════════════════════════ -->
+<div class="section">
+  <h2 class="section-title">六、差距与机会分析</h2>
+  <p style="color: var(--gray); margin-bottom:20px;">{{ gap_opp.gap_summary }}</p>
+
+  {% if gap_opp.quantitative_gaps %}
+  <h4 style="color: var(--navy); margin-bottom:14px;">📏 量化差距</h4>
+  <div class="card" style="padding:0; overflow:hidden; margin-bottom:28px;">
+    <table class="gap-table">
+      <thead><tr><th>维度</th><th>当前水平</th><th>行业基准</th><th>差距</th><th>说明</th></tr></thead>
+      <tbody>
+        {% for g in gap_opp.quantitative_gaps %}
+        <tr>
+          <td><strong>{{ g.dimension }}</strong></td>
+          <td>{{ g.current_level[:60] }}{% if g.current_level|length > 60 %}...{% endif %}</td>
+          <td>{{ g.industry_benchmark[:60] }}{% if g.industry_benchmark|length > 60 %}...{% endif %}</td>
+          <td><span class="gap-size-{% if g.gap_size == '大' %}big{% elif g.gap_size == '中' %}mid{% else %}small{% endif %}">{{ g.gap_size }}</span></td>
+          <td style="max-width: 200px;">{{ g.description[:100] }}{% if g.description|length > 100 %}...{% endif %}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% endif %}
+
+  <!-- Quick Wins -->
+  <h4 style="color: var(--navy); margin-bottom:14px;">⚡ 快赢机会 (Quick Wins)</h4>
+  <div class="opportunity-cards">
+    {% for qw in gap_opp.quick_wins %}
+    <div class="opp-card">
+      <div class="opp-header">
+        <h4>{{ qw.name }}</h4>
+        <div>
+          <span class="opp-pill pill-timeline">{{ qw.estimated_timeline }}</span>
+          <span class="opp-pill pill-impact-{{ qw.estimated_impact }}">影响:{{ qw.estimated_impact }}</span>
+        </div>
+      </div>
+      <p style="font-size:13px; color: var(--gray); margin-bottom:10px;">{{ qw.description }}</p>
+      <p style="font-size:12px;"><strong>前提条件：</strong></p>
+      <ul style="font-size:12px; color: var(--gray);">
+        {% for pr in qw.prerequisites %}
+        <li>{{ pr }}</li>
+        {% endfor %}
+      </ul>
+      <span class="tag tag-primary" style="margin-top:8px;">{{ qw.category }}</span>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- Strategic Bets -->
+  {% if gap_opp.strategic_bets %}
+  <h4 style="color: var(--navy); margin:28px 0 14px;">🎯 战略机会 (Strategic Bets)</h4>
+  <div class="opportunity-cards">
+    {% for sb in gap_opp.strategic_bets %}
+    <div class="opp-card">
+      <div class="opp-header">
+        <h4>{{ sb.name }}</h4>
+        <div>
+          <span class="opp-pill pill-timeline">{{ sb.estimated_timeline }}</span>
+          <span class="opp-pill pill-impact-{{ sb.estimated_impact }}">影响:{{ sb.estimated_impact }}</span>
+          <span class="pill-risk pill-risk-{{ sb.risk_level }}">风险:{{ sb.risk_level }}</span>
+        </div>
+      </div>
+      <p style="font-size:13px; color: var(--gray);">{{ sb.description }}</p>
+      <span class="tag tag-secondary" style="margin-top:8px;">{{ sb.category }}</span>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <!-- Risk Flags -->
+  {% if gap_opp.risk_flags %}
+  <h4 style="color:#DC2626; margin:28px 0 14px;">🚨 风险预警</h4>
+  {% for r in gap_opp.risk_flags %}
+  <div class="risk-card">
+    <span class="risk-icon">{{ severity_icons[r.severity] }}</span>
+    <div>
+      <p><strong>{{ r.risk }}</strong> <span class="tag tag-primary" style="font-size:10px;">{{ r.severity }}风险</span></p>
+      <p style="font-size:13px; color: var(--gray);">💡 {{ r.mitigation }}</p>
+    </div>
+  </div>
+  {% endfor %}
+  {% endif %}
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════ -->
+<!--  CONVERSATION STRATEGY                                         -->
+<!-- ══════════════════════════════════════════════════════════════ -->
+<div class="section">
+  <h2 class="section-title">七、对话策略建议</h2>
+
+  <div class="card" style="margin-bottom:24px;">
+    <h4>🎯 拜访目标：{{ conv_strat.meeting_objective }}</h4>
+    <p style="margin-top:10px; font-style:italic; color: var(--mck-blue); font-size:15px;">💬 核心叙事：{{ conv_strat.core_narrative }}</p>
+  </div>
+
+  <!-- Key Topics -->
+  <h4 style="color: var(--navy); margin-bottom:14px;">📌 核心议题</h4>
+  {% for kt in conv_strat.key_topics %}
+  <div class="topic-card">
+    <h4>{{ kt.topic }}</h4>
+    <p style="font-size:13px; color: var(--gray);">{{ kt.rationale }}</p>
+    <p class="angle">🔪 切入角度：{{ kt.angle }}</p>
+  </div>
+  {% endfor %}
+
+  <!-- Probing Questions -->
+  <h4 style="color: var(--navy); margin:28px 0 14px;">❓ 关键提问清单</h4>
+  <div class="card" style="padding:0; overflow:hidden;">
+    <table class="uc-table">
+      <thead><tr><th>#</th><th>提问</th><th>目的</th><th>预期回答模式</th></tr></thead>
+      <tbody>
+        {% for pq in conv_strat.probing_questions %}
+        <tr>
+          <td style="font-weight:800; color: var(--mck-blue); width:30px;">{{ pq.priority }}</td>
+          <td style="font-weight: 600;">{{ pq.question }}</td>
+          <td style="font-size:12px; color: var(--gray);">{{ pq.purpose }}</td>
+          <td style="font-size:12px; color: var(--gray); max-width:200px;">{{ pq.expected_response_pattern }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Value Proposition -->
+  <h4 style="color: var(--navy); margin:28px 0 14px;">💎 价值主张切入</h4>
+  <div class="card-grid cols-2">
+    {% for va in conv_strat.value_proposition_angles %}
+    <div class="card">
+      <h4>{{ va.angle }}</h4>
+      <p style="font-size:12px; color: var(--gray); margin-bottom:10px;"><strong>针对关注点：</strong>{{ va.target_concern }}</p>
+      <ul style="font-size:13px;">
+        {% for tp in va.talking_points %}
+        <li>{{ tp }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- Objection Anticipation -->
+  {% if conv_strat.objection_anticipation %}
+  <h4 style="color:#DC2626; margin:28px 0 14px;">🛡️ 异议预判与回应</h4>
+  <div class="accordion">
+    {% for oa in conv_strat.objection_anticipation %}
+    <div class="accordion-item" onclick="this.classList.toggle('open')">
+      <div class="accordion-header">
+        <span>{{ oa.objection }} <span class="tag tag-primary" style="font-size:10px;">可能性: {{ oa.likelihood }}</span></span>
+        <span class="arrow">▼</span>
+      </div>
+      <div class="accordion-body">
+        <p><strong>回应策略：</strong>{{ oa.response_strategy }}</p>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+</div>
+
+</div><!-- /.container -->
+  <div class="toast" id="toast">已成功复制 YAML 数据</div>
+  
+  <script type="application/yaml" id="raw-yaml">
+{{ raw_yaml }}
+  </script>
+
+<script>
+  function copyYAML() {
+    const yaml = document.getElementById('raw-yaml').textContent.trim();
+    navigator.clipboard.writeText(yaml).then(() => {
+      const toast = document.getElementById('toast');
+      toast.style.display = 'block';
+      setTimeout(() => { toast.style.display = 'none'; }, 2500);
+      lucide.createIcons();
+    });
+  }
+
+  // Apply dynamic styles from data attributes to avoid IDE lint errors with Jinja2 interpolation in style tags
+  window.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('[data-w]').forEach(el => el.style.width = el.getAttribute('data-w'));
+    document.querySelectorAll('[data-h]').forEach(el => el.style.height = el.getAttribute('data-h'));
+  });
+</script>
+</body>
+</html>

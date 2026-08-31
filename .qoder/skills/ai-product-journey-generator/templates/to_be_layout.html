@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ title }}</title>
+  <style>
+    /* ============ 基础重置 ============ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: #f3f5f9;
+      padding: 28px 24px;
+      color: #1e293b;
+    }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+    .container { max-width: 100%; background: #fff; border-radius: 16px; box-shadow: 0 4px 24px rgba(15, 23, 42, 0.08); padding: 28px 32px 20px; }
+
+    /* ============ 头部 ============ */
+    .page-header {
+      display: flex; justify-content: space-between; align-items: flex-start; gap: 16px;
+      flex-wrap: wrap; padding-bottom: 20px; border-bottom: 2px solid #eef2f7;
+    }
+    .title-row { display: flex; align-items: center; gap: 14px; }
+    .title-icon {
+      width: 52px; height: 52px; border-radius: 14px; display: flex; align-items: center; justify-content: center;
+      font-size: 26px; background: linear-gradient(135deg, #6366f1, #8b5cf6); color: #fff; flex-shrink: 0;
+    }
+    .page-title { font-size: 24px; font-weight: 700; color: #0f172a; line-height: 1.3; }
+    .page-subtitle { font-size: 13px; color: #64748b; margin-top: 4px; }
+    .meta-badges { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
+    .badge {
+      font-size: 12px; padding: 5px 12px; border-radius: 999px; background: #f1f5f9;
+      color: #475569; border: 1px solid #e2e8f0; white-space: nowrap;
+    }
+    .badge.mode-badge { background: linear-gradient(135deg, #4f46e5, #7c3aed); color: #fff; border: none; font-weight: 600; }
+
+    /* ============ Section ============ */
+    .section { margin-top: 32px; }
+    .section-title {
+      display: flex; align-items: center; gap: 10px; font-size: 17px; font-weight: 700; color: #0f172a;
+      margin-bottom: 16px;
+    }
+    .section-num {
+      width: 28px; height: 28px; border-radius: 8px; background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      color: #fff; font-size: 13px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center;
+    }
+    .section-en { font-size: 11px; color: #94a3b8; font-weight: 500; letter-spacing: 0.5px; }
+
+    /* ============ Persona 卡片 ============ */
+    .persona-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; }
+    .persona-card {
+      background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 18px;
+      box-shadow: 0 1px 3px rgba(15,23,42,0.04); transition: all 0.2s;
+    }
+    .persona-card:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(99,102,241,0.10); border-color: #c7d2fe; }
+    .persona-head { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+    .avatar {
+      width: 46px; height: 46px; border-radius: 50%; background: linear-gradient(135deg, #6366f1, #a855f7);
+      color: #fff; font-size: 19px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .persona-name { font-size: 16px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+    .role-badge { font-size: 11px; font-weight: 600; color: #4f46e5; background: #eef2ff; border: 1px solid #c7d2fe; border-radius: 999px; padding: 2px 10px; }
+    .persona-dept { font-size: 12px; color: #94a3b8; margin-top: 2px; }
+    .persona-bg { font-size: 13px; color: #475569; line-height: 1.6; background: #f8fafc; border-radius: 8px; padding: 10px 12px; margin-bottom: 12px; }
+    .p-block { margin-bottom: 10px; }
+    .p-label { font-size: 12px; font-weight: 600; margin-bottom: 4px; }
+    .p-label.goals-label { color: #059669; }
+    .p-label.pains-label { color: #e11d48; }
+    .p-label.data-label { color: #b45309; }
+    .p-label.errors-label { color: #9333ea; margin-top: 8px; }
+    .p-block ul { list-style: none; }
+    .p-block ul li { font-size: 12.5px; color: #334155; line-height: 1.55; padding-left: 14px; position: relative; margin-bottom: 2px; }
+    .goals-label + ul li::before { content: "✓"; position: absolute; left: 0; color: #10b981; font-weight: 700; }
+    .pains-label + ul li::before { content: "✕"; position: absolute; left: 0; color: #f43f5e; font-weight: 700; }
+    .data-label + ul li::before, .errors-label + ul li::before { content: "•"; position: absolute; left: 2px; color: #94a3b8; }
+    .freq-badge {
+      display: inline-block; font-size: 11px; color: #7c3aed; background: #f5f3ff; border: 1px solid #ddd6fe;
+      border-radius: 999px; padding: 2px 10px; margin-bottom: 6px;
+    }
+
+    /* ============ Scenario 卡片 ============ */
+    .scenario-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+    .scenario-card {
+      background: #fff; border: 1px solid #e2e8f0; border-left: 4px solid #6366f1; border-radius: 14px; padding: 18px;
+      box-shadow: 0 1px 3px rgba(15,23,42,0.04); transition: all 0.2s;
+    }
+    .scenario-card:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(99,102,241,0.10); }
+    .scenario-head { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
+    .scenario-id { font-size: 11px; font-weight: 700; color: #6366f1; background: #eef2ff; border-radius: 6px; padding: 3px 8px; }
+    .scenario-name { font-size: 16px; font-weight: 700; }
+    .persona-link { margin-left: auto; font-size: 11px; color: #64748b; background: #f1f5f9; border-radius: 999px; padding: 3px 10px; }
+    .sc-trigger { font-size: 13px; color: #475569; background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 8px 12px; margin-bottom: 10px; line-height: 1.5; }
+    .sc-biz { list-style: none; margin-bottom: 10px; }
+    .sc-biz li { font-size: 12.5px; color: #334155; line-height: 1.55; padding-left: 14px; position: relative; }
+    .sc-biz li::before { content: "📊"; position: absolute; left: 0; top: 1px; font-size: 10px; }
+    .sc-goal { font-size: 13px; font-weight: 600; color: #047857; background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 8px; padding: 8px 12px; }
+
+    /* ============ 旅程泳道图 ============ */
+    .journey-map-canvas { display: flex; position: relative; min-width: {{ total_canvas_width }}px; border: 1px solid #e2e8f0; border-radius: 12px; background: #fff; overflow: hidden; }
+    .labels-column { display: flex; flex-direction: column; flex-shrink: 0; position: sticky; left: 0; z-index: 30; background: #f8fafc; }
+    .lane-label {
+      width: 132px; min-width: 132px; display: flex; align-items: center; justify-content: flex-start;
+      padding: 0 12px; font-size: 12.5px; font-weight: 600; color: #475569;
+      background: #f8fafc; border-right: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0;
+    }
+    .content-column { display: flex; flex-direction: column; flex-grow: 1; position: relative; min-width: 0; }
+    .lane-row { position: relative; border-bottom: 1px solid #e2e8f0; background: #fff; }
+    .h-stage { height: 46px; }
+    .h-behavior { height: 92px; }
+    .h-touchpoint { height: 78px; }
+    .h-thoughts { height: 120px; }
+    .h-inputs { height: 190px; }
+    .h-ai { height: 210px; }
+    .h-visible { height: 170px; }
+    .h-design { height: 140px; }
+
+    /* 阶段块 */
+    .stage-block {
+      position: absolute; top: 0; height: 100%; border-right: 2px solid #fff;
+      display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; color: #1e293b;
+      background: linear-gradient(180deg, #eef2ff, #e0e7ff);
+    }
+
+    /* 行为卡片 + 流程箭头 */
+    .action-wrapper { position: absolute; transform: translateX(-50%); }
+    .behavior-card {
+      width: {{ ACTION_BOX_WIDTH }}px; height: 74px; margin-top: 8px;
+      display: flex; align-items: center; justify-content: center; text-align: center; padding: 10px;
+      background: #fff; border: 2px solid #10b981; border-radius: 10px; box-shadow: 0 2px 6px rgba(16,185,129,0.08);
+      font-size: 12.5px; font-weight: 600; color: #065f46; transition: all 0.2s;
+    }
+    .behavior-card:hover { transform: translateY(-2px); box-shadow: 0 6px 14px rgba(16,185,129,0.16); }
+    .flow-arrow {
+      position: absolute; top: 36px; right: -14px; color: #10b981; font-size: 14px; font-weight: 700; z-index: 2;
+    }
+    .flow-arrow-dash { color: #94a3b8; }
+
+    /* 触点 */
+    .touchpoint-card {
+      width: {{ ACTION_BOX_WIDTH }}px; height: 62px; margin-top: 8px;
+      background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 6px;
+    }
+    .tp-badge { font-size: 11.5px; font-weight: 600; color: #2563eb; background: #eff6ff; padding: 2px 10px; border-radius: 999px; }
+    .tp-device { font-size: 11px; color: #64748b; text-align: center; line-height: 1.3; }
+
+    /* 想法 */
+    .thoughts-container { width: {{ ACTION_BOX_WIDTH }}px; margin-top: 8px; max-height: 108px; overflow-y: auto; padding-right: 2px; display: flex; flex-direction: column; gap: 4px; }
+    .thought-bubble {
+      font-size: 11.5px; color: #475569; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; border-top-left-radius: 2px;
+      padding: 6px 10px; line-height: 1.45; box-shadow: 0 1px 2px rgba(0,0,0,0.04); word-break: break-all;
+    }
+
+    /* 用户输入数据 */
+    .inputs-container { width: {{ ACTION_BOX_WIDTH }}px; margin-top: 8px; max-height: 178px; overflow-y: auto; padding-right: 2px; display: flex; flex-direction: column; gap: 6px; }
+    .input-card { background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 8px 10px; transition: all 0.2s; }
+    .input-card:hover { border-color: #f59e0b; box-shadow: 0 2px 6px rgba(245,158,11,0.12); }
+    .input-head { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-bottom: 4px; }
+    .input-type { font-size: 10px; font-weight: 700; color: #92400e; background: #fef3c7; border-radius: 4px; padding: 1px 6px; }
+    .input-name { font-size: 12px; font-weight: 700; color: #78350f; }
+    .input-format { font-size: 10px; color: #b45309; border: 1px dashed #fcd34d; border-radius: 4px; padding: 0 5px; }
+    .input-example { font-size: 11px; color: #92400e; background: #fff7ed; border-radius: 5px; padding: 3px 6px; margin-bottom: 3px; word-break: break-all; }
+    .input-content { font-size: 10.5px; color: #a16207; line-height: 1.4; word-break: break-all; }
+
+    /* AI 交互与推荐指令 */
+    .ai-container { width: {{ ACTION_BOX_WIDTH }}px; margin-top: 8px; max-height: 198px; overflow-y: auto; padding-right: 2px; display: flex; flex-direction: column; gap: 6px; }
+    .ai-action { font-size: 11.5px; color: #312e81; background: #eef2ff; border: 1px solid #c7d2fe; border-radius: 8px; padding: 7px 9px; line-height: 1.45; }
+    .sugg-label { font-size: 10.5px; font-weight: 700; color: #6d28d9; margin-top: 2px; }
+    .sugg-chips { display: flex; flex-direction: column; gap: 4px; }
+    .sugg-chip {
+      font-size: 11px; color: #5b21b6; background: #f5f3ff; border: 1px solid #ddd6fe; border-radius: 8px;
+      padding: 4px 9px; display: flex; align-items: center; gap: 5px; line-height: 1.35; transition: all 0.15s;
+    }
+    .sugg-chip:hover { background: #ede9fe; border-color: #a78bfa; }
+    .sugg-chip::before { content: "⚡"; font-size: 10px; flex-shrink: 0; }
+
+    /* 可见数据 */
+    .visible-container { width: {{ ACTION_BOX_WIDTH }}px; margin-top: 8px; max-height: 158px; overflow-y: auto; padding-right: 2px; display: flex; flex-direction: column; gap: 5px; }
+    .visible-item {
+      font-size: 11px; color: #064e3b; background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 7px;
+      padding: 5px 9px; line-height: 1.45; word-break: break-all;
+    }
+    .visible-item::before { content: "📊"; font-size: 10px; margin-right: 4px; }
+
+    /* 设计意图与改善 */
+    .design-container { width: {{ ACTION_BOX_WIDTH }}px; margin-top: 8px; max-height: 128px; overflow-y: auto; padding-right: 2px; display: flex; flex-direction: column; gap: 5px; }
+    .design-item {
+      font-size: 11px; color: #7c2d12; background: #fff7ed; border: 1px solid #fed7aa; border-radius: 7px;
+      padding: 5px 9px; line-height: 1.45; word-break: break-all;
+    }
+    .design-item::before { content: "🎨"; font-size: 10px; margin-right: 4px; }
+
+    /* ============ 原型衔接区 ============ */
+    .handoff-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; }
+    .handoff-block {
+      background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px;
+    }
+    .handoff-block.wide { grid-column: 1 / -1; }
+    .ho-title { font-size: 13.5px; font-weight: 700; color: #0f172a; margin-bottom: 10px; }
+    .chip-wrap { display: flex; flex-wrap: wrap; gap: 6px; }
+    .chip { font-size: 11.5px; border-radius: 8px; padding: 5px 10px; line-height: 1.4; }
+    .chip-blue { color: #1e40af; background: #eff6ff; border: 1px solid #bfdbfe; }
+    .chip-amber { color: #92400e; background: #fffbeb; border: 1px solid #fde68a; }
+    .chip-violet { color: #5b21b6; background: #f5f3ff; border: 1px solid #ddd6fe; }
+    .path-list { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+    .path-list li {
+      font-size: 12.5px; color: #334155; background: #fff; border: 1px solid #e2e8f0; border-radius: 8px;
+      padding: 8px 12px; line-height: 1.5;
+    }
+    .path-list li::before { content: "🔀 "; }
+
+    .footer-mark { margin-top: 24px; font-size: 12px; color: #94a3b8; text-align: right; }
+
+    @media (max-width: 640px) {
+      body { padding: 14px 10px; }
+      .container { padding: 18px 14px; }
+      .page-title { font-size: 19px; }
+      .persona-grid, .scenario-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+
+    <!-- ===== Unified Report Shell: 撑满容器 + 精简 Header + 溢出滚动 ===== -->
+    <style>
+      *, *::before, *::after { box-sizing: border-box !important; }
+      html, body { margin: 0 !important; padding: 0 !important; background: #F5F5F6 !important; overflow-x: auto !important; }
+      .container {
+        width: 100% !important;
+        max-width: none !important;
+        margin: 0 auto !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        border: none !important;
+        padding: 24px 28px 48px !important;
+        overflow-x: auto !important;
+      }
+      .page-header { margin-bottom: 20px !important; align-items: center !important; }
+      .page-header h1 { font-size: 22px !important; line-height: 1.3 !important; margin: 0 !important; }
+    
+      /* ===== Unified Header (v2) ===== */
+      .page-header {
+        background: #FFFFFF !important;
+        border-bottom: 1px solid #E2E8F0 !important;
+        border-radius: 0 !important;
+        padding: 12px 0 !important;
+        margin-bottom: 20px !important;
+        min-height: auto !important;
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        gap: 16px !important;
+        flex-wrap: wrap !important;
+      }
+      .page-header h1 {
+        font-size: 22px !important;
+        font-weight: 700 !important;
+        color: #10213E !important;
+        line-height: 1.3 !important;
+        margin: 0 !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 10px !important;
+      }
+
+      .page-title, .page-header .title-row > div > div:first-child:not(.page-subtitle) {
+        font-size: 22px !important;
+        font-weight: 700 !important;
+        color: #10213E !important;
+        line-height: 1.3 !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 10px !important;
+      }
+      .page-title::before, .title-row .page-title::before {
+        content: "" !important;
+        display: inline-block !important;
+        width: 4px !important;
+        height: 22px !important;
+        background: #5DB2E2 !important;
+        border-radius: 2px !important;
+        flex-shrink: 0 !important;
+      }
+      .title-icon { font-size: 18px !important; }
+      .page-header h1::before {
+        content: "" !important;
+        display: inline-block !important;
+        width: 4px !important;
+        height: 22px !important;
+        background: #5DB2E2 !important;
+        border-radius: 2px !important;
+        flex-shrink: 0 !important;
+      }
+      .page-header h1 svg, .page-header h1 .icon, .page-header h1 img {
+        width: 20px !important;
+        height: 20px !important;
+        flex-shrink: 0 !important;
+      }
+      .page-subtitle, .header-meta, .meta-scenario, .header-left p, .header-content p {
+        font-size: 13px !important;
+        color: #64748B !important;
+        margin: 4px 0 0 !important;
+        padding-left: 14px !important;
+      }
+      .meta-badge, .badge, .brand-tag {
+        font-size: 12px !important;
+        color: #64748B !important;
+        background: #F5F5F6 !important;
+        border-radius: 10px !important;
+        padding: 2px 10px !important;
+      }
+      .page-header .btn-group, .header-right, .header-right > div {
+        display: flex !important;
+        align-items: center !important;
+        gap: 8px !important;
+      }
+      .btn-secondary, .btn-primary, .btn-copy-yaml {
+        font-size: 12px !important;
+        padding: 6px 12px !important;
+        border-radius: 6px !important;
+        font-weight: 600 !important;
+      }
+      .btn-secondary {
+        background: #FFFFFF !important;
+        color: #10213E !important;
+        border: 1px solid #E2E8F0 !important;
+      }
+      .btn-primary {
+        background: #10213E !important;
+        color: #FFFFFF !important;
+        border: 1px solid #10213E !important;
+      }
+</style>
+
+
+</head>
+<body>
+
+<div class="container">
+
+  <!-- ================= 头部 ================= -->
+  <header class="page-header">
+    <div class="title-row">
+      <div class="title-icon">🧭</div>
+      <div>
+        <div class="page-title">{{ title }}</div>
+        <div class="page-subtitle">AI 产品设计 · To-be User Journey Design</div>
+      </div>
+    </div>
+    <div class="meta-badges">
+      <span class="badge mode-badge">TO-BE 设计态</span>
+      <span class="badge">🎯 场景：{{ meta.scenarioName }}</span>
+      <span class="badge">📎 来源：{{ meta.source }}</span>
+      <span class="badge">📦 形态：{{ meta.productType }}</span>
+    </div>
+  </header>
+
+  <!-- ================= 01 用户角色细化 ================= -->
+  <section class="section">
+    <div class="section-title">
+      <span class="section-num">01</span> 用户角色细化 <span class="section-en">PERSONAS</span>
+    </div>
+    <div class="persona-grid">
+      {% for p in personas %}
+      <div class="persona-card">
+        <div class="persona-head">
+          <div class="avatar">{{ p.name[:1] }}</div>
+          <div>
+            <div class="persona-name">{{ p.name }} <span class="role-badge">{{ p.role }}</span></div>
+            <div class="persona-dept">{{ p.department }}</div>
+          </div>
+        </div>
+        <p class="persona-bg">{{ p.background }}</p>
+        <div class="p-block">
+          <div class="p-label goals-label">🎯 核心目标</div>
+          <ul>
+            {% for g in p.goals %}
+            <li>{{ g }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+        <div class="p-block">
+          <div class="p-label pains-label">⚠️ 当前痛点</div>
+          <ul>
+            {% for pp in p.painPoints %}
+            <li>{{ pp }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+        <div class="p-block">
+          <div class="p-label data-label">🗃️ 典型业务数据</div>
+          <div class="freq-badge">使用频率：{{ p.dataProfile.frequency }}</div>
+          <ul>
+            {% for t in p.dataProfile.typicalValues %}
+            <li>{{ t }}</li>
+            {% endfor %}
+          </ul>
+          {% if p.dataProfile.commonErrors %}
+          <div class="p-label errors-label">常见失误</div>
+          <ul>
+            {% for e in p.dataProfile.commonErrors %}
+            <li>{{ e }}</li>
+            {% endfor %}
+          </ul>
+          {% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+
+  <!-- ================= 02 典型使用场景 ================= -->
+  <section class="section">
+    <div class="section-title">
+      <span class="section-num">02</span> 典型使用场景 <span class="section-en">SCENARIOS</span>
+    </div>
+    <div class="scenario-grid">
+      {% for s in scenarios %}
+      <div class="scenario-card">
+        <div class="scenario-head">
+          <span class="scenario-id">{{ s.id }}</span>
+          <span class="scenario-name">{{ s.name }}</span>
+          <span class="persona-link">👤 {{ s.personaId }}</span>
+        </div>
+        <div class="sc-trigger">⚡ 触发：{{ s.trigger }}</div>
+        <div class="p-label data-label">📊 涉及业务数据</div>
+        <ul class="sc-biz">
+          {% for b in s.businessData %}
+          <li>{{ b }}</li>
+          {% endfor %}
+        </ul>
+        <div class="sc-goal">🎯 {{ s.goal }}</div>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+
+  <!-- ================= 03 To-be 旅程泳道图 ================= -->
+  <section class="section">
+    <div class="section-title">
+      <span class="section-num">03</span> To-be 旅程泳道图 <span class="section-en">USER JOURNEY</span>
+    </div>
+
+    <div class="journey-map-canvas">
+      <!-- 左侧标签列 -->
+      <div class="labels-column">
+        <div class="lane-label h-stage">阶段</div>
+        <div class="lane-label h-behavior">用户行为</div>
+        <div class="lane-label h-touchpoint">触点</div>
+        <div class="lane-label h-thoughts">用户想法</div>
+        <div class="lane-label h-inputs">📎 用户输入数据</div>
+        <div class="lane-label h-ai">🤖 AI 交互与推荐指令</div>
+        <div class="lane-label h-visible">📊 可见数据</div>
+        <div class="lane-label h-design">🎨 设计意图与改善</div>
+      </div>
+
+      <!-- 右侧内容列 -->
+      <div class="content-column">
+
+        <!-- ===== 阶段 ===== -->
+        <div class="lane-row h-stage">
+          {% for stage in stages %}
+          <div class="stage-block" style="left: {{ stage.left_pct }}%; width: {{ stage.width_pct }}%;">{{ stage.safe_name }}</div>
+          {% endfor %}
+        </div>
+
+        <!-- ===== 用户行为 ===== -->
+        <div class="lane-row h-behavior">
+          {% for stage in stages %}
+            {% for action in stage.actions %}
+            <div class="action-wrapper" style="left: {{ action.x_pct }}%;">
+              <div class="behavior-card">{{ action.name }}</div>
+              {% if not action.is_final %}
+              <div class="flow-arrow {% if action.is_last %}flow-arrow-dash{% endif %}">➜</div>
+              {% endif %}
+            </div>
+            {% endfor %}
+          {% endfor %}
+        </div>
+
+        <!-- ===== 触点 ===== -->
+        <div class="lane-row h-touchpoint">
+          {% for stage in stages %}
+            {% for action in stage.actions %}
+            <div class="action-wrapper" style="left: {{ action.x_pct }}%;">
+              <div class="touchpoint-card">
+                <span class="tp-badge">{{ action.owner }}</span>
+                <span class="tp-device">{{ action.touchpoints }}</span>
+              </div>
+            </div>
+            {% endfor %}
+          {% endfor %}
+        </div>
+
+        <!-- ===== 用户想法 ===== -->
+        <div class="lane-row h-thoughts">
+          {% for stage in stages %}
+            {% for action in stage.actions %}
+            <div class="action-wrapper" style="left: {{ action.x_pct }}%;">
+              <div class="thoughts-container">
+                {% for t in action.thoughts %}
+                <div class="thought-bubble">{{ t }}</div>
+                {% endfor %}
+              </div>
+            </div>
+            {% endfor %}
+          {% endfor %}
+        </div>
+
+        <!-- ===== 用户输入数据 ===== -->
+        <div class="lane-row h-inputs">
+          {% for stage in stages %}
+            {% for action in stage.actions %}
+            <div class="action-wrapper" style="left: {{ action.x_pct }}%;">
+              <div class="inputs-container">
+                {% for ui in action.userInputs %}
+                <div class="input-card">
+                  <div class="input-head">
+                    <span class="input-type">{{ ui.type }}</span>
+                    <span class="input-name">{{ ui.name }}</span>
+                    {% if ui.format %}<span class="input-format">{{ ui.format }}</span>{% endif %}
+                  </div>
+                  {% if ui.example %}<div class="input-example">📄 {{ ui.example }}</div>{% endif %}
+                  {% if ui.content %}<div class="input-content">{{ ui.content }}</div>{% endif %}
+                </div>
+                {% endfor %}
+              </div>
+            </div>
+            {% endfor %}
+          {% endfor %}
+        </div>
+
+        <!-- ===== AI 交互与推荐指令 ===== -->
+        <div class="lane-row h-ai">
+          {% for stage in stages %}
+            {% for action in stage.actions %}
+            <div class="action-wrapper" style="left: {{ action.x_pct }}%;">
+              <div class="ai-container">
+                {% if action.aiInteraction.aiAction %}
+                <div class="ai-action">🤖 {{ action.aiInteraction.aiAction }}</div>
+                {% endif %}
+                {% if action.aiInteraction.suggestions %}
+                <div class="sugg-label">⚡ 对话推荐操作指令</div>
+                <div class="sugg-chips">
+                  {% for s in action.aiInteraction.suggestions %}
+                  <span class="sugg-chip">{{ s }}</span>
+                  {% endfor %}
+                </div>
+                {% endif %}
+              </div>
+            </div>
+            {% endfor %}
+          {% endfor %}
+        </div>
+
+        <!-- ===== 可见数据 ===== -->
+        <div class="lane-row h-visible">
+          {% for stage in stages %}
+            {% for action in stage.actions %}
+            <div class="action-wrapper" style="left: {{ action.x_pct }}%;">
+              <div class="visible-container">
+                {% for v in action.visibleData %}
+                <div class="visible-item">{{ v }}</div>
+                {% endfor %}
+              </div>
+            </div>
+            {% endfor %}
+          {% endfor %}
+        </div>
+
+        <!-- ===== 设计意图与改善 ===== -->
+        <div class="lane-row h-design">
+          {% for stage in stages %}
+            {% for action in stage.actions %}
+            <div class="action-wrapper" style="left: {{ action.x_pct }}%;">
+              <div class="design-container">
+                {% for d in action.designNotes %}
+                <div class="design-item">{{ d }}</div>
+                {% endfor %}
+              </div>
+            </div>
+            {% endfor %}
+          {% endfor %}
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 04 原型衔接要点 ================= -->
+  <section class="section">
+    <div class="section-title">
+      <span class="section-num">04</span> 原型衔接要点 <span class="section-en">PROTOTYPE HANDOFF</span>
+    </div>
+    <div class="handoff-grid">
+      <div class="handoff-block">
+        <div class="ho-title">🖥️ 页面 / 触点清单</div>
+        <div class="chip-wrap">
+          {% for p in handoff.pages %}
+          <span class="chip chip-blue">{{ p }}</span>
+          {% endfor %}
+        </div>
+      </div>
+      <div class="handoff-block">
+        <div class="ho-title">🗃️ 核心 Mock 数据实体</div>
+        <div class="chip-wrap">
+          {% for e in handoff.dataEntities %}
+          <span class="chip chip-amber">{{ e }}</span>
+          {% endfor %}
+        </div>
+      </div>
+      <div class="handoff-block">
+        <div class="ho-title">⚡ 推荐操作指令库</div>
+        <div class="chip-wrap">
+          {% for s in handoff.suggestions %}
+          <span class="chip chip-violet">“{{ s }}”</span>
+          {% endfor %}
+        </div>
+      </div>
+      <div class="handoff-block wide">
+        <div class="ho-title">🔀 交互路径 / 分支 / 异常（供原型路径控制器使用）</div>
+        <ul class="path-list">
+          {% for p in handoff.paths %}
+          <li>{{ p }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <div class="footer-mark">Generated by ai-product-journey-generator · {{ generated_at }}</div>
+
+</div>
+
+</body>
+</html>

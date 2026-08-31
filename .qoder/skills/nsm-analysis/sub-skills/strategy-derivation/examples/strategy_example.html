@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>极氪汽车 (Zeekr) — 出海欧洲业务战略与指标推导</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif', 'Noto Sans SC'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            900: '#0c4a6e',
+                        },
+                        slate: {
+                            850: '#152033',
+                            900: '#0f172a',
+                            950: '#020617',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700&display=swap');
+        
+        body { 
+            font-family: 'Inter', 'Noto Sans SC', sans-serif; 
+            background-color: #f8fafc; 
+            color: #1e293b;
+        }
+
+        .pyramid-container {
+            perspective: 1000px;
+        }
+
+        .kpi-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .kpi-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        .pyramid-level-1 { width: 100%; max-width: 400px; margin: 0 auto; z-index: 30; position: relative; }
+        .pyramid-level-2 { width: 100%; margin-top: 40px; display: flex; gap: 24px; justify-content: center; z-index: 20; position: relative; }
+
+        .connector-line {
+            position: absolute;
+            background: #cbd5e1;
+            z-index: 10;
+        }
+        
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        /* Inspire Design System Tokens */
+        :root {
+            --color-primary: #10213E;
+            --color-accent: #5DB2E2;
+            --color-border: #E2E8F0;
+            --color-text-muted: #64748B;
+            --color-bg-alt: #F5F5F6;
+        }
+
+        /* Standardized Header */
+        .page-header {
+            margin-bottom: 40px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid var(--color-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 32px 0;
+            font-family: 'MiSans', 'Inter', sans-serif;
+        }
+
+        .header-left {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .page-header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--color-primary);
+            line-height: 1.2;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 0;
+        }
+
+        .page-header h1::before {
+            content: "";
+            display: block;
+            width: 4px;
+            height: 24px;
+            background: var(--color-accent);
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+
+        .page-subtitle {
+            font-size: 16px;
+            color: var(--color-text-muted);
+            font-weight: 500;
+            padding-left: 16px;
+            margin: 0;
+        }
+
+        .header-right {
+            text-align: right;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+
+        .meta-info {
+            font-size: 12px;
+            color: var(--color-text-muted);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+
+        .btn-primary {
+            background: var(--color-primary);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all 0.15s ease-out;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+
+        .btn-secondary {
+            background: white;
+            color: var(--color-primary);
+            border: 1px solid var(--color-border);
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s ease-out;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn-secondary:hover { background: var(--color-bg-alt); }
+
+        @media print {
+            .page-header, .btn-group { display: none !important; }
+        }
+    </style>
+</head>
+<body class="p-8 md:p-12">
+    <div class="max-w-6xl mx-auto">
+        <!-- Header -->
+        <header class="page-header">
+      <div class="header-left">
+        <h1>极氪汽车 (Zeekr) — 出海欧洲业务战略与指标推导</h1>
+      </div>
+      <div class="header-right">
+        <div class="btn-group">
+          <button class="btn-secondary" onclick="window.print()">导出 PDF / 打印</button>
+          <button class="btn-primary" onclick="copyYAML()">复制原始 YAML</button>
+        </div>
+      </div>
+    </header>
+
+        <!-- Main Section: North Star & KPI Pyramid -->
+        <section class="mb-20">
+            <div class="flex items-center gap-2 mb-8">
+                <h2 class="text-xl font-bold text-slate-800 uppercase tracking-widest">3.3 KPI 指标金字塔</h2>
+                <div class="h-px flex-1 bg-slate-200"></div>
+            </div>
+
+            <div class="pyramid-container relative py-12">
+                <!-- North Star Level -->
+                <div class="pyramid-level-1">
+                    <div class="kpi-card bg-white border-2 border-brand-500 rounded-2xl shadow-xl overflow-hidden">
+                        <div class="bg-brand-500 px-6 py-2 text-center">
+                            <span class="text-[10px] font-black text-white uppercase tracking-[0.2em]">北极星指标 / North Star Metric</span>
+                        </div>
+                        <div class="p-8 text-center">
+                            <h3 class="text-2xl font-bold text-slate-900 mb-2">欧洲市场月活跃交付车辆数 (MAV)</h3>
+                            <div class="text-brand-600 font-mono text-3xl font-black mb-4">
+                                15,000<span class="text-sm font-bold ml-1">台/月</span>
+                            </div>
+                            <p class="text-slate-500 text-sm leading-relaxed max-w-xs mx-auto">指在欧洲市场当月完成交付并处于活跃行驶状态（有联网数据回传）的车辆总数。</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Connectors (Hidden on small screens) -->
+                <div class="hidden md:block">
+                    <div class="connector-line w-0.5 h-10 left-1/2 -translate-x-1/2 top-[240px]"></div>
+                    <div class="connector-line w-[80%] h-0.5 left-[10%] top-[280px]"></div>
+                </div>
+
+                <!-- KPI Level -->
+                <div class="pyramid-level-2 flex-wrap md:flex-nowrap">
+                    
+                    <div class="flex-1 min-w-[280px] bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col kpi-card">
+                        <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
+                            <h4 class="font-bold text-slate-800 flex items-center gap-2">
+                                <span class="w-2 h-2 rounded-full bg-blue-500"></span>
+                                市场增长
+                            </h4>
+                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">增长指标</span>
+                        </div>
+                        <div class="p-5 flex-1 bg-slate-50/30">
+                            <ul class="space-y-4">
+                                
+                                <li class="flex items-start gap-3">
+                                    <div class="w-5 h-5 rounded-md bg-white border border-slate-200 flex items-center justify-center text-[10px] font-bold text-slate-400 mt-0.5 shadow-sm">
+                                        1
+                                    </div>
+                                    <div>
+                                        <div class="text-sm font-bold text-slate-800 mb-0.5">新增订单量</div>
+                                        
+                                        <div class="text-xs font-semibold text-brand-600">目标: 20,000+</div>
+                                        
+                                        
+                                        <div class="text-[11px] text-slate-400 mt-1 leading-snug">月度新增合同订单数</div>
+                                        
+                                    </div>
+                                </li>
+                                
+                                <li class="flex items-start gap-3">
+                                    <div class="w-5 h-5 rounded-md bg-white border border-slate-200 flex items-center justify-center text-[10px] font-bold text-slate-400 mt-0.5 shadow-sm">
+                                        2
+                                    </div>
+                                    <div>
+                                        <div class="text-sm font-bold text-slate-800 mb-0.5">欧洲门店覆盖数</div>
+                                        
+                                        <div class="text-xs font-semibold text-brand-600">目标: 150家</div>
+                                        
+                                        
+                                        <div class="text-[11px] text-slate-400 mt-1 leading-snug">含直营与授权服务点</div>
+                                        
+                                    </div>
+                                </li>
+                                
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="flex-1 min-w-[280px] bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col kpi-card">
+                        <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
+                            <h4 class="font-bold text-slate-800 flex items-center gap-2">
+                                <span class="w-2 h-2 rounded-full bg-brand-500"></span>
+                                渠道效率
+                            </h4>
+                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">效率指标</span>
+                        </div>
+                        <div class="p-5 flex-1 bg-slate-50/30">
+                            <ul class="space-y-4">
+                                
+                                <li class="flex items-start gap-3">
+                                    <div class="w-5 h-5 rounded-md bg-white border border-slate-200 flex items-center justify-center text-[10px] font-bold text-slate-400 mt-0.5 shadow-sm">
+                                        1
+                                    </div>
+                                    <div>
+                                        <div class="text-sm font-bold text-slate-800 mb-0.5">单店月均交付</div>
+                                        
+                                        <div class="text-xs font-semibold text-brand-600">目标: 100台</div>
+                                        
+                                        
+                                        <div class="text-[11px] text-slate-400 mt-1 leading-snug">提升渠道周转效率</div>
+                                        
+                                    </div>
+                                </li>
+                                
+                                <li class="flex items-start gap-3">
+                                    <div class="w-5 h-5 rounded-md bg-white border border-slate-200 flex items-center justify-center text-[10px] font-bold text-slate-400 mt-0.5 shadow-sm">
+                                        2
+                                    </div>
+                                    <div>
+                                        <div class="text-sm font-bold text-slate-800 mb-0.5">试驾转化率</div>
+                                        
+                                        <div class="text-xs font-semibold text-brand-600">目标: 15%</div>
+                                        
+                                        
+                                        <div class="text-[11px] text-slate-400 mt-1 leading-snug">从到店试驾到下单的转化</div>
+                                        
+                                    </div>
+                                </li>
+                                
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="flex-1 min-w-[280px] bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col kpi-card">
+                        <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
+                            <h4 class="font-bold text-slate-800 flex items-center gap-2">
+                                <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                                服务质量
+                            </h4>
+                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">质量指标</span>
+                        </div>
+                        <div class="p-5 flex-1 bg-slate-50/30">
+                            <ul class="space-y-4">
+                                
+                                <li class="flex items-start gap-3">
+                                    <div class="w-5 h-5 rounded-md bg-white border border-slate-200 flex items-center justify-center text-[10px] font-bold text-slate-400 mt-0.5 shadow-sm">
+                                        1
+                                    </div>
+                                    <div>
+                                        <div class="text-sm font-bold text-slate-800 mb-0.5">欧洲用户 NPS</div>
+                                        
+                                        <div class="text-xs font-semibold text-brand-600">目标: 75分</div>
+                                        
+                                        
+                                        <div class="text-[11px] text-slate-400 mt-1 leading-snug">衡量本地化服务口碑</div>
+                                        
+                                    </div>
+                                </li>
+                                
+                                <li class="flex items-start gap-3">
+                                    <div class="w-5 h-5 rounded-md bg-white border border-slate-200 flex items-center justify-center text-[10px] font-bold text-slate-400 mt-0.5 shadow-sm">
+                                        2
+                                    </div>
+                                    <div>
+                                        <div class="text-sm font-bold text-slate-800 mb-0.5">首年无故障率</div>
+                                        
+                                        <div class="text-xs font-semibold text-brand-600">目标: 98.5%</div>
+                                        
+                                        
+                                        <div class="text-[11px] text-slate-400 mt-1 leading-snug">核心产品质量保障</div>
+                                        
+                                    </div>
+                                </li>
+                                
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="flex-1 min-w-[280px] bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col kpi-card">
+                        <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
+                            <h4 class="font-bold text-slate-800 flex items-center gap-2">
+                                <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+                                经营健康
+                            </h4>
+                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">健康指标</span>
+                        </div>
+                        <div class="p-5 flex-1 bg-slate-50/30">
+                            <ul class="space-y-4">
+                                
+                                <li class="flex items-start gap-3">
+                                    <div class="w-5 h-5 rounded-md bg-white border border-slate-200 flex items-center justify-center text-[10px] font-bold text-slate-400 mt-0.5 shadow-sm">
+                                        1
+                                    </div>
+                                    <div>
+                                        <div class="text-sm font-bold text-slate-800 mb-0.5">海外单车毛利</div>
+                                        
+                                        <div class="text-xs font-semibold text-brand-600">目标: 18%</div>
+                                        
+                                        
+                                        <div class="text-[11px] text-slate-400 mt-1 leading-snug">确保高端品牌溢价</div>
+                                        
+                                    </div>
+                                </li>
+                                
+                                <li class="flex items-start gap-3">
+                                    <div class="w-5 h-5 rounded-md bg-white border border-slate-200 flex items-center justify-center text-[10px] font-bold text-slate-400 mt-0.5 shadow-sm">
+                                        2
+                                    </div>
+                                    <div>
+                                        <div class="text-sm font-bold text-slate-800 mb-0.5">当地品牌知名度</div>
+                                        
+                                        <div class="text-xs font-semibold text-brand-600">目标: 40%</div>
+                                        
+                                        
+                                        <div class="text-[11px] text-slate-400 mt-1 leading-snug">核心城市目标人群覆盖</div>
+                                        
+                                    </div>
+                                </li>
+                                
+                            </ul>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+        </section>
+
+        <!-- Strategies Section -->
+        <section class="mb-16">
+            <div class="flex items-center gap-2 mb-8">
+                <h2 class="text-xl font-bold text-slate-800 uppercase tracking-widest">核心业务策略</h2>
+                <div class="h-px flex-1 bg-slate-200"></div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                
+                <div class="glass-panel rounded-2xl p-6 border border-slate-200 flex flex-col h-full group hover:border-brand-300 transition-colors">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center font-bold shadow-lg">
+                                P0
+                            </div>
+                            <h3 class="font-bold text-lg text-slate-900">品牌高端化本土适配策略</h3>
+                        </div>
+                        <span class="text-[10px] font-bold bg-slate-100 text-slate-500 px-2 py-1 rounded-md">
+                            SWOT: S1 x O2
+                        </span>
+                    </div>
+                    
+                    <p class="text-slate-600 text-sm leading-relaxed mb-6 flex-1">
+                        利用国内成熟的 800V 高压快充技术优势，针对欧洲能源转型机会，建立“补能无忧”的高端品牌形象。
+                    </p>
+
+                    <div class="space-y-3">
+                        <div class="flex items-center gap-2">
+                            <span class="text-[10px] font-bold text-slate-400 uppercase w-16">核心动作</span>
+                            <div class="flex-1 flex flex-wrap gap-2">
+                                
+                                <span class="text-[11px] font-medium bg-brand-50 text-brand-700 px-2 py-0.5 rounded-full border border-brand-100">
+                                    启动 &#39;Zeekr Power&#39; 欧洲补能网络合作计划
+                                </span>
+                                
+                                <span class="text-[11px] font-medium bg-brand-50 text-brand-700 px-2 py-0.5 rounded-full border border-brand-100">
+                                    发布针对欧洲审美与法规的全新 HMI 界面
+                                </span>
+                                
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-[10px] font-bold text-slate-400 uppercase w-16">支撑指标</span>
+                            <span class="text-xs font-bold text-slate-700">品牌知名度 / 试驾转化率</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="glass-panel rounded-2xl p-6 border border-slate-200 flex flex-col h-full group hover:border-brand-300 transition-colors">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center font-bold shadow-lg">
+                                P1
+                            </div>
+                            <h3 class="font-bold text-lg text-slate-900">直营+代理双轨渠道扩张</h3>
+                        </div>
+                        <span class="text-[10px] font-bold bg-slate-100 text-slate-500 px-2 py-1 rounded-md">
+                            SWOT: W2 x O3
+                        </span>
+                    </div>
+                    
+                    <p class="text-slate-600 text-sm leading-relaxed mb-6 flex-1">
+                        针对自建渠道缓慢的劣势，在核心城市保留直营体验店的同时，与当地大型汽车经销商集团合作快速下沉。
+                    </p>
+
+                    <div class="space-y-3">
+                        <div class="flex items-center gap-2">
+                            <span class="text-[10px] font-bold text-slate-400 uppercase w-16">核心动作</span>
+                            <div class="flex-1 flex flex-wrap gap-2">
+                                
+                                <span class="text-[11px] font-medium bg-brand-50 text-brand-700 px-2 py-0.5 rounded-full border border-brand-100">
+                                    在法/德/意核心城市开设旗舰旗舰店
+                                </span>
+                                
+                                <span class="text-[11px] font-medium bg-brand-50 text-brand-700 px-2 py-0.5 rounded-full border border-brand-100">
+                                    授权 50 家本地服务商提供售后保障
+                                </span>
+                                
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-[10px] font-bold text-slate-400 uppercase w-16">支撑指标</span>
+                            <span class="text-xs font-bold text-slate-700">门店覆盖数 / 单店月均交付</span>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+        </section>
+    </div>
+
+    <!-- Raw YAML Data (Hidden) -->
+    <script type="application/yaml" id="raw-yaml">
+
+title: "极氪汽车 (Zeekr) — 出海欧洲业务战略与指标推导"
+planning_cycle: "2025 - 2026"
+nsm:
+  name: "欧洲市场月活跃交付车辆数 (MAV)"
+  target: "15,000"
+  unit: "台/月"
+  definition: "指在欧洲市场当月完成交付并处于活跃行驶状态（有联网数据回传）的车辆总数。"
+kpi_pyramid:
+  - name: "市场增长"
+    type: "增长指标"
+    metrics:
+      - name: "新增订单量"
+        target: "20,000+"
+        desc: "月度新增合同订单数"
+      - name: "欧洲门店覆盖数"
+        target: "150家"
+        desc: "含直营与授权服务点"
+  - name: "渠道效率"
+    type: "效率指标"
+    metrics:
+      - name: "单店月均交付"
+        target: "100台"
+        desc: "提升渠道周转效率"
+      - name: "试驾转化率"
+        target: "15%"
+        desc: "从到店试驾到下单的转化"
+  - name: "服务质量"
+    type: "质量指标"
+    metrics:
+      - name: "欧洲用户 NPS"
+        target: "75分"
+        desc: "衡量本地化服务口碑"
+      - name: "首年无故障率"
+        target: "98.5%"
+        desc: "核心产品质量保障"
+  - name: "经营健康"
+    type: "健康指标"
+    metrics:
+      - name: "海外单车毛利"
+        target: "18%"
+        desc: "确保高端品牌溢价"
+      - name: "当地品牌知名度"
+        target: "40%"
+        desc: "核心城市目标人群覆盖"
+strategies:
+  - name: "品牌高端化本土适配策略"
+    priority: 0
+    swot_ref: "S1 x O2"
+    description: "利用国内成熟的 800V 高压快充技术优势，针对欧洲能源转型机会，建立“补能无忧”的高端品牌形象。"
+    actions:
+      - "启动 'Zeekr Power' 欧洲补能网络合作计划"
+      - "发布针对欧洲审美与法规的全新 HMI 界面"
+    kpi_ref: "品牌知名度 / 试驾转化率"
+  - name: "直营+代理双轨渠道扩张"
+    priority: 1
+    swot_ref: "W2 x O3"
+    description: "针对自建渠道缓慢的劣势，在核心城市保留直营体验店的同时，与当地大型汽车经销商集团合作快速下沉。"
+    actions:
+      - "在法/德/意核心城市开设旗舰旗舰店"
+      - "授权 50 家本地服务商提供售后保障"
+    kpi_ref: "门店覆盖数 / 单店月均交付"
+
+    </script>
+
+    <div id="toast" class="fixed bottom-8 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-6 py-3 rounded-xl shadow-2xl text-sm font-bold transform transition-all duration-300 translate-y-20 opacity-0 z-50">
+        已成功复制 YAML 数据
+    </div>
+
+    <script>
+        document.getElementById('copyYamlBtn').addEventListener('click', function() {
+            const yamlContent = document.getElementById('raw-yaml').textContent.trim();
+            navigator.clipboard.writeText(yamlContent).then(() => {
+                const toast = document.getElementById('toast');
+                toast.classList.remove('translate-y-20', 'opacity-0');
+                setTimeout(() => {
+                    toast.classList.add('translate-y-20', 'opacity-0');
+                }, 2000);
+            });
+        });
+    </script>
+</body>
+</html>

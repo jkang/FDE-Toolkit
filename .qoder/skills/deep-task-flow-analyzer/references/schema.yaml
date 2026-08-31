@@ -1,0 +1,139 @@
+# =============================================================================
+# deep-task-flow-analyzer · YAML 数据契约 (Schema / Source of Truth)
+# 用途：将「AI 场景定义（AI Canvas / To-be 旅程 / 服务蓝图）」按 SKP 阶段1
+#       任务流程挖掘视角，拆解为「L3 业务阶段 → L4 活动分组 → L5 可执行动作」的
+#       端到端深度任务流程地图（非泳道、非 AI 能力编排），并聚焦高价值 L4（P0）
+#       下钻为 L5 深度任务序列（输入/输出/规则依据/异常HITL 结构化）。
+# 本文件是「LLM 产物」与「HTML 编译器」之间的唯一契约。
+# 完整实例见 examples/ 目录；此处展示结构与代表行。
+# =============================================================================
+
+meta:
+  title: "X电商订舱 · 智能订舱 Agent 端到端深度任务流程地图"   # 主标题（页眉 H1）
+  subtitle: "来自《任务流程挖掘清单》主表"                    # 副标题
+  version: "v1.0"                                           # 版本号
+  date: "2026-08-25"                                        # 更新日期
+  scenarioName: "智能订舱 Agent"                             # 所属 AI 场景名
+  businessStage: "SKP 阶段1 任务流程挖掘 · P1"               # 对应业务阶段
+  methodology: "SKP 阶段1方法（业务环节 L3 → 主要活动 L4 → 深度任务 L5）"
+  inputs:                                                   # 输入依据（上游产物清单）
+    - "SRP《AI画布-01智能订舱Agent》"
+    - "SRP《智能订舱Agent-To-be旅程》"
+    - "SRP《X电商订舱-服务蓝图》"
+  sourceRef: "X电商订舱-智能订舱Agent-To-be流程.yaml 任务手账"
+  kpi:                                                      # 场景要服务的价值锚定
+    - "在线订舱确认时效"
+    - "AI 分流率"
+    - "SME 全流程自助率"
+    - "单证一次提交通过率"
+
+# ---- 统计与焦点（页眉副标题补充：5 个 L3 · 11 个 L4 · 21 个 L5）----
+overview:
+  l3Count: 5                 # L3 业务阶段数量
+  l4Count: 11                # L4 活动分组数量
+  l5Count: 21                # L5 可执行动作数量
+  focusL3: "在线订舱"          # 焦点所在 L3 阶段
+  focusL4: "一键订舱与确认"     # 焦点 L4（P0，本图下钻对象）
+
+# ---- 图例区（页眉下方一行）----
+legend:
+  focusType: "p0"           # 高亮标签（P0 本节重点）
+  execution:                # 执行主体图例（与 stage.group.task.actor 对应）
+    - { type: "agent",  label: "Agent",   icon: "🤖" }
+    - { type: "mixed",  label: "混合执行", icon: "🤝" }
+    - { type: "human",  label: "人工",     icon: "👤" }
+  convention: "L3 业务阶段 → L4 活动分组 → L5 可执行动作"
+
+# ---- 端到端流程全景（横向阶段卡）× 场景 ----
+# stage = L3 业务阶段；stage.groups = L4 活动分组；group.tasks = L5 可执行动作
+# task.actor ∈ {agent, mixed, human}
+# group.isP0=true → 该 L4 为焦点（高亮 P0）；全图仅 1 个焦点 L4
+stages:
+  - id: "S1"
+    num: "01"
+    name: "询价报价"
+    l5Count: 4
+    isFocus: false
+    groups:
+      - id: "G1_1"
+        name: "询价与报价服务"
+        isP0: false
+        tasks:
+          - { id: "t01", name: "自然语言发起询价", actor: "human" }
+          - { id: "t02", name: "意图识别与路由",   actor: "agent" }
+          - { id: "t03", name: "实时报价数据返回", actor: "agent" }
+          - { id: "t04", name: "报价逐项解读",     actor: "agent" }
+  - id: "S3"
+    num: "03"
+    name: "在线订舱"
+    l5Count: 6
+    isFocus: true
+    groups:
+      - id: "G3_1"
+        name: "一键订舱与确认"
+        isP0: true                       # ★ 焦点 L4（P0）
+        tasks:
+          - { id: "t09", name: "3 步表单自动预填",  actor: "agent" }
+          - { id: "t10", name: "订舱规则校验",      actor: "agent" }
+          - { id: "t11", name: "一键订舱确认",      actor: "mixed" }
+          - { id: "t12", name: "订舱受理与状态回写", actor: "agent" }
+          - { id: "t13", name: "签发 Booking Confirmation", actor: "agent" }
+          - { id: "t14", name: "异常订舱人工终审",  actor: "human" }
+
+# ---- 阅读指引（全景 → 聚焦）----
+readingFlow:
+  - "先看全链路：从询价到复购，最终形成闭环"
+  - "再找高价值 L4：『一键订舱与确认』承载最密集的规则校验与人工确认"
+  - "最后下钻 L5：拆成『预填 / 校验 / 确认』三个可独立挂规则的动作"
+
+# ---- 聚焦下钻（before/after）----
+focusDrill:
+  before:
+    l4Name: "一键订舱与确认"
+    whyTooCoarse: "它包含表单预填、规则校验、人工确认等不同动作，输入输出和异常各不相同，不能直接作为最小执行单元。"
+  approach: "访谈走查＋材料还原 →"
+  evidence:                          # 专家实际怎么做（记录在案的动作证据）
+    - "根据会话上下文与会员画像，先把订舱表单字段预填好"
+    - "运行 200+ 条订舱校验规则，识别费率/信用/航线异常"
+    - "校验通过后由货主一键确认，异常则转人工终审"
+  after: "下钻为 3 个能独立挂规则的动作，各自回答『填什么 / 查什么 / 是否提交』。"
+
+# ---- L5 深度任务序列（焦点 L4 的下钻，回答各子问题）----
+focusSequence:
+  - { id: "L5-1", name: "3 步表单自动预填", question: "填什么" }
+  - { id: "L5-2", name: "订舱规则校验",       question: "查什么 / 依据什么放行" }
+  - { id: "L5-3", name: "一键订舱确认",       question: "是否提交 / 结果是否可观察" }
+
+# ---- L5 深度任务结构化表（输入 / 输出 / 规则依据 / 异常·HITL）----
+taskTable:
+  - l5: "3 步表单自动预填"
+    inputs: "会话上下文、会员画像、选定方案"
+    outputs: "预填订舱表单（12 字段）"
+    ruleType: "模版范例类·订舱表单模板/必填字段"
+    exception: "新客无历史数据 → 会话+OCR 兜底预填，标注置信度"
+    actor: "agent"
+  - l5: "订舱规则校验"
+    inputs: "预填字段、校验规则（200+ 条）"
+    outputs: "校验结果（费率/信用/航线）"
+    ruleType: "决策模型类·订舱校验规则引擎"
+    exception: "校验不过/信用受限 → 标注原因并提示补正/转人工"
+    actor: "agent"
+  - l5: "一键订舱确认"
+    inputs: "校验通过的表单"
+    outputs: "确认提交订舱请求"
+    ruleType: "决策模型类·提交放行确认"
+    exception: "货主核对异常 → 退回修改预填字段 → 人工终审"
+    actor: "mixed"
+
+# ---- 输入输出如何闭环（下游衔接）----
+ioChain:
+  - "会话上下文 + 会员画像"
+  - "预填订舱表单"
+  - "校验结果（通过/异常）"
+  - "确认提交订舱请求"
+  - "下游：OMS 受理 → Booking Confirmation / 人工终审"
+
+# ---- 学习要点（底部）----
+learning:
+  why: "每个 L5 各自只有一个核心动词，产出可观察，并可独立挂接规则。"
+  key: "挖掘的关键不是改写名称，而是把专家真实执行的动作顺序、输入输出、判断依据和异常链路结构化。"

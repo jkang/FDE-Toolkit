@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>张雪机车海外AI销售战略分析</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background: #0a0e27;
+            color: #e2e8f0;
+            overflow: hidden;
+        }
+        .bp-canvas {
+            min-width: var(--canvas-width);
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #fff;
+        }
+        .app-container {
+            display: flex;
+            height: 100vh;
+        }
+        .sidebar {
+            width: 320px;
+            background: linear-gradient(180deg, #0f1535 0%, #1a1f3a 100%);
+            border-right: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            overflow-x: hidden;
+            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+        .sidebar.collapsed {
+            width: 80px;
+        }
+        .sidebar-header {
+            padding: 24px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            position: relative;
+        }
+        .sidebar.collapsed .sidebar-header {
+            padding: 24px 12px;
+        }
+        .sidebar-toggle {
+            position: absolute;
+            top: 24px;
+            right: 16px;
+            width: 28px;
+            height: 28px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #94a3b8;
+            z-index: 10;
+        }
+        .sidebar-toggle:hover {
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+        }
+        .sidebar.collapsed .sidebar-toggle {
+            right: 50%;
+            transform: translateX(50%) rotate(180deg);
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #f59e0b, #ef4444);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 18px;
+            color: white;
+        }
+        .logo-text {
+            font-size: 18px;
+            font-weight: 700;
+            color: #fff;
+        }
+        .sidebar-subtitle {
+            font-size: 12px;
+            color: #64748b;
+            margin-top: 4px;
+        }
+        .nav-menu {
+            padding: 16px 0;
+            flex: 1;
+        }
+        .nav-section {
+            margin-bottom: 8px;
+        }
+        .nav-section-title {
+            padding: 8px 24px;
+            font-size: 11px;
+            font-weight: 600;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 24px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-left: 3px solid transparent;
+            text-decoration: none;
+            color: #94a3b8;
+        }
+        .nav-item:hover {
+            background: rgba(255,255,255,0.05);
+            color: #e2e8f0;
+        }
+        .nav-item.active {
+            background: rgba(59, 130, 246, 0.1);
+            border-left-color: #3b82f6;
+            color: #60a5fa;
+        }
+        .nav-item-icon {
+            width: 20px;
+            height: 20px;
+            margin-right: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+        .nav-item-text {
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .nav-badge {
+            margin-left: auto;
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        /* Collapsed State Overrides */
+        .sidebar.collapsed .logo-text,
+        .sidebar.collapsed .sidebar-subtitle,
+        .sidebar.collapsed .nav-item-text,
+        .sidebar.collapsed .nav-badge,
+        .sidebar.collapsed .sidebar-footer {
+            display: none;
+        }
+        .sidebar.collapsed .nav-section-title {
+            height: 1px;
+            background: rgba(255,255,255,0.1);
+            margin: 16px 12px;
+            padding: 0;
+            display: block;
+            text-indent: -9999px;
+            overflow: hidden;
+        }
+        .sidebar.collapsed .logo {
+            justify-content: center;
+            margin-right: 0;
+        }
+        .sidebar.collapsed .nav-item {
+            justify-content: center;
+            padding: 12px 0;
+        }
+        .sidebar.collapsed .nav-item-icon {
+            margin-right: 0;
+            font-size: 18px;
+        }
+        .sidebar-footer {
+            padding: 16px 24px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            font-size: 12px;
+            color: #64748b;
+        }
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .content-header {
+            height: 64px;
+            background: rgba(15, 21, 53, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 32px;
+        }
+        .content-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #fff;
+        }
+        .content-actions {
+            display: flex;
+            gap: 12px;
+        }
+        .action-btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            border: 1px solid rgba(255,255,255,0.2);
+            background: transparent;
+            color: #e2e8f0;
+            transition: all 0.2s;
+        }
+        .action-btn:hover {
+            background: rgba(255,255,255,0.1);
+        }
+        .action-btn.primary {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            border: none;
+            color: white;
+        }
+        .action-btn.primary:hover {
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+        }
+        .content-frame {
+            flex: 1;
+            overflow: hidden;
+            background: #0a0e27;
+        }
+        .content-frame iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        .cover-page {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 50%, #0f1535 100%);
+            text-align: center;
+            padding: 40px;
+            overflow-y: auto;
+        }
+        .cover-badge {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(239, 68, 68, 0.2));
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 13px;
+            color: #f59e0b;
+            font-weight: 600;
+            margin-bottom: 32px;
+            letter-spacing: 2px;
+        }
+        .cover-title {
+            font-size: 48px;
+            font-weight: 800;
+            color: #fff;
+            margin-bottom: 16px;
+            line-height: 1.2;
+            background: linear-gradient(135deg, #fff 0%, #94a3b8 100%);
+            --bg-clip: text;
+            -webkit-background-clip: var(--bg-clip);
+            background-clip: var(--bg-clip);
+            -webkit-text-fill-color: transparent;
+        }
+        .cover-subtitle {
+            font-size: 20px;
+            color: #64748b;
+            margin-bottom: 48px;
+            max-width: 600px;
+        }
+        .cover-stats {
+            display: flex;
+            gap: 48px;
+            margin-bottom: 48px;
+        }
+        .stat-item {
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 36px;
+            font-weight: 800;
+            color: #3b82f6;
+            margin-bottom: 8px;
+        }
+        .stat-label {
+            font-size: 13px;
+            color: #64748b;
+        }
+        .cover-toc {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            max-width: 900px;
+            width: 100%;
+        }
+        .toc-card {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: left;
+        }
+        .toc-card:hover {
+            background: rgba(255,255,255,0.1);
+            border-color: rgba(59, 130, 246, 0.5);
+            transform: translateY(-2px);
+        }
+        .toc-card-number {
+            font-size: 24px;
+            font-weight: 800;
+            color: #3b82f6;
+            margin-bottom: 8px;
+        }
+        .toc-card-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #e2e8f0;
+            margin-bottom: 4px;
+        }
+        .toc-card-desc {
+            font-size: 12px;
+            color: #64748b;
+        }
+        .cover-footer {
+            margin-top: 48px;
+            font-size: 12px;
+            color: #475569;
+        }
+        @media (max-width: 1024px) {
+            .sidebar { width: 280px; }
+            .cover-toc { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 768px) {
+            .sidebar { display: none; }
+            .cover-toc { grid-template-columns: 1fr; }
+            .cover-stats { flex-direction: column; gap: 24px; }
+        }
+    </style>
+    
+</head>
+<body>
+    <div class="app-container">
+        <nav class="sidebar" id="sidebar">
+            <div class="sidebar-toggle" onclick="toggleSidebar()" title="切换侧边栏">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+            </div>
+            <div class="sidebar-header">
+                <div class="logo">
+                    <div class="logo-icon">ZX</div>
+                    <div class="logo-text">张雪机车</div>
+                </div>
+                
+                <div class="sidebar-subtitle">海外AI销售战略分析</div>
+                
+            </div>
+            
+            <div class="nav-menu">
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">概览</div>
+                    
+                    <a class="nav-item active" href="#" onclick="loadReport('cover'); return false;">
+                        <span class="nav-item-icon">📊</span>
+                        <span class="nav-item-text">报告首页</span>
+                        
+                    </a>
+                    
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">战略分析</div>
+                    
+                    <a class="nav-item " href="#" onclick="loadReport('report1'); return false;">
+                        <span class="nav-item-icon">🎯</span>
+                        <span class="nav-item-text">北极星指标与战略</span>
+                        
+                    </a>
+                    
+                    <a class="nav-item " href="#" onclick="loadReport('report2'); return false;">
+                        <span class="nav-item-icon">⚡</span>
+                        <span class="nav-item-text">SWOT分析</span>
+                        
+                    </a>
+                    
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">流程与体验</div>
+                    
+                    <a class="nav-item " href="#" onclick="loadReport('report3'); return false;">
+                        <span class="nav-item-icon">🔍</span>
+                        <span class="nav-item-text">业务流程深度分析</span>
+                        
+                        <span class="nav-badge">39痛点</span>
+                        
+                    </a>
+                    
+                    <a class="nav-item " href="#" onclick="loadReport('report4'); return false;">
+                        <span class="nav-item-icon">🗺️</span>
+                        <span class="nav-item-text">DTC服务蓝图</span>
+                        
+                        <span class="nav-badge">8阶段</span>
+                        
+                    </a>
+                    
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">AI场景</div>
+                    
+                    <a class="nav-item " href="#" onclick="loadReport('report5'); return false;">
+                        <span class="nav-item-icon">💡</span>
+                        <span class="nav-item-text">AI机会场景地图</span>
+                        
+                        <span class="nav-badge">32场景</span>
+                        
+                    </a>
+                    
+                    <a class="nav-item " href="#" onclick="loadReport('report6'); return false;">
+                        <span class="nav-item-icon">📈</span>
+                        <span class="nav-item-text">AI场景优先级矩阵</span>
+                        
+                        <span class="nav-badge">Top10</span>
+                        
+                    </a>
+                    
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">AI画布</div>
+                    
+                    <a class="nav-item " href="#" onclick="loadReport('report7'); return false;">
+                        <span class="nav-item-icon">🤖</span>
+                        <span class="nav-item-text">AI多语言客服机器人</span>
+                        
+                    </a>
+                    
+                    <a class="nav-item " href="#" onclick="loadReport('report8'); return false;">
+                        <span class="nav-item-icon">🎨</span>
+                        <span class="nav-item-text">AI多语言内容工厂</span>
+                        
+                    </a>
+                    
+                    <a class="nav-item " href="#" onclick="loadReport('report9'); return false;">
+                        <span class="nav-item-icon">🛒</span>
+                        <span class="nav-item-text">智能购车顾问</span>
+                        
+                    </a>
+                    
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">路线图</div>
+                    
+                    <a class="nav-item " href="#" onclick="loadReport('report10'); return false;">
+                        <span class="nav-item-icon">🚀</span>
+                        <span class="nav-item-text">1-2年里程碑计划</span>
+                        
+                        <span class="nav-badge">37任务</span>
+                        
+                    </a>
+                    
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">AI原生工作流</div>
+                    
+                    <a class="nav-item " href="#" onclick="loadReport('report11'); return false;">
+                        <span class="nav-item-icon">🔮</span>
+                        <span class="nav-item-text">AI原生海外销售工作流</span>
+                        
+                        <span class="nav-badge">17节点</span>
+                        
+                    </a>
+                    
+                </div>
+                
+            </div>
+            
+            
+            <div class="sidebar-footer">
+                生成时间：2026年4月29日<br>
+                分析框架：NSM + AI4PM
+            </div>
+            
+        </nav>
+        
+        <main class="main-content">
+            <div class="content-header">
+                <div class="content-title" id="page-title">张雪机车海外AI销售战略分析</div>
+                <div class="content-actions">
+                    <button class="action-btn" onclick="showCover()">返回首页</button>
+                    <button class="action-btn primary" onclick="window.print()">打印报告</button>
+                </div>
+            </div>
+            
+            <div class="content-frame" id="content-frame">
+                <div class="cover-page" id="cover-page">
+                    
+                    <div class="cover-badge">AI-POWERED GLOBAL EXPANSION</div>
+                    
+                    <h1 class="cover-title">张雪机车海外AI销售战略分析</h1>
+                    <p class="cover-subtitle">基于WSBK双冠王赛事IP，以AI赋能DTC模式，构建全球化销售与服务生态</p>
+                    
+                    <div class="cover-stats">
+                        
+                        <div class="stat-item">
+                            <div class="stat-number">10</div>
+                            <div class="stat-label">分析维度</div>
+                        </div>
+                        
+                        <div class="stat-item">
+                            <div class="stat-number">32</div>
+                            <div class="stat-label">AI场景</div>
+                        </div>
+                        
+                        <div class="stat-item">
+                            <div class="stat-number">39</div>
+                            <div class="stat-label">业务痛点</div>
+                        </div>
+                        
+                        <div class="stat-item">
+                            <div class="stat-number">37</div>
+                            <div class="stat-label">里程碑任务</div>
+                        </div>
+                        
+                    </div>
+                    
+                    <div class="cover-toc">
+                        
+                        <div class="toc-card" onclick="loadReport('report1')">
+                            <div class="toc-card-number">01</div>
+                            <div class="toc-card-title">北极星指标与战略</div>
+                            <div class="toc-card-desc">海外月度活跃骑手数(MAR)</div>
+                        </div>
+                        
+                        <div class="toc-card" onclick="loadReport('report2')">
+                            <div class="toc-card-number">02</div>
+                            <div class="toc-card-title">SWOT分析</div>
+                            <div class="toc-card-desc">竞争优势与威胁识别</div>
+                        </div>
+                        
+                        <div class="toc-card" onclick="loadReport('report3')">
+                            <div class="toc-card-number">03</div>
+                            <div class="toc-card-title">业务流程深度分析</div>
+                            <div class="toc-card-desc">3大渠道39个痛点</div>
+                        </div>
+                        
+                        <div class="toc-card" onclick="loadReport('report4')">
+                            <div class="toc-card-number">04</div>
+                            <div class="toc-card-title">DTC服务蓝图</div>
+                            <div class="toc-card-desc">8阶段服务旅程</div>
+                        </div>
+                        
+                        <div class="toc-card" onclick="loadReport('report5')">
+                            <div class="toc-card-number">05</div>
+                            <div class="toc-card-title">AI机会场景地图</div>
+                            <div class="toc-card-desc">32个AI落地场景</div>
+                        </div>
+                        
+                        <div class="toc-card" onclick="loadReport('report6')">
+                            <div class="toc-card-number">06</div>
+                            <div class="toc-card-title">AI场景优先级矩阵</div>
+                            <div class="toc-card-desc">7维度量化评估</div>
+                        </div>
+                        
+                        <div class="toc-card" onclick="loadReport('report7')">
+                            <div class="toc-card-number">07</div>
+                            <div class="toc-card-title">AI客服机器人画布</div>
+                            <div class="toc-card-desc">多语言7x24客服</div>
+                        </div>
+                        
+                        <div class="toc-card" onclick="loadReport('report8')">
+                            <div class="toc-card-number">08</div>
+                            <div class="toc-card-title">AI内容工厂画布</div>
+                            <div class="toc-card-desc">多语言内容生成</div>
+                        </div>
+                        
+                        <div class="toc-card" onclick="loadReport('report9')">
+                            <div class="toc-card-number">09</div>
+                            <div class="toc-card-title">智能购车顾问画布</div>
+                            <div class="toc-card-desc">个性化推荐系统</div>
+                        </div>
+                        
+                        <div class="toc-card" onclick="loadReport('report10')">
+                            <div class="toc-card-number">10</div>
+                            <div class="toc-card-title">1-2年里程碑计划</div>
+                            <div class="toc-card-desc">37个关键任务</div>
+                        </div>
+                        
+                        <div class="toc-card" onclick="loadReport('report11')">
+                            <div class="toc-card-number">11</div>
+                            <div class="toc-card-title">AI原生海外销售工作流</div>
+                            <div class="toc-card-desc">AI-Native DTC全流程重构</div>
+                        </div>
+                        
+                    </div>
+                    
+                    <div class="cover-footer">
+                        点击上方卡片或左侧菜单查看详细报告
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <script>
+        const reports = {"report1": {"file": "\u5f20\u96ea\u673a\u8f66_\u6d77\u5916\u9500\u552e\u6218\u7565\u4e0e\u5317\u6781\u661f\u6307\u6807\u5206\u6790\u62a5\u544a.html", "title": "\u5317\u6781\u661f\u6307\u6807\u4e0e\u6218\u7565"}, "report10": {"file": "\u5f20\u96ea\u673a\u8f66_AI\u9500\u552e\u843d\u5730\u8def\u7ebf\u56fe_\u91cc\u7a0b\u7891\u8ba1\u5212.html", "title": "1-2\u5e74\u91cc\u7a0b\u7891\u8ba1\u5212"}, "report11": {"file": "\u5f20\u96ea\u673a\u8f66_AI\u539f\u751f\u6d77\u5916\u9500\u552e\u5de5\u4f5c\u6d41.html", "title": "AI\u539f\u751f\u6d77\u5916\u9500\u552e\u5de5\u4f5c\u6d41"}, "report2": {"file": null, "title": "SWOT\u5206\u6790"}, "report3": {"file": "\u5f20\u96ea\u673a\u8f66_\u6d77\u5916\u9500\u552e\u4e1a\u52a1\u6d41\u7a0b\u6df1\u5ea6\u5206\u6790.html", "title": "\u4e1a\u52a1\u6d41\u7a0b\u6df1\u5ea6\u5206\u6790"}, "report4": {"file": "\u5f20\u96ea\u673a\u8f66_\u6d77\u5916DTC\u9500\u552e\u670d\u52a1\u84dd\u56fe.html", "title": "DTC\u670d\u52a1\u84dd\u56fe"}, "report5": {"file": "\u5f20\u96ea\u673a\u8f66_AI\u673a\u4f1a\u573a\u666f\u5730\u56fe.html", "title": "AI\u673a\u4f1a\u573a\u666f\u5730\u56fe"}, "report6": {"file": "\u5f20\u96ea\u673a\u8f66_AI\u573a\u666f\u4f18\u5148\u7ea7\u77e9\u9635.html", "title": "AI\u573a\u666f\u4f18\u5148\u7ea7\u77e9\u9635"}, "report7": {"file": "\u5f20\u96ea\u673a\u8f66_AI\u753b\u5e03_\u591a\u8bed\u8a00\u5ba2\u670d\u673a\u5668\u4eba.html", "title": "AI\u5ba2\u670d\u673a\u5668\u4eba\u753b\u5e03"}, "report8": {"file": "\u5f20\u96ea\u673a\u8f66_AI\u753b\u5e03_\u591a\u8bed\u8a00\u5185\u5bb9\u5de5\u5382.html", "title": "AI\u5185\u5bb9\u5de5\u5382\u753b\u5e03"}, "report9": {"file": "\u5f20\u96ea\u673a\u8f66_AI\u753b\u5e03_\u667a\u80fd\u8d2d\u8f66\u987e\u95ee.html", "title": "\u667a\u80fd\u8d2d\u8f66\u987e\u95ee\u753b\u5e03"}};
+        
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('collapsed');
+            localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
+        }
+
+        // Restore sidebar state
+        if (localStorage.getItem('sidebarCollapsed') === 'true') {
+            document.getElementById('sidebar').classList.add('collapsed');
+        }
+        
+        function showCover() {
+            const frame = document.getElementById('content-frame');
+            frame.innerHTML = document.getElementById('cover-page').outerHTML;
+            document.getElementById('page-title').textContent = '张雪机车海外AI销售战略分析';
+            updateActiveNav(null);
+        }
+        
+        function loadReport(reportId) {
+            const report = reports[reportId];
+            if (!report) return;
+            
+            const frame = document.getElementById('content-frame');
+            document.getElementById('page-title').textContent = report.title || '张雪机车海外AI销售战略分析';
+            
+            if (report.file) {
+                frame.innerHTML = `<iframe src="${report.file}" sandbox="allow-same-origin allow-scripts"></iframe>`;
+            } else {
+                showCover();
+            }
+            
+            updateActiveNav(reportId);
+        }
+        
+        function updateActiveNav(reportId) {
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            if (reportId) {
+                const activeItem = document.querySelector(`[onclick*="${reportId}"]`);
+                if (activeItem) activeItem.classList.add('active');
+            } else {
+                const firstItem = document.querySelector('.nav-item');
+                if (firstItem) firstItem.classList.add('active');
+            }
+        }
+        
+        showCover();
+    </script>
+</body>
+</html>

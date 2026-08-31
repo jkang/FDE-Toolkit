@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能客服机器人 MVP 验证方案 - MVP Validation Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root {
+            --bg-main: #fcfcfd;
+            --accent-blue: #2563eb;
+            --border-soft: rgba(226, 232, 240, 0.8);
+        }
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background-color: var(--bg-main);
+            color: #0f172a;
+            padding: 60px 40px;
+        }
+        h1, h2, h3 { font-family: 'Outfit', sans-serif; }
+        
+        .card {
+            background: white;
+            border: 1px solid var(--border-soft);
+            border-radius: 24px;
+            padding: 32px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
+            height: 100%;
+        }
+
+        .go-no-go-banner {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            border-radius: 24px;
+            padding: 40px;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+        .go-no-go-banner::after {
+            content: "";
+            position: absolute;
+            top: -20%;
+            right: -10%;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(37, 99, 235, 0.2) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .dimension-tag {
+            font-size: 0.65rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            padding: 2px 8px;
+            border-radius: 4px;
+            letter-spacing: 0.05em;
+        }
+        .dim-business { background: #eff6ff; color: #2563eb; }
+        .dim-model { background: #f0fdf4; color: #166534; }
+        .dim-system { background: #fffbeb; color: #854d0e; }
+        .dim-experience { background: #faf5ff; color: #6b21a8; }
+
+        .metric-row:hover { background: #f8fafc; }
+
+        /* Distribution Chart Bar */
+        .dist-bar {
+            height: 12px;
+            border-radius: 99px;
+            background: #f1f5f9;
+            overflow: hidden;
+            display: flex;
+        }
+        .segment { height: 100%; transition: width 0.5s ease; }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-in { animation: slideUp 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+    </style>
+</head>
+<body>
+    <div class="max-w-7xl mx-auto">
+        <!-- Header -->
+        <header class="mb-12 animate-in">
+            <div class="flex items-center gap-2 text-blue-600 font-bold text-xs uppercase tracking-widest mb-4">
+                <i data-lucide="shield-check" class="w-4 h-4"></i>
+                <span>MVP Quality Gate & Validation Plan</span>
+            </div>
+            <h1 class="text-5xl font-black tracking-tight text-slate-900 mb-4">智能客服机器人 MVP 验证方案</h1>
+            <p class="text-xl text-slate-500 font-medium">Customer Support AI Agent 成效指标与准入策略</p>
+        </header>
+
+        <!-- Go/No-Go Criteria -->
+        <section class="mb-12 animate-in" style="animation-delay: 0.1s;">
+            <div class="go-no-go-banner">
+                <div class="flex items-center gap-2 text-blue-400 font-black text-xs uppercase tracking-[0.2em] mb-4">
+                    <i data-lucide="door-open" class="w-4 h-4"></i>
+                    <span>Decision Gateway</span>
+                </div>
+                <h2 class="text-3xl font-bold leading-tight mb-4">
+                    “当 准确率 ≥90%，FCR ≥70%，响应延迟 ≤1.5s，用户点赞率 ≥60% 时，允许灰度上线。”
+                </h2>
+                <p class="text-slate-400 text-sm font-medium">这是基于核心价值假设推导出的 MVP 上线硬门槛。</p>
+            </div>
+        </section>
+
+        <div class="grid grid-cols-3 gap-8 mb-12">
+            <!-- Target Metrics Table -->
+            <div class="col-span-2 animate-in" style="animation-delay: 0.2s;">
+                <div class="card overflow-hidden p-0">
+                    <div class="p-8 border-bottom border-slate-100 flex justify-between items-center">
+                        <h3 class="text-xl font-bold">核心成效指标 (Success Metrics)</h3>
+                        <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Target Thresholds</span>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left">
+                            <thead class="bg-slate-50 text-slate-400 text-[10px] font-black uppercase tracking-widest">
+                                <tr>
+                                    <th class="px-8 py-4">指标名称</th>
+                                    <th class="px-8 py-4">维度</th>
+                                    <th class="px-8 py-4">计算口径</th>
+                                    <th class="px-8 py-4 text-right">目标阈值</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100">
+                                
+                                <tr class="metric-row transition-colors">
+                                    <td class="px-8 py-6 font-bold text-slate-900">一次解决率 (FCR)</td>
+                                    <td class="px-8 py-6">
+                                        <span class="dimension-tag 
+                                            dim-business
+                                            ">
+                                            业务
+                                        </span>
+                                    </td>
+                                    <td class="px-8 py-6 text-xs text-slate-500 font-medium">无需人工介入即完成结单的会话 / 总会话</td>
+                                    <td class="px-8 py-6 text-right font-black text-blue-600">≥70%</td>
+                                </tr>
+                                
+                                <tr class="metric-row transition-colors">
+                                    <td class="px-8 py-6 font-bold text-slate-900">回复准确率</td>
+                                    <td class="px-8 py-6">
+                                        <span class="dimension-tag 
+                                            dim-model
+                                            ">
+                                            模型
+                                        </span>
+                                    </td>
+                                    <td class="px-8 py-6 text-xs text-slate-500 font-medium">正确回复样本 / 总评估样本</td>
+                                    <td class="px-8 py-6 text-right font-black text-blue-600">≥90%</td>
+                                </tr>
+                                
+                                <tr class="metric-row transition-colors">
+                                    <td class="px-8 py-6 font-bold text-slate-900">幻觉率</td>
+                                    <td class="px-8 py-6">
+                                        <span class="dimension-tag 
+                                            dim-model
+                                            ">
+                                            模型
+                                        </span>
+                                    </td>
+                                    <td class="px-8 py-6 text-xs text-slate-500 font-medium">包含编造事实的回答 / 总回答</td>
+                                    <td class="px-8 py-6 text-right font-black text-blue-600">≤5%</td>
+                                </tr>
+                                
+                                <tr class="metric-row transition-colors">
+                                    <td class="px-8 py-6 font-bold text-slate-900">P95 响应延迟</td>
+                                    <td class="px-8 py-6">
+                                        <span class="dimension-tag 
+                                            dim-system
+                                            ">
+                                            系统
+                                        </span>
+                                    </td>
+                                    <td class="px-8 py-6 text-xs text-slate-500 font-medium">95% 请求的响应时间</td>
+                                    <td class="px-8 py-6 text-right font-black text-blue-600">≤1.5s</td>
+                                </tr>
+                                
+                                <tr class="metric-row transition-colors">
+                                    <td class="px-8 py-6 font-bold text-slate-900">用户点赞率</td>
+                                    <td class="px-8 py-6">
+                                        <span class="dimension-tag 
+                                            dim-experience">
+                                            体验
+                                        </span>
+                                    </td>
+                                    <td class="px-8 py-6 text-xs text-slate-500 font-medium">点赞 (👍) / 总评价数</td>
+                                    <td class="px-8 py-6 text-right font-black text-blue-600">≥60%</td>
+                                </tr>
+                                
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Test Set Strategy -->
+            <div class="animate-in" style="animation-delay: 0.3s;">
+                <div class="card">
+                    <h3 class="text-xl font-bold mb-8">测试数据集分布建议</h3>
+                    
+                    <div class="space-y-8">
+                        <div>
+                            <div class="flex justify-between items-end mb-2">
+                                <span class="text-sm font-bold text-slate-700">主路径 (Golden Path)</span>
+                                <span class="text-xl font-black text-blue-600">50%</span>
+                            </div>
+                            <div class="dist-bar"><div class="segment bg-blue-500" style="width: 50%"></div></div>
+                        </div>
+                        
+                        <div>
+                            <div class="flex justify-between items-end mb-2">
+                                <span class="text-sm font-bold text-slate-700">困难样例 (Hard Cases)</span>
+                                <span class="text-xl font-black text-orange-500">30%</span>
+                            </div>
+                            <div class="dist-bar"><div class="segment bg-orange-500" style="width: 30%"></div></div>
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between items-end mb-2">
+                                <span class="text-sm font-bold text-slate-700">边界样例 (Edge Cases)</span>
+                                <span class="text-xl font-black text-slate-400">20%</span>
+                            </div>
+                            <div class="dist-bar"><div class="segment bg-slate-400" style="width: 20%"></div></div>
+                        </div>
+                    </div>
+
+                    <div class="mt-12 p-6 bg-blue-50 rounded-2xl border border-blue-100">
+                        <h4 class="text-sm font-bold text-blue-900 mb-2 flex items-center gap-2">
+                            <i data-lucide="info" class="w-4 h-4"></i> 验证策略说明
+                        </h4>
+                        <p class="text-xs text-blue-700 leading-relaxed">
+                            建议采用“三明治”测试结构。50% 的主路径确保核心功能稳定，30% 困难样例检验鲁棒性，20% 边界样例测试异常处理与拒答策略。
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Monitoring Plan -->
+        <section class="animate-in" style="animation-delay: 0.4s;">
+            <div class="card overflow-hidden p-0">
+                <div class="p-8 bg-slate-50 border-bottom border-slate-100">
+                    <h3 class="text-xl font-bold">全周期过程监控指标 (Process Monitoring)</h3>
+                    <p class="text-sm text-slate-500 mt-1">反映系统运行细节，用于诊断“为什么成效指标未达标”</p>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left">
+                        <thead class="text-slate-400 text-[10px] font-black uppercase tracking-widest">
+                            <tr>
+                                <th class="px-8 py-4 border-b border-slate-100">层级</th>
+                                <th class="px-8 py-4 border-b border-slate-100">监控指标</th>
+                                <th class="px-8 py-4 border-b border-slate-100">正常范围</th>
+                                <th class="px-8 py-4 border-b border-slate-100 text-orange-600">告警阈值</th>
+                                <th class="px-8 py-4 border-b border-slate-100">诊断意义</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            
+                            <tr class="metric-row">
+                                <td class="px-8 py-6">
+                                    <span class="text-[10px] font-black bg-slate-100 text-slate-500 px-2 py-1 rounded">
+                                        模型层
+                                    </span>
+                                </td>
+                                <td class="px-8 py-6">
+                                    <div class="font-bold text-slate-900">平均 Token 消耗</div>
+                                    <div class="text-[10px] text-slate-400 mt-1">单次请求消耗的 Input+Output Token</div>
+                                </td>
+                                <td class="px-8 py-6 font-medium text-slate-600">500-800</td>
+                                <td class="px-8 py-6 font-black text-orange-600">>1200</td>
+                                <td class="px-8 py-6 text-xs text-slate-500 italic">上下文注入过多或 Prompt 泄露风险</td>
+                            </tr>
+                            
+                            <tr class="metric-row">
+                                <td class="px-8 py-6">
+                                    <span class="text-[10px] font-black bg-slate-100 text-slate-500 px-2 py-1 rounded">
+                                        检索层
+                                    </span>
+                                </td>
+                                <td class="px-8 py-6">
+                                    <div class="font-bold text-slate-900">Top-3 检索命中率</div>
+                                    <div class="text-[10px] text-slate-400 mt-1">前 3 个片段包含正确答案的比例</div>
+                                </td>
+                                <td class="px-8 py-6 font-medium text-slate-600">≥92%</td>
+                                <td class="px-8 py-6 font-black text-orange-600"><85%</td>
+                                <td class="px-8 py-6 text-xs text-slate-500 italic">向量索引质量下降或分段策略失效</td>
+                            </tr>
+                            
+                            <tr class="metric-row">
+                                <td class="px-8 py-6">
+                                    <span class="text-[10px] font-black bg-slate-100 text-slate-500 px-2 py-1 rounded">
+                                        系统层
+                                    </span>
+                                </td>
+                                <td class="px-8 py-6">
+                                    <div class="font-bold text-slate-900">错误率 (Error Rate)</div>
+                                    <div class="text-[10px] text-slate-400 mt-1">HTTP 5xx 错误请求占比</div>
+                                </td>
+                                <td class="px-8 py-6 font-medium text-slate-600"><0.1%</td>
+                                <td class="px-8 py-6 font-black text-orange-600">>1%</td>
+                                <td class="px-8 py-6 text-xs text-slate-500 italic">后端服务崩溃或第三方模型 API 限流</td>
+                            </tr>
+                            
+                            <tr class="metric-row">
+                                <td class="px-8 py-6">
+                                    <span class="text-[10px] font-black bg-slate-100 text-slate-500 px-2 py-1 rounded">
+                                        业务层
+                                    </span>
+                                </td>
+                                <td class="px-8 py-6">
+                                    <div class="font-bold text-slate-900">人工转接分布</div>
+                                    <div class="text-[10px] text-slate-400 mt-1">不同意图转人工的比例分布</div>
+                                </td>
+                                <td class="px-8 py-6 font-medium text-slate-600">平衡分布</td>
+                                <td class="px-8 py-6 font-black text-orange-600">单一意图转接 >50%</td>
+                                <td class="px-8 py-6 text-xs text-slate-500 italic">特定领域知识库缺失或模型理解盲区</td>
+                            </tr>
+                            
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <footer class="mt-20 text-center opacity-30 text-xs font-black uppercase tracking-[0.3em]">
+            AI Workshop &bull; MVP Validation Framework &copy; 2026
+        </footer>
+    </div>
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+</html>

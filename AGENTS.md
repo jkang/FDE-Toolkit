@@ -64,26 +64,28 @@ rsync -a --delete \
 5. **汇报**：向用户报告改动清单与验证结果；由用户决定何时安装到全局。
 6. **安装到全局（仅稳定后）**：使用上方 rsync 命令安装，并在交付摘要中说明已安装。
 
-### 5. Agent 与 Command 双端维护
+### 5. Agent 与 Command 多端维护
 
-Agent（Subagent）与 Command 是「Skill 的组合编排层」，同样必须同步维护两端：
+Agent（Subagent）与 Command 是「Skill 的组合编排层」，同样必须同步维护各端：
 
 ```
-Agent 定义：.opencode/agents/<name>.md   +   .trae/agents/<name>.md
-Command 定义：.opencode/commands/<name>.md  +  .trae/commands/<name>.md
+Agent 定义：.opencode/agents/<name>.md  +  .trae/agents/<name>.md  +  .qoder/agents/<name>.md
+Command 定义：.opencode/commands/<name>.md  +  .trae/commands/<name>.md  +  .qoder/commands/<name>.md
 ```
 
 规则：
 
-- **两端必须同时创建/更新**，禁止只改一端。
-- **两端正文必须一致**；仅 frontmatter 的 `tools` 声明允许按平台格式差异书写
-  （opencode 用 YAML 布尔 `read: true, ...` + `temperature`，trae 用逗号字符串 `tools: Read, Glob, ...`）。
+- **各端必须同时创建/更新**，禁止只改一端。
+- **各端正文必须一致**；仅 frontmatter 的 `tools` 声明允许按平台格式差异书写
+  （opencode 用 YAML 布尔 `read: true, ...` + `temperature`；trae / qoder 用逗号字符串 `tools: Read, Glob, ...`；
+  qoder 无 `temperature` 字段、命令不含 `subtask`，skills 只认 `name`/`description` 两个 frontmatter 字段）。
 - **Agent 职责要精确**：一个 Agent 只组合粒度一致的 Skill。
   - 示例：`mvp-prototype` = `ai-product-journey-generator` + `prototype-generator`（均为「场景级」）；
   - 细粒度「用户故事级」技能（`story-narrative-generator` / `story-prototype-generator`）不得混入该 Agent。
 - **触发词必须写明边界**，避免与其他 Agent 或技能流程混淆。
-- 修改 Agent 涉及到的 Skill 名称/路径变更时，同步更新两端 Agent、两端 Command 及 `skills/` 内相关 SKILL.md 的引用。
+- 修改 Agent 涉及到的 Skill 名称/路径变更时，同步更新各端 Agent、各端 Command 及 `skills/` 内相关 SKILL.md 的引用。
 - 完成后检查无旧名残留（如 `prototype-designer` → `mvp-prototype` 的重命名需全库 grep 确认）。
+- `.qoder/skills/` 是 `skills/` 的 Qoder 分发副本：新增/修改 skill 时同步更新（`cp -R skills/<name> .qoder/skills/`），并检查 frontmatter `name` 合规（小写连字符、无冒号）。
 
 ---
 
