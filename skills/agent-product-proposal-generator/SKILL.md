@@ -116,5 +116,5 @@ agent-product-proposal-generator/
 ├── scripts/
 │   └── build_proposal.py             # 校验器（结构/列/要素齐全性检查）
 └── examples/
-    └── X电商订舱-智能订舱Agent-Agent产品方案.md   # 案例示例（OOCL 智能订舱 Agent）
+    └── X电商订舱-智能订舱Agent-Agent产品方案.md   # 案例示例（X 智能订舱 Agent）
 ```

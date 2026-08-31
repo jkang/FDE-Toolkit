@@ -89,7 +89,7 @@ Command 定义：.opencode/commands/<name>.md  +  .trae/commands/<name>.md
 
 ## 二、仓库结构与产物约定
 
-- **案例/客户产物目录**：`X电商订舱/`（OOCL 电商订舱）、`铁路订票服务/` 等，为各客户的咨询交付物（报告、YAML、HTML、mvp-prototype 等），按客户+场景分目录存放。
+- **案例/客户产物目录**：`X电商订舱/`（X 电商订舱）、`铁路订票服务/` 等，为各客户的咨询交付物（报告、YAML、HTML、mvp-prototype 等），按客户+场景分目录存放。
 - **MVP 原型输出位置**：`<客户案例目录>/<场景目录>/mvp-prototype/`。
 - `skills/` 为技能库源码；`node_modules/`、`.git/` 等依赖与仓库元数据不入库。
 
