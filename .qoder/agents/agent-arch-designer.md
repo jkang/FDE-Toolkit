@@ -21,7 +21,7 @@ AI 场景定义（AI Canvas / To-be 旅程 / 服务蓝图 / 自然语言）
 
 > **边界**：本 Agent 只处理「场景级」的 Agent 架构设计（任务流程挖掘 P1 + 规则挖掘 P2 + 结构 + 行为 + 资源）。
 > To-be 旅程 / MVP 原型属 `mvp-prototype` Agent；AI 机会挖掘 / 优先级矩阵属 `opportunity-advisor` Agent；
-> 故事详述 / Story 原型属 `prototype-designer` 流程，均不在此 Agent 范围。
+> 故事详述 / Story 原型属用户故事级流程（`story-narrative-generator` / `story-prototype-generator`），均不在此 Agent 范围。
 
 ## 执行前必读
 1. 严格遵守三条全局规范：① 双重输出（结构化 YAML + 交互式 HTML）；② 输出路径与命名（公司/业务级 vs 场景级分层）；③ 视觉设计（按本 skill `references/` 规范）。

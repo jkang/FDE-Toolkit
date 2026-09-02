@@ -105,11 +105,17 @@ businessMocks:
 
 # ---- API 网关路由（server/routes/api.js 与前端 client.js 生成依据） ----
 apiRoutes:
-  - { name: "parseRequest", method: "POST", path: "/api/purchase/parse", target: "ai:parseRequest" }
-  - { name: "getOrders", method: "GET", path: "/api/orders", target: "business:getOrders" }
-  - {
-      name: "loadDashboard", method: "GET", path: "/api/dashboard",
-      target: "compose",
-      compose:
-        - { key: "inventory", service: "business", method: "getInventory" }
-    }
+  - name: "parseRequest"
+    method: "POST"
+    path: "/api/purchase/parse"
+    target: "ai:parseRequest"
+  - name: "getOrders"
+    method: "GET"
+    path: "/api/orders"
+    target: "business:getOrders"
+  - name: "loadDashboard"
+    method: "GET"
+    path: "/api/dashboard"
+    target: "compose"
+    compose:
+      - { key: "inventory", service: "business", method: "getInventory" }
