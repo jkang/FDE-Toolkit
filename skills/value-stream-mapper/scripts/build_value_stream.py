@@ -1,6 +1,6 @@
 """
 build_value_stream.py ── value-stream-mapper Compiler
-将「L1 价值链与价值段总览 YAML」编译为「对齐 03-业务价值流图.jpg 风格的 HTML」。
+将「L1 价值流图 YAML」编译为「对齐 03-业务价值流图.jpg 风格的 HTML」。
 
 Usage:
     python3 scripts/build_value_stream.py <input.yaml> <output.html>
@@ -184,7 +184,7 @@ def main():
     with open(output_html, "w", encoding="utf-8") as f:
         f.write(html)
 
-    print(f"✅ 价值链与价值段总览 generated → {output_html}")
+    print(f"✅ 价值流图 generated → {output_html}")
     print(f"   价值流 {stats['valueStreams']} 条 · 价值段 {stats['valueSegments']} 个 · "
           f"业务环节 {stats['businessLinks']} 个 · 聚焦环节 {stats['focusLinks']} 个")
 
