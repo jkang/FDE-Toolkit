@@ -1,0 +1,317 @@
+meta:
+  title: "X电商订舱 · 智能订舱 Agent To-be 流程"
+  version: "v1.0"
+  date: "2026-08-25"
+  scenarioName: "智能订舱 Agent（Ask Fin 升级为可执行订舱 Agent）"
+  businessStage: "挖知识阶段1 任务流程挖掘 · 步骤1.1"
+  methodology: "挖知识阶段1方法（业务环节 L3 → 主要活动 L4 → 深度任务 L5）"
+  inputs:
+    - "定场景《AI画布-01智能订舱Agent》（场景定义/数据知识/工作流/工具/收益）"
+    - "定场景《智能订舱Agent-To-be旅程》（角色/目标/旅程阶段/动作/设计要点）"
+    - "定场景《X电商订舱-服务蓝图》（客户/前台/后台三层痛点）"
+    - "定场景《X电商订舱-业务流程深度分析》（L1价值流/L2流程/痛点根因）"
+  sourceRef: "X电商订舱-智能订舱Agent-To-be旅程.yaml 手账.handoff + 服务蓝图/流程分析痛点锚点"
+  kpi:
+    - "在线订舱确认时效"      # KPI 3
+    - "AI 分流率"            # KPI 4
+    - "SME 全流程自助率"      # 北极星：电商订舱渗透率 40%
+    - "复杂问题一次性解决率"
+    - "舱位保证兑现率"        # KPI 5
+    - "单证一次提交通过率"
+
+# ---- 图例区（页眉下方一行）----
+legend:
+  execution:
+    - { type: "agent",  label: "Agent=AI 自动执行",   icon: "🤖" }
+    - { type: "human",  label: "人工=人工执行",       icon: "👤" }
+    - { type: "hybrid", label: "混合=人机协同",       icon: "🤝" }
+  hitlFocus:
+    - { level: "low",    label: "低 · 人机介入",      desc: "全自动，无人工介入" }
+    - { level: "medium", label: "中 · 人机交错/审核", desc: "AI 产出，人工抽检/确认" }
+    - { level: "high",   label: "高 · 人机终审",      desc: "人类担任最终裁决" }
+    - { level: "gate",   label: "必停确认",           desc: "对外动作，强制人工放行" }
+  flowConventions:
+    - "角色泳道 任务泳道内转；Agent 主驱动，人工只在价值判断/风险兜底介入"
+    - "流程走向 任务正常后回填 AI；Agent 串联询价→订舱→单证→跟踪→售后"
+  valueAnchors:
+    - "在线订舱确认时效"
+    - "AI 分流率"
+    - "SME 全流程自助率"
+    - "复杂问题一次性解决率"
+    - "舱位保证兑现率"
+    - "单证一次提交通过率"
+
+# ---- 业务阶段（列 = L3）----
+phases:
+  - { id: "P1", order: 1, name: "询价报价",   fullName: "询价与报价服务",             description: "自然语言询价 → 意图识别 → 报价生成与逐项解读" }
+  - { id: "P2", order: 2, name: "舱位推荐",   fullName: "报价解读与舱位推荐",         description: "装载率/ETA/舱位保证综合排序，推荐 Top3 并解释理由" }
+  - { id: "P3", order: 3, name: "在线订舱",   fullName: "一键订舱与确认",             description: "3 步表单预填 → 规则校验 → 提交 → 签发确认" }
+  - { id: "P4", order: 4, name: "单证处理",   fullName: "单证预填（SI 自动生成）",     description: "OCR 抽取 → 品名规范/HS 映射 → 校验 → 推送单证系统" }
+  - { id: "P5", order: 5, name: "支付结算",   fullName: "在线支付与结算",             description: "费用试算 → 支付链接 → 开票核销" }
+  - { id: "P6", order: 6, name: "出运跟踪",   fullName: "出运跟踪交互",               description: "里程碑拉取 → 对话播报 → ETA 预测 → 延误处置" }
+  - { id: "P7", order: 7, name: "售后复购",   fullName: "售后与会员复购",             description: "D&D 解读 → 超期预警 → 会员复购推荐 → 复杂转人工" }
+
+# ---- 角色泳道（行）----
+lanes:
+  - { id: "shipper_self",    order: 1, name: "SME 货主直客",   group: "客户/外部", description: "直客货主，询价/确认/支付/查询/售后" }
+  - { id: "shipper_operator", order: 2, name: "订舱操作员",     group: "货主企业", description: "货主企业单证组，上传单据/提交 SI/补件" }
+  - { id: "booking_agent",   order: 3, name: "智能订舱 Agent", group: "AI 主驱动", description: "Ask Fin 升级，意图/编排/生成/校验/播报" }
+  - { id: "human_support",   order: 4, name: "人工客服/订舱运营", group: "X 企业人工", description: "CSR / 订舱运营 / 单证团队 / 控制塔运营" }
+  - { id: "backend_sys",     order: 5, name: "业务系统",       group: "后台系统", description: "OMS/报价引擎/智慧单证/控制塔/支付/CRM" }
+
+# ---- 深度任务（L5）----
+tasks:
+  # ============ P1 询价报价 ============
+  - { id: "t01", order: 1, phaseId: "P1", laneId: "shipper_self",
+      name: "自然语言发起询价", actor: "human",
+      inputs: ["询价咨询（文本/语音）"], outputs: ["询价意图+起运港/目的港/箱型/ETD/货量"],
+      ruleType: "关键信息提取要点·询价要素识别",
+      valueAnchors: ["AI 分流率", "在线订舱确认时效"], hitlFocus: "low",
+      exception: "意图不明/要素缺失 → Agent 追问澄清",
+      description: "货主在对话框以自然语言输入询价要素" }
+  - { id: "t02", order: 2, phaseId: "P1", laneId: "booking_agent",
+      name: "意图识别与路由", actor: "agent",
+      inputs: ["询价文本+会话上下文"], outputs: ["意图标签+实体槽位（港口对/箱型/ETD）"],
+      ruleType: "关键信息提取要点·意图/实体抽取",
+      valueAnchors: ["AI 分流率"], hitlFocus: "low",
+      exception: "多意图/歧义 → 澄清后路由，复杂投诉 → 转人工",
+      description: "Agent 识别询价/订舱/查询/投诉意图并分类路由" }
+  - { id: "t03", order: 3, phaseId: "P1", laneId: "backend_sys",
+      name: "实时报价数据返回", actor: "agent",
+      inputs: ["起运港/目的港/箱型/ETD"], outputs: ["E-Spot 即期报价+舱位保证承诺"],
+      ruleType: "决策模型类·报价引擎定价规则",
+      valueAnchors: ["在线订舱确认时效"], hitlFocus: "low",
+      exception: "报价引擎超时/无可用航次 → 降级提示并建议邻近航线",
+      description: "报价引擎按收益策略返回即期/长时效报价" }
+  - { id: "t04", order: 4, phaseId: "P1", laneId: "booking_agent",
+      name: "报价逐项解读", actor: "agent",
+      inputs: ["报价卡+市场基准（SCFI）"], outputs: ["费用构成解读+有效期+舱位保证说明"],
+      ruleType: "术语字典类·运费构成术语（THC/D&D/BAF）",
+      valueAnchors: ["SME 全流程自助率", "在线订舱确认时效"], hitlFocus: "medium",
+      exception: "费用口径对不上 → 人工客服复核",
+      description: "Agent 逐项解读全包价，消除 SME 信息不对称" }
+
+  # ============ P2 舱位推荐 ============
+  - { id: "t05", order: 5, phaseId: "P2", laneId: "backend_sys",
+      name: "舱位余量/船期数据返回", actor: "agent",
+      inputs: ["航线网络+舱位余量+船期计划"], outputs: ["装载率/ETA 置信度/舱位保证状态"],
+      ruleType: "关联关系类·装载率与舱位保证口径",
+      valueAnchors: ["舱位保证兑现率"], hitlFocus: "low",
+      exception: "船期计划不同步 → 标注置信度并提示人工核对",
+      description: "舱位管理/收益系统返回余舱与船期状态" }
+  - { id: "t06", order: 6, phaseId: "P2", laneId: "booking_agent",
+      name: "综合排序推荐 Top3", actor: "agent",
+      inputs: ["报价+装载率+ETA+舱位保证"], outputs: ["Top3 推荐卡（含得分）"],
+      ruleType: "决策模型类·舱位推荐排序规则",
+      valueAnchors: ["舱位保证兑现率", "在线订舱确认时效"], hitlFocus: "medium",
+      exception: "旺季舱位挤兑 → 前置预警并给改配方案",
+      description: "Agent 按装载率/ETA 置信度/舱位保证综合排序推荐" }
+  - { id: "t07", order: 7, phaseId: "P2", laneId: "booking_agent",
+      name: "解释推荐理由", actor: "agent",
+      inputs: ["Top3 方案+评分依据"], outputs: ["可解释推荐理由文案"],
+      ruleType: "模版范例类·推荐理由话术模板",
+      valueAnchors: ["SME 全流程自助率"], hitlFocus: "low",
+      exception: "理由不成立 → 回退规则再算",
+      description: "Agent 输出可解释推荐理由，支撑货主决策信任" }
+  - { id: "t08", order: 8, phaseId: "P2", laneId: "shipper_self",
+      name: "确认 Agent 推荐舱位", actor: "hybrid",
+      inputs: ["推荐卡+对比表"], outputs: ["选定方案（含锁价/即期取舍）"],
+      ruleType: "决策模型类·方案取舍确认",
+      valueAnchors: ["舱位保证兑现率"], hitlFocus: "medium",
+      exception: "货主犹豫/改需求 → Agent 追问并细化方案",
+      description: "货主确认 AI 推荐航次或切换锁价方案" }
+
+  # ============ P3 在线订舱 ============
+  - { id: "t09", order: 9, phaseId: "P3", laneId: "booking_agent",
+      name: "3 步表单自动预填", actor: "agent",
+      inputs: ["会话上下文+会员画像+选定方案"], outputs: ["预填订舱表单（12 字段）"],
+      ruleType: "模版范例类·订舱表单模板/必填字段",
+      valueAnchors: ["在线订舱确认时效", "SME 全流程自助率"], hitlFocus: "low",
+      exception: "新客无历史数据 → 会话上下文+OCR 兜底预填，标注置信度",
+      description: "Agent 从会话与画像提取字段自动预填表单" }
+  - { id: "t10", order: 10, phaseId: "P3", laneId: "booking_agent",
+      name: "订舱规则校验", actor: "agent",
+      inputs: ["预填字段+校验规则（>200 条）"], outputs: ["校验结果（费率/信用/航线）"],
+      ruleType: "决策模型类·订舱校验规则引擎",
+      valueAnchors: ["单证一次提交通过率"], hitlFocus: "low",
+      exception: "校验不过/信用受限 → 标注原因并提示补正/转人工",
+      description: "Agent 运行费率/信用/航线校验规则" }
+  - { id: "t11", order: 11, phaseId: "P3", laneId: "shipper_self",
+      name: "一键订舱确认", actor: "hybrid",
+      inputs: ["校验通过的表单"], outputs: ["确认提交订舱请求"],
+      ruleType: "决策模型类·提交放行确认",
+      valueAnchors: ["在线订舱确认时效"], hitlFocus: "gate",
+      exception: "货主核对异常 → 退回修改预填字段",
+      description: "货主对预填表单做最后确认（对外必停确认点）" }
+  - { id: "t12", order: 12, phaseId: "P3", laneId: "backend_sys",
+      name: "订舱受理与状态回写", actor: "agent",
+      inputs: ["确认后的订舱请求"], outputs: ["受理状态+Booking 编号"],
+      ruleType: "关联关系类·OMS 状态同步口径",
+      valueAnchors: ["在线订舱确认时效"], hitlFocus: "low",
+      exception: "OMS 接口失败 → 重试 2 次→转人工受理",
+      description: "OMS 受理订舱并回写状态" }
+  - { id: "t13", order: 13, phaseId: "P3", laneId: "booking_agent",
+      name: "签发 Booking Confirmation", actor: "agent",
+      inputs: ["受理结果"], outputs: ["Booking Confirmation（最快 1 分钟）"],
+      ruleType: "模版范例类·订舱确认书模板",
+      valueAnchors: ["在线订舱确认时效", "AI 分流率"], hitlFocus: "medium",
+      exception: "标准单自动确认；复杂单 → 人工终审",
+      description: "Agent 签发订舱确认并多渠道通知货主" }
+  - { id: "t14", order: 14, phaseId: "P3", laneId: "human_support",
+      name: "异常订舱人工终审", actor: "human",
+      inputs: ["异常/高价值订舱请求"], outputs: ["放行或驳回指令"],
+      ruleType: "决策模型类·人工终审规则",
+      valueAnchors: ["舱位保证兑现率", "AI 分流率"], hitlFocus: "high",
+      exception: "信用/改船/费率冲突 → 人工裁决",
+      description: "订舱运营对异常订舱做终审，守住风险底线" }
+
+  # ============ P4 单证处理 ============
+  - { id: "t15", order: 15, phaseId: "P4", laneId: "shipper_operator",
+      name: "上传贸易单据", actor: "human",
+      inputs: ["PI/装箱单/发票（PDF/图片/Excel）"], outputs: ["单据文件集"],
+      ruleType: "关键信息提取要点·单证字段识别",
+      valueAnchors: ["单证一次提交通过率"], hitlFocus: "low",
+      exception: "破损/模糊 → 提示重新上传",
+      description: "订舱操作员上传 PI 与装箱单至智慧单证" }
+  - { id: "t16", order: 16, phaseId: "P4", laneId: "booking_agent",
+      name: "OCR 抽取 SI 字段", actor: "agent",
+      inputs: ["贸易单据文件"], outputs: ["抽取的 SI 字段（品名/件数/毛重/体积/HS）"],
+      ruleType: "关键信息提取要点·SI 字段抽取",
+      valueAnchors: ["单证一次提交通过率"], hitlFocus: "low",
+      exception: "字段置信度低 → 标黄待人工复核",
+      description: "Agent 用 OCR 抽取 SI 并标记置信度" }
+  - { id: "t17", order: 17, phaseId: "P4", laneId: "booking_agent",
+      name: "品名规范与 HS 映射", actor: "agent",
+      inputs: ["品名/唛头/件数"], outputs: ["标准化品名+HS 编码"],
+      ruleType: "术语字典类·多语言品名/HS 编码映射",
+      valueAnchors: ["单证一次提交通过率"], hitlFocus: "medium",
+      exception: "HS 编码无法映射 → 提示人工复核",
+      description: "Agent 规范品名翻译并映射 HS 编码" }
+  - { id: "t18", order: 18, phaseId: "P4", laneId: "booking_agent",
+      name: "单证规则校验", actor: "agent",
+      inputs: ["SI 字段+规则库（>300 条）"], outputs: ["校验结果（含 VGM/差异告警）"],
+      ruleType: "决策模型类·单证校验规则",
+      valueAnchors: ["单证一次提交通过率"], hitlFocus: "medium",
+      exception: "VGM 缺失/毛重超限 → 生成补全项",
+      description: "Agent 运行单证校验并生成异常清单" }
+  - { id: "t19", order: 19, phaseId: "P4", laneId: "shipper_operator",
+      name: "确认并提交 SI", actor: "hybrid",
+      inputs: ["校验后 SI+异常清单"], outputs: ["已提交 SI"],
+      ruleType: "模版范例类·SI 提交模板",
+      valueAnchors: ["单证一次提交通过率"], hitlFocus: "medium",
+      exception: "异常未修正 → 阻止提交并给出示例",
+      description: "操作员确认校验结果，一次补全并提交 SI" }
+  - { id: "t20", order: 20, phaseId: "P4", laneId: "backend_sys",
+      name: "推送 SI 至单证系统", actor: "agent",
+      inputs: ["已提交 SI"], outputs: ["SI 入库+校验通过状态"],
+      ruleType: "关联关系类·智慧单证系统接口",
+      valueAnchors: ["单证一次提交通过率"], hitlFocus: "low",
+      exception: "单证系统失败 → 重试/转人工",
+      description: "智慧单证系统接收 SI 并同步状态" }
+
+  # ============ P5 支付结算 ============
+  - { id: "t21", order: 21, phaseId: "P5", laneId: "booking_agent",
+      name: "费用试算", actor: "agent",
+      inputs: ["运费+币种+汇率"], outputs: ["费用试算结果（多币种/手续费）"],
+      ruleType: "决策模型类·汇率/手续费计算",
+      valueAnchors: ["SME 全流程自助率"], hitlFocus: "low",
+      exception: "汇率更新失败 → 提示手动刷新",
+      description: "Agent 试算多币种运费与手续费" }
+  - { id: "t22", order: 22, phaseId: "P5", laneId: "shipper_self",
+      name: "在线支付运费", actor: "hybrid",
+      inputs: ["费用试算结果"], outputs: ["支付确认+支付订单"],
+      ruleType: "决策模型类·支付通道选择",
+      valueAnchors: ["SME 全流程自助率"], hitlFocus: "gate",
+      exception: "支付失败 → 切换本地支付通道/转人工",
+      description: "货主选择支付通道并完成在线支付" }
+  - { id: "t23", order: 23, phaseId: "P5", laneId: "backend_sys",
+      name: "开票核销与对账", actor: "agent",
+      inputs: ["支付凭证"], outputs: ["电子发票+核销状态"],
+      ruleType: "关联关系类·支付-开票-核销接口",
+      valueAnchors: ["SME 全流程自助率"], hitlFocus: "low",
+      exception: "核销不上 → 财务人工对账",
+      description: "支付后自动开票并核销，减少人工对账" }
+
+  # ============ P6 出运跟踪 ============
+  - { id: "t24", order: 24, phaseId: "P6", laneId: "shipper_self",
+      name: "对话查船期与里程碑", actor: "human",
+      inputs: ["订舱号/提单号/箱号"], outputs: ["跟踪查询意图"],
+      ruleType: "关键信息提取要点·跟踪对象识别",
+      valueAnchors: ["AI 分流率"], hitlFocus: "low",
+      exception: "对象不识别 → 追问绑定单号",
+      description: "货主对话式查询运输全程状态" }
+  - { id: "t25", order: 25, phaseId: "P6", laneId: "backend_sys",
+      name: "里程碑数据返回", actor: "agent",
+      inputs: ["订舱号"], outputs: ["里程碑（开船/中转/ETA）"],
+      ruleType: "关联关系类·控制塔/OMS 状态接口",
+      valueAnchors: ["AI 分流率"], hitlFocus: "low",
+      exception: "码头节点延迟 → 标注更新时间并提示",
+      description: "控制塔/Cargo Tracking 返回实时里程碑" }
+  - { id: "t26", order: 26, phaseId: "P6", laneId: "booking_agent",
+      name: "对话播报与异常高亮", actor: "agent",
+      inputs: ["里程碑"], outputs: ["播报+异常节点高亮+订阅通知"],
+      ruleType: "模版范例类·播报话术模板",
+      valueAnchors: ["AI 分流率", "SME 全流程自助率"], hitlFocus: "low",
+      exception: "无里程碑 → 提示跟踪中",
+      description: "Agent 对话式播报并订阅里程碑通知" }
+  - { id: "t27", order: 27, phaseId: "P6", laneId: "booking_agent",
+      name: "ETA 预测与延误预警", actor: "agent",
+      inputs: ["里程碑+码头拥堵指数"], outputs: ["ETA 概率预测+延误预警"],
+      ruleType: "决策模型类·ETA 预测模型",
+      valueAnchors: ["舱位保证兑现率", "AI 分流率"], hitlFocus: "medium",
+      exception: "预测置信度低 → 降级为事后通知",
+      description: "Agent 预测到港时间并对高风险延误提前预警" }
+  - { id: "t28", order: 28, phaseId: "P6", laneId: "human_support",
+      name: "延误处置方案升级", actor: "human",
+      inputs: ["延误预警"], outputs: ["改配方案+赔付预判"],
+      ruleType: "决策模型类·改配/赔付规则（Delay in Transit）",
+      valueAnchors: ["舱位保证兑现率"], hitlFocus: "high",
+      exception: "甩柜/改船 → 人工给出改配与赔付决策",
+      description: "控制塔运营按保障条款生成改配方案与赔付预判" }
+
+  # ============ P7 售后复购 ============
+  - { id: "t29", order: 29, phaseId: "P7", laneId: "shipper_self",
+      name: "售后咨询与会员互动", actor: "human",
+      inputs: ["售后咨询（费用/权益）"], outputs: ["售后意图"],
+      ruleType: "关键信息提取要点·售后诉求识别",
+      valueAnchors: ["复杂问题一次性解决率"], hitlFocus: "low",
+      exception: "诉求不明确 → 追问澄清",
+      description: "货主咨询 D&D/免箱期/会员权益" }
+  - { id: "t30", order: 30, phaseId: "P7", laneId: "booking_agent",
+      name: "D&D 规则智能解读", actor: "agent",
+      inputs: ["到港 ETA+免箱期规则"], outputs: ["免箱期解读+超期预警"],
+      ruleType: "术语字典类·各港免箱期/D&D 规则",
+      valueAnchors: ["复杂问题一次性解决率"], hitlFocus: "medium",
+      exception: "口岸政策不一致 → 标注待人工确认",
+      description: "Agent 解读免箱期并前置超期预警" }
+  - { id: "t31", order: 31, phaseId: "P7", laneId: "booking_agent",
+      name: "会员复购与舱位预留推荐", actor: "agent",
+      inputs: ["历史订舱量+会员等级"], outputs: ["复购推荐+舱位预留额度"],
+      ruleType: "决策模型类·会员权益/复购预测",
+      valueAnchors: ["SME 全流程自助率"], hitlFocus: "medium",
+      exception: "无复购数据 → 引导完成首单后推荐",
+      description: "Agent 基于会员画像推荐复购与舱位预留" }
+  - { id: "t32", order: 32, phaseId: "P7", laneId: "booking_agent",
+      name: "复杂问题转人工附摘要", actor: "agent",
+      inputs: ["复杂咨询+对话上下文+货主画像"], outputs: ["完整上下文摘要报告"],
+      ruleType: "模版范例类·转人工摘要模板",
+      valueAnchors: ["复杂问题一次性解决率"], hitlFocus: "high",
+      exception: "情绪激动/投诉 → 优先置顶转人工",
+      description: "Agent 对复杂问题附完整摘要，避免重复收集上下文" }
+  - { id: "t33", order: 33, phaseId: "P7", laneId: "backend_sys",
+      name: "CRM 工单自动创建", actor: "agent",
+      inputs: ["转人工摘要+货主画像"], outputs: ["CRM 工单+意图标签"],
+      ruleType: "关联关系类·CRM 工单/回写接口",
+      valueAnchors: ["复杂问题一次性解决率"], hitlFocus: "low",
+      exception: "工单接口失败 → 本地暂存再同步",
+      description: "CRM 自动建单并回写对话摘要" }
+
+# ---- 底部注释 ----
+flowNotes:
+  - "主链路 P1→P2→P3→P4→P5→P6→P7，智能订舱 Agent 主驱动全程，人工仅在价值判断/风险兜底介入"
+  - "全场景核心确认点（PO/HITL 高）：P3 一键订舱确认（gate，对外必停）、P3 异常订舱人工终审、P6 延误处置、P7 复杂问题转人工"
+  - "新客首单：Smart Push 无历史数据，由会话上下文 + PI/装箱单 OCR 预填兜底，并标注置信度（承接 AI Canvas userPains）"
+returnNodes:
+  - "新客首单/咨询 → Agent 会话 + 画像兜底预填"
+  - "SI 缺件/VGM 未报 → AI 追问补录 + 示例，不阻塞主链路"
+  - "复杂问题/投诉 → 附完整上下文摘要转人工"

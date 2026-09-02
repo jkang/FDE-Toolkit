@@ -1,0 +1,392 @@
+meta:
+  projectName: "smart-booking-agent"
+  productName: "X 智能订舱 Agent"
+  businessDomain: "供应链物流"
+  frontend: "react"
+  designSystem: "antd"
+  theme:
+    source: "user"
+    primary: "#10213E"
+    accent: "#5DB2E2"
+    layout: "side"
+  ports:
+    dev: 5173
+    api: 18081
+personas:
+  - id: "sme_shipper"
+    name: "王静"
+    role: "SME 货主直客"
+    department: "贸易公司 · 供应链部"
+    goals:
+      - "拿到透明可信的报价与舱位，减少多平台比价"
+      - "全流程自助完成订舱，不被客服与补件流程牵着走"
+      - "旺季货期有保障，甩柜/延误提前知晓"
+  - id: "sme_operator"
+    name: "陈浩"
+    role: "订舱操作员"
+    department: "货主企业 · 单证组"
+    goals:
+      - "减少表单重复录入与往返补件"
+      - "订舱一次提交通过率提升"
+  - id: "csr_lin"
+    name: "林晓"
+    role: "人工客服 CSR"
+    department: "X 电商客服中心"
+    goals:
+      - "复杂问题一次性解决率提升，不再重复收集上下文"
+      - "标准订舱交由 Agent 分流，专注高价值复杂场景"
+scenarios:
+  - id: "s1"
+    name: "新客首单直达"
+    personaId: "sme_shipper"
+    trigger: "新注册 SME 首次订舱，无历史交易数据（Smart Push 预填不可用）"
+    goal: "首单从询价到获得 Booking Confirmation ≤2 小时（KPI 3），全程无人工介入"
+  - id: "s2"
+    name: "旺季舱位变更"
+    personaId: "sme_shipper"
+    trigger: "旺季原定航次被甩柜，Agent 提前 72h 主动预警并给出改配方案"
+    goal: "5 分钟内获得改配方案与舱位保证承诺，延误赔付自动预判"
+  - id: "s3"
+    name: "批量日常订舱"
+    personaId: "sme_operator"
+    trigger: "每周一基于出货计划批量提交订舱与 SI"
+    goal: "3 票 SI 批量预填 15 分钟内完成，异常项一次补全"
+dataModels:
+  - name: "BookingOrder"
+    description: "电商订舱单（OMS）"
+    fields:
+      - { key: "code", title: "订舱号", type: "string" }
+      - { key: "route", title: "航线", type: "string" }
+      - { key: "vessel", title: "船名航次", type: "string" }
+      - { key: "etd", title: "ETD", type: "string" }
+      - { key: "rate", title: "运价", type: "string" }
+      - { key: "status", title: "状态", type: "string" }
+    mockData:
+      - { code: "BK-2026-0901-001", route: "上海→洛杉矶", vessel: "X-PRIDE 101E", etd: "2026-09-12", rate: "USD 2,450", status: "待装柜" }
+      - { code: "BK-2026-0901-002", route: "宁波→汉堡", vessel: "X-HARMONY 201E", etd: "2026-09-15", rate: "USD 2,780", status: "已开船" }
+      - { code: "BK-2026-0901-003", route: "上海→鹿特丹", vessel: "X-VOYAGER 305E", etd: "2026-09-18", rate: "USD 2,950", status: "待补件" }
+  - name: "QuoteOption"
+    description: "Agent 舱位推荐方案（E-Spot / Secured E-Quote / E-Quote）"
+    fields:
+      - { key: "option", title: "方案", type: "string" }
+      - { key: "product", title: "产品", type: "string" }
+      - { key: "rate", title: "All-in 运价", type: "string" }
+      - { key: "transit", title: "航程", type: "string" }
+      - { key: "etd", title: "ETD", type: "string" }
+      - { key: "space", title: "舱位状态", type: "string" }
+      - { key: "score", title: "推荐指数", type: "number" }
+    mockData:
+      - { option: "方案 A", product: "E-Spot 即期", rate: "USD 2,450/40HQ", transit: "12 天", etd: "2026-10-08", space: "舱位保证", score: 92 }
+      - { option: "方案 B", product: "Secured E-Quote 锁价", rate: "USD 2,580/40HQ", transit: "14 天", etd: "2026-10-10", space: "舱位保证", score: 88 }
+      - { option: "方案 C", product: "E-Quote 长协", rate: "USD 2,380/40HQ", transit: "15 天", etd: "2026-10-12", space: "需确认", score: 81 }
+  - name: "ShipmentTracking"
+    description: "控制塔 / Cargo Tracking+ 运输里程碑"
+    fields:
+      - { key: "milestone", title: "节点", type: "string" }
+      - { key: "time", title: "时间", type: "string" }
+      - { key: "status", title: "状态", type: "string" }
+    mockData:
+      - { milestone: "订舱确认", time: "09-01", status: "完成" }
+      - { milestone: "提箱/装柜", time: "09-06", status: "完成" }
+      - { milestone: "重箱进场", time: "09-08", status: "完成" }
+      - { milestone: "开船（ETD 09-12）", time: "09-12", status: "完成" }
+      - { milestone: "中转港 · 釜山", time: "09-18", status: "进行中" }
+      - { milestone: "ETA 洛杉矶", time: "10-02", status: "待到达" }
+pages:
+  - id: "dashboard"
+    title: "工作台总览"
+    route: "/dashboard"
+    icon: "DashboardOutlined"
+    description: "北极星贡献看板：电商订舱渗透率 25%[推断] → 40%（phase3 口径）"
+    actions: []
+    sections:
+      - type: "steps"
+        current: 0
+        items: ["对话询价", "舱位推荐", "一键订舱", "单证预填", "出运跟踪"]
+      - type: "statRow"
+        stats:
+          - { label: "电商订舱渗透率（当前）", value: 25, suffix: "% [推断]" }
+          - { label: "目标渗透率（12 个月）", value: 40, suffix: "%" }
+          - { label: "在线订舱确认时效", value: "≤2h", suffix: "" }
+          - { label: "AI 服务分流率", value: 30, suffix: "%+" }
+      - type: "alert"
+        level: "info"
+        message: "场景定位：智能订舱 Agent（优先级 Top 6 · 7.35 分，高认知辅助）"
+        description: "将 AI 客服（Ask Fin/小飞）从问答升级为可执行订舱的 Agent：报价解读、舱位推荐、订舱操作、单证预填、异常补件（来源：AI 场景优先级矩阵 G02）"
+      - type: "table"
+        title: "我的电商订舱"
+        data: "mock:BookingOrder"
+        columns:
+          - { key: "code", title: "订舱号" }
+          - { key: "route", title: "航线" }
+          - { key: "vessel", title: "船名航次" }
+          - { key: "etd", title: "ETD" }
+          - { key: "rate", title: "运价" }
+          - { key: "status", title: "状态", tag: { "待装柜": "processing", "已开船": "success", "待补件": "warning" } }
+      - type: "buttonRow"
+        buttons:
+          - { text: "开始对话询价", type: "primary", action: "navigate:/chat-quote" }
+          - { text: "查看出运跟踪", type: "default", action: "navigate:/tracking-alert" }
+  - id: "chat-quote"
+    title: "对话询价"
+    route: "/chat-quote"
+    icon: "MessageOutlined"
+    description: "以自然语言发起询价，Agent 实时解读报价与费用构成"
+    actions:
+      - { name: "chatQuote", button: "发送" }
+    sections:
+      - type: "steps"
+        current: 1
+        items: ["对话询价", "舱位推荐", "一键订舱", "单证预填", "出运跟踪"]
+      - type: "chatPanel"
+        title: "智能订舱 Agent"
+        action: "chatQuote"
+        placeholder: "例如：上海到洛杉矶 40HQ，10月8日截关的船有吗？全包价多少？"
+        suggestions:
+          - "上海→洛杉矶 40HQ 即期报价"
+          - "解读 E-Quote 锁价条款"
+          - "查询 Space Protection 舱位保证"
+      - type: "aiResultCard"
+        title: "Agent 报价解读"
+        bind: "chatQuote"
+        render: "kv"
+      - type: "buttonRow"
+        buttons:
+          - { text: "查看舱位推荐 →", type: "primary", action: "navigate:/recommend-confirm" }
+  - id: "recommend-confirm"
+    title: "舱位推荐与一键订舱"
+    route: "/recommend-confirm"
+    icon: "CheckCircleOutlined"
+    description: "AI 综合排序推荐 Top 3 舱位方案，对话内一键确认订舱"
+    actions:
+      - { name: "recommendSpace", button: "获取舱位推荐" }
+      - { name: "submitBooking", button: "确认并一键订舱" }
+    sections:
+      - type: "steps"
+        current: 2
+        items: ["对话询价", "舱位推荐", "一键订舱", "单证预填", "出运跟踪"]
+      - type: "buttonRow"
+        buttons:
+          - { text: "AI 舱位推荐（Top 3）", type: "primary", action: "recommendSpace" }
+      - type: "aiResultCard"
+        title: "Agent 舱位推荐"
+        bind: "recommendSpace"
+        render: "table"
+        columns:
+          - { key: "option", title: "方案" }
+          - { key: "product", title: "产品" }
+          - { key: "rate", title: "All-in 运价" }
+          - { key: "transit", title: "航程" }
+          - { key: "etd", title: "ETD" }
+          - { key: "space", title: "舱位状态", tag: { "舱位保证": "success", "可订": "processing", "需确认": "warning" } }
+          - { key: "score", title: "推荐指数" }
+      - type: "alert"
+        level: "info"
+        message: "舱位保证（Space Protection）"
+        description: "E-Spot / Secured E-Quote 带舱位保证；电商订舱舱位保证兑现率目标 95%+（KPI 5，phase3 口径）"
+      - type: "buttonRow"
+        buttons:
+          - { text: "确认并一键订舱", type: "primary", action: "submitBooking" }
+      - type: "aiResultCard"
+        title: "订舱确认结果（Booking Confirmation）"
+        bind: "submitBooking"
+        render: "kv"
+  - id: "document-si"
+    title: "单证预填与补件"
+    route: "/document-si"
+    icon: "FileSearchOutlined"
+    description: "上传 PI / 装箱单，AI 自动抽取字段预填 SI，缺件实时提示并给出示例"
+    actions:
+      - { name: "parseDocuments", button: "识别并预填 SI" }
+    sections:
+      - type: "steps"
+        current: 3
+        items: ["对话询价", "舱位推荐", "一键订舱", "单证预填", "出运跟踪"]
+      - type: "uploadCard"
+        title: "贸易单据（PI / 装箱单 / 发票）"
+        accept: ".pdf,.xlsx,.png"
+        hint: "示例：PI-2026-0902.pdf + 装箱单-0902.xlsx（自动抽取品名/唛头/件数/毛重/体积/HS）"
+        action: "parseDocuments"
+      - type: "aiResultCard"
+        title: "SI 预填与校验结果"
+        bind: "parseDocuments"
+        render: "table"
+        columns:
+          - { key: "field", title: "字段" }
+          - { key: "value", title: "识别值" }
+          - { key: "status", title: "校验状态", tag: { "通过": "success", "待复核": "warning", "缺失": "error" } }
+      - type: "alert"
+        level: "warning"
+        message: "补件提醒：2 项待补"
+        description: "VGM 截止时间、收货人税号缺失。AI 已生成填写示例：VGM 12,900 KG（装柜后过磅）；税号 US/EIN 88-1234567"
+      - type: "buttonRow"
+        buttons:
+          - { text: "完成单证 → 出运跟踪", type: "primary", action: "navigate:/tracking-alert" }
+  - id: "tracking-alert"
+    title: "出运跟踪与预警"
+    route: "/tracking-alert"
+    icon: "SendOutlined"
+    description: "控制塔里程碑实时可见；AI 预测性延误预警与改配方案"
+    actions:
+      - { name: "getTracking", button: "刷新实时跟踪" }
+      - { name: "predictDelay", button: "AI 延误预测" }
+    sections:
+      - type: "steps"
+        current: 4
+        items: ["对话询价", "舱位推荐", "一键订舱", "单证预填", "出运跟踪"]
+      - type: "statRow"
+        stats:
+          - { label: "预计到港（ETA）", value: "10-02", suffix: "" }
+          - { label: "延误概率 [推断]", value: 68, suffix: "%" }
+          - { label: "在航天数", value: 12, suffix: " 天" }
+          - { label: "里程碑", value: 5, suffix: "/8" }
+      - type: "buttonRow"
+        buttons:
+          - { text: "刷新实时跟踪", type: "default", action: "getTracking" }
+      - type: "aiResultCard"
+        title: "控制塔 · 实时里程碑"
+        bind: "getTracking"
+        render: "table"
+        columns:
+          - { key: "milestone", title: "节点" }
+          - { key: "time", title: "时间" }
+          - { key: "status", title: "状态", tag: { "完成": "success", "进行中": "processing", "待到达": "default" } }
+      - type: "alert"
+        level: "warning"
+        message: "AI 预测性预警：预计延误 2~3 天 [推断]"
+        description: "洛杉矶码头拥堵指数高企 + 上一航次晚到 1.5 天（多源轨迹/码头数据）。建议启用改配方案或 Delay in Transit 保障（2025.12 上线条款）"
+      - type: "buttonRow"
+        buttons:
+          - { text: "AI 延误预测 / 生成改配建议", type: "primary", action: "predictDelay" }
+      - type: "aiResultCard"
+        title: "改配方案建议"
+        bind: "predictDelay"
+        render: "table"
+        columns:
+          - { key: "option", title: "方案" }
+          - { key: "voyage", title: "航次" }
+          - { key: "etd", title: "ETD" }
+          - { key: "impact", title: "货期影响" }
+          - { key: "status", title: "状态", tag: { "推荐": "success", "可选": "default" } }
+      - type: "buttonRow"
+        buttons:
+          - { text: "在线支付运费 →", type: "primary", action: "navigate:/payment-aftercare" }
+  - id: "payment-aftercare"
+    title: "支付与售后复购"
+    route: "/payment-aftercare"
+    icon: "CreditCardOutlined"
+    description: "多币种在线支付；D&D 前置透明与会员权益推荐"
+    actions:
+      - { name: "payOrder", button: "确认支付" }
+    sections:
+      - type: "steps"
+        current: 5
+        items: ["对话询价", "舱位推荐", "一键订舱", "单证预填", "出运跟踪"]
+      - type: "formCard"
+        title: "在线支付运费"
+        action: "payOrder"
+        fields:
+          - { key: "bookingNo", label: "订舱号", type: "text" }
+          - { key: "amount", label: "应付金额", type: "text" }
+          - { key: "currency", label: "币种", type: "select", options: [{ value: "USD", label: "USD" }, { value: "CNY", label: "CNY" }, { value: "EUR", label: "EUR" }] }
+          - { key: "method", label: "支付方式", type: "select", options: [{ value: "本地支付", label: "本地支付" }, { value: "信用卡", label: "信用卡" }, { value: "电汇", label: "电汇" }] }
+      - type: "aiResultCard"
+        title: "支付结果"
+        bind: "payOrder"
+        render: "kv"
+      - type: "tagRow"
+        tags:
+          - { text: "PlumSmart Silver 会员", color: "gold" }
+          - { text: "舱位保证兑现率 95%+（KPI 5）", color: "blue" }
+          - { text: "E-Spot Flash Sale 优先权", color: "cyan" }
+          - { text: "24/7 Agent 服务", color: "green" }
+      - type: "alert"
+        level: "success"
+        message: "AI 复购关怀 [推断]"
+        description: "基于近 3 个月 12 TEU 订舱量，已为您预留下月美西舱位保证额度；直客（非货代）订单占比目标 40%（KPI 7）"
+aiMocks:
+  - name: "chatQuote"
+    latency: 900
+    response:
+      reply: "已识别询价意图：上海→洛杉矶 40HQ，期望 ETD 2026-10-08，为您解读 E-Spot 即期报价"
+      产品: "E-Spot 即期报价"
+      全包运价: "USD 2,450 / 40HQ"
+      有效期: "2026-09-30"
+      费用构成: "海运费 + BAF（不含目的港 THC / D&D）"
+      市场基准: "SCFI 美西约 USD 2,300~2,600 [推断]"
+      舱位状态: "可订（Space Protection 舱位保证）"
+  - name: "recommendSpace"
+    latency: 1100
+    response:
+      summary: "按装载率 / ETA 置信度 / 舱位保证综合排序，为您推荐 Top 3 方案"
+      items:
+        - { option: "方案 A", product: "E-Spot 即期", rate: "USD 2,450/40HQ", transit: "12 天", etd: "2026-10-08", space: "舱位保证", score: 92 }
+        - { option: "方案 B", product: "Secured E-Quote 锁价", rate: "USD 2,580/40HQ", transit: "14 天", etd: "2026-10-10", space: "舱位保证", score: 88 }
+        - { option: "方案 C", product: "E-Quote 长协", rate: "USD 2,380/40HQ", transit: "15 天", etd: "2026-10-12", space: "需确认", score: 81 }
+  - name: "submitBooking"
+    latency: 800
+    response:
+      订舱号: "BK-2026-0901-001"
+      航线: "上海（SHA）→ 洛杉矶（LAX）"
+      船名航次: "X-PRIDE 101E · ETD 2026-10-08 [推断]"
+      箱型货量: "1 × 40HQ"
+      状态: "已确认（Booking Confirmation 已签发）"
+      确认说明: "最快 1 分钟签发（标准 SME 订单自动校验通过）；平均目标 ≤2h（KPI 3）"
+      舱位保证: "Space Protection 已生效（兑现率目标 95%+，KPI 5）"
+  - name: "parseDocuments"
+    latency: 1200
+    response:
+      summary: "已识别 PI-2026-0902.pdf + 装箱单-0902.xlsx，SI 预填 8/10 字段通过"
+      items:
+        - { field: "品名", value: "家居收纳用品", status: "通过" }
+        - { field: "唛头", value: "N/M", status: "通过" }
+        - { field: "件数", value: "480 CTNS", status: "通过" }
+        - { field: "毛重", value: "12,480 KG", status: "待复核" }
+        - { field: "体积", value: "42.6 CBM", status: "通过" }
+        - { field: "HS 编码", value: "9403.20", status: "通过" }
+        - { field: "VGM 截止时间", value: "—（缺失）", status: "缺失" }
+        - { field: "收货人税号", value: "—（缺失）", status: "缺失" }
+  - name: "predictDelay"
+    latency: 1000
+    response:
+      summary: "AI 预测 ETA 延误概率 68% [推断]，预计延误 2~3 天，为您生成改配方案如下"
+      items:
+        - { option: "改配方案 1", voyage: "X-PRIDE 103E", etd: "2026-09-15", impact: "货期 +2 天，舱位保证延续", status: "推荐" }
+        - { option: "改配方案 2", voyage: "X-ATLAS 105E", etd: "2026-09-18", impact: "货期 +4 天，可启动 Delay in Transit 赔付预判", status: "可选" }
+  - name: "payOrder"
+    latency: 700
+    response:
+      支付状态: "支付成功"
+      支付金额: "USD 2,450（≈ CNY 17,640，汇率 7.2，手续费 1.2% [推断]）"
+      支付方式: "本地支付通道"
+      发票号: "INV-2026-0903-001"
+      系统同步: "OMS 状态已同步，单证流程自动继续"
+businessMocks:
+  - name: "getBookingList"
+    system: "oms"
+    latency: 300
+    response:
+      items:
+        - { code: "BK-2026-0901-001", route: "上海→洛杉矶", vessel: "X-PRIDE 101E", etd: "2026-09-12", rate: "USD 2,450", status: "待装柜" }
+        - { code: "BK-2026-0901-002", route: "宁波→汉堡", vessel: "X-HARMONY 201E", etd: "2026-09-15", rate: "USD 2,780", status: "已开船" }
+        - { code: "BK-2026-0901-003", route: "上海→鹿特丹", vessel: "X-VOYAGER 305E", etd: "2026-09-18", rate: "USD 2,950", status: "待补件" }
+  - name: "getTracking"
+    system: "controlTower"
+    latency: 300
+    response:
+      items:
+        - { milestone: "订舱确认", time: "09-01", status: "完成" }
+        - { milestone: "提箱/装柜", time: "09-06", status: "完成" }
+        - { milestone: "重箱进场", time: "09-08", status: "完成" }
+        - { milestone: "开船（ETD 09-12）", time: "09-12", status: "完成" }
+        - { milestone: "中转港 · 釜山", time: "09-18", status: "进行中" }
+        - { milestone: "ETA 洛杉矶", time: "10-02", status: "待到达" }
+apiRoutes:
+  - { name: "chatQuote", method: "POST", path: "/api/agent/chat", target: "ai:chatQuote" }
+  - { name: "recommendSpace", method: "POST", path: "/api/agent/recommend", target: "ai:recommendSpace" }
+  - { name: "submitBooking", method: "POST", path: "/api/booking/submit", target: "ai:submitBooking" }
+  - { name: "parseDocuments", method: "POST", path: "/api/document/parse", target: "ai:parseDocuments" }
+  - { name: "predictDelay", method: "POST", path: "/api/agent/predict-delay", target: "ai:predictDelay" }
+  - { name: "payOrder", method: "POST", path: "/api/payment/pay", target: "ai:payOrder" }
+  - { name: "getBookings", method: "GET", path: "/api/orders", target: "business:getBookingList" }
+  - { name: "getTracking", method: "GET", path: "/api/shipments/tracking", target: "business:getTracking" }

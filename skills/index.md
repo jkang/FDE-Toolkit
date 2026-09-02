@@ -85,4 +85,3 @@
 - **[插件生成器 (Plugin Creator)](plugin-creator/SKILL.md)**: 为新技能生成平台适配插件。
 - **[前端设计规范 (Frontend Design)](frontend-design/SKILL.md)**: 供 AI 消费的 UI/UX 设计原则与模式库。
 - **[快速开始 (Get Started)](get-started/SKILL.md)**: 新手引导与环境检查技能。
-- **[安装脚本 (Install Scripts)](scripts/install_skills_to_trae.sh)**: 将技能库单向同步至全局配置的工具。
