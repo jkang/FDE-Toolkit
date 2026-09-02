@@ -19,10 +19,10 @@ temperature: 0.2
 2. 若涉及视觉样式，遵循本 skill `references/` 内的视觉规范与示例。
 
 ## 负责技能（按需读取对应 SKILL.md）
-- `skills/ai-opportunity-map-generator/SKILL.md` — AI 机会场景地图
-- `skills/ai-canvas-generator/SKILL.md` — AI 场景画布（10 维）
-- `skills/context-knowledge-data-analyzer/SKILL.md` — CKD 上下文/知识/数据映射
-- `skills/ai-scenario-matrix-generator/SKILL.md` — AI 场景优先级矩阵（5x5）
+- `/Users/superkkk/咨询项目/EDGE Offering/AI Offering/FDE/FDE-Training/FDE-Toolkit/skills/ai-opportunity-map-generator/SKILL.md` — AI 机会场景地图
+- `/Users/superkkk/咨询项目/EDGE Offering/AI Offering/FDE/FDE-Training/FDE-Toolkit/skills/ai-canvas-generator/SKILL.md` — AI 场景画布（10 维）
+- `/Users/superkkk/咨询项目/EDGE Offering/AI Offering/FDE/FDE-Training/FDE-Toolkit/skills/context-knowledge-data-analyzer/SKILL.md` — CKD 上下文/知识/数据映射
+- `/Users/superkkk/咨询项目/EDGE Offering/AI Offering/FDE/FDE-Training/FDE-Toolkit/skills/ai-scenario-matrix-generator/SKILL.md` — AI 场景优先级矩阵（5x5）
 
 ## 工作流程
 1. 确定用户请求涉及的技能项；若涉及多技能联动（如 机会地图 → 画布 → CKD → 矩阵），确认上游输入是否齐备。

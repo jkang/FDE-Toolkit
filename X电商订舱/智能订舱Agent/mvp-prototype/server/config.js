@@ -3,7 +3,7 @@
 // =========================================================
 export const config = {
   productName: 'X 智能订舱 Agent',
-  apiPort: 8081,
+  apiPort: 18081,
   devPort: 5173,
   primary: '#10213E',
   accent: '#5DB2E2',

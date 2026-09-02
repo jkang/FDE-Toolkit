@@ -19,8 +19,8 @@ temperature: 0.2
 2. 若涉及视觉样式，遵循本 skill `references/` 内的视觉规范与示例。
 
 ## 负责技能（按需读取对应 SKILL.md）
-- `skills/story-map-generator/SKILL.md` — 用户故事地图（阶段-活动-接触点-故事）
-- `skills/mvp-plan-generator/SKILL.md` — MVP 迭代计划与看板
+- `/Users/superkkk/咨询项目/EDGE Offering/AI Offering/FDE/FDE-Training/FDE-Toolkit/skills/story-map-generator/SKILL.md` — 用户故事地图（阶段-活动-接触点-故事）
+- `/Users/superkkk/咨询项目/EDGE Offering/AI Offering/FDE/FDE-Training/FDE-Toolkit/skills/mvp-plan-generator/SKILL.md` — MVP 迭代计划与看板
 
 ## 工作流程
 1. 确定用户请求涉及的技能项；若不确定，向用户确认范围。

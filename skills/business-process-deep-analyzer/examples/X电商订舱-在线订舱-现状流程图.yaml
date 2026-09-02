@@ -1,0 +1,137 @@
+meta:
+  title: "X电商订舱 · 在线订舱 — 现状流程图"
+  sectionNo: "3.1"
+  version: "v1.0"
+  date: "2026-09-02"
+  business: "X（全球头部集装箱运输与物流一体化企业）"
+  domain: "电商订舱业务（在线订舱门户 / 独立电商平台 / 移动App）"
+  valueSegment: "在线订舱（3步订舱 → 受理校验 → 舱位分配 → 订舱确认）"
+  currentStateNote: "在线订舱为电商订舱履约主价值流的执行核心。现状以「3 步订舱表单 + Smart Push 智能预填」发起，经订舱系统受理校验、收益管理分配舱位后签发 Booking Confirmation；大量 SME 请求仍依赖人工审核兜底，异常变更通知存在时差，是智能订舱 Agent 重点改造的价值段。"
+  upstream:
+    valueStream: "电商订舱履约主价值流"
+    valueSegment: "在线订舱"
+    sourceRef: "X电商订舱-业务流程深度分析 + 客户 Workshop 一手话 + 深度研究推断"
+  kpi: ["订舱确认时效", "SME 自助率", "AI 分流率"]
+
+painTypes:
+  - { id: "highTime",   label: "高耗时",     color: "#EF4444" }
+  - { id: "cognitive",  label: "高认知负荷", color: "#F59E0B" }
+  - { id: "freqError",  label: "高频错误",   color: "#3B82F6" }
+  - { id: "backForth",  label: "来回往复",   color: "#625D9C" }
+  - { id: "bottleneck", label: "系统瓶颈",   color: "#0E7490" }
+
+legend:
+  flowNote: "🔄 流程走向"
+  ruleNote: "⚠️ 业务规则及固化度"
+  painLabel: "该环节痛点"
+
+stages:
+  - { id: "STG1", order: 1, name: "订舱请求提交",   desc: "货主基于报价填写订舱请求并提交" }
+  - { id: "STG2", order: 2, name: "请求受理与校验", desc: "订舱系统受理并按费率/信用/航线校验" }
+  - { id: "STG3", order: 3, name: "舱位分配",       desc: "收益管理按运力与货主价值分配舱位" }
+  - { id: "STG4", order: 4, name: "订舱确认与告知", desc: "签发 Booking Confirmation 并多通道告知" }
+
+lanes:
+  - { id: "L1", order: 1, name: "SME 货主",       desc: "在线自助订舱的直客" }
+  - { id: "L2", order: 2, name: "订舱运营 · CSR",  desc: "受理/审核/客服，兜底人工" }
+  - { id: "L3", order: 3, name: "收益管理",        desc: "舱位/运价收益决策" }
+  - { id: "L4", order: 4, name: "订舱系统 (OMS)",  desc: "订舱门户/系统自动处理" }
+
+steps:
+  - id: "ST1"
+    order: 1
+    stageId: "STG1"
+    laneId: "L1"
+    name: "3 步订舱表单提交"
+    description: "货主按 3 步表单填写报价参考号、货量箱型、起运/目的港与货方信息并提交订舱请求。"
+    duration: "新客首次约 30-60 分钟 [推断]"
+    source: "订舱门户新版表单 / 独立电商平台"
+    businessRule: "必填：报价参考号、货量与箱型、起运/目的港、货方信息"
+    ruleSolidity: "系统表单"
+    inputs: ["报价参考号", "货量与箱型", "港对与货方信息"]
+    outputs: ["订舱请求 (Booking Request)"]
+    pains: ["highTime", "backForth"]
+
+  - id: "ST2"
+    order: 2
+    stageId: "STG1"
+    laneId: "L4"
+    name: "Smart Push 智能预填"
+    description: "基于历史交易与报价记录，智能预填费率参考号、港口对与货方信息。"
+    duration: "秒级"
+    source: "AI 助手 (Ask Fin / 小飞 Fin)"
+    businessRule: "按历史成交/报价记录预填；无历史记录的新客不预填"
+    ruleSolidity: "AI / 系统"
+    inputs: ["历史成交与报价记录", "货主偏好"]
+    outputs: ["预填字段（费率参考号/港对/货方信息）"]
+    pains: ["bottleneck"]
+
+  - id: "ST3"
+    order: 3
+    stageId: "STG2"
+    laneId: "L4"
+    name: "系统受理与规则校验"
+    description: "订舱系统校验费率、信用与航线可用性，将请求路由至舱位分配。"
+    duration: "分钟级"
+    source: "订舱管理系统 (OMS) / CRM"
+    businessRule: "校验：费率、信用、航线可用性；SLA 条款内自动通过"
+    ruleSolidity: "系统规则"
+    inputs: ["订舱请求", "货主档案"]
+    outputs: ["已受理订舱", "SLA 校验结果"]
+    pains: ["freqError"]
+
+  - id: "ST4"
+    order: 4
+    stageId: "STG2"
+    laneId: "L2"
+    name: "人工审核兜底"
+    description: "SLA 条款外或校验失败的请求转入人工，客服代表逐单审核放行或驳回。"
+    duration: "约 1-2 小时/单 [推断]"
+    source: "订舱管理系统 / CRM"
+    businessRule: "SLA 条款外/异常单人工审核；最快 1 分钟确认仅限特定条款货主"
+    ruleSolidity: "Excel / 人工"
+    inputs: ["异常/条款外订舱请求"]
+    outputs: ["人工放行或驳回"]
+    pains: ["highTime", "cognitive"]
+
+  - id: "ST5"
+    order: 5
+    stageId: "STG3"
+    laneId: "L3"
+    name: "舱位分配与收益校验"
+    description: "收益管理按航线装载率与货主价值分配舱位，E-Spot 订单优先供柜。"
+    duration: "系统运行，旺季弹性"
+    source: "收益管理系统 / 舱位分配引擎"
+    businessRule: "按装载率+货主价值分配；E-Spot 享受舱位保证与优先供柜"
+    ruleSolidity: "收益管理系统"
+    inputs: ["已受理订舱", "航线装载率与运力配置"]
+    outputs: ["舱位分配结果"]
+    pains: ["backForth", "bottleneck"]
+
+  - id: "ST6"
+    order: 6
+    stageId: "STG4"
+    laneId: "L4"
+    name: "Booking Confirmation 签发"
+    description: "订舱系统自动签发订舱确认，登记 E-Spot 舱位保证承诺。"
+    duration: "特定条款最快 1 分钟"
+    source: "订舱门户 / 独立电商平台 + 邮件/微信通知"
+    businessRule: "自动签发；邮件/微信小程序多通道通知"
+    ruleSolidity: "订舱系统"
+    inputs: ["舱位分配结果"]
+    outputs: ["Booking Confirmation"]
+    pains: []
+
+  - id: "ST7"
+    order: 7
+    stageId: "STG4"
+    laneId: "L2"
+    name: "异常与改配告知"
+    description: "改船/取消等异常通知货主，平台状态与船期计划同步。"
+    duration: "通知滞后"
+    source: "客服 + 邮件/微信小程序推送"
+    businessRule: "改船/取消多通道通知；海洋联盟 DAY9/10 船期计划同步"
+    ruleSolidity: "系统 + 人工"
+    inputs: ["船期变更/异常事件"]
+    outputs: ["变更通知"]
+    pains: ["backForth", "bottleneck"]

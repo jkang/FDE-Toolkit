@@ -15,7 +15,7 @@ Your job:
 
 Memory (two kinds)
 1) Behavior memory (shareable, in git)
-- ".opencode/skills/**"
+- "/Users/superkkk/咨询项目/EDGE Offering/AI Offering/FDE/FDE-Training/FDE-Toolkit/skills/**"
 - ".opencode/agents/**"
 - repo docs
 

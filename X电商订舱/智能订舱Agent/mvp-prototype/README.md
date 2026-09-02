@@ -7,7 +7,7 @@
 
 ```bash
 npm install        # 安装全部依赖（一次）
-npm run dev        # 开发模式：API(:8081) + Vite 前端(:5173)
+npm run dev        # 开发模式：API(:18081) + Vite 前端(:5173)
 ```
 
 浏览器打开 **http://localhost:5173**
@@ -16,13 +16,13 @@ npm run dev        # 开发模式：API(:8081) + Vite 前端(:5173)
 
 ```bash
 npm run build      # 构建前端到 dist/
-npm start          # 单端口 :8081 同时提供 API 与前端页面
+npm start          # 单端口 :18081 同时提供 API 与前端页面
 ```
 
 ## 系统架构
 
 ```
-浏览器 ──► Vite(前端 :5173) ──/api 代理──► Express(API :8081)
+浏览器 ──► Vite(前端 :5173) ──/api 代理──► Express(API :18081)
                                                       │
                                                       ├── services/aiService.js      （Mock AI：识别/推荐/审批/对话）
                                                       └── services/businessMock.js   （Mock 业务系统：ERP/SRM）

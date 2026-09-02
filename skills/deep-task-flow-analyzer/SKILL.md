@@ -127,7 +127,7 @@ deep-task-flow-analyzer/
 | 关系 | Skill | 说明 |
 |------|-------|------|
 | 上游输入 | `ai-canvas-generator` / `ai-product-journey-generator` | 提供场景定义 / To-be 旅程作为纵切依据 |
-| 上游输入 | `blueprint-map-generator` / `business-process-deep-analyzer` | 提供现状流程（L1–L4）与痛点 |
+| 上游输入 | `blueprint-map-generator` / `business-process-deep-analyzer` | 提供现状泳道图（L3/L4）与痛点 |
 | 平行互补 | `to-be-process-designer` | 泳道图给「角色协同全景」；本 Skill 给「任务粒度下钻」，二者互补 |
 | 同 Agent | `to-be-process-designer` / `business-rule-miner` / `agent-ontology-designer` / `agentic-workflow-designer` / `context-knowledge-data-analyzer` | 共同构成 `agent-arch-designer` Agent；本 Skill 与 `to-be-process-designer` 同属 SKP P1 流程骨架，本 Skill 产出的使用点输入 `business-rule-miner`（P2） |
 | 下游衔接 | `agent-ontology-designer` / `agentic-workflow-designer` | 本产物的 L5 / 规则依据 / 执行主体，作为本体与编排设计的骨架 |

@@ -15,7 +15,7 @@
   - *包含微技能*: [业务现状调研 (Business Research)](nsm-analysis/sub-skills/business-research/SKILL.md) | [SWOT 分析 (SWOT Analysis)](nsm-analysis/sub-skills/swot-analysis/SKILL.md) | [战略与指标推导 (Strategy Derivation)](nsm-analysis/sub-skills/strategy-derivation/SKILL.md)
 - **[AI 成熟度评估与战略调研 (Company AI Maturity Research)](company-ai-maturity-research/SKILL.md)**: 对企业进行 AI 成熟度评估，识别AI就绪度
 - **[OSM 目标度量地图 (OSM Map Generator)](osm-map-generator/SKILL.md)**: 将战略目标（Objectives）分解为具体策略（Strategy）与度量指标（Metrics）。
-- **[业务流程深度分析 (Business Process Deep Analyzer)](business-process-deep-analyzer/SKILL.md)**: 深度分析垂直领域流程（L1/L2）、业务分型及核心痛点。
+- **[业务流程深度分析 (Business Process Deep Analyzer)](business-process-deep-analyzer/SKILL.md)**: 把单个价值段/业务环节下钻为 L3/L4 现状泳道图（列=L3 子环节 × 行=角色泳道 × 格=L4 任务），逐环节标注痛点（高耗时 / 高认知负荷 / 高频错误 / 来回往复 / 系统瓶颈），并附任务明细表（角色 / 输入→输出 / 业务规则及固化度 / 痛点）。
 - **[体验旅程图 (Journey Map Generator)](journey-map-generator/SKILL.md)**: 生成包含角色情感波动、交互点及痛点分析的体验旅程图。
 - **[服务蓝图 (Blueprint Map Generator)](blueprint-map-generator/SKILL.md)**: 绘制包含前台接触点、后台流程与支撑系统的服务蓝图。
 
@@ -71,3 +71,17 @@
 - **方案与 Agent 规则设计**: 组合使用 `AI Opportunity Map` -> `AI Canvas` -> `Agent Ontology Designer` -> `AI Scenario Matrix`；进入设计落地时，若要呈现「AI 场景 To-be 流程全景」用 `To-be Process Designer`（流程/任务挖掘视角，供 Agent 本体与规则绑定），若要细化用户体验用 `To-be Journey`，随后衔接 `Agentic Workflow` -> `MVP Prototype` -> `UX-Optimizer`。
 - **需求梳理**: 使用 `Story Map` 构建「阶段-活动-接触点-用户故事」四层需求骨架。
 - **MVP 评测**: 组合使用 `MVP Metrics` + `AI Test Dataset`（委派 `mvp-evaluator` / `/mvp-eval`），为 MVP 提供 Go/No-Go 依据。
+
+---
+
+## 开发者工具与元技能 (Meta-Skills)
+
+用于扩展和维护本技能库的辅助工具。
+
+- **[技能生成器 (Skill Creator)](skill-creator/SKILL.md)**: 自动生成符合 FDE 规范的新技能模板。
+- **[Agent 生成器 (Agent Creator)](agent-creator/SKILL.md)**: 快速编排与生成新的 Subagent 定义。
+- **[Command 生成器 (Command Creator)](command-creator/SKILL.md)**: 自动生成跨平台一致的命令（/command）定义。
+- **[插件生成器 (Plugin Creator)](plugin-creator/SKILL.md)**: 为新技能生成平台适配插件。
+- **[前端设计规范 (Frontend Design)](frontend-design/SKILL.md)**: 供 AI 消费的 UI/UX 设计原则与模式库。
+- **[快速开始 (Get Started)](get-started/SKILL.md)**: 新手引导与环境检查技能。
+- **[安装脚本 (Install Scripts)](scripts/install_skills_to_trae.sh)**: 将技能库单向同步至全局配置的工具。

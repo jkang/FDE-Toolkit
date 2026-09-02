@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{ meta.title }}</title>
+<style>
+  :root {
+    --navy: #10213E;
+    --sky: #5DB2E2;
+    --green: #00524C;
+    --bg: #F5F5F6;
+    --card: #FFFFFF;
+    --line: #E4E9F0;
+    --line-soft: #EDF1F5;
+    --ink: #1E2A3B;
+    --muted: #6B7686;
+    --soft: #98A2B0;
+    --focus-border: #5DB2E2;
+    --focus-bg: #F2F9FE;
+    --insight-bg: #EAF3FB;
+    --insight-line: #C7DDF2;
+    --radius: 14px;
+    --radius-s: 8px;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Noto Sans SC", "Inter", "PingFang SC", "Microsoft YaHei", sans-serif;
+    font-size: 13px;
+    line-height: 1.55;
+  }
+  .vs-page { max-width: 1360px; margin: 0 auto; padding: 22px 26px 40px; width: 100%; }
+
+  /* ---------- 章节标题 ---------- */
+  .vs-title-wrap { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+  .vs-title { font-size: 22px; font-weight: 700; color: var(--navy); margin: 0 0 4px; letter-spacing: .2px; }
+  .vs-title .vs-sec-no { color: var(--sky); margin-right: 6px; }
+  .vs-subtitle { color: var(--muted); font-size: 12.5px; margin: 0; }
+  .vs-actions { display: flex; gap: 8px; flex-shrink: 0; }
+  .vs-btn {
+    font-size: 12.5px; color: var(--navy); background: var(--card);
+    border: 1px solid var(--line); border-radius: 999px; padding: 6px 14px;
+    cursor: pointer; transition: all .15s ease;
+  }
+  .vs-btn:hover { border-color: var(--sky); color: var(--sky); }
+
+  /* ---------- 核心洞察 ---------- */
+  .vs-insight { margin-top: 16px; background: var(--insight-bg); border: 1px solid var(--insight-line); border-radius: var(--radius); padding: 13px 16px; font-size: 13px; color: #23455F; }
+  .vs-insight .ins-label { font-weight: 700; color: var(--navy); }
+  .vs-insight p { margin: 0; }
+
+  /* ---------- 元信息 chips ---------- */
+  .vs-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+  .vs-chip {
+    display: inline-flex; align-items: center; gap: 5px;
+    background: var(--card); border: 1px solid var(--line-soft);
+    color: #41556F; border-radius: 999px; padding: 5px 12px; font-size: 12.5px; font-weight: 500;
+  }
+  .vs-chip b { color: var(--navy); font-weight: 700; }
+  .vs-chip.star { border-color: var(--sky); color: var(--sky); background: var(--focus-bg); }
+  .vs-chip.star b { color: var(--sky); }
+
+  /* ---------- 价值流（一条横向串联 = 一个 band/行）---------- */
+  .vs-streams { display: flex; flex-direction: column; gap: 18px; margin-top: 20px; }
+
+  .vs-stream {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  .vs-stream-head {
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--line-soft);
+    background: #FBFCFD;
+    display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; flex-wrap: wrap;
+  }
+  .vs-stream-head .sh-left { display: flex; flex-direction: column; gap: 8px; }
+  .vs-stream-head .sh-title { display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 700; color: var(--navy); }
+  .vs-stream-head .sh-num {
+    width: 22px; height: 22px; border: 1.5px solid var(--navy); color: var(--navy);
+    border-radius: 50%; font-size: 12px; font-weight: 700;
+    display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .vs-stream-head .sh-chain { font-size: 12px; color: var(--soft); line-height: 1.5; }
+  .vs-stream-head .sh-focus-tags { display: flex; gap: 6px; flex-wrap: wrap; flex-shrink: 0; }
+  .vs-focus-tag {
+    font-size: 11.5px; color: var(--sky); background: var(--focus-bg);
+    border: 1px solid var(--focus-border); border-radius: 999px; padding: 2px 9px; font-weight: 700; white-space: nowrap;
+  }
+
+  /* 横向串联的价值段 */
+  .vs-blocks {
+    display: flex; align-items: stretch; gap: 0;
+    overflow-x: auto; padding: 16px 18px 20px;
+    scrollbar-width: thin;
+  }
+  .vs-seg {
+    flex: 0 0 240px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-s);
+    padding: 10px 11px;
+    background: var(--card);
+    position: relative;
+    display: flex; flex-direction: column;
+  }
+  .vs-seg.focused { border: 1.5px solid var(--focus-border); background: var(--focus-bg); }
+  .vs-seg-topline { display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-bottom: 6px; }
+  .vs-seg-focusbadge {
+    font-size: 11px; font-weight: 700; color: var(--sky); background: #FFFFFF;
+    border: 1px solid var(--focus-border); border-radius: 999px; padding: 1px 8px; white-space: nowrap;
+  }
+  .vs-seg-name { font-size: 13.5px; font-weight: 600; color: var(--navy); line-height: 1.4; }
+  .vs-seg-actions { display: flex; align-items: center; gap: 4px; margin-top: 7px; flex-wrap: wrap; min-height: 16px; }
+  .vs-pain { width: 11px; height: 11px; border-radius: 50%; display: inline-block; box-shadow: 0 0 0 1px rgba(0,0,0,.08); }
+  .vs-pri { font-size: 10.5px; font-weight: 700; border-radius: 4px; padding: 1px 6px; color: #fff; line-height: 1.5; }
+  .vs-pri.p0 { background: #E4703A; }
+  .vs-pri.p1 { background: #5DA8D8; }
+
+  .vs-seg-links { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 7px; }
+  .vs-link { font-size: 11px; color: #2A6A8C; background: #FFFFFF; border: 1px solid #BFDCF0; border-radius: 999px; padding: 1px 8px; white-space: nowrap; }
+
+  .vs-seg-detail { margin-top: 7px; border-top: 1px dashed var(--line); padding-top: 4px; }
+  .vs-seg-toggle { display: inline-flex; align-items: center; gap: 4px; font-size: 11.5px; color: var(--soft); cursor: pointer; user-select: none; }
+  .vs-seg-toggle::before { content: "▸"; transition: transform .15s ease; font-size: 9px; color: #AEB6C2; }
+  .vs-seg.open .vs-seg-toggle::before { transform: rotate(90deg); }
+  .vs-seg-body { display: none; margin-top: 7px; }
+  .vs-seg.open .vs-seg-body { display: block; }
+  .vs-field { margin-top: 5px; font-size: 12px; color: var(--muted); }
+  .vs-field .vf-label { font-weight: 600; color: #46586F; }
+  .vs-field.reason .vf-val { color: #8B5E5E; }
+  .vs-field.f-reason .vf-val { color: var(--green); }
+
+  /* band 内箭头（value stream 内部段间）*/
+  .vs-seg-arrow { align-self: center; color: #AEB6C2; font-size: 16px; font-weight: 700; flex-shrink: 0; padding: 0 4px; }
+
+  /* ---------- 底部图例 ---------- */
+  .vs-legend {
+    margin-top: 22px; background: var(--card); border: 1px solid var(--line);
+    border-radius: var(--radius); padding: 12px 16px;
+    display: flex; flex-wrap: wrap; align-items: center; gap: 18px; font-size: 12.5px; color: var(--muted);
+  }
+  .vs-legend .lg-title { font-weight: 700; color: var(--navy); }
+  .vs-legend .lg-item { display: inline-flex; align-items: center; gap: 6px; }
+  .vs-legend .lg-dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+  .vs-legend .lg-star { color: var(--sky); font-weight: 700; }
+  .vs-legend .lg-p0 { color: #E4703A; font-weight: 700; }
+
+  @media (max-width: 720px) {
+    .vs-blocks { flex-direction: column; }
+    .vs-seg-arrow { transform: rotate(90deg); }
+    .vs-seg { flex: 1 1 auto; }
+  }
+</style>
+</head>
+<body>
+<div class="vs-page">
+
+  <!-- 标题 -->
+  <div class="vs-title-wrap">
+    <div>
+      <h1 class="vs-title">
+        {%- if meta.sectionNo -%}<span class="vs-sec-no">{{ meta.sectionNo }}</span>{%- endif -%}
+        {{ meta.title }}
+      </h1>
+      {%- if meta.business or meta.domain -%}
+      <p class="vs-subtitle">{{ meta.business }}{% if meta.domain %} · {{ meta.domain }}{% endif %}</p>
+      {%- endif -%}
+    </div>
+    <div class="vs-actions">
+      <button class="vs-btn" onclick="toggleDetailAll(this)">全部展开 / 收起</button>
+      <button class="vs-btn" onclick="copyYAML(this)">📋 复制 YAML</button>
+    </div>
+  </div>
+
+  <!-- 核心洞察 -->
+  <div class="vs-insight"><p><span class="ins-label">核心洞察：</span>{{ meta.insight }}</p></div>
+
+  <!-- 元信息 chips -->
+  <div class="vs-chips">
+    <span class="vs-chip">价值流 <b>{{ stats.valueStreams }}</b> 条</span>
+    <span class="vs-chip">价值段 <b>{{ stats.valueSegments }}</b> 个</span>
+    <span class="vs-chip star">★ 聚焦范围 <b>{{ stats.focusSegments }}</b> 段</span>
+    <span class="vs-chip">痛点 <b>{{ stats.painPoints }}</b> 个（推断）</span>
+    {%- if meta.sourceRef %}<span class="vs-chip">{{ meta.sourceRef }}</span>{% endif %}
+  </div>
+
+  <!-- 价值流（横向串联） -->
+  <div class="vs-streams">
+    {%- for stream in valueStreams %}
+    <div class="vs-stream">
+      <div class="vs-stream-head">
+        <div class="sh-left">
+          <div class="sh-title"><span class="sh-num">{{ stream.order }}</span><span>{{ stream.name }}</span></div>
+          {%- if stream.chain %}<div class="sh-chain">{{ stream.chain }}</div>{% endif %}
+        </div>
+        {%- if stream.focusGroups %}
+        <div class="sh-focus-tags">
+          {%- for g in stream.focusGroups %}<span class="vs-focus-tag">★ {{ g }}</span>{% endfor %}
+        </div>
+        {%- endif %}
+      </div>
+      <div class="vs-blocks">
+        {%- for seg in stream.segments %}
+          {%- if not loop.first %}<div class="vs-seg-arrow">→</div>{% endif %}
+          <div class="vs-seg {% if seg.focus %}focused{% endif %}">
+            {%- if seg.focus and seg.focusLabel %}<span class="vs-seg-focusbadge">★ {{ seg.focusLabel }}</span>{% endif %}
+            <div class="vs-seg-name">{{ seg.name }}</div>
+            <div class="vs-seg-actions">
+              {%- for p in seg.painPoints %}
+                {%- set pt = painTypes | selectattr('id','equalto',p) | first %}
+                <span class="vs-pain" title="{{ pt.label if pt else p }}" style="background: {{ pt.color if pt else '#999' }}"></span>
+              {%- endfor %}
+              {%- if seg.priority == 'P0' %}<span class="vs-pri p0">P0</span>{% endif %}
+              {%- if seg.priority == 'P1' %}<span class="vs-pri p1">P1</span>{% endif %}
+            </div>
+            {%- if seg.focus and seg.links %}
+            <div class="vs-seg-links">
+              {%- for link in seg.links %}<span class="vs-link">{{ link }}</span>{% endfor %}
+            </div>
+            {%- endif %}
+            {%- if seg.detail %}
+            <div class="vs-seg-detail">
+              <span class="vs-seg-toggle" onclick="toggleSeg(this)">定义 / 目标 / {{ '聚焦理由' if seg.focus else '不聚焦理由' }}</span>
+              <div class="vs-seg-body">
+                {%- if seg.detail.definition %}<div class="vs-field"><span class="vf-label">定义：</span><span class="vf-val">{{ seg.detail.definition }}</span></div>{% endif %}
+                {%- if seg.detail.goal %}<div class="vs-field"><span class="vf-label">目标：</span><span class="vf-val">{{ seg.detail.goal }}</span></div>{% endif %}
+                {%- if seg.detail.reason %}
+                <div class="vs-field {{ 'f-reason' if seg.focus else 'reason' }}">
+                  <span class="vf-label">{{ '聚焦理由' if seg.focus else '不聚焦理由' }}：</span>
+                  <span class="vf-val">{{ seg.detail.reason }}</span>
+                </div>
+                {%- endif %}
+              </div>
+            </div>
+            {%- endif %}
+          </div>
+        {%- endfor %}
+      </div>
+    </div>
+    {%- endfor %}
+  </div>
+
+  <!-- 底部图例 -->
+  <div class="vs-legend">
+    <span class="lg-title">痛点四色：</span>
+    {%- for t in painTypes %}
+      <span class="lg-item"><span class="lg-dot" style="background:{{ t.color }}"></span>{{ t.label }}</span>
+    {%- endfor %}
+    <span class="lg-item"><span class="lg-star">★</span>{{ legend.focusNote }}</span>
+    <span class="lg-item"><span class="lg-p0">P0</span>{{ legend.priorityNote }}</span>
+    <span class="lg-item">{{ legend.clickNote }}</span>
+  </div>
+</div>
+
+<!-- 原始 YAML 数据（供复制，可溯源）；tojson 对 <>&" 做 unicode 转义 -->
+<script id="raw-yaml-data" type="application/json">{{ raw_yaml | tojson }}</script>
+<script>
+  function toggleSeg(el) { el.closest('.vs-seg').classList.toggle('open'); }
+  function toggleDetailAll(btn) {
+    var cards = document.querySelectorAll('.vs-seg');
+    var allOpen = cards.length && Array.prototype.every.call(cards, function(c){ return c.classList.contains('open'); });
+    cards.forEach(function(c){ allOpen ? c.classList.remove('open') : c.classList.add('open'); });
+  }
+  function copyYAML(btn) {
+    var el = document.getElementById('raw-yaml-data');
+    var text = '';
+    try { text = JSON.parse(el.textContent || ''); }
+    catch (e) { text = el.textContent || ''; }
+    var done = function(){ btn.textContent = '✅ 已复制 YAML'; setTimeout(function(){ btn.textContent = '📋 复制 YAML'; }, 1600); };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text.trim()).then(done).catch(function(){ fallback(); });
+    } else { fallback(); }
+    function fallback() {
+      var ta = document.createElement('textarea'); ta.value = text.trim();
+      document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy'); done(); } catch(e) { alert('复制失败，请手动复制'); }
+      document.body.removeChild(ta);
+    }
+  }
+</script>
+</body>
+</html>

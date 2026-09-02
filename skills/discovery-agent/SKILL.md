@@ -40,7 +40,7 @@ author: KK
   │     Step 1 → NSM 北极星战略全景分析
   │     Step 2 → AI 成熟度评估
   │     Step 3 → OSM 目标度量地图
-  │     Step 4 → 业务流程深度分析
+  │     Step 4 → 价值段现状泳道图
   │     Step 5 → 体验旅程图
   │     Step 6 → 服务蓝图
   │
@@ -96,7 +96,7 @@ author: KK
 | Step 1-c | NSM · 战略推导 | ⏳ 待执行 | [客户名称]-北极星指标及战略推导.html |
 | Step 2 | AI 成熟度评估 | ⏳ 待执行 | [客户名称]-AI成熟度评估.html |
 | Step 3 | OSM 目标度量地图 | ⏳ 待执行 | [客户名称]-OSM目标度量地图.html |
-| Step 4 | 业务流程深度分析 | ⏳ 待执行 | [客户名称]-业务流程深度分析.html |
+| Step 4 | 价值段现状泳道图 | ⏳ 待执行 | [客户名称]-[价值段]-现状流程图.html |
 | Step 5 | 体验旅程图 | ⏳ 待执行 | [客户名称]-体验旅程图.html |
 | Step 6 | 服务蓝图 | ⏳ 待执行 | [客户名称]-服务蓝图.html |
 | Step 7 | AI 机会场景地图 | ⏳ 待执行 | [客户名称]-AI机会场景地图.html |
@@ -154,15 +154,15 @@ author: KK
 
 ---
 
-### Step 4：业务流程深度分析
+### Step 4：价值段现状泳道图
 
 **读取并遵循 `business-process-deep-analyzer/SKILL.md` 的完整指令。**
 
 - 传入：客户名称、业务领域、参考文档
 - 产出 L1/L2 级流程分析、业务分型、核心痛点
 - 产出：
-  - `[客户名称]/[客户名称]-业务流程深度分析.yaml`
-  - `[客户名称]/[客户名称]-业务流程深度分析.html`
+  - `[客户名称]/[客户名称]-[价值段]-现状流程图.yaml`
+  - `[客户名称]/[客户名称]-[价值段]-现状流程图.html`
 - **Checkpoint**：将 L1 流程节点与核心痛点写入 `phase_cache/p4_process.md`。
 
 ---
@@ -337,10 +337,10 @@ cards:
     file: "[客户名称]-OSM目标度量地图.html"
   - id: "process"
     number: "04"
-    title: "业务流程深度分析"
+    title: "价值段现状泳道图"
     desc: "L1/L2 流程 · 痛点识别"
     icon: "🔍"
-    file: "[客户名称]-业务流程深度分析.html"
+    file: "[客户名称]-[价值段]-现状流程图.html"
   - id: "journey"
     number: "05"
     title: "体验旅程图"
@@ -407,7 +407,7 @@ navigation:
       - { id: "nsm",       title: "北极星指标与战略", icon: "🎯", file: "[客户名称]-北极星指标及战略推导.html" }
       - { id: "maturity",  title: "AI 成熟度评估",    icon: "🏥", file: "[客户名称]-AI成熟度评估.html" }
       - { id: "osm",       title: "OSM 目标度量地图", icon: "🗺️", file: "[客户名称]-OSM目标度量地图.html" }
-      - { id: "process",   title: "业务流程深度分析", icon: "🔍", file: "[客户名称]-业务流程深度分析.html" }
+      - { id: "process",   title: "价值段现状泳道图", icon: "🔍", file: "[客户名称]-[价值段]-现状流程图.html" }
       - { id: "journey",   title: "体验旅程图",       icon: "🧭", file: "[客户名称]-体验旅程图.html" }
       - { id: "blueprint", title: "服务蓝图",         icon: "🏗️", file: "[客户名称]-服务蓝图.html" }
   - section: "Phase B · AI 机会"
@@ -500,7 +500,7 @@ python3 unified-report-dashboard/scripts/build_dashboard.py \
 | 01 | 北极星指标与战略 | [客户名称]-北极星指标及战略推导.html |
 | 02 | AI 成熟度评估 | [客户名称]-AI成熟度评估.html |
 | 03 | OSM 目标度量地图 | [客户名称]-OSM目标度量地图.html |
-| 04 | 业务流程深度分析 | [客户名称]-业务流程深度分析.html |
+| 04 | 价值段现状泳道图 | [客户名称]-[价值段]-现状流程图.html |
 | 05 | 体验旅程图 | [客户名称]-体验旅程图.html |
 | 06 | 服务蓝图 | [客户名称]-服务蓝图.html |
 | 07 | AI 机会场景地图 | [客户名称]-AI机会场景地图.html |

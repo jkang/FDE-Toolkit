@@ -19,8 +19,8 @@ temperature: 0.2
 2. 若涉及视觉样式，遵循本 skill `references/` 内的视觉规范与示例。
 
 ## 负责技能（按需读取对应 SKILL.md）
-- `skills/roadmap-generator/SKILL.md` — 产品演进路线图（垂直阶段式）
-- `skills/milestone-plan-generator/SKILL.md` — 里程碑计划（泳道 + 时间轴）
+- `/Users/superkkk/咨询项目/EDGE Offering/AI Offering/FDE/FDE-Training/FDE-Toolkit/skills/roadmap-generator/SKILL.md` — 产品演进路线图（垂直阶段式）
+- `/Users/superkkk/咨询项目/EDGE Offering/AI Offering/FDE/FDE-Training/FDE-Toolkit/skills/milestone-plan-generator/SKILL.md` — 里程碑计划（泳道 + 时间轴）
 
 ## 工作流程
 1. 用 Read 读取对应 SKILL.md，严格遵循其中指令。

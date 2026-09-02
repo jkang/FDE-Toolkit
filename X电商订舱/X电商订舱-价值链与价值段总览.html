@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>X电商订舱 · 价值链与价值段总览</title>
+<style>
+  :root {
+    --navy: #10213E;
+    --sky: #5DB2E2;
+    --green: #00524C;
+    --bg: #F5F5F6;
+    --card: #FFFFFF;
+    --line: #E4E9F0;
+    --line-soft: #EDF1F5;
+    --ink: #1E2A3B;
+    --muted: #6B7686;
+    --soft: #98A2B0;
+    --focus-border: #5DB2E2;
+    --focus-bg: #F2F9FE;
+    --insight-bg: #EAF3FB;
+    --insight-line: #C7DDF2;
+    --radius: 14px;
+    --radius-s: 8px;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Noto Sans SC", "Inter", "PingFang SC", "Microsoft YaHei", sans-serif;
+    font-size: 13px;
+    line-height: 1.55;
+  }
+  .vs-page { max-width: 1360px; margin: 0 auto; padding: 22px 26px 40px; width: 100%; }
+
+  /* ---------- 章节标题 ---------- */
+  .vs-title-wrap { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+  .vs-title { font-size: 22px; font-weight: 700; color: var(--navy); margin: 0 0 4px; letter-spacing: .2px; }
+  .vs-title .vs-sec-no { color: var(--sky); margin-right: 6px; }
+  .vs-subtitle { color: var(--muted); font-size: 12.5px; margin: 0; }
+  .vs-actions { display: flex; gap: 8px; flex-shrink: 0; }
+  .vs-btn {
+    font-size: 12.5px; color: var(--navy); background: var(--card);
+    border: 1px solid var(--line); border-radius: 999px; padding: 6px 14px;
+    cursor: pointer; transition: all .15s ease;
+  }
+  .vs-btn:hover { border-color: var(--sky); color: var(--sky); }
+
+  /* ---------- 核心洞察 ---------- */
+  .vs-insight { margin-top: 16px; background: var(--insight-bg); border: 1px solid var(--insight-line); border-radius: var(--radius); padding: 13px 16px; font-size: 13px; color: #23455F; }
+  .vs-insight .ins-label { font-weight: 700; color: var(--navy); }
+  .vs-insight p { margin: 0; }
+
+  /* ---------- 元信息 chips ---------- */
+  .vs-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+  .vs-chip {
+    display: inline-flex; align-items: center; gap: 5px;
+    background: var(--card); border: 1px solid var(--line-soft);
+    color: #41556F; border-radius: 999px; padding: 5px 12px; font-size: 12.5px; font-weight: 500;
+  }
+  .vs-chip b { color: var(--navy); font-weight: 700; }
+  .vs-chip.star { border-color: var(--sky); color: var(--sky); background: var(--focus-bg); }
+  .vs-chip.star b { color: var(--sky); }
+
+  /* ---------- 价值流（一条横向串联 = 一个 band/行）---------- */
+  .vs-streams { display: flex; flex-direction: column; gap: 18px; margin-top: 20px; }
+
+  .vs-stream {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  .vs-stream-head {
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--line-soft);
+    background: #FBFCFD;
+    display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; flex-wrap: wrap;
+  }
+  .vs-stream-head .sh-left { display: flex; flex-direction: column; gap: 8px; }
+  .vs-stream-head .sh-title { display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 700; color: var(--navy); }
+  .vs-stream-head .sh-num {
+    width: 22px; height: 22px; border: 1.5px solid var(--navy); color: var(--navy);
+    border-radius: 50%; font-size: 12px; font-weight: 700;
+    display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .vs-stream-head .sh-chain { font-size: 12px; color: var(--soft); line-height: 1.5; }
+  .vs-stream-head .sh-focus-tags { display: flex; gap: 6px; flex-wrap: wrap; flex-shrink: 0; }
+  .vs-focus-tag {
+    font-size: 11.5px; color: var(--sky); background: var(--focus-bg);
+    border: 1px solid var(--focus-border); border-radius: 999px; padding: 2px 9px; font-weight: 700; white-space: nowrap;
+  }
+
+  /* 横向串联的价值段 */
+  .vs-blocks {
+    display: flex; align-items: stretch; gap: 0;
+    overflow-x: auto; padding: 16px 18px 20px;
+    scrollbar-width: thin;
+  }
+  .vs-seg {
+    flex: 0 0 240px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-s);
+    padding: 10px 11px;
+    background: var(--card);
+    position: relative;
+    display: flex; flex-direction: column;
+  }
+  .vs-seg.focused { border: 1.5px solid var(--focus-border); background: var(--focus-bg); }
+  .vs-seg-topline { display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-bottom: 6px; }
+  .vs-seg-focusbadge {
+    font-size: 11px; font-weight: 700; color: var(--sky); background: #FFFFFF;
+    border: 1px solid var(--focus-border); border-radius: 999px; padding: 1px 8px; white-space: nowrap;
+  }
+  .vs-seg-name { font-size: 13.5px; font-weight: 600; color: var(--navy); line-height: 1.4; }
+  .vs-seg-actions { display: flex; align-items: center; gap: 4px; margin-top: 7px; flex-wrap: wrap; min-height: 16px; }
+  .vs-pain { width: 11px; height: 11px; border-radius: 50%; display: inline-block; box-shadow: 0 0 0 1px rgba(0,0,0,.08); }
+  .vs-pri { font-size: 10.5px; font-weight: 700; border-radius: 4px; padding: 1px 6px; color: #fff; line-height: 1.5; }
+  .vs-pri.p0 { background: #E4703A; }
+  .vs-pri.p1 { background: #5DA8D8; }
+
+  .vs-seg-links { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 7px; }
+  .vs-link { font-size: 11px; color: #2A6A8C; background: #FFFFFF; border: 1px solid #BFDCF0; border-radius: 999px; padding: 1px 8px; white-space: nowrap; }
+
+  .vs-seg-detail { margin-top: 7px; border-top: 1px dashed var(--line); padding-top: 4px; }
+  .vs-seg-toggle { display: inline-flex; align-items: center; gap: 4px; font-size: 11.5px; color: var(--soft); cursor: pointer; user-select: none; }
+  .vs-seg-toggle::before { content: "▸"; transition: transform .15s ease; font-size: 9px; color: #AEB6C2; }
+  .vs-seg.open .vs-seg-toggle::before { transform: rotate(90deg); }
+  .vs-seg-body { display: none; margin-top: 7px; }
+  .vs-seg.open .vs-seg-body { display: block; }
+  .vs-field { margin-top: 5px; font-size: 12px; color: var(--muted); }
+  .vs-field .vf-label { font-weight: 600; color: #46586F; }
+  .vs-field.reason .vf-val { color: #8B5E5E; }
+  .vs-field.f-reason .vf-val { color: var(--green); }
+
+  /* band 内箭头（value stream 内部段间）*/
+  .vs-seg-arrow { align-self: center; color: #AEB6C2; font-size: 16px; font-weight: 700; flex-shrink: 0; padding: 0 4px; }
+
+  /* ---------- 底部图例 ---------- */
+  .vs-legend {
+    margin-top: 22px; background: var(--card); border: 1px solid var(--line);
+    border-radius: var(--radius); padding: 12px 16px;
+    display: flex; flex-wrap: wrap; align-items: center; gap: 18px; font-size: 12.5px; color: var(--muted);
+  }
+  .vs-legend .lg-title { font-weight: 700; color: var(--navy); }
+  .vs-legend .lg-item { display: inline-flex; align-items: center; gap: 6px; }
+  .vs-legend .lg-dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+  .vs-legend .lg-star { color: var(--sky); font-weight: 700; }
+  .vs-legend .lg-p0 { color: #E4703A; font-weight: 700; }
+
+  @media (max-width: 720px) {
+    .vs-blocks { flex-direction: column; }
+    .vs-seg-arrow { transform: rotate(90deg); }
+    .vs-seg { flex: 1 1 auto; }
+  }
+</style>
+</head>
+<body>
+<div class="vs-page">
+
+  <!-- 标题 -->
+  <div class="vs-title-wrap">
+    <div>
+      <h1 class="vs-title"><span class="vs-sec-no">2.1</span>X电商订舱 · 价值链与价值段总览
+      </h1><p class="vs-subtitle">X（全球头部集装箱运输与物流一体化企业） · 电商订舱业务（在线订舱门户 / 独立电商平台 / 移动App）</p></div>
+    <div class="vs-actions">
+      <button class="vs-btn" onclick="toggleDetailAll(this)">全部展开 / 收起</button>
+      <button class="vs-btn" onclick="copyYAML(this)">📋 复制 YAML</button>
+    </div>
+  </div>
+
+  <!-- 核心洞察 -->
+  <div class="vs-insight"><p><span class="ins-label">核心洞察：</span>电商订舱业务沿客户生命周期构成一条横向端到端主价值流：从客户品牌认知、注册会员申请等获客段，经询价报价、在线订舱与舱位确认、单证支付结算、履约交付，到增值服务与会员运营，横向串联成完整价值创造闭环。价值流相对稳定，与 SME 直客 / 签约货主等产品线正交，同一套价值流在各产品线复用，仅细节有差异；本阶段先讲清框架逻辑，不按产品线拆解。本次聚焦 = 订舱成交与会员客服等智能订舱直接改造的价值段（★ 蓝色高亮）。</p></div>
+
+  <!-- 元信息 chips -->
+  <div class="vs-chips">
+    <span class="vs-chip">价值流 <b>1</b> 条</span>
+    <span class="vs-chip">价值段 <b>7</b> 个</span>
+    <span class="vs-chip star">★ 聚焦范围 <b>5</b> 段</span>
+    <span class="vs-chip">痛点 <b>12</b> 个（推断）</span><span class="vs-chip">客户 Workshop · 一手话 · 深度研究推断</span>
+  </div>
+
+  <!-- 价值流（横向串联） -->
+  <div class="vs-streams">
+    <div class="vs-stream">
+      <div class="vs-stream-head">
+        <div class="sh-left">
+          <div class="sh-title"><span class="sh-num">1</span><span>电商订舱主价值流</span></div><div class="sh-chain">客户品牌认知与触达 → 客户注册与会员申请 → 询价与报价 → 在线订舱与舱位确认 → 单证与支付结算 → 履约与交付 → 增值服务与会员运营</div>
+        </div>
+        <div class="sh-focus-tags"><span class="vs-focus-tag">★ 聚焦范围 ①</span>
+        </div>
+      </div>
+      <div class="vs-blocks">
+          <div class="vs-seg ">
+            <div class="vs-seg-name">客户品牌认知与触达</div>
+            <div class="vs-seg-actions">
+                <span class="vs-pain" title="系统瓶颈" style="background: #3B82F6"></span>
+            </div>
+            <div class="vs-seg-detail">
+              <span class="vs-seg-toggle" onclick="toggleSeg(this)">定义 / 目标 / 不聚焦理由</span>
+              <div class="vs-seg-body"><div class="vs-field"><span class="vf-label">定义：</span><span class="vf-val">通过官网/搜索引擎/行业展会/移动App 曝光，让 SME 货主认知到透明运价与平台能力。</span></div><div class="vs-field"><span class="vf-label">目标：</span><span class="vf-val">提升平台认知度与首访转化。</span></div>
+                <div class="vs-field reason">
+                  <span class="vf-label">不聚焦理由：</span>
+                  <span class="vf-val">不聚焦理由：品牌触达属市场获客层，与原始 idea 无直接输入/输出关系。</span>
+                </div>
+              </div>
+            </div>
+          </div><div class="vs-seg-arrow">→</div>
+          <div class="vs-seg ">
+            <div class="vs-seg-name">客户注册与会员申请</div>
+            <div class="vs-seg-actions">
+                <span class="vs-pain" title="高耗时" style="background: #F5A623"></span>
+            </div>
+            <div class="vs-seg-detail">
+              <span class="vs-seg-toggle" onclick="toggleSeg(this)">定义 / 目标 / 不聚焦理由</span>
+              <div class="vs-seg-body"><div class="vs-field"><span class="vf-label">定义：</span><span class="vf-val">货主完成企业注册、资质认证（约 3 个工作日）与 PlumSmart 会员申请，建立数字身份。</span></div><div class="vs-field"><span class="vf-label">目标：</span><span class="vf-val">分钟级自助开户，降低新客获客门槛。</span></div>
+                <div class="vs-field reason">
+                  <span class="vf-label">不聚焦理由：</span>
+                  <span class="vf-val">不聚焦理由：注册获客为上游前置环节，非本 idea 直接改造面。</span>
+                </div>
+              </div>
+            </div>
+          </div><div class="vs-seg-arrow">→</div>
+          <div class="vs-seg focused"><span class="vs-seg-focusbadge">★ 聚焦范围 ①</span>
+            <div class="vs-seg-name">询价与报价</div>
+            <div class="vs-seg-actions">
+                <span class="vs-pain" title="高耗时" style="background: #F5A623"></span>
+                <span class="vs-pain" title="系统瓶颈" style="background: #3B82F6"></span><span class="vs-pri p0">P0</span>
+            </div>
+            <div class="vs-seg-links"><span class="vs-link">即期 / 长时效报价查询</span><span class="vs-link">智能报价推荐与锁价</span>
+            </div>
+            <div class="vs-seg-detail">
+              <span class="vs-seg-toggle" onclick="toggleSeg(this)">定义 / 目标 / 聚焦理由</span>
+              <div class="vs-seg-body"><div class="vs-field"><span class="vf-label">定义：</span><span class="vf-val">货主通过 E-Spot（即期）或 E-Quote（长时效）获取透明报价，支持 Secured E-Quote 锁价与 All-in-One 一站式询价。</span></div><div class="vs-field"><span class="vf-label">目标：</span><span class="vf-val">实时透明报价 + 智能比价，降低询价门槛，提升转化。</span></div>
+                <div class="vs-field f-reason">
+                  <span class="vf-label">聚焦理由：</span>
+                  <span class="vf-val">聚焦理由：Agent 在此承接智能报价推荐、锁价与舱位保证，直接改变询价体验。</span>
+                </div>
+              </div>
+            </div>
+          </div><div class="vs-seg-arrow">→</div>
+          <div class="vs-seg focused"><span class="vs-seg-focusbadge">★ 聚焦范围 ①</span>
+            <div class="vs-seg-name">在线订舱与舱位确认</div>
+            <div class="vs-seg-actions">
+                <span class="vs-pain" title="高频错误" style="background: #E5484D"></span>
+                <span class="vs-pain" title="高耗时" style="background: #F5A623"></span><span class="vs-pri p0">P0</span>
+            </div>
+            <div class="vs-seg-links"><span class="vs-link">3 步订舱表单提交</span><span class="vs-link">舱位分配与收益校验</span><span class="vs-link">Booking Confirmation 签发与告知</span>
+            </div>
+            <div class="vs-seg-detail">
+              <span class="vs-seg-toggle" onclick="toggleSeg(this)">定义 / 目标 / 聚焦理由</span>
+              <div class="vs-seg-body"><div class="vs-field"><span class="vf-label">定义：</span><span class="vf-val">货主以新版 3 步订舱表单提交请求，系统校验费率/信用/航线后分配舱位并签发订舱确认（特定条款最快 1 分钟）。</span></div><div class="vs-field"><span class="vf-label">目标：</span><span class="vf-val">分钟级自助订舱 + 分钟级自动确认，减少补件与等待。</span></div>
+                <div class="vs-field f-reason">
+                  <span class="vf-label">聚焦理由：</span>
+                  <span class="vf-val">聚焦理由：Agent 在此自动预填、校验并提交订舱请求、生成确认，是改造核心。</span>
+                </div>
+              </div>
+            </div>
+          </div><div class="vs-seg-arrow">→</div>
+          <div class="vs-seg focused"><span class="vs-seg-focusbadge">★ 聚焦范围 ①</span>
+            <div class="vs-seg-name">单证与支付结算</div>
+            <div class="vs-seg-actions">
+                <span class="vs-pain" title="高经验" style="background: #F5C518"></span>
+                <span class="vs-pain" title="系统瓶颈" style="background: #3B82F6"></span><span class="vs-pri p1">P1</span>
+            </div>
+            <div class="vs-seg-links"><span class="vs-link">SI 提交与自动处理</span><span class="vs-link">提单签发（eBL / 纸质）</span><span class="vs-link">支付与对账</span>
+            </div>
+            <div class="vs-seg-detail">
+              <span class="vs-seg-toggle" onclick="toggleSeg(this)">定义 / 目标 / 聚焦理由</span>
+              <div class="vs-seg-body"><div class="vs-field"><span class="vf-label">定义：</span><span class="vf-val">货主提交装运指示，智慧单证自动处理（年约 35 万份），经 IQAX eBL 出电子提单，在线支付运费与账期对账。</span></div><div class="vs-field"><span class="vf-label">目标：</span><span class="vf-val">提升单证自动化处理率与 eBL 渗透率，透明化结算。</span></div>
+                <div class="vs-field f-reason">
+                  <span class="vf-label">聚焦理由：</span>
+                  <span class="vf-val">聚焦理由：Agent 在此承接单证进度查询与 SI 自动校验。</span>
+                </div>
+              </div>
+            </div>
+          </div><div class="vs-seg-arrow">→</div>
+          <div class="vs-seg focused"><span class="vs-seg-focusbadge">★ 聚焦范围 ①</span>
+            <div class="vs-seg-name">履约与交付</div>
+            <div class="vs-seg-actions">
+                <span class="vs-pain" title="高耗时" style="background: #F5A623"></span>
+                <span class="vs-pain" title="系统瓶颈" style="background: #3B82F6"></span><span class="vs-pri p1">P1</span>
+            </div>
+            <div class="vs-seg-links"><span class="vs-link">提箱装箱与陆运清关</span><span class="vs-link">出运跟踪</span><span class="vs-link">到港交付与放货</span>
+            </div>
+            <div class="vs-seg-detail">
+              <span class="vs-seg-toggle" onclick="toggleSeg(this)">定义 / 目标 / 聚焦理由</span>
+              <div class="vs-seg-body"><div class="vs-field"><span class="vf-label">定义：</span><span class="vf-val">提箱装箱、E-Trucking/Door Haulage 陆运、E-Customs 清关，控制塔全订单可视化跟踪，到港 eBL 放货。</span></div><div class="vs-field"><span class="vf-label">目标：</span><span class="vf-val">实时透明跟踪、减少误船与清关延误、无纸化放货。</span></div>
+                <div class="vs-field f-reason">
+                  <span class="vf-label">聚焦理由：</span>
+                  <span class="vf-val">聚焦理由：Agent 在此承接出运跟踪与异常预警问答。</span>
+                </div>
+              </div>
+            </div>
+          </div><div class="vs-seg-arrow">→</div>
+          <div class="vs-seg focused"><span class="vs-seg-focusbadge">★ 聚焦范围 ①</span>
+            <div class="vs-seg-name">增值服务与会员运营</div>
+            <div class="vs-seg-actions">
+                <span class="vs-pain" title="高经验" style="background: #F5C518"></span>
+                <span class="vs-pain" title="高耗时" style="background: #F5A623"></span><span class="vs-pri p0">P0</span>
+            </div>
+            <div class="vs-seg-links"><span class="vs-link">增值服务选购</span><span class="vs-link">会员计划运营</span><span class="vs-link">促销与营销触达</span><span class="vs-link">智能客服支持</span><span class="vs-link">复购与口碑留存</span>
+            </div>
+            <div class="vs-seg-detail">
+              <span class="vs-seg-toggle" onclick="toggleSeg(this)">定义 / 目标 / 聚焦理由</span>
+              <div class="vs-seg-body"><div class="vs-field"><span class="vf-label">定义：</span><span class="vf-val">在订舱基础上叠加上陆运、清关、绿色、免箱期等增值服务，并运营 PlumSmart 会员体系、促销触达、智能客服与复购留存。</span></div><div class="vs-field"><span class="vf-label">目标：</span><span class="vf-val">提升增值服务渗透、会员复购与 AI 分流率。</span></div>
+                <div class="vs-field f-reason">
+                  <span class="vf-label">聚焦理由：</span>
+                  <span class="vf-val">聚焦理由：Agent 即 Ask Fin 升级本体，核心改造此价值段的智能客服与运营触达。</span>
+                </div>
+              </div>
+            </div>
+          </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 底部图例 -->
+  <div class="vs-legend">
+    <span class="lg-title">痛点四色：</span>
+      <span class="lg-item"><span class="lg-dot" style="background:#F5A623"></span>高耗时</span>
+      <span class="lg-item"><span class="lg-dot" style="background:#F5C518"></span>高经验</span>
+      <span class="lg-item"><span class="lg-dot" style="background:#E5484D"></span>高频错误</span>
+      <span class="lg-item"><span class="lg-dot" style="background:#3B82F6"></span>系统瓶颈</span>
+    <span class="lg-item"><span class="lg-star">★</span>★ 推荐核心聚焦的范围（连续 1~4 个价值段）</span>
+    <span class="lg-item"><span class="lg-p0">P0</span>P0 优先级最高（当前为推测，待客户量化确认）</span>
+    <span class="lg-item">🖱 可点开看详情</span>
+  </div>
+</div>
+
+<!-- 原始 YAML 数据（供复制，可溯源）；tojson 对 <>&" 做 unicode 转义 -->
+<script id="raw-yaml-data" type="application/json">"meta:\n  title: \"X\u7535\u5546\u8ba2\u8231 \u00b7 \u4ef7\u503c\u94fe\u4e0e\u4ef7\u503c\u6bb5\u603b\u89c8\"\n  sectionNo: \"2.1\"\n  version: \"v1.0\"\n  date: \"2026-09-02\"\n  business: \"X\uff08\u5168\u7403\u5934\u90e8\u96c6\u88c5\u7bb1\u8fd0\u8f93\u4e0e\u7269\u6d41\u4e00\u4f53\u5316\u4f01\u4e1a\uff09\"\n  domain: \"\u7535\u5546\u8ba2\u8231\u4e1a\u52a1\uff08\u5728\u7ebf\u8ba2\u8231\u95e8\u6237 / \u72ec\u7acb\u7535\u5546\u5e73\u53f0 / \u79fb\u52a8App\uff09\"\n  methodology: \"\u7406\u9700\u6c42 \u00b7 L1 \u4ef7\u503c\u6d41\u68b3\u7406\uff08\u4ef7\u503c\u6d41 \u2192 \u4ef7\u503c\u6bb5 \u2192 \u805a\u7126\u8303\u56f4\uff09\"\n  originalIdea: \"\u667a\u80fd\u8ba2\u8231 Agent\uff08Ask Fin \u5347\u7ea7\u4e3a\u53ef\u6267\u884c\u8ba2\u8231 Agent\uff09\"\n  insight: \"\u7535\u5546\u8ba2\u8231\u4e1a\u52a1\u6cbf\u5ba2\u6237\u751f\u547d\u5468\u671f\u6784\u6210\u4e00\u6761\u6a2a\u5411\u7aef\u5230\u7aef\u4e3b\u4ef7\u503c\u6d41\uff1a\u4ece\u5ba2\u6237\u54c1\u724c\u8ba4\u77e5\u3001\u6ce8\u518c\u4f1a\u5458\u7533\u8bf7\u7b49\u83b7\u5ba2\u6bb5\uff0c\u7ecf\u8be2\u4ef7\u62a5\u4ef7\u3001\u5728\u7ebf\u8ba2\u8231\u4e0e\u8231\u4f4d\u786e\u8ba4\u3001\u5355\u8bc1\u652f\u4ed8\u7ed3\u7b97\u3001\u5c65\u7ea6\u4ea4\u4ed8\uff0c\u5230\u589e\u503c\u670d\u52a1\u4e0e\u4f1a\u5458\u8fd0\u8425\uff0c\u6a2a\u5411\u4e32\u8054\u6210\u5b8c\u6574\u4ef7\u503c\u521b\u9020\u95ed\u73af\u3002\u4ef7\u503c\u6d41\u76f8\u5bf9\u7a33\u5b9a\uff0c\u4e0e SME \u76f4\u5ba2 / \u7b7e\u7ea6\u8d27\u4e3b\u7b49\u4ea7\u54c1\u7ebf\u6b63\u4ea4\uff0c\u540c\u4e00\u5957\u4ef7\u503c\u6d41\u5728\u5404\u4ea7\u54c1\u7ebf\u590d\u7528\uff0c\u4ec5\u7ec6\u8282\u6709\u5dee\u5f02\uff1b\u672c\u9636\u6bb5\u5148\u8bb2\u6e05\u6846\u67b6\u903b\u8f91\uff0c\u4e0d\u6309\u4ea7\u54c1\u7ebf\u62c6\u89e3\u3002\u672c\u6b21\u805a\u7126 = \u8ba2\u8231\u6210\u4ea4\u4e0e\u4f1a\u5458\u5ba2\u670d\u7b49\u667a\u80fd\u8ba2\u8231\u76f4\u63a5\u6539\u9020\u7684\u4ef7\u503c\u6bb5\uff08\u2605 \u84dd\u8272\u9ad8\u4eae\uff09\u3002\"\n  sourceRef: \"\u5ba2\u6237 Workshop \u00b7 \u4e00\u624b\u8bdd \u00b7 \u6df1\u5ea6\u7814\u7a76\u63a8\u65ad\"\n  kpi: [\"\u7535\u5546\u8ba2\u8231\u6e17\u900f\u7387\", \"\u8ba2\u8231\u786e\u8ba4\u65f6\u6548\", \"AI \u5206\u6d41\u7387\", \"eBL \u6e17\u900f\u7387\"]\n\npainTypes:\n  - { id: \"highTime\",    label: \"\u9ad8\u8017\u65f6\",   color: \"#F5A623\" }\n  - { id: \"seniority\",   label: \"\u9ad8\u7ecf\u9a8c\",   color: \"#F5C518\" }\n  - { id: \"freqError\",   label: \"\u9ad8\u9891\u9519\u8bef\", color: \"#E5484D\" }\n  - { id: \"bottleneck\",  label: \"\u7cfb\u7edf\u74f6\u9888\", color: \"#3B82F6\" }\n\nlegend:\n  focusNote: \"\u2605 \u63a8\u8350\u6838\u5fc3\u805a\u7126\u7684\u8303\u56f4\uff08\u8fde\u7eed 1~4 \u4e2a\u4ef7\u503c\u6bb5\uff09\"\n  priorityNote: \"P0 \u4f18\u5148\u7ea7\u6700\u9ad8\uff08\u5f53\u524d\u4e3a\u63a8\u6d4b\uff0c\u5f85\u5ba2\u6237\u91cf\u5316\u786e\u8ba4\uff09\"\n  clickNote: \"\ud83d\uddb1 \u53ef\u70b9\u5f00\u770b\u8be6\u60c5\"\n\nvalueStreams:\n  # \u2500\u2500 \u7535\u5546\u8ba2\u8231\u4ec5\u4e00\u6761\u4e3b\u4ef7\u503c\u6d41\uff08\u6a2a\u5411\u4e32\u8054\u4ef7\u503c\u6bb5\uff09\u2500\u2500\n  - id: VS1\n    order: 1\n    name: \"\u7535\u5546\u8ba2\u8231\u4e3b\u4ef7\u503c\u6d41\"\n    chain: \"\u5ba2\u6237\u54c1\u724c\u8ba4\u77e5\u4e0e\u89e6\u8fbe \u2192 \u5ba2\u6237\u6ce8\u518c\u4e0e\u4f1a\u5458\u7533\u8bf7 \u2192 \u8be2\u4ef7\u4e0e\u62a5\u4ef7 \u2192 \u5728\u7ebf\u8ba2\u8231\u4e0e\u8231\u4f4d\u786e\u8ba4 \u2192 \u5355\u8bc1\u4e0e\u652f\u4ed8\u7ed3\u7b97 \u2192 \u5c65\u7ea6\u4e0e\u4ea4\u4ed8 \u2192 \u589e\u503c\u670d\u52a1\u4e0e\u4f1a\u5458\u8fd0\u8425\"\n    segments:\n      - id: VS1-S1\n        order: 1\n        name: \"\u5ba2\u6237\u54c1\u724c\u8ba4\u77e5\u4e0e\u89e6\u8fbe\"\n        focus: false\n        priority: \"\"\n        painPoints: [\"bottleneck\"]\n        links: []\n        detail:\n          definition: \"\u901a\u8fc7\u5b98\u7f51/\u641c\u7d22\u5f15\u64ce/\u884c\u4e1a\u5c55\u4f1a/\u79fb\u52a8App \u66dd\u5149\uff0c\u8ba9 SME \u8d27\u4e3b\u8ba4\u77e5\u5230\u900f\u660e\u8fd0\u4ef7\u4e0e\u5e73\u53f0\u80fd\u529b\u3002\"\n          goal: \"\u63d0\u5347\u5e73\u53f0\u8ba4\u77e5\u5ea6\u4e0e\u9996\u8bbf\u8f6c\u5316\u3002\"\n          reason: \"\u4e0d\u805a\u7126\u7406\u7531\uff1a\u54c1\u724c\u89e6\u8fbe\u5c5e\u5e02\u573a\u83b7\u5ba2\u5c42\uff0c\u4e0e\u539f\u59cb idea \u65e0\u76f4\u63a5\u8f93\u5165/\u8f93\u51fa\u5173\u7cfb\u3002\"\n      - id: VS1-S2\n        order: 2\n        name: \"\u5ba2\u6237\u6ce8\u518c\u4e0e\u4f1a\u5458\u7533\u8bf7\"\n        focus: false\n        priority: \"\"\n        painPoints: [\"highTime\"]\n        links: []\n        detail:\n          definition: \"\u8d27\u4e3b\u5b8c\u6210\u4f01\u4e1a\u6ce8\u518c\u3001\u8d44\u8d28\u8ba4\u8bc1\uff08\u7ea6 3 \u4e2a\u5de5\u4f5c\u65e5\uff09\u4e0e PlumSmart \u4f1a\u5458\u7533\u8bf7\uff0c\u5efa\u7acb\u6570\u5b57\u8eab\u4efd\u3002\"\n          goal: \"\u5206\u949f\u7ea7\u81ea\u52a9\u5f00\u6237\uff0c\u964d\u4f4e\u65b0\u5ba2\u83b7\u5ba2\u95e8\u69db\u3002\"\n          reason: \"\u4e0d\u805a\u7126\u7406\u7531\uff1a\u6ce8\u518c\u83b7\u5ba2\u4e3a\u4e0a\u6e38\u524d\u7f6e\u73af\u8282\uff0c\u975e\u672c idea \u76f4\u63a5\u6539\u9020\u9762\u3002\"\n      - id: VS1-S3\n        order: 3\n        name: \"\u8be2\u4ef7\u4e0e\u62a5\u4ef7\"\n        focus: true\n        priority: \"P0\"\n        painPoints: [\"highTime\", \"bottleneck\"]\n        links: [\"\u5373\u671f / \u957f\u65f6\u6548\u62a5\u4ef7\u67e5\u8be2\", \"\u667a\u80fd\u62a5\u4ef7\u63a8\u8350\u4e0e\u9501\u4ef7\"]\n        detail:\n          definition: \"\u8d27\u4e3b\u901a\u8fc7 E-Spot\uff08\u5373\u671f\uff09\u6216 E-Quote\uff08\u957f\u65f6\u6548\uff09\u83b7\u53d6\u900f\u660e\u62a5\u4ef7\uff0c\u652f\u6301 Secured E-Quote \u9501\u4ef7\u4e0e All-in-One \u4e00\u7ad9\u5f0f\u8be2\u4ef7\u3002\"\n          goal: \"\u5b9e\u65f6\u900f\u660e\u62a5\u4ef7 + \u667a\u80fd\u6bd4\u4ef7\uff0c\u964d\u4f4e\u8be2\u4ef7\u95e8\u69db\uff0c\u63d0\u5347\u8f6c\u5316\u3002\"\n          reason: \"\u805a\u7126\u7406\u7531\uff1aAgent \u5728\u6b64\u627f\u63a5\u667a\u80fd\u62a5\u4ef7\u63a8\u8350\u3001\u9501\u4ef7\u4e0e\u8231\u4f4d\u4fdd\u8bc1\uff0c\u76f4\u63a5\u6539\u53d8\u8be2\u4ef7\u4f53\u9a8c\u3002\"\n      - id: VS1-S4\n        order: 4\n        name: \"\u5728\u7ebf\u8ba2\u8231\u4e0e\u8231\u4f4d\u786e\u8ba4\"\n        focus: true\n        priority: \"P0\"\n        painPoints: [\"freqError\", \"highTime\"]\n        links: [\"3 \u6b65\u8ba2\u8231\u8868\u5355\u63d0\u4ea4\", \"\u8231\u4f4d\u5206\u914d\u4e0e\u6536\u76ca\u6821\u9a8c\", \"Booking Confirmation \u7b7e\u53d1\u4e0e\u544a\u77e5\"]\n        detail:\n          definition: \"\u8d27\u4e3b\u4ee5\u65b0\u7248 3 \u6b65\u8ba2\u8231\u8868\u5355\u63d0\u4ea4\u8bf7\u6c42\uff0c\u7cfb\u7edf\u6821\u9a8c\u8d39\u7387/\u4fe1\u7528/\u822a\u7ebf\u540e\u5206\u914d\u8231\u4f4d\u5e76\u7b7e\u53d1\u8ba2\u8231\u786e\u8ba4\uff08\u7279\u5b9a\u6761\u6b3e\u6700\u5feb 1 \u5206\u949f\uff09\u3002\"\n          goal: \"\u5206\u949f\u7ea7\u81ea\u52a9\u8ba2\u8231 + \u5206\u949f\u7ea7\u81ea\u52a8\u786e\u8ba4\uff0c\u51cf\u5c11\u8865\u4ef6\u4e0e\u7b49\u5f85\u3002\"\n          reason: \"\u805a\u7126\u7406\u7531\uff1aAgent \u5728\u6b64\u81ea\u52a8\u9884\u586b\u3001\u6821\u9a8c\u5e76\u63d0\u4ea4\u8ba2\u8231\u8bf7\u6c42\u3001\u751f\u6210\u786e\u8ba4\uff0c\u662f\u6539\u9020\u6838\u5fc3\u3002\"\n      - id: VS1-S5\n        order: 5\n        name: \"\u5355\u8bc1\u4e0e\u652f\u4ed8\u7ed3\u7b97\"\n        focus: true\n        priority: \"P1\"\n        painPoints: [\"seniority\", \"bottleneck\"]\n        links: [\"SI \u63d0\u4ea4\u4e0e\u81ea\u52a8\u5904\u7406\", \"\u63d0\u5355\u7b7e\u53d1\uff08eBL / \u7eb8\u8d28\uff09\", \"\u652f\u4ed8\u4e0e\u5bf9\u8d26\"]\n        detail:\n          definition: \"\u8d27\u4e3b\u63d0\u4ea4\u88c5\u8fd0\u6307\u793a\uff0c\u667a\u6167\u5355\u8bc1\u81ea\u52a8\u5904\u7406\uff08\u5e74\u7ea6 35 \u4e07\u4efd\uff09\uff0c\u7ecf IQAX eBL \u51fa\u7535\u5b50\u63d0\u5355\uff0c\u5728\u7ebf\u652f\u4ed8\u8fd0\u8d39\u4e0e\u8d26\u671f\u5bf9\u8d26\u3002\"\n          goal: \"\u63d0\u5347\u5355\u8bc1\u81ea\u52a8\u5316\u5904\u7406\u7387\u4e0e eBL \u6e17\u900f\u7387\uff0c\u900f\u660e\u5316\u7ed3\u7b97\u3002\"\n          reason: \"\u805a\u7126\u7406\u7531\uff1aAgent \u5728\u6b64\u627f\u63a5\u5355\u8bc1\u8fdb\u5ea6\u67e5\u8be2\u4e0e SI \u81ea\u52a8\u6821\u9a8c\u3002\"\n      - id: VS1-S6\n        order: 6\n        name: \"\u5c65\u7ea6\u4e0e\u4ea4\u4ed8\"\n        focus: true\n        priority: \"P1\"\n        painPoints: [\"highTime\", \"bottleneck\"]\n        links: [\"\u63d0\u7bb1\u88c5\u7bb1\u4e0e\u9646\u8fd0\u6e05\u5173\", \"\u51fa\u8fd0\u8ddf\u8e2a\", \"\u5230\u6e2f\u4ea4\u4ed8\u4e0e\u653e\u8d27\"]\n        detail:\n          definition: \"\u63d0\u7bb1\u88c5\u7bb1\u3001E-Trucking/Door Haulage \u9646\u8fd0\u3001E-Customs \u6e05\u5173\uff0c\u63a7\u5236\u5854\u5168\u8ba2\u5355\u53ef\u89c6\u5316\u8ddf\u8e2a\uff0c\u5230\u6e2f eBL \u653e\u8d27\u3002\"\n          goal: \"\u5b9e\u65f6\u900f\u660e\u8ddf\u8e2a\u3001\u51cf\u5c11\u8bef\u8239\u4e0e\u6e05\u5173\u5ef6\u8bef\u3001\u65e0\u7eb8\u5316\u653e\u8d27\u3002\"\n          reason: \"\u805a\u7126\u7406\u7531\uff1aAgent \u5728\u6b64\u627f\u63a5\u51fa\u8fd0\u8ddf\u8e2a\u4e0e\u5f02\u5e38\u9884\u8b66\u95ee\u7b54\u3002\"\n      - id: VS1-S7\n        order: 7\n        name: \"\u589e\u503c\u670d\u52a1\u4e0e\u4f1a\u5458\u8fd0\u8425\"\n        focus: true\n        priority: \"P0\"\n        painPoints: [\"seniority\", \"highTime\"]\n        links: [\"\u589e\u503c\u670d\u52a1\u9009\u8d2d\", \"\u4f1a\u5458\u8ba1\u5212\u8fd0\u8425\", \"\u4fc3\u9500\u4e0e\u8425\u9500\u89e6\u8fbe\", \"\u667a\u80fd\u5ba2\u670d\u652f\u6301\", \"\u590d\u8d2d\u4e0e\u53e3\u7891\u7559\u5b58\"]\n        detail:\n          definition: \"\u5728\u8ba2\u8231\u57fa\u7840\u4e0a\u53e0\u52a0\u4e0a\u9646\u8fd0\u3001\u6e05\u5173\u3001\u7eff\u8272\u3001\u514d\u7bb1\u671f\u7b49\u589e\u503c\u670d\u52a1\uff0c\u5e76\u8fd0\u8425 PlumSmart \u4f1a\u5458\u4f53\u7cfb\u3001\u4fc3\u9500\u89e6\u8fbe\u3001\u667a\u80fd\u5ba2\u670d\u4e0e\u590d\u8d2d\u7559\u5b58\u3002\"\n          goal: \"\u63d0\u5347\u589e\u503c\u670d\u52a1\u6e17\u900f\u3001\u4f1a\u5458\u590d\u8d2d\u4e0e AI \u5206\u6d41\u7387\u3002\"\n          reason: \"\u805a\u7126\u7406\u7531\uff1aAgent \u5373 Ask Fin \u5347\u7ea7\u672c\u4f53\uff0c\u6838\u5fc3\u6539\u9020\u6b64\u4ef7\u503c\u6bb5\u7684\u667a\u80fd\u5ba2\u670d\u4e0e\u8fd0\u8425\u89e6\u8fbe\u3002\"\n"</script>
+<script>
+  function toggleSeg(el) { el.closest('.vs-seg').classList.toggle('open'); }
+  function toggleDetailAll(btn) {
+    var cards = document.querySelectorAll('.vs-seg');
+    var allOpen = cards.length && Array.prototype.every.call(cards, function(c){ return c.classList.contains('open'); });
+    cards.forEach(function(c){ allOpen ? c.classList.remove('open') : c.classList.add('open'); });
+  }
+  function copyYAML(btn) {
+    var el = document.getElementById('raw-yaml-data');
+    var text = '';
+    try { text = JSON.parse(el.textContent || ''); }
+    catch (e) { text = el.textContent || ''; }
+    var done = function(){ btn.textContent = '✅ 已复制 YAML'; setTimeout(function(){ btn.textContent = '📋 复制 YAML'; }, 1600); };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text.trim()).then(done).catch(function(){ fallback(); });
+    } else { fallback(); }
+    function fallback() {
+      var ta = document.createElement('textarea'); ta.value = text.trim();
+      document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy'); done(); } catch(e) { alert('复制失败，请手动复制'); }
+      document.body.removeChild(ta);
+    }
+  }
+</script>
+</body>
+</html>

@@ -1,4 +1,0 @@
-.env
-examples/*.html
-__pycache__/
-*.pyc

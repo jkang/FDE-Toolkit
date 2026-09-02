@@ -139,7 +139,7 @@ to-be-process-designer/
 | 关系 | Skill | 说明 |
 |------|-------|------|
 | 上游输入 | `ai-canvas-generator` / `ai-opportunity-map-generator` | 提供 AI 机会点画布定义与 AI 输入输出 |
-| 上游输入 | `business-process-deep-analyzer` | 提供现状流程（L1/L2）与痛点拆解 |
+| 上游输入 | `business-process-deep-analyzer` | 提供现状泳道图（L3/L4）与痛点 |
 | 同 Agent | `deep-task-flow-analyzer` / `business-rule-miner` / `agent-ontology-designer` / `agentic-workflow-designer` / `context-knowledge-data-analyzer` | 共同构成 `agent-arch-designer` Agent；本 Skill（泳道图）+ `deep-task-flow-analyzer`（任务拆解图）同属 SKP P1 流程骨架，`business-rule-miner` 为 P2 规则挖掘，其余输出「本体/时序/资源」三视图 |
 | 下游衔接 | `agent-ontology-designer` / `agentic-workflow-designer` | 本产物的深度任务/规则依据/执行主体，作为 Agent 本体与编排设计的骨架 |
 | 下游衔接 | `context-knowledge-data-analyzer`（CKD） | 深度任务的输入输出可作为 CKD 数据资产的锚点 |

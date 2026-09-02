@@ -12,7 +12,7 @@ meta:
   business_stage: "设计方案（SDP-Product）· 阶段1 Agent产品方案设计 · 步骤1.1~1.6"
   methodology: "SDP-Product 阶段1方法（产品定位 → 形态架构 → 故事线 → 功能清单 → Agent行为 → 规则消费门禁）"
   input_sources:                          # 引用的上游产物
-    - { stage: "理需求",  source: "<企业画像/业务现状全景/需求场景全景>", ref: "<文件名>" }
+    - { stage: "理需求",  source: "<业务主体与画像/业务现状全景/需求场景全景>", ref: "<文件名>" }
     - { stage: "场景定义", source: "<AI场景画布/数据与知识资产盘点>",      ref: "<文件名>" }
     - { stage: "挖知识",  source: "<任务流程挖掘清单/任务处理规则挖掘清单>", ref: "<文件名>" }
     - { stage: "梳理本体", source: "<Agent 本体设计>",                   ref: "<文件名>" }

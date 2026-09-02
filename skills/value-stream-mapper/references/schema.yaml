@@ -1,0 +1,81 @@
+# =============================================================================
+# value-stream-mapper · YAML 数据契约 (Schema / Source of Truth)
+# 用途：将「业务描述 + 原始 idea 需求」梳理为端到端价值链总览，
+#       结构为「价值流(横向一条) → 价值段(横向串联卡) → 业务环节(聚焦卡内 links)」，
+#       并据原始 idea 标注「聚焦范围」(★ 高亮 + 优先级 + 痛点)。
+# 本文件是「LLM 产物」与「HTML 编译器」之间的唯一契约。
+# 完整实例见 examples/ 目录；此处展示 X电商订舱·单条主价值流 代表行。
+# =============================================================================
+
+meta:
+  title: "X电商订舱 · 价值链与价值段总览"      # 主标题（页眉 H1）
+  sectionNo: "2.1"                             # 章节编号
+  version: "v1.0"
+  date: "2026-09-02"
+  business: "X（全球头部集装箱运输与物流一体化企业）"
+  domain: "电商订舱业务（在线订舱门户 / 独立电商平台 / 移动App）"
+  methodology: "理需求 · L1 价值流梳理（价值流 → 价值段 → 聚焦范围）"
+  originalIdea: "智能订舱 Agent（Ask Fin 升级为可执行订舱 Agent）"   # ★ 聚焦范围判定依据
+  insight: "电商订舱业务沿客户生命周期构成一条横向端到端主价值流：从客户品牌认知、注册会员申请等获客段，经询价报价、在线订舱与舱位确认、单证支付结算、履约交付，到增值服务与会员运营，横向串联成完整价值创造闭环。价值流相对稳定，与 SME 直客 / 签约货主等产品线正交；本次聚焦 = 订舱成交与会员客服等智能订舱直接改造的价值段（★ 蓝色高亮）。"
+  sourceRef: "客户 Workshop · 一手话 · 深度研究推断"
+  kpi: ["电商订舱渗透率", "订舱确认时效", "AI 分流率", "eBL 渗透率"]
+
+# ---- 痛点四色（与图例对应）----
+painTypes:
+  - { id: "highTime",    label: "高耗时",   color: "#F5A623" }
+  - { id: "seniority",   label: "高经验",   color: "#F5C518" }
+  - { id: "freqError",   label: "高频错误", color: "#E5484D" }
+  - { id: "bottleneck",  label: "系统瓶颈", color: "#3B82F6" }
+
+legend:
+  focusNote: "★ 推荐核心聚焦的范围（连续 1~4 个价值段）"
+  priorityNote: "P0 优先级最高（当前为推测，待客户量化确认）"
+  clickNote: "🖱 可点开看详情"
+
+# ---- 价值流（横向一条 = 一条端到端主线）----
+# 关键：一个业务（尤其单客户生命周期的服务型业务）通常只有「一条横向主价值流」，
+# 价值段沿客户旅程横向串联；不要把某个价值段误拆成独立价值流（如「增值服务与会员运营」是价值段）。
+valueStreams:
+  - id: VS1
+    order: 1
+    name: "电商订舱主价值流"
+    chain: "客户品牌认知与触达 → 客户注册与会员申请 → 询价与报价 → 在线订舱与舱位确认 → 单证与支付结算 → 履约与交付 → 增值服务与会员运营"   # 列头小字副标题
+    segments:
+
+      # 非聚焦段示例
+      - id: VS1-S1
+        order: 1
+        name: "客户品牌认知与触达"
+        focus: false
+        priority: ""
+        painPoints: ["bottleneck"]
+        links: []
+        detail:
+          definition: "通过官网/搜索引擎/行业展会曝光，让 SME 货主认知到透明运价与平台能力。"
+          goal: "提升平台认知度与首访转化。"
+          reason: "不聚焦理由：品牌触达属市场获客层，与原始 idea 无直接输入/输出关系。"
+
+      # 聚焦段示例（自动计算聚焦范围序号，也可手动覆写 focusLabel）
+      - id: VS1-S3
+        order: 3
+        name: "询价与报价"
+        focus: true
+        priority: "P0"
+        painPoints: ["highTime", "bottleneck"]
+        links: ["即期 / 长时效报价查询", "智能报价推荐与锁价"]
+        detail:
+          definition: "货主通过 E-Spot（即期）或 E-Quote（长时效）获取透明报价，支持 Secured E-Quote 锁价。"
+          goal: "实时透明报价 + 智能比价，降低询价门槛，提升转化。"
+          reason: "聚焦理由：Agent 在此承接智能报价推荐、锁价与舱位保证，直接改变询价体验。"
+
+      - id: VS1-S7
+        order: 7
+        name: "增值服务与会员运营"
+        focus: true
+        priority: "P0"
+        painPoints: ["seniority", "highTime"]
+        links: ["增值服务选购", "会员计划运营", "智能客服支持", "复购与口碑留存"]
+        detail:
+          definition: "在订舱基础上叠加陆运、清关、绿色、免箱期等增值服务，并运营 PlumSmart 会员体系、促销触达、智能客服与复购留存。"
+          goal: "提升增值服务渗透、会员复购与 AI 分流率。"
+          reason: "聚焦理由：Agent 即 Ask Fin 升级本体，核心改造此价值段的智能客服与运营触达。"
