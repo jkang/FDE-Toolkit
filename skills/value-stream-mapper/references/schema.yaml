@@ -42,14 +42,14 @@ valueStreams:
     chain: "客户品牌认知与触达 → 客户注册与会员申请 → 询价与报价 → 在线订舱与舱位确认 → 单证与支付结算 → 履约与交付 → 增值服务与会员运营"   # 列头小字副标题
     segments:
 
-      # 非聚焦段示例
+      # 非聚焦段示例（每个价值段都要列出业务环节 links）
       - id: VS1-S1
         order: 1
         name: "客户品牌认知与触达"
         focus: false
         priority: ""
         painPoints: ["bottleneck"]
-        links: []
+        links: ["平台内容与搜索触达", "行业展会 / 移动App 曝光"]
         detail:
           definition: "通过官网/搜索引擎/行业展会曝光，让 SME 货主认知到透明运价与平台能力。"
           goal: "提升平台认知度与首访转化。"

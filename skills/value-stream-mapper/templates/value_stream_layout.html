@@ -217,7 +217,7 @@
               {%- if seg.priority == 'P0' %}<span class="vs-pri p0">P0</span>{% endif %}
               {%- if seg.priority == 'P1' %}<span class="vs-pri p1">P1</span>{% endif %}
             </div>
-            {%- if seg.focus and seg.links %}
+            {%- if seg.links %}
             <div class="vs-seg-links">
               {%- for link in seg.links %}<span class="vs-link">{{ link }}</span>{% endfor %}
             </div>
