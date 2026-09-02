@@ -17,6 +17,7 @@
 ```
 
 - 这是本工具包内 AI4PM 技能库的**唯一源头（Source of Truth）**。
+- `skills/` 仅收录本工具包自有 AI4PM 技能与演练所需技能；**第三方参考技能库不入库**（如 `skills/superpowers/` 保留在本地供演练参考，已在 `.gitignore` 排除，不提交、不同步到全局）。
 - 开发规范要点：双重输出（结构化 YAML + 交互式 HTML）、输出路径与命名（公司/业务级 vs 场景级）、视觉设计（各 skill 自带 references/schema）。
 - 新增 Skill 时在此目录创建 `skill-name/SKILL.md` + `references/` + `scripts/` + `templates/` + `examples/`，并同步登记到 `skills/index.md`。
 
@@ -85,7 +86,8 @@ Command 定义：.opencode/commands/<name>.md  +  .trae/commands/<name>.md  +  .
 - **触发词必须写明边界**，避免与其他 Agent 或技能流程混淆。
 - 修改 Agent 涉及到的 Skill 名称/路径变更时，同步更新各端 Agent、各端 Command 及 `skills/` 内相关 SKILL.md 的引用。
 - 完成后检查无旧名残留（如 `prototype-designer` → `mvp-prototype` 的重命名需全库 grep 确认）。
-- `.qoder/skills/` 是 `skills/` 的 Qoder 分发副本：新增/修改 skill 时同步更新（`cp -R skills/<name> .qoder/skills/`），并检查 frontmatter `name` 合规（小写连字符、无冒号）。
+- 同步/分发约定：`.opencode/` 与 `.qoder/` 内**只维护** Agent/Command 定义（`agents/`、`commands/`），**不建** `skills/` 分发副本；技能分发一律通过「全局安装位置（`~/.config/opencode/skills/`）」单向同步（见上文第 3 节），Qoder/Trae 端需要技能时从全局位置安装，仓库内不再维护 `.qoder/skills/`、`.opencode/skills/`、`.trae/skills/` 副本。
+- 技能 frontmatter `name` 需合规（小写连字符、无冒号），跨端同步时保持一致。
 
 ---
 
