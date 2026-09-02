@@ -5,11 +5,13 @@ build_value_stream.py ── value-stream-mapper Compiler
 Usage:
     python3 scripts/build_value_stream.py <input.yaml> <output.html>
 
-设计要点：
-- 以「价值流(列) → 价值段(卡) → 业务环节(聚焦卡内 links)」为骨架，呈现端到端 L1 价值流全貌。
-- 据 meta.originalIdea 判定聚焦范围：连续聚焦段自动编号「聚焦范围 ①/②/…」，
-  并在列头展示该列命中哪几个聚焦范围。
-- 自动统计 价值流条数 / 价值段个数 / 聚焦段数 / 痛点个数（供顶部 chips）。
+设计要点（三段式）：
+- 价值流(条带) → 价值段(横向列) → 业务环节(列内竖排卡)。
+- 一个业务（如电商订舱）通常只有 1 条横向主价值流；价值段 = 横向列，
+  每个价值段内有若干业务环节（竖排卡）。
+- 据 meta.originalIdea 判定聚焦范围：以「业务环节卡」为粒度，
+  连续聚焦卡自动编号「聚焦范围 ①/②/…」，★ 徽章标在聚焦卡上。
+- 自动统计 价值流条数 / 价值段个数 / 业务环节数 / 聚焦环节数（供顶部 chips）。
 - 遵循全局开发约定：Jinja 内联样式隐患通过「类 + 安全拼接」规避；autoescape 开启。
 """
 
@@ -63,53 +65,59 @@ def circled(n: int) -> str:
 
 
 def assign_focus_labels(streams):
-    """按「连续聚焦段」为每个聚焦段生成 focusLabel，并收集各列的聚焦范围分组。
+    """按「连续聚焦的业务环节卡」为每个聚焦卡生成 focusLabel，并收集各列聚焦分组。
 
     规则：
     - 编号为**全局递增**（对应参考图 ①② 分组贯穿全链）；
-    - 同一价值流内**相邻**的聚焦段共享同一个范围编号；
-    - 跨价值流或中间**断档**（出现非聚焦段）则范围编号递增。
-    - 若段已在 YAML 里显式给出 focusLabel，则使用显式值；否则自动编号。
-    返回 focus_groups：{stream_id: [focusLabel, ...]}（供列头展示）。
+    - 按「价值流 → 价值段(列) → 业务环节(卡)」的顺序遍历所有卡；
+    - 相邻的聚焦卡共享同一个范围编号；中间**断档**（出现非聚焦卡）则范围编号递增。
+    - 若卡已在 YAML 里显式给出 focusLabel，则使用显式值；否则自动编号。
+    返回 focus_groups：{column_id: [focusLabel, ...]}（供列头展示，可选）。
     """
     group_counter = 0
     focus_groups = {}
+    prev_was_focus = False
     for stream in streams:
-        sid = str(stream.get("id", ""))
-        stream_focus_labels = []
-        prev_was_focus = False   # 每条价值流内独立判定连续性
         for seg in ensure_list(stream.get("segments")):
-            is_focus = bool(seg.get("focus"))
-            if is_focus:
-                if not prev_was_focus:
-                    group_counter += 1   # 进入新的一段连续聚焦范围
-                if seg.get("focusLabel"):
-                    label = ensure_str(seg["focusLabel"])
+            col_id = str(seg.get("id", ""))
+            col_focus_labels = []
+            col_has_any = False
+            for link in ensure_list(seg.get("links")):
+                is_focus = bool(link.get("focus"))
+                if is_focus:
+                    if not prev_was_focus:
+                        group_counter += 1   # 进入新的一段连续聚焦范围
+                    if link.get("focusLabel"):
+                        label = ensure_str(link["focusLabel"])
+                    else:
+                        label = f"聚焦范围 {circled(group_counter)}"
+                    link["focusLabel"] = label
+                    if label not in col_focus_labels:
+                        col_focus_labels.append(label)
+                    prev_was_focus = True
+                    col_has_any = True
                 else:
-                    label = f"聚焦范围 {circled(group_counter)}"
-                seg["focusLabel"] = label
-                if label not in stream_focus_labels:
-                    stream_focus_labels.append(label)
-                prev_was_focus = True
-            else:
-                prev_was_focus = False
-        focus_groups[sid] = stream_focus_labels
+                    prev_was_focus = False
+            # 仅当列内存在聚焦卡时记录（列头可展示该列命中哪些聚焦范围）
+            if col_has_any:
+                focus_groups[col_id] = col_focus_labels
     return focus_groups
 
 
 def compute_stats(streams):
     vs = len(streams)
     segs = 0
-    focus = 0
-    pain = 0
+    links = 0
+    focus_links = 0
     for s in streams:
         for seg in ensure_list(s.get("segments")):
             segs += 1
-            if seg.get("focus"):
-                focus += 1
-            pain += len(ensure_list(seg.get("painPoints")))
+            for link in ensure_list(seg.get("links")):
+                links += 1
+                if link.get("focus"):
+                    focus_links += 1
     return {"valueStreams": vs, "valueSegments": segs,
-            "focusSegments": focus, "painPoints": pain}
+            "businessLinks": links, "focusLinks": focus_links}
 
 
 # --------------------------------------------------------------------------- #
@@ -135,25 +143,25 @@ def main():
 
     meta = data.get("meta") or {}
     legend = data.get("legend") or {}
-    pain_types = ensure_list(data.get("painTypes")) or [
-        {"id": "highTime",    "label": "高耗时",   "color": "#F5A623"},
-        {"id": "seniority",   "label": "高经验",   "color": "#F5C518"},
-        {"id": "freqError",   "label": "高频错误", "color": "#E5484D"},
-        {"id": "bottleneck",  "label": "系统瓶颈", "color": "#3B82F6"},
-    ]
 
-    # ---- 价值流（列）与价值段（卡）排序 ---- #
+    # ---- 价值流(条带) → 价值段(列) → 业务环节(卡) 排序 ---- #
     streams = ensure_list(data.get("valueStreams"))
     for s in streams:
         segs = ensure_list(s.get("segments"))
+        for seg in segs:
+            links = ensure_list(seg.get("links"))
+            links.sort(key=lambda x: int(x.get("order", 0)))
+            seg["links"] = links
         segs.sort(key=lambda x: int(x.get("order", 0)))
         s["segments"] = segs
     streams.sort(key=lambda x: int(x.get("order", 0)))
 
-    # ---- 聚焦范围编号 & 各列聚焦分组 ---- #
+    # ---- 聚焦范围编号（业务环节卡粒度，连续编号） & 各列聚焦分组 ---- #
     focus_groups = assign_focus_labels(streams)
     for s in streams:
-        s["focusGroups"] = focus_groups.get(str(s.get("id", "")), [])
+        for seg in ensure_list(s.get("segments")):
+            col_id = str(seg.get("id", ""))
+            seg["focusGroups"] = focus_groups.get(col_id, [])
 
     stats = compute_stats(streams)
 
@@ -166,7 +174,6 @@ def main():
 
     html = template.render(
         meta=meta,
-        painTypes=pain_types,
         legend=legend,
         valueStreams=streams,
         stats=stats,
@@ -179,7 +186,7 @@ def main():
 
     print(f"✅ 价值链与价值段总览 generated → {output_html}")
     print(f"   价值流 {stats['valueStreams']} 条 · 价值段 {stats['valueSegments']} 个 · "
-          f"聚焦 {stats['focusSegments']} 段 · 痛点 {stats['painPoints']} 个")
+          f"业务环节 {stats['businessLinks']} 个 · 聚焦环节 {stats['focusLinks']} 个")
 
 
 if __name__ == "__main__":

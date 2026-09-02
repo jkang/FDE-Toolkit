@@ -16,8 +16,8 @@
     --ink: #1E2A3B;
     --muted: #6B7686;
     --soft: #98A2B0;
-    --focus-border: #5DB2E2;
-    --focus-bg: #F2F9FE;
+    --focus-border: #3B82F6;      /* 聚焦卡蓝描边（参考图） */
+    --focus-bg: #F5F9FE;
     --insight-bg: #EAF3FB;
     --insight-line: #C7DDF2;
     --radius: 14px;
@@ -32,7 +32,7 @@
     font-size: 13px;
     line-height: 1.55;
   }
-  .vs-page { max-width: 1360px; margin: 0 auto; padding: 22px 26px 40px; width: 100%; }
+  .vs-page { max-width: 1400px; margin: 0 auto; padding: 22px 26px 40px; width: 100%; }
 
   /* ---------- 章节标题 ---------- */
   .vs-title-wrap { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
@@ -63,79 +63,86 @@
   .vs-chip.star { border-color: var(--sky); color: var(--sky); background: var(--focus-bg); }
   .vs-chip.star b { color: var(--sky); }
 
-  /* ---------- 价值流（一条横向串联 = 一个 band/行）---------- */
-  .vs-streams { display: flex; flex-direction: column; gap: 18px; margin-top: 20px; }
+  /* ---------- 价值流列（参考图：一条价值流 = 一列，价值段竖向堆叠） ---------- */
+  .vs-streams {
+    display: flex; align-items: flex-start; gap: 6px;
+    margin-top: 20px; overflow-x: auto; padding-bottom: 6px;
+  }
+  .vs-stream-arrow { align-self: center; color: #AEB6C2; font-size: 17px; font-weight: 700; flex-shrink: 0; padding: 0 4px; }
 
   .vs-stream {
     background: var(--card);
     border: 1px solid var(--line);
     border-radius: var(--radius);
+    min-width: 250px; flex: 1 1 0;
+    display: flex; flex-direction: column;
     overflow: hidden;
   }
   .vs-stream-head {
-    padding: 14px 18px;
+    padding: 14px 16px;
     border-bottom: 1px solid var(--line-soft);
     background: #FBFCFD;
-    display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; flex-wrap: wrap;
+    display: flex; flex-direction: column; gap: 9px;
   }
-  .vs-stream-head .sh-left { display: flex; flex-direction: column; gap: 8px; }
-  .vs-stream-head .sh-title { display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 700; color: var(--navy); }
+  .vs-stream-head .sh-title { display: flex; align-items: center; gap: 9px; font-size: 15px; font-weight: 700; color: var(--navy); }
   .vs-stream-head .sh-num {
-    width: 22px; height: 22px; border: 1.5px solid var(--navy); color: var(--navy);
+    width: 23px; height: 23px; border: 1.5px solid var(--navy); color: var(--navy);
     border-radius: 50%; font-size: 12px; font-weight: 700;
     display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;
   }
-  .vs-stream-head .sh-chain { font-size: 12px; color: var(--soft); line-height: 1.5; }
-  .vs-stream-head .sh-focus-tags { display: flex; gap: 6px; flex-wrap: wrap; flex-shrink: 0; }
+  .vs-stream-head .sh-chain { font-size: 11.5px; color: var(--soft); line-height: 1.5; }
+  .vs-stream-head .sh-focus-tags { display: flex; gap: 6px; flex-wrap: wrap; }
   .vs-focus-tag {
-    font-size: 11.5px; color: var(--sky); background: var(--focus-bg);
-    border: 1px solid var(--focus-border); border-radius: 999px; padding: 2px 9px; font-weight: 700; white-space: nowrap;
+    font-size: 11.5px; color: #2A6A8C; background: #EFF6FE;
+    border: 1px solid #BFDCF0; border-radius: 999px; padding: 2px 9px; font-weight: 700; white-space: nowrap;
   }
 
-  /* 横向串联的价值段 */
-  .vs-blocks {
-    display: flex; align-items: stretch; gap: 0;
-    overflow-x: auto; padding: 16px 18px 20px;
-    scrollbar-width: thin;
-  }
+  /* 列内价值段竖向堆叠 */
+  .vs-segs { padding: 10px 12px; display: flex; flex-direction: column; }
+  .vs-seg-arrow-j { text-align: center; color: #BEC6D2; font-size: 14px; font-weight: 700; padding: 3px 0; }
+
   .vs-seg {
-    flex: 0 0 240px;
-    border: 1px solid var(--line);
+    border: 1px solid #DBE4F0;
     border-radius: var(--radius-s);
-    padding: 10px 11px;
+    padding: 11px 12px;
     background: var(--card);
     position: relative;
+    text-align: left;
     display: flex; flex-direction: column;
   }
-  .vs-seg.focused { border: 1.5px solid var(--focus-border); background: var(--focus-bg); }
-  .vs-seg-topline { display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-bottom: 6px; }
+  .vs-seg.focused {
+    border: 2px solid var(--focus-border);
+    background: var(--focus-bg);
+  }
+  .vs-seg-topline { display: flex; flex-direction: column; gap: 7px; }
   .vs-seg-focusbadge {
-    font-size: 11px; font-weight: 700; color: var(--sky); background: #FFFFFF;
-    border: 1px solid var(--focus-border); border-radius: 999px; padding: 1px 8px; white-space: nowrap;
+    font-size: 11px; font-weight: 700; color: #1D4ED8; background: #EFF6FE;
+    border: 1px solid #BFDCF0; border-radius: 999px; padding: 1px 9px; white-space: nowrap; align-self: flex-start;
   }
   .vs-seg-name { font-size: 13.5px; font-weight: 600; color: var(--navy); line-height: 1.4; }
-  .vs-seg-actions { display: flex; align-items: center; gap: 4px; margin-top: 7px; flex-wrap: wrap; min-height: 16px; }
+
+  .vs-seg-actions { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
   .vs-pain { width: 11px; height: 11px; border-radius: 50%; display: inline-block; box-shadow: 0 0 0 1px rgba(0,0,0,.08); }
+  .vs-pain-txt { font-size: 10.5px; color: var(--muted); }
   .vs-pri { font-size: 10.5px; font-weight: 700; border-radius: 4px; padding: 1px 6px; color: #fff; line-height: 1.5; }
   .vs-pri.p0 { background: #E4703A; }
   .vs-pri.p1 { background: #5DA8D8; }
 
-  .vs-seg-links { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 7px; }
-  .vs-link { font-size: 11px; color: #2A6A8C; background: #FFFFFF; border: 1px solid #BFDCF0; border-radius: 999px; padding: 1px 8px; white-space: nowrap; }
+  /* 业务环节（每张价值段卡下可见胶囊） */
+  .vs-seg-links { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px; }
+  .vs-link { font-size: 11px; color: #2A6A8C; background: #FFFFFF; border: 1px solid #CADFEF; border-radius: 6px; padding: 2px 7px; white-space: nowrap; }
 
-  .vs-seg-detail { margin-top: 7px; border-top: 1px dashed var(--line); padding-top: 4px; }
-  .vs-seg-toggle { display: inline-flex; align-items: center; gap: 4px; font-size: 11.5px; color: var(--soft); cursor: pointer; user-select: none; }
+  /* 可折叠：定义 / 目标 / 理由 */
+  .vs-seg-detail { margin-top: 9px; border-top: 1px dashed var(--line); padding-top: 6px; }
+  .vs-seg-toggle { display: inline-flex; align-items: center; gap: 5px; font-size: 11.5px; color: var(--soft); cursor: pointer; user-select: none; }
   .vs-seg-toggle::before { content: "▸"; transition: transform .15s ease; font-size: 9px; color: #AEB6C2; }
   .vs-seg.open .vs-seg-toggle::before { transform: rotate(90deg); }
-  .vs-seg-body { display: none; margin-top: 7px; }
+  .vs-seg-body { display: none; margin-top: 8px; }
   .vs-seg.open .vs-seg-body { display: block; }
   .vs-field { margin-top: 5px; font-size: 12px; color: var(--muted); }
   .vs-field .vf-label { font-weight: 600; color: #46586F; }
   .vs-field.reason .vf-val { color: #8B5E5E; }
   .vs-field.f-reason .vf-val { color: var(--green); }
-
-  /* band 内箭头（value stream 内部段间）*/
-  .vs-seg-arrow { align-self: center; color: #AEB6C2; font-size: 16px; font-weight: 700; flex-shrink: 0; padding: 0 4px; }
 
   /* ---------- 底部图例 ---------- */
   .vs-legend {
@@ -146,13 +153,13 @@
   .vs-legend .lg-title { font-weight: 700; color: var(--navy); }
   .vs-legend .lg-item { display: inline-flex; align-items: center; gap: 6px; }
   .vs-legend .lg-dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
-  .vs-legend .lg-star { color: var(--sky); font-weight: 700; }
+  .vs-legend .lg-star { color: #1D4ED8; font-weight: 700; }
   .vs-legend .lg-p0 { color: #E4703A; font-weight: 700; }
 
   @media (max-width: 720px) {
-    .vs-blocks { flex-direction: column; }
-    .vs-seg-arrow { transform: rotate(90deg); }
-    .vs-seg { flex: 1 1 auto; }
+    .vs-streams { flex-direction: column; }
+    .vs-stream-arrow { transform: rotate(90deg); }
+    .vs-stream { min-width: 0; }
   }
 </style>
 </head>
@@ -181,143 +188,155 @@
     <span class="vs-chip">痛点 <b>12</b> 个（推断）</span><span class="vs-chip">客户 Workshop · 一手话 · 深度研究推断</span>
   </div>
 
-  <!-- 价值流（横向串联） -->
+  <!-- 价值流（列式） -->
   <div class="vs-streams">
-    <div class="vs-stream">
-      <div class="vs-stream-head">
-        <div class="sh-left">
+      <div class="vs-stream">
+        <div class="vs-stream-head">
           <div class="sh-title"><span class="sh-num">1</span><span>电商订舱主价值流</span></div><div class="sh-chain">客户品牌认知与触达 → 客户注册与会员申请 → 询价与报价 → 在线订舱与舱位确认 → 单证与支付结算 → 履约与交付 → 增值服务与会员运营</div>
-        </div>
-        <div class="sh-focus-tags"><span class="vs-focus-tag">★ 聚焦范围 ①</span>
-        </div>
-      </div>
-      <div class="vs-blocks">
-          <div class="vs-seg ">
-            <div class="vs-seg-name">客户品牌认知与触达</div>
-            <div class="vs-seg-actions">
-                <span class="vs-pain" title="系统瓶颈" style="background: #3B82F6"></span>
-            </div>
-            <div class="vs-seg-links"><span class="vs-link">平台内容与搜索触达</span><span class="vs-link">行业展会 / 移动App 曝光</span><span class="vs-link">促销闪购拉新</span>
-            </div>
-            <div class="vs-seg-detail">
-              <span class="vs-seg-toggle" onclick="toggleSeg(this)">定义 / 目标 / 不聚焦理由</span>
-              <div class="vs-seg-body"><div class="vs-field"><span class="vf-label">定义：</span><span class="vf-val">通过官网/搜索引擎/行业展会/移动App 曝光，让 SME 货主认知到透明运价与平台能力。</span></div><div class="vs-field"><span class="vf-label">目标：</span><span class="vf-val">提升平台认知度与首访转化。</span></div>
-                <div class="vs-field reason">
-                  <span class="vf-label">不聚焦理由：</span>
-                  <span class="vf-val">不聚焦理由：品牌触达属市场获客层，与原始 idea 无直接输入/输出关系。</span>
-                </div>
-              </div>
-            </div>
-          </div><div class="vs-seg-arrow">→</div>
-          <div class="vs-seg ">
-            <div class="vs-seg-name">客户注册与会员申请</div>
-            <div class="vs-seg-actions">
-                <span class="vs-pain" title="高耗时" style="background: #F5A623"></span>
-            </div>
-            <div class="vs-seg-links"><span class="vs-link">企业注册与资料填报</span><span class="vs-link">资质认证与账号开通</span><span class="vs-link">PlumSmart 会员申请</span>
-            </div>
-            <div class="vs-seg-detail">
-              <span class="vs-seg-toggle" onclick="toggleSeg(this)">定义 / 目标 / 不聚焦理由</span>
-              <div class="vs-seg-body"><div class="vs-field"><span class="vf-label">定义：</span><span class="vf-val">货主完成企业注册、资质认证（约 3 个工作日）与 PlumSmart 会员申请，建立数字身份。</span></div><div class="vs-field"><span class="vf-label">目标：</span><span class="vf-val">分钟级自助开户，降低新客获客门槛。</span></div>
-                <div class="vs-field reason">
-                  <span class="vf-label">不聚焦理由：</span>
-                  <span class="vf-val">不聚焦理由：注册获客为上游前置环节，非本 idea 直接改造面。</span>
-                </div>
-              </div>
-            </div>
-          </div><div class="vs-seg-arrow">→</div>
-          <div class="vs-seg focused"><span class="vs-seg-focusbadge">★ 聚焦范围 ①</span>
-            <div class="vs-seg-name">询价与报价</div>
-            <div class="vs-seg-actions">
-                <span class="vs-pain" title="高耗时" style="background: #F5A623"></span>
-                <span class="vs-pain" title="系统瓶颈" style="background: #3B82F6"></span><span class="vs-pri p0">P0</span>
-            </div>
-            <div class="vs-seg-links"><span class="vs-link">即期 / 长时效报价查询</span><span class="vs-link">智能报价推荐与锁价</span>
-            </div>
-            <div class="vs-seg-detail">
-              <span class="vs-seg-toggle" onclick="toggleSeg(this)">定义 / 目标 / 聚焦理由</span>
-              <div class="vs-seg-body"><div class="vs-field"><span class="vf-label">定义：</span><span class="vf-val">货主通过 E-Spot（即期）或 E-Quote（长时效）获取透明报价，支持 Secured E-Quote 锁价与 All-in-One 一站式询价。</span></div><div class="vs-field"><span class="vf-label">目标：</span><span class="vf-val">实时透明报价 + 智能比价，降低询价门槛，提升转化。</span></div>
-                <div class="vs-field f-reason">
-                  <span class="vf-label">聚焦理由：</span>
-                  <span class="vf-val">聚焦理由：Agent 在此承接智能报价推荐、锁价与舱位保证，直接改变询价体验。</span>
-                </div>
-              </div>
-            </div>
-          </div><div class="vs-seg-arrow">→</div>
-          <div class="vs-seg focused"><span class="vs-seg-focusbadge">★ 聚焦范围 ①</span>
-            <div class="vs-seg-name">在线订舱与舱位确认</div>
-            <div class="vs-seg-actions">
-                <span class="vs-pain" title="高频错误" style="background: #E5484D"></span>
-                <span class="vs-pain" title="高耗时" style="background: #F5A623"></span><span class="vs-pri p0">P0</span>
-            </div>
-            <div class="vs-seg-links"><span class="vs-link">3 步订舱表单提交</span><span class="vs-link">舱位分配与收益校验</span><span class="vs-link">Booking Confirmation 签发与告知</span>
-            </div>
-            <div class="vs-seg-detail">
-              <span class="vs-seg-toggle" onclick="toggleSeg(this)">定义 / 目标 / 聚焦理由</span>
-              <div class="vs-seg-body"><div class="vs-field"><span class="vf-label">定义：</span><span class="vf-val">货主以新版 3 步订舱表单提交请求，系统校验费率/信用/航线后分配舱位并签发订舱确认（特定条款最快 1 分钟）。</span></div><div class="vs-field"><span class="vf-label">目标：</span><span class="vf-val">分钟级自助订舱 + 分钟级自动确认，减少补件与等待。</span></div>
-                <div class="vs-field f-reason">
-                  <span class="vf-label">聚焦理由：</span>
-                  <span class="vf-val">聚焦理由：Agent 在此自动预填、校验并提交订舱请求、生成确认，是改造核心。</span>
-                </div>
-              </div>
-            </div>
-          </div><div class="vs-seg-arrow">→</div>
-          <div class="vs-seg focused"><span class="vs-seg-focusbadge">★ 聚焦范围 ①</span>
-            <div class="vs-seg-name">单证与支付结算</div>
-            <div class="vs-seg-actions">
-                <span class="vs-pain" title="高经验" style="background: #F5C518"></span>
-                <span class="vs-pain" title="系统瓶颈" style="background: #3B82F6"></span><span class="vs-pri p1">P1</span>
-            </div>
-            <div class="vs-seg-links"><span class="vs-link">SI 提交与自动处理</span><span class="vs-link">提单签发（eBL / 纸质）</span><span class="vs-link">支付与对账</span>
-            </div>
-            <div class="vs-seg-detail">
-              <span class="vs-seg-toggle" onclick="toggleSeg(this)">定义 / 目标 / 聚焦理由</span>
-              <div class="vs-seg-body"><div class="vs-field"><span class="vf-label">定义：</span><span class="vf-val">货主提交装运指示，智慧单证自动处理（年约 35 万份），经 IQAX eBL 出电子提单，在线支付运费与账期对账。</span></div><div class="vs-field"><span class="vf-label">目标：</span><span class="vf-val">提升单证自动化处理率与 eBL 渗透率，透明化结算。</span></div>
-                <div class="vs-field f-reason">
-                  <span class="vf-label">聚焦理由：</span>
-                  <span class="vf-val">聚焦理由：Agent 在此承接单证进度查询与 SI 自动校验。</span>
-                </div>
-              </div>
-            </div>
-          </div><div class="vs-seg-arrow">→</div>
-          <div class="vs-seg focused"><span class="vs-seg-focusbadge">★ 聚焦范围 ①</span>
-            <div class="vs-seg-name">履约与交付</div>
-            <div class="vs-seg-actions">
-                <span class="vs-pain" title="高耗时" style="background: #F5A623"></span>
-                <span class="vs-pain" title="系统瓶颈" style="background: #3B82F6"></span><span class="vs-pri p1">P1</span>
-            </div>
-            <div class="vs-seg-links"><span class="vs-link">提箱装箱与陆运清关</span><span class="vs-link">出运跟踪</span><span class="vs-link">到港交付与放货</span>
-            </div>
-            <div class="vs-seg-detail">
-              <span class="vs-seg-toggle" onclick="toggleSeg(this)">定义 / 目标 / 聚焦理由</span>
-              <div class="vs-seg-body"><div class="vs-field"><span class="vf-label">定义：</span><span class="vf-val">提箱装箱、E-Trucking/Door Haulage 陆运、E-Customs 清关，控制塔全订单可视化跟踪，到港 eBL 放货。</span></div><div class="vs-field"><span class="vf-label">目标：</span><span class="vf-val">实时透明跟踪、减少误船与清关延误、无纸化放货。</span></div>
-                <div class="vs-field f-reason">
-                  <span class="vf-label">聚焦理由：</span>
-                  <span class="vf-val">聚焦理由：Agent 在此承接出运跟踪与异常预警问答。</span>
-                </div>
-              </div>
-            </div>
-          </div><div class="vs-seg-arrow">→</div>
-          <div class="vs-seg focused"><span class="vs-seg-focusbadge">★ 聚焦范围 ①</span>
-            <div class="vs-seg-name">增值服务与会员运营</div>
-            <div class="vs-seg-actions">
-                <span class="vs-pain" title="高经验" style="background: #F5C518"></span>
-                <span class="vs-pain" title="高耗时" style="background: #F5A623"></span><span class="vs-pri p0">P0</span>
-            </div>
-            <div class="vs-seg-links"><span class="vs-link">增值服务选购</span><span class="vs-link">会员计划运营</span><span class="vs-link">促销与营销触达</span><span class="vs-link">智能客服支持</span><span class="vs-link">复购与口碑留存</span>
-            </div>
-            <div class="vs-seg-detail">
-              <span class="vs-seg-toggle" onclick="toggleSeg(this)">定义 / 目标 / 聚焦理由</span>
-              <div class="vs-seg-body"><div class="vs-field"><span class="vf-label">定义：</span><span class="vf-val">在订舱基础上叠加上陆运、清关、绿色、免箱期等增值服务，并运营 PlumSmart 会员体系、促销触达、智能客服与复购留存。</span></div><div class="vs-field"><span class="vf-label">目标：</span><span class="vf-val">提升增值服务渗透、会员复购与 AI 分流率。</span></div>
-                <div class="vs-field f-reason">
-                  <span class="vf-label">聚焦理由：</span>
-                  <span class="vf-val">聚焦理由：Agent 即 Ask Fin 升级本体，核心改造此价值段的智能客服与运营触达。</span>
-                </div>
-              </div>
-            </div>
+          <div class="sh-focus-tags"><span class="vs-focus-tag">★ 聚焦范围 ①</span>
           </div>
+        </div>
+        <div class="vs-segs">
+            <div class="vs-seg ">
+              <div class="vs-seg-topline">
+                <div class="vs-seg-name">客户品牌认知与触达</div>
+                <div class="vs-seg-actions">
+                    <span class="vs-pain" title="系统瓶颈" style="background: #3B82F6"></span><span class="vs-pain-txt">×1</span>
+                </div>
+              </div>
+              <div class="vs-seg-links"><span class="vs-link">平台内容与搜索触达</span><span class="vs-link">行业展会 / 移动App 曝光</span><span class="vs-link">促销闪购拉新</span>
+              </div>
+              <div class="vs-seg-detail">
+                <span class="vs-seg-toggle" onclick="toggleSeg(this)">定义 / 目标 / 不聚焦理由</span>
+                <div class="vs-seg-body"><div class="vs-field"><span class="vf-label">定义：</span><span class="vf-val">通过官网/搜索引擎/行业展会/移动App 曝光，让 SME 货主认知到透明运价与平台能力。</span></div><div class="vs-field"><span class="vf-label">目标：</span><span class="vf-val">提升平台认知度与首访转化。</span></div>
+                  <div class="vs-field reason">
+                    <span class="vf-label">不聚焦理由：</span>
+                    <span class="vf-val">不聚焦理由：品牌触达属市场获客层，与原始 idea 无直接输入/输出关系。</span>
+                  </div>
+                </div>
+              </div>
+            </div><div class="vs-seg-arrow-j">↓</div>
+            <div class="vs-seg ">
+              <div class="vs-seg-topline">
+                <div class="vs-seg-name">客户注册与会员申请</div>
+                <div class="vs-seg-actions">
+                    <span class="vs-pain" title="高耗时" style="background: #F5A623"></span><span class="vs-pain-txt">×1</span>
+                </div>
+              </div>
+              <div class="vs-seg-links"><span class="vs-link">企业注册与资料填报</span><span class="vs-link">资质认证与账号开通</span><span class="vs-link">PlumSmart 会员申请</span>
+              </div>
+              <div class="vs-seg-detail">
+                <span class="vs-seg-toggle" onclick="toggleSeg(this)">定义 / 目标 / 不聚焦理由</span>
+                <div class="vs-seg-body"><div class="vs-field"><span class="vf-label">定义：</span><span class="vf-val">货主完成企业注册、资质认证（约 3 个工作日）与 PlumSmart 会员申请，建立数字身份。</span></div><div class="vs-field"><span class="vf-label">目标：</span><span class="vf-val">分钟级自助开户，降低新客获客门槛。</span></div>
+                  <div class="vs-field reason">
+                    <span class="vf-label">不聚焦理由：</span>
+                    <span class="vf-val">不聚焦理由：注册获客为上游前置环节，非本 idea 直接改造面。</span>
+                  </div>
+                </div>
+              </div>
+            </div><div class="vs-seg-arrow-j">↓</div>
+            <div class="vs-seg focused">
+              <div class="vs-seg-topline"><span class="vs-seg-focusbadge">★ 聚焦范围 ①</span>
+                <div class="vs-seg-name">询价与报价</div>
+                <div class="vs-seg-actions">
+                    <span class="vs-pain" title="高耗时" style="background: #F5A623"></span>
+                    <span class="vs-pain" title="系统瓶颈" style="background: #3B82F6"></span><span class="vs-pain-txt">×2</span><span class="vs-pri p0">P0</span>
+                </div>
+              </div>
+              <div class="vs-seg-links"><span class="vs-link">即期 / 长时效报价查询</span><span class="vs-link">智能报价推荐与锁价</span>
+              </div>
+              <div class="vs-seg-detail">
+                <span class="vs-seg-toggle" onclick="toggleSeg(this)">定义 / 目标 / 聚焦理由</span>
+                <div class="vs-seg-body"><div class="vs-field"><span class="vf-label">定义：</span><span class="vf-val">货主通过 E-Spot（即期）或 E-Quote（长时效）获取透明报价，支持 Secured E-Quote 锁价与 All-in-One 一站式询价。</span></div><div class="vs-field"><span class="vf-label">目标：</span><span class="vf-val">实时透明报价 + 智能比价，降低询价门槛，提升转化。</span></div>
+                  <div class="vs-field f-reason">
+                    <span class="vf-label">聚焦理由：</span>
+                    <span class="vf-val">聚焦理由：Agent 在此承接智能报价推荐、锁价与舱位保证，直接改变询价体验。</span>
+                  </div>
+                </div>
+              </div>
+            </div><div class="vs-seg-arrow-j">↓</div>
+            <div class="vs-seg focused">
+              <div class="vs-seg-topline"><span class="vs-seg-focusbadge">★ 聚焦范围 ①</span>
+                <div class="vs-seg-name">在线订舱与舱位确认</div>
+                <div class="vs-seg-actions">
+                    <span class="vs-pain" title="高频错误" style="background: #E5484D"></span>
+                    <span class="vs-pain" title="高耗时" style="background: #F5A623"></span><span class="vs-pain-txt">×2</span><span class="vs-pri p0">P0</span>
+                </div>
+              </div>
+              <div class="vs-seg-links"><span class="vs-link">3 步订舱表单提交</span><span class="vs-link">舱位分配与收益校验</span><span class="vs-link">Booking Confirmation 签发与告知</span>
+              </div>
+              <div class="vs-seg-detail">
+                <span class="vs-seg-toggle" onclick="toggleSeg(this)">定义 / 目标 / 聚焦理由</span>
+                <div class="vs-seg-body"><div class="vs-field"><span class="vf-label">定义：</span><span class="vf-val">货主以新版 3 步订舱表单提交请求，系统校验费率/信用/航线后分配舱位并签发订舱确认（特定条款最快 1 分钟）。</span></div><div class="vs-field"><span class="vf-label">目标：</span><span class="vf-val">分钟级自助订舱 + 分钟级自动确认，减少补件与等待。</span></div>
+                  <div class="vs-field f-reason">
+                    <span class="vf-label">聚焦理由：</span>
+                    <span class="vf-val">聚焦理由：Agent 在此自动预填、校验并提交订舱请求、生成确认，是改造核心。</span>
+                  </div>
+                </div>
+              </div>
+            </div><div class="vs-seg-arrow-j">↓</div>
+            <div class="vs-seg focused">
+              <div class="vs-seg-topline"><span class="vs-seg-focusbadge">★ 聚焦范围 ①</span>
+                <div class="vs-seg-name">单证与支付结算</div>
+                <div class="vs-seg-actions">
+                    <span class="vs-pain" title="高经验" style="background: #F5C518"></span>
+                    <span class="vs-pain" title="系统瓶颈" style="background: #3B82F6"></span><span class="vs-pain-txt">×2</span><span class="vs-pri p1">P1</span>
+                </div>
+              </div>
+              <div class="vs-seg-links"><span class="vs-link">SI 提交与自动处理</span><span class="vs-link">提单签发（eBL / 纸质）</span><span class="vs-link">支付与对账</span>
+              </div>
+              <div class="vs-seg-detail">
+                <span class="vs-seg-toggle" onclick="toggleSeg(this)">定义 / 目标 / 聚焦理由</span>
+                <div class="vs-seg-body"><div class="vs-field"><span class="vf-label">定义：</span><span class="vf-val">货主提交装运指示，智慧单证自动处理（年约 35 万份），经 IQAX eBL 出电子提单，在线支付运费与账期对账。</span></div><div class="vs-field"><span class="vf-label">目标：</span><span class="vf-val">提升单证自动化处理率与 eBL 渗透率，透明化结算。</span></div>
+                  <div class="vs-field f-reason">
+                    <span class="vf-label">聚焦理由：</span>
+                    <span class="vf-val">聚焦理由：Agent 在此承接单证进度查询与 SI 自动校验。</span>
+                  </div>
+                </div>
+              </div>
+            </div><div class="vs-seg-arrow-j">↓</div>
+            <div class="vs-seg focused">
+              <div class="vs-seg-topline"><span class="vs-seg-focusbadge">★ 聚焦范围 ①</span>
+                <div class="vs-seg-name">履约与交付</div>
+                <div class="vs-seg-actions">
+                    <span class="vs-pain" title="高耗时" style="background: #F5A623"></span>
+                    <span class="vs-pain" title="系统瓶颈" style="background: #3B82F6"></span><span class="vs-pain-txt">×2</span><span class="vs-pri p1">P1</span>
+                </div>
+              </div>
+              <div class="vs-seg-links"><span class="vs-link">提箱装箱与陆运清关</span><span class="vs-link">出运跟踪</span><span class="vs-link">到港交付与放货</span>
+              </div>
+              <div class="vs-seg-detail">
+                <span class="vs-seg-toggle" onclick="toggleSeg(this)">定义 / 目标 / 聚焦理由</span>
+                <div class="vs-seg-body"><div class="vs-field"><span class="vf-label">定义：</span><span class="vf-val">提箱装箱、E-Trucking/Door Haulage 陆运、E-Customs 清关，控制塔全订单可视化跟踪，到港 eBL 放货。</span></div><div class="vs-field"><span class="vf-label">目标：</span><span class="vf-val">实时透明跟踪、减少误船与清关延误、无纸化放货。</span></div>
+                  <div class="vs-field f-reason">
+                    <span class="vf-label">聚焦理由：</span>
+                    <span class="vf-val">聚焦理由：Agent 在此承接出运跟踪与异常预警问答。</span>
+                  </div>
+                </div>
+              </div>
+            </div><div class="vs-seg-arrow-j">↓</div>
+            <div class="vs-seg focused">
+              <div class="vs-seg-topline"><span class="vs-seg-focusbadge">★ 聚焦范围 ①</span>
+                <div class="vs-seg-name">增值服务与会员运营</div>
+                <div class="vs-seg-actions">
+                    <span class="vs-pain" title="高经验" style="background: #F5C518"></span>
+                    <span class="vs-pain" title="高耗时" style="background: #F5A623"></span><span class="vs-pain-txt">×2</span><span class="vs-pri p0">P0</span>
+                </div>
+              </div>
+              <div class="vs-seg-links"><span class="vs-link">增值服务选购</span><span class="vs-link">会员计划运营</span><span class="vs-link">促销与营销触达</span><span class="vs-link">智能客服支持</span><span class="vs-link">复购与口碑留存</span>
+              </div>
+              <div class="vs-seg-detail">
+                <span class="vs-seg-toggle" onclick="toggleSeg(this)">定义 / 目标 / 聚焦理由</span>
+                <div class="vs-seg-body"><div class="vs-field"><span class="vf-label">定义：</span><span class="vf-val">在订舱基础上叠加上陆运、清关、绿色、免箱期等增值服务，并运营 PlumSmart 会员体系、促销触达、智能客服与复购留存。</span></div><div class="vs-field"><span class="vf-label">目标：</span><span class="vf-val">提升增值服务渗透、会员复购与 AI 分流率。</span></div>
+                  <div class="vs-field f-reason">
+                    <span class="vf-label">聚焦理由：</span>
+                    <span class="vf-val">聚焦理由：Agent 即 Ask Fin 升级本体，核心改造此价值段的智能客服与运营触达。</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+        </div>
       </div>
-    </div>
   </div>
 
   <!-- 底部图例 -->

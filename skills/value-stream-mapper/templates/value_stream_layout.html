@@ -16,8 +16,8 @@
     --ink: #1E2A3B;
     --muted: #6B7686;
     --soft: #98A2B0;
-    --focus-border: #5DB2E2;
-    --focus-bg: #F2F9FE;
+    --focus-border: #3B82F6;      /* 聚焦卡蓝描边（参考图） */
+    --focus-bg: #F5F9FE;
     --insight-bg: #EAF3FB;
     --insight-line: #C7DDF2;
     --radius: 14px;
@@ -32,7 +32,7 @@
     font-size: 13px;
     line-height: 1.55;
   }
-  .vs-page { max-width: 1360px; margin: 0 auto; padding: 22px 26px 40px; width: 100%; }
+  .vs-page { max-width: 1500px; margin: 0 auto; padding: 22px 26px 40px; width: 100%; }
 
   /* ---------- 章节标题 ---------- */
   .vs-title-wrap { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
@@ -63,79 +63,96 @@
   .vs-chip.star { border-color: var(--sky); color: var(--sky); background: var(--focus-bg); }
   .vs-chip.star b { color: var(--sky); }
 
-  /* ---------- 价值流（一条横向串联 = 一个 band/行）---------- */
-  .vs-streams { display: flex; flex-direction: column; gap: 18px; margin-top: 20px; }
+  /* ---------- 价值流组（一条 = 一个概述条带 + 若干价值段列） ---------- */
+  .vs-sgroups { display: flex; flex-direction: column; gap: 22px; margin-top: 20px; }
+  .vs-sgroup { display: flex; flex-direction: column; gap: 10px; }
 
-  .vs-stream {
+  /* 价值流概述条带（单流时即页面主题条） */
+  .vs-sgroup-head {
+    background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 11px 16px; display: flex; align-items: flex-start; gap: 12px;
+  }
+  .vs-sgroup-head .sh-num {
+    width: 23px; height: 23px; border: 1.5px solid var(--navy); color: var(--navy);
+    border-radius: 50%; font-size: 12px; font-weight: 700;
+    display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px;
+  }
+  .vs-sgroup-head .sh-title { font-size: 15px; font-weight: 700; color: var(--navy); }
+  .vs-sgroup-head .sh-chain { font-size: 11.5px; color: var(--soft); line-height: 1.5; margin-top: 2px; }
+  .vs-focus-tag {
+    font-size: 11.5px; color: #2A6A8C; background: #EFF6FE;
+    border: 1px solid #BFDCF0; border-radius: 999px; padding: 2px 9px; font-weight: 700; white-space: nowrap;
+  }
+  .vs-sgroup-head .sh-focus-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+
+  /* 价值段列（参考图：①……⑤ 横向从左到右串联，→ 连接） */
+  .vs-columns {
+    display: flex; align-items: flex-start; gap: 8px;
+    overflow-x: auto; padding: 4px 2px 8px;
+  }
+  .vs-col-arrow { align-self: center; color: #AEB6C2; font-size: 17px; font-weight: 700; flex-shrink: 0; padding: 0 3px; }
+
+  .vs-column {
     background: var(--card);
     border: 1px solid var(--line);
     border-radius: var(--radius);
+    min-width: 218px; flex: 1 1 0;
+    display: flex; flex-direction: column;
     overflow: hidden;
   }
-  .vs-stream-head {
-    padding: 14px 18px;
+  .vs-col-head {
+    padding: 13px 15px;
     border-bottom: 1px solid var(--line-soft);
     background: #FBFCFD;
-    display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; flex-wrap: wrap;
+    display: flex; flex-direction: column; gap: 8px;
   }
-  .vs-stream-head .sh-left { display: flex; flex-direction: column; gap: 8px; }
-  .vs-stream-head .sh-title { display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 700; color: var(--navy); }
-  .vs-stream-head .sh-num {
-    width: 22px; height: 22px; border: 1.5px solid var(--navy); color: var(--navy);
+  .vs-col-head .ch-title { display: flex; align-items: center; gap: 9px; font-size: 14.5px; font-weight: 700; color: var(--navy); }
+  .vs-col-head .ch-num {
+    width: 23px; height: 23px; border: 1.5px solid var(--navy); color: var(--navy);
     border-radius: 50%; font-size: 12px; font-weight: 700;
     display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;
   }
-  .vs-stream-head .sh-chain { font-size: 12px; color: var(--soft); line-height: 1.5; }
-  .vs-stream-head .sh-focus-tags { display: flex; gap: 6px; flex-wrap: wrap; flex-shrink: 0; }
-  .vs-focus-tag {
-    font-size: 11.5px; color: var(--sky); background: var(--focus-bg);
-    border: 1px solid var(--focus-border); border-radius: 999px; padding: 2px 9px; font-weight: 700; white-space: nowrap;
-  }
+  .vs-col-head .ch-chain { font-size: 11px; color: var(--soft); line-height: 1.5; }
+  .vs-col-head .ch-focus-tags { display: flex; gap: 6px; flex-wrap: wrap; }
 
-  /* 横向串联的价值段 */
-  .vs-blocks {
-    display: flex; align-items: stretch; gap: 0;
-    overflow-x: auto; padding: 16px 18px 20px;
-    scrollbar-width: thin;
-  }
-  .vs-seg {
-    flex: 0 0 240px;
-    border: 1px solid var(--line);
+  /* 列内业务环节竖排卡（↓ 连接） */
+  .vs-col-links { padding: 10px 11px; display: flex; flex-direction: column; }
+  .vs-link-arrow-j { text-align: center; color: #BEC6D2; font-size: 14px; font-weight: 700; padding: 3px 0; }
+
+  .vs-link {
+    border: 1px solid #DBE4F0;
     border-radius: var(--radius-s);
-    padding: 10px 11px;
+    padding: 11px 12px;
     background: var(--card);
     position: relative;
+    text-align: left;
     display: flex; flex-direction: column;
   }
-  .vs-seg.focused { border: 1.5px solid var(--focus-border); background: var(--focus-bg); }
-  .vs-seg-topline { display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-bottom: 6px; }
-  .vs-seg-focusbadge {
-    font-size: 11px; font-weight: 700; color: var(--sky); background: #FFFFFF;
-    border: 1px solid var(--focus-border); border-radius: 999px; padding: 1px 8px; white-space: nowrap;
+  .vs-link.focused {
+    border: 2px solid var(--focus-border);
+    background: var(--focus-bg);
   }
-  .vs-seg-name { font-size: 13.5px; font-weight: 600; color: var(--navy); line-height: 1.4; }
-  .vs-seg-actions { display: flex; align-items: center; gap: 4px; margin-top: 7px; flex-wrap: wrap; min-height: 16px; }
-  .vs-pain { width: 11px; height: 11px; border-radius: 50%; display: inline-block; box-shadow: 0 0 0 1px rgba(0,0,0,.08); }
-  .vs-pri { font-size: 10.5px; font-weight: 700; border-radius: 4px; padding: 1px 6px; color: #fff; line-height: 1.5; }
-  .vs-pri.p0 { background: #E4703A; }
-  .vs-pri.p1 { background: #5DA8D8; }
+  .vs-link-top { display: flex; flex-direction: column; gap: 7px; }
+  .vs-link-focusbadge {
+    font-size: 11px; font-weight: 700; color: #1D4ED8; background: #EFF6FE;
+    border: 1px solid #BFDCF0; border-radius: 999px; padding: 1px 9px; white-space: nowrap; align-self: flex-start;
+  }
+  .vs-link-name { font-size: 13.5px; font-weight: 600; color: var(--navy); line-height: 1.4; }
+  .vs-link-pri { font-size: 10.5px; font-weight: 700; border-radius: 4px; padding: 1px 6px; color: #fff; line-height: 1.5; align-self: flex-start; }
+  .vs-link-pri.p0 { background: #E4703A; }
+  .vs-link-pri.p1 { background: #5DA8D8; }
 
-  .vs-seg-links { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 7px; }
-  .vs-link { font-size: 11px; color: #2A6A8C; background: #FFFFFF; border: 1px solid #BFDCF0; border-radius: 999px; padding: 1px 8px; white-space: nowrap; }
-
-  .vs-seg-detail { margin-top: 7px; border-top: 1px dashed var(--line); padding-top: 4px; }
-  .vs-seg-toggle { display: inline-flex; align-items: center; gap: 4px; font-size: 11.5px; color: var(--soft); cursor: pointer; user-select: none; }
-  .vs-seg-toggle::before { content: "▸"; transition: transform .15s ease; font-size: 9px; color: #AEB6C2; }
-  .vs-seg.open .vs-seg-toggle::before { transform: rotate(90deg); }
-  .vs-seg-body { display: none; margin-top: 7px; }
-  .vs-seg.open .vs-seg-body { display: block; }
+  /* 可折叠：定义 / 目标 / 理由 */
+  .vs-link-detail { margin-top: 9px; border-top: 1px dashed var(--line); padding-top: 6px; }
+  .vs-link-toggle { display: inline-flex; align-items: center; gap: 5px; font-size: 11.5px; color: var(--soft); cursor: pointer; user-select: none; }
+  .vs-link-toggle::before { content: "▸"; transition: transform .15s ease; font-size: 9px; color: #AEB6C2; }
+  .vs-link.open .vs-link-toggle::before { transform: rotate(90deg); }
+  .vs-link-body { display: none; margin-top: 8px; }
+  .vs-link.open .vs-link-body { display: block; }
   .vs-field { margin-top: 5px; font-size: 12px; color: var(--muted); }
   .vs-field .vf-label { font-weight: 600; color: #46586F; }
-  .vs-field.reason .vf-val { color: #8B5E5E; }
   .vs-field.f-reason .vf-val { color: var(--green); }
-
-  /* band 内箭头（value stream 内部段间）*/
-  .vs-seg-arrow { align-self: center; color: #AEB6C2; font-size: 16px; font-weight: 700; flex-shrink: 0; padding: 0 4px; }
+  .vs-field.reason .vf-val { color: #8B5E5E; }
 
   /* ---------- 底部图例 ---------- */
   .vs-legend {
@@ -144,15 +161,13 @@
     display: flex; flex-wrap: wrap; align-items: center; gap: 18px; font-size: 12.5px; color: var(--muted);
   }
   .vs-legend .lg-title { font-weight: 700; color: var(--navy); }
-  .vs-legend .lg-item { display: inline-flex; align-items: center; gap: 6px; }
-  .vs-legend .lg-dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
-  .vs-legend .lg-star { color: var(--sky); font-weight: 700; }
+  .vs-legend .lg-star { color: #1D4ED8; font-weight: 700; }
   .vs-legend .lg-p0 { color: #E4703A; font-weight: 700; }
 
   @media (max-width: 720px) {
-    .vs-blocks { flex-direction: column; }
-    .vs-seg-arrow { transform: rotate(90deg); }
-    .vs-seg { flex: 1 1 auto; }
+    .vs-columns { flex-direction: column; }
+    .vs-col-arrow { transform: rotate(90deg); }
+    .vs-column { min-width: 0; }
   }
 </style>
 </head>
@@ -183,60 +198,69 @@
   <div class="vs-chips">
     <span class="vs-chip">价值流 <b>{{ stats.valueStreams }}</b> 条</span>
     <span class="vs-chip">价值段 <b>{{ stats.valueSegments }}</b> 个</span>
-    <span class="vs-chip star">★ 聚焦范围 <b>{{ stats.focusSegments }}</b> 段</span>
-    <span class="vs-chip">痛点 <b>{{ stats.painPoints }}</b> 个（推断）</span>
+    <span class="vs-chip">业务环节 <b>{{ stats.businessLinks }}</b> 个</span>
+    <span class="vs-chip star">★ 聚焦范围 <b>{{ stats.focusLinks }}</b> 环节</span>
     {%- if meta.sourceRef %}<span class="vs-chip">{{ meta.sourceRef }}</span>{% endif %}
   </div>
 
-  <!-- 价值流（横向串联） -->
-  <div class="vs-streams">
+  <!-- 价值流（条带）→ 价值段（横向列）→ 业务环节（竖排卡） -->
+  <div class="vs-sgroups">
     {%- for stream in valueStreams %}
-    <div class="vs-stream">
-      <div class="vs-stream-head">
-        <div class="sh-left">
-          <div class="sh-title"><span class="sh-num">{{ stream.order }}</span><span>{{ stream.name }}</span></div>
+    <div class="vs-sgroup">
+      <div class="vs-sgroup-head">
+        <span class="sh-num">{{ stream.order }}</span>
+        <div class="sh-body">
+          <div class="sh-title">{{ stream.name }}</div>
           {%- if stream.chain %}<div class="sh-chain">{{ stream.chain }}</div>{% endif %}
+          {%- if stream.focusGroups %}
+          <div class="sh-focus-tags">
+            {%- for g in stream.focusGroups %}<span class="vs-focus-tag">★ {{ g }}</span>{% endfor %}
+          </div>
+          {%- endif %}
         </div>
-        {%- if stream.focusGroups %}
-        <div class="sh-focus-tags">
-          {%- for g in stream.focusGroups %}<span class="vs-focus-tag">★ {{ g }}</span>{% endfor %}
-        </div>
-        {%- endif %}
       </div>
-      <div class="vs-blocks">
+
+      <div class="vs-columns">
         {%- for seg in stream.segments %}
-          {%- if not loop.first %}<div class="vs-seg-arrow">→</div>{% endif %}
-          <div class="vs-seg {% if seg.focus %}focused{% endif %}">
-            {%- if seg.focus and seg.focusLabel %}<span class="vs-seg-focusbadge">★ {{ seg.focusLabel }}</span>{% endif %}
-            <div class="vs-seg-name">{{ seg.name }}</div>
-            <div class="vs-seg-actions">
-              {%- for p in seg.painPoints %}
-                {%- set pt = painTypes | selectattr('id','equalto',p) | first %}
-                <span class="vs-pain" title="{{ pt.label if pt else p }}" style="background: {{ pt.color if pt else '#999' }}"></span>
-              {%- endfor %}
-              {%- if seg.priority == 'P0' %}<span class="vs-pri p0">P0</span>{% endif %}
-              {%- if seg.priority == 'P1' %}<span class="vs-pri p1">P1</span>{% endif %}
-            </div>
-            {%- if seg.links %}
-            <div class="vs-seg-links">
-              {%- for link in seg.links %}<span class="vs-link">{{ link }}</span>{% endfor %}
-            </div>
-            {%- endif %}
-            {%- if seg.detail %}
-            <div class="vs-seg-detail">
-              <span class="vs-seg-toggle" onclick="toggleSeg(this)">定义 / 目标 / {{ '聚焦理由' if seg.focus else '不聚焦理由' }}</span>
-              <div class="vs-seg-body">
-                {%- if seg.detail.definition %}<div class="vs-field"><span class="vf-label">定义：</span><span class="vf-val">{{ seg.detail.definition }}</span></div>{% endif %}
-                {%- if seg.detail.goal %}<div class="vs-field"><span class="vf-label">目标：</span><span class="vf-val">{{ seg.detail.goal }}</span></div>{% endif %}
-                {%- if seg.detail.reason %}
-                <div class="vs-field {{ 'f-reason' if seg.focus else 'reason' }}">
-                  <span class="vf-label">{{ '聚焦理由' if seg.focus else '不聚焦理由' }}：</span>
-                  <span class="vf-val">{{ seg.detail.reason }}</span>
-                </div>
-                {%- endif %}
+          {%- if not loop.first %}<div class="vs-col-arrow">→</div>{% endif %}
+          <div class="vs-column">
+            <div class="vs-col-head">
+              <div class="ch-title"><span class="ch-num">{{ seg.order }}</span><span>{{ seg.name }}</span></div>
+              {%- if seg.chain %}<div class="ch-chain">{{ seg.chain }}</div>{% endif %}
+              {%- if seg.focusGroups %}
+              <div class="ch-focus-tags">
+                {%- for g in seg.focusGroups %}<span class="vs-focus-tag">★ {{ g }}</span>{% endfor %}
               </div>
+              {%- endif %}
             </div>
-            {%- endif %}
+            <div class="vs-col-links">
+              {%- for link in seg.links %}
+                {%- if not loop.first %}<div class="vs-link-arrow-j">↓</div>{% endif %}
+                <div class="vs-link {% if link.focus %}focused{% endif %}">
+                  <div class="vs-link-top">
+                    {%- if link.focus and link.focusLabel %}<span class="vs-link-focusbadge">★ {{ link.focusLabel }}</span>{% endif %}
+                    <div class="vs-link-name">{{ link.name }}</div>
+                    {%- if link.priority == 'P0' %}<span class="vs-link-pri p0">P0</span>{% endif %}
+                    {%- if link.priority == 'P1' %}<span class="vs-link-pri p1">P1</span>{% endif %}
+                  </div>
+                  {%- if link.detail %}
+                  <div class="vs-link-detail">
+                    <span class="vs-link-toggle" onclick="toggleLink(this)">定义 / 目标 / {{ '聚焦理由' if link.focus else '不聚焦理由' }}</span>
+                    <div class="vs-link-body">
+                      {%- if link.detail.definition %}<div class="vs-field"><span class="vf-label">定义：</span><span class="vf-val">{{ link.detail.definition }}</span></div>{% endif %}
+                      {%- if link.detail.goal %}<div class="vs-field"><span class="vf-label">目标：</span><span class="vf-val">{{ link.detail.goal }}</span></div>{% endif %}
+                      {%- if link.detail.reason %}
+                      <div class="vs-field {{ 'f-reason' if link.focus else 'reason' }}">
+                        <span class="vf-label">{{ '聚焦理由' if link.focus else '不聚焦理由' }}：</span>
+                        <span class="vf-val">{{ link.detail.reason }}</span>
+                      </div>
+                      {%- endif %}
+                    </div>
+                  </div>
+                  {%- endif %}
+                </div>
+              {%- endfor %}
+            </div>
           </div>
         {%- endfor %}
       </div>
@@ -246,10 +270,6 @@
 
   <!-- 底部图例 -->
   <div class="vs-legend">
-    <span class="lg-title">痛点四色：</span>
-    {%- for t in painTypes %}
-      <span class="lg-item"><span class="lg-dot" style="background:{{ t.color }}"></span>{{ t.label }}</span>
-    {%- endfor %}
     <span class="lg-item"><span class="lg-star">★</span>{{ legend.focusNote }}</span>
     <span class="lg-item"><span class="lg-p0">P0</span>{{ legend.priorityNote }}</span>
     <span class="lg-item">{{ legend.clickNote }}</span>
@@ -259,9 +279,9 @@
 <!-- 原始 YAML 数据（供复制，可溯源）；tojson 对 <>&" 做 unicode 转义 -->
 <script id="raw-yaml-data" type="application/json">{{ raw_yaml | tojson }}</script>
 <script>
-  function toggleSeg(el) { el.closest('.vs-seg').classList.toggle('open'); }
+  function toggleLink(el) { el.closest('.vs-link').classList.toggle('open'); }
   function toggleDetailAll(btn) {
-    var cards = document.querySelectorAll('.vs-seg');
+    var cards = document.querySelectorAll('.vs-link');
     var allOpen = cards.length && Array.prototype.every.call(cards, function(c){ return c.classList.contains('open'); });
     cards.forEach(function(c){ allOpen ? c.classList.remove('open') : c.classList.add('open'); });
   }

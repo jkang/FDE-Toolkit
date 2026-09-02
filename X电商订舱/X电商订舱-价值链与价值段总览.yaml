@@ -35,7 +35,7 @@ valueStreams:
         focus: false
         priority: ""
         painPoints: ["bottleneck"]
-        links: []
+        links: ["平台内容与搜索触达", "行业展会 / 移动App 曝光", "促销闪购拉新"]
         detail:
           definition: "通过官网/搜索引擎/行业展会/移动App 曝光，让 SME 货主认知到透明运价与平台能力。"
           goal: "提升平台认知度与首访转化。"
@@ -46,7 +46,7 @@ valueStreams:
         focus: false
         priority: ""
         painPoints: ["highTime"]
-        links: []
+        links: ["企业注册与资料填报", "资质认证与账号开通", "PlumSmart 会员申请"]
         detail:
           definition: "货主完成企业注册、资质认证（约 3 个工作日）与 PlumSmart 会员申请，建立数字身份。"
           goal: "分钟级自助开户，降低新客获客门槛。"

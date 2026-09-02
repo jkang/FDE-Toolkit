@@ -2,7 +2,7 @@
 name: value-stream-mapper
 description: |
   梳理某个业务端到端的 L1 级价值流，输出「价值链与价值段总览」（对齐 03-业务价值流图.jpg 风格），
-  并据「原始 idea 需求」在全链路上标注「聚焦范围」（★ 高亮价值段 + 优先级 + 痛点 + 业务环节）。
+  并据「原始 idea 需求」在全链路上标注「聚焦范围」（★ 高亮业务环节卡 + 优先级）。
   同时输出结构化 YAML + 交互式 HTML（内嵌「复制 YAML」）。
 
   Triggers when user mentions:
@@ -20,7 +20,7 @@ author: KK
 # Value Stream Mapper (L1 价值链与价值段总览)
 
 此技能用于在拿到客户的**业务描述 + 原始 idea 需求**之后，先把业务的**端到端经营主线**
-梳理成 L1 **价值链全景**（价值流 → 价值段），再**据原始 idea 圈定聚焦范围**——
+梳理成 L1 **价值链全景**（价值流 → 价值段 → 业务环节），再**据原始 idea 圈定聚焦范围**——
 它是「理需求」阶段价值流梳理的**全貌底稿**，为后续 L2/L3 流程拆解与 AI 机会点挖掘提供骨架。
 
 > 与 `business-process-deep-analyzer`（价值段现状泳道图）的关系：
@@ -46,10 +46,11 @@ author: KK
 > **视觉设计规范 (Visual Design Standard)**:
 > - 默认按本 skill `references/schema.yaml` + `templates/value_stream_layout.html` 输出，
 >   **对齐 `03-业务价值流图.jpg` 的价值段总览风格**：章节标题 + 核心洞察 callout + 元信息 chips +
->   **横向价值流条带**（条头①序号+名称+链路小字）+ **价值段从左到右串联卡**（→ 连接）+
->   聚焦卡蓝框高亮（★徽章/痛点/优先级/业务环节）
+>   **价值流概述条带**（①序号+价值流名+价值段串联小字）+ **价值段从左到右串联列**（→ 连接，
+>   列头=①序号+价值段名+业务环节串联小字）+ 列内**业务环节竖排卡**（▶ 展开定义/目标/理由）+
+>   聚焦环节卡蓝框高亮（★徽章/优先级）
 >   + 底部图例。
-> - **底色模式**：浅色底 (Light Mode)；内容区撑满容器宽度（width:100%），价值流列超出时 `overflow-x:auto` 可横滚。
+> - **底色模式**：浅色底 (Light Mode)；内容区撑满容器宽度（width:100%），价值段列超出时 `overflow-x:auto` 可横滚。
 
 ---
 
@@ -57,33 +58,38 @@ author: KK
 
 采用 **LLM -> YAML -> Python -> HTML** 的解耦架构：
 1. **LLM**: 解析输入（业务描述 + 原始 idea 需求），按 `references/value_stream_prompts.md`
-   推导出「价值流(列) → 价值段(卡) → 业务环节(links)」的 YAML。
+   推导出「价值流(条带) → 价值段(列) → 业务环节(卡)」的 YAML。
 2. **Compiler**: `scripts/build_value_stream.py` 解析 YAML，结合 `templates/value_stream_layout.html`
-   生成价值链总览图；自动完成**聚焦范围连续编号**、**统计**、**防呆清洗**。
+   生成价值链总览图；自动完成**聚焦范围连续编号（业务环节卡粒度）**、**统计**、**防呆清洗**。
 
 ## 核心数据结构
 
 | 模块 | 内容 | 视觉特性 |
 |------|------|---------|
 | **meta** | title / sectionNo / business / domain / **originalIdea** / insight / sourceRef / kpi | 页眉 + 核心洞察 callout + 元信息 chips |
-| **painTypes** | 痛点四色：highTime / seniority / freqError / bottleneck | 卡内痛点圆点 + 图例 |
 | **legend** | 焦点范围说明 / P0 说明 / 可点开提示 | 底部图例栏 |
-| **valueStreams** | 横向一条 = 一条端到端主线；含 chain 副标题 + focusGroups | 横向条带头 + 价值段 → 连接 |
-| **segments** | 卡 = 一个价值段；focus / priority / painPoints / links / detail | 列内竖排卡 + ↓ 连接 |
-| **links** | 聚焦段内原始 idea 触及的**业务环节**（L2 锚点） | 聚焦卡内蓝色小胶囊 |
+| **valueStreams** | 横向一条 = 一条端到端主线；含 chain 副标题 + focusGroups | 价值流概述条带（①序号+名称+价值段串联小字） |
+| **segments** | 列 = 一个价值段；name + chain（业务环节串联）+ links（业务环节卡） | 横向从左到右串联列（→ 连接） |
+| **links** | 业务环节卡 = 价值段内的子环节；focus / priority / detail | 列内竖排卡（↓ 连接）+ 聚焦卡蓝框 |
 
-价值段（segment）核心字段：
+价值段（segment，= 横向列）核心字段：
 
 | 字段 | 含义 | 取值/示例 |
 |------|------|-----------|
-| `name` | 价值段名 | `在线订舱` |
+| `name` | 价值段名 | `客户品牌认知与触达` |
+| `chain` | 列头副标题（业务环节串联） | `平台内容与搜索触达 → 行业展会 / 移动App 曝光` |
+| `links` | 业务环节卡 | `[ {name, focus, priority, detail}, ... ]` |
+
+业务环节（link，= 列内卡）核心字段：
+
+| 字段 | 含义 | 取值/示例 |
+|------|------|-----------|
+| `name` | 业务环节名 | `智能报价推荐与锁价` |
 | `focus` | 是否聚焦 | `true` / `false` |
 | `focusLabel` | 聚焦范围标签 | `聚焦范围 ①`（可省略，编译器自动连续编号） |
 | `priority` | 优先级 | `P0` / `P1` / 空串 |
-| `painPoints` | 痛点类型 | `["highTime","bottleneck"]` |
-| `links` | 业务环节 | `["3 步订舱表单提交","订舱请求受理与校验"]` |
-| `detail.definition` | 一句话定义 | `货主以新版 3 步订舱表单提交请求` |
-| `detail.goal` | 业务目标 | `分钟级自助订舱` |
+| `detail.definition` | 一句话定义 | `货主通过 E-Spot 或 E-Quote 获取透明报价` |
+| `detail.goal` | 业务目标 | `实时透明报价 + 智能比价` |
 | `detail.reason` | 聚焦/不聚焦理由 | `聚焦理由：…` 或 `不聚焦理由：…` |
 
 ---
@@ -107,7 +113,8 @@ python3 scripts/build_value_stream.py examples/<标识>.yaml examples/<标识>.h
 
 ### Step 4 · 最终交付
 告知用户浏览器直接打开该 HTML 即可查阅：章节标题 → 核心洞察 → 元信息 chips →
-价值流列（①序号+链路小字）→ 价值段卡（▶ 展开 定义/目标/理由）→ 聚焦范围（★徽章/痛点/优先级/业务环节）→ 底部图例。
+价值流概述条带（①序号+价值段串联小字）→ 价值段列（①序号+段名+业务环节串联小字）→
+业务环节卡（▶ 展开 定义/目标/理由）→ 聚焦范围（★徽章/优先级）→ 底部图例。
 顶部可「全部展开/收起」与「📋 复制 YAML」。
 
 ---
@@ -146,12 +153,11 @@ value-stream-mapper/
 ## QA 清单
 
 - [ ] YAML 能被 `yaml.safe_load` 解析（含防呆过滤）
-- [ ] 至少 1 条价值流，每条至少 2 个价值段
-- [ ] 聚焦段在**同一条价值流内尽量连续**（对应「连续 1~4 个价值段」推荐）
-- [ ] 聚焦段 focusLabel 自动连续编号 ① ② ③…，跨断档/跨价值流递增
-- [ ] `links` 仅出现在聚焦段；非聚焦段为空
-- [ ] 每个价值段有 definition / goal / reason（聚焦写聚焦理由，不聚焦写不聚焦理由）
-- [ ] 痛点 id 均能在 `painTypes` 中找到（有默认回退色）
-- [ ] 顶部分区 chips 统计正确（值流/价值段/聚焦/痛点）
+- [ ] 至少 1 条价值流，每条至少 2 个价值段，每个价值段至少 1 个业务环节
+- [ ] 聚焦环节尽量连续（对应「连续 1~4 张业务环节卡」推荐）
+- [ ] 聚焦环节 focusLabel 自动连续编号 ① ② ③…，跨断档/跨价值流递增
+- [ ] 聚焦/优先级只出现在**业务环节卡**（link）上，价值段（列）不设 focus/priority
+- [ ] 每个业务环节有 definition / goal / reason（聚焦写聚焦理由，不聚焦写不聚焦理由）
+- [ ] 顶部分区 chips 统计正确（价值流 / 价值段 / 业务环节 / 聚焦环节）
 - [ ] HTML 展开/收起与「复制 YAML」交互正常，复制的 YAML 可被再次解析
 - [ ] 浅色底、响应式 1280px+ 正常显示，窄屏列自动纵向堆叠
