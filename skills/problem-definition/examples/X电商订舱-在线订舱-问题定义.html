@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>X电商订舱 · 在线订舱 — 业务问题定义</title>
+<style>
+  :root{
+    --bg:#f7f8fa; --card:#ffffff; --line:#e5e7eb; --ink:#1f2937; --sub:#6b7280;
+    --accent:#0e7490; --accent2:#0ea5e9; --p0:#0e7490; --chip:#f1f5f9; --chipb:#cbd5e1;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+    background:var(--bg);color:var(--ink);line-height:1.65}
+  .wrap{max-width:1080px;margin:0 auto;padding:28px 20px 64px}
+  header{margin-bottom:20px}
+  .crumb{font-size:12px;color:var(--sub)}
+  h1{font-size:24px;margin:6px 0 4px}
+  .meta-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+  .chip{font-size:12px;color:var(--sub);background:var(--chip);border:1px solid var(--chipb);
+    padding:3px 9px;border-radius:999px}
+  .callout{border:1px solid #bfdbfe;background:#eff9ff;border-radius:12px;padding:16px 18px;margin:18px 0}
+  .callout .lab{font-size:12px;color:var(--accent);font-weight:600;letter-spacing:.5px}
+  .callout .txt{font-size:15px;margin-top:6px}
+  .tools{display:flex;gap:8px;justify-content:flex-end}
+  .btn{font-size:13px;border:1px solid var(--chipb);background:#fff;color:var(--ink);
+    padding:6px 12px;border-radius:8px;cursor:pointer}
+  .btn:hover{background:var(--chip)}
+  .elem{border:1px solid var(--line);border-radius:12px;background:var(--card);
+    padding:16px 18px;margin:12px 0;display:flex;gap:14px}
+  .elem .no{flex:0 0 34px;height:34px;border-radius:9px;background:var(--accent);color:#fff;
+    display:flex;align-items:center;justify-content:center;font-weight:700}
+  .elem .k{font-weight:700;font-size:15px;margin-bottom:6px}
+  .elem .v{white-space:pre-line;font-size:14px;color:#374151}
+  .summary{border:1px dashed var(--chipb);border-radius:12px;background:#fafafa;padding:14px 16px;margin-top:20px}
+  .summary .h{font-size:13px;color:var(--accent);font-weight:700;margin-bottom:8px}
+  .summary .row{font-size:13.5px;margin:4px 0}
+  .summary .row b{color:#374151}
+  footer{color:var(--sub);font-size:12px;margin-top:28px}
+  textarea{display:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="crumb">3.3 · 业务问题定义</div>
+    <h1>X电商订舱 · 在线订舱 — 业务问题定义</h1>
+    <div class="crumb">X（全球头部集装箱运输与物流一体化企业） · 电商订舱业务（在线订舱门户 / 独立电商平台 / 移动App）</div>
+    <div class="tools"><button class="btn" onclick="copyYaml()">📋 复制 YAML</button></div>
+    <div class="meta-chips">
+      <span class="chip">🎯 在线订舱（订舱请求受理与校验 · 人工审核兜底 / 订舱确认）</span>
+      <span class="chip">上游：电商订舱履约主价值流 → 在线订舱</span>
+      <span class="chip">在线订舱现状泳道图（L3/L4）+ 客户一手话 + 根因分析（5-Why）</span>
+      <span class="chip">2026-09-03</span>
+      <span class="chip">KPI：#订舱确认时效 · SME 自助率 · AI 分流率 · 电商订舱渗透率</span>
+    </div>
+  </header>
+
+  <div class="callout">
+    <div class="lab">核心问题 · 一句话</div>
+    <div class="txt">在线订舱的受理与确认完全依赖「人工审核兜底 + Smart Push 预填」和订舱运营人员经验，在「多环节 × 多规则 × 多系统」（费率 / 信用 / 航线可用性 / 船期计划）下无法达到分钟级确认，导致「新客首单慢、大量 SME 走人工审核、确认时效无法对标头部」，是订舱确认时效、SME 自助率、AI 分流率、电商订舱渗透率等关键指标恶化的根因。</div>
+  </div>
+
+  
+  <div class="elem">
+    <div class="no">1</div>
+    <div>
+      <div class="k">① 一句话问题描述</div>
+      <div class="v">在线订舱的受理与确认完全依赖「人工审核兜底 + Smart Push 预填」和订舱运营人员经验，在「多环节 × 多规则 × 多系统」（费率 / 信用 / 航线可用性 / 船期计划）下无法达到分钟级确认，导致「新客首单慢、大量 SME 走人工审核、确认时效无法对标头部」，是订舱确认时效、SME 自助率、AI 分流率、电商订舱渗透率等关键指标恶化的根因。</div>
+    </div>
+  </div>
+  
+  <div class="elem">
+    <div class="no">2</div>
+    <div>
+      <div class="k">② 业务角色和场景</div>
+      <div class="v">角色：SME 货主（在线自助订舱直客）、订舱运营 / CSR（受理审核兜底）、收益管理（舱位分配）、订舱系统 OMS。
+场景：每个订舱请求进来，从 3 步表单提交、系统受理校验、收益管理分配舱位，到签发 Booking Confirmation 并多通道告知。</div>
+    </div>
+  </div>
+  
+  <div class="elem">
+    <div class="no">3</div>
+    <div>
+      <div class="k">③ 遇到的问题</div>
+      <div class="v">新客无历史数据 → Smart Push 预填失效，首单仍偏慢（约 30-60 分钟），资料不齐还需往返补件；
+大量 SME 请求走人工审核（SLA 条款外 / 异常单），确认时效无法对标「最快 1 分钟」；
+规则校验靠「系统 + 人工兜底」，规则边界依赖运营经验，人员流动即能力流失；
+改船 / 取消异常通知滞后，平台状态与船期计划存在时差。</div>
+    </div>
+  </div>
+  
+  <div class="elem">
+    <div class="no">4</div>
+    <div>
+      <div class="k">④ 问题根因</div>
+      <div class="v">根因在于「人工经验 + 系统规则覆盖不全」的模式无法应对「高并发 × 复杂校验 × 多系统联动」的挑战：订舱执行需同时实时校验费率 / 信用 / 航线 / 船期等多重规则，系统自动校验规则覆盖不全，导致大量请求被迫回退人工审核，确认时效与自助率无法提升。</div>
+    </div>
+  </div>
+  
+  <div class="elem">
+    <div class="no">5</div>
+    <div>
+      <div class="k">⑤ 发生频度</div>
+      <div class="v">每个订舱请求发生一次，高并发高频（2025 年电商渠道承载超 200 万 TEU、AI 互动 150 万+ 次），全年持续反复；按「单次耗时 × 请求量 × SME 占比」累计放大。</div>
+    </div>
+  </div>
+  
+  <div class="elem">
+    <div class="no">6</div>
+    <div>
+      <div class="k">⑥ 影响范围</div>
+      <div class="v">覆盖独立电商平台 / 官网订舱门户 / 移动App 全渠道的 SME 直客与货代操作员；横跨 SME 货主、订舱运营 / CSR、收益管理、订舱系统等多角色协作链路。</div>
+    </div>
+  </div>
+  
+  <div class="elem">
+    <div class="no">7</div>
+    <div>
+      <div class="k">⑦ 每次发生对业务的影响</div>
+      <div class="v">单次 SME 首次订舱约 30-60 分钟（含补件往返）；走人工审核的请求单均约 1-2 小时；确认时效无法对标分钟级 → 新客转化流失、客服人工成本高企、AI 分流率（目标 30%+）无法达成。</div>
+    </div>
+  </div>
+  
+  <div class="elem">
+    <div class="no">8</div>
+    <div>
+      <div class="k">⑧ 累计对业务影响</div>
+      <div class="v">「电商订舱渗透率、订舱确认时效、AI 分流率、SME 自助率」全部承压——渗透率（25%[推断]→40%）受阻、确认时效无法向 ≤2h 收敛、AI 分流率未达 30%+、人工客服成本高。作为电商订舱高增长曲线的枢纽环节，问题持续存在将直接侵蚀数字化渗透与客户体验。</div>
+    </div>
+  </div>
+  
+
+  
+  <div class="summary">
+    <div class="h">小结 · 痛点 → 根因 → 问题</div>
+    <div class="row"><b>痛点：</b>人工审核兜底 + 规则覆盖不全</div>
+    <div class="row"><b>根因：</b>多系统联动下系统自动校验覆盖不全 → 大量请求回退人工</div>
+    <div class="row"><b>问题：</b>订舱确认时效无法对标分钟级 / 自助率与分流率不达标</div>
+  </div>
+  
+
+  <footer>数据来源：在线订舱现状泳道图（L3/L4）+ 客户一手话 + 根因分析（5-Why） · 生成于 2026-09-03</footer>
+</div>
+
+<textarea id="yamlSrc" rows="1">meta:
+  title: &quot;X电商订舱 · 在线订舱 — 业务问题定义&quot;
+  sectionNo: &quot;3.3&quot;
+  version: &quot;v1.0&quot;
+  date: &quot;2026-09-03&quot;
+  business: &quot;X（全球头部集装箱运输与物流一体化企业）&quot;
+  domain: &quot;电商订舱业务（在线订舱门户 / 独立电商平台 / 移动App）&quot;
+  segment: &quot;在线订舱（订舱请求受理与校验 · 人工审核兜底 / 订舱确认）&quot;
+  upstream:
+    valueStream: &quot;电商订舱履约主价值流&quot;
+    valueSegment: &quot;在线订舱&quot;
+    sourceRef: &quot;在线订舱现状泳道图（L3/L4）+ 客户一手话 + 根因分析（5-Why）&quot;
+  kpi: [&quot;订舱确认时效&quot;, &quot;SME 自助率&quot;, &quot;AI 分流率&quot;, &quot;电商订舱渗透率&quot;]
+  oneLiner: &quot;在线订舱的受理与确认完全依赖「人工审核兜底 + Smart Push 预填」和订舱运营人员经验，在「多环节 × 多规则 × 多系统」（费率 / 信用 / 航线可用性 / 船期计划）下无法达到分钟级确认，导致「新客首单慢、大量 SME 走人工审核、确认时效无法对标头部」，是订舱确认时效、SME 自助率、AI 分流率、电商订舱渗透率等关键指标恶化的根因。&quot;
+
+elements:
+  - id: &quot;E1&quot;
+    order: 1
+    key: &quot;① 一句话问题描述&quot;
+    body: &quot;在线订舱的受理与确认完全依赖「人工审核兜底 + Smart Push 预填」和订舱运营人员经验，在「多环节 × 多规则 × 多系统」（费率 / 信用 / 航线可用性 / 船期计划）下无法达到分钟级确认，导致「新客首单慢、大量 SME 走人工审核、确认时效无法对标头部」，是订舱确认时效、SME 自助率、AI 分流率、电商订舱渗透率等关键指标恶化的根因。&quot;
+  - id: &quot;E2&quot;
+    order: 2
+    key: &quot;② 业务角色和场景&quot;
+    body: &quot;角色：SME 货主（在线自助订舱直客）、订舱运营 / CSR（受理审核兜底）、收益管理（舱位分配）、订舱系统 OMS。\n场景：每个订舱请求进来，从 3 步表单提交、系统受理校验、收益管理分配舱位，到签发 Booking Confirmation 并多通道告知。&quot;
+  - id: &quot;E3&quot;
+    order: 3
+    key: &quot;③ 遇到的问题&quot;
+    body: &quot;新客无历史数据 → Smart Push 预填失效，首单仍偏慢（约 30-60 分钟），资料不齐还需往返补件；\n大量 SME 请求走人工审核（SLA 条款外 / 异常单），确认时效无法对标「最快 1 分钟」；\n规则校验靠「系统 + 人工兜底」，规则边界依赖运营经验，人员流动即能力流失；\n改船 / 取消异常通知滞后，平台状态与船期计划存在时差。&quot;
+  - id: &quot;E4&quot;
+    order: 4
+    key: &quot;④ 问题根因&quot;
+    body: &quot;根因在于「人工经验 + 系统规则覆盖不全」的模式无法应对「高并发 × 复杂校验 × 多系统联动」的挑战：订舱执行需同时实时校验费率 / 信用 / 航线 / 船期等多重规则，系统自动校验规则覆盖不全，导致大量请求被迫回退人工审核，确认时效与自助率无法提升。&quot;
+  - id: &quot;E5&quot;
+    order: 5
+    key: &quot;⑤ 发生频度&quot;
+    body: &quot;每个订舱请求发生一次，高并发高频（2025 年电商渠道承载超 200 万 TEU、AI 互动 150 万+ 次），全年持续反复；按「单次耗时 × 请求量 × SME 占比」累计放大。&quot;
+  - id: &quot;E6&quot;
+    order: 6
+    key: &quot;⑥ 影响范围&quot;
+    body: &quot;覆盖独立电商平台 / 官网订舱门户 / 移动App 全渠道的 SME 直客与货代操作员；横跨 SME 货主、订舱运营 / CSR、收益管理、订舱系统等多角色协作链路。&quot;
+  - id: &quot;E7&quot;
+    order: 7
+    key: &quot;⑦ 每次发生对业务的影响&quot;
+    body: &quot;单次 SME 首次订舱约 30-60 分钟（含补件往返）；走人工审核的请求单均约 1-2 小时；确认时效无法对标分钟级 → 新客转化流失、客服人工成本高企、AI 分流率（目标 30%+）无法达成。&quot;
+  - id: &quot;E8&quot;
+    order: 8
+    key: &quot;⑧ 累计对业务影响&quot;
+    body: &quot;「电商订舱渗透率、订舱确认时效、AI 分流率、SME 自助率」全部承压——渗透率（25%[推断]→40%）受阻、确认时效无法向 ≤2h 收敛、AI 分流率未达 30%+、人工客服成本高。作为电商订舱高增长曲线的枢纽环节，问题持续存在将直接侵蚀数字化渗透与客户体验。&quot;
+
+summary:
+  painPoint: &quot;人工审核兜底 + 规则覆盖不全&quot;
+  rootCause: &quot;多系统联动下系统自动校验覆盖不全 → 大量请求回退人工&quot;
+  problem: &quot;订舱确认时效无法对标分钟级 / 自助率与分流率不达标&quot;
+</textarea>
+<script>
+function copyYaml(){
+  const src = document.getElementById('yamlSrc').value;
+  navigator.clipboard.writeText(src).then(()=>{ alert('✅ YAML 已复制'); })
+    .catch(()=>{ window.prompt('复制失败，请手动复制：', src); });
+}
+</script>
+</body>
+</html>

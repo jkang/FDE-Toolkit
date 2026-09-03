@@ -17,6 +17,7 @@
 - **[OSM 目标度量地图 (OSM Map Generator)](osm-map-generator/SKILL.md)**: 将战略目标（Objectives）分解为具体策略（Strategy）与度量指标（Metrics）。
 - **[价值流图 (Value Stream Mapper)](value-stream-mapper/SKILL.md)**: 把业务端到端经营主线梳理为 L1 价值链全景（价值流 → 价值段(列) → 业务环节(列内卡)），并据原始 idea 在业务环节级标聚焦范围（★ 高亮 + 优先级），是后续 L2/L3 流程拆解的全貌底稿。
 - **[业务流程深度分析 (Business Process Deep Analyzer)](business-process-deep-analyzer/SKILL.md)**: 把单个价值段/业务环节下钻为 L3/L4 现状泳道图（列=L3 子环节 × 行=角色泳道 × 格=L4 任务），逐环节标注痛点（高耗时 / 高认知负荷 / 高频错误 / 来回往复 / 系统瓶颈），并附任务明细表（角色 / 输入→输出 / 业务规则及固化度 / 痛点）。
+- **[业务问题定义 (Problem Definition)](problem-definition/SKILL.md)**: 承接现状泳道图痛点 + 根因分析（5-Why），用 8 个结构化要素（①一句话问题描述 ②角色和场景 ③遇到的问题 ④根因 ⑤发生频度 ⑥影响范围 ⑦单次影响 ⑧累计影响）把一个痛点定义成「可取证、可量化、可归因」的业务问题，作为 AI 机会点挖掘与 To-be 设计的问题定义层输入。
 - **[体验旅程图 (Journey Map Generator)](journey-map-generator/SKILL.md)**: 生成包含角色情感波动、交互点及痛点分析的体验旅程图。
 - **[服务蓝图 (Blueprint Map Generator)](blueprint-map-generator/SKILL.md)**: 绘制包含前台接触点、后台流程与支撑系统的服务蓝图。
 

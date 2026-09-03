@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{ meta.title }}</title>
+<style>
+  :root{
+    --bg:#f7f8fa; --card:#ffffff; --line:#e5e7eb; --ink:#1f2937; --sub:#6b7280;
+    --accent:#0e7490; --accent2:#0ea5e9; --p0:#0e7490; --chip:#f1f5f9; --chipb:#cbd5e1;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+    background:var(--bg);color:var(--ink);line-height:1.65}
+  .wrap{max-width:1080px;margin:0 auto;padding:28px 20px 64px}
+  header{margin-bottom:20px}
+  .crumb{font-size:12px;color:var(--sub)}
+  h1{font-size:24px;margin:6px 0 4px}
+  .meta-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+  .chip{font-size:12px;color:var(--sub);background:var(--chip);border:1px solid var(--chipb);
+    padding:3px 9px;border-radius:999px}
+  .callout{border:1px solid #bfdbfe;background:#eff9ff;border-radius:12px;padding:16px 18px;margin:18px 0}
+  .callout .lab{font-size:12px;color:var(--accent);font-weight:600;letter-spacing:.5px}
+  .callout .txt{font-size:15px;margin-top:6px}
+  .tools{display:flex;gap:8px;justify-content:flex-end}
+  .btn{font-size:13px;border:1px solid var(--chipb);background:#fff;color:var(--ink);
+    padding:6px 12px;border-radius:8px;cursor:pointer}
+  .btn:hover{background:var(--chip)}
+  .elem{border:1px solid var(--line);border-radius:12px;background:var(--card);
+    padding:16px 18px;margin:12px 0;display:flex;gap:14px}
+  .elem .no{flex:0 0 34px;height:34px;border-radius:9px;background:var(--accent);color:#fff;
+    display:flex;align-items:center;justify-content:center;font-weight:700}
+  .elem .k{font-weight:700;font-size:15px;margin-bottom:6px}
+  .elem .v{white-space:pre-line;font-size:14px;color:#374151}
+  .summary{border:1px dashed var(--chipb);border-radius:12px;background:#fafafa;padding:14px 16px;margin-top:20px}
+  .summary .h{font-size:13px;color:var(--accent);font-weight:700;margin-bottom:8px}
+  .summary .row{font-size:13.5px;margin:4px 0}
+  .summary .row b{color:#374151}
+  footer{color:var(--sub);font-size:12px;margin-top:28px}
+  textarea{display:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="crumb">{{ meta.sectionNo }} · 业务问题定义</div>
+    <h1>{{ meta.title }}</h1>
+    {% if meta.business or meta.domain %}<div class="crumb">{{ meta.business }}{% if meta.domain %} · {{ meta.domain }}{% endif %}</div>{% endif %}
+    <div class="tools"><button class="btn" onclick="copyYaml()">📋 复制 YAML</button></div>
+    <div class="meta-chips">
+      {% if meta.segment %}<span class="chip">🎯 {{ meta.segment }}</span>{% endif %}
+      {% if meta.upstream and meta.upstream.valueSegment %}<span class="chip">上游：{{ meta.upstream.valueStream }} → {{ meta.upstream.valueSegment }}</span>{% endif %}
+      {% if meta.upstream and meta.upstream.sourceRef %}<span class="chip">{{ meta.upstream.sourceRef }}</span>{% endif %}
+      {% if meta.date %}<span class="chip">{{ meta.date }}</span>{% endif %}
+      {% if meta.kpi %}<span class="chip">KPI：#{{ meta.kpi | join(' · ') }}</span>{% endif %}
+    </div>
+  </header>
+
+  <div class="callout">
+    <div class="lab">核心问题 · 一句话</div>
+    <div class="txt">{{ meta.oneLiner }}</div>
+  </div>
+
+  {% for e in elements %}
+  <div class="elem">
+    <div class="no">{{ e.order }}</div>
+    <div>
+      <div class="k">{{ e.key }}</div>
+      <div class="v">{{ e.body }}</div>
+    </div>
+  </div>
+  {% endfor %}
+
+  {% if summary and summary.painPoint %}
+  <div class="summary">
+    <div class="h">小结 · 痛点 → 根因 → 问题</div>
+    <div class="row"><b>痛点：</b>{{ summary.painPoint }}</div>
+    <div class="row"><b>根因：</b>{{ summary.rootCause }}</div>
+    <div class="row"><b>问题：</b>{{ summary.problem }}</div>
+  </div>
+  {% endif %}
+
+  <footer>数据来源：{{ meta.upstream.sourceRef if meta.upstream and meta.upstream.sourceRef else '深度研究推断' }} · 生成于 {{ meta.date }}</footer>
+</div>
+
+<textarea id="yamlSrc" rows="1">RAW_YAML_PLACEHOLDER</textarea>
+<script>
+function copyYaml(){
+  const src = document.getElementById('yamlSrc').value;
+  navigator.clipboard.writeText(src).then(()=>{ alert('✅ YAML 已复制'); })
+    .catch(()=>{ window.prompt('复制失败，请手动复制：', src); });
+}
+</script>
+</body>
+</html>
