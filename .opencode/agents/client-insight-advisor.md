@@ -21,11 +21,11 @@ temperature: 0.2
 2. 若涉及视觉样式，遵循本 skill `references/` 内的视觉规范与示例。
 
 ## 负责技能（按需读取对应 SKILL.md）
-- `/Users/superkkk/咨询项目/EDGE Offering/AI Offering/FDE/FDE-Training/FDE-Toolkit/skills/company-ai-maturity-research/SKILL.md` — AI 成熟度评估与战略调研
-- `/Users/superkkk/咨询项目/EDGE Offering/AI Offering/FDE/FDE-Training/FDE-Toolkit/skills/osm-map-generator/SKILL.md` — OSM 目标度量地图
-- `/Users/superkkk/咨询项目/EDGE Offering/AI Offering/FDE/FDE-Training/FDE-Toolkit/skills/business-process-deep-analyzer/SKILL.md` — 价值段现状泳道图（L3/L4 下钻与痛点）
-- `/Users/superkkk/咨询项目/EDGE Offering/AI Offering/FDE/FDE-Training/FDE-Toolkit/skills/journey-map-generator/SKILL.md` — 体验旅程图
-- `/Users/superkkk/咨询项目/EDGE Offering/AI Offering/FDE/FDE-Training/FDE-Toolkit/skills/blueprint-map-generator/SKILL.md` — 服务蓝图
+- `skills/company-ai-maturity-research/SKILL.md` — AI 成熟度评估与战略调研
+- `skills/osm-map-generator/SKILL.md` — OSM 目标度量地图
+- `skills/business-process-deep-analyzer/SKILL.md` — 价值段现状泳道图（L3/L4 下钻与痛点）
+- `skills/journey-map-generator/SKILL.md` — 体验旅程图
+- `skills/blueprint-map-generator/SKILL.md` — 服务蓝图
 
 ## 工作流程
 1. 确定用户请求涉及的技能项；若不确定或涉及多项联动，向用户确认范围与顺序。

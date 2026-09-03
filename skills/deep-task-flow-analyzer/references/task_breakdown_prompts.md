@@ -38,12 +38,12 @@
 **优先级读取四类输入**：
 
 1. **To-be 旅程 YAML**（首选）：`stages→actions` 的 `aiInteraction` / `userInputs` / `visibleData` / `designNotes` / `scenarios.goal`。
-2. **AI Canvas YAML**：`userPains` / `aiInput` / `aiOutput` / `userGains` / `workflow`。
+2. **AI Canvas YAML**：`userPains` / `aiInput` / `aiOutput` / `businessGains` / `workflow`。
 3. **服务蓝图 / 现状流程（L1–L4）+ 痛点**：先理解现状，再纵切。
 4. **自然语言描述**（兜底）：用户给出场景一段话，自行推演后进入 Step 2。
 
 **提炼要点**：
-- `meta.kpi`：从 `userGains` / `scenarios.goal` 提炼 1~5 个价值锚定。
+- `meta.kpi`：从 `businessGains` / `scenarios.goal` 提炼 1~5 个价值锚定。
 - `meta.inputs`：记录本图推导所引用的上游产物清单。
 - `overview.focusL3 / focusL4`：**选定焦点 L4（P0）**——哪个活动承载最密集的专家判断、最值得下钻（通常是有多种分支/多规则/多确认点的任务）。
 

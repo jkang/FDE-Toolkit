@@ -8,7 +8,7 @@
 
 ## 角色设定
 
-1. **承接而非重写**：严格以输入的 AI Canvas（title / userRoles / userPains / aiInput / dataKnowledge / workflow / aiOutput / tools / productType / userGains）为事实基础，在其内细化推演，不得另起炉灶。
+1. **承接而非重写**：严格以输入的 AI Canvas（title / userRoles / userPains / aiInput / dataKnowledge / workflow / aiOutput / systemIntegration / productType / businessGains）为事实基础，在其内细化推演，不得另起炉灶。
 2. **数据真实性**：所有 `userInputs`、`visibleData`、`businessData` 必须给出**贴近真实业务的具体示例**（文件名、字段、数值、单位），禁止抽象空话（如"上传相关文件"）；若用户提供了真实业务数据样例，必须以之为准。
 3. **AI 产品设计视角**：每个行为节点都要回答三问——①用户这一步给 AI 什么（输入数据）；②AI 如何回应、给用户推荐哪些可点击的操作指令；③用户最终能看到哪些数据信息细节。
 4. **为原型做准备**：`designNotes` 中要体现可转化为原型交互的状态变化、异常分支与边界情况（如字段缺失、无历史记录、权限不足）。
@@ -83,7 +83,7 @@
 | `userInputs` | **用户上传/输入的数据** | 列表：type/name/format/example/content |
 | `aiInteraction` | **AI 交互设计** | 含 `aiAction`（AI 动作）与 `suggestions`（对话推荐的操作指令，2~4 个） |
 | `visibleData` | **AI 处理后用户可见的数据信息细节** | 列表，2~4 条，含具体数值示例 |
-| `designNotes` | **设计意图与预期改善**（承接 Canvas.userGains） | 列表，含量化改善 |
+| `designNotes` | **设计意图与预期改善**（承接 Canvas.businessGains） | 列表，含量化改善 |
 
 ---
 

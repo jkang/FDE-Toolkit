@@ -21,16 +21,16 @@ temperature: 0.2
 2. 若涉及视觉样式，遵循本 skill `references/` 内的视觉规范与示例。
 
 ## 负责技能
-- `/Users/superkkk/咨询项目/EDGE Offering/AI Offering/FDE/FDE-Training/FDE-Toolkit/skills/nsm-analysis/SKILL.md` — NSM 宏技能调度器，内部编排三个微技能（读取其 `sub-/Users/superkkk/咨询项目/EDGE Offering/AI Offering/FDE/FDE-Training/FDE-Toolkit/skills/` 下对应 SKILL.md）：
-  - `/Users/superkkk/咨询项目/EDGE Offering/AI Offering/FDE/FDE-Training/FDE-Toolkit/skills/nsm-analysis/sub-/Users/superkkk/咨询项目/EDGE Offering/AI Offering/FDE/FDE-Training/FDE-Toolkit/skills/business-research/SKILL.md`（业务现状调研）
-  - `/Users/superkkk/咨询项目/EDGE Offering/AI Offering/FDE/FDE-Training/FDE-Toolkit/skills/nsm-analysis/sub-/Users/superkkk/咨询项目/EDGE Offering/AI Offering/FDE/FDE-Training/FDE-Toolkit/skills/swot-analysis/SKILL.md`（SWOT 分析）
-  - `/Users/superkkk/咨询项目/EDGE Offering/AI Offering/FDE/FDE-Training/FDE-Toolkit/skills/nsm-analysis/sub-/Users/superkkk/咨询项目/EDGE Offering/AI Offering/FDE/FDE-Training/FDE-Toolkit/skills/strategy-derivation/SKILL.md`（战略与北极星指标推导）
+- `skills/nsm-analysis/SKILL.md` — NSM 宏技能调度器，内部编排三个微技能（读取其 `sub-skills/` 下对应 SKILL.md）：
+  - `skills/nsm-analysis/sub-skills/business-research/SKILL.md`（业务现状调研）
+  - `skills/nsm-analysis/sub-skills/swot-analysis/SKILL.md`（SWOT 分析）
+  - `skills/nsm-analysis/sub-skills/strategy-derivation/SKILL.md`（战略与北极星指标推导）
 
 ## 工作流程
-1. **加载指令**：用 Read 读取 `/Users/superkkk/咨询项目/EDGE Offering/AI Offering/FDE/FDE-Training/FDE-Toolkit/skills/nsm-analysis/SKILL.md`，严格遵循其编排流程（Step 0 输入收集 → 环境预检 → Step 1-5）。
+1. **加载指令**：用 Read 读取 `skills/nsm-analysis/SKILL.md`，严格遵循其编排流程（Step 0 输入收集 → 环境预检 → Step 1-5）。
 2. **输入收集**：按 SKILL.md Step 0 向用户确认企业名称、业务类型等必要参数；确认前先按「工具可用性预检」决定走自动化流还是降级（用户投喂材料）流。
 3. **阶段衔接**：每个阶段完成后，将中间报告全文写入当前工作区缓存文件（如 `phase1_business_research.md`），下一阶段执行前必须读取，防止上下文丢失。
-4. **质量门禁**：按 `/Users/superkkk/咨询项目/EDGE Offering/AI Offering/FDE/FDE-Training/FDE-Toolkit/skills/nsm-analysis/references/quality_review.md` 做内部跨阶段质量审查（5 维评分 ≥ 18 分为合格），该过程不向用户输出。
+4. **质量门禁**：按 `skills/nsm-analysis/references/quality_review.md` 做内部跨阶段质量审查（5 维评分 ≥ 18 分为合格），该过程不向用户输出。
 5. **最终交付**：汇总三阶段报告为完整交付，产出结构化 YAML 与交互式 HTML，遵守全局命名与目录规范。
 
 ## 行为边界

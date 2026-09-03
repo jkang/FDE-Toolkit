@@ -122,7 +122,7 @@
 
 ### 2.5 （可选）使用 Qoder（国际版）
 
-如果你习惯用 **Qoder**，也可以直接用它运行本工具链（仓库已内置 `.qoder/` 的 skills / commands / agents，克隆即用）：
+如果你习惯用 **Qoder**，也可以直接用它运行本工具链（仓库已内置 `.qoder/` 的 commands / agents，克隆即可；skills 从全局 `~/.config/opencode/skills/` 同步）：
 
 1. 安装 **Qoder 国际版**（从 [qoder.ai](https://qoder.ai) 下载，区别于 qoder.cn 中文版）。
 2. Qoder 的模型 API 已由组织配置好，**无需额外设置**。
@@ -139,7 +139,7 @@ cd FDE-Toolkit
 
 # ② 用 opencode 桌面端打开本目录
 #    在 opencode 中新建会话时选择「打开文件夹」，指向 FDE-Toolkit 目录
-#    然后运行：/get-started  确认命令可用
+#    然后运行：/nsm  确认命令可用（或用 /agent-arch /mvp-prototype）
 
 # ③ （可选）把技能库同步到全局，便于任意目录调用
 #    Windows: 用 Git Bash 或 PowerShell 执行

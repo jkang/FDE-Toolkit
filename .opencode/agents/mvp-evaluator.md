@@ -19,8 +19,8 @@ temperature: 0.2
 2. 若涉及视觉样式，遵循本 skill `references/` 内的视觉规范与示例。
 
 ## 负责技能（按需读取对应 SKILL.md）
-- `/Users/superkkk/咨询项目/EDGE Offering/AI Offering/FDE/FDE-Training/FDE-Toolkit/skills/ai-test-dataset-generator/SKILL.md` — MVP 测试数据集（三层三类：覆盖场景 + 支持归因）
-- `/Users/superkkk/咨询项目/EDGE Offering/AI Offering/FDE/FDE-Training/FDE-Toolkit/skills/mvp-metrics-generator/SKILL.md` — MVP 成效指标体系与门禁句（Go/No-Go）
+- `skills/ai-test-dataset-generator/SKILL.md` — MVP 测试数据集（三层三类：覆盖场景 + 支持归因）
+- `skills/mvp-metrics-generator/SKILL.md` — MVP 成效指标体系与门禁句（Go/No-Go）
 
 ## 工作流程
 1. 确定用户请求涉及的技能项；若不确定，向用户确认范围。

@@ -9,7 +9,7 @@ Python 脚手架 `scaffold_mvp.py` 会将其编译为 `mvp-prototype/`（React/V
 
 ## 一、承接规则（事实基础）
 
-1. **场景**：取自 Canvas 的 `title` / `description` / `productType` / `userGains`。
+1. **场景**：取自 Canvas 的 `title` / `description` / `productType` / `businessGains`。
 2. **角色**：取自 To-be Journey 的 `personas`（保留 name/role/department/goals）。
 3. **场景用例**：取自 To-be Journey 的 `scenarios`。
 4. **数据**：`dataModels.mockData` 与 `aiMocks.response` / `businessMocks.response` 必须从

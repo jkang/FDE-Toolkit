@@ -1,0 +1,66 @@
+title: "采购订单自动生成"
+description: "基于生产计划和安全库存自动触发采购订单，消除人工下单工作量"
+userRoles:
+  - "采购专员"
+  - "采购经理"
+userPains:
+  - "每日需处理数十张采购订单，手工录入耗时长"
+  - "多品类共用零部件采购协调复杂，容易遗漏"
+  - "紧急插单频繁，人工调整容易出错"
+  - "审批流程长，影响采购时效"
+aiInput:
+  - "生产计划工单"
+  - "当前库存水位"
+  - "安全库存阈值"
+  - "物料清单BOM"
+dataKnowledge:
+  - "供应商目录及报价单"
+  - "物料主数据"
+  - "历史采购记录"
+  - "供应商交期数据"
+# workflow = 改造后的「完整新人机流程」（粗颗粒度）：人发起 → Agent 处理 → 人确认 → Agent 收尾
+workflow:
+  - actor: human
+    action: 采购专员确认缺料信号，发起补货请求
+  - actor: agent
+    action: 解析生产计划与库存数据，计算物料净需求
+  - actor: agent
+    action: 匹配供应商目录与报价，选择最优供应商
+  - actor: agent
+    action: 生成采购订单草稿（数量 / 交期 / 价格）
+  - actor: human
+    action: 采购经理审批关键补货单与临时变更
+  - actor: agent
+    action: 审批通过后下单供应商，并回写 ERP 订单状态
+modelUsage:
+  - "规则引擎：物料需求计算和库存校验"
+  - "推荐算法：供应商选择和价格优化"
+  - "NLP：采购订单文本生成"
+aiOutput:
+  - "自动生成采购订单PDF/电子单据"
+  - "供应商接收订单通知"
+  - "ERP系统订单状态更新"
+  - "异常预警（缺料/交期冲突）"
+# systemIntegration = 工具调用/系统集成：注明上下游系统、集成方向与用途
+systemIntegration:
+  - system: "ERP 采购系统"
+    direction: "downstream"
+    purpose: "下单结果回写，同步采购订单状态"
+  - system: "SRM 供应商协同平台"
+    direction: "bidirectional"
+    purpose: "下单与交期确认的双向协同"
+  - system: "邮件 / 钉钉通知接口"
+    direction: "downstream"
+    purpose: "下单结果与异常预警推送"
+  - system: "电子签章系统"
+    direction: "downstream"
+    purpose: "采购订单电子签章"
+productType:
+  - "嵌入SRM系统的智能下单模块"
+  - "采购专员工作台待办提醒"
+# businessGains = 业务收益（对齐机会点定义的量化指标）
+businessGains:
+  - "人工下单工作量减少70%"
+  - "采购订单处理时效从2天缩短至2小时"
+  - "缺料率降低30%"
+  - "采购成本降低5-8%（通过智能选商）"

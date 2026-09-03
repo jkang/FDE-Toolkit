@@ -39,7 +39,7 @@
 3. **调研素材**（访谈纪要 / 制度文档 / SOP / 表单样例 / 真实案例）—— 用于**来源追溯**。
 
 **提炼要点**：
-- `meta.kpi`：从 `userGains` / `scenarios.goal` 提炼价值锚定。
+- `meta.kpi`：从 `businessGains` / `scenarios.goal` 提炼价值锚定。
 - `overview`：统计五类各有多少条。
 - 每条规则确定其**使用点**（一个或多个深度任务名），作为绑定锚点。
 

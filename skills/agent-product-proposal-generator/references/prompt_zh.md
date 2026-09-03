@@ -18,12 +18,12 @@
 提示词：
 ```
 你是一个资深 Agent 产品架构师。基于以下输入，输出《产品定位》（四件套）：
-- 输入：AI 场景画布（userRoles / userPains / aiInput / aiOutput / productType / userGains）→ 见 {canvas}
+- 输入：AI 场景画布（userRoles / userPains / aiInput / aiOutput / productType / businessGains）→ 见 {canvas}
 - 输入：理需求业务痛点点（见 {painpoints}）
 - 输入：本体行动边界（能做/不做，见 {ontology_bounds}）
 
 要求：
-1. 定位一句话 = 「为 {userRoles}，在 {scenario} 场景下，通过 {AI 核心能力}，把 {userGains/MoS 指标} 一起往上拉」。
+1. 定位一句话 = 「为 {userRoles}，在 {scenario} 场景下，通过 {AI 核心能力}，把 {businessGains/MoS 指标} 一起往上拉」。
 2. 非目标 = 与场景边界互斥的相邻场景/系统（各写一句，排除相邻画布/相邻产品）。
 3. 主要使用者 = 角色 + 每轮流程里他做的事。
 4. Agent 人格 = 身份定位 + 语气基调(专业/克制/数字驱动) + 能做(≥2) / 不能做(≥2，来自本体行动边界)。

@@ -70,15 +70,15 @@ rsync -a --delete \
 Agent（Subagent）与 Command 是「Skill 的组合编排层」，同样必须同步维护各端：
 
 ```
-Agent 定义：.opencode/agents/<name>.md  +  .trae/agents/<name>.md  +  .qoder/agents/<name>.md
-Command 定义：.opencode/commands/<name>.md  +  .trae/commands/<name>.md  +  .qoder/commands/<name>.md
+Agent 定义：.opencode/agents/<name>.md  +  .qoder/agents/<name>.md
+Command 定义：.opencode/commands/<name>.md  +  .qoder/commands/<name>.md
 ```
 
 规则：
 
 - **各端必须同时创建/更新**，禁止只改一端。
 - **各端正文必须一致**；仅 frontmatter 的 `tools` 声明允许按平台格式差异书写
-  （opencode 用 YAML 布尔 `read: true, ...` + `temperature`；trae / qoder 用逗号字符串 `tools: Read, Glob, ...`；
+  （opencode 用 YAML 布尔 `read: true, ...` + `temperature`；qoder 用逗号字符串 `tools: Read, Glob, ...`；
   qoder 无 `temperature` 字段、命令不含 `subtask`，skills 只认 `name`/`description` 两个 frontmatter 字段）。
 - **Agent 职责要精确**：一个 Agent 只组合粒度一致的 Skill。
   - 示例：`mvp-prototype` = `ai-product-journey-generator` + `prototype-generator`（均为「场景级」）；
@@ -86,7 +86,7 @@ Command 定义：.opencode/commands/<name>.md  +  .trae/commands/<name>.md  +  .
 - **触发词必须写明边界**，避免与其他 Agent 或技能流程混淆。
 - 修改 Agent 涉及到的 Skill 名称/路径变更时，同步更新各端 Agent、各端 Command 及 `skills/` 内相关 SKILL.md 的引用。
 - 完成后检查无旧名残留（如 `prototype-designer` → `mvp-prototype` 的重命名需全库 grep 确认）。
-- 同步/分发约定：`.opencode/` 与 `.qoder/` 内**只维护** Agent/Command 定义（`agents/`、`commands/`），**不建** `skills/` 分发副本；技能分发一律通过「全局安装位置（`~/.config/opencode/skills/`）」单向同步（见上文第 3 节），Qoder/Trae 端需要技能时从全局位置安装，仓库内不再维护 `.qoder/skills/`、`.opencode/skills/`、`.trae/skills/` 副本。
+- 同步/分发约定：`.opencode/` 与 `.qoder/` 内**只维护** Agent/Command 定义（`agents/`、`commands/`），**不建** `skills/` 分发副本；技能分发一律通过「全局安装位置（`~/.config/opencode/skills/`）」单向同步（见上文第 3 节），Qoder 端需要技能时从全局位置安装，仓库内不再维护 `.qoder/skills/`、`.opencode/skills/` 副本。
 - 技能 frontmatter `name` 需合规（小写连字符、无冒号），跨端同步时保持一致。
 
 ---

@@ -42,26 +42,66 @@ def ensure_list(value):
         return value
     return [str(value)]
 
+def ensure_str(value) -> str:
+    if value is None:
+        return ""
+    return str(value)
+
+def normalize_workflow(value):
+    """workflow → [{actor, action}]：改造后的「完整新人机流程」，执行主体 human/agent/hybrid。"""
+    normalized = []
+    for item in ensure_list(value):
+        if isinstance(item, dict):
+            normalized.append({
+                "actor": ensure_str(item.get("actor", "hybrid")).strip() or "hybrid",
+                "action": ensure_str(item.get("action", item.get("step", ""))).strip(),
+            })
+        else:
+            normalized.append({"actor": "hybrid", "action": ensure_str(item).strip()})
+    if not normalized:
+        normalized = [{"actor": "hybrid", "action": "以人机协同方式完成核心处理"}]
+    return normalized
+
+def normalize_system_integration(value):
+    """systemIntegration → [{system, direction, purpose}]：工具调用/系统集成（含上下游方向）。"""
+    normalized = []
+    for item in ensure_list(value):
+        if isinstance(item, dict):
+            normalized.append({
+                "system": ensure_str(item.get("system", "")).strip(),
+                "direction": ensure_str(item.get("direction", "bidirectional")).strip() or "bidirectional",
+                "purpose": ensure_str(item.get("purpose", "")).strip(),
+            })
+        else:
+            normalized.append({"system": ensure_str(item).strip(),
+                               "direction": "bidirectional", "purpose": ""})
+    if not normalized:
+        normalized = [{"system": "暂无系统集成", "direction": "bidirectional", "purpose": ""}]
+    return normalized
+
 def process_canvas_data(data):
     """
     对提取的 YAML 字典进行强制防呆与类型对齐。
+    workflow / systemIntegration 是对象列表；其余数组字段为纯字符串列表。
     """
     # 标量
     clean_data = {
         "title": data.get("title", "AI 场景画布"),
         "description": data.get("description", "暂无描述"),
     }
-    
-    # 数组字段
-    list_fields = [
+
+    # 纯字符串数组字段
+    str_list_fields = [
         "userRoles", "userPains", "aiInput", "dataKnowledge",
-        "workflow", "modelUsage", "aiOutput", "tools",
-        "productType", "userGains"
+        "modelUsage", "aiOutput", "productType", "businessGains"
     ]
-    
-    for field in list_fields:
+    for field in str_list_fields:
         clean_data[field] = ensure_list(data.get(field, []))
-        
+
+    # 结构化对象数组字段
+    clean_data["workflow"] = normalize_workflow(data.get("workflow", []))
+    clean_data["systemIntegration"] = normalize_system_integration(data.get("systemIntegration", []))
+
     return clean_data
 
 def compile_canvas(yaml_path, output_html_path):

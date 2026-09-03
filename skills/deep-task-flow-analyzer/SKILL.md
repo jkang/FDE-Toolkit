@@ -85,7 +85,7 @@ author: KK
 
 ### Step 1 · 解析输入
 - **优先**：读取 To-be 旅程 YAML（`stages→actions` 的 `aiInteraction`/`userInputs`/`visibleData`/`designNotes`/`scenarios.goal`）。
-- **兜底**：AI Canvas YAML（`userPains`/`aiInput`/`aiOutput`/`userGains`/`workflow`）/ 服务蓝图 / 自然语言描述。
+- **兜底**：AI Canvas YAML（`userPains`/`aiInput`/`aiOutput`/`businessGains`/`workflow`）/ 服务蓝图 / 自然语言描述。
 - 提炼 `meta.kpi`（价值锚定），选定 `overview.focusL4`（承载最密集专家判断的 P0 L4）。
 
 ### Step 2 · 纵切推导 YAML（LLM 产物）

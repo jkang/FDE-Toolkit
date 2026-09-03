@@ -41,9 +41,18 @@ AI Canvas 画布展现为 10 个业务模块分布于 5 列之中，具有特定
 |--------|----------|--------------------------|
 | **1（用户与痛点）** | `userRoles` (用户角色), `userPains` (用户痛点) | Rose 粉红 |
 | **2（输入与数据）** | `aiInput` (AI 输入), `dataKnowledge` (知识/数据) | Amber 琥珀 |
-| **3（处理与模型）** | `workflow` (处理流程), `modelUsage` (模型使用) | Sky 天蓝 |
-| **4（输出与工具）** | `aiOutput` (AI 输出), `tools` (工具与集成) | Violet 紫罗兰 |
-| **5（产品与收益）** | `productType` (产品形态), `userGains` (提效收益) | Emerald 翡翠绿 |
+| **3（处理与模型）** | `workflow` (新人机流程), `modelUsage` (模型使用) | Sky 天蓝 |
+| **4（输出与集成）** | `aiOutput` (AI 输出), `systemIntegration` (工具调用/系统集成) | Violet 紫罗兰 |
+| **5（产品与收益）** | `productType` (产品形态), `businessGains` (业务收益) | Emerald 翡翠绿 |
+
+> **维度口径说明（区别于旧版）**：
+> - `workflow`：不再是无主体的“AI 处理步骤罗列”，而是**改造后的完整新人机流程**（参考 To-be 流程但粗颗粒度）；
+>   每步用 `{actor, action}` 标记执行主体（human 人 / agent Agent / hybrid 人机协同）。
+> - `systemIntegration`（原名 `tools`）：**工具调用/系统集成**，用 `{system, direction, purpose}`
+>   写明被调用系统 / 集成方向（upstream 上游输入 / downstream 下游执行回写 / bidirectional 双向）/ 用途，
+>   覆盖要集成的上下游信息。
+> - `businessGains`（原名 `userGains`）：**业务收益**（非用户收益），且必须像「机会点定义」那样
+>   **非常量化**（含明确数字 / 目标值 / 对比基准）。
 
 ---
 

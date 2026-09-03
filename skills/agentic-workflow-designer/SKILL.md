@@ -123,7 +123,7 @@ agentic-workflow-designer/
 | 关系 | Skill | 说明 |
 |------|-------|------|
 | 上游输入 | `ai-product-journey-generator` | 读取 To-be 旅程 YAML 作为能力识别依据 |
-| 上游可选 | `ai-canvas-generator` | 兜底输入；`userGains`/`aiInput` 辅助 KPI 与输入定义 |
+| 上游可选 | `ai-canvas-generator` | 兜底输入；`businessGains`/`aiInput` 辅助 KPI 与输入定义 |
 | 下游衔接 | `prototype-generator` | 能力序列图可直接转译为首版 Mock AI 服务接口与编排骨架 |
 | 下游衔接 | `drawio-arch-generator` | 能力与 Agent 清单可输入系统架构图 |
 | 平行互补 | `agent-ontology-designer` | 静态本体 + 本 Skill 动态时序 = Agent 完整设计 |

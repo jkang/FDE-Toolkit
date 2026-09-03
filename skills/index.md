@@ -15,6 +15,7 @@
 
 | 命令 | 编排的 Subagent | 串联的 Skills | 用途 |
 | --- | --- | --- | --- |
+| `/discovery` | discovery-agent（宏编排 Skill） | 全链路 13 步（NSM → AI 成熟度 → OSM → 流程 → 旅程 → 蓝图 → 机会地图 → 画布 → CKD → 矩阵 → 路线图 → 里程碑 → 仪表盘） | 端到端 AI 场景探索，一次跑完整流程并汇总 Deck |
 | `/nsm` | nsm-analyst | `nsm-analysis`（business-research → swot-analysis → strategy-derivation） | 企业北极星战略全链路分析 |
 | `/client-insight` | client-insight-advisor | `company-ai-maturity-research`、`osm-map-generator`、`business-process-deep-analyzer`、`journey-map-generator`、`blueprint-map-generator` | 客户洞察与现状业务梳理 |
 | `/opportunity` | opportunity-advisor | `ai-opportunity-map-generator`、`ai-canvas-generator`、`context-knowledge-data-analyzer`、`ai-scenario-matrix-generator` | AI 机会挖掘与优先级评估 |
@@ -26,16 +27,16 @@
 
 > 说明：
 > - 以上命令与 Agent 是多端维护的（`.opencode/`、`.qoder/`），内部使用请调用 `/命令` 或 `@Subagent`。
-> - **Discovery Agent**（宏 Agent）不接受逐条命令，而是**一次性编排**整条 FDE 流程并汇总出交付 Deck，见下节。
+> - **Discovery Agent**（宏编排）通过 `/discovery` 一次性跑完整个 FDE 流程并汇总出交付 Deck，见下节。
 > - 未被任何 command 包裹的**单体 Skill**（如 `value-stream-mapper`、`problem-definition`、`opportunity-definition`、`unified-report-dashboard`）也可按名称单独触发。
 
 ---
 
 ## 1. FDE 四步法主流程（给 AI 的编排依据）
 
-FDE 四步法：**理需求 → 挖知识 → 建本体 → 生智能**。每一步由若干 Skill 协同，产物作为下一步输入。全链路可用 `discovery-agent` 一键编排，最后用 `unified-report-dashboard` 汇总。
+FDE 四步法：**理需求 → 挖知识 → 建本体 → 生智能**。每一步由若干 Skill 协同，产物作为下一步输入。全链路可用 `/discovery` 一键编排，最后用 `unified-report-dashboard` 汇总。
 
-> 🔁 **[Discovery Agent](discovery-agent/SKILL.md)**：宏编排器。输入客户名称 + 业务领域 + 资料，自动按顺序调度下面各 Skill，最终交由 **[统一报告仪表盘 (Unified Report Dashboard)](unified-report-dashboard/SKILL.md)** 汇总为可交付 Deck。适合完整项目启动。
+> 🔁 **[Discovery Agent](discovery-agent/SKILL.md)**：宏编排器。输入客户名称 + 业务领域 + 资料，自动按顺序调度下面各 Skill，最终交由 **[统一报告仪表盘 (Unified Report Dashboard)](unified-report-dashboard/SKILL.md)** 汇总为可交付 Deck。适合完整项目启动 → 用 `/discovery` 触发。
 
 ### ① 理需求（Understand the Need）— 看懂现状，定义问题与场景
 > 评估企业的 AI 战略地位与就绪度，梳理 As-Is，识别断点痛点，把问题/机会定义成可量化、可立项的输入。

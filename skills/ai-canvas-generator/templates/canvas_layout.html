@@ -261,6 +261,30 @@
       flex-shrink: 0;
     }
 
+    /* 人机流程：执行主体徽标 */
+    .wf-item { display: flex; gap: 10px; align-items: flex-start; }
+    .wf-action { flex: 1; }
+    .actor-badge {
+      font-size: 11px; font-weight: 700; padding: 2px 9px; border-radius: 6px;
+      color: #fff; flex-shrink: 0; margin-top: 0; white-space: nowrap;
+    }
+    .actor-badge.agent { background: #2563EB; }
+    .actor-badge.human { background: #7C3AED; }
+    .actor-badge.hybrid { background: #059669; }
+
+    /* 系统集成：方向徽标 */
+    .intg-item { display: flex; gap: 10px; align-items: flex-start; }
+    .intg-body { display: flex; flex-direction: column; gap: 2px; flex: 1; }
+    .intg-system { font-weight: 600; color: var(--color-foreground); }
+    .intg-purpose { font-size: 13px; color: var(--color-text-muted); }
+    .dir-badge {
+      font-size: 11px; font-weight: 700; padding: 2px 9px; border-radius: 6px;
+      color: #fff; flex-shrink: 0; margin-top: 0; white-space: nowrap;
+    }
+    .dir-badge.upstream { background: #2563EB; }
+    .dir-badge.downstream { background: #7C3AED; }
+    .dir-badge.bidirectional { background: #059669; }
+
     /* Color Overrides for specific cards */
     .theme-roles { border-left: 4px solid var(--color-secondary); }
     .theme-pains { border-left: 4px solid var(--color-destructive); }
@@ -504,15 +528,26 @@
         <div class="card theme-workflow">
           <div class="card-header">
             <div class="header-text">
-              <div class="card-title">AI 处理 WORKFLOW</div>
-              <div class="card-subtitle">AI系统的工作流程和步骤</div>
+              <div class="card-title">AI 人机流程</div>
+              <div class="card-subtitle">改造后的完整人机协同流程（人 / Agent / 人机协同）</div>
             </div>
             <div class="card-header-icon">{{ icon_workflow() }}</div>
           </div>
           <div class="card-body">
+            {% set actor_meta = {'agent': 'Agent', 'human': '人', 'hybrid': '人机协同'} %}
             <ol>
               {% for item in canvas_data.get("workflow", []) %}
-                <li><span class="number-bullet">{{ loop.index }}.</span>{{ item }}</li>
+                {%- if item is mapping %}
+                  {%- set a = item.get('actor', 'hybrid') %}
+                  {%- set action = item.get('action', '') %}
+                {%- else %}
+                  {%- set a = 'hybrid' %}
+                  {%- set action = item %}
+                {%- endif %}
+                <li class="wf-item">
+                  <span class="actor-badge {{ a }}">{{ actor_meta.get(a, a) }}</span>
+                  <span class="wf-action">{{ action }}</span>
+                </li>
               {% else %}
                 <li style="color:#94a3b8;"><span class="bullet"></span>点击编辑添加您的业务内容...</li>
               {% endfor %}
@@ -539,7 +574,7 @@
         </div>
       </div>
 
-      <!-- Col 4: aiOutput & tools -->
+      <!-- Col 4: aiOutput & systemIntegration -->
       <div class="column">
         <div class="card theme-output">
           <div class="card-header">
@@ -562,15 +597,27 @@
         <div class="card theme-tools">
           <div class="card-header">
             <div class="header-text">
-              <div class="card-title">工具调用</div>
-              <div class="card-subtitle">AI系统需要调用的内外部 API</div>
+              <div class="card-title">工具调用/系统集成</div>
+              <div class="card-subtitle">需要调用、集成的内外部系统与上下游信息</div>
             </div>
             <div class="card-header-icon">{{ icon_wrench() }}</div>
           </div>
           <div class="card-body">
+            {% set dir_meta = {'upstream': '↑ 上游输入', 'downstream': '↓ 下游执行', 'bidirectional': '⇄ 双向'} %}
             <ul>
-              {% for item in canvas_data.get("tools", []) %}
-                <li><span class="bullet"></span>{{ item }}</li>
+              {% for item in canvas_data.get("systemIntegration", []) %}
+                {%- if item is mapping %}
+                  {%- set d = item.get('direction', 'bidirectional') %}
+                  <li class="intg-item">
+                    <span class="dir-badge {{ d }}">{{ dir_meta.get(d, d) }}</span>
+                    <div class="intg-body">
+                      <div class="intg-system">{{ item.get('system', '') }}</div>
+                      {%- if item.get('purpose') %}<div class="intg-purpose">{{ item.get('purpose') }}</div>{% endif %}
+                    </div>
+                  </li>
+                {%- else %}
+                  <li><span class="bullet"></span>{{ item }}</li>
+                {%- endif %}
               {% else %}
                 <li style="color:#94a3b8;"><span class="bullet"></span>点击编辑添加您的业务内容...</li>
               {% endfor %}
@@ -579,7 +626,7 @@
         </div>
       </div>
 
-      <!-- Col 5: productType & userGains -->
+      <!-- Col 5: productType & businessGains -->
       <div class="column">
         <div class="card theme-product">
           <div class="card-header">
@@ -603,13 +650,13 @@
           <div class="card-header">
             <div class="header-text">
               <div class="card-title">业务收益</div>
-              <div class="card-subtitle">业务通过该 AI 场景获得的改善（MoS 指标）</div>
+              <div class="card-subtitle">上线后预期达成的量化业务指标（对齐机会点定义）</div>
             </div>
             <div class="card-header-icon">{{ icon_trophy() }}</div>
           </div>
           <div class="card-body">
             <ul>
-              {% for item in canvas_data.get("userGains", []) %}
+              {% for item in canvas_data.get("businessGains", []) %}
                 <li><span class="bullet"></span>{{ item }}</li>
               {% else %}
                 <li style="color:#94a3b8;"><span class="bullet"></span>点击编辑添加您的业务内容...</li>

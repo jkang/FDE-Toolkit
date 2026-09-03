@@ -31,9 +31,9 @@
 |---|---|
 | userRoles / userPains | 第2段·主要使用者、第2段·定位一句话、第2段·Agent 人格语气 |
 | aiInput / dataKnowledge | 第3段·主交互区（输入/知识）、第4段·演示剧本 mock、第5段·功能 |
-| workflow / modelUsage | 第3段·编排、第6段·让用户看到什么（工具调用） |
-| aiOutput / tools | 第4段·Agent 输出、第5段·UI 组件 |
-| productType / userGains(MoS) | 第2段·产品形态、第2段·定位一句话、第1段·为什么关注、第4段·业务价值高光（KPI） |
+| workflow / modelUsage | 第3段·编排、第6段·让用户看到什么（工具调用/系统集成） |
+| aiOutput / systemIntegration | 第4段·Agent 输出、第5段·UI 组件 |
+| productType / businessGains(MoS) | 第2段·产品形态、第2段·定位一句话、第1段·为什么关注、第4段·业务价值高光（KPI） |
 | 场景边界 / 相邻系统 | 第2段·非目标、第3段·相邻产品 |
 
 **降级规则**：若缺「数据/知识资产盘点」，则由 CKD 映射或本体数据字段代，功能清单的「上游来源」标注「依据画布字段推断」。

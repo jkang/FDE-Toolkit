@@ -3,8 +3,26 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>智能研发周报生成小助手</title>
+  <title>采购订单自动生成</title>
   <style>
+    :root {
+      --color-primary: #10213E;
+      --color-accent: #5DB2E2;
+      --color-secondary: #625D9C;
+      --color-success: #00524C;
+      --color-info: #6FB1C8;
+      --color-warning: #F59E0B;
+      --color-destructive: #EF4444;
+      --color-background: #FFFFFF;
+      --color-bg-alt: #F5F5F6;
+      --color-foreground: #10213E;
+      --color-text-muted: #64748B;
+      --color-border: #E2E8F0;
+      --shadow-sm: 0 2px 8px rgba(16, 33, 62, 0.08);
+      --radius-md: 8px;
+      --font-family: "MiSans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans SC", "PingFang SC", Arial, sans-serif;
+    }
+
     *, *::before, *::after {
       box-sizing: border-box;
       margin: 0;
@@ -12,42 +30,122 @@
     }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans SC", "PingFang SC", Arial, sans-serif;
-      background: #f8fafc;
+      font-family: var(--font-family);
+      background: var(--color-bg-alt);
       padding: 32px;
-      color: #1e293b;
+      color: var(--color-foreground);
+      line-height: 1.5;
     }
 
     .canvas-container {
-      max-width: 1400px;
+      max-width: 1440px;
       margin: 0 auto;
-      background: white;
-      border-radius: 12px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+      background: var(--color-background);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-sm);
       display: flex;
       flex-direction: column;
       min-height: 800px;
     }
 
-    .canvas-header {
-      padding: 24px 32px;
-    }
-    
-    .canvas-title {
-      font-size: 1.6rem;
-      font-weight: 800;
-      color: #0f172a;
-      margin-bottom: 6px;
+    /* Standardized Header */
+    .page-header {
+      padding: 32px 40px;
+      border-bottom: 1px solid var(--color-border);
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
     }
 
-    .canvas-desc {
-      font-size: 0.95rem;
-      color: #64748b;
-      line-height: 1.5;
+    .header-left {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .page-header h1 {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--color-primary);
+      line-height: 1.2;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .page-header h1::before {
+      content: "";
+      display: block;
+      width: 4px;
+      height: 24px;
+      background: var(--color-accent);
+      border-radius: 2px;
+      flex-shrink: 0;
+    }
+
+    .page-subtitle {
+      font-size: 16px;
+      color: var(--color-text-muted);
+      font-weight: 500;
+      padding-left: 16px;
+    }
+
+    .header-right {
+      text-align: right;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .meta-info {
+      font-size: 12px;
+      color: var(--color-text-muted);
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 12px;
+      justify-content: flex-end;
+    }
+
+    .btn-primary {
+      background: var(--color-primary);
+      color: white;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      transition: all 0.15s ease-out;
+    }
+    .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+
+    .btn-secondary {
+      background: white;
+      color: var(--color-primary);
+      border: 1px solid var(--color-border);
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease-out;
+    }
+    .btn-secondary:hover { background: var(--color-bg-alt); }
+
+    .toast {
+      position: fixed; bottom: 24px; right: 24px;
+      background: var(--color-primary); color: #fff;
+      padding: 12px 24px; border-radius: var(--radius-md);
+      font-size: 14px; font-weight: 600;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      display: none; z-index: 1000;
     }
 
     .canvas-body {
-      padding: 0 32px 32px 32px;
+      padding: 24px 40px 40px 40px;
       display: flex;
       flex: 1;
       gap: 16px;
@@ -65,15 +163,18 @@
 
     /* Card Base */
     .card {
-      background: white;
-      border-radius: 10px;
+      background: var(--color-background);
+      border-radius: var(--radius-md);
       overflow: hidden;
       flex: 1;
       display: flex;
       flex-direction: column;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.02);
-      border-width: 2px;
-      border-style: solid;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--color-border);
+      transition: transform 0.15s ease-out;
+    }
+    .card:hover {
+      transform: translateY(-2px);
     }
 
     .card-header {
@@ -81,8 +182,8 @@
       justify-content: space-between;
       align-items: center;
       padding: 16px 20px;
-      border-bottom-width: 1px;
-      border-bottom-style: solid;
+      border-bottom: 1px solid var(--color-border);
+      background: var(--color-bg-alt);
     }
 
     .header-text {
@@ -92,39 +193,41 @@
     }
 
     .card-title {
-      font-size: 0.95rem;
-      font-weight: 800;
-      color: #1e293b;
-      letter-spacing: 0.5px;
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--color-primary);
     }
 
     .card-subtitle {
-      font-size: 0.65rem;
-      color: #64748b;
+      font-size: 11px;
+      color: var(--color-text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
     }
 
     .card-header-icon {
-      width: 28px;
-      height: 28px;
+      width: 32px;
+      height: 32px;
       display: flex;
       align-items: center;
       justify-content: center;
       flex-shrink: 0;
-      background: transparent;
+      border-radius: 6px;
+      background: rgba(16, 33, 62, 0.05);
+      color: var(--color-primary);
     }
 
     .card-header-icon svg {
-      width: 18px;
-      height: 18px;
+      width: 20px;
+      height: 20px;
     }
 
     .card-body {
       padding: 20px;
-      font-size: 0.85rem;
-      color: #334155;
-      line-height: 1.7;
+      font-size: 14px;
+      color: var(--color-foreground);
+      line-height: 1.6;
       flex: 1;
-      background: white;
     }
 
     .card-body ul, .card-body ol {
@@ -136,81 +239,158 @@
       display: flex;
       align-items: flex-start;
       gap: 10px;
-      color: #475569;
-      font-weight: 500;
     }
     .card-body li:last-child {
       margin-bottom: 0;
     }
 
     .bullet {
-      width: 5px;
-      height: 5px;
+      width: 6px;
+      height: 6px;
       border-radius: 50%;
-      background: #cbd5e1;
-      margin-top: 9px;
+      background: var(--color-accent);
+      margin-top: 8px;
       flex-shrink: 0;
     }
     
     .number-bullet {
-      font-size: 0.8rem;
-      font-weight: 700;
-      color: #64748b;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--color-accent);
       margin-top: 1px;
       flex-shrink: 0;
     }
 
-    /* 1. Roles (Indigo) */
-    .theme-roles { border-color: #e0e7ff; }
-    .theme-roles .card-header { background-color: #eef2ff; border-bottom-color: #e0e7ff; }
-    .theme-roles .card-header-icon { color: #6366f1; }
+    /* 人机流程：执行主体徽标 */
+    .wf-item { display: flex; gap: 10px; align-items: flex-start; }
+    .wf-action { flex: 1; }
+    .actor-badge {
+      font-size: 11px; font-weight: 700; padding: 2px 9px; border-radius: 6px;
+      color: #fff; flex-shrink: 0; margin-top: 0; white-space: nowrap;
+    }
+    .actor-badge.agent { background: #2563EB; }
+    .actor-badge.human { background: #7C3AED; }
+    .actor-badge.hybrid { background: #059669; }
 
-    /* 2. Pains (Amber) */
-    .theme-pains { border-color: #fef08a; }
-    .theme-pains .card-header { background-color: #fef9c3; border-bottom-color: #fef08a; }
-    .theme-pains .card-header-icon { color: #d97706; }
+    /* 系统集成：方向徽标 */
+    .intg-item { display: flex; gap: 10px; align-items: flex-start; }
+    .intg-body { display: flex; flex-direction: column; gap: 2px; flex: 1; }
+    .intg-system { font-weight: 600; color: var(--color-foreground); }
+    .intg-purpose { font-size: 13px; color: var(--color-text-muted); }
+    .dir-badge {
+      font-size: 11px; font-weight: 700; padding: 2px 9px; border-radius: 6px;
+      color: #fff; flex-shrink: 0; margin-top: 0; white-space: nowrap;
+    }
+    .dir-badge.upstream { background: #2563EB; }
+    .dir-badge.downstream { background: #7C3AED; }
+    .dir-badge.bidirectional { background: #059669; }
 
-    /* 3. Input (Blue) */
-    .theme-input { border-color: #dbeafe; }
-    .theme-input .card-header { background-color: #eff6ff; border-bottom-color: #dbeafe; }
-    .theme-input .card-header-icon { color: #3b82f6; }
-
-    /* 4. Data (Slate) */
-    .theme-data { border-color: #f1f5f9; }
-    .theme-data .card-header { background-color: #f8fafc; border-bottom-color: #f1f5f9; }
-    .theme-data .card-header-icon { color: #475569; }
-
-    /* 5. Workflow (Slate) */
-    .theme-workflow { border-color: #f1f5f9; }
-    .theme-workflow .card-header { background-color: #f8fafc; border-bottom-color: #f1f5f9; }
-    .theme-workflow .card-header-icon { color: #475569; }
-
-    /* 6. Capabilities (Blue) */
-    .theme-cap { border-color: #dbeafe; }
-    .theme-cap .card-header { background-color: #eff6ff; border-bottom-color: #dbeafe; }
-    .theme-cap .card-header-icon { color: #3b82f6; }
-
-    /* 7. Output (Fuchsia) */
-    .theme-output { border-color: #fae8ff; }
-    .theme-output .card-header { background-color: #fdf4ff; border-bottom-color: #fae8ff; }
-    .theme-output .card-header-icon { color: #d946ef; }
-
-    /* 8. Tools (Cyan) */
-    .theme-tools { border-color: #cffafe; }
-    .theme-tools .card-header { background-color: #ecfeff; border-bottom-color: #cffafe; }
-    .theme-tools .card-header-icon { color: #06b6d4; }
-
-    /* 9. Product (Emerald) */
-    .theme-product { border-color: #d1fae5; }
-    .theme-product .card-header { background-color: #ecfdf5; border-bottom-color: #d1fae5; }
-    .theme-product .card-header-icon { color: #10b981; }
-
-    /* 10. Gains (Emerald) */
-    .theme-gains { border-color: #d1fae5; }
-    .theme-gains .card-header { background-color: #ecfdf5; border-bottom-color: #d1fae5; }
-    .theme-gains .card-header-icon { color: #10b981; }
+    /* Color Overrides for specific cards */
+    .theme-roles { border-left: 4px solid var(--color-secondary); }
+    .theme-pains { border-left: 4px solid var(--color-destructive); }
+    .theme-input { border-left: 4px solid var(--color-accent); }
+    .theme-data { border-left: 4px solid var(--color-info); }
+    .theme-workflow { border-left: 4px solid var(--color-primary); }
+    .theme-cap { border-left: 4px solid var(--color-secondary); }
+    .theme-output { border-left: 4px solid var(--color-accent); }
+    .theme-tools { border-left: 4px solid var(--color-info); }
+    .theme-product { border-left: 4px solid var(--color-success); }
+    .theme-gains { border-left: 4px solid var(--color-success); }
 
   </style>
+
+    <!-- ===== Unified Report Shell: 撑满容器 + 精简 Header + 溢出滚动 ===== -->
+    <style>
+      *, *::before, *::after { box-sizing: border-box !important; }
+      html, body { margin: 0 !important; padding: 0 !important; background: #F5F5F6 !important; overflow-x: auto !important; }
+      .canvas-container {
+        width: 100% !important;
+        max-width: none !important;
+        margin: 0 auto !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        border: none !important;
+        padding: 24px 28px 48px !important;
+        overflow-x: auto !important;
+      }
+      .page-header { margin-bottom: 20px !important; align-items: center !important; }
+      .page-header h1 { font-size: 22px !important; line-height: 1.3 !important; margin: 0 !important; }
+    
+      /* ===== Unified Header (v2) ===== */
+      .page-header {
+        background: #FFFFFF !important;
+        border-bottom: 1px solid #E2E8F0 !important;
+        border-radius: 0 !important;
+        padding: 12px 0 !important;
+        margin-bottom: 20px !important;
+        min-height: auto !important;
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        gap: 16px !important;
+        flex-wrap: wrap !important;
+      }
+      .page-header h1 {
+        font-size: 22px !important;
+        font-weight: 700 !important;
+        color: #10213E !important;
+        line-height: 1.3 !important;
+        margin: 0 !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 10px !important;
+      }
+      .page-header h1::before {
+        content: "" !important;
+        display: inline-block !important;
+        width: 4px !important;
+        height: 22px !important;
+        background: #5DB2E2 !important;
+        border-radius: 2px !important;
+        flex-shrink: 0 !important;
+      }
+      .page-header h1 svg, .page-header h1 .icon, .page-header h1 img {
+        width: 20px !important;
+        height: 20px !important;
+        flex-shrink: 0 !important;
+      }
+      .page-subtitle, .header-meta, .meta-scenario, .header-left p, .header-content p {
+        font-size: 13px !important;
+        color: #64748B !important;
+        margin: 4px 0 0 !important;
+        padding-left: 14px !important;
+      }
+      .meta-badge, .badge, .brand-tag {
+        font-size: 12px !important;
+        color: #64748B !important;
+        background: #F5F5F6 !important;
+        border-radius: 10px !important;
+        padding: 2px 10px !important;
+      }
+      .page-header .btn-group, .header-right, .header-right > div {
+        display: flex !important;
+        align-items: center !important;
+        gap: 8px !important;
+      }
+      .btn-secondary, .btn-primary, .btn-copy-yaml {
+        font-size: 12px !important;
+        padding: 6px 12px !important;
+        border-radius: 6px !important;
+        font-weight: 600 !important;
+      }
+      .btn-secondary {
+        background: #FFFFFF !important;
+        color: #10213E !important;
+        border: 1px solid #E2E8F0 !important;
+      }
+      .btn-primary {
+        background: #10213E !important;
+        color: #FFFFFF !important;
+        border: 1px solid #10213E !important;
+      }
+</style>
+
+
 </head>
 <body>
 
@@ -227,10 +407,17 @@
   
 
   <div class="canvas-container">
-    <div class="canvas-header">
-      <h1 class="canvas-title">智能研发周报生成小助手</h1>
-      <p class="canvas-desc">解决程序员每周花费大量时间回忆梳理研发进展并撰写排版周报的痛点，一键基于代码库与项目管理工具生成优质周报。</p>
-    </div>
+    <header class="page-header">
+      <div class="header-left">
+        <h1>采购订单自动生成</h1>
+      </div>
+      <div class="header-right">
+        <div class="btn-group">
+          <button class="btn-secondary" onclick="window.print()">导出 PDF / 打印</button>
+          <button class="btn-primary" onclick="copyYAML()">复制原始 YAML</button>
+        </div>
+      </div>
+    </header>
 
     <div class="canvas-body">
       
@@ -250,9 +437,9 @@
           <div class="card-body">
             <ul>
               
-                <li><span class="bullet"></span>后端研发工程师</li>
+                <li><span class="bullet"></span>采购专员</li>
               
-                <li><span class="bullet"></span>前端开发工程师</li>
+                <li><span class="bullet"></span>采购经理</li>
               
             </ul>
           </div>
@@ -271,11 +458,13 @@
           <div class="card-body">
             <ul>
               
-                <li><span class="bullet"></span>每周写周报需要花1小时回忆做过的事</li>
+                <li><span class="bullet"></span>每日需处理数十张采购订单，手工录入耗时长</li>
               
-                <li><span class="bullet"></span>经常遗漏解决过的小bug或沟通事项</li>
+                <li><span class="bullet"></span>多品类共用零部件采购协调复杂，容易遗漏</li>
               
-                <li><span class="bullet"></span>文笔不好，被Leader挑刺表达不够结构化</li>
+                <li><span class="bullet"></span>紧急插单频繁，人工调整容易出错</li>
+              
+                <li><span class="bullet"></span>审批流程长，影响采购时效</li>
               
             </ul>
           </div>
@@ -297,9 +486,13 @@
           <div class="card-body">
             <ul>
               
-                <li><span class="bullet"></span>指定周报的始末时间(默认本周)</li>
+                <li><span class="bullet"></span>生产计划工单</li>
               
-                <li><span class="bullet"></span>人工补充的一段额外高优关注事项(选填)</li>
+                <li><span class="bullet"></span>当前库存水位</li>
+              
+                <li><span class="bullet"></span>安全库存阈值</li>
+              
+                <li><span class="bullet"></span>物料清单BOM</li>
               
             </ul>
           </div>
@@ -317,9 +510,13 @@
           <div class="card-body">
             <ul>
               
-                <li><span class="bullet"></span>Jira/飞书项目本周被认领并完结的Issue/Task</li>
+                <li><span class="bullet"></span>供应商目录及报价单</li>
               
-                <li><span class="bullet"></span>该员工本周在Gitlab上的核心Commit记录摘要</li>
+                <li><span class="bullet"></span>物料主数据</li>
+              
+                <li><span class="bullet"></span>历史采购记录</li>
+              
+                <li><span class="bullet"></span>供应商交期数据</li>
               
             </ul>
           </div>
@@ -331,23 +528,46 @@
         <div class="card theme-workflow">
           <div class="card-header">
             <div class="header-text">
-              <div class="card-title">AI 处理 WORKFLOW</div>
-              <div class="card-subtitle">AI系统的工作流程和步骤</div>
+              <div class="card-title">AI 人机流程</div>
+              <div class="card-subtitle">改造后的完整人机协同流程（人 / Agent / 人机协同）</div>
             </div>
             <div class="card-header-icon">
     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="8" x="2" y="2" rx="2"/><path d="M14 2c1.1 0 2 .9 2 2v4c0 1.1-.9 2-2 2"/><path d="M20 2c1.1 0 2 .9 2 2v4c0 1.1-.9 2-2 2"/><path d="M10 18H5c-1.7 0-3-1.3-3-3v-1"/><polyline points="7 21 10 18 7 15"/><rect width="8" height="8" x="14" y="14" rx="2"/></svg>
   </div>
           </div>
           <div class="card-body">
+            
             <ol>
               
-                <li><span class="number-bullet">1.</span>提取本周关联缺陷：自动按员工邮箱查Jira工单系统</li>
+                <li class="wf-item">
+                  <span class="actor-badge human">人</span>
+                  <span class="wf-action">采购专员确认缺料信号，发起补货请求</span>
+                </li>
               
-                <li><span class="number-bullet">2.</span>提交数据梳状分析：请求Gitlab接口抽取出对应时间段的Commit总结</li>
+                <li class="wf-item">
+                  <span class="actor-badge agent">Agent</span>
+                  <span class="wf-action">解析生产计划与库存数据，计算物料净需求</span>
+                </li>
               
-                <li><span class="number-bullet">3.</span>大语言模型深度融合：根据项目数据与代码总结结合进行重写润色</li>
+                <li class="wf-item">
+                  <span class="actor-badge agent">Agent</span>
+                  <span class="wf-action">匹配供应商目录与报价，选择最优供应商</span>
+                </li>
               
-                <li><span class="number-bullet">4.</span>周报结构化输出渲染及排版</li>
+                <li class="wf-item">
+                  <span class="actor-badge agent">Agent</span>
+                  <span class="wf-action">生成采购订单草稿（数量 / 交期 / 价格）</span>
+                </li>
+              
+                <li class="wf-item">
+                  <span class="actor-badge human">人</span>
+                  <span class="wf-action">采购经理审批关键补货单与临时变更</span>
+                </li>
+              
+                <li class="wf-item">
+                  <span class="actor-badge agent">Agent</span>
+                  <span class="wf-action">审批通过后下单供应商，并回写 ERP 订单状态</span>
+                </li>
               
             </ol>
           </div>
@@ -365,16 +585,18 @@
           <div class="card-body">
             <ul>
               
-                <li><span class="bullet"></span>核心编排：Gpt-4o 或 Claude 3.5 Sonnet</li>
+                <li><span class="bullet"></span>规则引擎：物料需求计算和库存校验</li>
               
-                <li><span class="bullet"></span>要求优秀的上下文归纳整理能力，防止代码流水账</li>
+                <li><span class="bullet"></span>推荐算法：供应商选择和价格优化</li>
+              
+                <li><span class="bullet"></span>NLP：采购订单文本生成</li>
               
             </ul>
           </div>
         </div>
       </div>
 
-      <!-- Col 4: aiOutput & tools -->
+      <!-- Col 4: aiOutput & systemIntegration -->
       <div class="column">
         <div class="card theme-output">
           <div class="card-header">
@@ -389,7 +611,13 @@
           <div class="card-body">
             <ul>
               
-                <li><span class="bullet"></span>按“本周核心进展”、“问题与风险”、“下周计划”三段式输出的Markdown文本</li>
+                <li><span class="bullet"></span>自动生成采购订单PDF/电子单据</li>
+              
+                <li><span class="bullet"></span>供应商接收订单通知</li>
+              
+                <li><span class="bullet"></span>ERP系统订单状态更新</li>
+              
+                <li><span class="bullet"></span>异常预警（缺料/交期冲突）</li>
               
             </ul>
           </div>
@@ -397,28 +625,51 @@
         <div class="card theme-tools">
           <div class="card-header">
             <div class="header-text">
-              <div class="card-title">工具调用</div>
-              <div class="card-subtitle">AI系统需要调用的内外部 API</div>
+              <div class="card-title">工具调用/系统集成</div>
+              <div class="card-subtitle">需要调用、集成的内外部系统与上下游信息</div>
             </div>
             <div class="card-header-icon">
     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
   </div>
           </div>
           <div class="card-body">
+            
             <ul>
               
-                <li><span class="bullet"></span>Jira API 读取</li>
+                  <li class="intg-item">
+                    <span class="dir-badge downstream">↓ 下游执行</span>
+                    <div class="intg-body">
+                      <div class="intg-system">ERP 采购系统</div><div class="intg-purpose">下单结果回写，同步采购订单状态</div>
+                    </div>
+                  </li>
               
-                <li><span class="bullet"></span>Gitlab / Github API 读取</li>
+                  <li class="intg-item">
+                    <span class="dir-badge bidirectional">⇄ 双向</span>
+                    <div class="intg-body">
+                      <div class="intg-system">SRM 供应商协同平台</div><div class="intg-purpose">下单与交期确认的双向协同</div>
+                    </div>
+                  </li>
               
-                <li><span class="bullet"></span>飞书文档自动创建接⼝</li>
+                  <li class="intg-item">
+                    <span class="dir-badge downstream">↓ 下游执行</span>
+                    <div class="intg-body">
+                      <div class="intg-system">邮件 / 钉钉通知接口</div><div class="intg-purpose">下单结果与异常预警推送</div>
+                    </div>
+                  </li>
+              
+                  <li class="intg-item">
+                    <span class="dir-badge downstream">↓ 下游执行</span>
+                    <div class="intg-body">
+                      <div class="intg-system">电子签章系统</div><div class="intg-purpose">采购订单电子签章</div>
+                    </div>
+                  </li>
               
             </ul>
           </div>
         </div>
       </div>
 
-      <!-- Col 5: productType & userGains -->
+      <!-- Col 5: productType & businessGains -->
       <div class="column">
         <div class="card theme-product">
           <div class="card-header">
@@ -433,9 +684,9 @@
           <div class="card-body">
             <ul>
               
-                <li><span class="bullet"></span>IDE (VSCode/Cursor) 侧边栏小插件，点击直接输出</li>
+                <li><span class="bullet"></span>嵌入SRM系统的智能下单模块</li>
               
-                <li><span class="bullet"></span>飞书企业内部自建 Bot，每周五下午4点主动推送填写卡片</li>
+                <li><span class="bullet"></span>采购专员工作台待办提醒</li>
               
             </ul>
           </div>
@@ -443,8 +694,8 @@
         <div class="card theme-gains">
           <div class="card-header">
             <div class="header-text">
-              <div class="card-title">用户收益</div>
-              <div class="card-subtitle">用户通过使用该AI场景获得的好处</div>
+              <div class="card-title">业务收益</div>
+              <div class="card-subtitle">上线后预期达成的量化业务指标（对齐机会点定义）</div>
             </div>
             <div class="card-header-icon">
     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
@@ -453,9 +704,13 @@
           <div class="card-body">
             <ul>
               
-                <li><span class="bullet"></span>周报撰写耗时由原来约60分钟降至5分钟</li>
+                <li><span class="bullet"></span>人工下单工作量减少70%</li>
               
-                <li><span class="bullet"></span>本身内容质量提升，遗漏重大产出的事件减少 90%</li>
+                <li><span class="bullet"></span>采购订单处理时效从2天缩短至2小时</li>
+              
+                <li><span class="bullet"></span>缺料率降低30%</li>
+              
+                <li><span class="bullet"></span>采购成本降低5-8%（通过智能选商）</li>
               
             </ul>
           </div>
@@ -465,9 +720,90 @@
     </div>
   </div>
 
-  <div style="text-align: right; margin-top: 16px; font-size: 0.75rem; color: #94a3b8; max-width: 1400px; margin-left: auto; margin-right: auto;">
-    Generated by ai-canvas-generator &middot; Offline Engine
+  <div style="text-align: center; margin-top: 16px; font-size: 12px; color: var(--color-text-muted); max-width: 1440px; margin-left: auto; margin-right: auto; padding: 16px 0 8px;">
+    Generated by ai-canvas-generator &middot; &copy; 2026 Inspire AI4PM
   </div>
 
+  <div class="toast" id="toast">已成功复制 YAML 数据</div>
+  
+  <script type="application/yaml" id="raw-yaml">
+title: "采购订单自动生成"
+description: "基于生产计划和安全库存自动触发采购订单，消除人工下单工作量"
+userRoles:
+  - "采购专员"
+  - "采购经理"
+userPains:
+  - "每日需处理数十张采购订单，手工录入耗时长"
+  - "多品类共用零部件采购协调复杂，容易遗漏"
+  - "紧急插单频繁，人工调整容易出错"
+  - "审批流程长，影响采购时效"
+aiInput:
+  - "生产计划工单"
+  - "当前库存水位"
+  - "安全库存阈值"
+  - "物料清单BOM"
+dataKnowledge:
+  - "供应商目录及报价单"
+  - "物料主数据"
+  - "历史采购记录"
+  - "供应商交期数据"
+# workflow = 改造后的「完整新人机流程」（粗颗粒度）：人发起 → Agent 处理 → 人确认 → Agent 收尾
+workflow:
+  - actor: human
+    action: 采购专员确认缺料信号，发起补货请求
+  - actor: agent
+    action: 解析生产计划与库存数据，计算物料净需求
+  - actor: agent
+    action: 匹配供应商目录与报价，选择最优供应商
+  - actor: agent
+    action: 生成采购订单草稿（数量 / 交期 / 价格）
+  - actor: human
+    action: 采购经理审批关键补货单与临时变更
+  - actor: agent
+    action: 审批通过后下单供应商，并回写 ERP 订单状态
+modelUsage:
+  - "规则引擎：物料需求计算和库存校验"
+  - "推荐算法：供应商选择和价格优化"
+  - "NLP：采购订单文本生成"
+aiOutput:
+  - "自动生成采购订单PDF/电子单据"
+  - "供应商接收订单通知"
+  - "ERP系统订单状态更新"
+  - "异常预警（缺料/交期冲突）"
+# systemIntegration = 工具调用/系统集成：注明上下游系统、集成方向与用途
+systemIntegration:
+  - system: "ERP 采购系统"
+    direction: "downstream"
+    purpose: "下单结果回写，同步采购订单状态"
+  - system: "SRM 供应商协同平台"
+    direction: "bidirectional"
+    purpose: "下单与交期确认的双向协同"
+  - system: "邮件 / 钉钉通知接口"
+    direction: "downstream"
+    purpose: "下单结果与异常预警推送"
+  - system: "电子签章系统"
+    direction: "downstream"
+    purpose: "采购订单电子签章"
+productType:
+  - "嵌入SRM系统的智能下单模块"
+  - "采购专员工作台待办提醒"
+# businessGains = 业务收益（对齐机会点定义的量化指标）
+businessGains:
+  - "人工下单工作量减少70%"
+  - "采购订单处理时效从2天缩短至2小时"
+  - "缺料率降低30%"
+  - "采购成本降低5-8%（通过智能选商）"
+  </script>
+
+  <script>
+    function copyYAML() {
+      const yaml = document.getElementById('raw-yaml').textContent.trim();
+      navigator.clipboard.writeText(yaml).then(() => {
+        const toast = document.getElementById('toast');
+        toast.style.display = 'block';
+        setTimeout(() => { toast.style.display = 'none'; }, 2500);
+      });
+    }
+  </script>
 </body>
 </html>

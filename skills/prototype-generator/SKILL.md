@@ -117,7 +117,7 @@ npm run dev          # 开发模式：API(:8080) + Vite 前端(:5173)
 | `uploadCard` | Upload.Dragger | 上传文件（承接 userInputs） |
 | `aiResultCard` | Card + Table/描述 | AI 结果（承接 visibleData，支持 table/kv 两种渲染） |
 | `table` | Table / a-table | 数据表格（状态列 Tag 着色） |
-| `statRow` | Row + Statistic | 指标卡（承接 userGains 量化指标） |
+| `statRow` | Row + Statistic | 指标卡（承接 businessGains 量化指标） |
 | `buttonRow` | Space + Button | 操作区（navigate / 触发 AI action） |
 | `alert` | Alert / a-alert | 业务告警 |
 | `timeline` | Timeline / a-timeline | 状态流转 |

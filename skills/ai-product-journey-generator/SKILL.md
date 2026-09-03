@@ -60,7 +60,7 @@ author: KK
 | `userInputs` | 本步用户需上传/输入的数据（文件、表单、示例） | 上传 `PR-2024-0812.xlsx` 采购申请单 |
 | `aiInteraction` | AI 动作 + 对话中推荐的操作指令（快捷 chips） | "识别并校验物料信息" |
 | `visibleData` | AI 处理后用户能看到的真实数据信息细节 | 识别结果：3 条物料（电机×500件…） |
-| `designNotes` | 该步骤设计意图与预期改善（承接 Canvas.userGains） | 录入耗时 30 分钟 → 2 分钟 |
+| `designNotes` | 该步骤设计意图与预期改善（承接 Canvas.businessGains） | 录入耗时 30 分钟 → 2 分钟 |
 
 ---
 
@@ -68,7 +68,7 @@ author: KK
 
 ### Step 1 · 解析 AI 场景定义（输入）
 - **优先**：读取用户指定/历史产出的 AI Canvas YAML（如 `X电商订舱/X电商订舱-AI画布-01智能订舱Agent.yaml`），
-  提取 `title`、`userRoles`、`userPains`、`aiInput`、`dataKnowledge`、`workflow`、`aiOutput`、`productType`、`userGains`。
+  提取 `title`、`userRoles`、`userPains`、`aiInput`、`dataKnowledge`、`workflow`、`aiOutput`、`systemIntegration`、`productType`、`businessGains`。
 - **兜底**：用户以自然语言描述 AI 场景时，先按 AI Canvas 十维结构自行推演，再进入 Step 2。
 - **可选增强**：若用户提供真实业务数据样例（Excel/文档/截图），必须作为 `userInputs` / `visibleData` / `businessData` 的真实性依据，不得虚构冲突的数据。
 
