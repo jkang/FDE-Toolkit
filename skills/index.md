@@ -15,7 +15,7 @@
 
 | 命令 | 编排的 Subagent | 串联的 Skills | 用途 |
 | --- | --- | --- | --- |
-| `/discovery` | discovery-agent（宏编排 Skill） | 全链路 13 步（NSM → AI 成熟度 → OSM → 流程 → 旅程 → 蓝图 → 机会地图 → 画布 → CKD → 矩阵 → 路线图 → 里程碑 → 仪表盘） | 端到端 AI 场景探索，一次跑完整流程并汇总 Deck |
+| `/discovery` | discovery-agent（宏编排 Skill） | FDE 四步法 20 步：理需求（桌研→价值流→L3/L4→问题定义→服务蓝图→机会点→AI画布→矩阵）→ 挖知识（任务流程P1→To-be流程→规则P2→CKD）→ 建本体（本体→Agentic工作流）→ 生智能（产品方案→旅程→MVP原型→UX→评测）→ 仪表盘 | 端到端 AI 场景探索，一次跑完整 FDE 四步法并汇总 Deck |
 | `/nsm` | nsm-analyst | `nsm-analysis`（business-research → swot-analysis → strategy-derivation） | 企业北极星战略全链路分析 |
 | `/client-insight` | client-insight-advisor | `company-ai-maturity-research`、`osm-map-generator`、`business-process-deep-analyzer`、`journey-map-generator`、`blueprint-map-generator` | 客户洞察与现状业务梳理 |
 | `/opportunity` | opportunity-advisor | `ai-opportunity-map-generator`、`ai-canvas-generator`、`context-knowledge-data-analyzer`、`ai-scenario-matrix-generator` | AI 机会挖掘与优先级评估 |
@@ -87,10 +87,11 @@ FDE 四步法：**理需求 → 挖知识 → 建本体 → 生智能**。每一
 
 ## 2. 使用建议（按场景选择入口）
 
-- **完整项目启动（一次性全链路）**：用 `discovery-agent` 批量编排 → 汇总到 `unified-report-dashboard`。
+- **完整项目启动（一次性全链路）**：用 `/discovery` 按 FDE 四步法（理需求 → 挖知识 → 建本体 → 生智能）批量编排 → 汇总到 `unified-report-dashboard`。
 - **企业战略诊断 / 北极星指标**：用 `/nsm`（业务调研 → SWOT → 战略推导）。
 - **初次拜访 / 数字化评估**：用 `/client-insight`（AI 成熟度 + 流程深度分析）。
 - **找 AI 机会并定优先级**：`/opportunity` → AI 机会地图 → 画布 → CKD → 优先级矩阵。
+- **理需求·问题/机会驱动链（课件顺序）**：`value-stream-mapper`（L1）→ `business-process-deep-analyzer`（L3/L4）→ `problem-definition`（8 要素）→ `opportunity-definition`（5 要素）→ `ai-canvas-generator` 画布 → `ai-scenario-matrix-generator` 矩阵。
 - **让 Agent 规则落地**：`/agent-arch` → To-be 流程/任务拆解（P1）→ 规则挖掘（P2）→ 本体/工作流/CKD 三视图。
 - **把场景做成原型**：`/mvp-prototype` → Agent 产品方案 → To-be 旅程 → MVP 原型 → UX 优化。
 - **判断能否上线**：`/mvp-eval` → 测试数据集 + 成效指标/门禁（Go/No-Go）。
