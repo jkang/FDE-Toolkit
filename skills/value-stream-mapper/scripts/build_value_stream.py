@@ -121,6 +121,58 @@ def compute_stats(streams):
 
 
 # --------------------------------------------------------------------------- #
+# 纯业务语言防呆检查（防 AI/系统方案词泄漏进业务地图）
+# --------------------------------------------------------------------------- #
+# 违反 references/value_stream_prompts.md §2 的解决方案词。命中即告警（不阻断编译）。
+DENY_WORDS = [
+    "智能", "智慧", "AI", "大模型", "LLM", "Agent", "智能体",
+    "机器人", "数字员工", "算法", "自动",
+]
+# 拉丁字母产品/系统名特征（如 E-Spot、IQAX、PlumSmart），命中即提示
+LATIN_BRAND = re.compile(r"(?<![A-Za-z])(?=[A-Za-z])[A-Za-z]{2,}[A-Z][a-z]+[A-Za-z]*|"
+                         r"\b[A-Z][a-z]+[A-Z][a-zA-Z]*\b")
+
+
+def _scan_text(label: str, text: str, hits: list):
+    if not text:
+        return
+    for w in DENY_WORDS:
+        if w in text:
+            hits.append(f"   · {label}：含方案词「{w}」→ “{text[:60]}…”")
+    for m in LATIN_BRAND.finditer(text):
+        hits.append(f"   · {label}：疑似产品/系统名「{m.group()}」→ “{text[:60]}…”")
+
+
+def lint_business_purity(data: dict) -> int:
+    """扫描业务内容字段中的解决方案词汇，返回命中数（不阻断编译）。"""
+    hits = []
+    meta = data.get("meta") or {}
+    # meta.originalIdea 是客户原话，仅作聚焦依据，豁免检查
+    _scan_text("meta.insight", meta.get("insight"), hits)
+    for kpi in ensure_list(meta.get("kpi")):
+        _scan_text("meta.kpi", kpi, hits)
+    for stream in ensure_list(data.get("valueStreams")):
+        _scan_text("valueStreams[].name", stream.get("name"), hits)
+        _scan_text("valueStreams[].chain", stream.get("chain"), hits)
+        for seg in ensure_list(stream.get("segments")):
+            _scan_text("segments[].name", seg.get("name"), hits)
+            _scan_text("segments[].chain", seg.get("chain"), hits)
+            for link in ensure_list(seg.get("links")):
+                _scan_text("links[].name", link.get("name"), hits)
+                detail = link.get("detail") or {}
+                _scan_text("definition", detail.get("definition"), hits)
+                _scan_text("goal", detail.get("goal"), hits)
+                _scan_text("reason", detail.get("reason"), hits)
+    if hits:
+        print("⚠️ [纯业务语言检查] 以下内容含解决方案词 / 疑似系统名（价值流图是业务地图，"
+              "应只写业务语言；见 references/value_stream_prompts.md §2）：")
+        for h in hits:
+            print(h)
+        print("   ↑ 建议人工复核并改为业务语言后再交付（本告警不阻断编译）。")
+    return len(hits)
+
+
+# --------------------------------------------------------------------------- #
 # 主流程
 # --------------------------------------------------------------------------- #
 def main():
@@ -164,6 +216,9 @@ def main():
             seg["focusGroups"] = focus_groups.get(col_id, [])
 
     stats = compute_stats(streams)
+
+    # ---- 纯业务语言防呆检查（告警不阻断） ---- #
+    lint_business_purity(data)
 
     # ---- 渲染 ---- #
     env = Environment(loader=FileSystemLoader(TEMPLATE_DIR), autoescape=True)
