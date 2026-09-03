@@ -79,11 +79,6 @@
   }
   .vs-sgroup-head .sh-title { font-size: 15px; font-weight: 700; color: var(--navy); }
   .vs-sgroup-head .sh-chain { font-size: 11.5px; color: var(--soft); line-height: 1.5; margin-top: 2px; }
-  .vs-focus-tag {
-    font-size: 11.5px; color: #2A6A8C; background: #EFF6FE;
-    border: 1px solid #BFDCF0; border-radius: 999px; padding: 2px 9px; font-weight: 700; white-space: nowrap;
-  }
-  .vs-sgroup-head .sh-focus-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
 
   /* 价值段列（参考图：①……⑤ 横向从左到右串联，→ 连接） */
   .vs-columns {
@@ -113,7 +108,6 @@
     display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;
   }
   .vs-col-head .ch-chain { font-size: 11px; color: var(--soft); line-height: 1.5; }
-  .vs-col-head .ch-focus-tags { display: flex; gap: 6px; flex-wrap: wrap; }
 
   /* 列内业务环节竖排卡（↓ 连接） */
   .vs-col-links { padding: 10px 11px; display: flex; flex-direction: column; }
@@ -128,19 +122,26 @@
     text-align: left;
     display: flex; flex-direction: column;
   }
-  .vs-link.focused {
-    border: 2px solid var(--focus-border);
-    background: var(--focus-bg);
-  }
   .vs-link-top { display: flex; flex-direction: column; gap: 7px; }
-  .vs-link-focusbadge {
-    font-size: 11px; font-weight: 700; color: #1D4ED8; background: #EFF6FE;
-    border: 1px solid #BFDCF0; border-radius: 999px; padding: 1px 9px; white-space: nowrap; align-self: flex-start;
-  }
   .vs-link-name { font-size: 13.5px; font-weight: 600; color: var(--navy); line-height: 1.4; }
   .vs-link-pri { font-size: 10.5px; font-weight: 700; border-radius: 4px; padding: 1px 6px; color: #fff; line-height: 1.5; align-self: flex-start; }
   .vs-link-pri.p0 { background: #E4703A; }
   .vs-link-pri.p1 { background: #5DA8D8; }
+
+  /* 聚焦框（列内：把同段相邻聚焦环节整体包成一个蓝框） */
+  .vs-focus-group {
+    border: 2px solid var(--focus-border);
+    background: var(--focus-bg);
+    border-radius: var(--radius);
+    padding: 10px 11px 12px;
+  }
+  .vs-group-head { display: flex; margin-bottom: 8px; }
+  .vs-group-badge {
+    font-size: 11.5px; font-weight: 700; color: #1D4ED8;
+    background: #EFF6FE; border: 1px solid #BFDCF0;
+    border-radius: 999px; padding: 2px 10px; white-space: nowrap;
+  }
+  .vs-group-links { display: flex; flex-direction: column; }
 
   /* 可折叠：定义 / 目标 / 理由 */
   .vs-link-detail { margin-top: 9px; border-top: 1px dashed var(--line); padding-top: 6px; }
@@ -203,7 +204,33 @@
     {%- if meta.sourceRef %}<span class="vs-chip">{{ meta.sourceRef }}</span>{% endif %}
   </div>
 
-  <!-- 价值流（条带）→ 价值段（横向列）→ 业务环节（竖排卡） -->
+  <!-- 业务环节卡（可折叠：定义/目标/理由）复用宏；聚焦优先级标在卡上 -->
+  {% macro link_card(link) -%}
+  <div class="vs-link">
+    <div class="vs-link-top">
+      <div class="vs-link-name">{{ link.name }}</div>
+      {%- if link.priority == 'P0' %}<span class="vs-link-pri p0">P0</span>{% endif %}
+      {%- if link.priority == 'P1' %}<span class="vs-link-pri p1">P1</span>{% endif %}
+    </div>
+    {%- if link.detail %}
+    <div class="vs-link-detail">
+      <span class="vs-link-toggle" onclick="toggleLink(this)">定义 / 目标 / {{ '聚焦理由' if link.focus else '不聚焦理由' }}</span>
+      <div class="vs-link-body">
+        {%- if link.detail.definition %}<div class="vs-field"><span class="vf-label">定义：</span><span class="vf-val">{{ link.detail.definition }}</span></div>{% endif %}
+        {%- if link.detail.goal %}<div class="vs-field"><span class="vf-label">目标：</span><span class="vf-val">{{ link.detail.goal }}</span></div>{% endif %}
+        {%- if link.detail.reason %}
+        <div class="vs-field {{ 'f-reason' if link.focus else 'reason' }}">
+          <span class="vf-label">{{ '聚焦理由' if link.focus else '不聚焦理由' }}：</span>
+          <span class="vf-val">{{ link.detail.reason }}</span>
+        </div>
+        {%- endif %}
+      </div>
+    </div>
+    {%- endif %}
+  </div>
+  {%- endmacro %}
+
+  <!-- 价值流（条带）→ 价值段（横向列）→ 业务环节（竖排卡 / 聚焦框） -->
   <div class="vs-sgroups">
     {%- for stream in valueStreams %}
     <div class="vs-sgroup">
@@ -212,11 +239,6 @@
         <div class="sh-body">
           <div class="sh-title">{{ stream.name }}</div>
           {%- if stream.chain %}<div class="sh-chain">{{ stream.chain }}</div>{% endif %}
-          {%- if stream.focusGroups %}
-          <div class="sh-focus-tags">
-            {%- for g in stream.focusGroups %}<span class="vs-focus-tag">★ {{ g }}</span>{% endfor %}
-          </div>
-          {%- endif %}
         </div>
       </div>
 
@@ -227,38 +249,23 @@
             <div class="vs-col-head">
               <div class="ch-title"><span class="ch-num">{{ seg.order }}</span><span>{{ seg.name }}</span></div>
               {%- if seg.chain %}<div class="ch-chain">{{ seg.chain }}</div>{% endif %}
-              {%- if seg.focusGroups %}
-              <div class="ch-focus-tags">
-                {%- for g in seg.focusGroups %}<span class="vs-focus-tag">★ {{ g }}</span>{% endfor %}
-              </div>
-              {%- endif %}
             </div>
             <div class="vs-col-links">
-              {%- for link in seg.links %}
+              {%- for item in seg['items'] %}
                 {%- if not loop.first %}<div class="vs-link-arrow-j">↓</div>{% endif %}
-                <div class="vs-link {% if link.focus %}focused{% endif %}">
-                  <div class="vs-link-top">
-                    {%- if link.focus and link.focusLabel %}<span class="vs-link-focusbadge">★ {{ link.focusLabel }}</span>{% endif %}
-                    <div class="vs-link-name">{{ link.name }}</div>
-                    {%- if link.priority == 'P0' %}<span class="vs-link-pri p0">P0</span>{% endif %}
-                    {%- if link.priority == 'P1' %}<span class="vs-link-pri p1">P1</span>{% endif %}
+                {%- if item.kind == 'group' %}
+                <div class="vs-focus-group">
+                  <div class="vs-group-head"><span class="vs-group-badge">★ {{ item.group.label }}</span></div>
+                  <div class="vs-group-links">
+                    {%- for glink in item.group.links %}
+                      {%- if not loop.first %}<div class="vs-link-arrow-j">↓</div>{% endif %}
+                      {{ link_card(glink) }}
+                    {%- endfor %}
                   </div>
-                  {%- if link.detail %}
-                  <div class="vs-link-detail">
-                    <span class="vs-link-toggle" onclick="toggleLink(this)">定义 / 目标 / {{ '聚焦理由' if link.focus else '不聚焦理由' }}</span>
-                    <div class="vs-link-body">
-                      {%- if link.detail.definition %}<div class="vs-field"><span class="vf-label">定义：</span><span class="vf-val">{{ link.detail.definition }}</span></div>{% endif %}
-                      {%- if link.detail.goal %}<div class="vs-field"><span class="vf-label">目标：</span><span class="vf-val">{{ link.detail.goal }}</span></div>{% endif %}
-                      {%- if link.detail.reason %}
-                      <div class="vs-field {{ 'f-reason' if link.focus else 'reason' }}">
-                        <span class="vf-label">{{ '聚焦理由' if link.focus else '不聚焦理由' }}：</span>
-                        <span class="vf-val">{{ link.detail.reason }}</span>
-                      </div>
-                      {%- endif %}
-                    </div>
-                  </div>
-                  {%- endif %}
                 </div>
+                {%- else %}
+                  {{ link_card(item.link) }}
+                {%- endif %}
               {%- endfor %}
             </div>
           </div>

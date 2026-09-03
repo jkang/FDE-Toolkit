@@ -1,88 +1,113 @@
 # AI for Product Managers (AI4PM) Skills Index
 
-欢迎使用 **AI4PM 技能库**。本库专为产品经理设计，提供从客户战略洞察到高保真原型生成的全链路 AI 辅助工具。
----
+欢迎使用 **AI4PM 技能库**。本库专为产品经理与 FDE 四步法设计，提供从客户战略洞察到高保真原型生成的全链路 AI 辅助工具。
 
-## AI场景探索与规划
+本文件是本库的**总索引 + 使用路线图**：它既为**人**提供「怎么用、用什么命令」的快速上手路径，也为 **AI**（Subagent / Command）提供「每个环节该串哪个 Skill、产什么、喂给谁」的编排依据。
 
-> 🤖 **[Discovery Agent（全链路编排器）](discovery-agent/SKILL.md)**：宏 Agent。接受客户名称 + 业务领域，自动按顺序调度下方各 Skill，最终生成统一报告仪表盘。适合完整项目启动场景。
-> 🗂️ **[统一报告仪表盘 (Unified Report Dashboard)](unified-report-dashboard/SKILL.md)**：将多个分析步骤（NSM、业务流程、服务蓝图、AI 机会地图、AI 画布、里程碑计划等）的 HTML 输出整合为一个带侧边栏导航的报告仪表盘，供汇报与交付使用（Discovery Agent 的最终输出端）。
-
-### 1. 客户洞察与业务梳理
-在介入具体业务前，深入了解客户的 AI 战略地位与就绪度。梳理现状（As-Is），识别业务中的断点与痛点。
-
-- **[企业北极星战略全景分析 (NSM Analysis)](nsm-analysis/SKILL.md)**: 宏技能 (Macro Skill)。端到端编排企业深度调研、SWOT 分析并推导北极星指标与核心战略。
-  - *包含微技能*: [业务现状调研 (Business Research)](nsm-analysis/sub-skills/business-research/SKILL.md) | [SWOT 分析 (SWOT Analysis)](nsm-analysis/sub-skills/swot-analysis/SKILL.md) | [战略与指标推导 (Strategy Derivation)](nsm-analysis/sub-skills/strategy-derivation/SKILL.md)
-- **[AI 成熟度评估与战略调研 (Company AI Maturity Research)](company-ai-maturity-research/SKILL.md)**: 对企业进行 AI 成熟度评估，识别AI就绪度
-- **[OSM 目标度量地图 (OSM Map Generator)](osm-map-generator/SKILL.md)**: 将战略目标（Objectives）分解为具体策略（Strategy）与度量指标（Metrics）。
-- **[价值流图 (Value Stream Mapper)](value-stream-mapper/SKILL.md)**: 把业务端到端经营主线梳理为 L1 价值链全景（价值流 → 价值段(列) → 业务环节(列内卡)），并据原始 idea 在业务环节级标聚焦范围（★ 高亮 + 优先级），是后续 L2/L3 流程拆解的全貌底稿。
-- **[业务流程深度分析 (Business Process Deep Analyzer)](business-process-deep-analyzer/SKILL.md)**: 把单个价值段/业务环节下钻为 L3/L4 现状泳道图（列=L3 子环节 × 行=角色泳道 × 格=L4 任务），逐环节标注痛点（高耗时 / 高认知负荷 / 高频错误 / 来回往复 / 系统瓶颈），并附任务明细表（角色 / 输入→输出 / 业务规则及固化度 / 痛点）。
-- **[业务问题定义 (Problem Definition)](problem-definition/SKILL.md)**: 承接现状泳道图痛点 + 根因分析（5-Why），用 8 个结构化要素（①一句话问题描述 ②角色和场景 ③遇到的问题 ④根因 ⑤发生频度 ⑥影响范围 ⑦单次影响 ⑧累计影响）把一个痛点定义成「可取证、可量化、可归因」的业务问题，作为 AI 机会点挖掘与 To-be 设计的问题定义层输入。
-- **[体验旅程图 (Journey Map Generator)](journey-map-generator/SKILL.md)**: 生成包含角色情感波动、交互点及痛点分析的体验旅程图。
-- **[服务蓝图 (Blueprint Map Generator)](blueprint-map-generator/SKILL.md)**: 绘制包含前台接触点、后台流程与支撑系统的服务蓝图。
-
-### 2. AI 机会挖掘与优先级评估 (AI Opportunity & Prioritization)
-基于流程痛点，识别 AI 的切入点，并评估各场景的实施优先级。
-
-- **[AI 机会场景地图 (AI Opportunity Map Generator)](ai-opportunity-map-generator/SKILL.md)**: 自动从业务流程中挖掘自动化与智能化机会，生成机会场景地图。
-- **[AI 场景画布 (AI Canvas Generator)](ai-canvas-generator/SKILL.md)**: 为特定 AI 场景生成包含用户痛点、输入输出、模型方案的 10 维画布。
-- **[Agent 本体设计器 (Agent Ontology Designer)](agent-ontology-designer/SKILL.md)**: 从 AI Canvas / To-Be Journey / 服务蓝图出发，生成 Agent 执行所需的三层本体模型（对象关系 → 行动边界 → 状态迁移），输出可视化 HTML 报告和 Agent Prompt 注入片段。
-- **[CKD 数据映射分析 (Context/Knowledge/Data Analyzer)](context-knowledge-data-analyzer/SKILL.md)**: 梳理 AI Workflow 每一步所需的上下文、知识与数据资源清单。
-- **[AI 场景优先级矩阵 (AI Scenario Matrix Generator)](ai-scenario-matrix-generator/SKILL.md)**: 基于收益与成本维度，将 AI 场景映射到 5x5 优先级矩阵中。
-
-### 3. 战略规划与里程碑 (Strategic Planning & Roadmap)
-勾勒未来的演进路线，明确核心里程碑。
-
-- **[产品演进路线图 (Roadmap Generator)](roadmap-generator/SKILL.md)**: 生成垂直阶段式（Phases）的高颜值商业路线图。
-- **[里程碑计划 (Milestone Plan Generator)](milestone-plan-generator/SKILL.md)**: 将长期规划转化为带泳道和时间轴的可视化里程碑。
+> 协作规范见仓库根目录 `AGENTS.md`；各 Skill 的详细 SOP 见其 `SKILL.md`。
+> 所有产物遵循**双重输出**（结构化 YAML + 交互式 HTML）与**两层目录**（`[公司/业务名]/` 与 `[公司/业务名]/[场景名]/`）规范。
 
 ---
 
-## AI项目快速启动与落地 
+## 0. 快速上手：先用 /command（推荐给用户）
 
-### 1. 方案设计
-在进入细节研发前，明确产品的功能布局、系统架构与高保真交互呈现。
+每个工作流已被封装成「**命令（/X）→ Subagent → Skill 组合**」。用户只需要在 opencode 里输入一条 `/命令`，即可自动串联一整条链路，无需手动逐个调用 Skill。
 
-- **[To-be 旅程设计 (AI Product Journey Generator)](ai-product-journey-generator/SKILL.md)**: 基于 AI 场景定义（AI Canvas），细化用户角色与典型使用场景，设计含 AI 交互细节（上传数据示例/推荐操作指令/可见数据）的 To-be User Journey，为原型生成提供输入。
-- **[To-be 流程泳道图 (To-be Process Designer)](to-be-process-designer/SKILL.md)**: 输入现状流程 + 问题痛点 + AI 机会点画布，以流程挖掘（SKP 阶段1）视角重排为「列=业务阶段(L3) × 行=角色泳道」的深度任务(L5)序列，登记执行主体 / HITL 焦点 / 规则依据类型 / 价值锚定 / 异常链路，输出结构化 YAML + 泳道式 HTML 流程图。
-- **[Agent 产品方案 (Agent Product Proposal Generator)](agent-product-proposal-generator/SKILL.md)**: 基于理需求、场景定义、挖知识、梳理本体的各项产出，聚合生成一份「Agent 产品方案」Markdown 设计文档（产品定位 → 形态架构 → 演示故事线 → 功能与 UI 组件 → Agent 行为 → 规则消费门禁），可直接交给原型作者照单施工。
-- **[任务流程拆解图 (Deep Task Flow Analyzer)](deep-task-flow-analyzer/SKILL.md)**: 承接 AI 场景定义（AI Canvas / To-be 旅程 / 服务蓝图），以 SKP 阶段1「任务流程挖掘」视角把业务按「L3 业务阶段 → L4 活动分组 → L5 可执行动作」三层纵切，登记每个 L5 的执行主体 / 输入输出 / 规则依据 / 异常·HITL，并聚焦高价值 L4（P0）下钻为 L5 深度任务序列，输出「端到端深度任务流程地图」HTML + YAML。与 To-be 泳道图互补：泳道图答「谁在何时做」，本 Skill 答「一件事拆成几个原子动作、每步依据与异常」。
-- **[业务规则挖掘器 (Business Rule Miner)](business-rule-miner/SKILL.md)**: 承接任务流程拆解产物（使用点）+ SRP 已识别规则类型 + 调研素材，以 SKP 阶段2「任务处理规则挖掘」视角，把每个任务依据什么处理深挖为五类可消费的业务知识结构（决策模型/模版范例/术语字典/关键信息提取要点/关联关系），每条规则/样本绑定使用点、来源可追溯，并做 P1↔P2 双向可追踪交叉核对，输出《任务处理规则挖掘清单》HTML + YAML。
-- **[Agentic 工作流设计 (Agentic Workflow Designer)](agentic-workflow-designer/SKILL.md)**: 承接 To-be 旅程，识别其中的各 AI 能力（不同目的/输入输出即拆分，HITL 中间环节不拆），为每个能力生成 PlantUML 活动序列图；以 Agentic 架构专家视角显式设计达成场景 KPI 所需的 Agent 编排（Agent 分解/编排模式/推理循环/护栏/人机协同/失败兜底），关键活动高亮渲染进 HTML。
-- **[MVP 原型生成器 (Prototype Generator)](prototype-generator/SKILL.md)**: 输入 AI Canvas + To-be Journey，编译输出可启动运行的前后端一体化 MVP 应用（React/Vue + Express + Mock AI/业务服务），含启动验证。
-- **[UX 优化器 (UX-Optimizer)](ux-optimizer/SKILL.md)**: 面向 MVP-prototype 产品级 UI，按「企业品牌 × 业务主题」定制独立产品设计系统，以覆盖层无侵入注入 tokens + 组件规范，并产出 UX 设计报告（自含设计系统，不依赖全局 design.md）。
-- **[PlantUML 流程图 (PlantUML Flow Generator)](plantuml-flow-generator/SKILL.md)**: 绘制专业的 PlantUML 时序图、活动图等技术流程图。
+| 命令 | 编排的 Subagent | 串联的 Skills | 用途 |
+| --- | --- | --- | --- |
+| `/nsm` | nsm-analyst | `nsm-analysis`（business-research → swot-analysis → strategy-derivation） | 企业北极星战略全链路分析 |
+| `/client-insight` | client-insight-advisor | `company-ai-maturity-research`、`osm-map-generator`、`business-process-deep-analyzer`、`journey-map-generator`、`blueprint-map-generator` | 客户洞察与现状业务梳理 |
+| `/opportunity` | opportunity-advisor | `ai-opportunity-map-generator`、`ai-canvas-generator`、`context-knowledge-data-analyzer`、`ai-scenario-matrix-generator` | AI 机会挖掘与优先级评估 |
+| `/agent-arch` | agent-arch-designer | `to-be-process-designer`、`deep-task-flow-analyzer`、`business-rule-miner`、`agent-ontology-designer`、`agentic-workflow-designer`、`context-knowledge-data-analyzer` | Agent 系统设计（SKP P1→P2 + 结构/行为/资源三视图） |
+| `/mvp-prototype` | mvp-prototype | `agent-product-proposal-generator`、`ai-product-journey-generator`、`prototype-generator`、`ux-optimizer` | Agent 产品方案 → To-be 旅程 → MVP 原型 → UX 定制优化 |
+| `/mvp-eval` | mvp-evaluator | `ai-test-dataset-generator`、`mvp-metrics-generator` | MVP 评测（测试数据集 / 成效指标 / Go-No-Go） |
+| `/requirement` | requirement-analyst | `story-map-generator`、`mvp-plan-generator` | 需求拆解（故事地图 / MVP 迭代计划） |
+| `/roadmap` | roadmap-planner | `roadmap-generator`、`milestone-plan-generator` | 战略规划（路线图 / 里程碑） |
 
-### 2. 需求拆解
-将宏观规划向下拆解为可执行、可度量的需求卡片与迭代计划。
-
-- **[用户故事地图 (Story Map Generator)](story-map-generator/SKILL.md)**: 构建“阶段-活动-接触点-用户故事”的四层需求骨架。
-- **[MVP 迭代计划 (MVP Plan Generator)](mvp-plan-generator/SKILL.md)**: 针对 Must-Have 需求列表，自动规划 MVP 迭代计划与看板。
-
-### 3. MVP 评测与验证
-为 MVP 提供「能否上线」的可量化依据——测试数据集（怎么测）与成效指标/门禁（够不够好）。
-
-- **[MVP 测试数据集 (AI Test Dataset Generator)](ai-test-dataset-generator/SKILL.md)**: 自动生成符合“三层三类”结构的 AI MVP 测试数据集。
-- **[MVP 成效指标体系 (MVP Metrics Generator)](mvp-metrics-generator/SKILL.md)**: 设计 MVP 成效指标与上线门禁句（Go/No-Go）。
+> 说明：
+> - 以上命令与 Agent 是多端维护的（`.opencode/`、`.qoder/`），内部使用请调用 `/命令` 或 `@Subagent`。
+> - **Discovery Agent**（宏 Agent）不接受逐条命令，而是**一次性编排**整条 FDE 流程并汇总出交付 Deck，见下节。
+> - 未被任何 command 包裹的**单体 Skill**（如 `value-stream-mapper`、`problem-definition`、`opportunity-definition`、`unified-report-dashboard`）也可按名称单独触发。
 
 ---
 
-## 使用建议
-- **全局业务诊断与规划**: 优先使用 `NSM Analysis` 进行端到端的企业调研、竞争态势分析及北极星指标推导。
-- **初次拜访/数字化评估**: 优先使用 `AI Maturity Assessment` 和 `Business Process Deep Analyzer`。
-- **方案与 Agent 规则设计**: 组合使用 `AI Opportunity Map` -> `AI Canvas` -> `Agent Ontology Designer` -> `AI Scenario Matrix`；进入设计落地时，若要呈现「AI 场景 To-be 流程全景」用 `To-be Process Designer`（流程/任务挖掘视角，供 Agent 本体与规则绑定），若要细化用户体验用 `To-be Journey`，随后衔接 `Agentic Workflow` -> `MVP Prototype` -> `UX-Optimizer`。
-- **需求梳理**: 使用 `Story Map` 构建「阶段-活动-接触点-用户故事」四层需求骨架。
-- **MVP 评测**: 组合使用 `MVP Metrics` + `AI Test Dataset`（委派 `mvp-evaluator` / `/mvp-eval`），为 MVP 提供 Go/No-Go 依据。
+## 1. FDE 四步法主流程（给 AI 的编排依据）
+
+FDE 四步法：**理需求 → 挖知识 → 建本体 → 生智能**。每一步由若干 Skill 协同，产物作为下一步输入。全链路可用 `discovery-agent` 一键编排，最后用 `unified-report-dashboard` 汇总。
+
+> 🔁 **[Discovery Agent](discovery-agent/SKILL.md)**：宏编排器。输入客户名称 + 业务领域 + 资料，自动按顺序调度下面各 Skill，最终交由 **[统一报告仪表盘 (Unified Report Dashboard)](unified-report-dashboard/SKILL.md)** 汇总为可交付 Deck。适合完整项目启动。
+
+### ① 理需求（Understand the Need）— 看懂现状，定义问题与场景
+> 评估企业的 AI 战略地位与就绪度，梳理 As-Is，识别断点痛点，把问题/机会定义成可量化、可立项的输入。
+
+- **[企业北极星战略全景分析 (NSM Analysis)](nsm-analysis/SKILL.md)**：宏技能。端到端业务调研 → SWOT → 战略与北极星指标推导（含 business-research / swot-analysis / strategy-derivation 三个微技能）。
+- **[AI 成熟度评估与战略调研 (Company AI Maturity Research)](company-ai-maturity-research/SKILL.md)**：对企业 AI 就绪度与战略现状进行评估。
+- **[OSM 目标度量地图 (OSM Map Generator)](osm-map-generator/SKILL.md)**：把战略目标拆为策略（Strategy）与度量（Metrics）。
+- **[价值流图 (Value Stream Mapper)](value-stream-mapper/SKILL.md)**：梳理 L1 端到端价值链全景，并在业务环节级标注聚焦范围（★ + 优先级），是后续拆解的全貌底稿。
+- **[业务流程深度分析 (Business Process Deep Analyzer)](business-process-deep-analyzer/SKILL.md)**：把单个价值段下钻为 L3/L4 现状泳道图，逐环节标痛点与任务明细表。
+- **[业务问题定义 (Problem Definition)](problem-definition/SKILL.md)**：承接痛点 + 根因（5-Why），用 8 要素把一个痛点定义成可取证、可量化、可归因的业务问题。
+- **[体验旅程图 (Journey Map Generator)](journey-map-generator/SKILL.md)**：生成含情感波动、交互点与痛点的体验旅程图。
+- **[服务蓝图 (Blueprint Map Generator)](blueprint-map-generator/SKILL.md)**：绘制含前台接触点、后台流程与支撑系统的服务蓝图。
+- **[AI 机会场景地图 (AI Opportunity Map Generator)](ai-opportunity-map-generator/SKILL.md)**：从流程痛点挖掘自动化 / 智能化机会，生成机会地图。
+- **[机会点定义 (Opportunity Definition)](opportunity-definition/SKILL.md)**：承接问题定义 + 机会地图，用 5 要素 + 价值收益拆解，定义成可评审、可立项的机会点。
+- **[AI 场景画布 (AI Canvas Generator)](ai-canvas-generator/SKILL.md)**：为特定 AI 场景生成 10 维画布（用户痛点 / 输入输出 / 模型方案等）。
+- **[AI 场景优先级矩阵 (AI Scenario Matrix Generator)](ai-scenario-matrix-generator/SKILL.md)**：基于收益与成本把 AI 场景映射到 5x5 优先级矩阵。
+- **[产品演进路线图 (Roadmap Generator)](roadmap-generator/SKILL.md)**：生成垂直阶段式商业路线图。
+- **[里程碑计划 (Milestone Plan Generator)](milestone-plan-generator/SKILL.md)**：把长期规划转为带泳道与时间轴的可视化里程碑。
+
+### ② 挖知识（Mine the Knowledge）— 拆解流程与规则
+> 以「场景级」视角深挖：To-be 流程怎么走、一件事拆成哪些原子动作、每步依据什么规则处理。
+
+- **[To-be 流程泳道图 (To-be Process Designer)](to-be-process-designer/SKILL.md)**：以现状流程 + 痛点 + AI 机会点画布为输入，重排为「列=L3 阶段 × 行=角色泳道」的深度任务序列，登记执行主体 / HITL / 规则依据 / 价值锚定 / 异常链路。
+- **[任务流程拆解图 (Deep Task Flow Analyzer)](deep-task-flow-analyzer/SKILL.md)**：按「L3 阶段 → L4 活动 → L5 动作」三层纵切，聚焦高价值 L4（P0）下钻，**产出使用点**（供规则挖掘）。与 To-be 泳道图互补：泳道图答「谁在何时做」，本 Skill 答「一件事件拆成几个原子动作、每步依据与异常」。
+- **[业务规则挖掘器 (Business Rule Miner)](business-rule-miner/SKILL.md)**：以使用点为输入，挖掘五类可消费知识（决策模型 / 模版范例 / 术语字典 / 关键信息提取 / 关联关系），并做 P1↔P2 双向可追踪。
+- **[Agentic 工作流设计 (Agentic Workflow Designer)](agentic-workflow-designer/SKILL.md)**：识别 AI 能力（不同目的/输入输出即拆，HITL 中间环节不拆），为每个能力生成 PlantUML 活动序列图 + Agent 编排。
+- **[CKD 数据映射分析 (Context/Knowledge/Data Analyzer)](context-knowledge-data-analyzer/SKILL.md)**：梳理每一步所需的上下文 / 知识 / 数据资产清单。
+
+### ③ 建本体（Build the Ontology）— 沉淀业务语义
+> 把业务知识固化为 Agent 可执行的静态语义结构。
+
+- **[Agent 本体设计器 (Agent Ontology Designer)](agent-ontology-designer/SKILL.md)**：以 AI 场景定义 / 流程挖掘为输入，建模三层本体（对象关系 → 行动边界 → 状态迁移），输出可视化 HTML + 可注入 System Prompt 的语义结构。
+
+### ④ 生智能（Generate the Intelligence）— 方案、原型、评测
+> 把前面的业务深度翻译成可施工的产品方案、可运行的原型，以及「能否上线」的量化依据。
+
+- **[Agent 产品方案 (Agent Product Proposal Generator)](agent-product-proposal-generator/SKILL.md)**：聚合理需求/场景/挖知识/本体产出，生成一份可施工的 Markdown 方案（产品定位 → 形态架构 → 演示故事线 → 功能与 UI → Agent 行为 → 规则消费门禁）。
+- **[To-be 旅程设计 (AI Product Journey Generator)](ai-product-journey-generator/SKILL.md)**：细化用户角色与典型场景，设计含 AI 交互细节（上传数据示例 / 推荐操作指令 / 可见数据）的 To-be Journey。
+- **[MVP 原型生成器 (Prototype Generator)](prototype-generator/SKILL.md)**：输入 AI Canvas + To-be Journey，编译可启动的前后端一体化 MVP（React/Vue + Express + Mock AI/业务服务），含启动验证。
+- **[UX 优化器 (UX-Optimizer)](ux-optimizer/SKILL.md)**：按「企业品牌 × 业务主题」定制产品设计系统，以覆盖层注入 mvp-prototype，产出 UX 设计报告。
+- **[用户故事地图 (Story Map Generator)](story-map-generator/SKILL.md)**：构建“阶段-活动-接触点-用户故事”四层需求骨架。
+- **[MVP 迭代计划 (MVP Plan Generator)](mvp-plan-generator/SKILL.md)**：针对 Must-Have 需求自动规划 MVP 迭代计划与看板。
+- **[MVP 测试数据集 (AI Test Dataset Generator)](ai-test-dataset-generator/SKILL.md)**：自动生成符合“三层三类”结构（覆盖场景 + 支持归因）的 MVP 测试数据集。
+- **[MVP 成效指标体系 (MVP Metrics Generator)](mvp-metrics-generator/SKILL.md)**：设计 MVP 成效指标与上线门禁句（Go/No-Go）。
+- **[PlantUML 流程图 (PlantUML Flow Generator)](plantuml-flow-generator/SKILL.md)**：绘制专业 PlantUML 时序图 / 活动图等技术流程图。
 
 ---
 
-## 开发者工具与元技能 (Meta-Skills)
+## 2. 使用建议（按场景选择入口）
+
+- **完整项目启动（一次性全链路）**：用 `discovery-agent` 批量编排 → 汇总到 `unified-report-dashboard`。
+- **企业战略诊断 / 北极星指标**：用 `/nsm`（业务调研 → SWOT → 战略推导）。
+- **初次拜访 / 数字化评估**：用 `/client-insight`（AI 成熟度 + 流程深度分析）。
+- **找 AI 机会并定优先级**：`/opportunity` → AI 机会地图 → 画布 → CKD → 优先级矩阵。
+- **让 Agent 规则落地**：`/agent-arch` → To-be 流程/任务拆解（P1）→ 规则挖掘（P2）→ 本体/工作流/CKD 三视图。
+- **把场景做成原型**：`/mvp-prototype` → Agent 产品方案 → To-be 旅程 → MVP 原型 → UX 优化。
+- **判断能否上线**：`/mvp-eval` → 测试数据集 + 成效指标/门禁（Go/No-Go）。
+- **需求梳理与迭代排期**：`/requirement` → 故事地图 → MVP 迭代计划；规划长期节奏用 `/roadmap`。
+
+> **联动顺序提示**：若走完整链路，通常遵循 ① 理需求（问题/机会/画布）→ ② 挖知识（流程/规则/工作流/CKD）→ ③ 建本体（语义结构）→ ④ 生智能（方案/旅程/原型/评测）。上一步产物（YAML）作为下一步输入；MVP 评测应建立在 MVP 原型已落地之后。
+
+---
+
+## 3. 开发者工具与元技能（Meta-Skills）
 
 用于扩展和维护本技能库的辅助工具。
 
-- **[技能生成器 (Skill Creator)](skill-creator/SKILL.md)**: 自动生成符合 FDE 规范的新技能模板。
-- **[Agent 生成器 (Agent Creator)](agent-creator/SKILL.md)**: 快速编排与生成新的 Subagent 定义。
-- **[Command 生成器 (Command Creator)](command-creator/SKILL.md)**: 自动生成跨平台一致的命令（/command）定义。
-- **[插件生成器 (Plugin Creator)](plugin-creator/SKILL.md)**: 为新技能生成平台适配插件。
-- **[前端设计规范 (Frontend Design)](frontend-design/SKILL.md)**: 供 AI 消费的 UI/UX 设计原则与模式库。
-- **[快速开始 (Get Started)](get-started/SKILL.md)**: 新手引导与环境检查技能。
+- **[技能生成器 (Skill Creator)](skill-creator/SKILL.md)**：自动生成符合 FDE 规范的新技能模板。
+- **[Agent 生成器 (Agent Creator)](agent-creator/SKILL.md)**：快速编排与生成新的 Subagent 定义。
+- **[Command 生成器 (Command Creator)](command-creator/SKILL.md)**：自动生成跨平台一致的命令（/command）定义。
+- **[插件生成器 (Plugin Creator)](plugin-creator/SKILL.md)**：为新技能生成平台适配插件。
+- **[前端设计规范 (Frontend Design)](frontend-design/SKILL.md)**：供 AI 消费的 UI/UX 设计原则与模式库。
+- **[快速开始 (Get Started)](get-started/SKILL.md)**：新手引导与环境检查技能。
+
+> 新增/修改 Skill 时：在 `skills/<skill-name>/` 编写 `SKILL.md` + `references/` + `scripts/` + `templates/` + `examples/`，并同步登记到本文件；稳定后经用户确认再 `rsync` 到全局 `~/.config/opencode/skills/`（详见 `AGENTS.md`）。

@@ -9,8 +9,9 @@ Usage:
 - 价值流(条带) → 价值段(横向列) → 业务环节(列内竖排卡)。
 - 一个业务（如电商订舱）通常只有 1 条横向主价值流；价值段 = 横向列，
   每个价值段内有若干业务环节（竖排卡）。
-- 据 meta.originalIdea 判定聚焦范围：以「业务环节卡」为粒度，
-  连续聚焦卡自动编号「聚焦范围 ①/②/…」，★ 徽章标在聚焦卡上。
+- 据 meta.originalIdea 判定聚焦范围：以「价值段」为边界，把同一段内**相邻(连续)的聚焦环节**
+  整体包成一个**聚焦框**（蓝描边大框 + 顶部「★ 聚焦范围 ①」标签），
+  聚焦框自动**全局递增编号**；优先级标在框内环节卡上。
 - 自动统计 价值流条数 / 价值段个数 / 业务环节数 / 聚焦环节数（供顶部 chips）。
 - 遵循全局开发约定：Jinja 内联样式隐患通过「类 + 安全拼接」规避；autoescape 开启。
 """
@@ -64,44 +65,53 @@ def circled(n: int) -> str:
     return f"({n})"
 
 
-def assign_focus_labels(streams):
-    """按「连续聚焦的业务环节卡」为每个聚焦卡生成 focusLabel，并收集各列聚焦分组。
+def assign_focus_groups(streams):
+    """把「同一价值段内相邻(连续)的聚焦环节」聚成一个聚焦框，并全局递增编号。
 
-    规则：
-    - 编号为**全局递增**（对应参考图 ①② 分组贯穿全链）；
-    - 按「价值流 → 价值段(列) → 业务环节(卡)」的顺序遍历所有卡；
-    - 相邻的聚焦卡共享同一个范围编号；中间**断档**（出现非聚焦卡）则范围编号递增。
-    - 若卡已在 YAML 里显式给出 focusLabel，则使用显式值；否则自动编号。
-    返回 focus_groups：{column_id: [focusLabel, ...]}（供列头展示，可选）。
+    规则（对齐 03-业务价值流图.jpg 的焦点范围盒）：
+    - 聚焦框以「价值段」为边界：一个框只包住同一段内相邻(连续)的 `focus: true` 环节；
+    - 聚焦环节不跨价值段合并，也不与上下段合并；
+    - 编号全局递增：按「价值流 → 价值段 → 段内聚焦框顺序」生成 ① ② ③…；
+    - 段内被非聚焦环节隔开的聚焦环节属于不同的聚焦框（各自递增）。
+
+    副作用：
+    - 为每个 segment 写入 `items`：有序渲染序列，每项为
+        {'kind':'group','group':{label,links}} (聚焦框) 或 {'kind':'link','link':{...}} (普通卡)；
+    - 为每个 segment 写入 `focusGroups`：该段聚焦框列表；
+    - 为每个聚焦环节 link 写入 `focusLabel`（聚焦框标签）。
     """
     group_counter = 0
-    focus_groups = {}
-    prev_was_focus = False
     for stream in streams:
         for seg in ensure_list(stream.get("segments")):
-            col_id = str(seg.get("id", ""))
-            col_focus_labels = []
-            col_has_any = False
-            for link in ensure_list(seg.get("links")):
-                is_focus = bool(link.get("focus"))
-                if is_focus:
-                    if not prev_was_focus:
-                        group_counter += 1   # 进入新的一段连续聚焦范围
-                    if link.get("focusLabel"):
-                        label = ensure_str(link["focusLabel"])
+            links = ensure_list(seg.get("links"))
+            items = []
+            groups = []
+            i, n = 0, len(links)
+            while i < n:
+                link = links[i]
+                if link.get("focus"):
+                    # 收集该段内相邻(连续)的聚焦环节，聚成一框
+                    run = []
+                    while i < n and links[i].get("focus"):
+                        run.append(links[i])
+                        i += 1
+                    # 确定聚焦框标签：优先用环节已有的显式 focusLabel，否则自动编号
+                    if ensure_str(run[0].get("focusLabel")):
+                        label = ensure_str(run[0]["focusLabel"])
                     else:
+                        group_counter += 1
                         label = f"聚焦范围 {circled(group_counter)}"
-                    link["focusLabel"] = label
-                    if label not in col_focus_labels:
-                        col_focus_labels.append(label)
-                    prev_was_focus = True
-                    col_has_any = True
+                    for lk in run:
+                        lk["focusLabel"] = label
+                    grp = {"label": label, "links": run}
+                    groups.append(grp)
+                    items.append({"kind": "group", "group": grp})
                 else:
-                    prev_was_focus = False
-            # 仅当列内存在聚焦卡时记录（列头可展示该列命中哪些聚焦范围）
-            if col_has_any:
-                focus_groups[col_id] = col_focus_labels
-    return focus_groups
+                    items.append({"kind": "link", "link": link})
+                    i += 1
+            seg["items"] = items
+            seg["focusGroups"] = groups
+    return
 
 
 def compute_stats(streams):
@@ -208,12 +218,8 @@ def main():
         s["segments"] = segs
     streams.sort(key=lambda x: int(x.get("order", 0)))
 
-    # ---- 聚焦范围编号（业务环节卡粒度，连续编号） & 各列聚焦分组 ---- #
-    focus_groups = assign_focus_labels(streams)
-    for s in streams:
-        for seg in ensure_list(s.get("segments")):
-            col_id = str(seg.get("id", ""))
-            seg["focusGroups"] = focus_groups.get(col_id, [])
+    # ---- 聚焦范围分组与编号（同一价值段内相邻聚焦环节聚成一框）& 渲染序列 ---- #
+    assign_focus_groups(streams)
 
     stats = compute_stats(streams)
 

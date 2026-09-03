@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{ meta.title }}</title>
+<style>
+  :root{
+    --bg:#f6f8fa; --card:#ffffff; --line:#e5e7eb; --ink:#1f2937; --sub:#6b7280;
+    --accent:#0e7490; --chip:#f1f5f9; --chipb:#cbd5e1;
+    --t-repetitive:#0e7490; --t-cognitive:#b45309; --t-longtail:#7c3aed; --t-innovation:#be185d;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+    background:var(--bg);color:var(--ink);line-height:1.65}
+  .wrap{max-width:1000px;margin:0 auto;padding:28px 20px 64px}
+  header{margin-bottom:16px}
+  .crumb{font-size:12px;color:var(--sub)}
+  h1{font-size:23px;margin:6px 0 4px}
+  .meta-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+  .chip{font-size:12px;color:var(--sub);background:var(--chip);border:1px solid var(--chipb);padding:3px 9px;border-radius:999px}
+  .tools{display:flex;gap:8px;justify-content:flex-end;margin-bottom:6px}
+  .btn{font-size:13px;border:1px solid var(--chipb);background:#fff;color:var(--ink);padding:6px 12px;border-radius:8px;cursor:pointer}
+  .btn:hover{background:var(--chip)}
+  .op-card{border:1px solid var(--line);border-radius:14px;background:var(--card);margin:18px 0;overflow:hidden}
+  .op-head{padding:14px 18px;border-bottom:1px solid var(--line);background:#fafbfc;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+  .op-name{font-size:17px;font-weight:700;margin-right:auto}
+  .badge{font-size:12px;color:#fff;padding:2px 9px;border-radius:999px;font-weight:600}
+  .op-body{padding:4px 18px 16px}
+  .elem{display:flex;gap:12px;padding:12px 0;border-bottom:1px dashed #eef0f2}
+  .elem:last-child{border-bottom:none}
+  .elem .no{flex:0 0 26px;height:26px;border-radius:7px;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px}
+  .elem .k{font-weight:700;font-size:14px;margin-bottom:4px}
+  .elem .v{white-space:pre-line;font-size:14px;color:#374151}
+  .vd{margin-top:12px;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+  .vd .h{font-size:13px;font-weight:700;color:var(--accent);padding:9px 14px;background:#f0f9ff;border-bottom:1px solid var(--line)}
+  table{width:100%;border-collapse:collapse}
+  th,td{text-align:left;font-size:13px;padding:8px 14px;border-bottom:1px solid var(--line)}
+  th{background:#fafbfc;color:var(--sub);font-weight:600}
+  td:first-child{font-weight:600}
+  tr:last-child td{border-bottom:none}
+  footer{color:var(--sub);font-size:12px;margin-top:26px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="crumb">{{ meta.sectionNo }} · 机会点定义</div>
+    <h1>{{ meta.title }}</h1>
+    <div class="tools"><button class="btn" onclick="copyYaml()">📋 复制 YAML</button></div>
+    <div class="meta-chips">
+      {% if meta.scenario %}<span class="chip">🎯 {{ meta.scenario }}</span>{% endif %}
+      {% if meta.opportunitySource %}<span class="chip">来源：{{ meta.opportunitySource }}</span>{% endif %}
+      {% if meta.business %}<span class="chip">{{ meta.business }}</span>{% endif %}
+      {% if meta.date %}<span class="chip">{{ meta.date }}</span>{% endif %}
+    </div>
+  </header>
+
+  {% if meta.problemRef %}
+  <div class="op-head" style="border:none;background:#eff9ff;border-radius:10px;margin:0 0 4px">
+    <div class="op-name" style="font-size:13px;font-weight:600">🧩 {{ meta.problemRef }}</div>
+  </div>
+  {% endif %}
+
+  {% for o in opportunities %}
+  <div class="op-card">
+    <div class="op-head">
+      <div class="op-name">{{ o.order }}. {{ o.name }}</div>
+      <span class="badge" style="background:{{ {'repetitive':'var(--t-repetitive)','cognitive':'var(--t-cognitive)','longtail':'var(--t-longtail)','innovation':'var(--t-innovation)'}.get(o.type,'#64748b') }}">{{ {'repetitive':'重复性替代','cognitive':'高认知辅助','longtail':'长尾场景','innovation':'流程创新'}.get(o.type,o.type) }}</span>
+      {% if o.rootCauseType %}<span class="chip">根因：{{ o.rootCauseType }}</span>{% endif %}
+      {% if o.capabilityMatch %}<span class="chip">能力：{{ o.capabilityMatch }}</span>{% endif %}
+    </div>
+    <div class="op-body">
+      {% set labels = {1:'① 机会点一句话描述',2:'② 业务角色及场景',3:'③ 问题痛点',4:'④ 方案假设',5:'⑤ 价值收益'} %}
+      {% for k,v in [('E1',o.e1),('E2',o.e2),('E3',o.e3),('E4',o.e4),('E5',o.e5)] %}
+      <div class="elem">
+        <div class="no">{{ loop.index }}</div>
+        <div>
+          <div class="k">{{ labels[loop.index] }}</div>
+          <div class="v">{{ v }}</div>
+        </div>
+      </div>
+      {% endfor %}
+
+      {% if o.valueBreakdown %}
+      <div class="vd">
+        <div class="h">价值收益拆解（对齐上游问题定义的 8 要素）</div>
+        <table>
+          <thead><tr><th>拆解维度</th><th>对应问题定义要素</th><th>量化口径</th></tr></thead>
+          <tbody>
+            {% for row in o.valueBreakdown %}
+            <tr><td>{{ row.dimension }}</td><td>{{ row.aligns }}</td><td>{{ row.metric }}</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+  {% endfor %}
+
+  <footer>场景：{{ meta.scenario }} · 承接：{{ meta.problemRef }} · 生成于 {{ meta.date }}</footer>
+</div>
+
+<textarea id="yamlSrc" style="display:none">RAW_YAML_PLACEHOLDER</textarea>
+<script>
+function copyYaml(){
+  var src = document.getElementById('yamlSrc').value;
+  navigator.clipboard.writeText(src).then(function(){ alert('✅ YAML 已复制'); })
+    .catch(function(){ window.prompt('复制失败，请手动复制：', src); });
+}
+</script>
+</body>
+</html>

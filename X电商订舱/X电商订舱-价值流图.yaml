@@ -1,18 +1,19 @@
 meta:
   title: "X电商订舱 · 价值流图"
   sectionNo: "2.1"
-  version: "v1.0"
-  date: "2026-09-02"
+  version: "v1.1"
+  date: "2026-09-03"
   business: "X（全球头部集装箱运输与物流一体化企业）"
-  domain: "电商订舱业务（在线订舱门户 / 独立电商平台 / 移动App）"
+  domain: "电商订舱业务（在线订舱门户 / 独立电商平台 / 移动端）"
   methodology: "理需求 · L1 价值流梳理（价值流 → 价值段 → 业务环节 → 聚焦范围）"
+  # 客户原话（允许含技术方案词），仅作聚焦判定依据；不得泄漏到下方任何业务内容字段。
   originalIdea: "智能订舱 Agent（Ask Fin 升级为可执行订舱 Agent）"
-  insight: "电商订舱业务沿客户生命周期构成一条横向端到端主价值流：从客户品牌认知、注册会员申请等获客段，经询价报价、在线订舱与舱位确认、单证支付结算、履约交付，到增值服务与会员运营，横向串联成完整价值创造闭环。价值流相对稳定，与 SME 直客 / 签约货主等产品线正交，同一套价值流在各产品线复用，仅细节有差异；本阶段先讲清框架逻辑，不按产品线拆解。本次聚焦 = 智能订舱 Agent 直接改造的业务环节（★ 蓝色高亮）。"
+  insight: "电商订舱业务沿客户生命周期构成一条横向端到端主价值流：从客户品牌认知、注册会员申请等获客段，经询价报价、在线订舱与舱位确认、单证支付结算、履约交付，到增值服务与会员运营，横向串联成完整价值创造闭环。价值流相对稳定，与 SME 直客 / 签约货主等产品线正交，同一套价值流在各产品线复用，仅细节有差异；本阶段先讲清框架逻辑，不按产品线拆解。本次聚焦范围落在询价报价、在线订舱与舱位确认、单证与支付结算、履约交付、增值服务与会员运营中原始 idea 拟改变的业务环节（★ 高亮），为下游 L2/L3 拆解与机会点挖掘提供边界。"
   sourceRef: "客户 Workshop · 一手话 · 深度研究推断"
-  kpi: ["电商订舱渗透率", "订舱确认时效", "AI 分流率", "eBL 渗透率"]
+  kpi: ["电商订舱渗透率", "订舱确认时效", "电子提单渗透率", "客户复购率"]
 
 legend:
-  focusNote: "★ 聚焦范围 = 原始 idea 直接改造的业务环节（连续聚焦卡自动编号）"
+  focusNote: "★ 聚焦范围 = 同一价值段内被原始 idea 直接改造的相邻业务环节（连续环节包成一个聚焦框，一组自动编号）"
   priorityNote: "P0 优先级最高（当前为推测，待客户量化确认）"
   clickNote: "🖱 可点开看详情"
 
@@ -27,43 +28,43 @@ valueStreams:
       - id: VS1-S1
         order: 1
         name: "客户品牌认知与触达"
-        chain: "平台内容与搜索触达 → 行业展会 / 移动App 曝光 → 促销闪购拉新"
+        chain: "市场 · 品牌内容与搜索投放 → 市场 · 展会活动策划与执行 → 市场 · 促销策划与客户拉新"
         links:
           - id: VS1-S1-L1
             order: 1
-            name: "平台内容与搜索触达"
+            name: "市场 · 品牌内容与搜索投放"
             focus: false
             priority: ""
             detail:
-              definition: "通过官网/搜索引擎内容与移动App 曝光，让 SME 货主认知到透明运价与平台能力。"
+              definition: "通过内容营销与搜索投放等线上渠道触达 SME 货主，传播透明运价与平台服务能力。"
               goal: "提升平台认知度与首访转化。"
               reason: "不聚焦理由：品牌触达属市场获客层，与原始 idea 无直接输入/输出关系。"
           - id: VS1-S1-L2
             order: 2
-            name: "行业展会 / 移动App 曝光"
+            name: "市场 · 展会活动策划与执行"
             focus: false
             priority: ""
             detail:
-              definition: "通过行业展会、移动App 推送等线下 + 线上触点完成品牌与能力曝光。"
+              definition: "通过行业展会、渠道合作等线下 + 线上触点完成品牌与能力曝光。"
               goal: "扩大目标客群覆盖与品牌声量。"
               reason: "不聚焦理由：属品牌市场活动，非本 idea 直接改造面。"
           - id: VS1-S1-L3
             order: 3
-            name: "促销闪购拉新"
+            name: "市场 · 促销策划与客户拉新"
             focus: false
             priority: ""
             detail:
-              definition: "以促销/闪购活动吸引新客注册平台、进入订舱入口。"
+              definition: "以促销活动吸引新客注册平台、进入订舱入口。"
               goal: "提升新客转化与首单率。"
               reason: "不聚焦理由：获客营销活动，非本 idea 直接改造面。"
       - id: VS1-S2
         order: 2
         name: "客户注册与会员申请"
-        chain: "企业注册与资料填报 → 资质认证与账号开通 → PlumSmart 会员申请"
+        chain: "货主 · 企业资料填报与提交 → 风控 · 资质审核与准入 → 货主 · 会员等级申请与开通"
         links:
           - id: VS1-S2-L1
             order: 1
-            name: "企业注册与资料填报"
+            name: "货主 · 企业资料填报与提交"
             focus: false
             priority: ""
             detail:
@@ -72,7 +73,7 @@ valueStreams:
               reason: "不聚焦理由：注册获客为上游前置环节，非本 idea 直接改造面。"
           - id: VS1-S2-L2
             order: 2
-            name: "资质认证与账号开通"
+            name: "风控 · 资质审核与准入"
             focus: false
             priority: ""
             detail:
@@ -81,170 +82,188 @@ valueStreams:
               reason: "不聚焦理由：资质审核为前置合规环节，非本 idea 直接改造面。"
           - id: VS1-S2-L3
             order: 3
-            name: "PlumSmart 会员申请"
+            name: "货主 · 会员等级申请与开通"
             focus: false
             priority: ""
             detail:
-              definition: "货主申请 PlumSmart 会员，建立数字身份与权益体系。"
+              definition: "货主申请会员等级，建立数字身份与权益体系。"
               goal: "提升会员渗透与粘性。"
               reason: "不聚焦理由：会员申请为获客履约环节，非本 idea 直接改造面。"
       - id: VS1-S3
         order: 3
         name: "询价与报价"
-        chain: "即期 / 长时效报价查询 → 智能报价推荐与锁价"
+        chain: "货主 · 运价查询与比价 → 客服 · 锁价申请受理与确认"
         links:
           - id: VS1-S3-L1
             order: 1
-            name: "即期 / 长时效报价查询"
+            name: "货主 · 运价查询与比价"
             focus: false
             priority: ""
             detail:
-              definition: "货主通过 E-Spot（即期）或 E-Quote（长时效）获取透明报价。"
+              definition: "货主查询即期与长约运价、进行多方案比价。"
               goal: "透明报价，实时查询。"
-              reason: "不聚焦理由：基础报价查询为既有能力，本次以智能推荐与锁价为改造核心。"
+              reason: "不聚焦理由：基础报价查询为既有能力，本次以报价比较与锁价受理为改造核心。"
           - id: VS1-S3-L2
             order: 2
-            name: "智能报价推荐与锁价"
+            name: "客服 · 锁价申请受理与确认"
             focus: true
             priority: "P0"
             detail:
-              definition: "Agent 依据货主需求推荐最优报价组合，支持 Secured E-Quote 锁价与 All-in-One 一站式询价。"
-              goal: "实时透明报价 + 智能比价，降低询价门槛，提升转化。"
-              reason: "聚焦理由：Agent 在此承接智能报价推荐、锁价与舱位保证，直接改变询价体验。"
+              definition: "客服受理货主锁价申请，比对合约费率与舱位条件后确认锁价结果。"
+              goal: "缩短锁价确认周期，形成稳定订舱依据。"
+              reason: "聚焦理由：原始 idea 直接改造本段报价比较与锁价受理环节的处理方式与体验。"
       - id: VS1-S4
         order: 4
         name: "在线订舱与舱位确认"
-        chain: "3 步订舱表单提交 → 舱位分配与收益校验 → Booking Confirmation 签发与告知"
+        chain: "货主 · 订舱信息填报与提交 → 客服 · 订舱请求受理与校验 → 客服 · 舱位校验与分配 → 客服 · 订舱确认签发与告知"
         links:
           - id: VS1-S4-L1
             order: 1
-            name: "3 步订舱表单提交"
+            name: "货主 · 订舱信息填报与提交"
             focus: true
             priority: "P0"
             detail:
-              definition: "货主以新版 3 步订舱表单提交请求，Agent 智能预填并校验。"
-              goal: "分钟级自助订舱，减少补件与等待。"
-              reason: "聚焦理由：Agent 在此自动预填、校验并提交订舱请求，是改造核心。"
+              definition: "货主按平台表单填写货量、箱型、起运/目的港等订舱信息并提交订舱申请。"
+              goal: "减少填报耗时与信息补件。"
+              reason: "聚焦理由：原始 idea 直接改变本环节订舱信息填报与校验的处理方式，是改造核心。"
           - id: VS1-S4-L2
             order: 2
-            name: "舱位分配与收益校验"
+            name: "客服 · 订舱请求受理与校验"
             focus: true
             priority: "P0"
             detail:
-              definition: "系统校验费率/信用/航线后分配舱位，Agent 提供收益校验与分配建议。"
-              goal: "稳定分配舱位、保障收益。"
-              reason: "聚焦理由：Agent 在此承接舱位收益校验与智能分配建议。"
+              definition: "客服受理订舱申请，核对费率、信用与航线适用性。"
+              goal: "准确受理，减少补件与等待。"
+              reason: "聚焦理由：原始 idea 直接改变本环节请求校验与受理的处理方式。"
           - id: VS1-S4-L3
             order: 3
-            name: "Booking Confirmation 签发与告知"
+            name: "客服 · 舱位校验与分配"
             focus: true
             priority: "P0"
             detail:
-              definition: "生成订舱确认并告知货主（特定条款最快 1 分钟）。"
-              goal: "分钟级自动确认，减少等待。"
-              reason: "聚焦理由：Agent 自动生成并推送订舱确认，缩短成交闭环。"
+              definition: "客服在舱位可用范围内完成舱位分配并保留。"
+              goal: "稳定分配舱位，减少甩柜。"
+              reason: "聚焦理由：原始 idea 直接改变本环节舱位校验与分配的处理方式。"
+          - id: VS1-S4-L4
+            order: 4
+            name: "客服 · 订舱确认签发与告知"
+            focus: true
+            priority: "P0"
+            detail:
+              definition: "签发订舱确认并告知货主（简单货载最快 1 分钟可获确认）。"
+              goal: "缩短订舱确认周期，减少等待。"
+              reason: "聚焦理由：原始 idea 直接改变本环节订舱确认签发与告知的处理方式。"
       - id: VS1-S5
         order: 5
         name: "单证与支付结算"
-        chain: "SI 提交与自动处理 → 提单签发（eBL / 纸质） → 支付与对账"
+        chain: "货主 · 装运指示(SI)提交与核对 → 单证 · 提单审核与签发 → 结算 · 运费结算与对账"
         links:
           - id: VS1-S5-L1
             order: 1
-            name: "SI 提交与自动处理"
+            name: "货主 · 装运指示(SI)提交与核对"
             focus: true
             priority: "P1"
             detail:
-              definition: "货主提交装运指示，智慧单证自动处理（年约 35 万份）。"
-              goal: "提升单证自动化处理率。"
-              reason: "聚焦理由：Agent 在此承接 SI 自动校验与单证进度查询。"
+              definition: "货主提交装运指示，单证侧核对信息（年处理约 35 万份）。"
+              goal: "缩短单证处理周期、减少信息差错。"
+              reason: "聚焦理由：原始 idea 直接改变本环节装运指示核对与进度跟进的处理方式。"
           - id: VS1-S5-L2
             order: 2
-            name: "提单签发（eBL / 纸质）"
+            name: "单证 · 提单审核与签发"
             focus: false
             priority: ""
             detail:
-              definition: "经 IQAX eBL 出电子提单或纸质提单。"
-              goal: "提升 eBL 渗透率，无纸化提单。"
+              definition: "审核并签发电子或纸质提单，完成流转。"
+              goal: "提升电子提单占比，无纸化流转。"
               reason: "不聚焦理由：提单签发为标准化单证动作，本次不做本体改造。"
           - id: VS1-S5-L3
             order: 3
-            name: "支付与对账"
+            name: "结算 · 运费结算与对账"
             focus: false
             priority: ""
             detail:
-              definition: "在线支付运费与账期对账。"
+              definition: "完成运费支付、账期对账与核销。"
               goal: "透明化结算，减少对账差错。"
               reason: "不聚焦理由：支付对账属财务结算，非本 idea 直接改造面。"
       - id: VS1-S6
         order: 6
         name: "履约与交付"
-        chain: "提箱装箱与陆运清关 → 出运跟踪 → 到港交付与放货"
+        chain: "操作 · 提箱装箱与内陆运输 → 操作 · 出口报关与截关装船 → 操作 · 在途跟踪与异常处理 → 操作 · 到港交付与放货"
         links:
           - id: VS1-S6-L1
             order: 1
-            name: "提箱装箱与陆运清关"
+            name: "操作 · 提箱装箱与内陆运输"
             focus: false
             priority: ""
             detail:
-              definition: "E-Trucking/Door Haulage 陆运与 E-Customs 清关。"
-              goal: "减少误船与清关延误。"
+              definition: "完成提箱装箱与内陆拖车 / 门点集货。"
+              goal: "按船期完成装箱，避免延误误船。"
               reason: "不聚焦理由：实体履约多为线下动作，非本 idea 直接改造面。"
           - id: VS1-S6-L2
             order: 2
-            name: "出运跟踪与异常预警"
-            focus: true
-            priority: "P1"
-            detail:
-              definition: "控制塔全订单可视化跟踪，实时预警异常。"
-              goal: "实时透明跟踪、异常早发现早处理。"
-              reason: "聚焦理由：Agent 在此承接出运跟踪与异常预警问答。"
-          - id: VS1-S6-L3
-            order: 3
-            name: "到港交付与放货"
+            name: "操作 · 出口报关与截关装船"
             focus: false
             priority: ""
             detail:
-              definition: "到港后的交付与 eBL 放货。"
-              goal: "无纸化放货，缩短提货。"
+              definition: "完成出口报关、查验配合与截关装船。"
+              goal: "顺利放行并装船，减少延误。"
+              reason: "不聚焦理由：报关装船为合规与物理操作，非本 idea 直接改造面。"
+          - id: VS1-S6-L3
+            order: 3
+            name: "操作 · 在途跟踪与异常处理"
+            focus: true
+            priority: "P1"
+            detail:
+              definition: "对装船后货物进行在途节点跟踪，及时处理开船、转运、到港等异常。"
+              goal: "全程可视、异常早发现早处理。"
+              reason: "聚焦理由：原始 idea 直接改变本环节在途跟踪查询与异常处理的方式。"
+          - id: VS1-S6-L4
+            order: 4
+            name: "操作 · 到港交付与放货"
+            focus: false
+            priority: ""
+            detail:
+              definition: "到港后完成交付与凭单放货。"
+              goal: "及时交付放货，缩短提货周期。"
               reason: "不聚焦理由：到港交付为履约末端，非本 idea 直接改造面。"
       - id: VS1-S7
         order: 7
         name: "增值服务与会员运营"
-        chain: "增值服务选购 → 会员计划运营 → 促销与营销触达 → 智能客服支持 → 复购与口碑留存"
+        chain: "货主 · 增值服务选购与开通 → 运营 · 会员权益运营与促销触达 → 客服 · 客户咨询受理与问题处理 → 运营 · 复购促进与口碑管理"
         links:
           - id: VS1-S7-L1
             order: 1
-            name: "增值服务选购"
+            name: "货主 · 增值服务选购与开通"
             focus: false
             priority: ""
             detail:
-              definition: "在订舱基础上叠加陆运、清关、绿色、免箱期等增值服务。"
+              definition: "货主在订舱基础上选购陆运、清关、绿色、免箱期等增值服务。"
               goal: "提升增值服务渗透。"
-              reason: "不聚焦理由：增值选购为产品加购层，本次以智能客服为改造核心。"
+              reason: "不聚焦理由：增值选购为产品加购层，本次以客户咨询与问题处理为改造核心。"
           - id: VS1-S7-L2
             order: 2
-            name: "会员计划运营"
+            name: "运营 · 会员权益运营与促销触达"
             focus: false
             priority: ""
             detail:
-              definition: "运营 PlumSmart 会员体系、积分与权益。"
+              definition: "运营会员等级权益、积分与促销活动触达。"
               goal: "提升会员粘性与复购。"
               reason: "不聚焦理由：会员运营为常规运营动作，非本 idea 直接改造面。"
           - id: VS1-S7-L3
             order: 3
-            name: "智能客服支持"
+            name: "客服 · 客户咨询受理与问题处理"
             focus: true
             priority: "P0"
             detail:
-              definition: "Ask Fin 升级本体提供智能客服、咨询与复购引导。"
-              goal: "提升 AI 分流率与复购。"
-              reason: "聚焦理由：Agent 即 Ask Fin 升级本体，核心改造此环节的智能客服。"
+              definition: "客服受理货主咨询、进度查询与问题处理，推动服务闭环。"
+              goal: "提升咨询响应与问题一次解决率。"
+              reason: "聚焦理由：原始 idea 直接改造本环节的客户咨询与问题处理触点，是核心聚焦范围。"
           - id: VS1-S7-L4
             order: 4
-            name: "复购与口碑留存"
+            name: "运营 · 复购促进与口碑管理"
             focus: false
             priority: ""
             detail:
-              definition: "促成复购与口碑传播。"
+              definition: "促成货主复购与口碑传播。"
               goal: "提升复购率与客户忠诚。"
               reason: "不聚焦理由：留存复购为结果层，非本 idea 直接改造面。"

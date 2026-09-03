@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>X电商订舱 · 机会点定义</title>
+<style>
+  :root{
+    --bg:#f6f8fa; --card:#ffffff; --line:#e5e7eb; --ink:#1f2937; --sub:#6b7280;
+    --accent:#0e7490; --chip:#f1f5f9; --chipb:#cbd5e1;
+    --t-repetitive:#0e7490; --t-cognitive:#b45309; --t-longtail:#7c3aed; --t-innovation:#be185d;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+    background:var(--bg);color:var(--ink);line-height:1.65}
+  .wrap{max-width:1000px;margin:0 auto;padding:28px 20px 64px}
+  header{margin-bottom:16px}
+  .crumb{font-size:12px;color:var(--sub)}
+  h1{font-size:23px;margin:6px 0 4px}
+  .meta-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+  .chip{font-size:12px;color:var(--sub);background:var(--chip);border:1px solid var(--chipb);padding:3px 9px;border-radius:999px}
+  .tools{display:flex;gap:8px;justify-content:flex-end;margin-bottom:6px}
+  .btn{font-size:13px;border:1px solid var(--chipb);background:#fff;color:var(--ink);padding:6px 12px;border-radius:8px;cursor:pointer}
+  .btn:hover{background:var(--chip)}
+  .op-card{border:1px solid var(--line);border-radius:14px;background:var(--card);margin:18px 0;overflow:hidden}
+  .op-head{padding:14px 18px;border-bottom:1px solid var(--line);background:#fafbfc;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+  .op-name{font-size:17px;font-weight:700;margin-right:auto}
+  .badge{font-size:12px;color:#fff;padding:2px 9px;border-radius:999px;font-weight:600}
+  .op-body{padding:4px 18px 16px}
+  .elem{display:flex;gap:12px;padding:12px 0;border-bottom:1px dashed #eef0f2}
+  .elem:last-child{border-bottom:none}
+  .elem .no{flex:0 0 26px;height:26px;border-radius:7px;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px}
+  .elem .k{font-weight:700;font-size:14px;margin-bottom:4px}
+  .elem .v{white-space:pre-line;font-size:14px;color:#374151}
+  .vd{margin-top:12px;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+  .vd .h{font-size:13px;font-weight:700;color:var(--accent);padding:9px 14px;background:#f0f9ff;border-bottom:1px solid var(--line)}
+  table{width:100%;border-collapse:collapse}
+  th,td{text-align:left;font-size:13px;padding:8px 14px;border-bottom:1px solid var(--line)}
+  th{background:#fafbfc;color:var(--sub);font-weight:600}
+  td:first-child{font-weight:600}
+  tr:last-child td{border-bottom:none}
+  footer{color:var(--sub);font-size:12px;margin-top:26px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="crumb">3.1 · 机会点定义</div>
+    <h1>X电商订舱 · 机会点定义</h1>
+    <div class="tools"><button class="btn" onclick="copyYaml()">📋 复制 YAML</button></div>
+    <div class="meta-chips">
+      <span class="chip">🎯 在线订舱 · 一键订舱</span>
+      <span class="chip">来源：AI 机会场景地图 · 阶段④ 审批与报价单签发 / 订舱确认</span>
+      <span class="chip">X（全球头部集装箱运输与物流一体化企业）</span>
+      <span class="chip">2026-09-03</span>
+    </div>
+  </header>
+
+  
+  <div class="op-head" style="border:none;background:#eff9ff;border-radius:10px;margin:0 0 4px">
+    <div class="op-name" style="font-size:13px;font-weight:600">🧩 承接 3.1 问题①：在线订舱的受理与确认依赖人工审核兜底 + 规则覆盖不全，无法达到分钟级确认</div>
+  </div>
+  
+
+  
+  <div class="op-card">
+    <div class="op-head">
+      <div class="op-name">1. 智能订舱 Agent · 一键订舱</div>
+      <span class="badge" style="background:var(--t-innovation)">流程创新</span>
+      <span class="chip">根因：复杂度高靠专家经验 + 操作量大靠人工</span>
+      <span class="chip">能力：Agent / 语言理解 / 知识问答</span>
+    </div>
+    <div class="op-body">
+      
+      
+      <div class="elem">
+        <div class="no">1</div>
+        <div>
+          <div class="k">① 机会点一句话描述</div>
+          <div class="v">为 SME 货主与订舱运营构建「智能订舱 Agent · 一键订舱」，把 AI 客服从「问答」升级为「可执行订舱」：对话内完成报价解读、舱位推荐、表单自动预填与规则校验，标准单直达人工放行、分钟级签发确认，异常单自动补件指引。</div>
+        </div>
+      </div>
+      
+      <div class="elem">
+        <div class="no">2</div>
+        <div>
+          <div class="k">② 业务角色及场景</div>
+          <div class="v">角色：SME 货主（对话式一键订舱）、订舱运营 / CSR（放行兜底）。
+场景：每个订舱请求从对话提交到签发 Booking Confirmation，标准单分钟级、异常单智能补件，覆盖新客首单。</div>
+        </div>
+      </div>
+      
+      <div class="elem">
+        <div class="no">3</div>
+        <div>
+          <div class="k">③ 问题痛点</div>
+          <div class="v">人工逐单校验与签发依赖运营经验，SLA 条款外 / 异常单全走人工（单均 1-2 小时）；新客无历史数据，表单手动录入 + 往返补件（首单约 30-60 分钟），确认时效无法对标「最快 1 分钟」。</div>
+        </div>
+      </div>
+      
+      <div class="elem">
+        <div class="no">4</div>
+        <div>
+          <div class="k">④ 方案假设</div>
+          <div class="v">用 Agent 编排确定性服务（报价 / 舱位 / 校验引擎），把「多规则 × 多系统联动」交给机器按统一口径执行；LLM 负责意图理解、长尾 / 非标判断与补件指引；「对外放行订舱」保留人工闸门、规则护栏兜底 → 把平均确认时效向 ≤2 小时（KPI 3）收敛。</div>
+        </div>
+      </div>
+      
+      <div class="elem">
+        <div class="no">5</div>
+        <div>
+          <div class="k">⑤ 价值收益</div>
+          <div class="v">标准单确认从人工 1-2 小时走向分钟级；新客首单往返补件压缩、自助率提升；人工审核量下降。</div>
+        </div>
+      </div>
+      
+
+      
+      <div class="vd">
+        <div class="h">价值收益拆解（对齐上游问题定义的 8 要素）</div>
+        <table>
+          <thead><tr><th>拆解维度</th><th>对应问题定义要素</th><th>量化口径</th></tr></thead>
+          <tbody>
+            
+            <tr><td>覆盖范围</td><td>⑥ 影响范围</td><td>全渠道 SME 直客；受益角色：SME 货主 + 订舱运营 / CSR</td></tr>
+            
+            <tr><td>发生频度</td><td>⑤ 发生频度</td><td>每个订舱请求一次，高并发高频（2025 电商渠道 200 万+ TEU）</td></tr>
+            
+            <tr><td>单次收益</td><td>⑦ 每次发生对业务的影响</td><td>人工审核单均 1-2h → 分钟级；新客首单往返补件压缩、自助率提升</td></tr>
+            
+            <tr><td>累计影响</td><td>⑧ 累计对业务影响</td><td>确认时效 ≤2h 收敛；AI 分流率 30%+、渗透率 25%[推断]→40% 靠拢；客服人工成本下降</td></tr>
+            
+          </tbody>
+        </table>
+      </div>
+      
+    </div>
+  </div>
+  
+
+  <footer>场景：在线订舱 · 一键订舱 · 承接：承接 3.1 问题①：在线订舱的受理与确认依赖人工审核兜底 + 规则覆盖不全，无法达到分钟级确认 · 生成于 2026-09-03</footer>
+</div>
+
+<textarea id="yamlSrc" style="display:none">meta:
+  title: &quot;X电商订舱 · 机会点定义&quot;
+  sectionNo: &quot;3.1&quot;
+  version: &quot;v1.0&quot;
+  date: &quot;2026-09-03&quot;
+  business: &quot;X（全球头部集装箱运输与物流一体化企业）&quot;
+  domain: &quot;电商订舱业务（在线订舱门户 / 独立电商平台 / 移动App）&quot;
+  scenario: &quot;在线订舱 · 一键订舱&quot;
+  problemRef: &quot;承接 3.1 问题①：在线订舱的受理与确认依赖人工审核兜底 + 规则覆盖不全，无法达到分钟级确认&quot;
+  opportunitySource: &quot;AI 机会场景地图 · 阶段④ 审批与报价单签发 / 订舱确认&quot;
+
+opportunities:
+  - id: &quot;OP1&quot;
+    order: 1
+    name: &quot;智能订舱 Agent · 一键订舱&quot;
+    type: &quot;innovation&quot;
+    rootCauseType: &quot;复杂度高靠专家经验 + 操作量大靠人工&quot;
+    capabilityMatch: &quot;Agent / 语言理解 / 知识问答&quot;
+    e1: &quot;为 SME 货主与订舱运营构建「智能订舱 Agent · 一键订舱」，把 AI 客服从「问答」升级为「可执行订舱」：对话内完成报价解读、舱位推荐、表单自动预填与规则校验，标准单直达人工放行、分钟级签发确认，异常单自动补件指引。&quot;
+    e2: &quot;角色：SME 货主（对话式一键订舱）、订舱运营 / CSR（放行兜底）。\n场景：每个订舱请求从对话提交到签发 Booking Confirmation，标准单分钟级、异常单智能补件，覆盖新客首单。&quot;
+    e3: &quot;人工逐单校验与签发依赖运营经验，SLA 条款外 / 异常单全走人工（单均 1-2 小时）；新客无历史数据，表单手动录入 + 往返补件（首单约 30-60 分钟），确认时效无法对标「最快 1 分钟」。&quot;
+    e4: &quot;用 Agent 编排确定性服务（报价 / 舱位 / 校验引擎），把「多规则 × 多系统联动」交给机器按统一口径执行；LLM 负责意图理解、长尾 / 非标判断与补件指引；「对外放行订舱」保留人工闸门、规则护栏兜底 → 把平均确认时效向 ≤2 小时（KPI 3）收敛。&quot;
+    e5: &quot;标准单确认从人工 1-2 小时走向分钟级；新客首单往返补件压缩、自助率提升；人工审核量下降。&quot;
+    valueBreakdown:
+      - dimension: &quot;覆盖范围&quot;
+        aligns: &quot;⑥ 影响范围&quot;
+        metric: &quot;全渠道 SME 直客；受益角色：SME 货主 + 订舱运营 / CSR&quot;
+      - dimension: &quot;发生频度&quot;
+        aligns: &quot;⑤ 发生频度&quot;
+        metric: &quot;每个订舱请求一次，高并发高频（2025 电商渠道 200 万+ TEU）&quot;
+      - dimension: &quot;单次收益&quot;
+        aligns: &quot;⑦ 每次发生对业务的影响&quot;
+        metric: &quot;人工审核单均 1-2h → 分钟级；新客首单往返补件压缩、自助率提升&quot;
+      - dimension: &quot;累计影响&quot;
+        aligns: &quot;⑧ 累计对业务影响&quot;
+        metric: &quot;确认时效 ≤2h 收敛；AI 分流率 30%+、渗透率 25%[推断]→40% 靠拢；客服人工成本下降&quot;
+</textarea>
+<script>
+function copyYaml(){
+  var src = document.getElementById('yamlSrc').value;
+  navigator.clipboard.writeText(src).then(function(){ alert('✅ YAML 已复制'); })
+    .catch(function(){ window.prompt('复制失败，请手动复制：', src); });
+}
+</script>
+</body>
+</html>
