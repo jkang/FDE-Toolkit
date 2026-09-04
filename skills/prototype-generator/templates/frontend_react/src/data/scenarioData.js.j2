@@ -1,0 +1,39 @@
+// =========================================================
+// 场景数据源（scenarioData）—— 由 sim_spec.scenes 生成
+// 每个场景一个数据块，含：多批次询价 / 多段航程 / TCO分组明细 / 报价单全文 /
+//      过程数据 / 状态机 / 可视化配置
+// 页面通过 getScenarioData(id) 消费
+// =========================================================
+
+export const SCENARIO_LIST = [
+{% for s in simScenes %}
+  { id: "{{ s.id }}", label: {{ s.label | tojson }}, customer: {{ s.customer | tojson }}, theme: "{{ s.valueTier == 'A' and 'gold' or 'blue' }}" },
+{% endfor %}
+];
+
+export const scenarioData = {
+{% for s in simScenes %}
+  {{ s.id | tojson }}: {
+    id: "{{ s.id }}",
+    customer: {{ s.customer | tojson }},
+    contact: {{ s.contact | tojson }},
+    valueTier: {{ s.valueTier | tojson }},
+    volumeCommitment: {{ s.volumeCommitment | tojson }},
+    inquiry: {{ s.inquiry | tojson }},
+    tcoReport: {{ s.tcoReport | tojson }},
+    quote: {{ s.quote | tojson }},
+    processData: {{ s.processData | default([]) | tojson }},
+    stateMachine: {{ s.stateMachine | default({}) | tojson }},
+    visual: {{ s.visual | default([]) | tojson }},
+    risk: "{{ s.label }}",
+    gate: "辅助场景提示",
+    model: {{ s.tcoReport.model | tojson }},
+    equipment: {{ s.tcoReport.equipment | tojson }},
+    compliance: "合规通过",
+  },
+{% endfor %}
+};
+
+export const getScenarioData = (id) => scenarioData[id] || Object.values(scenarioData)[0] || {};
+
+export const scenarioById = (id) => SCENARIO_LIST.find((s) => s.id === id) || SCENARIO_LIST[0];

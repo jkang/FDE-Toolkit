@@ -1,0 +1,129 @@
+# =========================================================
+# sim_spec · 业务数据 & 过程仿真设计规格（scaffold 消费）
+# 位于 mvp_spec 之后，用于把「业务数据深度 + 过程状态 + 业务可视化」编译进原型。
+# scaffold_mvp.py 依据本契约生成前端 src/data/scenarioData.js 与可视化组件。
+# =========================================================
+
+meta:
+  case: "OOCL大客户销售"            # 客户/公司名
+  scenario: "询价报价与成本测算"       # 场景目录名
+  productName: "大客户询价报价成本优化 Agent"
+  businessDomain: "供应链物流"
+  frontend: "react"                 # react | vue
+  designSystem: "antd"
+  theme: { source: "auto", primary: "#2563eb", accent: "#f97316", layout: "side" }
+  ports: { dev: 5173, api: 8080 }
+
+# ---- 场景数据源（每个场景 = 一个数据块，驱动 scenarioData.js）----
+scenes:
+  - id: "byd_battery"                    # 场景ID（切换器 + 页面绑定）
+    label: "⚡ 比亚迪 · 动力电池危品"
+    customer: "比亚迪"
+    contact: "赵晨 · 国际物流负责人"
+    valueTier: "A"
+    volumeCommitment: { committed: 12000, used: 7400, remaining: 4600 }
+
+    # —— ① 嵌套实体（询价单 → 批次 → 航段）——
+    inquiry:
+      summary: { totalBatches: 2, totalBoxes: 12, totalCbm: "268 CBM" }
+      batches:
+        - { id: "B1", portPair: "上海→洛杉矶", boxes: "40HQ×8", cargoType: "危品(UN3480/Class9)", weight: "30T", goodsValue: "$1.2M", etd: "09-15", note: "危品专用箱(FCL)", legs: [ { leg: 1, from: "上海", to: "釜山(中转)", vessel: "OOCL SONG", transit: "2天", eta: "09-17" }, { leg: 2, from: "釜山", to: "洛杉矶", vessel: "OOCL SUN", transit: "12天", eta: "09-29" } ] }
+        - { id: "B2", portPair: "上海→汉堡", boxes: "40HQ×4", cargoType: "整车零部件", weight: "18T", goodsValue: "$0.4M", etd: "09-20", note: "标准40HQ", legs: [ { leg: 1, from: "上海", to: "汉堡(直航)", vessel: "OOCL HOPE", transit: "30天", eta: "10-20" } ] }
+
+    # —— ② 复合报表（TCO 分组明细）——
+    tcoReport:
+      currency: "USD" ; unit: "每40HQ"
+      model: "危品 TCO 模型"
+      equipment: "危品专用箱(FCL)"
+      groups:
+        - { name: "① 海运费段", items: [ { name: "基础海运费(沪→LAX 危品箱)", amount: 1780, basis: "合约价1950-危品减免170", source: "IRIS-2", caliber: "到岸全含", confidence: "高" }, { name: "燃油附加 BAF", amount: 170, basis: "燃油指数×12%", source: "燃油指数", caliber: "含", confidence: "高" } ] }
+        - { name: "② 附加费段(规费/单证)", items: [ { name: "THC 码头操作费", amount: 210, basis: "每箱固定", source: "附加费表", caliber: "含", confidence: "高" }, { name: "ENS 欧洲申报", amount: 45, basis: "每票", source: "规费表", caliber: "含", confidence: "中" }, { name: "DOC 单证费", amount: 30, basis: "每票", source: "单证", caliber: "含", confidence: "中" }, { name: "ISPS 港口安保", amount: 15, basis: "每箱", source: "规费表", caliber: "含", confidence: "中" } ] }
+        - { name: "③ 内陆与门到门段", items: [ { name: "拖车/集卡", amount: 480, basis: "公里×箱型", source: "价格表", caliber: "含", confidence: "高" }, { name: "门到门转关/仓储", amount: 170, basis: "每票", source: "代理", caliber: "含", confidence: "中" } ] }
+        - { name: "④ 目的港段", items: [ { name: "目的港操作费", amount: 130, basis: "每箱", source: "目的港表", caliber: "含", confidence: "高" }, { name: "D&D 免箱期外预估", amount: 70, basis: "免箱期外×费率", source: "条款", caliber: "含", confidence: "低" } ] }
+        - { name: "⑤ 特殊附加费段(危品/超重)", items: [ { name: "危品 DG 附加(Class9/UN3480)", amount: 450, basis: "IMDG类别×加价率", source: "危品规则库", caliber: "含", confidence: "高" }, { name: "超重费(30T 阶梯)", amount: 240, basis: "超26T×5档", source: "超重规则库", caliber: "含", confidence: "高" }, { name: "UN38.3/MSDS 申报+危品箱", amount: 180, basis: "申报费+Special箱", source: "合规", caliber: "含", confidence: "中" } ] }
+        - { name: "⑥ 时效成本段", items: [ { name: "资金占用(货值×利率×14天)", amount: 130, basis: "$1.2M×4%×14/365", source: "时效模型", caliber: "折算", confidence: "中" }, { name: "延误风险折算", amount: 90, basis: "历史晚到率", source: "时效模型", caliber: "折算", confidence: "低" } ] }
+      total: 3480 ; floorPrice: 3350 ; discountRange: "3,350~3,450" ; saving: "4.9%"
+
+    # —— ③ 复合文档（报价单全文）——
+    quote:
+      quoteNo: "Q-20240901-008" ; issueDate: "2026-09-03" ; validUntil: "2026-09-17" ; incoterm: "CIF 洛杉矶(指定收货人)"
+      currency: "USD" ; payment: "月结30天 · 信用证(L/C)"
+      commitment: "本单在年度量价承诺内（余量 4,600 TEU）"
+      spaceGuarantee: "旺季 100 TEU/周 保舱 · Delay in Transit 保障"
+      complianceNote: "UN38.3(已核) · MSDS(已核) · Class9 标识(待贴) · 超重许可(已取)"
+      costSaveNote: "较当前方案节省 4.9%（改直航 + 危品附加费优化）"
+      remarks: "危品专用箱 FCL；紧急批次 B1 需在 09-14 前提供 UN38.3/MSDS 方可锁定舱位"
+      approvalStamp: "王磊(KAM) 放价确认 · 陈璐(收益) 授权内"
+
+    # —— ④ 过程数据（AI 步骤中间态，输入→输出）——
+    processData:
+      - { step: "识别", input: "询价单+MSDS", output: "识别为危品Class9/UN3480+超重", status: "必停补录" }
+      - { step: "模型适配", input: "货物属性", output: "匹配危品TCO模型", status: "完成" }
+      - { step: "口径归一化", input: "多源成本", output: "统一到岸全含口径", status: "完成" }
+      - { step: "特殊附加费", input: "危品+超重", output: "危品DG450+超重240", status: "完成" }
+      - { step: "放价", input: "让价区间", output: "超过授权→转收益终审", status: "人工闸门" }
+
+    # —— ⑤ 状态机（含异常分支）——
+    stateMachine:
+      states: [ "询价发起", "属性识别", "模型适配", "TCO测算", "放价出案", "客户锁价" ]
+      current: 0
+      exception: "危品合规资料不全 → 必停校验(UN38.3/MSDS)"
+
+    # —— ⑥ 业务可视化（成本占比分段图 / 多段航程图）——
+    visual:
+      - { type: "segChart", title: "TCO 成本占比", bind: "tcoReport", source: "groups", by: "name", metric: "sum(amount)" }
+      - { type: "routeMap", title: "多段航程", bind: "inquiry", source: "batches", routeField: "legs" }
+      - { type: "nestedGroup", title: "TCO 分组明细", bind: "tcoReport", source: "groups" }
+      - { type: "documentBlock", title: "报价单全文", bind: "quote" }
+      - { type: "stateMachine", title: "流程状态", bind: "stateMachine" }
+      - { type: "processTimeline", title: "过程数据", bind: "processData" }
+
+  - id: "fuyao_oog"
+    label: "🪟 福耀 · 大板玻璃 OOG"
+    customer: "福耀"
+    contact: "郑工 · 国际储运部"
+    valueTier: "B"
+    volumeCommitment: { committed: 8000, used: 5200, remaining: 2800 }
+    inquiry:
+      summary: { totalBatches: 2, totalBoxes: 10, totalCbm: "156 CBM" }
+      batches:
+        - { id: "B1", portPair: "宁波→汉堡", boxes: "40'框架×6", cargoType: "大板玻璃(OOG 12m+/宽2.5m)", weight: "32T", goodsValue: "$0.9M", etd: "09-18", note: "OOG框架/开顶箱+绑扎", legs: [ { leg: 1, from: "宁波", to: "汉堡(直航)", vessel: "OOCL HOPE", transit: "33天", eta: "10-21" } ] }
+        - { id: "B2", portPair: "宁波→鹿特丹", boxes: "40'开顶×4", cargoType: "大板玻璃(OOG)", weight: "28T", goodsValue: "$0.6M", etd: "09-22", note: "开顶箱+衬垫", legs: [ { leg: 1, from: "宁波", to: "鹿特丹(中转)", vessel: "OOCL GEM", transit: "30天", eta: "10-22" } ] }
+    tcoReport:
+      currency: "USD" ; unit: "每40'框架"
+      model: "OOG TCO 模型" ; equipment: "40'框架/开顶箱 + 绑扎/重心审核"
+      groups:
+        - { name: "① 海运费段", items: [ { name: "基础海运费(宁波→汉堡 40'框架)", amount: 1950, basis: "框架箱运价", source: "IRIS-2", caliber: "到岸全含", confidence: "高" }, { name: "燃油附加 BAF", amount: 180, basis: "燃油指数×13%", source: "燃油指数", caliber: "含", confidence: "高" } ] }
+        - { name: "② 附加费段", items: [ { name: "THC 码头操作费", amount: 200, basis: "每箱", source: "附加费表", caliber: "含", confidence: "高" }, { name: "ENS 申报", amount: 45, basis: "每票", source: "规费表", caliber: "含", confidence: "中" }, { name: "DOC 单证费", amount: 30, basis: "每票", source: "单证", caliber: "含", confidence: "中" } ] }
+        - { name: "③ 内陆段", items: [ { name: "拖车(超长平板)", amount: 720, basis: "公里×超长加价", source: "价格表", caliber: "含", confidence: "高" } ] }
+        - { name: "④ 目的港段", items: [ { name: "目的港操作费", amount: 200, basis: "每箱", source: "目的港表", caliber: "含", confidence: "高" } ] }
+        - { name: "⑤ 特殊附加费段(OOG/超重/绑扎/保险)", items: [ { name: "OOG 框架/开顶箱附加", amount: 1050, basis: "超尺寸(宽2.5m/超长)费率", source: "OOG规则库", caliber: "含", confidence: "高" }, { name: "超重费(32T)", amount: 300, basis: "超28T 阶梯", source: "超重规则库", caliber: "含", confidence: "高" }, { name: "绑扎/衬垫/重心审核", amount: 260, basis: "按件数+审核", source: "运营", caliber: "含", confidence: "中" }, { name: "保险(易碎/货值)", amount: 120, basis: "货值×费率", source: "保险", caliber: "含", confidence: "中" } ] }
+        - { name: "⑥ 时效成本段", items: [ { name: "资金占用折算", amount: 120, basis: "货值×利率×33天", source: "时效模型", caliber: "折算", confidence: "中" } ] }
+      total: 3920 ; floorPrice: 3780 ; discountRange: "3,780~3,900" ; saving: "3.1%"
+    quote:
+      quoteNo: "Q-20240901-009" ; issueDate: "2026-09-03" ; validUntil: "2026-09-17" ; incoterm: "CIF 汉堡"
+      currency: "USD" ; payment: "月结30天"
+      commitment: "本单在年度量价承诺内（余量 2,800 TEU）"
+      spaceGuarantee: "OOG 专用舱位 · 绑扎/重心方案随附"
+      complianceNote: "OOG 绑扎方案(已核) · 重心审核(已核) · 超重许可(已取)"
+      costSaveNote: "较当前方案节省 3.1%（OOG 框架费优化 + 保险方案）"
+      remarks: "OOG 超限货需在 09-12 前确认绑扎/重心方案，以免港方拒装"
+      approvalStamp: "王磊(KAM) 放价确认 · 陈璐(收益) 授权内"
+    processData:
+      - { step: "识别", input: "询价单+尺寸/重量", output: "识别为OOG超宽2.5m+超重32T", status: "完成" }
+      - { step: "模型适配", input: "货物属性", output: "匹配OOG TCO模型", status: "完成" }
+      - { step: "特殊附加费", input: "OOG+超重", output: "OOG框架1050+超重300+绑扎260+保险120", status: "完成" }
+      - { step: "放价", input: "让价区间", output: "授权内确认放价", status: "人工闸门" }
+    stateMachine: { states: [ "询价发起", "属性识别", "模型适配", "TCO测算", "放价出案", "客户锁价" ], current: 0, exception: "OOG无设备/绑扎未确认 → 拒装风险(拉人)" }
+    visual:
+      - { type: "segChart", title: "TCO 成本占比", bind: "tcoReport", source: "groups", by: "name", metric: "sum(amount)" }
+      - { type: "routeMap", title: "多段航程", bind: "inquiry", source: "batches", routeField: "legs" }
+      - { type: "nestedGroup", title: "TCO 分组明细", bind: "tcoReport", source: "groups" }
+      - { type: "documentBlock", title: "报价单全文", bind: "quote" }
+      - { type: "stateMachine", title: "流程状态", bind: "stateMachine" }
+      - { type: "processTimeline", title: "过程数据", bind: "processData" }
+
+# ---- 后端 AI Mock（过程仿真结果，aiService 依据 sceneId 返回）----
+aiMocks:
+  - { name: "parseInquiry", latency: 900, sceneKey: "sceneId", field: "inquiry", summaryField: "summary", statusField: "compliance" }
+  - { name: "calcTco", latency: 1100, sceneKey: "sceneId", field: "tcoReport", summaryField: "summary" }

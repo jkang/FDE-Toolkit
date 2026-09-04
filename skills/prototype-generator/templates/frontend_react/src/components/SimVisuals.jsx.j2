@@ -1,0 +1,136 @@
+{% raw %}
+// =========================================================
+// SimVisuals —— 业务数据可视化可复用组件库（scaffold 从 sim_spec.visual 生成）
+// 沉淀：segChart(成本占比) / routeMap(多段航程) / nestedGroup(分组明细)
+//       documentBlock(复合文档) / stateMachine(状态机) / processTimeline(过程数据)
+// =========================================================
+import React from 'react';
+import { Card, Table, Tag, Timeline, Steps, Descriptions, Row, Col, Statistic, Progress, Alert, Typography } from 'antd';
+import { DollarOutlined, GlobalOutlined, FileTextOutlined, SwapOutlined } from '@ant-design/icons';
+
+const CONF_COLOR = { '高': 'green', '中': 'gold', '低': 'red' };
+
+/* —— segChart: TCO 成本占比分段图（分组名 → 金额占比） —— */
+export function SegChart({ title = 'TCO 成本占比', groups = [], total = 0 }) {
+  const rows = groups.map((g) => {
+    const sum = (g.items || []).reduce((a, it) => a + (Number(it.amount) || 0), 0);
+    return { name: g.name, sum, pct: total ? Math.round((sum / total) * 100) : 0 };
+  });
+  return (
+    <Card size="small" title={<><DollarOutlined /> {title}</>} style={{ marginBottom: 12 }}>
+      {rows.map((r) => (
+        <div key={r.name} style={{ marginBottom: 8 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12 }}>
+            <span>{r.name}</span><span>${r.sum.toLocaleString()} · {r.pct}%</span>
+          </div>
+          <Progress percent={r.pct} strokeColor="#0e7490" size="small" />
+        </div>
+      ))}
+      {total ? <Statistic value={total} prefix="$" valueStyle={{ fontSize: 20, color: '#0e7490' }} /> : null}
+    </Card>
+  );
+}
+
+/* —— routeMap: 多段航程图（每批次 legs 起运/中转/目的，分段着色） —— */
+export function RouteMap({ title = '多段航程', batches = [] }) {
+  const colorArr = ['#0e7490', '#f59e0b', '#7c3aed', '#e11d48'];
+  return (
+    <Card size="small" title={<><GlobalOutlined /> {title}</>} style={{ marginBottom: 12 }}>
+      {batches.length === 0 ? <Alert type="info" message="无航程数据" /> :
+        batches.map((b) => (
+          <div key={b.id} style={{ marginBottom: 12 }}>
+            <div style={{ marginBottom: 6, fontSize: 12 }}><Tag color="geekblue">{b.id}</Tag> {b.portPair} · {b.boxes} · <Typography.Text type="secondary">{b.cargoType}</Typography.Text></div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
+              {(b.legs || []).map((l, idx) => (
+                <React.Fragment key={idx}>
+                  <React.Fragment>
+                    <div style={{ textAlign: 'center', minWidth: 90, padding: 6, background: '#f8fafc', border: `1px solid ${colorArr[idx % colorArr.length]}`, borderRadius: 8 }}>
+                      <div style={{ fontSize: 11, color: '#94a3b8' }}>第{l.leg}段</div>
+                      <div style={{ fontWeight: 700, fontSize: 12 }}>{l.from}</div>
+                      <div style={{ fontSize: 11, color: '#64748b' }}>→ {l.to}</div>
+                      <div style={{ fontSize: 10, color: '#94a3b8' }}>{l.vessel}</div>
+                      <Tag color={colorArr[idx % colorArr.length]} style={{ marginTop: 2, fontSize: 10 }}>{l.transit}</Tag>
+                    </div>
+                  </React.Fragment>
+                  {idx < b.legs.length - 1 && <span style={{ color: colorArr[idx % colorArr.length], fontWeight: 700 }}>→</span>}
+                </React.Fragment>
+              ))}
+            </div>
+            <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 4 }}>预计到达最后港：{b.legs && b.legs.length ? b.legs[b.legs.length - 1].eta : '—'} · 备注：{b.note}</div>
+          </div>
+        ))
+      }
+    </Card>
+  );
+}
+
+/* —— nestedGroup: 分组明细报表（金额/计费基准/来源/口径/置信度） —— */
+export function NestedGroup({ title = '分组明细', groups = [], currency = 'USD', unit = '' }) {
+  const cols = [
+    { key: 'name', dataIndex: 'name', title: '费用项' },
+    { key: 'amount', dataIndex: 'amount', title: `金额(${currency})`, render: (v) => `$${Number(v).toLocaleString()}` },
+    { key: 'basis', dataIndex: 'basis', title: '计费基准' },
+    { key: 'source', dataIndex: 'source', title: '来源' },
+    { key: 'caliber', dataIndex: 'caliber', title: '口径' },
+    { key: 'confidence', dataIndex: 'confidence', title: '置信度', render: (v) => <Tag color={ CONF_COLOR[v] || 'default' }>{v}</Tag> },
+  ];
+  return (
+    <Card size="small" title={title} style={{ marginBottom: 12 }}>
+      {unit ? <Typography.Text type="secondary" style={{ marginBottom: 8, display: 'block' }}>单位：{unit}</Typography.Text> : null}
+      {groups.map((g) => (
+        <React.Fragment key={g.name}>
+          <Typography.Text strong style={{ display: 'block', margin: '8px 0' }}>{g.name}</Typography.Text>
+          <Table rowKey="name" dataSource={g.items || []} columns={cols} pagination={false} size="small" />
+        </React.Fragment>
+      ))}
+    </Card>
+  );
+}
+
+/* —— documentBlock: 复合文档（报价单全文） —— */
+export function DocumentBlock({ title = '报价单全文', doc = {} }) {
+  const secs = [
+    ['报价参考号', doc.quoteNo], ['开单日期', doc.issueDate], ['有效期', doc.validUntil], ['贸易条款', doc.incoterm],
+    ['币种', doc.currency], ['付款方式', doc.payment], ['量价承诺', doc.commitment], ['舱位保证', doc.spaceGuarantee],
+  ];
+  return (
+    <Card size="small" title={<><FileTextOutlined /> {title}</>} style={{ marginBottom: 12, border: '1px solid #cbd5e1' }}>
+      <Descriptions column={2} size="small" bordered style={{ marginBottom: 12 }}>
+        {secs.map(([k, v]) => <Descriptions.Item key={k} label={k} span={ (k === '量价承诺' || k === '舱位保证' || k === '付款方式') ? 2 : 1 }>{v}</Descriptions.Item>)}
+      </Descriptions>
+      <Row gutter={16}>
+        <Col span={12}><div style={{ marginBottom: 4 }}><strong>合规附件/约束</strong></div><Typography.Text type="secondary">{doc.complianceNote}</Typography.Text></Col>
+        <Col span={12}><div style={{ marginBottom: 4 }}><strong>降本说明</strong></div><Typography.Text type="secondary">{doc.costSaveNote}</Typography.Text></Col>
+      </Row>
+      <Alert type="warning" showIcon message="备注" description={doc.remarks} style={{ marginTop: 12 }} />
+      <Typography.Paragraph type="secondary" style={{ marginTop: 12, textAlign: 'right' }}>{doc.approvalStamp}</Typography.Paragraph>
+    </Card>
+  );
+}
+
+/* —— stateMachine: 状态机（Steps + 异常分支） —— */
+export function StateMachine({ title = '流程状态', states = [], current = 0, exception = '' }) {
+  return (
+    <Card size="small" title={<><SwapOutlined /> {title}</>} style={{ marginBottom: 12 }}>
+      <Steps size="small" current={current} items={states.map((s) => ({ title: s }))} />
+      {exception ? <Alert type="warning" showIcon message="异常分支" description={exception} style={{ marginTop: 12 }} /> : null}
+    </Card>
+  );
+}
+
+/* —— processTimeline: 过程数据时间线（step/status） —— */
+export function ProcessTimeline({ title = '过程数据', data = [] }) {
+  return (
+    <Card size="small" title={title} style={{ marginBottom: 12 }}>
+      <Timeline items={data.map((d) => ({
+        color: d.status === '完成' ? 'green' : d.status === '必停补录' ? 'red' : 'blue',
+        children: (<span><strong>{d.step}</strong> · {d.input} → {d.output} <Tag color={ d.status === '完成' ? 'green' : d.status === '必停补录' ? 'red' : 'blue' }>{d.status}</Tag></span>),
+      }))} />
+    </Card>
+  );
+}
+
+/* —— 场景数据源（scaffold 注入） —— */
+export const sceneDataById = (scenes = [], id) => scenes.find((s) => s.id === id) || scenes[0] || {};
+
+{% endraw %}

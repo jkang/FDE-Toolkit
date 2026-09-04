@@ -131,6 +131,18 @@ def parse_spec(yaml_path):
     return data
 
 
+def parse_sim_spec(sim_path):
+    """解析可选的 sim_spec.yaml（业务数据 & 过程仿真）。缺失时返回空场景列表。"""
+    if not sim_path or not os.path.exists(sim_path):
+        return None
+    with open(sim_path, "r", encoding="utf-8") as f:
+        raw = f.read()
+    data = yaml.safe_load(strip_markdown(raw))
+    if not data or "scenes" not in data:
+        raise ValueError("sim_spec 格式不合法：缺少顶级字段 scenes")
+    return data
+
+
 def normalize(spec):
     meta = spec.get("meta", {})
     frontend = ensure_str(meta.get("frontend"), "react").lower()
@@ -840,10 +852,12 @@ def main():
     parser.add_argument("--case", default=None, help="客户/案例目录名（如 X电商订舱），产物置于 <case>/<scenario>/mvp-prototype")
     parser.add_argument("--scenario", default=None, help="场景子目录名（如 采购订单自动生成）")
     parser.add_argument("--force", action="store_true", help="覆盖已存在目录")
+    parser.add_argument("--sim", default=None, help="sim_spec.yaml 路径（业务数据 & 过程仿真，可选）")
     args = parser.parse_args()
 
     spec_data = parse_spec(args.spec)
     spec = normalize(spec_data)
+    sim_data = parse_sim_spec(args.sim)
     meta = spec["meta"]
     frontend = meta["frontend"]
 
@@ -889,6 +903,7 @@ def main():
         "aiMocks": spec["aiMocks"],
         "businessMocks": spec["businessMocks"],
         "apiRoutes": spec["apiRoutes"],
+        "simScenes": (sim_data.get("scenes", []) if sim_data else []),
         "icons": list({p["icon"] for p in spec["pages"] if p.get("icon")}),
         "shade_1": theme_shades(meta["primary"])[0],
         "shade_2": theme_shades(meta["primary"])[1],
@@ -933,6 +948,12 @@ def main():
     render_file(env, ctx, f"{fe}/src/theme.js.j2", os.path.join(out_dir, "src/theme.js"))
     render_file(env, ctx, f"{fe}/src/api/client.js.j2", os.path.join(out_dir, "src/api/client.js"))
     render_file(env, ctx, f"{fe}/src/data/appData.js.j2", os.path.join(out_dir, "src/data/appData.js"))
+    # sim_spec：场景数据源 + 可视化组件（仅 react 提供 SimVisuals；vue 可在后续扩展）
+    if sim_data is not None:
+        render_file(env, ctx, f"{fe}/src/data/scenarioData.js.j2", os.path.join(out_dir, "src/data/scenarioData.js"))
+        if frontend == "react":
+            render_file(env, ctx, "frontend_react/src/components/SimVisuals.jsx.j2",
+                        os.path.join(out_dir, "src/components/SimVisuals.jsx"))
     if frontend == "react":
         render_file(env, ctx, f"{fe}/src/App.jsx.j2", os.path.join(out_dir, "src/App.jsx"))
         render_file(env, ctx, f"{fe}/src/layouts/WorkbenchLayout.jsx.j2",

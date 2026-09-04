@@ -75,7 +75,7 @@ FDE 四步法：**理需求 → 挖知识 → 建本体 → 生智能**。每一
 
 - **[Agent 产品方案 (Agent Product Proposal Generator)](agent-product-proposal-generator/SKILL.md)**：聚合理需求/场景/挖知识/本体产出，生成一份可施工的 Markdown 方案（产品定位 → 形态架构 → 演示故事线 → 功能与 UI → Agent 行为 → 规则消费门禁）。
 - **[To-be 旅程设计 (AI Product Journey Generator)](ai-product-journey-generator/SKILL.md)**：细化用户角色与典型场景，设计含 AI 交互细节（上传数据示例 / 推荐操作指令 / 可见数据）的 To-be Journey。
-- **[MVP 原型生成器 (Prototype Generator)](prototype-generator/SKILL.md)**：输入 AI Canvas + To-be Journey，编译可启动的前后端一体化 MVP（React/Vue + Express + Mock AI/业务服务），含启动验证。
+- **[MVP 原型生成器 (Prototype Generator)](prototype-generator/SKILL.md)**：输入 AI Canvas + To-be Journey，编译可启动的前后端一体化 MVP（React/Vue + Express + Mock AI/业务服务），含启动验证；支持可选 `--sim sim_spec.yaml`（业务数据 & 过程仿真：多批次询价/多段航程/TCO分组明细/报价单文档/状态机 + 可视化组件 segChart·routeMap·nestedGroup·documentBlock·stateMachine·processTimeline）。
 - **[UX 优化器 (UX-Optimizer)](ux-optimizer/SKILL.md)**：按「企业品牌 × 业务主题」定制产品设计系统，以覆盖层注入 mvp-prototype，产出 UX 设计报告。
 - **[用户故事地图 (Story Map Generator)](story-map-generator/SKILL.md)**：构建“阶段-活动-接触点-用户故事”四层需求骨架。
 - **[MVP 迭代计划 (MVP Plan Generator)](mvp-plan-generator/SKILL.md)**：针对 Must-Have 需求自动规划 MVP 迭代计划与看板。

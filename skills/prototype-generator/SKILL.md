@@ -63,6 +63,7 @@ AI Canvas YAML + To-be Journey YAML（+ 用户偏好：前端框架/配色）
 | ⑤ 主题配色 | 用户提供配色→直接用；否则按业务域自动推导（供应链→蓝+橙；金融→深蓝+金…） |
 | ⑥ 输出目录 | `<客户案例目录>/<场景目录>/mvp-prototype/`（脚手架 `--case` / `--scenario` 指定） |
 | ⑦ 启动验证 | 安装依赖 → 启动 → curl API 实测 + 浏览器打开前端验证 UI 与 AI 交互 |
+| ⑧ 业务数据 & 过程仿真 | `--sim sim_spec.yaml`，生成场景数据源 + 可视化组件（segChart/routeMap/nestedGroup/documentBlock/stateMachine/processTimeline） |
 
 ---
 
@@ -72,6 +73,27 @@ AI Canvas YAML + To-be Journey YAML（+ 用户偏好：前端框架/配色）
 1. **前端框架**：React 还是 Vue？
 2. **配色**：是否有指定主色/强调色/Logo？（无则按业务域自动推导）
 3. **端口偏好**：默认 Vite `:5173` / API `:8080`，是否冲突？
+
+### Step 0' · sim_spec（业务数据 & 过程仿真，推荐）
+> 在 `mvp_spec` 之后**建议新增一轮 `sim_spec`**（`references/sim_spec_schema.yaml` + `references/sim_prompts.md`），
+> 用于把「业务数据深度 + 过程状态 + 业务可视化」编译进原型。`mvp_spec` 只描述 UI 骨架，
+> 真实业务丰富度（多批次询价/多段航程/TCO 分组明细/报价单全文/状态机/成本占比图）由 `sim_spec` 承载，
+> 否则必须手工补 `scenarioData.js` 与页面。
+>
+> **sim_spec 结构**：`meta` + `scenes[]`（每个场景一数据块）：
+> - `inquiry`（多批次→多段航程 legs）
+> - `tcoReport`（分组→费用项：金额/计费基准/来源/口径/置信度）
+> - `quote`（复合报价文档）
+> - `processData[]`（AI 步骤中间态）
+> - `stateMachine`（状态机+异常分支）
+> - `visual[]`（可视化需求：`segChart`/`routeMap`/`nestedGroup`/`documentBlock`/`stateMachine`/`processTimeline`）
+>
+> **编译**（在 mvp_spec 命令上追加 `--sim`）：
+> ```bash
+> python3 scripts/scaffold_mvp.py <mvp_spec.yaml> --case <case> --scenario <scenario> --sim <sim_spec.yaml>
+> ```
+> 脚手机会依据 `sim_spec.scenes` 生成 `src/data/scenarioData.js`（场景数据源）+ `src/components/SimVisuals.jsx`
+> （可复用可视化组件库：segChart/routeMap/nestedGroup/documentBlock/stateMachine/processTimeline）。
 
 ### Step 1 · 解析输入
 - **优先**：读取 AI Canvas YAML + To-be Journey YAML（同为 `examples/` 中已生成的场景）。
