@@ -384,7 +384,7 @@
                 <div class="nav-section">
                     <div class="nav-section-title">{{ nav.section }}</div>
                     {% for item in nav.get('items') or nav.get('children') or [] %}
-                    <a class="nav-item {% if loop.first and nav == navigation[0] %}active{% endif %}" href="#" onclick="loadReport('{{ item.id }}'); return false;">
+                    <a class="nav-item {% if loop.first and nav == navigation[0] %}active{% endif %}" href="#" onclick="loadReport('{{ item.id }}'); return false;" title="{{ item.title }}">
                         <span class="nav-item-icon">{{ item.icon }}</span>
                         <span class="nav-item-text">{{ item.title }}</span>
                         {% if item.badge %}
@@ -456,12 +456,6 @@
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
             sidebar.classList.toggle('collapsed');
-            localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
-        }
-
-        // Restore sidebar state
-        if (localStorage.getItem('sidebarCollapsed') === 'true') {
-            document.getElementById('sidebar').classList.add('collapsed');
         }
         
         function showCover() {

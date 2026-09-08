@@ -28,7 +28,7 @@
 > 说明：
 > - 以上命令与 Agent 是多端维护的（`.opencode/`、`.qoder/`），内部使用请调用 `/命令` 或 `@Subagent`。
 > - **Discovery Agent**（宏编排）通过 `/discovery` 一次性跑完整个 FDE 流程并汇总出交付 Deck，见下节。
-> - 未被任何 command 包裹的**单体 Skill** 也可按名称单独触发：`value-stream-mapper`（L1 价值流）、`problem-definition`（问题定义 8 要素）、`opportunity-definition`（机会点定义 5 要素）、`plantuml-flow-generator`（PlantUML 流程图）、`ai-roi-calculator`（ROI 核算）、`frontend-design`（前端设计规范）、`unified-report-dashboard`（报告汇总）。注：`ux-optimizer` 已被 `/mvp-prototype` 包裹，故不在此列。
+> - 未被任何 command 包裹的**单体 Skill** 也可按名称单独触发：`value-stream-mapper`（L1 价值流）、`problem-definition`（问题定义 8 要素）、`opportunity-definition`（机会点定义 5 要素）、`plantuml-flow-generator`（PlantUML 流程图）、`ai-roi-calculator`（ROI 核算）、`frontend-design`（前端设计规范）、`unified-report-dashboard`（报告汇总，支持**场景化两段式**：公司级「场景规划」区块 = 战略与全景+场景规划+路线图，其下每场景再编排「机会点定义/AI画布 → To-be流程/规则 → 本体 → 产品方案/旅程 → MVP → ROI」，见 `unified-report-dashboard/examples/scenario_planning_template.yaml`）。注：`ux-optimizer` 已被 `/mvp-prototype` 包裹，故不在此列。
 > - **元技能**用于扩展本库（`skill-creator` / `agent-creator` / `command-creator` / `plugin-creator` / `get-started`），同样按名称触发。
 
 ---

@@ -2,6 +2,7 @@
 name: unified-report-dashboard
 description: |
   生成统一报告仪表盘，将多个分析步骤（NSM 分析、业务流程、服务蓝图、AI 机会地图、AI 画布、里程碑计划等）的 HTML 输出整合为一个带侧边栏导航的深色模式仪表盘。
+  支持「场景化两段式」：公司级「场景规划」区块（战略与全景 + 场景规划 + 路线图）+ 各场景小节（机会点定义/AI画布 → 挖知识 → 建本体 → 生智能 → MVP → ROI）。
 
   Triggers when user mentions:
   - "统一报告仪表盘"
@@ -15,73 +16,96 @@ author: KK
 # Unified Report Dashboard Generator
 
 统一报告仪表盘生成器 - 将多个分析步骤的 HTML 输出整合为一个完整的导航仪表盘。
+生成后**务必运行校验**（见 `scripts/validate_dashboard.py`），确保编排符合本 skill 规范。
 
 > [!IMPORTANT]
 > **输出路径与命名规范 (Output Path & Naming Convention)**:
 > - **目录**: 输出到 `<公司/业务名>/` 公司/业务级目录；若产物属于**具体 AI 场景**（如某场景的测试数据集 / 故事地图 / Agent 本体等），**必须**放入 `<公司/业务名>/<场景名>/` 场景子目录（两层规范；场景级文件名需含场景名，如 `[公司]-[场景]-[业务类型].html`）。
-> - **文件名**: 仪表盘 HTML 文件名必须格式为 `[公司/业务名]-统一报告仪表盘.html` (例如：`张雪机车海外销售-统一报告仪表盘.html`)。
-> 
+> - **文件名**: 仪表盘 HTML 文件名必须格式为 `[公司/业务名]-统一报告仪表盘.html` (例如：`张雪机车海外销售-统一报告仪表盘.html`)；场景级仪表盘为 `[公司/业务名]-[场景名]-统一报告仪表盘.html`。
+>
 > **视觉设计规范 (Visual Design Standard)**:
 > - **样式风格**: 默认按本 skill `references/` 内示例的视觉规范输出。
 > - **底色模式**: **保持深色底 (Dark Mode)**，背景颜色使用 `#0a0e27`。
+> - **侧边栏**: 是**文字菜单**（图标 + 文字），**默认展开**；点击顶部箭头可**收缩成图标栏**。**不要**用 localStorage 记住"收缩态"（否则刷新后只剩一排图标、显得诡异）；收缩后图标要有 `title` 提示。
 > - **页面布局**: 仪表盘作为容器页面，应提供侧边栏导航和主内容区域。
-
 
 ## 核心功能
 
-将企业 AI 战略分析的多个阶段输出（如 NSM 分析、业务流程分析、服务蓝图、AI 机会地图、AI 画布、里程碑计划等）整合为一个统一的 HTML 仪表盘，提供：
+将企业 AI 战略分析的多个阶段输出整合为一个统一的 HTML 仪表盘，提供：
 
-- 侧边栏导航菜单
+- 侧边栏文字导航菜单（可收缩）
 - 封面页统计概览
 - 卡片式目录入口
 - iframe 内嵌报告查看
 - 统一的暗色主题设计
 
+## 编排规范（必遵守 —— 生成前先读）
+
+### A. 公司级「场景规划」区块
+
+「场景规划」= **战略与全景 + 场景规划 + 路线图** 合并成**一个公司级导航分组**，编排顺序固定为：
+
+```
+价值流 → 现状流程(各场景) → 业务问题定义 → AI机会场景地图 → 机会点定义 → 优先级分析(AI场景优先级矩阵) → 里程碑计划
+```
+
+要点：
+- **现状流程 / 业务问题定义 留在公司级区块**（每个场景各一项）。
+- **AI机会场景地图 / AI场景优先级矩阵 是公司级全场景产物，只出现一次**——不要在每个场景小节里重复（避免"前后都有"）。
+- 若公司级产物（北极星 / 服务蓝图 / 优先级矩阵 / 演进路线图 / 里程碑计划）尚未生成，**不要放空引用**（file 会因缺失而空白），只收录已存在的文件；主线顺序体现在 `subtitle` 中即可。
+
+### B. 场景小节（每个场景一个导航分组）
+
+```
+机会点定义 · AI画布（AI 场景定义）→ To-be流程 → 业务规则挖掘 → Agent本体设计 → Agent产品方案 → To-be旅程(含分人/深化) → MVP规格评审 → MVP原型 → ROI核算
+```
+
+要点：
+- **机会点定义 / AI画布（AI 场景定义）是场景小节的第一/第二项**，**不要**放进公司级「场景规划」区块。
+- **场景小节内不要加阶段前缀**：不要在 nav 项前写「挖知识 / 建本体 / 生智能 / 评测」，直接写产出名（如 `To-be 流程`、`Agent 本体设计`）。
+- **ROI 核算放在 MVP 之后**（顺序为：MVP 规格评审 → MVP 原型 → ROI 核算）。
+- 场景级产物命名 `[公司/业务名]-[场景名]-[产出类型].html`。
+
 ## 使用流程
 
 ### Step 1: 准备 YAML 配置
 
-创建 YAML 文件定义仪表盘结构：
+创建 YAML 文件定义仪表盘结构（公司级 + 场景小节）。参考 `examples/scenario_planning_template.yaml`（场景化两段式，推荐骨架）：
 
 ```yaml
-design: "design.md"  # 可选，导入包含 CSS 样式的 markdown 文件来自定义主题
-title: "报告标题"
-subtitle: "副标题描述"
-logo:
-  icon: "ZX"
-  text: "企业名称"
-  subtitle: "分析主题"
+title: "[公司/业务名] · 场景规划统一报告"
+subtitle: "编排主线：价值流 → 现状流程 → 业务问题定义 → AI机会场景地图 → 机会点定义 → 优先级分析 → 里程碑计划"
+logo: { icon: "OC", text: "[公司/业务名]", subtitle: "场景规划", badge: "AI-POWERED" }
 stats:
-  - number: "9"
-    label: "分析维度"
-  - number: "32"
-    label: "AI场景"
-cards:
-  - id: "report1"
-    number: "01"
-    title: "北极星指标与战略"
-    desc: "海外月度活跃骑手数(MAR)"
-    icon: "🎯"
-    badge: ""
-    file: "report1.html"
-
-navigation:
-  - section: "战略分析"
+  - { number: "3", label: "AI 场景" }
+  - { number: "19", label: "L5深度任务" }
+cards:      # 封面卡片（公司级 + 场景小节全部）
+  - { id: "s01", number: "01", title: "价值流图", icon: "🗺️", badge: "", file: "[公司/业务名]-价值流图.html" }
+  - { id: "c01", number: "07", title: "机会点定义", icon: "✨", badge: "", file: "[场景名]/[公司/业务名]-[场景名]-机会点定义.html" }
+navigation:  # 侧边栏分组
+  - section: "场景规划（战略与全景 · 场景规划 · 路线图）"
     items:
-      - id: "report1"
-        title: "北极星指标与战略"
-        icon: "🎯"
-        badge: ""
-        file: "report1.html"
+      - { id: "s01", title: "价值流图", icon: "🗺️", badge: "", file: "[公司/业务名]-价值流图.html" }
+  - section: "场景① · [场景名]"
+    items:
+      - { id: "c01", title: "机会点定义", icon: "✨", badge: "", file: "[场景名]/[公司/业务名]-[场景名]-机会点定义.html" }
 ```
 
-### Step 2: 编译生成仪表盘
+### Step 2: 校验配置（强烈建议，生成前）
+
+```bash
+python3 scripts/validate_dashboard.py <input.yaml> [--dir <项目根>] [--skip-files]
+```
+
+它自动检查：公司级主线程顺序、`AI机会场景地图` 只出现一次、`机会点定义/AI画布` 是否落在场景小节（非公司级）、场景小节是否带阶段前缀、`ROI` 是否在 `MVP` 之后、引用文件是否存在。含占位名（`[公司/业务名]`）的模板用 `--skip-files`。
+
+### Step 3: 编译生成仪表盘
 
 ```bash
 python3 scripts/build_dashboard.py input.yaml output.html [design.md]
 ```
 
-### Step 3: 部署
+### Step 4: 部署
 
 `cards[].file` / `navigation[].items[].file` **支持相对路径**（模板按 `src="${report.file}"` 以 iframe 相对仪表盘文件所在目录解析），报告**无需全部复制到与仪表盘同一目录**，可直接指向子目录：
 
@@ -96,6 +120,16 @@ cards:
 
 用浏览器直接打开生成的仪表盘 HTML 即可（iframe 相对路径随仪表盘文件位置解析）。
 
+## 非 HTML 产物的承载
+
+- **Markdown / 其它非 HTML**（如 `Agent产品方案.md`）：iframe 不渲染 md，需先用 `python3 -m markdown`（tables/fenced_code/codehilite/toc）转为同名 `.html`，再给仪表盘引用（参考 `examples/` 与 OOCL 实例）。
+- **可运行原型 / 需启动服务的应用**（React + Express）：**不直接 iframe 内嵌**（会因缺后端 API/服务而空白）。改为生成一个「启动指引」HTML（含 `npm install` / 启动命令 / 演示分支 / 链接），仪表盘引用该指引页。
+
+## 多场景 vs 单场景仪表盘
+
+- **单场景、公司级内容少**：一张公司级仪表盘，把场景当导航分组即可（默认）。
+- **场景产物很多 / 各场景差异大**：公司级仪表盘只放「场景规划」区块，再为每个场景各生成一张 `...-[场景名]-统一报告仪表盘.html`，由公司级仪表盘的场景小节 `file` 指向该场景级仪表盘。
+
 ## 目录结构
 
 ```
@@ -104,10 +138,13 @@ unified-report-dashboard/
 ├── references/
 │   └── schema.yaml                   # YAML 输入规范
 ├── scripts/
-│   └── build_dashboard.py            # 仪表盘编译器
+│   ├── build_dashboard.py            # 仪表盘编译器
+│   └── validate_dashboard.py         # 编排规范校验器（生成前必跑）
 ├── templates/
-│   └── dashboard_layout.html         # Jinja2 模板
-└── examples/                         # 示例输出
+│   └── dashboard_layout.html         # Jinja2 模板（文字菜单 + 可收缩侧边栏）
+└── examples/
+    ├── scenario_planning_template.yaml   # 场景化两段式骨架（推荐）
+    └── zhangxue_dashboard.yaml           # 公司级单流程参考
 ```
 
 ## 输入规范
@@ -116,7 +153,7 @@ unified-report-dashboard/
 
 ## 输出特性
 
-- 响应式侧边栏导航
+- 响应式侧边栏**文字菜单**（默认展开、可收缩、图标带 tooltip）
 - 封面页统计卡片
 - 暗色主题（#0a0e27 背景）
 - iframe 安全沙箱加载报告
