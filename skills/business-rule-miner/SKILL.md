@@ -1,8 +1,8 @@
 ---
 name: business-rule-miner
 description: |
-  承接任务流程拆解产出（使用点/深度任务）＋ SRP 已识别规则类型＋线下调研素材，
-  以 SKP 阶段2「任务处理规则挖掘」专家视角，把「每个任务依据什么处理」深挖为
+  承接任务流程拆解产出（使用点/深度任务）＋ 已识别规则类型＋线下调研素材，
+  以阶段2「任务处理规则挖掘」专家视角，把「每个任务依据什么处理」深挖为
   五类可消费的业务知识结构（决策模型 / 模版范例 / 术语字典 / 关键信息提取要点 / 关联关系），
   每条规则/样本均绑定到使用点、来源可追溯，并做 P1↔P2 双向可追踪交叉核对，
   输出《任务处理规则挖掘清单》HTML + 结构化 YAML。
@@ -24,8 +24,8 @@ author: KK
 
 # Business Rule Miner（业务规则深度挖掘器）
 
-承接 `deep-task-flow-analyzer`（P1）产出的**使用点/深度任务** ＋ SRP 已识别**规则类型** ＋ 线下调研素材，
-以 **SKP 阶段2 · 任务处理规则挖掘** 专家视角：把「**每个任务依据什么处理**」深挖为
+承接 `deep-task-flow-analyzer`（P1）产出的**使用点/深度任务** ＋ 已识别**规则类型** ＋ 线下调研素材，
+以 **阶段2 · 任务处理规则挖掘** 专家视角：把「**每个任务依据什么处理**」深挖为
 **五类可消费的业务知识结构**，每条规则/样本**绑定到使用点**、来源可追溯，并做 **P1↔P2 双向可追踪** 交叉核对。
 
 > 与相邻 Skill 的边界（务必先分辨）：
@@ -89,7 +89,7 @@ author: KK
 
 ### Step 1 · 解析输入
 - **优先**：读取 `deep-task-flow-analyzer` 输出（使用点 + I/O + 规则依据类型占位）。
-- **兜底**：SRP 场景定义（`dataKnowledge`/`workflow` 识别的规则类型）/ 自然语言描述。
+- **兜底**：场景定义（`dataKnowledge`/`workflow` 识别的规则类型）/ 自然语言描述。
 - 提炼 `meta.kpi`，确定每条规则的使用点绑定。
 
 ### Step 2 · 逐类深挖 YAML（LLM 产物）
@@ -132,7 +132,7 @@ business-rule-miner/
 |------|-------|------|
 | 上游输入 | `deep-task-flow-analyzer` | 提供使用点/深度任务 + 输入输出，作为规则绑定锚点 |
 | 上游输入 | `ai-canvas-generator` | 提供场景定义与已识别规则类型 |
-| 同 Agent | `to-be-process-designer` / `deep-task-flow-analyzer` / `agent-ontology-designer` / `agentic-workflow-designer` / `context-knowledge-data-analyzer` | 共同构成 `agent-arch-designer` Agent；本 Skill 为 SKP P2 规则挖掘，承接 P1 的使用点 |
+| 同 Agent | `to-be-process-designer` / `deep-task-flow-analyzer` / `agent-ontology-designer` / `agentic-workflow-designer` / `context-knowledge-data-analyzer` | 共同构成 `agent-arch-designer` Agent；本 Skill 为 P2 规则挖掘，承接 P1 的使用点 |
 | 下游衔接 | `agent-ontology-designer` | 本产物的对象/关系/规则，作为本体建模原料 |
 | 下游衔接 | `agentic-workflow-designer` | 本产物的决策/模板/规则，作为执行编排依据 |
 | 下游衔接 | `ai-test-dataset-generator` / `mvp-metrics-generator` | 本产物的验收门槛/规则，转译为测试用例/成效指标 |

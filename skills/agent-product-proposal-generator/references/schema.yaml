@@ -79,7 +79,7 @@ section_6_agent_behavior:                 # 6 Agent 行为设计
   undo_fallback:
     - { issue: "<问题>", content: "<内容>", interaction: "<落到交互 #号>" }
 
-section_7_rule_gates:                     # 7 SKP 五类规则消费门禁
+section_7_rule_gates:                     # 7五类规则消费门禁
   items:
     - { rule_type: "决策模型类",   srp_recognized: true, gate_point: "<第几章承接点>", content: "<承接的业务内容>", note: "必须承接" }
     - { rule_type: "模版范例类",   srp_recognized: true, gate_point: "<…>", content: "<…>", note: "必须承接" }

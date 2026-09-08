@@ -25,7 +25,7 @@ AI 场景 To-be 流程，并以 **L5 深度任务**粒度落地（单一动词�
 最终以「泳道式流程图」直观呈现。
 
 > 与 `ai-product-journey-generator`（To-be 旅程）的区别：
-> - 视角为 **流程/任务挖掘（SKP 阶段1）**，而非用户旅程；
+> - 视角为 **流程/任务挖掘（阶段1）**，而非用户旅程；
 > - 以 **业务环节(L3) → 主要活动(L4) → 深度任务(L5)** 三层拆解；
 > - 核心登记字段为 **执行主体 + HITL 焦点 + 规则依据类型 + 价值锚定 + 异常处理链路**，
 >   供阶段2 规则反向绑定与子 Agent 扩展位设计。
@@ -90,7 +90,7 @@ AI 场景 To-be 流程，并以 **L5 深度任务**粒度落地（单一动词�
 ### Step 1 · 解析输入（现状流程 / 痛点 / AI 机会点画布）
 - **优先**：读取用户提供的现状流程(L3/L4)、问题痛点、AI 机会点画布定义（如 AI Canvas YAML）。
 - **兜底**：用户以自然语言描述时，按「现状流程 → 痛点 → AI 机会点」三要素先自行推演。
-- 提炼 `meta.kpi`（价值锚定）与 `meta.inputs`（上游 SRP 产物清单）。
+- 提炼 `meta.kpi`（价值锚定）与 `meta.inputs`（上游产物清单）。
 
 ### Step 2 · 推导 To-be 流程 YAML（LLM 产物）
 - 严格遵循 `references/to_be_flow_prompts.md` 的角色设定、划列/划行/落任务铁律与字段约束。
@@ -139,7 +139,7 @@ to-be-process-designer/
 |------|-------|------|
 | 上游输入 | `ai-canvas-generator` / `ai-opportunity-map-generator` | 提供 AI 机会点画布定义与 AI 输入输出 |
 | 上游输入 | `business-process-deep-analyzer` | 提供现状泳道图（L3/L4）与痛点 |
-| 同 Agent | `deep-task-flow-analyzer` / `business-rule-miner` / `agent-ontology-designer` / `agentic-workflow-designer` / `context-knowledge-data-analyzer` | 共同构成 `agent-arch-designer` Agent；本 Skill（泳道图）+ `deep-task-flow-analyzer`（任务拆解图）同属 SKP P1 流程骨架，`business-rule-miner` 为 P2 规则挖掘，其余输出「本体/时序/资源」三视图 |
+| 同 Agent | `deep-task-flow-analyzer` / `business-rule-miner` / `agent-ontology-designer` / `agentic-workflow-designer` / `context-knowledge-data-analyzer` | 共同构成 `agent-arch-designer` Agent；本 Skill（泳道图）+ `deep-task-flow-analyzer`（任务拆解图）同属P1 流程骨架，`business-rule-miner` 为 P2 规则挖掘，其余输出「本体/时序/资源」三视图 |
 | 下游衔接 | `agent-ontology-designer` / `agentic-workflow-designer` | 本产物的深度任务/规则依据/执行主体，作为 Agent 本体与编排设计的骨架 |
 | 下游衔接 | `context-knowledge-data-analyzer`（CKD） | 深度任务的输入输出可作为 CKD 数据资产的锚点 |
 | 平行补充 | `ai-product-journey-generator` | 本 Skill 是「流程/任务挖掘」视角；To-be 旅程是「用户旅程」视角，二者互补 |

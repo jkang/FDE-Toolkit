@@ -19,7 +19,7 @@
 | `/nsm` | nsm-analyst | `nsm-analysis`（business-research → swot-analysis → strategy-derivation） | 企业北极星战略全链路分析 |
 | `/client-insight` | client-insight-advisor | `company-ai-maturity-research`、`osm-map-generator`、`business-process-deep-analyzer`、`journey-map-generator`、`blueprint-map-generator` | 客户洞察与现状业务梳理 |
 | `/opportunity` | opportunity-advisor | `ai-opportunity-map-generator`、`ai-canvas-generator`、`ai-scenario-matrix-generator` | AI 机会挖掘与优先级评估（CKD 深度映射属 `/agent-arch`） |
-| `/agent-arch` | agent-arch-designer | `to-be-process-designer`、`deep-task-flow-analyzer`、`business-rule-miner`、`agent-ontology-designer`、`agentic-workflow-designer`、`context-knowledge-data-analyzer` | Agent 系统设计（SKP P1→P2 + 结构/行为/资源三视图） |
+| `/agent-arch` | agent-arch-designer | `to-be-process-designer`、`deep-task-flow-analyzer`、`business-rule-miner`、`agent-ontology-designer`、`agentic-workflow-designer`、`context-knowledge-data-analyzer` | Agent 系统设计（P1→P2 + 结构/行为/资源三视图） |
 | `/mvp-prototype` | mvp-prototype | `agent-product-proposal-generator`、`ai-product-journey-generator`、`prototype-generator`、`ux-optimizer` | Agent 产品方案 → To-be 旅程 → MVP 原型 → UX 定制优化 |
 | `/mvp-eval` | mvp-evaluator | `ai-test-dataset-generator`、`mvp-metrics-generator` | MVP 评测（测试数据集 / 成效指标 / Go-No-Go） |
 | `/requirement` | requirement-analyst | `story-map-generator`、`mvp-plan-generator` | 需求拆解（故事地图 / MVP 迭代计划） |

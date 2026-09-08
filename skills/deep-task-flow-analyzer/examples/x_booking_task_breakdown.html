@@ -238,7 +238,7 @@
     <header class="unified-hdr">
         <div class="unified-hdr-left">
             <h1>X电商订舱 · 智能订舱 Agent 端到端深度任务流程地图</h1>
-            <p>来自《任务流程挖掘清单》主表 · SKP 阶段1方法（业务环节 L3 → 主要活动 L4 → 深度任务 L5）</p>
+            <p>来自《任务流程挖掘清单》主表 · 阶段1方法（业务环节 L3 → 主要活动 L4 → 深度任务 L5）</p>
         </div>
         <div class="unified-hdr-right">
             <div class="unified-hdr-stats">
@@ -538,7 +538,7 @@
                     <span class="drill-label">专家实际怎么做</span>
                     <h4>证据 · 访谈走查</h4>
                     <div class="drill-evidence-li">根据会话上下文与会员画像，先把订舱表单字段预填好</div><div class="drill-evidence-li">运行 200+ 条订舱校验规则，识别费率/信用/航线异常</div><div class="drill-evidence-li">校验通过后由货主一键确认，异常则转人工终审</div>
-                    <p style="margin-top:6px;color:var(--color-secondary);font-weight:600;">下钻为 3 个不可再分的 L5，各自回答『填什么 / 查什么 / 是否提交』。</p>
+                    <p style="margin-top:6px;color:var(--color-secondary);font-weight:600;">下钻为 3 个能独立挂规则的动作，各自回答『填什么 / 查什么 / 是否提交』。</p>
                 </div>
             </div>
         </div>
@@ -675,12 +675,12 @@ meta:
   version: "v1.0"
   date: "2026-08-25"
   scenarioName: "智能订舱 Agent"
-  businessStage: "SKP 阶段1 任务流程挖掘 · P1"
-  methodology: "SKP 阶段1方法（业务环节 L3 → 主要活动 L4 → 深度任务 L5）"
+  businessStage: "阶段1 任务流程挖掘 · P1"
+  methodology: "阶段1方法（业务环节 L3 → 主要活动 L4 → 深度任务 L5）"
   inputs:
-    - "SRP《AI画布-01智能订舱Agent》（场景定义/数据知识/工作流/工具/收益）"
-    - "SRP《智能订舱Agent-To-be旅程》（角色/目标/旅程阶段/动作/设计要点）"
-    - "SRP《X电商订舱-服务蓝图》（客户/前台/后台三层痛点）"
+    - "《AI画布-01智能订舱Agent》（场景定义/数据知识/工作流/工具/收益）"
+    - "《智能订舱Agent-To-be旅程》（角色/目标/旅程阶段/动作/设计要点）"
+    - "《X电商订舱-服务蓝图》（客户/前台/后台三层痛点）"
   sourceRef: "X电商订舱-智能订舱Agent-To-be流程.yaml 任务手账"
   kpi:
     - "在线订舱确认时效"
@@ -798,7 +798,7 @@ focusDrill:
     - "根据会话上下文与会员画像，先把订舱表单字段预填好"
     - "运行 200+ 条订舱校验规则，识别费率/信用/航线异常"
     - "校验通过后由货主一键确认，异常则转人工终审"
-  after: "下钻为 3 个不可再分的 L5，各自回答『填什么 / 查什么 / 是否提交』。"
+  after: "下钻为 3 个能独立挂规则的动作，各自回答『填什么 / 查什么 / 是否提交』。"
 
 focusSequence:
   - { id: "L5-1", name: "3 步表单自动预填",  question: "填什么" }
@@ -835,6 +835,32 @@ ioChain:
 learning:
   why: "三个 L5 各自只有一个核心动词，产出可观察，并可独立挂接规则。"
   key: "挖掘的关键不是改写名称，而是把专家真实执行的动作顺序、输入输出、判断依据和异常链路结构化。"
+
+# ---- 使用点清单（P1→P2 数据契约，供 business-rule-miner 绑定五类规则）----
+# 使用点 = 本图全部 L5 深度任务；每个 L5 是一个唯一稳定锚点。
+# 共 21 个 = overview.l5Count；focus=true 表示属于焦点 L4（P0）下钻的 L5。
+usagePoints:
+  - { id: "UP-t01", name: "自然语言发起询价",       actor: "human", focus: false }
+  - { id: "UP-t02", name: "意图识别与路由",         actor: "agent", focus: false }
+  - { id: "UP-t03", name: "实时报价数据返回",       actor: "agent", focus: false }
+  - { id: "UP-t04", name: "报价逐项解读",           actor: "agent", focus: false }
+  - { id: "UP-t05", name: "舱位余量/船期数据返回",   actor: "agent", focus: false }
+  - { id: "UP-t06", name: "综合排序推荐 Top3",      actor: "agent", focus: false }
+  - { id: "UP-t07", name: "解释推荐理由",           actor: "agent", focus: false }
+  - { id: "UP-t08", name: "确认 Agent 推荐舱位",    actor: "mixed", focus: false }
+  - { id: "UP-t09", name: "3 步表单自动预填",       actor: "agent", focus: true }
+  - { id: "UP-t10", name: "订舱规则校验",           actor: "agent", focus: true }
+  - { id: "UP-t11", name: "一键订舱确认",           actor: "mixed", focus: true }
+  - { id: "UP-t12", name: "订舱受理与状态回写",     actor: "agent", focus: false }
+  - { id: "UP-t13", name: "签发 Booking Confirmation", actor: "agent", focus: false }
+  - { id: "UP-t14", name: "异常订舱人工终审",       actor: "human", focus: false }
+  - { id: "UP-t15", name: "上传贸易单据",           actor: "human", focus: false }
+  - { id: "UP-t16", name: "OCR 抽取 SI 字段",       actor: "agent", focus: false }
+  - { id: "UP-t17", name: "品名规范与 HS 映射",     actor: "agent", focus: false }
+  - { id: "UP-t18", name: "单证规则校验",           actor: "agent", focus: false }
+  - { id: "UP-t19", name: "确认并提交 SI",          actor: "mixed", focus: false }
+  - { id: "UP-t20", name: "对话查里程碑",           actor: "human", focus: false }
+  - { id: "UP-t21", name: "ETA 预测与延误预警",     actor: "agent", focus: false }
 
     </script>
 

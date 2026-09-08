@@ -1,7 +1,7 @@
 ---
 name: deep-task-flow-analyzer
 description: |
-  承接 AI 场景定义（AI Canvas / To-be 旅程 / 服务蓝图），以 SKP 阶段1「任务流程挖掘」专家视角，
+  承接 AI 场景定义（AI Canvas / To-be 旅程 / 服务蓝图），以阶段1「任务流程挖掘」专家视角，
   把业务按「L3 业务阶段 → L4 活动分组 → L5 可执行动作」三层纵切，登记每个 L5 的
   执行主体 / 输入输出 / 规则依据 / 异常·HITL，并聚焦一个高价值 L4（P0）下钻为
   L5 深度任务序列，最终输出「端到端深度任务流程地图」HTML + 结构化 YAML。
@@ -22,11 +22,11 @@ author: KK
 # Deep Task Flow Analyzer（任务流程拆解图生成器）
 
 承接 `ai-canvas-generator` / `ai-product-journey-generator` / `blueprint-map-generator` 的场景定义，
-以 **SKP 阶段1 · 任务流程挖掘** 专家视角：把业务按 **L3 业务阶段 → L4 活动分组 → L5 可执行动作**
+以 **阶段1 · 任务流程挖掘** 专家视角：把业务按 **L3 业务阶段 → L4 活动分组 → L5 可执行动作**
 三层纵切，登记每个 L5 的 **执行主体 / 输入输出 / 规则依据 / 异常·HITL**，
 并**选一个承载最密集专家判断的高价值 L4（P0）下钻**为 L5 深度任务序列，输出「端到端深度任务流程地图」。
 
-> 与相邻 Skill 的边界（同属 SKP 阶段1，视角不同）：
+> 与相邻 Skill 的边界（同属阶段1，视角不同）：
 > - `to-be-process-designer`：**横切·角色协同**（泳道图：列=L3 阶段 × 行=角色泳道），回答「谁在何时做什么」。
 > - 本 Skill：**纵切·任务粒度**（L3 阶段卡 → L4 分组 → 动作级 + 焦点 L4 下钻），回答「一件事拆成几个原子动作，每个动作的输入/依据/异常是什么」。
 > - `agentic-workflow-designer`：**单能力内部执行**（PlantUML 活动/时序图），回答「某个 AI 能力内部怎么执行」。
@@ -61,7 +61,7 @@ author: KK
 | **动作级（L5）** | 可执行动作 | 目标是「单一动作、明确 I/O、结果可观察、可独立挂规则」；具体粒度由业务现场决定 |
 
 每个深度任务登记执行主体 `actor`：`agent`（纯后台算法）/ `human`（判断/责任/承诺）/ `mixed`（AI 产出+人工确认）。
-> **枚举口径**：SKP 链（P1 任务流程挖掘 → P2 规则挖掘 → 下游消费）统一使用 `agent | human | mixed`；
+> **枚举口径**：链（P1 任务流程挖掘 → P2 规则挖掘 → 下游消费）统一使用 `agent | human | mixed`；
 > `hybrid` 是 `mixed`（人机协同/混合执行）的同义词，与 `to-be-process-designer` / `ai-canvas-generator`
 > 文档中的写法等价，跨技能阅读时两者互认，不视为不同取值。
 
@@ -139,7 +139,7 @@ deep-task-flow-analyzer/
 | 上游输入 | `ai-canvas-generator` / `ai-product-journey-generator` | 提供场景定义 / To-be 旅程作为纵切依据 |
 | 上游输入 | `blueprint-map-generator` / `business-process-deep-analyzer` | 提供现状泳道图（L3/L4）与痛点 |
 | 平行互补 | `to-be-process-designer` | 泳道图给「角色协同全景」；本 Skill 给「任务粒度下钻」，二者互补 |
-| 同 Agent | `to-be-process-designer` / `business-rule-miner` / `agent-ontology-designer` / `agentic-workflow-designer` / `context-knowledge-data-analyzer` | 共同构成 `agent-arch-designer` Agent；本 Skill 与 `to-be-process-designer` 同属 SKP P1 流程骨架，本 Skill 产出的使用点输入 `business-rule-miner`（P2） |
+| 同 Agent | `to-be-process-designer` / `business-rule-miner` / `agent-ontology-designer` / `agentic-workflow-designer` / `context-knowledge-data-analyzer` | 共同构成 `agent-arch-designer` Agent；本 Skill 与 `to-be-process-designer` 同属P1 流程骨架，本 Skill 产出的使用点输入 `business-rule-miner`（P2） |
 | 下游衔接 | `agent-ontology-designer` / `agentic-workflow-designer` | 本产物的 L5 / 规则依据 / 执行主体，作为本体与编排设计的骨架 |
 | 下游衔接 | `context-knowledge-data-analyzer`（CKD） | 深度任务的输入输出可作为 CKD 数据资产锚点 |
 | 下游衔接 | `ai-test-dataset-generator` / `mvp-metrics-generator` | L5 输入输出可转译为测试用例 / 成效指标 |

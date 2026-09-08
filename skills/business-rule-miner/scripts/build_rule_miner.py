@@ -108,7 +108,7 @@ def main():
     html = template_obj.render(
         lang="zh-CN",
         title=ensure_str(meta.get("title", "业务规则挖掘清单")),
-        subtitle=ensure_str(meta.get("subtitle", "来自 SKP 阶段2 · 任务处理规则挖掘")),
+        subtitle=ensure_str(meta.get("subtitle", "来自阶段2 · 任务处理规则挖掘")),
         version=ensure_str(meta.get("version", "")),
         date=ensure_str(meta.get("date", "")),
         scenario_name=ensure_str(meta.get("scenarioName", "")),
