@@ -933,6 +933,51 @@ function renderFullReport({ result, input, params, mode }) {
     tfLabels,
   })
 
+  // ---- 动态图表解读（基于本报告实际数据）----
+  const monthly = buildMonthly(result, isPro)
+  const breakdown = buildCostBreakdown(result, isPro)
+  const sensitivity = buildSensitivity(roi)
+  const fmtN = (n) => Math.round(num(n))
+  const fmt$ = (n) => "¥" + Math.round(num(n)).toLocaleString("zh-CN")
+  const fmtPct = (x) => (num(x) * 100).toFixed(1) + "%"
+  const totalCostAll = num(result.totalCost)
+  const totalBenefitAll = num(result.totalBenefit)
+
+  // 1) 成本与收益趋势：找到收益首次超过成本的时间段 + 各阶段成本/收益累计对比
+  let crossTime = null
+  for (let t = 0; t < 8; t++) {
+    if (num(result.costByTimeFrame[t]) > 0 && num(result.benefitByTimeFrame[t]) > num(result.costByTimeFrame[t])) {
+      crossTime = tfLabels[t] || timeFrames[t]
+      break
+    }
+  }
+  const y1Net = num(result.y1NetBenefit)
+  const trendAnalysis = crossTime
+    ? `收益在 <b>${esc(crossTime)}</b> 阶段首次超过成本。3 年累计成本 <b>${fmt$(totalCostAll)}</b>、累计收益 <b>${fmt$(totalBenefitAll)}</b>，收益/成本比 ${(totalBenefitAll / (totalCostAll || 1)).toFixed(2)}×。${y1Net < 0 ? "首年净收益为负（人工+基建集中投入期），属典型长期项目曲线。" : "首年即实现净收益为正，收益爬坡顺利。"}`
+    : "整个评估期内各时间段收益均未超过同期成本，提示项目前期投入持续高于回报，需审慎评估长期性。"
+
+  // 2) 累计净现金流与回收期
+  const cumLast = monthly.cumulative[monthly.cumulative.length - 1] || 0
+  const cumMin = Math.min(...monthly.cumulative, 0)
+  const paybackNow = num(result.paybackPeriod)
+  const paybackAnalysis = `<p>累计净现金流从 <b>${fmt$(cumMin)}</b> 的低点起步，至评估期末累计 <b>${fmt$(cumLast)}</b>。<b>回收期 ${paybackNow.toFixed(1)} 个月</b>：${paybackNow <= 12 ? "一年内回本，现金流表现优秀。" : paybackNow <= 24 ? "两年内回本，属合理区间。" : paybackNow <= 36 ? "三年内回本，符合大多数企业预期。" : "评估期（36 个月）内仍未回本，需重点评估长期投入。"}${cumLast < 0 ? " 期末累计现金流转负，投资尚未全部回收。" : " 期末累计现金流为正，项目已产生净回报。"}</p>`
+
+  // 3) 成本分布：找出占比最大 / 前三的成本项
+  const bdTotal = breakdown.reduce((s, x) => s + x.value, 0) || 1
+  const bdSorted = [...breakdown].sort((a, b) => b.value - a.value)
+  const top1 = bdSorted[0]
+  const top3 = bdSorted.slice(1, 3).map((x) => `${x.name}(${fmtPct(x.value / bdTotal)})`).join("、")
+  const breakdownAnalysis = `成本合计 <b>${fmt$(bdTotal)}</b>，最大单项为 <b>${esc(top1 ? top1.name : "-")}（${fmtPct(top1 ? top1.value / bdTotal : 0)}）</b>。${top3 ? "其次为：" + esc(top3) + "。" : ""}${top1 && top1.value / bdTotal > 0.5 ? " 单一成本已超一半，是首要优化对象。" : " 整体分布较均衡，可逐项优化。"}`
+
+  // 4) 敏感性分析：找最敏感（偏离基准最大）方向与极端区间
+  const baseS = sensitivity.find((x) => x.label === "基准")?.v || roi
+  const sensMax = Math.max(...sensitivity.map((x) => x.v))
+  const sensMin = Math.min(...sensitivity.map((x) => x.v))
+  const sensSpan = sensMax - sensMin
+  const sensUp = sensitivity.find((x) => x.label === "双+20%")
+  const sensDown = sensitivity.find((x) => x.label === "双-20%")
+  const sensAnalysis = `基准 ROI <b>${baseS.toFixed(1)}%</b>；在用户数、效率 ±20% 组合下，ROI 波动于 <b>${sensMin.toFixed(1)}% ~ ${sensMax.toFixed(1)}%</b>（极差 ${sensSpan.toFixed(1)}pp）。${sensUp && sensDown ? `「双+20%」可达 <b>${sensUp.v.toFixed(1)}%</b>，「双-20%」降至 <b>${sensDown.v.toFixed(1)}%</b>` : ""}。${sensSpan > Math.abs(baseS) * 0.6 ? " 波动显著，说明 ROI 对用户规模与效率高度敏感，立项前务必夯实这两类假设。" : " 波动相对可控，项目稳健性较好。"}`
+
   const roiCls = roi >= 50 ? "good-c" : roi >= 0 ? "mid-c" : "bad-c"
   const adviceCls = roi >= 50 ? "adv-good" : roi >= 20 ? "adv-mid" : "adv-bad"
 
@@ -1167,10 +1212,10 @@ function renderFullReport({ result, input, params, mode }) {
 
       <div class="sec-title">图表解读</div>
       <div class="acc-grid">
-      <details><summary>成本与收益趋势</summary><div class="acc-body"><p>展示项目在 36 个月评估期内每个时间段的成本与收益变化。</p><ul><li><span style="color:#f97316;font-weight:600">橙色柱</span>代表各时间段成本投入</li><li><span style="color:#10b981;font-weight:600">绿色柱</span>代表各时间段产生收益</li><li>早期成本常高于收益，随时间推移收益逐渐超过成本</li></ul></div></details>
-      <details><summary>累计净现金流与回收期</summary><div class="acc-body"><p>展示累计净现金流变化趋势与投资回收期。</p><ul><li><span style="color:#2f6bd8;font-weight:600">蓝色区域</span>代表累计净现金流</li><li>曲线穿过横轴（0点）处即为回收期</li><li>若曲线始终在横轴以下，说明评估期内无法收回投资</li></ul></div></details>
-      <details><summary>成本分布</summary><div class="acc-body"><p>展示项目总成本的构成比例，帮助识别主要成本来源。</p><ul><li>各颜色代表不同成本类型（研发/运维/模型等）</li><li>占比最大的部分是成本控制的重点领域</li></ul></div></details>
-      <details><summary>敏感性分析</summary><div class="acc-body"><p>展示关键参数变化（用户数、效率提升 ±20%）对 ROI 的影响。</p><ul><li>曲线波动越大，说明 ROI 对该参数越敏感</li><li>据此识别关键风险因素，制定应对策略</li></ul></div></details>
+      <details><summary>成本与收益趋势</summary><div class="acc-body"><p>展示项目在 36 个月评估期内每个时间段的成本与收益变化（<span style="color:#f97316;font-weight:600">橙柱</span>=成本，<span style="color:#10b981;font-weight:600">绿柱</span>=收益）。</p><div style="margin:8px 0;padding:10px 12px;background:#f8fafc;border-left:3px solid #2f6bd8;border-radius:6px;font-size:13px;color:#374151">${trendAnalysis}</div></div></details>
+      <details><summary>累计净现金流与回收期</summary><div class="acc-body"><p>展示累计净现金流（<span style="color:#2f6bd8;font-weight:600">蓝色区域</span>）的变化趋势与投资回收期（红线处为回本点）。</p><div style="margin:8px 0;padding:10px 12px;background:#f8fafc;border-left:3px solid #2f6bd8;border-radius:6px;font-size:13px;color:#374151">${paybackAnalysis}</div></div></details>
+      <details><summary>成本分布</summary><div class="acc-body"><p>展示项目总成本的构成比例（各颜色代表不同成本类型），帮助识别主要成本来源。</p><div style="margin:8px 0;padding:10px 12px;background:#f8fafc;border-left:3px solid #2f6bd8;border-radius:6px;font-size:13px;color:#374151">${breakdownAnalysis}</div></div></details>
+      <details><summary>敏感性分析</summary><div class="acc-body"><p>展示关键参数（用户数、效率提升 ±20%）变化对 ROI 的影响，评估项目风险。</p><div style="margin:8px 0;padding:10px 12px;background:#f8fafc;border-left:3px solid #2f6bd8;border-radius:6px;font-size:13px;color:#374151">${sensAnalysis}</div></div></details>
       </div>
 
       <div class="sec-title">决策建议</div>
