@@ -373,6 +373,19 @@ scene_3: 场景C名称
 | `p13_ontology.md` | 业务对象 / 关系 / 状态迁移 |
 | `p16_journey.md` | To-be 旅程场景与人机分工 |
 
+#### 跨阶段接力包（强约定，防上下文断裂）
+
+**每个 Phase 结束（0.4 门禁通过后），必写一个本 Phase 的接力包，作为进入下一 Phase 的"唯一可信上下文"**。接力包=该阶段所有 checkpoint 的浓缩合并，命名 `phase_cache/handoff_p{N}.md`（N=1..4）。进入下一 Phase 前，**必须先 Read 对应接力包**再开工，而不是依赖对话记忆。
+
+| 接力包 | 内容（合并对应 checkpoint） |
+|--------|----------------------------|
+| `handoff_p1.md` | p2_value + p3_process + p4_problem + p6_opportunity + p7_canvas + p8_matrix 的汇总 |
+| `handoff_p2.md` | p7_canvas + p9_taskflow + p11_rule （+ p7 场景名） |
+| `handoff_p3.md` | p7_canvas + p13_ontology |
+| `handoff_p4.md` | p7_canvas + p16_journey |
+
+> 接力包作用：① 主 Agent 或委派的 Subagent 在下一阶段开工前，只凭 `handoff_p{N}.md` 即可恢复全部必要上下文，无需回看历史长对话；② 避免"conversation 过长被截断导致丢上游产物"；③ 每个 Phase 天然变成一个可独立承接/恢复的单元。
+
 ### 中断恢复
 
 如果用户在中途要求恢复，读取 `discovery_index.md` 判断已完成的步骤，从第一个 `⏳ 待执行` 步骤继续，无需重跑已完成阶段。
@@ -393,6 +406,50 @@ scene_3: 场景C名称
 > 「执行本阶段需要上一阶段的分析结果（如 p7_canvas.md）。请先执行前置阶段，或手动提供对应内容。」
 
 用户可选择：① 先跑前置阶段；② 手动粘贴对应内容让 Agent 继续。
+
+---
+
+### 可选委派模式（并行 + 隔离，默认关闭）
+
+> **定位**：与分段执行模式正交。默认全链路由**主 Agent 串行执行**（方案 A 的连贯性，最稳、省 token）。仅当用户主动要求或步骤成本高时，才临时切换到委派模式——把部分独立步骤交给业务 Subagent 处理，主 Agent 只做编排与汇总。
+
+> **开启条件（满足任一即可，需向用户说明）**：① 用户明确要求加速 / 并行；② 本阶段步骤多、产物重（如 Step 7 canvas Top3、Step 15-19 生智能），主 Agent context 压力大；③ 用户希望主 Agent 保持"干净"，能边跑边干别的事。
+
+#### 可委派的步骤与对应 Subagent
+
+可委派的前提：该步骤**输入来自 `phase_cache/`（或上一接力包）**、**输出写入 `phase_cache/` + `[客户名称]/`**，不依赖对话记忆。以下步骤可委派：
+
+| 步骤 | 对应 Subagent | 输入（读） | 输出（写） | 可并行 |
+|------|--------------|-----------|-----------|--------|
+| Step 2 价值流 | `client-insight-advisor` | p1_desk | p2_value | 与 Step 3 不可并行（依赖） |
+| Step 3 流程 L3/L4 | `client-insight-advisor` | handoff_p1 | p3_process | — |
+| Step 6 机会点 | `opportunity-advisor` | handoff_p1 | p6_opportunity | 可与 Step 5 并行 |
+| Step 7 AI 画布 Top3 | `opportunity-advisor` | p6_opportunity | p7_canvas | 3 个场景可并行 |
+| Step 13 本体 | `agent-arch-designer` | handoff_p2 | p13_ontology | 可与 Step 16 并行 |
+| Step 14 Agentic 工作流 | `agent-arch-designer` | handoff_p2 | p14 | 可与 Step 16 并行 |
+| Step 15 产品方案 | `agent-arch-designer` | handoff_p3 | p15 | — |
+| Step 17 MVP 原型 | `mvp-prototype` | handoff_p4 | mvp-spec + mvp-prototype/ | — |
+| Step 19 MVP 评测 | `mvp-evaluator` | handoff_p4 | AI测试数据集 + MVP指标 | 可与 Step 18 并行 |
+| 汇总 Step 20 | `unified-report-dashboard` | 全部产物 | dashboard | — |
+
+> 未列出的步骤（Step 1 桌研、Step 4 问题定义、Step 5 服务蓝图、Step 8 矩阵、Step 9-12、Step 16、Step 18）默认**串行**——它们强依赖上一步产物或需主 Agent 直接判断。
+
+#### 并行执行协议（保持主 Agent 连贯）
+
+1. **拆分前提**：先确认该阶段所需的 `handoff_p{N}.md` 已就绪（或先串行跑前置步骤补齐）。
+2. **委派方式**：主 Agent 把"业务目标 + 指向的 cache/产物路径 + 遵循的 SKILL.md"一次性交给 Subagent，**勿让 Subagent 回看长对话**（它们无主对话上下文）。
+3. **并行合并**：各 Subagent 产出写入各自 cache 文件；主 Agent 通过 Read 读取这些 cache 合并成该阶段接力包 `handoff_p{N}.md`。并行步骤之间独立、无相互写冲突。
+4. **连贯不破坏**：即使启用了委派，*阶段门禁（0.4 交叉校验 + 请用户确认）依旧由主 Agent 对用户执行*——Subagent 不直接面对用户。
+5. **回退**：若某 Subagent 产出质量差或报错，主 Agent 改回自己串行执行该步骤，流程继续。
+
+#### 主 Agent 与委派的职责划分
+
+| 角色 | 负责 |
+|------|------|
+| **主 Discovery Agent** | 编排调度、阶段门禁/用户确认、交叉校验、合并接力包、汇总 Deck（唯一的对用户出口） |
+| **业务 Subagent** | 只执行指派步骤、读 cache、写产物，不面向用户、不做跨阶段判断 |
+
+> 这保证：**无论是否委派，用户看到的都是同一条连贯的 FDE 四步法主链**（方案 A 的体验），只是底层部分步骤被分给了更擅长的 Subagent（方案 B 的工程能力），且全程靠 `phase_cache/` 接力包保住上下文。
 
 ---
 
