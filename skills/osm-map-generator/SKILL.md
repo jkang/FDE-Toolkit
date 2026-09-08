@@ -42,7 +42,7 @@ author: KK
 ### Step 2 · 生成 YAML
 - 读取 `references/osm_prompts.md` 获取全部设定（角色+字段规范+示例）
 - 使用完整 prompt 指导 LLM 生成结构化 YAML（字段说明见 `references/schema.yml`）
-- 将生成内容保存至 `examples/<标识>.yaml`
+- 将生成内容保存至**客户目录** `<公司/业务名>/[公司/业务名]-OSM战略地图.yaml`（命名遵循上方「输出路径与命名规范」；`examples/` 仅存放演示样例，**禁止**将客户产物存入其中）
 
 ### Step 3 · 校验 YAML（选做）
 - 确认文件以 `title:` 开始，无 Markdown 代码块外壳
@@ -51,7 +51,11 @@ author: KK
 
 ### Step 4 · 编译 HTML
 ```bash
-python3 scripts/build_osm.py examples/<输入>.yaml examples/<输出>.html
+# 生产：用客户目录中的 YAML 编译 HTML（HTML 与 YAML 同放客户目录）
+python3 scripts/build_osm.py "<公司/业务名>/[公司/业务名]-OSM战略地图.yaml" "<公司/业务名>/[公司/业务名]-OSM战略地图.html"
+
+# 渲染自检（演示）：examples/ 仅供验证渲染流程，不存放客户产物
+python3 scripts/build_osm.py examples/saas_complex.yaml examples/_osm_demo.html
 ```
 
 ### Step 5 · 交付
@@ -71,7 +75,7 @@ osm-map-generator/
 │   └── osm_layout.html             # Jinja2 HTML/CSS 模板（与算法完全解耦）
 ├── scripts/
 │   └── build_osm.py                # 核心编译引擎（v2）
-└── examples/                       # 存放每次生成的 YAML & HTML
+└── examples/                       # 仅存放演示样例；真实产物存客户目录 <公司/业务名>/
 ```
 
 ---

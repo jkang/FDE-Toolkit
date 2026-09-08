@@ -164,3 +164,29 @@ ioChain:
 learning:
   why: "三个 L5 各自只有一个核心动词，产出可观察，并可独立挂接规则。"
   key: "挖掘的关键不是改写名称，而是把专家真实执行的动作顺序、输入输出、判断依据和异常链路结构化。"
+
+# ---- 使用点清单（P1→P2 数据契约，供 business-rule-miner 绑定五类规则）----
+# 使用点 = 本图全部 L5 深度任务；每个 L5 是一个唯一稳定锚点。
+# 共 21 个 = overview.l5Count；focus=true 表示属于焦点 L4（P0）下钻的 L5。
+usagePoints:
+  - { id: "UP-t01", name: "自然语言发起询价",       actor: "human", focus: false }
+  - { id: "UP-t02", name: "意图识别与路由",         actor: "agent", focus: false }
+  - { id: "UP-t03", name: "实时报价数据返回",       actor: "agent", focus: false }
+  - { id: "UP-t04", name: "报价逐项解读",           actor: "agent", focus: false }
+  - { id: "UP-t05", name: "舱位余量/船期数据返回",   actor: "agent", focus: false }
+  - { id: "UP-t06", name: "综合排序推荐 Top3",      actor: "agent", focus: false }
+  - { id: "UP-t07", name: "解释推荐理由",           actor: "agent", focus: false }
+  - { id: "UP-t08", name: "确认 Agent 推荐舱位",    actor: "mixed", focus: false }
+  - { id: "UP-t09", name: "3 步表单自动预填",       actor: "agent", focus: true }
+  - { id: "UP-t10", name: "订舱规则校验",           actor: "agent", focus: true }
+  - { id: "UP-t11", name: "一键订舱确认",           actor: "mixed", focus: true }
+  - { id: "UP-t12", name: "订舱受理与状态回写",     actor: "agent", focus: false }
+  - { id: "UP-t13", name: "签发 Booking Confirmation", actor: "agent", focus: false }
+  - { id: "UP-t14", name: "异常订舱人工终审",       actor: "human", focus: false }
+  - { id: "UP-t15", name: "上传贸易单据",           actor: "human", focus: false }
+  - { id: "UP-t16", name: "OCR 抽取 SI 字段",       actor: "agent", focus: false }
+  - { id: "UP-t17", name: "品名规范与 HS 映射",     actor: "agent", focus: false }
+  - { id: "UP-t18", name: "单证规则校验",           actor: "agent", focus: false }
+  - { id: "UP-t19", name: "确认并提交 SI",          actor: "mixed", focus: false }
+  - { id: "UP-t20", name: "对话查里程碑",           actor: "human", focus: false }
+  - { id: "UP-t21", name: "ETA 预测与延误预警",     actor: "agent", focus: false }

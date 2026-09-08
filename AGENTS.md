@@ -25,7 +25,7 @@
 
 **严禁**在本工具包之外的任何位置创建或修改 AI4PM Skills 的副本：
 
-- 一律以本工具包内的 `skills/` 为准，不在 `~/.config/opencode/`、`.claude/`、`.agents/`、`.trae/`、`.config/` 下另建副本。
+- 一律以本工具包内的 `skills/` 为准，不在 `~/.config/opencode/`、`.claude/`、`.agents/`、`.config/` 下另建副本。
 - 不把本工具包内容复制到 `case/客户目录` 或临时目录。
 
 > 如需使用全局安装的稳定版，应从 `skills/` 单向同步，禁止反向把别处内容复制回 `skills/`。
@@ -81,8 +81,8 @@ Command 定义：.opencode/commands/<name>.md  +  .qoder/commands/<name>.md
   （opencode 用 YAML 布尔 `read: true, ...` + `temperature`；qoder 用逗号字符串 `tools: Read, Glob, ...`；
   qoder 无 `temperature` 字段、命令不含 `subtask`，skills 只认 `name`/`description` 两个 frontmatter 字段）。
 - **Agent 职责要精确**：一个 Agent 只组合粒度一致的 Skill。
-  - 示例：`mvp-prototype` = `ai-product-journey-generator` + `prototype-generator`（均为「场景级」）；
-  - 细粒度「用户故事级」技能（`story-narrative-generator` / `story-prototype-generator`）不得混入该 Agent。
+  - 示例：`mvp-prototype` = `agent-product-proposal-generator` + `ai-product-journey-generator` + `prototype-generator` + `ux-optimizer`（均为「场景级」）；
+  - 更细粒度的「用户故事级」技能（规划中）不得混入该 Agent，需新增时先经 `skill-creator` 在 `skills/` 内落地再编排。
 - **触发词必须写明边界**，避免与其他 Agent 或技能流程混淆。
 - 修改 Agent 涉及到的 Skill 名称/路径变更时，同步更新各端 Agent、各端 Command 及 `skills/` 内相关 SKILL.md 的引用。
 - 完成后检查无旧名残留（如 `prototype-designer` → `mvp-prototype` 的重命名需全库 grep 确认）。

@@ -63,7 +63,7 @@ AI Canvas YAML + To-be Journey YAML（+ 用户偏好：前端框架/配色）
 | ⑤ 主题配色 | 用户提供配色→直接用；否则按业务域自动推导（供应链→蓝+橙；金融→深蓝+金…） |
 | ⑥ 输出目录 | `<客户案例目录>/<场景目录>/mvp-prototype/`（脚手架 `--case` / `--scenario` 指定） |
 | ⑦ 启动验证 | 安装依赖 → 启动 → curl API 实测 + 浏览器打开前端验证 UI 与 AI 交互 |
-| ⑧ 业务数据 & 过程仿真 | `--sim sim_spec.yaml`，生成场景数据源 + 可视化组件（segChart/routeMap/nestedGroup/documentBlock/stateMachine/processTimeline） |
+| ⑧ 业务数据 & 过程仿真 | `--sim sim_spec.yaml`，生成场景数据源 + 可视化组件（segChart/routeMap/nestedGroup/documentBlock/stateMachine/processTimeline）。**SimVisuals 可视化组件当前仅 React 模板提供**（`templates/frontend_vue/` 下无 SimVisuals 源模板），选择 Vue 时 sim 的交互可视化不可自动注入（Vue 侧亦缺 `scenarioData` 源模板），须手工补 `scenarioData.js` 与页面 |
 
 ---
 
@@ -92,11 +92,13 @@ AI Canvas YAML + To-be Journey YAML（+ 用户偏好：前端框架/配色）
 > ```bash
 > python3 scripts/scaffold_mvp.py <mvp_spec.yaml> --case <case> --scenario <scenario> --sim <sim_spec.yaml>
 > ```
-> 脚手机会依据 `sim_spec.scenes` 生成 `src/data/scenarioData.js`（场景数据源）+ `src/components/SimVisuals.jsx`
-> （可复用可视化组件库：segChart/routeMap/nestedGroup/documentBlock/stateMachine/processTimeline）。
+> 脚手架会依据 `sim_spec.scenes` 生成 `src/data/scenarioData.js`（场景数据源）+ `src/components/SimVisuals.jsx`
+> （可复用可视化组件库：segChart/routeMap/nestedGroup/documentBlock/stateMachine/processTimeline；此两文件当前仅在 React 端自动生成，见下方框架限制）。
+>
+> **框架限制**：SimVisuals 可视化组件当前仅 React 模板提供（`templates/frontend_vue/` 下无 SimVisuals 源模板）。选择 Vue 时 sim 的交互可视化降级为仅注入 `scenarioData.js`；且当前 `frontend_vue/` 尚无 `scenarioData.js.j2` 源模板，选 Vue + `--sim` 时脚手架会因缺模板报错，需手工补 `scenarioData.js` 与页面（`--sim` 当前仅在 React 端可端到端编译）。
 
 ### Step 1 · 解析输入
-- **优先**：读取 AI Canvas YAML + To-be Journey YAML（同为 `examples/` 中已生成的场景）。
+- **优先**：读取该场景已生成的 AI Canvas YAML + To-be Journey YAML（位于 `<客户案例目录>/<场景目录>/` 场景目录下；`examples/` 内的仅为演示样例，客户产物一律不在 `examples/` 读写）。
 - **兜底**：用户仅提供自然语言场景描述时，先按 AI Canvas 十维结构推演画布，再进入 Step 2。
 
 ### Step 2 · 推演 mvp_spec.yaml（LLM 产物）
@@ -105,11 +107,12 @@ AI Canvas YAML + To-be Journey YAML（+ 用户偏好：前端框架/配色）
 
 ### Step 3 · 脚手架编译
 ```bash
-# 在项目根目录（含 客户案例目录 的层级）执行：
+# 在项目根目录（含 客户案例目录 的层级）执行；输入取 Step 2 已写入客户场景目录的真实 mvp_spec 产物
 python3 skills/prototype-generator/scripts/scaffold_mvp.py \
-  skills/prototype-generator/examples/<标识>_mvp_spec.yaml \
+  "<客户案例目录>/<场景目录>/<公司/业务名>-<场景名>-mvp-spec.yaml" \
   --case "<客户案例目录>" --scenario "<场景目录>"
 ```
+> 注：`skills/prototype-generator/examples/` 仅含演示样例（`X电商订舱-智能订舱Agent-mvp-spec.yaml`），可用于跑通脚手架流程，客户产物不可存于其中。
 - 产物位于 **`<客户案例目录>/<场景目录>/mvp-prototype/`**。
 - 也可用 `--output <显式路径>` 覆盖；`--force` 覆盖已存在目录。
 
@@ -121,8 +124,8 @@ npm run dev          # 开发模式：API(:8080) + Vite 前端(:5173)
 ```
 验证清单：
 1. `curl http://localhost:8080/api/health` → `{"status":"ok",...}`
-2. `curl -X POST http://localhost:8080/api/purchase/parse` → 返回 Mock AI 识别结果
-3. 浏览器打开 `http://localhost:5173` → 逐页验证（工作台/上传/AI推荐/审批/下单）UI 与 AI 交互
+2. `curl` 实测本场景 `mvp_spec.yaml` 的 `apiRoutes` 中 AI 类端点（如 `target: "ai:<方法>"` 对应的 `method + path`，例如 `curl -X POST http://localhost:8080/api/<本场景AI端点>`）→ 返回 Mock AI 结果
+3. 浏览器打开 `http://localhost:5173` → 逐页验证 `mvp_spec.pages` 中各页 UI 与 AI 交互（上传 → AI 处理 → 结果展示 → 相关业务动作）
 4. 验证失败 → 定位修复后重新验证
 
 ### Step 5 · 交付
@@ -156,17 +159,21 @@ prototype-generator/
 ├── SKILL.md                        # 本指南
 ├── references/
 │   ├── mvp_prompts.md              # LLM 铁律（承接规则、元素白名单、主题推导表）
-│   └── mvp_spec_schema.yaml        # mvp_spec 数据契约示例
+│   ├── mvp_spec_schema.yaml        # mvp_spec 数据契约示例
+│   ├── sim_spec_schema.yaml        # sim_spec（业务数据 & 过程仿真）数据契约示例
+│   └── sim_prompts.md              # sim_spec 生成提示词与铁律
 ├── templates/
 │   ├── common/                     # 根 package.json / README / .gitignore
 │   ├── server/                     # Express 一体化（index/config/routes/services）
 │   ├── frontend_react/             # Vite+React+antd 基座
-│   └── frontend_vue/               # Vite+Vue+arco 基座
+│   │   ├── src/data/scenarioData.js.j2           # sim 场景数据源模板（react）
+│   │   └── src/components/SimVisuals.jsx.j2      # sim 可视化组件（仅 react 提供）
+│   └── frontend_vue/               # Vite+Vue+arco 基座（无 SimVisuals / scenarioData 源模板）
 ├── scripts/
-│   └── scaffold_mvp.py             # 脚手架编译引擎（--case/--scenario/--output/--force）
+│   └── scaffold_mvp.py             # 脚手架编译引擎（--case/--scenario/--output/--force/--sim）
 ├── assets/_legacy/                 # 旧 Next.js 模板归档
 └── examples/
-    └── X电商订舱-智能订舱Agent-mvp-spec.yaml  # 演示：X 电商订舱智能订舱 Agent 场景（见 X电商订舱/）
+    └── X电商订舱-智能订舱Agent-mvp-spec.yaml  # 演示样例：X 电商订舱智能订舱 Agent 场景（见 X电商订舱/）
 ```
 
 ---

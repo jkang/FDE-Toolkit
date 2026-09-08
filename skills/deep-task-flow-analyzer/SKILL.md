@@ -61,6 +61,16 @@ author: KK
 | **动作级（L5）** | 可执行动作 | 目标是「单一动作、明确 I/O、结果可观察、可独立挂规则」；具体粒度由业务现场决定 |
 
 每个深度任务登记执行主体 `actor`：`agent`（纯后台算法）/ `human`（判断/责任/承诺）/ `mixed`（AI 产出+人工确认）。
+> **枚举口径**：SKP 链（P1 任务流程挖掘 → P2 规则挖掘 → 下游消费）统一使用 `agent | human | mixed`；
+> `hybrid` 是 `mixed`（人机协同/混合执行）的同义词，与 `to-be-process-designer` / `ai-canvas-generator`
+> 文档中的写法等价，跨技能阅读时两者互认，不视为不同取值。
+
+> **使用点（P1→P2 数据契约）**：本 Skill 输出的**每一个 L5 深度任务就是一个「使用点」**——
+> 使用点全量 = `stages[]` 内全部 L5 任务（含焦点 L4 下钻的 `focusSequence`，它们就是焦点 L4 的 3 个 L5）。
+> 每个使用点以 `UP-<taskId>`（如 `UP-t10`）为唯一稳定锚点，登记 `id / name / actor / focus`，
+> 写入 YAML 顶层 `usagePoints` 数组（见 `references/schema.yaml`）。
+> `business-rule-miner`（P2）以这些使用点为**绑定对象**深挖五类规则，做 P1↔P2 双向可追踪。
+> 防呆：`usagePoints` 数量必须等于 `overview.l5Count`，名称与 `stages[].groups[].tasks[].name` 一一对应。
 
 ---
 
@@ -84,8 +94,8 @@ author: KK
 ## 工作流 SOP
 
 ### Step 1 · 解析输入
-- **优先**：读取 To-be 旅程 YAML（`stages→actions` 的 `aiInteraction`/`userInputs`/`visibleData`/`designNotes`/`scenarios.goal`）。
-- **兜底**：AI Canvas YAML（`userPains`/`aiInput`/`aiOutput`/`businessGains`/`workflow`）/ 服务蓝图 / 自然语言描述。
+- **优先**：AI Canvas YAML（`userPains`/`aiInput`/`aiOutput`/`businessGains`/`workflow`）+ 已生成的 **To-be 流程 / To-be 旅程 YAML**（`stages→actions` 的 `aiInteraction`/`userInputs`/`visibleData`/`designNotes`/`scenarios.goal`，**若已存在**）。
+- **兜底**：服务蓝图 / 现状流程（L3/L4 + 痛点）/ 自然语言描述。
 - 提炼 `meta.kpi`（价值锚定），选定 `overview.focusL4`（承载最密集专家判断的 P0 L4）。
 
 ### Step 2 · 纵切推导 YAML（LLM 产物）

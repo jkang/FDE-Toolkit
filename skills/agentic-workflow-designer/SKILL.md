@@ -1,8 +1,8 @@
 ---
 name: agentic-workflow-designer
 description: |
-  承接 To-be 旅程（ai-product-journey-generator 输出），以 Agentic 架构专家视角
-  识别旅程中的各 AI 能力，并为每个能力设计「从输入到输出的完整 AI 处理活动序列图」——
+  承接 AI 场景定义（To-be 旅程 / To-be 流程·任务流程拆解 / AI Canvas），以 Agentic 架构专家视角
+  识别其中的各 AI 能力，并为每个能力设计「从输入到输出的完整 AI 处理活动序列图」——
   图内显式表达达成场景目标 KPI 所必需的 Agent 架构设计（Agent 分解 / 编排模式 /
   推理循环 / 工具·模型·知识依赖 / 护栏 / 人机协同 / 失败兜底），
   序列图用 PlantUML 创作并以 SVG 高亮渲染进 HTML。
@@ -20,12 +20,13 @@ author: KK
 
 # Agentic Workflow Designer（Agentic 工作流设计器）
 
-承接 `ai-product-journey-generator` 的 To-be 旅程输出，以 **Agentic 架构专家** 视角：
-**识别旅程中的 AI 能力 → 每个能力构建一张 PlantUML 活动序列图（输入 → 输出完整 AI 处理流程）→
+承接 `ai-product-journey-generator`（To-be 旅程）或 `to-be-process-designer` / `deep-task-flow-analyzer`
+（To-be 流程 / 任务流程拆解）的产物，以 **Agentic 架构专家** 视角：
+**识别其中的 AI 能力 → 每个能力构建一张 PlantUML 活动序列图（输入 → 输出完整 AI 处理流程）→
 把达成场景目标 KPI 所必需的 Agent 架构设计显式画进图里**（含关键活动高亮）。
 
 > 与相邻 Skill 的边界：
-> - `ai-native-workflow-designer`：设计**整个业务流程**的自动化形态（流程级）；本 Skill 深入**单个 AI 能力内部**的执行编排（Agent 任务级）。
+> - `to-be-process-designer` / `deep-task-flow-analyzer`：**流程/任务骨架**（泳道/动作级挖掘）；本 Skill 深入**单个 AI 能力内部**的执行编排（Agent 任务级）。
 > - `agent-ontology-designer`：**静态语义**（对象关系/行动边界/状态迁移）；本 Skill 是**动态行为**（消息流/编排模式/KPI 链路）。
 > - `context-knowledge-data-analyzer`：**数据资产清单**视角；本 Skill 是**执行行为**视角。
 
@@ -77,7 +78,8 @@ author: KK
 ### Step 1 · 解析输入
 - **优先**：读取 To-be 旅程 YAML（如 `X电商订舱/智能订舱Agent/X电商订舱-智能订舱Agent-To-be旅程.yaml`），
   提取 `stages→actions` 的 `aiInteraction`、`userInputs`、`visibleData`、`designNotes`、`scenarios.goal`。
-- **兜底**：用户以自然语言描述（或提供 AI Canvas YAML）时，先自行推演旅程语义，再进入 Step 2。
+- **次选**：若无 To-be 旅程，读取 **To-be 流程 / 任务流程拆解 YAML**（`stages/groups/tasks` + 执行主体 + 规则依据 + 异常·HITL），按其任务序列识别 AI 能力。
+- **兜底**：用户以自然语言描述（或提供 AI Canvas YAML）时，先自行推演流程语义，再进入 Step 2。
 
 ### Step 2 · 识别 AI 能力
 按「拆分/合并规则」将旅程切段，产出能力清单（2~3 个），每个能力定义：
@@ -122,9 +124,9 @@ agentic-workflow-designer/
 
 | 关系 | Skill | 说明 |
 |------|-------|------|
-| 上游输入 | `ai-product-journey-generator` | 读取 To-be 旅程 YAML 作为能力识别依据 |
+| 上游输入 | `ai-product-journey-generator` | 读取 To-be 旅程 YAML 作为能力识别依据（若已生成） |
+| 上游输入 | `to-be-process-designer` / `deep-task-flow-analyzer` | 无旅程时的次选输入：按 To-be 流程 / 任务流程拆解的任务序列识别 AI 能力 |
 | 上游可选 | `ai-canvas-generator` | 兜底输入；`businessGains`/`aiInput` 辅助 KPI 与输入定义 |
 | 下游衔接 | `prototype-generator` | 能力序列图可直接转译为首版 Mock AI 服务接口与编排骨架 |
-| 下游衔接 | `drawio-arch-generator` | 能力与 Agent 清单可输入系统架构图 |
 | 平行互补 | `agent-ontology-designer` | 静态本体 + 本 Skill 动态时序 = Agent 完整设计 |
 | 平行互补 | `context-knowledge-data-analyzer` | CKD 资源清单 + 本 Skill 执行行为 |

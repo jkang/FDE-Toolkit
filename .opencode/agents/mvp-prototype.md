@@ -1,6 +1,6 @@
 ---
 name: mvp-prototype
-description: MVP 原型设计顾问，由 ai-product-journey-generator、prototype-generator 与 agent-product-proposal-generator 等 Skill 组成，负责「上游聚合 → Agent 产品方案 → To-be 旅程设计 → 可运行 MVP 原型 → UX 定制优化」全链路。当用户要求生成 Agent 产品方案、To-be 旅程、MVP 原型应用、完整前后端原型（触发词：Agent 产品方案、产品方案、to-be journey、AI 产品旅程、旅程设计、MVP 原型、mvp-prototype、MVP 应用、原型生成、前后端原型、启动验证、UX 优化、优化 UI、原型设计系统）时调用。注意：本 Agent 仅处理「场景级」的旅程设计与 MVP 原型；更细粒度的用户故事级需求（故事详述 / Story 原型）请使用其他流程。
+description: MVP 原型设计顾问，由 ai-product-journey-generator、prototype-generator 与 agent-product-proposal-generator 等 Skill 组成，负责「上游聚合 → Agent 产品方案 → To-be 旅程设计 → 可运行 MVP 原型 → UX 定制优化」全链路。当用户要求生成 Agent 产品方案、To-be 旅程、MVP 原型应用、完整前后端原型（触发词：Agent 产品方案、产品方案、to-be journey、AI 产品旅程、旅程设计、MVP 原型、mvp-prototype、MVP 应用、原型生成、前后端原型、启动验证、UX 优化、优化 UI、原型设计系统）时调用。注意：本 Agent 做 To-be 产品旅程，As-Is 体验旅程图属 client-insight-advisor；本 Agent 仅处理「场景级」的旅程设计与 MVP 原型，更细粒度的用户故事级需求（故事详述 / Story 原型）请使用其他流程。
 tools:
   read: true
   glob: true
@@ -32,6 +32,7 @@ UX 定制优化（企业品牌 × 业务主题 → 定制产品设计系统，�
 ```
 
 > **边界**：本 Agent 只处理「场景级」粒度（To-be 旅程 → MVP 原型）。
+> 旅程边界：本 Agent 做 To-be 产品旅程；As-Is 体验旅程图（现状体验旅程图，journey-map-generator）属 client-insight-advisor Agent。
 > 用户故事级需求（Story 详述、Story 原型）属另一套流程，不在此 Agent 范围。
 
 ## 执行前必读
@@ -54,11 +55,11 @@ UX 定制优化（企业品牌 × 业务主题 → 定制产品设计系统，�
 5. **Step C · 启动验证（必须）**：
    ```bash
    cd "<公司/业务名>/<场景>/mvp-prototype"
-   npm install --registry=https://registry.npmmirror.com --cache=/var/folders/s1/trxkk391641fp2m_cbc8vqnc0000gn/T/opencode/npm-cache
+   npm install --registry=https://registry.npmmirror.com
    npm run dev
    curl -s http://localhost:8080/api/health && curl -s -X POST http://localhost:8080/api/purchase/parse
    ```
-   （注：本机全局 npm 缓存有损坏文件，务必用 npmmirror 镜像 + 独立缓存；再配合浏览器打开 `http://localhost:5173` 逐页验证 UI 与 AI 交互；失败则修复重验。）
+   （注：若本机 npm 全局缓存异常，可在场景目录下用独立缓存路径重试（如 `npm install --cache ./.npm-cache`）；npm 网络不佳时用 npmmirror 镜像。再配合浏览器打开 `http://localhost:5173` 逐页验证 UI 与 AI 交互；失败则修复重验。）
 6. **交付**：返回产物文件清单、启动方式、验证结果。
 7. **Step D · UX 定制优化（默认自动）**：MVP 原型验证通过后，按 `ux-optimizer/SKILL.md` 执行：
    - 读取 mvp_spec + mvp-prototype + 企业品牌资料（discovery 提取 → 用户 1 句 → domain 推断三层兜底）+ 业务域/场景。

@@ -27,7 +27,7 @@ author: KK
 4. **制定核心策略** — 提出 3-5 条核心业务策略要点，与 SWOT 交叉策略对齐
 5. **生成结构化 YAML** — 按照 `examples/strategy_example.yaml` 格式输出数据
 6. **编译 HTML 报告** — 执行 `python3 scripts/build_strategy.py` 生成可视化报告
-7. **引导下一步** — 建议用户使用 `OSM-map-generator` 对核心策略进行目标-策略-度量（OSM）的深度拆解
+7. **引导下一步** — 建议用户使用 `osm-map-generator` 对核心策略进行目标-策略-度量（OSM）的深度拆解
 
 > [!TIP]
 > **定位提示**: 在本阶段只需找出北极星指标、关键目标指标及核心业务策略要点，保持战略高度，不需要过于深入。更细化的拆解应在下一步的 OSM 分析中完成。
@@ -69,7 +69,7 @@ author: KK
 
 ### 编译指令
 ```bash
-python3 scripts/build_strategy.py examples/your_strategy.yaml examples/your_strategy.html
+python3 scripts/build_strategy.py examples/strategy_example.yaml examples/strategy_example.html
 ```
 
 ## 出口质量自检
@@ -78,7 +78,7 @@ python3 scripts/build_strategy.py examples/your_strategy.yaml examples/your_stra
 - [ ] **KPI 可衡量**：每个 KPI 维度清晰，有明确的目标导向
 - [ ] **策略高屋建瓴**：聚焦核心要点，非琐碎的执行细节
 - [ ] **数据契约达成**：输出的 YAML 可被脚本无误解析
-- [ ] **下一步指引**：明确建议使用 `OSM-map-generator` 进行后续深度分析
+- [ ] **下一步指引**：明确建议使用 `osm-map-generator` 进行后续深度分析
 
 ---
-> 关联技能：[OSM Map Generator](../../osm-map-generator/SKILL.md)
+> 关联技能：[osm-map-generator](../../osm-map-generator/SKILL.md)

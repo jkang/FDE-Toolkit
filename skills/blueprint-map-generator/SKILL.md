@@ -53,11 +53,15 @@ author: KK
 
 ### Step 2 · 生成 YAML
 - 读取 `references/blueprint_prompts.md`（角色设定 + 字段规范 + 输出铁律）
-- 将生成 YAML 保存至 `examples/<标识>.yaml`
+- 将生成 YAML 保存至**客户目录** `<公司/业务名>/[公司/业务名]-服务蓝图.yaml`（命名遵循上方「输出路径与命名规范」；`examples/` 仅存放演示样例，**禁止**将客户产物存入其中）
 
 ### Step 3 · 编译 HTML
 ```bash
-python3 scripts/build_blueprint.py examples/<输入>.yaml examples/<输出>.html
+# 生产：用客户目录中的 YAML 编译 HTML（HTML 与 YAML 同放客户目录）
+python3 scripts/build_blueprint.py "<公司/业务名>/[公司/业务名]-服务蓝图.yaml" "<公司/业务名>/[公司/业务名]-服务蓝图.html"
+
+# 渲染自检（演示）：examples/ 仅供验证渲染流程，不存放客户产物
+python3 scripts/build_blueprint.py examples/restaurant_test.yaml examples/restaurant_test.html
 ```
 
 ### Step 4 · 交付
@@ -77,7 +81,7 @@ blueprint-map-generator/
 │   └── blueprint_layout.html       # Jinja2 模板（HTML/CSS 与算法解耦）
 ├── scripts/
 │   └── build_blueprint.py          # 核心编译引擎
-└── examples/                       # 存放每次生成的 YAML & HTML
+└── examples/                       # 仅存放演示样例；真实产物存客户目录 <公司/业务名>/
 ```
 
 ---

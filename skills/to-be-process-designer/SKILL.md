@@ -9,7 +9,6 @@ description: |
   - "生成 To-be 流程"
   - "To-be 流程泳道图"
   - "AI 场景 To-be 流程"
-  - "任务流程挖掘清单"
   - "深度任务序列"
   - "AI 场景流程呈现"
   - "to-be flow"
@@ -75,7 +74,7 @@ AI 场景 To-be 流程，并以 **L5 深度任务**粒度落地（单一动词�
 
 | 字段 | 含义 | 取值/示例 |
 |------|------|-----------|
-| `actor` | 执行主体 | `agent` / `human` / `hybrid` |
+| `actor` | 执行主体 | `agent` / `human` / `hybrid`（`hybrid` 与 `mixed` 同义，跨技能互认） |
 | `inputs` | 输入数据 | ["现货库存","在途库存"...] |
 | `outputs` | 输出产物 | ["全国供需视图"] |
 | `ruleType` | 规则依据类型 | 关键信息提取要点 / 术语字典类 / 决策模型类 / 模版范例类 / 关联关系类 |
@@ -132,7 +131,7 @@ to-be-process-designer/
 本 Skill 是 **`agent-arch-designer`（Agent 架构设计顾问）** Agent 的组合技能之一，
 作为该 Agent 的 **Step ⓪ To-be 流程骨架**（L3→L4→L5 深度任务序列 + 执行主体/HITL/规则依据/价值锚定/异常链路），
 为随后输出的「结构(本体) + 行为(Agentic 工作流) + 资源(CKD)」三视图提供流程骨架。
-（Agent 定义见 `.opencode/agents/agent-arch-designer.md` 与 `.trae/agents/agent-arch-designer.md`。）
+（Agent 定义见 `.opencode/agents/agent-arch-designer.md` 与 `.qoder/agents/agent-arch-designer.md`。）
 
 ## 与上下游 Skill 的关系
 

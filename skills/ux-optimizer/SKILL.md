@@ -36,7 +36,7 @@ mvp_spec.yaml + mvp-prototype/ (已运行)
 【产出】ux-audit.yaml + UX设计报告.html   (双重输出)
         │
         ▼
-【注入】apply_ux_enhance.py → mvp-prototype (tokens.js + theme.override.css)
+【注入】apply_ux_enhance.py → mvp-prototype (ux-design.js + ux-design.css)
         │
         ▼
 【验证】重启 → 浏览器逐页比对还原度 + 截图
@@ -50,7 +50,7 @@ mvp_spec.yaml + mvp-prototype/ (已运行)
 > **输出路径与命名规范 (Output Path & Naming Convention)**:
 > - **目录**: 属于**具体 AI 场景**的产物（UX 优化报告），**必须**放入 `<公司/业务名>/<场景名>/` 场景子目录（两层规范）。
 > - **文件命名**: `[公司/业务名]-[场景名]-UX设计报告.html`（例如：`张雪机车海外销售-售后理赔-UX设计报告.html`）；YAML 同理 `[公司/业务名]-[场景名]-ux-audit.yaml`。
-> - **注入目标**: 定制设计系统覆盖层注入到 `<公司/业务名>/<场景名>/mvp-prototype/`（tokens.js / theme.override.css），不改原型业务逻辑。
+> - **注入目标**: 定制设计系统覆盖层注入到 `<公司/业务名>/<场景名>/mvp-prototype/`（`src/ux-design.js` / `src/ux-design.css`），不改原型业务逻辑。
 >
 > **视觉设计标准 (Visual Design Standard)**:
 > - **特别声明**：本 Skill 服务于**产品级 MVP-prototype**，其视觉遵循**为该客户/场景定制的产品设计系统**，**与 `design.md`（discovery 报告类规范）完全解耦**。
@@ -68,7 +68,7 @@ mvp_spec.yaml + mvp-prototype/ (已运行)
 | ③ 11 类组件专业化 | `references/component_specs.md`（每类视觉+交互+六态） |
 | ④ WCAG 对比度护栏 | `references/contrast_guard.md`（标准语义色对 + `scripts/contrast_check.py` 校验） |
 | ⑤ 设计 token 数据契约 | `references/design_token_schema.yaml`（色彩/字体/间距/圆角/阴影/状态/布局/响应式） |
-| ⑥ 无侵入注入工程 | `scripts/apply_ux_enhance.py`（覆盖层 tokens.js / theme.override.css + 对比度护栏 CSS） |
+| ⑥ 无侵入注入工程 | `scripts/apply_ux_enhance.py`（覆盖层 `src/ux-design.js` / `src/ux-design.css` + 入口注入 + 对比度护栏 CSS） |
 | ⑦ 双重输出 | ux-audit.yaml + UX设计报告.html |
 
 ---
@@ -108,12 +108,13 @@ mvp_spec.yaml + mvp-prototype/ (已运行)
 - **UX设计报告.html**：按 `templates/ux_design_report.html.j2` 渲染（定制企业风格）。
 
 ### Step 7 · 注入 mvp-prototype（覆盖层）
+在仓库根目录执行（skill 路径为仓库内相对路径）：
 ```bash
-python3 <repo>/skills/ux-optimizer/scripts/apply_ux_enhance.py \
+python3 skills/ux-optimizer/scripts/apply_ux_enhance.py \
   "<公司/业务名>/<场景>/<公司>-<场景>-ux-audit.yaml" \
   --target "<公司/业务名>/<场景>/mvp-prototype"
 ```
-- 生成 `src/theme.design.js`（或指定）到原型 → `tokens.js` 与 `theme.override.css` 覆盖层。
+- 生成覆盖层：`src/ux-design.js`（JS 设计令牌 + antd/arco token 合并与注入）与 `src/ux-design.css`（全局视觉覆盖：tokens/字体/圆角/阴影/状态/响应式），并自动在入口文件注入引用。
 - **保证无侵入**：不改原型业务逻辑/接口/组件内容，仅注入设计令牌与样式覆盖。
 
 ### Step 8 · 验证（必须）
@@ -123,7 +124,7 @@ npm run dev
 ```
 1. 浏览器打开前端 → 逐页检查**定制设计系统还原度**。
 2. 关键交互验证：上传 → AI 结果 → 表格 → 对话（loaded 状态/空态/错误态）。
-3. 用 `webapp-testing` 或 Chrome DevTools 截图，与优化前做 **before/after 对照**。
+3. 用浏览器（或 Chrome DevTools 截图工具）截图，与优化前做 **before/after 对照**。
 4. 验证失败 → 修复后重验。
 
 ### Step 9 · 按「常见不专业 UX 问题清单」逐项审计（必须）
@@ -161,7 +162,7 @@ ux-optimizer/
 │   └── contrast_check.py          # ★ WCAG 对比度校验工具
 ├── templates/
 │   ├── ux_design_report.html.j2   # UX 设计报告模板
-│   └── enhance_patch/             # tokens.js.j2 / theme.override.css.j2
+│   └── enhance_patch/             # ux-design.js.j2 / theme.override.css.j2
 └── examples/
     └── sample_ux_audit.yaml
 ```

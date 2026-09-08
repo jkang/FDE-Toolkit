@@ -26,7 +26,7 @@ author: KK
 > - **文件名**: HTML 文件名 must be descriptive, format: `[公司/业务名]-[业务类型].html` (例如：`张雪机车海外销售-AI场景优先级矩阵.html`)。
 > 
 > **视觉设计规范 (Visual Design Standard)**:
-> - **样式风格**: 默认按本 skill `references/` 内示例的视觉规范输出。
+> - **样式风格**: 默认按本 skill `references/visual_standard.md` 的视觉规范输出（本 skill 无报告截图式参考，以该文件 + `templates/matrix_layout.html` 为准）。
 > - **底色模式**: 默认使用 **浅色底 (Light Mode)**。
 > - **页面布局**: HTML 内容区撑满容器宽度（width: 100%），Header 采用统一精简样式（左侧标题+副标题、右侧操作按钮），内容超出屏幕时容器内可上下左右滚动。
 
@@ -63,17 +63,19 @@ author: KK
    ```
 
 3. **编译 HTML**：
-   将 YAML 保存为 `examples/<标识>.yaml` 后，运行编译脚本生成静态 HTML：
+   将 LLM 产出的 YAML 保存到 `<公司/业务名>/[公司/业务名]-AI场景优先级矩阵.yaml`（本 skill 为公司/业务级产物），再运行编译脚本生成静态 HTML：
 
    ```bash
-   python3 scripts/compile.py examples/<标识>.yaml examples/<标识>.html
+   python3 scripts/compile.py "<公司/业务名>/[公司/业务名]-AI场景优先级矩阵.yaml"
    ```
 
-   > 若省略输出参数，默认输出为 `<输入文件同名>.html`。
    生成的报告包含：
    - **可折叠的打分标准面板**：详细定义了每个维度的 1-5 分评估准则。
    - **维度详情评分**：在场景清单中直观展示 7 个维度的具体得分，确保评估过程透明可追溯。
    - **5x5 优先级矩阵**：基于收益与成本均值自动定位场景象限。
+
+   > 若省略输出参数，默认输出为 `<输入文件同名>.html`（如 `[公司/业务名]-AI场景优先级矩阵.html`）。
+   > `examples/sample_matrix.yaml` 为演示样例，仅用于跑通编译，客户产物禁止写入 `examples/`。
 
 ## 评估逻辑参考
 

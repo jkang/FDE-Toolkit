@@ -55,12 +55,16 @@ author: KK
 
 ### Step 2 · 推演 YAML
 - 请严格遵循 `references/journey_prompts.md` 的要求（结构及数据契约规范）。
-- 将推演的结果保存至 `examples/<标识>.yaml`。
+- 将推演的结果保存至**客户目录** `<公司/业务名>/[公司/业务名]-体验旅程图.yaml`（命名遵循上方「输出路径与命名规范」；`examples/` 仅存放演示样例，**禁止**将客户产物存入其中）。
 
 ### Step 3 · 编译输出 HTML
 - 使用 Python 编译组件根据 YAML 数据生成最终的纯静态 HTML：
 ```bash
-python3 scripts/build_journey.py examples/<标识>.yaml examples/<标识>.html
+# 生产：用客户目录中的 YAML 编译 HTML（HTML 与 YAML 同放客户目录）
+python3 scripts/build_journey.py "<公司/业务名>/[公司/业务名]-体验旅程图.yaml" "<公司/业务名>/[公司/业务名]-体验旅程图.html"
+
+# 渲染自检（演示）：examples/ 仅供验证渲染流程，不存放客户产物
+python3 scripts/build_journey.py examples/test.yaml examples/test.html
 ```
 
 ### Step 4 · 最终交付
@@ -80,5 +84,5 @@ journey-map-generator/
 │   └── journey_layout.html         # Jinja2 HTML/CSS 与排版引擎
 ├── scripts/
 │   └── build_journey.py            # 核心编译分析及坐标轴计算器
-└── examples/                       # 存放生成产物 (.yaml & .html)
+└── examples/                       # 仅存放演示样例；真实产物存客户目录 <公司/业务名>/
 ```

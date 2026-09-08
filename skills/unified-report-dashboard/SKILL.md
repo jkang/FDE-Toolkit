@@ -83,7 +83,18 @@ python3 scripts/build_dashboard.py input.yaml output.html [design.md]
 
 ### Step 3: 部署
 
-将所有 HTML 报告文件与生成的仪表盘文件放在同一目录下，用浏览器打开即可。
+`cards[].file` / `navigation[].items[].file` **支持相对路径**（模板按 `src="${report.file}"` 以 iframe 相对仪表盘文件所在目录解析），报告**无需全部复制到与仪表盘同一目录**，可直接指向子目录：
+
+```yaml
+# 仪表盘置于 <公司/业务名>/ 根目录时：
+cards:
+  - id: "report1"
+    file: "<公司/业务名>-北极星指标及战略推导.html"      # 公司级报告：与仪表盘同目录
+  - id: "report2"
+    file: "<场景名>/<公司>-<场景名>-AI画布.html"        # 场景级报告：指向场景子目录的相对路径
+```
+
+用浏览器直接打开生成的仪表盘 HTML 即可（iframe 相对路径随仪表盘文件位置解析）。
 
 ## 目录结构
 

@@ -115,11 +115,15 @@ author: KK
 - 读取 `references/prompt_zh.md`（角色设定 + 七大维度字段规范 + 麦肯锡风格约束）
 - 根据七大分析维度，进行深度推理分析
 - 将分析结果保存为结构化 YAML
-- 将 YAML 保存至 `examples/<公司名>.yaml`
+- 将 YAML 保存至**客户目录** `<公司/业务名>/[公司/业务名]-AI成熟度评估.yaml`（命名遵循上方「输出路径与命名规范」；`examples/` 仅存放演示样例，**禁止**将客户产物存入其中）
 
 ### Step 3 · 编译麦肯锡风格 HTML
 ```bash
-python3 scripts/build_report.py examples/<公司名>.yaml examples/<公司名>.html
+# 生产：用客户目录中的 YAML 编译 HTML（HTML 与 YAML 同放客户目录）
+python3 scripts/build_report.py "<公司/业务名>/[公司/业务名]-AI成熟度评估.yaml" "<公司/业务名>/[公司/业务名]-AI成熟度评估.html"
+
+# 渲染自检（演示）：examples/ 仅供验证渲染流程，不存放客户产物
+python3 scripts/build_report.py examples/sample_company.yaml examples/sample_company.html
 ```
 
 ### Step 4 · 交付浏览
@@ -145,7 +149,7 @@ company-ai-maturity-research/
 │   └── report_layout.html            # 麦肯锡风格 Jinja2 HTML/CSS 模板
 ├── scripts/
 │   └── build_report.py               # 核心编译引擎
-├── examples/                         # 存放生成产物 (.yaml & .html)
+├── examples/                         # 仅存放演示样例；真实产物存客户目录 <公司/业务名>/
 └── .gitignore
 ```
 

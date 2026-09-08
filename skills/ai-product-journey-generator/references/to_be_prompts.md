@@ -44,7 +44,7 @@
 | 字段 | 含义 | 示例 |
 |------|------|------|
 | `mode` | 恒为 `"to-be"` | `to-be` |
-| `source` | 来源 AI 画布 | `AI画布: X电商订舱-AI画布-01智能订舱Agent.yaml` |
+| `source` | 来源 AI 画布 | `AI画布: X电商订舱/智能订舱Agent/X电商订舱-智能订舱Agent-AI画布.yaml` |
 | `scenarioName` | 场景名 | `采购订单自动生成` |
 | `productType` | 产品形态（承接 Canvas.productType） | `嵌入SRM系统的智能下单模块` |
 

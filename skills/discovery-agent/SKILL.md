@@ -113,7 +113,7 @@ author: KK
 | Step 4 | 瓶颈痛点根因（8 要素） | ⏳ 待执行 | [客户名称]-[价值段]-问题定义.html |
 | Step 5 | 服务蓝图（可选） | ⏳ 待执行 | [客户名称]-服务蓝图.html |
 | Step 6 | AI 机会点（5 要素） | ⏳ 待执行 | [客户名称]-[场景]-机会点定义.html |
-| Step 7 | AI 场景画布（Top3） | ⏳ 待执行 | [客户名称]-AI画布-*.html |
+| Step 7 | AI 场景画布（Top3） | ⏳ 待执行 | [客户名称]-[场景名]-AI画布.html / .yaml |
 | Step 8 | AI 场景优先级矩阵 | ⏳ 待执行 | [客户名称]-AI场景优先级矩阵.html |
 | Step 9 | 任务流程挖掘 P1（L3→L5） | ⏳ 待执行 | [客户名称]-[场景]-任务流程拆解.html |
 | Step 10 | To-be 流程泳道（可选） | ⏳ 待执行 | [客户名称]-[场景]-To-be流程.html |
@@ -144,6 +144,10 @@ author: KK
 
 > 本阶段方法主线照搬 FDE 线下课「理需求三段式」：**懂业务（桌研）→ 找痛点（场景发现）→ 定方案（场景定义）**。
 > 阶段结束 → 交付摘要 + 请用户确认（见 0.4 门禁）。
+>
+> > **Step 7/8 执行顺序提示**：优先级矩阵（Step 8）是「收益 × 可行性」的排序工具，可用来支撑
+> > Step 7「Top 3 画布」的场景选型。需要严谨排序时**先执行 Step 8 矩阵 → 再回到 Step 7 依 P0/P1 选 Top3 出画布**；
+> > 轻量推进时也可直接按 Step 6 机会点初判优先级选 Top3，Step 8 随后补矩阵校验。数字编号仅为产物/进度编号。
 
 ### Step 1：业务桌研（手工，无专用 skill）
 
@@ -192,9 +196,10 @@ author: KK
 
 **读取并遵循 `opportunity-definition/SKILL.md` 的完整指令。**
 
-- 传入：业务问题定义（`phase_cache/p4_problem.md`）+ AI 机会地图
-- 产出：`[客户名称]/[客户名称]-[场景]-机会点定义.yaml / .html`（5 要素：一句话描述 / 业务角色场景 / 问题痛点 / 方案假设 / 价值收益 + 价值收益拆解）
-- **Checkpoint**：将 AI 机会点列表（名称 + 优先级）写入 `phase_cache/p6_opportunity.md`。
+- 传入：业务问题定义（`phase_cache/p4_problem.md`）+ AI 机会地图（`ai-opportunity-map-generator` 输出，**有则传入**）
+- 说明：若此前未生成《AI 机会场景地图》，**无需强制前置**——直接以 `p4_problem.md` 的痛点根因推演 5 要素机会点即可
+- 产出：`[客户名称]/[场景名]/[客户名称]-[场景名]-机会点定义.yaml / .html`（5 要素：一句话描述 / 业务角色场景 / 问题痛点 / 方案假设 / 价值收益 + 价值收益拆解；场景名=机会点标题）
+- **Checkpoint**：将 AI 机会点列表（名称 + 初判优先级 P0/P1/P2 + 价值收益）写入 `phase_cache/p6_opportunity.md`，初判优先级作为 Step 7 选 Top3 的依据。
 
 ### Step 7：AI 场景画布（Top 3 场景）
 
@@ -202,7 +207,8 @@ author: KK
 
 - 传入：客户名称、业务领域、机会点列表（`phase_cache/p6_opportunity.md`）
 - 取优先级最高的 **Top 3** AI 场景，各生成一份 10 维 AI Canvas
-- 产出（共 3 组）：`[客户名称]/[客户名称]-[场景名]-AI画布.yaml / .html`（场景级，存入 `[客户名称]/[场景名]/`）
+  （Top3 依据：优先用 Step 8 矩阵的 P0/P1；矩阵未跑时用 Step 6 初判优先级）
+- 产出（共 3 组）：`[客户名称]/[场景名]/[客户名称]-[场景名]-AI画布.yaml / .html`（场景级，存入 `[客户名称]/[场景名]/`）
 - **Checkpoint**：将 3 个场景的**精确名称**写入 `phase_cache/p7_canvas.md`，格式如下（供 Step 20 导航及后续阶段复用）：
 
 ```markdown
@@ -216,10 +222,10 @@ scene_3: 场景C名称
 
 **读取并遵循 `ai-scenario-matrix-generator/SKILL.md` 的完整指令。**
 
-- 传入：所有 AI 场景列表（`phase_cache/p6_opportunity.md`）
-- 基于收益 × 可行性维度，生成 5×5 优先级矩阵（与 WSJF 排序精神一致）
+- 传入：所有 AI 机会点 / 候选场景（`phase_cache/p6_opportunity.md`，含已出的 3 个画布场景）
+- 基于收益 × 可行性维度，生成 5×5 优先级矩阵（与 WSJF 排序精神一致）；矩阵结果可作为 Step 7 Top3 选型的排序依据（排序工具）
 - 产出：`[客户名称]/[客户名称]-AI场景优先级矩阵.yaml / .html`
-- **Checkpoint**：将 P0 / P1 场景列表写入 `phase_cache/p8_matrix.md`。
+- **Checkpoint**：将 P0 / P1 场景列表写入 `phase_cache/p8_matrix.md`；若与 Step 7 选出的 Top3 不一致，向用户说明并让其决定画布是否增补。
 - **Phase 1 结束**：展示已生成产物，请用户确认并交叉校验（见 0.4 门禁）。
 
 ---
@@ -232,8 +238,8 @@ scene_3: 场景C名称
 
 **读取并遵循 `deep-task-flow-analyzer/SKILL.md` 的完整指令。**
 
-- 传入：AI 场景定义（AI Canvas / To-be 旅程，`phase_cache/p7_canvas.md`）+ 现状流程
-- 加工：把定场景的 L3 业务阶段、L4 任务/步骤继续下钻为不可再分的 L5 深度任务；登记每个 L5 的执行主体 / 输入输出 / 规则依据 / 异常·HITL
+- 传入：AI 场景定义（`phase_cache/p7_canvas.md` 场景名 + 对应 AI Canvas YAML；**若已有 To-be 旅程/To-be 流程产物也可一并传入**）+ 现状流程
+- 加工：把定场景的 L3 业务阶段、L4 任务/步骤继续下钻为不可再分的 L5 深度任务；登记每个 L5 的执行主体 / 输入输出 / 规则依据 / 异常·HITL，并产出 **使用点清单（usagePoints，P1→P2 契约）**
 - 产出：`[客户名称]/[场景名]/[客户名称]-[场景名]-任务流程拆解.yaml / .html`
 - **Checkpoint**：将 L5 深度任务序列与**使用点**写入 `phase_cache/p9_taskflow.md`（供 Step 11 规则挖掘）。
 
@@ -260,6 +266,7 @@ scene_3: 场景C名称
 
 - 传入：AI Workflow 步骤（`phase_cache/p9_taskflow.md` / Step 11 规则）
 - 产出：`[客户名称]/[场景名]/[客户名称]-[场景名]-CKD矩阵分析.yaml / .html`（10 维语义画像：上下文 / 知识 / 数据 / 历史场景语料结构特征）
+- **Checkpoint**：将 CKD 关键资产清单写入 `phase_cache/p12_ckd.md`（供 Step 13/15 读取）。
 - **Phase 2 结束**：展示产物，请用户确认并**交叉校验**（关键知识务必以线下走查、边界案例、冲突仲裁校验，见 0.4 门禁）。
 
 ---
@@ -281,9 +288,10 @@ scene_3: 场景C名称
 
 **读取并遵循 `agentic-workflow-designer/SKILL.md` 的完整指令。**
 
-- 传入：To-be 旅程 / To-be 流程（`phase_cache/p7_canvas.md` 场景 + Step 16 旅程可为前置）
+- 传入：To-be 流程 / 任务流程拆解 / AI 场景定义（`phase_cache/p7_canvas.md` + `p9_taskflow.md`；若已有 To-be 旅程产物也可一并传入）
 - 加工：识别各 AI 能力（不同目的/输入输出即拆分，HITL 中间环节不拆），每个能力生成一张 PlantUML 活动序列图（Agent 分解 / 编排模式 / 护栏 / 关键活动 KPI 高亮），SVG 渲染进 HTML
 - 产出：`[客户名称]/[场景名]/[客户名称]-[场景名]-Agentic工作流.yaml / .html`
+- **Checkpoint**：将 Agentic 能力清单与编排要点写入 `phase_cache/p14_workflow.md`。
 - **Phase 3 结束**：展示产物，请用户确认并交叉校验（见 0.4 门禁）。
 
 ---
@@ -296,7 +304,7 @@ scene_3: 场景C名称
 
 **读取并遵循 `agent-product-proposal-generator/SKILL.md` 的完整指令。**
 
-- 传入：理需求 / 场景定义 / 挖知识 / 本体的既有产出（`phase_cache/p7_canvas.md`、`p9_taskflow.md`、`p13_ontology.md`）
+- 传入：理需求 / 场景定义 / 挖知识 / 本体的既有产出（`phase_cache/p7_canvas.md`、`p9_taskflow.md`、`p11_rule.md`、`p12_ckd.md`、`p13_ontology.md`）
 - 产出：`[客户名称]/[场景名]/[客户名称]-[场景名]-Agent产品方案.md`（8 段式施工蓝图：产品定位 → 形态架构 → 演示故事线 → 功能与 UI 组件 → Agent 行为 → 规则消费门禁；**单一 Markdown，不走 HTML 双输出**）
 - **可选**：同一场景需要结构化数据时另输出 `.schema.yaml`。
 
@@ -334,7 +342,7 @@ scene_3: 场景C名称
 - 传入：AI 功能详述 + 输入输出示例（mvp-spec / 产品方案）
 - 产出：
   - `[客户名称]/[场景名]/[客户名称]-[场景名]-AI测试数据集.yaml / .html`（三层三类：覆盖场景 + 支持归因）
-  - `[客户名称]/[场景名]/[客户名称]-[场景名]-MVP指标设计.yaml / .html`（搭桥指标 + 打分准则二元化 + 上线门禁句 Go/No-Go）
+  - `[客户名称]/[场景名]/[客户名称]-[场景名]-MVP指标设计.yaml / .html`（四维成效指标 + Rubric 打分准则（二元化判据）+ 上线门禁句 Go/No-Go）
 - **Phase 4 结束**：展示产物，请用户确认并**交叉校验**（尤其 Rubric 二元化判据，见 0.4 门禁）。
 
 ---
@@ -345,9 +353,9 @@ scene_3: 场景C名称
 
 **读取并遵循 `unified-report-dashboard/SKILL.md` 的完整指令。**
 
-根据前 19 步产物，自动拼装 `[客户名称]/[客户名称]-dashboard.yaml`，配置含 **20 个分析模块卡的 cards 与 navigation**（Phase 1-4 + 汇总），并执行 `build_dashboard.py` 编译到 `[客户名称]/[客户名称]-统一报告仪表盘.html`。
+根据前 19 步产物，自动拼装 `[客户名称]/[客户名称]-dashboard.yaml`，配置含 **Phase 1-4 各产物模块卡（19 个分析模块）+ 封面/汇总导航**，并执行 `build_dashboard.py` 编译到 `[客户名称]/[客户名称]-统一报告仪表盘.html`。
 
-> **路径说明**：编译命令需在 `skills/` 目录下执行，或提供 `build_dashboard.py` 的完整路径。
+> **路径说明**：编译命令需在 `skills/unified-report-dashboard/` 目录下执行，或提供 `build_dashboard.py` 的完整路径。
 
 更新 `[客户名称]/discovery_index.md` 全部行为 `✅ 完成`。
 
@@ -365,13 +373,18 @@ scene_3: 场景C名称
 | `p2_value.md` | L1 价值流划分、聚焦范围 ★ |
 | `p3_process.md` | L3/L4 流程节点、核心痛点列表 |
 | `p4_problem.md` | 业务问题定义（8 要素 + 根因簇） |
-| `p6_opportunity.md` | AI 机会点列表（名称 + 优先级 + 价值收益） |
+| `p6_opportunity.md` | AI 机会点列表（名称 + 初判优先级 P0/P1/P2 + 价值收益） |
 | `p7_canvas.md` | Top3 场景精确名称（`scene_1/2/3`，供导航与下游复用） |
-| `p8_matrix.md` | P0 / P1 场景列表 |
-| `p9_taskflow.md` | L5 深度任务序列 + 使用点 |
+| `p8_matrix.md` | P0 / P1 场景列表（5×5 矩阵结果） |
+| `p9_taskflow.md` | L5 深度任务序列 + 使用点清单（P1→P2 契约） |
 | `p11_rule.md` | 五类规则汇总（决策/模板/术语/提取/关联） |
+| `p12_ckd.md` | CKD 关键资产清单（上下文/知识/数据） |
 | `p13_ontology.md` | 业务对象 / 关系 / 状态迁移 |
+| `p14_workflow.md` | Agentic 能力清单与编排要点 |
 | `p16_journey.md` | To-be 旅程场景与人机分工 |
+
+> 可选步骤缓存取舍：Step 5 服务蓝图 / Step 10 To-be 泳道为**可选补充**，不进主链 checkpoints；
+> 若其产物后续被引用，直接以 `<公司/业务名>/<场景名>/` 下的实际 YAML/HTML 为准，无需单建缓存文件。
 
 #### 跨阶段接力包（强约定，防上下文断裂）
 
@@ -380,7 +393,7 @@ scene_3: 场景C名称
 | 接力包 | 内容（合并对应 checkpoint） |
 |--------|----------------------------|
 | `handoff_p1.md` | p2_value + p3_process + p4_problem + p6_opportunity + p7_canvas + p8_matrix 的汇总 |
-| `handoff_p2.md` | p7_canvas + p9_taskflow + p11_rule （+ p7 场景名） |
+| `handoff_p2.md` | p7_canvas + p9_taskflow + p11_rule + p12_ckd（+ p7 场景名） |
 | `handoff_p3.md` | p7_canvas + p13_ontology |
 | `handoff_p4.md` | p7_canvas + p16_journey |
 
@@ -426,8 +439,8 @@ scene_3: 场景C名称
 | Step 6 机会点 | `opportunity-advisor` | handoff_p1 | p6_opportunity | 可与 Step 5 并行 |
 | Step 7 AI 画布 Top3 | `opportunity-advisor` | p6_opportunity | p7_canvas | 3 个场景可并行 |
 | Step 13 本体 | `agent-arch-designer` | handoff_p2 | p13_ontology | 可与 Step 16 并行 |
-| Step 14 Agentic 工作流 | `agent-arch-designer` | handoff_p2 | p14 | 可与 Step 16 并行 |
-| Step 15 产品方案 | `agent-arch-designer` | handoff_p3 | p15 | — |
+| Step 14 Agentic 工作流 | `agent-arch-designer` | handoff_p2 | p14_workflow | 可与 Step 16 并行 |
+| Step 15 产品方案 | `mvp-prototype` | handoff_p3（+ p11_rule / p12_ckd） | Agent产品方案.md | — |
 | Step 17 MVP 原型 | `mvp-prototype` | handoff_p4 | mvp-spec + mvp-prototype/ | — |
 | Step 19 MVP 评测 | `mvp-evaluator` | handoff_p4 | AI测试数据集 + MVP指标 | 可与 Step 18 并行 |
 | 汇总 Step 20 | `unified-report-dashboard` | 全部产物 | dashboard | — |
@@ -474,7 +487,7 @@ scene_3: 场景C名称
 | 04 | 瓶颈痛点根因（8 要素） | [客户名称]-[价值段]-问题定义.html |
 | 05 | 服务蓝图（可选） | [客户名称]-服务蓝图.html |
 | 06 | AI 机会点（5 要素） | [客户名称]-[场景]-机会点定义.html |
-| 07 | AI 场景画布 · [scene_1/2/3] | [客户名称]-AI画布-*.html |
+| 07 | AI 场景画布 · [scene_1/2/3] | [客户名称]-[场景名]-AI画布.html / .yaml |
 | 08 | AI 场景优先级矩阵 | [客户名称]-AI场景优先级矩阵.html |
 
 ### Phase 2 · 挖知识

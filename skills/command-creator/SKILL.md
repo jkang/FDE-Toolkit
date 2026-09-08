@@ -1,352 +1,92 @@
 ---
 name: command-creator
-description: Create OpenCode custom commands for repeatable tasks.
+description: |
+  自动生成跨平台一致的命令（/command）定义：双端生成 .opencode/commands/<name>.md 与
+  .qoder/commands/<name>.md（正文一致，frontmatter 差异仅在于 opencode 端可选 agent 路由，
+  qoder 端仅 name/description）。命令命名小写连字符、不与既有 9 个命令重名，
+  正文交代目标（串哪些 Skill/Agent、读哪些上游产物、写哪些产物路径）与边界。
+
+  Triggers when user mentions:
+  - "创建命令"
+  - "新增 command"
+  - "生成 /命令"
+  - "command creator"
+author: KK
 ---
 
-## Quick Usage (Already Configured)
+# Command Creator（/命令 生成器 · FDE 规范版）
 
-### Create a new command file
-```bash
-mkdir -p .opencode/commands
+本 Skill 用于在本工具包内**生成一个 `/命令`（命令 → Agent → Skill 的快捷入口）**，
+并保证 `.opencode/` 与 `.qoder/` 两端同步维护。
+
+> 官方 opencode command 文档（作兜底）：https://opencode.ai/docs/commands/
+
+## 一、前置：先查重名与边界
+
+- 命令命名**小写连字符**；先核对是否与既有命令重复/重叠边界。
+- 本库已有命令（先查再建）：
+  `nsm`、`client-insight`、`opportunity`、`agent-arch`、`mvp-prototype`、
+  `mvp-eval`、`requirement`、`roadmap`、`discovery`。
+- 命令正文要**交代目标**：串哪些 Skill / @Agent、读取哪些上游产物、产出写哪些路径，
+  以及边界（不属于本命令范围的需求转给哪个流程）。
+
+## 二、生成双端文件（正文一致）
+
+```
+.opencode/commands/<name>.md
+.qoder/commands/<name>.md
 ```
 
-Create `.opencode/commands/<name>.md` with frontmatter and a prompt template.
+- **正文完全一致**；仅 frontmatter 按平台差异书写：
 
-### Command file example
-```
+```yaml
+# .opencode/commands/<name>.md —— opencode 端（可选 agent 路由）
 ---
-description: Run tests with coverage
-agent: build
-model: gpt-5.2-codex
+name: <command-name>          # 小写连字符，命令即 /<command-name>
+description: <该命令做什么，含触发场景>
+agent: <subagent-name>        # 可选：路由到 Subagent 执行
 ---
-
-Run the full test suite with coverage report and show any failures.
-Focus on the failing tests and suggest fixes.
 ```
 
-## Prompt config essentials
-
-- Use `$ARGUMENTS` for all arguments, or `$1`, `$2`, `$3` for positional args.
-- Use `!\`command\`` to inject shell output into the prompt.
-- Use `@path/to/file` to include file contents in the prompt.
-
-## Notes from OpenCode docs
-
-- Command files live in `.opencode/commands/` (project) or `~/.config/opencode/commands/` (global).
-- The markdown filename becomes the command name (e.g., `test.md` → `/test`).
-- JSON config also supports commands in `opencode.json` under `command`.
-- Custom commands can override built-ins like `/init`, `/undo`, `/redo`, `/share`, `/help`.
-
-## Reference
-
-Follow the official OpenCode command docs: https://opencode.ai/docs/commands/
-Use the docs as the escape hatch when unsure.
-
-## Docs snapshot
-
-Skip to content
-OpenCode
-
-Search
-⌘
-K
-Intro
-Config
-Providers
-Network
-Enterprise
-Troubleshooting
-Migrating to 1.0
-TUI
-CLI
-Web
-IDE
-Zen
-Share
-GitHub
-GitLab
-Tools
-Rules
-Agents
-Models
-Themes
-Keybinds
-Commands
-Formatters
-Permissions
-LSP Servers
-MCP servers
-ACP Support
-Agent Skills
-Custom Tools
-SDK
-Server
-Plugins
-Ecosystem
-On this page
-Overview
-Create command files
-Configure
-JSON
-Markdown
-Prompt config
-Arguments
-Shell output
-File references
-Options
-Template
-Description
-Agent
-Subtask
-Model
-Built-in
-Commands
-Create custom commands for repetitive tasks.
-
-Custom commands let you specify a prompt you want to run when that command is executed in the TUI.
-
-/my-command
-
-Custom commands are in addition to the built-in commands like /init, /undo, /redo, /share, /help. Learn more.
-
-Create command files
-Create markdown files in the commands/ directory to define custom commands.
-
-Create .opencode/commands/test.md:
-
-.opencode/commands/test.md
+```yaml
+# .qoder/commands/<name>.md —— qoder 端（仅 name/description）
 ---
-description: Run tests with coverage
-agent: build
-model: anthropic/claude-3-sonnet-20241022
+name: <command-name>          # 与 opencode 端同名
+description: <与 opencode 端 description 完全一致>
 ---
+```
 
-Run the full test suite with coverage report and show any failures.
-Focus on the failing tests and suggest fixes.
+- 两端均**不默认带** `temperature` / `subtask` 字段；仅当 opencode 端确有需要时
+  （如强制 subagent 隔离上下文）才在 opencode 端加 `subtask: true`，qoder 端永远只有
+  `name`/`description`。
 
-The frontmatter defines command properties. The content becomes the template.
+## 三、命令正文模板（在 frontmatter 后书写）
 
-Use the command by typing / followed by the command name.
+```
+调用 `<Agent 名>` Subagent 完成<目标>：
 
-"/test"
+1. 若对话中未提供<上游产物/范围>，先向用户确认（<可选项>）。
+2. 委派 `<Agent 名>` 按确认范围执行，核心链路：
+   - <Step A>：读取 <上游产物路径> → 调 <skill-a> 产出 <产物路径>;
+   - <Step B>：以 <上步产物> 为输入 → 调 <skill-b> 产出 <产物路径>;
+   - ...
+3. 将 Subagent 返回的交付摘要（产物文件清单、验证结果）呈现给用户。
 
-Configure
-You can add custom commands through the OpenCode config or by creating markdown files in the commands/ directory.
+边界：本命令只负责<范围>；<不属于本命令>的需求请使用其他流程。
+```
 
-JSON
-Use the command option in your OpenCode config:
+## 四、语法速查（够用即可）
 
-opencode.jsonc
-{
-  "$schema": "https://opencode.ai/config.json",
-  "command": {
-    // This becomes the name of the command
-    "test": {
-      // This is the prompt that will be sent to the LLM
-      "template": "Run the full test suite with coverage report and show any failures.\nFocus on the failing tests and suggest fixes.",
-      // This is shown as the description in the TUI
-      "description": "Run tests with coverage",
-      "agent": "build",
-      "model": "anthropic/claude-3-5-sonnet-20241022"
-    }
-  }
-}
+- `$ARGUMENTS`：命令后的全部参数；`$1`、`$2` …：位置参数。
+- `!\`cmd\``：把 shell 命令输出注入 prompt。
+- `@path/to/file`：把文件内容注入 prompt。
+- `agent: <subagent>`（仅 opencode 端）：将命令路由给指定 Subagent。
+- 未知语法查官方：https://opencode.ai/docs/commands/
 
-Now you can run this command in the TUI:
+## 五、交付前自查
 
-/test
-
-Markdown
-You can also define commands using markdown files. Place them in:
-
-Global: ~/.config/opencode/commands/
-Per-project: .opencode/commands/
-~/.config/opencode/commands/test.md
----
-description: Run tests with coverage
-agent: build
-model: anthropic/claude-3-5-sonnet-20241022
----
-
-Run the full test suite with coverage report and show any failures.
-Focus on the failing tests and suggest fixes.
-
-The markdown file name becomes the command name. For example, test.md lets you run:
-
-/test
-
-Prompt config
-The prompts for the custom commands support several special placeholders and syntax.
-
-Arguments
-Pass arguments to commands using the $ARGUMENTS placeholder.
-
-.opencode/commands/component.md
----
-description: Create a new component
----
-
-Create a new React component named $ARGUMENTS with TypeScript support.
-Include proper typing and basic structure.
-
-Run the command with arguments:
-
-/component Button
-
-And $ARGUMENTS will be replaced with Button.
-
-You can also access individual arguments using positional parameters:
-
-$1 - First argument
-$2 - Second argument
-$3 - Third argument
-And so on…
-For example:
-
-.opencode/commands/create-file.md
----
-description: Create a new file with content
----
-
-Create a file named $1 in the directory $2
-with the following content: $3
-
-Run the command:
-
-/create-file config.json src "{ \"key\": \"value\" }"
-
-This replaces:
-
-$1 with config.json
-$2 with src
-$3 with { "key": "value" }
-Shell output
-Use !command to inject bash command output into your prompt.
-
-For example, to create a custom command that analyzes test coverage:
-
-.opencode/commands/analyze-coverage.md
----
-description: Analyze test coverage
----
-
-Here are the current test results:
-!`npm test`
-
-Based on these results, suggest improvements to increase coverage.
-
-Or to review recent changes:
-
-.opencode/commands/review-changes.md
----
-description: Review recent changes
----
-
-Recent git commits:
-!`git log --oneline -10`
-
-Review these changes and suggest any improvements.
-
-Commands run in your project’s root directory and theutput becomes part of the prompt.
-
-File references
-Include files in your command using @ followed by the filename.
-
-.opencode/commands/review-component.md
----
-description: Review component
----
-
-Review the component in @src/components/Button.tsx.
-Check for performance issues and suggest improvements.
-
-The file content gets included in the prompt automatically.
-
-Options
-Let’s look at the configuration options in detail.
-
-Template
-The template option defines the prompt that will be sent to the LLM when the command is executed.
-
-opencode.json
-{
-  "command": {
-    "test": {
-      "template": "Run the full test suite with coverage report and show any failures.\nFocus on the failing tests and suggest fixes."
-    }
-  }
-}
-
-This is a required config option.
-
-Description
-Use the description option to provide a brief description of what the command does.
-
-opencode.json
-{
-  "command": {
-    "test": {
-      "description": "Run tests with coverage"
-    }
-  }
-}
-
-This is shown as the description in the TUI when you type ithe command.
-
-Agent
-Use the agent config to optionally specify which agent should execute this command. If this is a subagent the command will trigger a subagent invocation by default. To disable this behavior, set subtask to false.
-
-opencode.json
-{
-  "command": {
-    "review": {
-      "agent": "plan"
-    }
-  }
-}
-
-This is an optional config option. If not specified, defaults to your current agent.
-
-Subtask
-Use the subtask boolean to force the command to trigger a subagent invocation. This is useful if you want the command to not pollute your primary context and will force the agent to act as a subagent, even if mode is set to primary on the agent configuration.
-
-opencode.json
-{
-  "command": {
-    "analyze": {
-      "subtask": true
-    }
-  }
-}
-
-This is an optional config option.
-
-Model
-Use the model config to override the default model for this command.
-
-opencode.json
-{
-  "command": {
-    "analyze": {
-      "model": "anthropic/claude-3-5-sonnet-20241022"
-    }
-  }
-}
-
-This is an optional config option.
-
-Built-in
-opencode includes several built-in commands like /init, /undo, /redo, /share, /help; learn more.
-
-Note
-
-Custom commands can override built-in commands.
-
-If you define a custom command with the same name, it will override the built-in command.
-
-Edit this page
-Find a bug? Open an issue
-Join our Discord community
-© Anomaly
-
-Jan 24, 2026
+1. 命令名小写连字符、与既有 9 个命令不重名。
+2. 双端正文一致：`diff .opencode/commands/<name>.md .qoder/commands/<name>.md`
+   应只差 frontmatter。
+3. 若命令路由到新 Subagent，先经 `agent-creator` 生成双端 Agent；若新增/更名 Skill，
+   同步更新相关 Agent/Command 与 `skills/index.md` 引用，全库 grep 无旧名残留。

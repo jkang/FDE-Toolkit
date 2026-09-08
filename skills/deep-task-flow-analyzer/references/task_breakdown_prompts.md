@@ -37,8 +37,8 @@
 
 **优先级读取四类输入**：
 
-1. **To-be 旅程 YAML**（首选）：`stages→actions` 的 `aiInteraction` / `userInputs` / `visibleData` / `designNotes` / `scenarios.goal`。
-2. **AI Canvas YAML**：`userPains` / `aiInput` / `aiOutput` / `businessGains` / `workflow`。
+1. **AI Canvas YAML**：`userPains` / `aiInput` / `aiOutput` / `businessGains` / `workflow`（场景定义主输入）。
+2. **To-be 流程 / To-be 旅程 YAML**（已生成时）：`stages→actions` 的 `aiInteraction` / `userInputs` / `visibleData` / `designNotes` / `scenarios.goal`，可作为纵切与使用点识别的最细依据。
 3. **服务蓝图 / 现状流程（L1–L4）+ 痛点**：先理解现状，再纵切。
 4. **自然语言描述**（兜底）：用户给出场景一段话，自行推演后进入 Step 2。
 
@@ -74,6 +74,10 @@
 | `agent` | 输入标准化、规则明确、纯后台可算（计算/抓取/校验/生成/匹配） |
 | `human` | 需人类判断/责任/对外承诺（终审、例外裁决、对外签收） |
 | `mixed` | AI 产出 + 人工确认/补录（校验后人工放行、人工补录） |
+
+**使用点登记（P1→P2 契约）**：全部 L5 深度任务都要汇入顶层 `usagePoints` 数组——
+每个使用点 = 一个 L5（`UP-<taskId>` 唯一锚点 + name + actor + 是否焦点 focus）。
+这是 `business-rule-miner`（P2）绑定五类规则的锚点，必须**全量、无遗漏**（数量 = `overview.l5Count`）。
 
 ---
 
@@ -120,6 +124,7 @@
 ## 七、防呆清单（提交前自查）
 
 - [ ] `overview.l3Count/l4Count/l5Count` 与 `stages[].l5Count` 及实际深度任务数一致。
+- [ ] **`usagePoints` 全量覆盖所有 L5（数量 = l5Count），每个 `UP-<taskId>` 唯一、name 与 stages 中一致。**
 - [ ] 全图**仅 1 个** `isP0: true` 的焦点 L4，且它确实承载最密集判断。
 - [ ] 每个 `task.actor` ∈ {agent, human, mixed}。
 - [ ] 每个深度任务能独立说清 I/O、结果可观察、可单独挂规则（不混杂多个动作）。

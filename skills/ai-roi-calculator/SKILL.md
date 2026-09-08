@@ -1,6 +1,7 @@
 ---
 name: ai-roi-calculator
 description: "复刻自 jkang/ai-roi-calculator 的企业 AI 场景 ROI 测算技能。当用户要求计算 AI 项目或场景的投资回报率(ROI)、净收益、回收期、成本收益分析，粘贴 AI 场景定义 Markdown 要求测算商业价值，或在 AI 立项评审前询问这个 AI 值不值得做、投多少、几年回本并期待量化财务结论时使用。按 36 个月分段口径输出分时间段成本收益明细表、ROI 与回收期判定、决策建议。触发词包括：ROI 计算、投资回报、回收期、成本收益、AI 项目测算、商业价值量化。"
+author: KK
 ---
 
 # AI ROI 计算器（复刻自 jkang/ai-roi-calculator）
@@ -21,6 +22,17 @@ description: "复刻自 jkang/ai-roi-calculator 的企业 AI 场景 ROI 测算�
 | `references/input-guide.md` | 输入字段清单、默认值、估算建议与缺省处理策略 |
 | `scripts/calculate-roi.mjs` | 零依赖 Node 参考实现（`--mode pro` 默认 / `--mode legacy` 还原原版） |
 | `test/expected-*.json` | 回归基线：`expected-default`/`expected-variant` 为 v1（与原版 TS 逐字段一致）；`expected-pro-default` 为 v2 修正口径基线 |
+
+## 输出路径与命名规范（Output Path & Naming Convention）
+
+- **目录**：产物按两层目录落位——若测算针对**具体 AI 场景**（对某场景画布/机会点做 ROI 测算），输出到 `<公司/业务名>/<场景名>/` 场景子目录；若仅属公司/业务级评估（无场景归属），放 `<公司/业务名>/` 根目录。
+- **文件名**：HTML 报告与结构化数据命名须反映对象与内容，建议格式 `[公司/业务名]-[场景名]-AI-ROI测算.html`（场景级）或 `[公司/业务名]-AI-ROI测算.html`（公司级）；结构化数据以 JSON 落盘时同名 `.json`。
+- **命令示例**（在 `<公司/业务名>/<场景名>/` 下执行，或传入仓库内相对路径）：
+  ```bash
+  node <skill目录>/scripts/calculate-roi.mjs --input ./scenario-input.json \
+       --html "./[公司/业务名]-[场景名]-AI-ROI测算.html" --json
+  ```
+- **禁止使用本机绝对路径**：产物一律写入本仓库内的 `<公司/业务名>/`（或 `<公司/业务名>/<场景名>/`）相对目录；`<skill目录>` 在命令中表示本 skill 在仓库内的相对位置。
 
 ## 工作流程
 
