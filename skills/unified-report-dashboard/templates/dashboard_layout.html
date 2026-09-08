@@ -346,6 +346,30 @@
             font-size: 12px;
             color: #475569;
         }
+        /* ---------- Executive Summary cover ---------- */
+        .exec-wrap { max-width: 1020px; width: 100%; text-align: left; margin: 0 auto; }
+        .exec-section { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 26px 30px; margin-bottom: 26px; }
+        .exec-section-head { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+        .exec-section-title { font-size: 18px; font-weight: 700; color: #e2e8f0; display: flex; align-items: center; gap: 12px; }
+        .exec-section-title::before { content:""; width: 4px; height: 20px; border-radius: 2px; background: linear-gradient(180deg,#3b82f6,#f59e0b); display: inline-block; }
+        .exec-section-tag { margin-left: auto; font-size: 12px; color: #94a3b8; background: rgba(255,255,255,0.06); padding: 3px 10px; border-radius: 12px; }
+        .exec-insights { display: flex; flex-direction: column; gap: 14px; }
+        .exec-insight { display: flex; gap: 12px; align-items: flex-start; font-size: 15px; color: #cbd5e1; line-height: 1.7; }
+        .exec-insight::before { content:"▸"; color: #f59e0b; font-size: 16px; line-height: 1.6; flex: 0 0 auto; }
+        .exec-insight b { color: #fff; }
+        .exec-stage { margin-bottom: 22px; }
+        .exec-stage-label { display: flex; align-items: center; gap: 10px; font-size: 15px; font-weight: 700; color: #60a5fa; margin-bottom: 4px; }
+        .exec-stage-note { font-size: 13px; color: #64748b; margin: 0 0 14px; }
+        .exec-steps { display: flex; flex-wrap: wrap; align-items: stretch; }
+        .exec-step { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 14px 16px; cursor: pointer; transition: all .25s; min-width: 150px; flex: 1 1 auto; }
+        .exec-step:hover { background: rgba(59,130,246,0.12); border-color: rgba(59,130,246,0.5); transform: translateY(-2px); }
+        .exec-step-title { font-size: 14px; font-weight: 600; color: #e2e8f0; margin-bottom: 4px; }
+        .exec-step-hint { font-size: 12px; color: #64748b; }
+        .exec-arrow { display: flex; align-items: center; color: #3b82f6; font-size: 18px; padding: 0 8px; flex: 0 0 auto; }
+        .exec-toggle { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #94a3b8; padding: 10px 18px; border-radius: 10px; cursor: pointer; font-size: 13px; font-weight: 600; margin: 6px auto 20px; display: flex; align-items: center; gap: 8px; transition: all .2s; justify-content: center; }
+        .exec-toggle:hover { color: #fff; border-color: rgba(59,130,246,0.5); }
+        .toc-grid-wrap { display: none; margin-top: 4px; }
+        .toc-grid-wrap.open { display: block; }
         @media (max-width: 1024px) {
             .sidebar { width: 280px; }
             .cover-toc { grid-template-columns: repeat(2, 1fr); }
@@ -430,18 +454,65 @@
                         {% endfor %}
                     </div>
                     
-                    <div class="cover-toc">
-                        {% for card in cards %}
-                        <div class="toc-card" onclick="loadReport('{{ card.id }}')">
-                            <div class="toc-card-number">{{ card.number }}</div>
-                            <div class="toc-card-title">{{ card.title }}</div>
-                            <div class="toc-card-desc">{{ card.desc }}</div>
+                    <div class="exec-wrap">
+                        {% if executive_summary %}
+                        <div class="exec-section" id="exec-summary">
+                            <div class="exec-section-head">
+                                <span class="exec-section-title">核心结论 · Executive Summary</span>
+                                <span class="exec-section-tag">观点</span>
+                            </div>
+                            <div class="exec-insights">
+                                {% for it in executive_summary %}
+                                <div class="exec-insight">{{ it }}</div>
+                                {% endfor %}
+                            </div>
                         </div>
-                        {% endfor %}
+                        {% endif %}
+
+                        {% if navigation %}
+                        <div class="exec-section" id="exec-path">
+                            <div class="exec-section-head">
+                                <span class="exec-section-title">核心路径 · 阅读主线</span>
+                                <span class="exec-section-tag">点击任一步查看详情</span>
+                            </div>
+                            {% for nav in navigation %}
+                            <div class="exec-stage">
+                                <div class="exec-stage-label">{{ nav.section }}</div>
+                                {% if nav.note %}<div class="exec-stage-note">{{ nav.note }}</div>{% endif %}
+                                <div class="exec-steps">
+                                    {% for item in nav.get('items') or nav.get('children') or [] %}
+                                    {% if not loop.first %}<span class="exec-arrow">▸</span>{% endif %}
+                                    <div class="exec-step" onclick="loadReport('{{ item.id }}')" title="{{ item.title }}">
+                                        <div class="exec-step-title">{{ item.title }}</div>
+                                        {% if item.hint %}<div class="exec-step-hint">{{ item.hint }}</div>{% endif %}
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+
+                        {% if cards %}
+                        <div class="exec-toggle" onclick="toggleCatalog()">
+                            <span class="catalog-caret">▸</span><span>查看全部产出（{{ cards | length }} 项）</span>
+                        </div>
+                        <div class="toc-grid-wrap" id="toc-grid">
+                            <div class="cover-toc">
+                                {% for card in cards %}
+                                <div class="toc-card" onclick="loadReport('{{ card.id }}')">
+                                    <div class="toc-card-number">{{ card.number }}</div>
+                                    <div class="toc-card-title">{{ card.title }}</div>
+                                    <div class="toc-card-desc">{{ card.desc }}</div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
                     </div>
                     
                     <div class="cover-footer">
-                        点击上方卡片或左侧菜单查看详细报告
+                        点击上方路径步骤或左侧菜单查看详细报告
                     </div>
                 </div>
             </div>
@@ -456,6 +527,14 @@
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
             sidebar.classList.toggle('collapsed');
+        }
+
+        function toggleCatalog() {
+            const grid = document.getElementById('toc-grid');
+            const caret = document.querySelector('.catalog-caret');
+            if (!grid) return;
+            const open = grid.classList.toggle('open');
+            if (caret) caret.textContent = open ? '▾' : '▸';
         }
         
         function showCover() {

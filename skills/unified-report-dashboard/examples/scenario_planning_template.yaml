@@ -1,5 +1,9 @@
 title: "[公司/业务名] · 场景规划统一报告"
 subtitle: "公司级「场景规划」区块 + 场景小节。编排主线：价值流 → 现状流程 → 业务问题定义 → AI机会场景地图 → 机会点定义 → 优先级分析 → 里程碑计划"
+executive_summary:
+  - "一句话结论：把「人工收集 + 经验拍底价」升级为「AI 全链成本测算 + 最优方案推荐」，关键决策从数天收敛到小时级。"
+  - "本报告沿 <b>理需求 → 挖知识 → 建本体 → 生智能 → 评测</b> 给出可施工的证据链，共 {N} 个场景。"
+  - "里程碑：成本节省 {X}%、特殊货一次通过率 {Y}%、出案时效 {Z}。"
 logo:
   icon: "XX"
   text: "[公司/业务名]"
@@ -17,6 +21,9 @@ stats:
 # ② 机会点定义 / AI画布（AI 场景定义）不放在公司级区块，而是放到具体场景小节，作为该场景第一/第二项。
 # ③ 场景小节内各产出**不要加**「挖知识 / 建本体 / 生智能 / 评测」前缀，直接给产出名。
 # ④ AI机会场景地图 / 优先级矩阵是公司级全场景产物，只在公司级出现一次，避免「前后都有」。
+# ⑤ 封面 = Executive Summary：executive_summary(核心结论) + navigation[].note(阶段意图) / items[].hint(步提示)；
+#    cards(完整目录)默认折叠为「查看全部产出」，不要当首屏。
+# ⑥ ROI 核算放在 MVP 之后（MVP 规格评审 → MVP 原型 → ROI 核算）。
 cards:
   - { id: "s01", number: "01", title: "价值流图", desc: "L1 端到端价值流 + 聚焦范围", icon: "🗺️", badge: "", file: "[公司/业务名]-价值流图.html" }
   - { id: "s02", number: "02", title: "现状流程 · [场景名]", desc: "L3/L4 泳道图 + 痛点", icon: "🔍", badge: "", file: "[公司/业务名]-[场景名]-现状流程图.html" }
@@ -37,25 +44,27 @@ cards:
 
 navigation:
   - section: "场景规划（战略与全景 · 场景规划 · 路线图）"
+    note: "定位范围 / 找痛点 / 挖机会 / 排优先级"
     items:
-      - { id: "s01", title: "价值流图", icon: "🗺️", badge: "", file: "[公司/业务名]-价值流图.html" }
-      - { id: "s02", title: "现状流程 · [场景名]", icon: "🔍", badge: "", file: "[公司/业务名]-[场景名]-现状流程图.html" }
-      - { id: "s03", title: "业务问题定义 · [场景名]", icon: "🎯", badge: "", file: "[公司/业务名]-[场景名]-业务问题定义.html" }
-      - { id: "s04", title: "AI机会场景地图", icon: "💡", badge: "全场景", file: "[公司/业务名]-AI机会场景地图.html" }
-      - { id: "s05", title: "AI场景优先级矩阵", icon: "📈", badge: "待产出", file: "[公司/业务名]-AI场景优先级矩阵.html" }
-      - { id: "s06", title: "里程碑计划", icon: "🚀", badge: "", file: "[公司/业务名]-里程碑计划.html" }
+      - { id: "s01", title: "价值流图", icon: "🗺️", badge: "", hint: "看聚焦范围", file: "[公司/业务名]-价值流图.html" }
+      - { id: "s02", title: "现状流程 · [场景名]", icon: "🔍", badge: "", hint: "找痛点", file: "[公司/业务名]-[场景名]-现状流程图.html" }
+      - { id: "s03", title: "业务问题定义 · [场景名]", icon: "🎯", badge: "", hint: "定义问题", file: "[公司/业务名]-[场景名]-业务问题定义.html" }
+      - { id: "s04", title: "AI机会场景地图", icon: "💡", badge: "全场景", hint: "挖机会", file: "[公司/业务名]-AI机会场景地图.html" }
+      - { id: "s05", title: "AI场景优先级矩阵", icon: "📈", badge: "待产出", hint: "排优先级", file: "[公司/业务名]-AI场景优先级矩阵.html" }
+      - { id: "s06", title: "里程碑计划", icon: "🚀", badge: "", hint: "节奏落地", file: "[公司/业务名]-里程碑计划.html" }
   - section: "场景① · [场景名]"
+    note: "从场景定义到可运行原型"
     items:
-      - { id: "c01", title: "机会点定义", icon: "✨", badge: "", file: "[场景名]/[公司/业务名]-[场景名]-机会点定义.html" }
-      - { id: "c02", title: "AI 画布", icon: "🧩", badge: "10维", file: "[场景名]/[公司/业务名]-[场景名]-AI画布.html" }
-      - { id: "c03", title: "To-be 流程", icon: "🔀", badge: "深挖", file: "[场景名]/[公司/业务名]-[场景名]-To-be流程.html" }
-      - { id: "c04", title: "业务规则挖掘", icon: "⚙️", badge: "五类", file: "[场景名]/[公司/业务名]-[场景名]-业务规则挖掘.html" }
-      - { id: "c05", title: "Agent 本体设计", icon: "🧠", badge: "本体", file: "[场景名]/[公司/业务名]-[场景名]-本体设计.html" }
-      - { id: "c06", title: "Agent 产品方案", icon: "📦", badge: "方案", file: "[场景名]/[公司/业务名]-[场景名]-Agent产品方案.html" }
-      - { id: "c07", title: "To-be 旅程", icon: "🧭", badge: "", file: "[场景名]/[公司/业务名]-[场景名]-To-be旅程.html" }
-      - { id: "c08", title: "MVP 规格评审", icon: "🧪", badge: "规格", file: "[场景名]/[公司/业务名]-[场景名]-mvp-spec-评审.html" }
-      - { id: "c09", title: "MVP 原型", icon: "🚀", badge: "可运行", file: "[场景名]/[公司/业务名]-[场景名]-MVP原型启动指引.html" }
-      - { id: "c10", title: "ROI 核算", icon: "💰", badge: "36月", file: "[场景名]/[公司/业务名]-[场景名]-ROI报告.html" }
+      - { id: "c01", title: "机会点定义", icon: "✨", badge: "", hint: "AI 场景定义", file: "[场景名]/[公司/业务名]-[场景名]-机会点定义.html" }
+      - { id: "c02", title: "AI 画布", icon: "🧩", badge: "10维", hint: "AI 场景定义", file: "[场景名]/[公司/业务名]-[场景名]-AI画布.html" }
+      - { id: "c03", title: "To-be 流程", icon: "🔀", badge: "深挖", hint: "任务拆解", file: "[场景名]/[公司/业务名]-[场景名]-To-be流程.html" }
+      - { id: "c04", title: "业务规则挖掘", icon: "⚙️", badge: "五类", hint: "规则沉淀", file: "[场景名]/[公司/业务名]-[场景名]-业务规则挖掘.html" }
+      - { id: "c05", title: "Agent 本体设计", icon: "🧠", badge: "本体", hint: "业务语义", file: "[场景名]/[公司/业务名]-[场景名]-本体设计.html" }
+      - { id: "c06", title: "Agent 产品方案", icon: "📦", badge: "方案", hint: "可施工设计", file: "[场景名]/[公司/业务名]-[场景名]-Agent产品方案.html" }
+      - { id: "c07", title: "To-be 旅程", icon: "🧭", badge: "", hint: "用户旅程", file: "[场景名]/[公司/业务名]-[场景名]-To-be旅程.html" }
+      - { id: "c08", title: "MVP 规格评审", icon: "🧪", badge: "规格", hint: "规格评审", file: "[场景名]/[公司/业务名]-[场景名]-mvp-spec-评审.html" }
+      - { id: "c09", title: "MVP 原型", icon: "🚀", badge: "可运行", hint: "可运行原型", file: "[场景名]/[公司/业务名]-[场景名]-MVP原型启动指引.html" }
+      - { id: "c10", title: "ROI 核算", icon: "💰", badge: "36月", hint: "投资回报", file: "[场景名]/[公司/业务名]-[场景名]-ROI报告.html" }
 
 footer:
   text: "生成时间：YYYY-MM-DD"

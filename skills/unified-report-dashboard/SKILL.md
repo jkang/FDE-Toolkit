@@ -26,6 +26,7 @@ author: KK
 > **视觉设计规范 (Visual Design Standard)**:
 > - **样式风格**: 默认按本 skill `references/` 内示例的视觉规范输出。
 > - **底色模式**: **保持深色底 (Dark Mode)**，背景颜色使用 `#0a0e27`。
+> - **封面 = Executive Summary**（不是平铺卡片）：首屏含「核心结论(executive_summary)」+「核心路径(按 navigation 分组，串箭头成阅读主线，可点击)」；完整目录(cards)**默认折叠**为「查看全部产出」。禁止用几十张同等权重的卡片当首屏，否则失去逻辑、显得 overwhelming。
 > - **侧边栏**: 是**文字菜单**（图标 + 文字），**默认展开**；点击顶部箭头可**收缩成图标栏**。**不要**用 localStorage 记住"收缩态"（否则刷新后只剩一排图标、显得诡异）；收缩后图标要有 `title` 提示。
 > - **页面布局**: 仪表盘作为容器页面，应提供侧边栏导航和主内容区域。
 
@@ -75,20 +76,24 @@ author: KK
 ```yaml
 title: "[公司/业务名] · 场景规划统一报告"
 subtitle: "编排主线：价值流 → 现状流程 → 业务问题定义 → AI机会场景地图 → 机会点定义 → 优先级分析 → 里程碑计划"
+executive_summary:   # 封面「核心结论」（string 或 list，观点句，可 <b> 强调）
+  - "一句话结论：把「人工收集+经验拍底价」升级为「AI 全链成本测算 + 最优方案推荐」，报价出案 3-7 天收敛至小时级。"
+  - "本报告沿 <b>理需求 → 挖知识 → 建本体 → 生智能 → 评测</b> 给出可施工的证据链。"
 logo: { icon: "OC", text: "[公司/业务名]", subtitle: "场景规划", badge: "AI-POWERED" }
 stats:
   - { number: "3", label: "AI 场景" }
   - { number: "19", label: "L5深度任务" }
-cards:      # 封面卡片（公司级 + 场景小节全部）
+cards:      # 完整目录（封面默认折叠为「查看全部产出」，非首屏主角）
   - { id: "s01", number: "01", title: "价值流图", icon: "🗺️", badge: "", file: "[公司/业务名]-价值流图.html" }
-  - { id: "c01", number: "07", title: "机会点定义", icon: "✨", badge: "", file: "[场景名]/[公司/业务名]-[场景名]-机会点定义.html" }
-navigation:  # 侧边栏分组
+navigation:  # 封面「核心路径」= 按分组渲染；note=阶段意图，items[].hint=步提示
   - section: "场景规划（战略与全景 · 场景规划 · 路线图）"
+    note: "定位范围 / 找痛点 / 挖机会"
     items:
-      - { id: "s01", title: "价值流图", icon: "🗺️", badge: "", file: "[公司/业务名]-价值流图.html" }
+      - { id: "s01", title: "价值流图", icon: "🗺️", badge: "", hint: "看聚焦范围", file: "[公司/业务名]-价值流图.html" }
   - section: "场景① · [场景名]"
+    note: "从场景定义到可运行原型"
     items:
-      - { id: "c01", title: "机会点定义", icon: "✨", badge: "", file: "[场景名]/[公司/业务名]-[场景名]-机会点定义.html" }
+      - { id: "c01", title: "机会点定义", icon: "✨", badge: "", hint: "AI 场景定义", file: "[场景名]/[公司/业务名]-[场景名]-机会点定义.html" }
 ```
 
 ### Step 2: 校验配置（强烈建议，生成前）
@@ -153,6 +158,7 @@ unified-report-dashboard/
 
 ## 输出特性
 
+- 封面 = **Executive Summary**（核心结论 + 核心路径，点击路径步骤直达；完整目录默认折叠）
 - 响应式侧边栏**文字菜单**（默认展开、可收缩、图标带 tooltip）
 - 封面页统计卡片
 - 暗色主题（#0a0e27 背景）

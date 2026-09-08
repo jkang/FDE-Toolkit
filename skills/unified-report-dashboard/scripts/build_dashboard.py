@@ -88,6 +88,10 @@ def main():
     stats = ensure_list(data.get("stats"), dict)
     logo = data.get("logo", {})
     footer = data.get("footer", {})
+    exec_summary = data.get("executive_summary", [])
+    if isinstance(exec_summary, str):
+        exec_summary = [exec_summary]
+    exec_summary = ensure_list(exec_summary)
     
     # Use design_file from yaml if not provided via CLI
     if not design_file and data.get("design"):
@@ -110,6 +114,7 @@ def main():
         "stats": stats,
         "cards": cards,
         "navigation": navigation,
+        "executive_summary": exec_summary,
         "footer_text": safe_string(footer.get("text", "")),
         "footer_subtext": safe_string(footer.get("subtext", "")),
         "reports": reports,

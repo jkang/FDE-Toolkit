@@ -130,6 +130,10 @@ def main():
         if roi_idx and mvp_idx and min(roi_idx) < max(mvp_idx):
             fail(f"场景小节「{sec}」：ROI 核算应在 MVP 之后（当前 ROI idx={min(roi_idx)} < MVP idx={max(mvp_idx)}）。")
 
+    # 5.5) 封面 Executive Summary 弱提示
+    if not data.get("executive_summary"):
+        warn("未提供 executive_summary：封面「核心结论」区会隐藏，建议补充观点句，以走 Executive Summary 而非平铺卡片。")
+
     # 6) 引用文件存在（相对 yaml 目录或 --dir）
     seen = set()
     if not args.skip_files:

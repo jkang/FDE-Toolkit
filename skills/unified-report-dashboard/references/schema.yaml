@@ -1,9 +1,14 @@
 # unified-report-dashboard 输入规范。
 # 编排规则见 SKILL.md「编排规范」；生成前建议运行 scripts/validate_dashboard.py 校验
 # （公司级主线顺序、AI机会场景地图唯一、机会点定义/AI画布归场景小节、场景小节不加阶段前缀、ROI 在 MVP 之后、引用文件存在）。
+# 封面采用 Executive Summary：核心结论(executive_summary) + 核心路径(navigation[].note / items[].hint)。
+# 不要用平铺卡片当首屏；完整目录(cards)默认折叠为「查看全部产出」。
 design: "design.md" # 可选，包含自定义 CSS 样式的 Markdown 文件路径
 title: "项目统一报告仪表盘"
 subtitle: "完整战略分析报告"
+executive_summary: # 封面「核心结论」：string 或 list[string]（观点句，支持 <b> 强调）
+  - "一句话结论：把「人工收集+经验拍底价」升级为「AI 全链成本测算 + 最优方案推荐」，报价出案 3-7 天收敛至小时级。"
+  - "本报告沿 <b>理需求 → 挖知识 → 建本体 → 生智能 → 评测</b> 给出可施工的证据链。"
 logo:
   icon: "ZX"
   text: "企业名称"
@@ -18,7 +23,7 @@ stats:
     label: "业务痛点"
   - number: "37"
     label: "里程碑任务"
-cards:
+cards: # 完整目录（封面默认折叠为「查看全部产出」）
   - id: "report1"
     number: "01"
     title: "北极星指标与战略"
@@ -33,25 +38,21 @@ cards:
     icon: "⚡"
     badge: ""
     file: "report2.html"
-navigation:
-  - section: "概览"
-    children:
-      - id: "cover"
-        title: "报告首页"
-        icon: "📊"
-        badge: ""
-        file: null
+navigation: # 封面「核心路径」= 按分组渲染；note=阶段意图，items[].hint=步提示
   - section: "战略分析"
+    note: "定位范围 / 找痛点 / 挖机会"
     items:
       - id: "report1"
         title: "北极星指标与战略"
         icon: "🎯"
         badge: ""
+        hint: "看方向"
         file: "report1.html"
       - id: "report2"
         title: "SWOT分析"
         icon: "⚡"
         badge: ""
+        hint: "看竞争"
         file: "report2.html"
 footer:
   text: "生成时间：2026年4月29日"
