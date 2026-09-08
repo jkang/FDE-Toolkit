@@ -1,0 +1,23 @@
+{
+  "aiName": "合同审核助手",
+  "evaluationPeriod": 36,
+  "totalUsers": 2000,
+  "usersM4": 50,
+  "usersM5": 150,
+  "usersM6": 300,
+  "usersM7M12": 800,
+  "usersM13": 4000,
+  "usageFrequency": 20,
+  "timeSaved": 1.5,
+  "businessValue": 50,
+  "tokenPerUse": 0.05,
+  "mvpVerificationInput": 0,
+  "y1TeamSize": 4,
+  "y2TeamSize": 2,
+  "y3TeamSize": 1,
+  "mvpModel": 2,
+  "productModel": 5,
+  "privateDeployment": 0,
+  "cloudApi": 1,
+  "targetUsers": "法务"
+}

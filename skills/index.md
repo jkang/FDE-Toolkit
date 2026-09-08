@@ -81,6 +81,7 @@ FDE 四步法：**理需求 → 挖知识 → 建本体 → 生智能**。每一
 - **[MVP 迭代计划 (MVP Plan Generator)](mvp-plan-generator/SKILL.md)**：针对 Must-Have 需求自动规划 MVP 迭代计划与看板。
 - **[MVP 测试数据集 (AI Test Dataset Generator)](ai-test-dataset-generator/SKILL.md)**：自动生成符合“三层三类”结构（覆盖场景 + 支持归因）的 MVP 测试数据集。
 - **[MVP 成效指标体系 (MVP Metrics Generator)](mvp-metrics-generator/SKILL.md)**：设计 MVP 成效指标与上线门禁句（Go/No-Go）。
+- **[AI 项目 ROI 核算 (AI ROI Calculator)](ai-roi-calculator/SKILL.md)**：复刻自 jkang/ai-roi-calculator 的 AI 场景投资回报测算。按 36 个月分段输出 ROI、净收益、回收期、总成本与分时间段成本收益明细。提供 v1（原版）与 v2（专业完整核算）双模式；v2 修正 token 单价/消耗量级、人力人月成本，并补齐数据治理、业务上下游集成、持续迭代优化、基础设施、合规安全等真实成本维度，附带 NPV、收益成就系数与敏感性建议。适合立项/评审前量化「这个 AI 值不值得做、投多少、几年回本」，并配套完整 HTML 报告（含 Recharts 风格图表与动态图表解读/决策建议）。
 - **[PlantUML 流程图 (PlantUML Flow Generator)](plantuml-flow-generator/SKILL.md)**：绘制专业 PlantUML 时序图 / 活动图等技术流程图。
 
 ---
