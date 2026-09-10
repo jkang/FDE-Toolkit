@@ -37,7 +37,7 @@ flowchart TB
     U(["用户"]) --> C["命令层 · 10 条 /command<br/>/discovery · /scenario-solution · /nsm · /client-insight<br/>/opportunity · /agent-arch · /mvp-prototype · /mvp-eval · /requirement · /roadmap"]
     C --> A["编排层 · 9 个 Subagent + 1 个宏编排 Skill<br/>nsm-analyst · client-insight-advisor · opportunity-advisor<br/>agent-arch-designer · ai-solution-designer · mvp-prototype<br/>mvp-evaluator · requirement-analyst · roadmap-planner · discovery-agent"]
     A --> K["技能层 · 39 个 Skill<br/>理需求 / 挖知识 / 建本体 / 生智能 + 编排汇总 + 元技能"]
-    K --> O(["产物 · 双重输出<br/>结构化 YAML + 交互式 HTML · 两层目录（公司级 / 场景级）"])
+    K --> O(["产物 · 双重输出<br/>结构化 YAML + 交互式 HTML · 两层目录（企业级/领域级 / 场景级）"])
 ```
 
 ### 2.1 命令（`/command`）——推荐入口
@@ -258,7 +258,7 @@ FDE-Toolkit/
 └── AGENTS.md                     工具包协作规范（可迁移、无绝对路径）
 ```
 
-> 本地演示案例（默认不入库，`.gitignore` 已排除）：`OOCL大客户销售/询价报价与成本测算/`，含多客户（小米 / 比亚迪 / 福耀）To-be 旅程与 ROI 报告，供课上演示参考。
+> 本地演示案例（默认不入库，`.gitignore` 已排除）：`X大客户销售/询价报价与成本测算/`，含多客户（小米 / 比亚迪 / 福耀）To-be 旅程与 ROI 报告，供课上演示参考。
 
 ## 7. 演练用法
 

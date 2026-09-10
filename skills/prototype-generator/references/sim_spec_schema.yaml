@@ -5,7 +5,7 @@
 # =========================================================
 
 meta:
-  case: "OOCL大客户销售"            # 客户/公司名
+  case: "X大客户销售"            # 客户/公司名
   scenario: "询价报价与成本测算"       # 场景目录名
   productName: "大客户询价报价成本优化 Agent"
   businessDomain: "供应链物流"
@@ -27,8 +27,8 @@ scenes:
     inquiry:
       summary: { totalBatches: 2, totalBoxes: 12, totalCbm: "268 CBM" }
       batches:
-        - { id: "B1", portPair: "上海→洛杉矶", boxes: "40HQ×8", cargoType: "危品(UN3480/Class9)", weight: "30T", goodsValue: "$1.2M", etd: "09-15", note: "危品专用箱(FCL)", legs: [ { leg: 1, from: "上海", to: "釜山(中转)", vessel: "OOCL SONG", transit: "2天", eta: "09-17" }, { leg: 2, from: "釜山", to: "洛杉矶", vessel: "OOCL SUN", transit: "12天", eta: "09-29" } ] }
-        - { id: "B2", portPair: "上海→汉堡", boxes: "40HQ×4", cargoType: "整车零部件", weight: "18T", goodsValue: "$0.4M", etd: "09-20", note: "标准40HQ", legs: [ { leg: 1, from: "上海", to: "汉堡(直航)", vessel: "OOCL HOPE", transit: "30天", eta: "10-20" } ] }
+        - { id: "B1", portPair: "上海→洛杉矶", boxes: "40HQ×8", cargoType: "危品(UN3480/Class9)", weight: "30T", goodsValue: "$1.2M", etd: "09-15", note: "危品专用箱(FCL)", legs: [ { leg: 1, from: "上海", to: "釜山(中转)", vessel: "X SONG", transit: "2天", eta: "09-17" }, { leg: 2, from: "釜山", to: "洛杉矶", vessel: "X SUN", transit: "12天", eta: "09-29" } ] }
+        - { id: "B2", portPair: "上海→汉堡", boxes: "40HQ×4", cargoType: "整车零部件", weight: "18T", goodsValue: "$0.4M", etd: "09-20", note: "标准40HQ", legs: [ { leg: 1, from: "上海", to: "汉堡(直航)", vessel: "X HOPE", transit: "30天", eta: "10-20" } ] }
 
     # —— ② 复合报表（TCO 分组明细）——
     tcoReport:
@@ -87,8 +87,8 @@ scenes:
     inquiry:
       summary: { totalBatches: 2, totalBoxes: 10, totalCbm: "156 CBM" }
       batches:
-        - { id: "B1", portPair: "宁波→汉堡", boxes: "40'框架×6", cargoType: "大板玻璃(OOG 12m+/宽2.5m)", weight: "32T", goodsValue: "$0.9M", etd: "09-18", note: "OOG框架/开顶箱+绑扎", legs: [ { leg: 1, from: "宁波", to: "汉堡(直航)", vessel: "OOCL HOPE", transit: "33天", eta: "10-21" } ] }
-        - { id: "B2", portPair: "宁波→鹿特丹", boxes: "40'开顶×4", cargoType: "大板玻璃(OOG)", weight: "28T", goodsValue: "$0.6M", etd: "09-22", note: "开顶箱+衬垫", legs: [ { leg: 1, from: "宁波", to: "鹿特丹(中转)", vessel: "OOCL GEM", transit: "30天", eta: "10-22" } ] }
+        - { id: "B1", portPair: "宁波→汉堡", boxes: "40'框架×6", cargoType: "大板玻璃(OOG 12m+/宽2.5m)", weight: "32T", goodsValue: "$0.9M", etd: "09-18", note: "OOG框架/开顶箱+绑扎", legs: [ { leg: 1, from: "宁波", to: "汉堡(直航)", vessel: "X HOPE", transit: "33天", eta: "10-21" } ] }
+        - { id: "B2", portPair: "宁波→鹿特丹", boxes: "40'开顶×4", cargoType: "大板玻璃(OOG)", weight: "28T", goodsValue: "$0.6M", etd: "09-22", note: "开顶箱+衬垫", legs: [ { leg: 1, from: "宁波", to: "鹿特丹(中转)", vessel: "X GEM", transit: "30天", eta: "10-22" } ] }
     tcoReport:
       currency: "USD" ; unit: "每40'框架"
       model: "OOG TCO 模型" ; equipment: "40'框架/开顶箱 + 绑扎/重心审核"

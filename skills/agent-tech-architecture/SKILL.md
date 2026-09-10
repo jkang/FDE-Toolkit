@@ -128,7 +128,7 @@ agent-tech-architecture/
 ├── scripts/
 │   └── build_tech_architecture.py    # YAML → HTML 编译引擎（每个 Skill 生成 mermaid 纵向流程图）
 └── examples/
-    └── X电商订舱-智能订舱Agent-落地技术架构.yaml / .html   # OOCL 演示样例
+    └── X电商订舱-智能订舱Agent-落地技术架构.yaml / .html   # X 演示样例
 ```
 
 ---

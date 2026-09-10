@@ -17,7 +17,7 @@
 skills/superpowers/
 
 # 本地客户案例目录（不入库，按需在此追加客户目录名）
-OOCL大客户销售/
+X大客户销售/
 # 依赖与构建产物
 node_modules/
 .npm-cache/
