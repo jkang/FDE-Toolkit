@@ -20,9 +20,9 @@ meta:
     - "物流时效"
 
 overview:
-  ruleCount: 11
-  decisionCount: 6
-  templateCount: 2
+  ruleCount: 14
+  decisionCount: 8
+  templateCount: 3
   dictionaryCount: 1
   extractionCount: 1
   relationCount: 1
@@ -72,7 +72,7 @@ categories:
       summary: "按「目标备货率=订单进度+20% 封顶100%」计算各仓目标备货率，并据此排序补货优先级。"
     - id: "rd_03"
       name: "多约束分配量优化规则"
-      usagePoints: ["计算建议补货量", "选择发货仓并拆分多仓补足", "生成多版分配方案", "人工确认与微调分配量"]
+      usagePoints: ["计算建议补货量", "选择发货仓并拆分多仓补足", "生成多版分配方案", "人工确认与微调分配量", "诊断异常并生成备选方案", "人工选定备选方案"]
       factors:
         - { name: "京慧建议量", def: "京慧一盘货给出的初始建议补货量（参考基线）", source: "京慧一盘货", deterministic: true }
         - { name: "可发量", def: "发货仓库存-已分配量（典型位置：现货库存「可发量」列）", source: "现货库存表", deterministic: true }
@@ -89,7 +89,7 @@ categories:
       summary: "以京慧建议量为基线，在多约束下全局求解分配量与发货仓，生成均衡版/优先版多版方案，偏离京慧建议量必停确认。"
     - id: "rd_04"
       name: "补货单校验规则"
-      usagePoints: ["校验收发仓/SKU/数量/时效"]
+      usagePoints: ["校验收发仓/SKU/数量/时效", "确认并下发补货单"]
       factors:
         - { name: "收发仓合法性", def: "发货仓为基地仓、收货仓为销售仓且在册", source: "仓主数据", deterministic: true }
         - { name: "SKU 在册", def: "SKU 编码存在于产品主数据", source: "产品主数据", deterministic: true }
@@ -134,6 +134,33 @@ categories:
       arbitration: "多项指标矛盾时：时效达成率（服务水平）优先于周转优化。"
       exception: "指标异常恶化或调参冲突 → 拉人审批（物流计划岗），参数下一周期生效"
       summary: "以时效≥90%、缺货缓解≥85%、周转同比降幅≤10%、差异率≤0.5% 为阈值，自动生成调参建议并审批生效。"
+    - id: "rd_07"
+      name: "安全水位设置规则"
+      usagePoints: ["计算库存天数并设置安全水位"]
+      factors:
+        - { name: "库存天数", def: "各仓库存/日均需求", source: "库存监控报表", deterministic: true }
+        - { name: "渠道类型", def: "电商/线下渠道对新鲜度与缓冲的差异化要求", source: "渠道管理", deterministic: true }
+        - { name: "区域类型", def: "核心/偏远区域，偏远仓上调水位", source: "仓主数据", deterministic: true }
+      branches:
+        - { cond: "电商渠道", action: "→ 低水位（求 28 天新鲜）", priority: 1 }
+        - { cond: "线下渠道", action: "→ 高水位（保安全缓冲）", priority: 2 }
+        - { cond: "偏远区域仓", action: "→ 在基准水位上上调 3 天", priority: 3 }
+      arbitration: "服务水平与不断货优先于周转；水位调整须经人工审批后生效。"
+      exception: "服务水平与周转冲突 → 人工审批裁决"
+      summary: "按区域+渠道差异化计算安全水位建议，审批后生效，作为分配优化的约束输入。"
+    - id: "rd_08"
+      name: "大日期库存判定规则"
+      usagePoints: ["巡检大日期库存"]
+      factors:
+        - { name: "大日期库存数量", def: "分仓大日期库存 big_date_num 列", source: "分仓大日期库存表", deterministic: true }
+        - { name: "效期", def: "商品剩余效期与临期阈值", source: "库存效期字段", deterministic: true }
+        - { name: "大日期占比", def: "大日期库存/该仓总库存", source: "计算字段", deterministic: true }
+      branches:
+        - { cond: "大日期占比超过临期阈值", action: "→ 触发临期预警并建议促销联动消化", priority: 1 }
+        - { cond: "大日期占比正常", action: "→ 记录并持续监控", priority: 2 }
+      arbitration: "大日期库存仓不再向同效期商品增配；新鲜度约束优先于周转。"
+      exception: "大日期判定口径待业务专家二轮验证 → 原型标注概念级，拉人确认"
+      summary: "巡检各仓大日期库存占比并预警临期风险，作为新鲜度约束与促销联动输入。[判定口径待二轮验证]"
 
   template:
     - id: "rt_01"
@@ -172,6 +199,23 @@ categories:
         - { label: "典型 · 达标复盘", note: "时效达成率 92%、缺货缓解率 88%、周转 24 天（同比 -8%），建议华北安全水位 14→12 天" }
         - { label: "反面 · 只给结论不给依据", note: "禁止无指标明细与根因直接给调参结论" }
       fieldSource: "依据 To-be 旅程复盘报告结构（指标总览→短板分析→调参建议→审批）拆出固定骨架与动态字段。"
+    - id: "rt_03"
+      name: "标准补货单模板"
+      usagePoints: ["生成标准化补货单"]
+      skeleton:
+        - { part: "① 单据头", fixed: "固定栏（调拨单号/批次/生成时间/状态）", variable: "随批次动态填充" }
+        - { part: "② 收发明细", fixed: "固定列（发货仓/收货仓/SKU/数量/时效/ETA）", variable: "随确认方案动态填充" }
+        - { part: "③ 校验结果", fixed: "固定栏（收发仓/SKU/数量/时效 4 项校验结论）", variable: "随校验动态生成" }
+      dynamicFields:
+        - { field: "调拨单号", source: "系统按批次生成（如 PR-2026-0821-016）" }
+        - { field: "发货仓/收货仓/SKU/数量/时效", source: "来自确认后的分货方案与主数据" }
+        - { field: "校验结果", source: "来自补货单校验规则" }
+      generationRules: "按确认后的分配方案生成标准补货单；校验通过后才可进入下发门禁。"
+      complianceRules: "调拨单号/发货仓/收货仓/SKU/数量/时效为必填，缺一不可；数量不得超过可发量。"
+      samples:
+        - { label: "典型 · 标准补货单", note: "PR-2026-0821-016：天津基地仓→北京顺义仓，金领冠珍护3段 1344 罐，时效 2 天，4 项校验通过" }
+        - { label: "反面 · 字段缺失/超可发量", note: "禁止缺收发仓或 SKU 即生成，禁止数量超过可发量" }
+      fieldSource: "依据奶粉分仓补货数据库表字段与 OSL 采集表补货单样例拆出固定骨架与动态字段。"
 
   dictionary:
     - id: "rdict_01"
