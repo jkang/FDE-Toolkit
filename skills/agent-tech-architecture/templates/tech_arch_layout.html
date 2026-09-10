@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{ meta.title or 'Agent 落地技术架构方案' }}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<style>
+  :root{
+    --navy:#10213E;--purple:#625D9C;--green:#00524C;--bg:#F5F5F6;--ink:#1f2937;--muted:#4a5568;--line:#dfe4ea;
+    --opb:#607D8B;--det:#E8F5E9;--detb:#2E7D32;--small:#E1F5FE;--smallb:#0288D1;--llm:#EDE7F6;--llmb:#5E35B1;
+    --rag:#FFF3E0;--ragb:#EF6C00;--mcp:#ECEFF1;--mcpb:#546E7A;--onto:#E0F2F1;--ontob:#00695C;
+    --hitl:#FFEBEE;--hitlb:#C62828;--eval:#FFFDE7;--evalb:#F9A825;--loop:#F3E5F5;--loopb:#8E24AA;
+    --exc:#FCE4EC;--excb:#AD1457;--out:#E8EAF6;--outb:#3949AB;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:"Noto Sans SC","Inter",-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased;}
+  .wrap{max-width:1400px;margin:0 auto;padding:26px 22px 60px;}
+  .eyebrow{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--purple);font-weight:700;}
+  h1{font-size:23px;margin:6px 0 4px;color:var(--navy);}
+  .sub{color:var(--muted);font-size:13.5px;line-height:1.6;}
+  .legend{display:flex;flex-wrap:wrap;gap:8px 14px;margin:14px 0 6px;font-size:12px;color:var(--muted);}
+  .lg{display:inline-flex;align-items:center;gap:6px;}
+  .sw{width:13px;height:13px;border-radius:4px;display:inline-block;border:1.5px solid;}
+  .arch{background:#fff;border:1px solid var(--line);border-radius:16px;padding:22px 20px 24px;margin-top:14px;}
+  .center{display:flex;justify-content:center;}
+  .user{display:inline-flex;align-items:center;gap:8px;background:#fff;border:1.5px solid var(--opb);border-radius:999px;padding:7px 16px;font-size:13px;color:#37474F;font-weight:500;}
+  .spine{width:2px;height:18px;background:#c3cad4;margin:0 auto;}
+  .agent{background:linear-gradient(135deg,#DDE7F5,#EAF0FA);border:2px solid var(--navy);border-radius:14px;padding:13px 18px;text-align:center;}
+  .agent .t{font-size:16px;font-weight:700;color:var(--navy);}
+  .agent .s{font-size:12.5px;color:#3b4a63;margin-top:3px;}
+  .agent .loop{display:inline-block;margin-top:8px;font-size:11.5px;color:var(--loopb);background:var(--loop);border:1px dashed var(--loopb);border-radius:999px;padding:3px 12px;font-weight:600;}
+  .agent .mem{display:inline-block;margin:8px 0 0 8px;font-size:11.5px;color:var(--green);background:var(--onto);border:1px solid var(--ontob);border-radius:999px;padding:3px 12px;font-weight:600;}
+  .fork{position:relative;height:38px;}
+  .fork .hbar{position:absolute;top:0;height:2px;background:#c3cad4;}
+  .fork .drop{position:absolute;top:0;bottom:0;width:2px;background:#c3cad4;}
+  .fork .lbl{position:absolute;top:8px;left:50%;transform:translateX(-50%);background:#fff;padding:0 10px;font-size:11.5px;color:#7b8794;white-space:nowrap;}
+  .skills{display:grid;gap:14px;align-items:start;}
+  .skill{border:1px solid var(--line);border-radius:14px;padding:10px 8px 12px;background:#FBFCFD;}
+  .skill.subagent{border:1.5px dashed var(--purple);background:#FBFAFE;}
+  .skill h3{margin:0 0 2px;font-size:13.5px;color:var(--navy);padding:0 4px;}
+  .skill .role{font-size:11px;color:#8a93a1;margin-bottom:4px;padding:0 4px;}
+  .skill .pat{display:inline-block;font-size:10.5px;color:var(--purple);background:#F1EEF9;border:1px solid #D9D2EE;border-radius:999px;padding:2px 9px;margin:0 4px 4px;}
+  .skill .sub-badge{display:inline-block;font-size:10.5px;color:#4A148C;background:var(--loop);border:1px dashed var(--loopb);border-radius:999px;padding:2px 9px;margin:0 0 4px 4px;}
+  .skill .why{font-size:10.5px;color:#8a93a1;padding:0 4px;margin:2px 0 6px;}
+  .graph{overflow-x:auto;}
+  .handoff{margin:8px 4px 0;font-size:11px;color:var(--green);background:#F1FAF8;border:1px dashed var(--ontob);border-radius:8px;padding:5px 9px;}
+  .merge{position:relative;height:30px;}
+  .merge .hbar{position:absolute;bottom:0;height:2px;background:#c3cad4;}
+  .merge .up{position:absolute;top:0;bottom:0;width:2px;background:#c3cad4;}
+  .merge .lbl{position:absolute;bottom:5px;left:50%;transform:translateX(-50%);background:#fff;padding:0 10px;font-size:11.5px;color:#7b8794;white-space:nowrap;}
+  .base{border:1.5px solid var(--ontob);border-radius:14px;padding:12px 14px;background:linear-gradient(135deg,#F1FAF8,#F7FBFA);}
+  .base .bt{font-size:12px;font-weight:700;color:var(--green);letter-spacing:.04em;margin-bottom:10px;}
+  .base .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px;}
+  .base .card{border-radius:11px;padding:10px 12px;border:1px solid;}
+  .base .onto{background:var(--onto);border-color:var(--ontob);}
+  .base .mcp{background:var(--mcp);border-color:var(--mcpb);}
+  .base .kb{background:var(--rag);border-color:var(--ragb);}
+  .base .card b{font-size:13px;color:#1f2937;}
+  .base .card p{margin:5px 0 0;font-size:11.5px;color:var(--muted);line-height:1.55;}
+  .base .card p code{background:#ffffffaa;border-radius:4px;padding:0 4px;font-size:11px;color:#334155;}
+  .exc{margin-top:12px;border:1px solid var(--excb);background:var(--exc);border-radius:12px;padding:10px 14px;font-size:12px;color:#880E4F;}
+  .exc b{font-weight:700;}
+  .tables{display:grid;grid-template-columns:1.35fr 1fr;gap:14px;margin-top:16px;}
+  .tbl{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 16px;}
+  .tbl h3{margin:0 0 10px;font-size:14px;color:var(--navy);}
+  table{width:100%;border-collapse:collapse;font-size:11.5px;}
+  th,td{text-align:left;padding:6px 8px;border-bottom:1px solid #eef1f5;vertical-align:top;color:#37474F;}
+  th{color:#8a93a1;font-weight:600;background:#FAFBFC;}
+  .kpi{display:flex;flex-direction:column;gap:7px;}
+  .kpi .k{display:flex;gap:8px;font-size:11.5px;color:#37474F;}
+  .kpi .k b{color:var(--navy);min-width:118px;}
+  .kpi .k span{color:var(--muted);}
+  .note{margin-top:16px;background:#FFFDF5;border:1px solid #F0E2B6;border-radius:12px;padding:12px 14px;font-size:12px;color:#6b5a1e;line-height:1.6;}
+  .note b{color:#8a6d1a;}
+  .mermaid span.s{font-size:10px;color:#7b8794;font-weight:400;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="eyebrow">Agent 落地技术架构方案 · {{ meta.route or '' }}</div>
+  <h1>{{ meta.title or 'Agent 落地技术架构方案' }}</h1>
+  <div class="sub">
+    {% if meta.patternSummary %}<strong>{{ meta.patternSummary }}</strong>：{% endif %}
+    编排 Agent 居中调度，每个 Skill 内部是一条<strong>纵向逻辑流程</strong>（含并行、Evaluator 分支、Loop 回边、HITL、终态）；共享读写本体、按需调用 MCP。
+    {% if meta.routeReason %}路线理由：{{ meta.routeReason }}{% endif %}
+  </div>
+
+  <div class="legend">
+    <span class="lg"><i class="sw" style="background:#DDE7F5;border-color:#10213E"></i>编排 Agent</span>
+    <span class="lg"><i class="sw" style="background:#FFFFFF;border-color:#607D8B"></i>普通操作</span>
+    <span class="lg"><i class="sw" style="background:#E8F5E9;border-color:#2E7D32"></i>确定性 / 规则</span>
+    <span class="lg"><i class="sw" style="background:#E1F5FE;border-color:#0288D1"></i>小模型 / 感知</span>
+    <span class="lg"><i class="sw" style="background:#EDE7F6;border-color:#5E35B1"></i>大模型 LLM</span>
+    <span class="lg"><i class="sw" style="background:#FFF3E0;border-color:#EF6C00"></i>RAG / 知识库</span>
+    <span class="lg"><i class="sw" style="background:#ECEFF1;border-color:#546E7A"></i>MCP / 外部系统</span>
+    <span class="lg"><i class="sw" style="background:#E0F2F1;border-color:#00695C"></i>本体</span>
+    <span class="lg"><i class="sw" style="background:#FFEBEE;border-color:#C62828"></i>HITL 门禁</span>
+    <span class="lg"><i class="sw" style="background:#FFFDE7;border-color:#F9A825"></i>Evaluator</span>
+    <span class="lg"><i class="sw" style="background:#F3E5F5;border-color:#8E24AA"></i>Loop / 重试</span>
+    <span class="lg"><i class="sw" style="background:#FCE4EC;border-color:#AD1457"></i>异常池</span>
+    <span class="lg"><i class="sw" style="background:#E8EAF6;border-color:#3949AB"></i>终态输出</span>
+  </div>
+
+  {% set n = n_skills %}
+  {% set half = 50 / n %}
+  <div class="arch">
+    <div class="center"><div class="user">👤 用户</div></div>
+    <div class="spine"></div>
+
+    <div class="agent">
+      <div class="t">🧭 {{ agent.name or '编排 Agent' }}</div>
+      <div class="s">{{ agent.role or '' }}{% if agent.note %}（{{ agent.note }}）{% endif %}</div>
+      {% if agent.loop %}<span class="loop">主循环：{{ agent.loop }}</span>{% endif %}
+      {% if agent.memory %}<span class="mem">记忆：{{ agent.memory | join(' + ') }}</span>{% endif %}
+    </div>
+
+    {% if skills %}
+    <div class="fork">
+      <div class="hbar" style="left: {{ half }}%; right: {{ half }}%"></div>
+      {% for i in range(n) %}<span class="drop" style="left: {{ (i + 0.5) / n * 100 }}%"></span>{% endfor %}
+      <div class="lbl">按意图调度 / 路由{% if routing %}（{% for r in routing %}{{ r.intent }}{% if not loop.last %} ｜ {% endif %}{% endfor %}）{% endif %}</div>
+    </div>
+
+    <div class="skills" style="grid-template-columns: repeat({{ n }}, 1fr)">
+      {% for sk in skills %}
+      <div class="skill{% if sk.is_subagent %} subagent{% endif %}">
+        <h3>{{ sk.name }}</h3>
+        <div class="role">触发：{{ sk.trigger }}</div>
+        {% if sk.pattern %}<span class="pat">{{ sk.pattern }}</span>{% endif %}
+        {% if sk.is_subagent %}<span class="sub-badge">Sub-Agent · 自身循环</span>{% endif %}
+        {% if sk.whyNotSubagent %}<div class="why">判定：{{ sk.whyNotSubagent }}</div>{% endif %}
+        <div class="graph"><pre class="mermaid">
+{{ sk.mermaid }}
+        </pre></div>
+        {% if sk.handoff %}<div class="handoff">{{ sk.handoff }}</div>{% endif %}
+      </div>
+      {% endfor %}
+    </div>
+
+    <div class="merge">
+      {% for i in range(n) %}<span class="up" style="left: {{ (i + 0.5) / n * 100 }}%"></span>{% endfor %}
+      <div class="hbar" style="left: {{ half }}%; right: {{ half }}%"></div>
+      <div class="lbl">{{ n }} 条链共享读写本体 / 按需调用 MCP</div>
+    </div>
+    {% endif %}
+
+    <div class="base">
+      <div class="bt">共享底座</div>
+      <div class="cards">
+        {% if sharedBase.ontology %}
+        <div class="card onto"><b>🧱 {{ sharedBase.ontology.title or '本体（确定性底座）' }}</b>
+          <p>{% if sharedBase.ontology.read %}<b>读 R：</b>{% for x in sharedBase.ontology.read %}<code>{{ x }}</code>{% if not loop.last %}、{% endif %}{% endfor %}。<br/>{% endif %}
+          {% if sharedBase.ontology.write %}<b>写 W：</b>{% for x in sharedBase.ontology.write %}<code>{{ x }}</code>{% if not loop.last %}、{% endif %}{% endfor %}。<br/>{% endif %}
+          {{ sharedBase.ontology.note or '' }}</p></div>
+        {% endif %}
+        {% if sharedBase.mcp %}
+        <div class="card mcp"><b>🔌 {{ sharedBase.mcp.title or 'MCP / 外部系统' }}</b>
+          <p>{% if sharedBase.mcp.calls %}<b>调用点：</b>{% for x in sharedBase.mcp.calls %}<code>{{ x }}</code>{% if not loop.last %}、{% endif %}{% endfor %}。<br/>{% endif %}
+          {{ sharedBase.mcp.note or '' }}</p></div>
+        {% endif %}
+        {% if sharedBase.kb %}
+        <div class="card kb"><b>📚 {{ sharedBase.kb.title or '知识库 / RAG' }}</b>
+          <p>{% if sharedBase.kb.calls %}<b>检索点：</b>{% for x in sharedBase.kb.calls %}<code>{{ x }}</code>{% if not loop.last %}、{% endif %}{% endfor %}。<br/>{% endif %}
+          {{ sharedBase.kb.note or '' }}</p></div>
+        {% endif %}
+      </div>
+    </div>
+
+    {% if exceptionPool %}<div class="exc"><b>🩷 异常池（人工终审）：</b>{{ exceptionPool }}</div>{% endif %}
+  </div>
+
+  <div class="tables">
+    {% if failureTable %}
+    <div class="tbl">
+      <h3>失败 / 降级 / 兜底</h3>
+      <table>
+        <thead><tr><th>触发</th><th>处理</th><th>类型</th></tr></thead>
+        <tbody>
+          {% for f in failureTable %}<tr><td>{{ f.trigger }}</td><td>{{ f.action }}</td><td>{{ f.type }}</td></tr>{% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% endif %}
+    <div class="tbl">
+      {% if kpi %}
+      <h3>KPI 锚定（链路 → 指标）</h3>
+      <div class="kpi">
+        {% for k in kpi %}<div class="k"><b>{{ k.name }}</b><span>{{ k.link }}</span></div>{% endfor %}
+      </div>
+      {% endif %}
+      {% if guardrails %}
+      <h3 style="margin-top:14px">护栏落点</h3>
+      <table><tbody>
+        {% for g in guardrails %}<tr><td>{{ g.rule }}</td><td>{{ g.detail }}</td></tr>{% endfor %}
+      </tbody></table>
+      {% endif %}
+    </div>
+  </div>
+
+  {% for nt in notes %}
+  <div class="note"><b>{{ nt.title }}</b>{{ nt.text }}</div>
+  {% endfor %}
+</div>
+<script>
+  mermaid.initialize({startOnLoad:true, theme:'base', securityLevel:'loose',
+    themeVariables:{fontSize:'12.5px', fontFamily:'"Noto Sans SC", sans-serif'},
+    flowchart:{curve:'basis', nodeSpacing:16, rankSpacing:26, htmlLabels:true}});
+</script>
+</body>
+</html>

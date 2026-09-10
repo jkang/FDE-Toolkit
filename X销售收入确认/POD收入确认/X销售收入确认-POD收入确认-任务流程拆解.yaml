@@ -1,0 +1,217 @@
+meta:
+  title: "X销售收入确认 · 销售POD收入确认端到端深度任务流程地图"
+  subtitle: "来自《任务流程挖掘清单》主表"
+  version: "v1.0"
+  date: "2026-09-10"
+  scenarioName: "销售POD收入确认"
+  businessStage: "阶段1 任务流程挖掘 · P1"
+  methodology: "阶段1方法（业务环节 L3 → 主要活动 L4 → 深度任务 L5）"
+  inputs:
+    - "《X销售收入确认-POD收入确认-AI画布》"
+    - "《X销售收入确认-POD收入确认-To-be流程》"
+    - "《销售收入确认_开发方案设计文档》"
+  sourceRef: "X销售收入确认-POD收入确认-To-be流程.yaml 任务手账"
+  kpi:
+    - "收入确认时效"
+    - "采集自动化率"
+    - "对账差异处理效率"
+    - "POD确认合规率"
+    - "超期异常积压"
+
+overview:
+  l3Count: 5
+  l4Count: 10
+  l5Count: 25
+  focusL3: "POD确认"
+  focusL4: "POD匹配与确认"
+
+legend:
+  focusType: "p0"
+  execution:
+    - { type: "agent",  label: "Agent",   icon: "🤖" }
+    - { type: "mixed",  label: "混合执行", icon: "🤝" }
+    - { type: "human",  label: "人工",     icon: "👤" }
+  convention: "L3 业务阶段 → L4 活动分组 → L5 可执行动作"
+
+stages:
+  - id: "S1"
+    num: "01"
+    name: "数据采集"
+    l5Count: 6
+    isFocus: false
+    groups:
+      - id: "G1_1"
+        name: "交货单同步"
+        isP0: false
+        tasks:
+          - { id: "t01", name: "同步SAP待处理交货单", actor: "agent" }
+          - { id: "t02", name: "保存并刷新交货单状态", actor: "agent" }
+      - id: "G1_2"
+        name: "资料采集"
+        isP0: false
+        tasks:
+          - { id: "t03", name: "读取公共邮箱邮件", actor: "agent" }
+          - { id: "t04", name: "读取公共文件夹签收/POD", actor: "agent" }
+          - { id: "t05", name: "OCR识别签收/POD字段", actor: "agent" }
+          - { id: "t06", name: "复核低置信度资料", actor: "mixed" }
+  - id: "S2"
+    num: "02"
+    name: "物流关联"
+    l5Count: 5
+    isFocus: false
+    groups:
+      - id: "G2_1"
+        name: "物流发运关联"
+        isP0: false
+        tasks:
+          - { id: "t07", name: "识别邮件关键字段", actor: "agent" }
+          - { id: "t08", name: "建立交货单-发运单关联", actor: "agent" }
+          - { id: "t09", name: "处理物流关联异常", actor: "human" }
+      - id: "G2_2"
+        name: "签收确认"
+        isP0: false
+        tasks:
+          - { id: "t10", name: "识别客户自提邮件", actor: "agent" }
+          - { id: "t11", name: "确认签收有效性", actor: "mixed" }
+  - id: "S3"
+    num: "03"
+    name: "对账"
+    l5Count: 5
+    isFocus: false
+    groups:
+      - id: "G3_1"
+        name: "对账单处理"
+        isP0: false
+        tasks:
+          - { id: "t12", name: "创建对账单", actor: "human" }
+          - { id: "t13", name: "下载对账单交客户确认", actor: "human" }
+      - id: "G3_2"
+        name: "差异与借贷项"
+        isP0: false
+        tasks:
+          - { id: "t14", name: "自动比对差异并归因", actor: "agent" }
+          - { id: "t15", name: "生成/关联借贷项建议", actor: "agent" }
+          - { id: "t16", name: "确认差异并处理借贷项", actor: "human" }
+  - id: "S4"
+    num: "04"
+    name: "POD确认"
+    l5Count: 5
+    isFocus: true
+    groups:
+      - id: "G4_1"
+        name: "POD匹配与确认"
+        isP0: true
+        tasks:
+          - { id: "t17", name: "汇总横向匹配表", actor: "agent" }
+          - { id: "t18", name: "校验POD确认条件", actor: "agent" }
+          - { id: "t19", name: "一键POD确认", actor: "mixed" }
+          - { id: "t20", name: "特殊POD确认审批", actor: "human" }
+      - id: "G4_2"
+        name: "预制发票"
+        isP0: false
+        tasks:
+          - { id: "t21", name: "自动生成SAP预制发票", actor: "agent" }
+  - id: "S5"
+    num: "05"
+    name: "过账归档"
+    l5Count: 4
+    isFocus: false
+    groups:
+      - id: "G5_1"
+        name: "过账"
+        isP0: false
+        tasks:
+          - { id: "t22", name: "执行发票过账", actor: "human" }
+          - { id: "t23", name: "回写凭证号与过账状态", actor: "agent" }
+      - id: "G5_2"
+        name: "归档与监控"
+        isP0: false
+        tasks:
+          - { id: "t24", name: "打印与归档", actor: "human" }
+          - { id: "t25", name: "更新驾驶舱与超期预警", actor: "agent" }
+
+readingFlow:
+  - "先看全链路：从交货单采集到过账归档，形成收入确认闭环"
+  - "再找高价值 L4：『POD匹配与确认』承载最密集的规则校验与人工放行"
+  - "最后下钻 L5：拆成『汇总匹配 / 校验条件 / 一键确认 / 特殊审批』四个可独立挂规则的动作"
+
+focusDrill:
+  before:
+    l4Name: "POD匹配与确认"
+    whyTooCoarse: "它包含状态汇总、条件校验、人工确认与特殊审批等不同动作，输入输出和异常各不相同，不能直接作为最小执行单元。"
+  approach: "访谈走查＋开发方案文档还原 →"
+  evidence:
+    - "系统横向拉齐 SAP 交货单、物流发运关联、签收/POD、对账单、借贷项五要素状态"
+    - "运行 POD 确认条件规则（交货单已同步/物流关联/签收有效/对账完成/借贷项完成）给出匹配结论与缺口"
+    - "CS 核对结论后点击 POD 确认，异常/特殊场景转 CS 经理审批"
+  after: "下钻为 4 个能独立挂规则的动作，各自回答『拉什么 / 查什么 / 是否放行 / 谁裁决』。"
+focusSequence:
+  - { id: "L5-1", name: "汇总横向匹配表", question: "拉什么状态" }
+  - { id: "L5-2", name: "校验POD确认条件", question: "查什么 / 依据什么放行" }
+  - { id: "L5-3", name: "一键POD确认", question: "是否放行 / 结果是否可观察" }
+  - { id: "L5-4", name: "特殊POD确认审批", question: "异常由谁终审" }
+
+taskTable:
+  - l5: "汇总横向匹配表"
+    inputs: "交货单、物流发运关联、签收/POD、对账单、借贷项状态"
+    outputs: "POD匹配表（五要素状态 + 结论 + 缺口提示）"
+    ruleType: "关联关系类·交货单全链路状态聚合"
+    exception: "状态拉取失败/不一致 → 标注缺口并生成待办"
+    actor: "agent"
+  - l5: "校验POD确认条件"
+    inputs: "五要素状态、POD确认条件规则"
+    outputs: "确认条件校验结果（通过/缺口）"
+    ruleType: "决策模型类·POD确认条件规则"
+    exception: "条件不足 → 阻断并提示缺口，引导补件/补对账"
+    actor: "agent"
+  - l5: "一键POD确认"
+    inputs: "校验通过的匹配表"
+    outputs: "POD确认记录 + POD日志"
+    ruleType: "决策模型类·POD确认放行"
+    exception: "CS 发现异常 → 退回并升级 CS 经理终审"
+    actor: "mixed"
+  - l5: "特殊POD确认审批"
+    inputs: "异常/特殊确认申请"
+    outputs: "审批结论（放行/驳回）"
+    ruleType: "决策模型类·特殊确认审批"
+    exception: "驳回 → 退回 CS 补充材料"
+    actor: "human"
+
+ioChain:
+  - "SAP交货单 + 公共邮箱邮件 + 公共文件夹签收/POD"
+  - "交货单与物流发运单关联 + 结构化签收信息"
+  - "对账单 + 差异/借贷项状态"
+  - "POD匹配表（五要素状态 + 结论）"
+  - "POD确认 + POD日志"
+  - "下游：SAP 预制发票 → 财务过账 → 打印归档 → 综合查询/驾驶舱"
+
+learning:
+  why: "每个 L5 各自只有一个核心动词，产出可观察，并可独立挂接规则（P2 规则挖掘据此绑定）。"
+  key: "挖掘的关键不是改写名称，而是把专家真实执行的动作顺序、输入输出、判断依据和异常链路结构化。"
+
+usagePoints:
+  - { id: "UP-t01", name: "同步SAP待处理交货单",   actor: "agent", focus: false }
+  - { id: "UP-t02", name: "保存并刷新交货单状态",   actor: "agent", focus: false }
+  - { id: "UP-t03", name: "读取公共邮箱邮件",       actor: "agent", focus: false }
+  - { id: "UP-t04", name: "读取公共文件夹签收/POD", actor: "agent", focus: false }
+  - { id: "UP-t05", name: "OCR识别签收/POD字段",    actor: "agent", focus: false }
+  - { id: "UP-t06", name: "复核低置信度资料",       actor: "mixed", focus: false }
+  - { id: "UP-t07", name: "识别邮件关键字段",       actor: "agent", focus: false }
+  - { id: "UP-t08", name: "建立交货单-发运单关联",  actor: "agent", focus: false }
+  - { id: "UP-t09", name: "处理物流关联异常",       actor: "human", focus: false }
+  - { id: "UP-t10", name: "识别客户自提邮件",       actor: "agent", focus: false }
+  - { id: "UP-t11", name: "确认签收有效性",         actor: "mixed", focus: false }
+  - { id: "UP-t12", name: "创建对账单",             actor: "human", focus: false }
+  - { id: "UP-t13", name: "下载对账单交客户确认",   actor: "human", focus: false }
+  - { id: "UP-t14", name: "自动比对差异并归因",     actor: "agent", focus: false }
+  - { id: "UP-t15", name: "生成/关联借贷项建议",    actor: "agent", focus: false }
+  - { id: "UP-t16", name: "确认差异并处理借贷项",   actor: "human", focus: false }
+  - { id: "UP-t17", name: "汇总横向匹配表",         actor: "agent", focus: true }
+  - { id: "UP-t18", name: "校验POD确认条件",        actor: "agent", focus: true }
+  - { id: "UP-t19", name: "一键POD确认",            actor: "mixed", focus: true }
+  - { id: "UP-t20", name: "特殊POD确认审批",        actor: "human", focus: true }
+  - { id: "UP-t21", name: "自动生成SAP预制发票",    actor: "agent", focus: false }
+  - { id: "UP-t22", name: "执行发票过账",           actor: "human", focus: false }
+  - { id: "UP-t23", name: "回写凭证号与过账状态",   actor: "agent", focus: false }
+  - { id: "UP-t24", name: "打印与归档",             actor: "human", focus: false }
+  - { id: "UP-t25", name: "更新驾驶舱与超期预警",   actor: "agent", focus: false }

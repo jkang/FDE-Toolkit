@@ -1,0 +1,96 @@
+title: 销售POD收入确认
+description: AI 自动采集签收凭据、识别对账差异并校验 POD 条件，自动确认收入并生成预制发票。
+userRoles:
+  - CS（对账 / POD 确认）
+  - CS 经理（全局与异常）
+  - 物流人员（资料补充）
+  - 财务（过账 / 打印 / 归档）
+  - 财务主管（全量查询 / 审批）
+  - 系统管理员（配置 / 接口）
+userPains:
+  - 物流发运单号靠人工在公共邮箱里翻找，签收资料散落在公共文件夹与客户自提邮件中
+  - 客户对账与 SAP 交货单靠人工逐行比对，差异口径不统一、易错漏
+  - POD 确认条件（交货单 / 物流 / 签收 / 对账 / 借贷项）分散在多个系统，靠人工判断
+  - 已发货未取发运单、已取得未签收、已发货未创建对账单、具备条件未 POD 确认长期无统一看板
+  - 收入确认时效差、审计链（签收凭据）不完整
+aiInput:
+  - SAP 交货单与明细（按客户 / 销售组织 / 时间范围）
+  - 公共邮箱邮件（主题 / 正文 / 发件人 / 时间 / 附件）
+  - 公共文件夹签收单 / POD 文件 / 客户反馈对账文件
+  - 客户自提邮件确认
+  - CS 上传的客户反馈对账文件
+dataKnowledge:
+  - SAP 交货单 / 明细、客户主数据、销售组织与 CS 负责人
+  - 物流承运商清单与物流发运单号命名规则
+  - 对账差异规则（客户一致性 / 交货单存在性 / 数量金额一致性 / 重复缺失反馈 / 容差）
+  - POD 确认条件规则（交货单已同步 / 物流关联 / 签收有效 / 对账完成 / 借贷项完成）
+  - 超期异常阈值配置（未取发运单 / 未签收 / 未创建对账单 / 未 POD 确认天数）
+  - 历史邮件 / 签收单 / 对账单样本与对账单模板
+workflow:
+  - actor: human
+    action: 物流 / CS 发起或系统定时拉取，进入销售POD收入确认工作台
+  - actor: agent
+    action: 定时读取公共邮箱与公共文件夹，识别交货单-发运单关联与签收 / POD 资料并结构化落库
+  - actor: hybrid
+    action: 低置信度识别进入人工复核，物流补充资料或补邮件留痕
+  - actor: agent
+    action: 按客户 / 周期同步 SAP 交货单，生成对账单供 CS 下载
+  - actor: human
+    action: CS 下载对账单给客户确认，上传客户反馈
+  - actor: agent
+    action: 自动比对客户反馈与 SAP，输出差异归因与借贷项建议
+  - actor: human
+    action: CS 确认差异并处理借贷项（未完成不开放 POD 确认）
+  - actor: agent
+    action: 校验 POD 确认条件，汇总横向匹配表与缺口提示
+  - actor: human
+    action: CS 一键 POD 确认（对外确认收入的闸门）
+  - actor: agent
+    action: 自动生成预制发票；财务过账、打印、归档；驾驶舱与综合查询更新
+modelUsage:
+  - 核心编排与解释：GPT-4o 或 Claude 3.5 Sonnet（长上下文归纳、差异归因与说明生成）
+  - 单证 / 邮件识别：多模态视觉模型（签收单、POD、对账单版面与字段识别）
+  - 结构化比对：规则引擎为主，LLM 辅助非标差异归因
+  - 识别结果必须返回置信度，低置信度转人工复核
+aiOutput:
+  - 交货单与物流发运单关联关系 + 邮件原文归档
+  - 结构化签收 / POD 信息（签收人 / 时间 / 结果 / 单号 / 置信度）
+  - 对账差异分析结果与借贷项建议
+  - POD 匹配结论与确认条件缺口提示
+  - 自动触发预制发票、凭证回写与驾驶舱 / 综合查询状态更新
+systemIntegration:
+  - system: SAP SD
+    direction: bidirectional
+    purpose: 读取交货单 / 明细，生成预制发票、执行发票过账、查询凭证
+  - system: 公共邮箱
+    direction: upstream
+    purpose: 读取仓库 / 物流 / 客户自提邮件，建立交货单与物流发运单关联
+  - system: 公共文件夹 / 网盘
+    direction: upstream
+    purpose: 读取物流签收单、POD 资料、客户反馈对账文件
+  - system: 文件服务 / 对象存储
+    direction: downstream
+    purpose: 保存原始资料、识别结果、补充附件、归档文件与预览地址
+  - system: OCR / AI 识别服务
+    direction: bidirectional
+    purpose: 识别签收单、POD、对账单与邮件关键信息
+  - system: 客户主数据 / 销售主数据
+    direction: upstream
+    purpose: 校验客户、销售组织、交货单归属与数据范围
+  - system: 组织权限 / AD
+    direction: upstream
+    purpose: 登录、角色、组织与数据范围控制
+  - system: 打印服务 / 浏览器打印
+    direction: downstream
+    purpose: 打印 POD 资料、对账单、POD 日志、预制发票与凭证
+  - system: IM / 消息通知
+    direction: downstream
+    purpose: 向 CS、物流、财务推送待办与异常提醒
+productType:
+  - 内嵌企业门户的销售POD收入确认工作台（Web，六个一级页面 + 资料预览弹窗）
+  - 首页驾驶舱 + 待办预警（IM 推送）
+businessGains:
+  - 物流发运关联与签收资料采集由人工逐单数分钟 → 自动拉取识别秒级，人工工作量下降 70%+
+  - 对账差异定位与处理周期缩短 50%+
+  - 「已具备条件未 POD 确认」超期量下降 60%+
+  - POD 确认后预制发票 100% 自动生成，收入确认时效由人工 T+N 走向准实时

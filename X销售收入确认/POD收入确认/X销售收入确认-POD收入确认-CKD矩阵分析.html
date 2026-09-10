@@ -1,0 +1,1764 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>X销售收入确认 · 销售POD收入确认 CKD 映射报告 - Agentic AI Asset Architecture</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root {
+            --bg-main: #fcfcfd;
+            --glass-bg: rgba(255, 255, 255, 0.75);
+            --border-soft: rgba(226, 232, 240, 0.6);
+            --accent-blue: #2563eb;
+            --text-slate: #475569;
+        }
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background-color: var(--bg-main);
+            color: #0f172a;
+            padding: 60px 40px;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(37, 99, 235, 0.03) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(139, 92, 246, 0.03) 0px, transparent 50%),
+                url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%239C92AC' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2v-4h4v-2h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2v-4h4v-2H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+        h1, h2, h3 { font-family: 'Outfit', sans-serif; }
+        
+        /* Stats Section */
+        .stat-card {
+            background: white;
+            border: 1px solid var(--border-soft);
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
+            transition: all 0.3s ease;
+        }
+        .stat-card:hover { transform: translateY(-2px); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05); }
+
+        /* Matrix Styles */
+        .matrix-wrapper {
+            position: relative;
+            border-radius: 32px;
+            overflow: hidden;
+            border: 1px solid var(--border-soft);
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.04);
+            margin-top: 48px;
+        }
+        
+        .scroll-container {
+            overflow-x: auto;
+            max-width: 100%;
+        }
+
+        table {
+            border-collapse: separate;
+            border-spacing: 0;
+            min-width: 100%;
+        }
+
+        th, td {
+            padding: 28px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-soft);
+            border-right: 1px solid var(--border-soft);
+            min-width: 320px;
+        }
+
+        /* Dimension Label Column (Sticky) */
+        .dim-label {
+            position: sticky;
+            left: 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(12px);
+            z-index: 20;
+            font-weight: 800;
+            color: #64748b;
+            text-transform: uppercase;
+            font-size: 0.7rem;
+            letter-spacing: 0.15em;
+            width: 180px;
+            min-width: 180px;
+            border-right: 3px solid var(--accent-blue);
+        }
+
+        /* Step Header (Sticky Top) */
+        .step-header {
+            position: sticky;
+            top: 0;
+            background: #0f172a;
+            color: white;
+            z-index: 30;
+            padding: 24px 32px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            letter-spacing: -0.02em;
+        }
+        
+        .step-header-corner {
+            position: sticky;
+            left: 0;
+            top: 0;
+            background: #1e293b;
+            z-index: 40;
+        }
+
+        /* Cell Content Styling */
+        .asset-group { display: flex; flex-direction: column; gap: 20px; }
+        .asset-item { position: relative; }
+        .asset-item:not(:last-child)::after {
+            content: "";
+            display: block;
+            height: 1px;
+            background: var(--border-soft);
+            margin: 20px 0;
+        }
+
+        .context-name {
+            font-weight: 800;
+            color: #1e293b;
+            font-size: 1.1rem;
+            margin-bottom: 4px;
+            display: block;
+            letter-spacing: -0.01em;
+        }
+
+        .type-pill {
+            display: inline-flex;
+            padding: 3px 10px;
+            border-radius: 6px;
+            background: #f1f5f9;
+            color: #475569;
+            font-size: 0.65rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .ai-init-sparkle {
+            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 800;
+            font-size: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 700;
+            font-size: 0.75rem;
+        }
+        .dot { width: 8px; height: 8px; border-radius: 50%; }
+        .dot-ready { background: #10b981; box-shadow: 0 0 10px rgba(16, 185, 129, 0.4); }
+        .dot-progress { background: #f59e0b; box-shadow: 0 0 10px rgba(245, 158, 11, 0.4); }
+        .dot-todo { background: #94a3b8; }
+
+        tr:last-child td { border-bottom: none; }
+        td:last-child { border-right: none; }
+
+        /* Animations */
+        @keyframes slideUpFade {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @media print {
+            .dim-label, .step-header { position: static; background: #f8fafc; color: black; border: 1px solid #e2e8f0; }
+        }
+        
+        .btn-copy-yaml {
+          background: #0f172a; color: #fff;
+          padding: 8px 16px; border-radius: 12px;
+          font-size: 13px; font-weight: 600;
+          border: none; cursor: pointer;
+          transition: all 0.2s;
+        }
+        .btn-copy-yaml:hover { background: #334155; }
+        
+        .toast {
+          position: fixed; bottom: 24px; right: 24px;
+          background: #10b981; color: #fff;
+          padding: 10px 20px; border-radius: 8px;
+          font-size: 13px; font-weight: 600;
+          display: none; z-index: 1000;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+    </style>
+
+    <!-- ===== Unified Report Shell: 撑满容器 + 精简 Header + 溢出滚动 ===== -->
+    <style>
+      *, *::before, *::after { box-sizing: border-box !important; }
+      html, body { margin: 0 !important; padding: 0 !important; background: #F5F5F6 !important; overflow-x: auto !important; }
+      .max-w-\[2000px\] {
+        width: 100% !important;
+        max-width: none !important;
+        margin: 0 auto !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        border: none !important;
+        padding: 24px 28px 48px !important;
+        overflow-x: auto !important;
+      }
+      header.animate-in { margin-bottom: 20px !important; align-items: center !important; }
+      header.animate-in h1 { font-size: 22px !important; line-height: 1.3 !important; margin: 0 !important; }
+    
+      /* ===== Unified Header (v2) ===== */
+      header.animate-in {
+        background: #FFFFFF !important;
+        border-bottom: 1px solid #E2E8F0 !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        padding: 12px 0 !important;
+        margin-bottom: 20px !important;
+        min-height: auto !important;
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        gap: 16px !important;
+        flex-wrap: wrap !important;
+      }
+      header.animate-in h1 {
+        font-size: 22px !important;
+        font-weight: 700 !important;
+        color: #10213E !important;
+        line-height: 1.3 !important;
+        margin: 0 !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 10px !important;
+      }
+      header.animate-in h1::before {
+        content: "" !important;
+        display: inline-block !important;
+        width: 4px !important;
+        height: 22px !important;
+        background: #5DB2E2 !important;
+        border-radius: 2px !important;
+        flex-shrink: 0 !important;
+      }
+      header.animate-in h1 svg, header.animate-in h1 .icon, header.animate-in h1 img, header.animate-in .text-2xl {
+        width: 20px !important;
+        height: 20px !important;
+        flex-shrink: 0 !important;
+        font-size: 18px !important;
+      }
+      header.animate-in .space-y-4, header.animate-in > div {
+        font-size: 13px !important;
+        color: #64748B !important;
+      }
+      header.animate-in .inline-flex, header.animate-in [class*="rounded-full"] {
+        font-size: 12px !important;
+        color: #64748B !important;
+        background: #F5F5F6 !important;
+        border: none !important;
+        box-shadow: none !important;
+        padding: 2px 10px !important;
+        border-radius: 10px !important;
+      }
+      header.animate-in button {
+        font-size: 12px !important;
+        padding: 6px 12px !important;
+        border-radius: 6px !important;
+        font-weight: 600 !important;
+        background: #10213E !important;
+        color: #FFFFFF !important;
+        border: 1px solid #10213E !important;
+      }
+
+      /* ===== Unified Header: 结构样式 ===== */
+      .unified-hdr {
+        background: #FFFFFF !important;
+        border-bottom: 1px solid #E2E8F0 !important;
+        padding: 14px 0 !important;
+        margin-bottom: 20px !important;
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        gap: 16px !important;
+        flex-wrap: wrap !important;
+        text-align: left !important;
+        flex-direction: row !important;
+      }
+      .unified-hdr-left { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+
+      .unified-hdr .unified-hdr-left {
+        flex-direction: row !important;
+        flex-wrap: wrap !important;
+        align-items: baseline !important;
+        gap: 12px !important;
+      }
+      .unified-hdr .unified-hdr-pill { margin-bottom: 0 !important; align-self: center !important; }
+      .unified-hdr .unified-hdr-left p {
+        width: 100% !important;
+        margin-top: 2px !important;
+      }
+
+      .unified-hdr-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+      .unified-hdr h1 {
+        font-size: 22px !important;
+        font-weight: 700 !important;
+        color: #10213E !important;
+        line-height: 1.3 !important;
+        margin: 0 !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 10px !important;
+      }
+      .unified-hdr h1::before {
+        content: "" !important;
+        display: inline-block !important;
+        width: 4px !important;
+        height: 22px !important;
+        background: #5DB2E2 !important;
+        border-radius: 2px !important;
+        flex-shrink: 0 !important;
+      }
+      .unified-hdr p {
+        font-size: 13px !important;
+        color: #64748B !important;
+        margin: 4px 0 0 !important;
+        padding-left: 14px !important;
+        line-height: 1.5 !important;
+      }
+      .unified-hdr-pill {
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 6px !important;
+        font-size: 12px !important;
+        font-weight: 600 !important;
+        color: #64748B !important;
+        background: #F5F5F6 !important;
+        border: none !important;
+        border-radius: 10px !important;
+        padding: 2px 10px !important;
+        width: fit-content !important;
+        text-transform: none !important;
+        letter-spacing: normal !important;
+        margin-bottom: 4px !important;
+      }
+      .unified-hdr-pill i, .unified-hdr-pill svg { width: 14px; height: 14px; }
+      .unified-hdr .btn-copy-yaml, .unified-hdr button {
+        font-size: 12px !important;
+        padding: 6px 12px !important;
+        border-radius: 6px !important;
+        font-weight: 600 !important;
+        background: #10213E !important;
+        color: #FFFFFF !important;
+        border: 1px solid #10213E !important;
+        margin: 0 !important;
+      }
+      .hdr-status-dot { display: inline-block; width: 8px; height: 8px; background: #22C55E; border-radius: 50%; }
+</style>
+
+
+</head>
+<body>
+    <div class="max-w-[2000px] mx-auto">
+        <!-- Header -->
+        <header class="animate-in unified-hdr">
+            <div class="unified-hdr-left">
+                <h1>X销售收入确认 · 销售POD收入确认 CKD 映射报告</h1>
+                <p>围绕销售POD收入确认全链路（交货单同步 → 邮件/物流关联 → 签收资料识别 → 对账差异 → 借贷项 → POD 确认 → 预制发票/过账 → 打印归档 → 驾驶舱），梳理每一步 AI 执行所需的上下文、知识与数据资产，为 RAG、规则引擎与接口集成提供资产清单。</p>
+            </div>
+            <div class="unified-hdr-right">
+                <button class="btn-copy-yaml" onclick="copyYAML()">复制原始 YAML</button>
+            </div>
+        </header>
+
+        <!-- Matrix Board -->
+        <div class="matrix-wrapper animate-in" style="animation-delay: 0.2s;">
+            <div class="scroll-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th class="step-header-corner dim-label">流程节点 \ 维度</th>
+                            
+                            <th class="step-header">1. SAP 交货单同步</th>
+                            
+                            <th class="step-header">2. 邮件识别与物流发运关联</th>
+                            
+                            <th class="step-header">3. 签收/POD资料识别</th>
+                            
+                            <th class="step-header">4. 对账单差异分析</th>
+                            
+                            <th class="step-header">5. 借贷项处理</th>
+                            
+                            <th class="step-header">6. POD 匹配与确认</th>
+                            
+                            <th class="step-header">7. 预制发票与过账</th>
+                            
+                            <th class="step-header">8. 资料预览与打印归档</th>
+                            
+                            <th class="step-header">9. 驾驶舱与超期预警</th>
+                            
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- 上下文名称/描述 -->
+                        <tr>
+                            <td class="dim-label">核心资产与定义</td>
+                            
+                            <td>
+                                <div class="asset-group">
+                                    
+                                    <div class="asset-item">
+                                        <span class="context-name">交货单同步参数（客户/组织/周期）</span>
+                                        <p class="text-sm text-slate-500 leading-relaxed">本次同步的范围上下文，决定拉取哪些客户、销售组织与时间窗口的交货单。</p>
+                                    </div>
+                                    
+                                    <div class="asset-item">
+                                        <span class="context-name">SAP 交货单与明细</span>
+                                        <p class="text-sm text-slate-500 leading-relaxed">收入确认的业务主线数据，提供交货单号、客户、金额、出库日期与状态。</p>
+                                    </div>
+                                    
+                                    <div class="asset-item">
+                                        <span class="context-name">客户主数据与销售组织</span>
+                                        <p class="text-sm text-slate-500 leading-relaxed">校验客户归属、销售组织与 CS 负责人，支撑数据范围与权限过滤。</p>
+                                    </div>
+                                    
+                                </div>
+                            </td>
+                            
+                            <td>
+                                <div class="asset-group">
+                                    
+                                    <div class="asset-item">
+                                        <span class="context-name">公共邮箱邮件原文</span>
+                                        <p class="text-sm text-slate-500 leading-relaxed">仓库/物流/客户自提邮件，是物流发运单号的原始审计依据，供 AI 提取交货单号、承运商、发运单号。</p>
+                                    </div>
+                                    
+                                    <div class="asset-item">
+                                        <span class="context-name">邮件识别提示词与字段规范</span>
+                                        <p class="text-sm text-slate-500 leading-relaxed">约束 AI 从邮件主题/正文提取交货单号、物流公司、发运单号、自提确认的字段口径与置信度输出。</p>
+                                    </div>
+                                    
+                                    <div class="asset-item">
+                                        <span class="context-name">承运商清单与发运单号命名规则</span>
+                                        <p class="text-sm text-slate-500 leading-relaxed">承运商字典与单号格式规则，用于校验识别结果的合法性与歧义消解。</p>
+                                    </div>
+                                    
+                                </div>
+                            </td>
+                            
+                            <td>
+                                <div class="asset-group">
+                                    
+                                    <div class="asset-item">
+                                        <span class="context-name">公共文件夹签收单/POD文件</span>
+                                        <p class="text-sm text-slate-500 leading-relaxed">物流签收单、POD 文件与客户反馈对账文件，供 OCR 提取签收人、时间、结果、单号。</p>
+                                    </div>
+                                    
+                                    <div class="asset-item">
+                                        <span class="context-name">单证识别模型与版面模板</span>
+                                        <p class="text-sm text-slate-500 leading-relaxed">多模态视觉模型与签收单/POD 版面模板，提升字段抽取准确率与置信度评估。</p>
+                                    </div>
+                                    
+                                    <div class="asset-item">
+                                        <span class="context-name">历史签收/自提样本</span>
+                                        <p class="text-sm text-slate-500 leading-relaxed">历史签收单与客户自提邮件样本，用于少样本提示与识别效果评估。</p>
+                                    </div>
+                                    
+                                </div>
+                            </td>
+                            
+                            <td>
+                                <div class="asset-group">
+                                    
+                                    <div class="asset-item">
+                                        <span class="context-name">客户反馈对账文件</span>
+                                        <p class="text-sm text-slate-500 leading-relaxed">客户回传的确认或带差异对账数据，是差异比对的动态输入。</p>
+                                    </div>
+                                    
+                                    <div class="asset-item">
+                                        <span class="context-name">对账差异规则集</span>
+                                        <p class="text-sm text-slate-500 leading-relaxed">客户一致性、交货单存在性、数量/金额一致性、重复/缺失反馈、容差等规则。</p>
+                                    </div>
+                                    
+                                    <div class="asset-item">
+                                        <span class="context-name">SAP 交货单明细（对账基准）</span>
+                                        <p class="text-sm text-slate-500 leading-relaxed">作为对账比对的基准数量与金额，来自交货单同步结果。</p>
+                                    </div>
+                                    
+                                </div>
+                            </td>
+                            
+                            <td>
+                                <div class="asset-group">
+                                    
+                                    <div class="asset-item">
+                                        <span class="context-name">借贷项生成规则</span>
+                                        <p class="text-sm text-slate-500 leading-relaxed">依据差异类型生成借项或贷项的判定规则与金额口径。</p>
+                                    </div>
+                                    
+                                    <div class="asset-item">
+                                        <span class="context-name">借贷项过账状态</span>
+                                        <p class="text-sm text-slate-500 leading-relaxed">SAP/财务系统返回的借贷项单号与过账状态，决定是否开放 POD 确认。</p>
+                                    </div>
+                                    
+                                </div>
+                            </td>
+                            
+                            <td>
+                                <div class="asset-group">
+                                    
+                                    <div class="asset-item">
+                                        <span class="context-name">POD 确认条件规则</span>
+                                        <p class="text-sm text-slate-500 leading-relaxed">交货单已同步、物流关联、签收有效、对账完成、借贷项完成的五条件校验规则。</p>
+                                    </div>
+                                    
+                                    <div class="asset-item">
+                                        <span class="context-name">横向匹配数据（五要素状态）</span>
+                                        <p class="text-sm text-slate-500 leading-relaxed">交货单、物流发运关联、签收/POD、对账单、借贷项的状态聚合，用于生成匹配结论与缺口提示。</p>
+                                    </div>
+                                    
+                                    <div class="asset-item">
+                                        <span class="context-name">POD 确认解释话术模板</span>
+                                        <p class="text-sm text-slate-500 leading-relaxed">将匹配结论与缺口转成可解释提示的模板，供 CS 理解与放行。</p>
+                                    </div>
+                                    
+                                </div>
+                            </td>
+                            
+                            <td>
+                                <div class="asset-group">
+                                    
+                                    <div class="asset-item">
+                                        <span class="context-name">POD 确认记录与 POD 日志</span>
+                                        <p class="text-sm text-slate-500 leading-relaxed">POD 确认结果与操作日志，作为自动生成预制发票的触发依据与审计记录。</p>
+                                    </div>
+                                    
+                                    <div class="asset-item">
+                                        <span class="context-name">SAP 预制发票与过账接口</span>
+                                        <p class="text-sm text-slate-500 leading-relaxed">生成预制发票、执行过账、查询凭证的接口能力与字段契约。</p>
+                                    </div>
+                                    
+                                    <div class="asset-item">
+                                        <span class="context-name">过账凭证与会计期间</span>
+                                        <p class="text-sm text-slate-500 leading-relaxed">SAP 返回的凭证号、会计期间、过账状态与返回信息，回写综合查询。</p>
+                                    </div>
+                                    
+                                </div>
+                            </td>
+                            
+                            <td>
+                                <div class="asset-group">
+                                    
+                                    <div class="asset-item">
+                                        <span class="context-name">资料清单与预览地址</span>
+                                        <p class="text-sm text-slate-500 leading-relaxed">交货单、物流邮件、签收/POD、对账单、POD 日志、预制发票、凭证的预览与打印入口。</p>
+                                    </div>
+                                    
+                                    <div class="asset-item">
+                                        <span class="context-name">打印模板与归档规则</span>
+                                        <p class="text-sm text-slate-500 leading-relaxed">系统生成资料（POD 日志/凭证）的打印样式与归档清单规则。</p>
+                                    </div>
+                                    
+                                </div>
+                            </td>
+                            
+                            <td>
+                                <div class="asset-group">
+                                    
+                                    <div class="asset-item">
+                                        <span class="context-name">超期异常阈值配置</span>
+                                        <p class="text-sm text-slate-500 leading-relaxed">已发货未取发运单、已取得未签收、已发货未创建对账单、具备条件未 POD 确认的超期天数阈值。</p>
+                                    </div>
+                                    
+                                    <div class="asset-item">
+                                        <span class="context-name">各节点单据与待办数据</span>
+                                        <p class="text-sm text-slate-500 leading-relaxed">物流分支、对账分支与 POD/过账各节点的单据数量与待办，用于看板与预警。</p>
+                                    </div>
+                                    
+                                    <div class="asset-item">
+                                        <span class="context-name">角色与数据范围权限</span>
+                                        <p class="text-sm text-slate-500 leading-relaxed">按 CS/CS 经理/物流/财务/财务主管控制待处理清单、字段与按钮可见性。</p>
+                                    </div>
+                                    
+                                </div>
+                            </td>
+                            
+                        </tr>
+
+                        <!-- 类型 -->
+                        <tr>
+                            <td class="dim-label">资产类型</td>
+                            
+                            <td>
+                                <div class="asset-group">
+                                    
+                                    <div class="asset-item"><span class="type-pill">请求上下文</span></div>
+                                    
+                                    <div class="asset-item"><span class="type-pill">API 数据</span></div>
+                                    
+                                    <div class="asset-item"><span class="type-pill">关系型数据</span></div>
+                                    
+                                </div>
+                            </td>
+                            
+                            <td>
+                                <div class="asset-group">
+                                    
+                                    <div class="asset-item"><span class="type-pill">非结构化文档 / 邮件</span></div>
+                                    
+                                    <div class="asset-item"><span class="type-pill">Prompt Template</span></div>
+                                    
+                                    <div class="asset-item"><span class="type-pill">静态字典</span></div>
+                                    
+                                </div>
+                            </td>
+                            
+                            <td>
+                                <div class="asset-group">
+                                    
+                                    <div class="asset-item"><span class="type-pill">非结构化文档</span></div>
+                                    
+                                    <div class="asset-item"><span class="type-pill">模型 / 版面模板</span></div>
+                                    
+                                    <div class="asset-item"><span class="type-pill">向量嵌入</span></div>
+                                    
+                                </div>
+                            </td>
+                            
+                            <td>
+                                <div class="asset-group">
+                                    
+                                    <div class="asset-item"><span class="type-pill">结构化/半结构化文档</span></div>
+                                    
+                                    <div class="asset-item"><span class="type-pill">规则引擎配置</span></div>
+                                    
+                                    <div class="asset-item"><span class="type-pill">API 数据</span></div>
+                                    
+                                </div>
+                            </td>
+                            
+                            <td>
+                                <div class="asset-group">
+                                    
+                                    <div class="asset-item"><span class="type-pill">规则引擎配置</span></div>
+                                    
+                                    <div class="asset-item"><span class="type-pill">API 数据</span></div>
+                                    
+                                </div>
+                            </td>
+                            
+                            <td>
+                                <div class="asset-group">
+                                    
+                                    <div class="asset-item"><span class="type-pill">规则引擎配置</span></div>
+                                    
+                                    <div class="asset-item"><span class="type-pill">关系型数据</span></div>
+                                    
+                                    <div class="asset-item"><span class="type-pill">Prompt Template</span></div>
+                                    
+                                </div>
+                            </td>
+                            
+                            <td>
+                                <div class="asset-group">
+                                    
+                                    <div class="asset-item"><span class="type-pill">关系型数据</span></div>
+                                    
+                                    <div class="asset-item"><span class="type-pill">API 数据</span></div>
+                                    
+                                    <div class="asset-item"><span class="type-pill">API 数据</span></div>
+                                    
+                                </div>
+                            </td>
+                            
+                            <td>
+                                <div class="asset-group">
+                                    
+                                    <div class="asset-item"><span class="type-pill">关系型数据 + 文件</span></div>
+                                    
+                                    <div class="asset-item"><span class="type-pill">模版范例</span></div>
+                                    
+                                </div>
+                            </td>
+                            
+                            <td>
+                                <div class="asset-group">
+                                    
+                                    <div class="asset-item"><span class="type-pill">规则引擎配置</span></div>
+                                    
+                                    <div class="asset-item"><span class="type-pill">关系型数据</span></div>
+                                    
+                                    <div class="asset-item"><span class="type-pill">权限数据</span></div>
+                                    
+                                </div>
+                            </td>
+                            
+                        </tr>
+
+                        <!-- 存储与检索 -->
+                        <tr>
+                            <td class="dim-label">存储方式 / 检索</td>
+                            
+                            <td>
+                                <div class="asset-group">
+                                    
+                                    <div class="asset-item">
+                                        <div class="text-sm font-bold text-slate-800">任务配置表 / MySQL</div>
+                                        <div class="text-xs text-slate-400 mt-1 uppercase font-bold">任务参数直取</div>
+                                    </div>
+                                    
+                                    <div class="asset-item">
+                                        <div class="text-sm font-bold text-slate-800">SAP SD / 接口网关 + 本地交货单表</div>
+                                        <div class="text-xs text-slate-400 mt-1 uppercase font-bold">接口按条件查询 + 主键更新</div>
+                                    </div>
+                                    
+                                    <div class="asset-item">
+                                        <div class="text-sm font-bold text-slate-800">主数据系统 / MySQL</div>
+                                        <div class="text-xs text-slate-400 mt-1 uppercase font-bold">客户编码精确查询</div>
+                                    </div>
+                                    
+                                </div>
+                            </td>
+                            
+                            <td>
+                                <div class="asset-group">
+                                    
+                                    <div class="asset-item">
+                                        <div class="text-sm font-bold text-slate-800">邮件系统 API + 对象存储归档</div>
+                                        <div class="text-xs text-slate-400 mt-1 uppercase font-bold">规则解析 + 语义识别</div>
+                                    </div>
+                                    
+                                    <div class="asset-item">
+                                        <div class="text-sm font-bold text-slate-800">配置中心 / 版本库</div>
+                                        <div class="text-xs text-slate-400 mt-1 uppercase font-bold">模板直接注入</div>
+                                    </div>
+                                    
+                                    <div class="asset-item">
+                                        <div class="text-sm font-bold text-slate-800">Redis / 配置表</div>
+                                        <div class="text-xs text-slate-400 mt-1 uppercase font-bold">Key-Value + 正则规则</div>
+                                    </div>
+                                    
+                                </div>
+                            </td>
+                            
+                            <td>
+                                <div class="asset-group">
+                                    
+                                    <div class="asset-item">
+                                        <div class="text-sm font-bold text-slate-800">公共文件夹/网盘 + 对象存储</div>
+                                        <div class="text-xs text-slate-400 mt-1 uppercase font-bold">目录扫描 + OCR</div>
+                                    </div>
+                                    
+                                    <div class="asset-item">
+                                        <div class="text-sm font-bold text-slate-800">AI 服务 + 模板库</div>
+                                        <div class="text-xs text-slate-400 mt-1 uppercase font-bold">版面匹配 + 字段抽取</div>
+                                    </div>
+                                    
+                                    <div class="asset-item">
+                                        <div class="text-sm font-bold text-slate-800">向量库 / Milvus</div>
+                                        <div class="text-xs text-slate-400 mt-1 uppercase font-bold">语义相似度检索</div>
+                                    </div>
+                                    
+                                </div>
+                            </td>
+                            
+                            <td>
+                                <div class="asset-group">
+                                    
+                                    <div class="asset-item">
+                                        <div class="text-sm font-bold text-slate-800">对象存储 + 对账单明细表</div>
+                                        <div class="text-xs text-slate-400 mt-1 uppercase font-bold">文件解析 + 明细行匹配</div>
+                                    </div>
+                                    
+                                    <div class="asset-item">
+                                        <div class="text-sm font-bold text-slate-800">规则中心 / JSON 配置</div>
+                                        <div class="text-xs text-slate-400 mt-1 uppercase font-bold">规则引擎匹配</div>
+                                    </div>
+                                    
+                                    <div class="asset-item">
+                                        <div class="text-sm font-bold text-slate-800">本地交货单明细表 / MySQL</div>
+                                        <div class="text-xs text-slate-400 mt-1 uppercase font-bold">交货单号/客户关联查询</div>
+                                    </div>
+                                    
+                                </div>
+                            </td>
+                            
+                            <td>
+                                <div class="asset-group">
+                                    
+                                    <div class="asset-item">
+                                        <div class="text-sm font-bold text-slate-800">规则中心 / JSON</div>
+                                        <div class="text-xs text-slate-400 mt-1 uppercase font-bold">规则匹配</div>
+                                    </div>
+                                    
+                                    <div class="asset-item">
+                                        <div class="text-sm font-bold text-slate-800">借贷项表 + SAP 接口</div>
+                                        <div class="text-xs text-slate-400 mt-1 uppercase font-bold">借贷项号查询</div>
+                                    </div>
+                                    
+                                </div>
+                            </td>
+                            
+                            <td>
+                                <div class="asset-group">
+                                    
+                                    <div class="asset-item">
+                                        <div class="text-sm font-bold text-slate-800">规则中心 / JSON</div>
+                                        <div class="text-xs text-slate-400 mt-1 uppercase font-bold">规则引擎校验</div>
+                                    </div>
+                                    
+                                    <div class="asset-item">
+                                        <div class="text-sm font-bold text-slate-800">工作台业务库 / MySQL</div>
+                                        <div class="text-xs text-slate-400 mt-1 uppercase font-bold">交货单号聚合查询</div>
+                                    </div>
+                                    
+                                    <div class="asset-item">
+                                        <div class="text-sm font-bold text-slate-800">配置中心</div>
+                                        <div class="text-xs text-slate-400 mt-1 uppercase font-bold">模板注入</div>
+                                    </div>
+                                    
+                                </div>
+                            </td>
+                            
+                            <td>
+                                <div class="asset-group">
+                                    
+                                    <div class="asset-item">
+                                        <div class="text-sm font-bold text-slate-800">POD 确认表 / POD 日志表</div>
+                                        <div class="text-xs text-slate-400 mt-1 uppercase font-bold">交货单号查询</div>
+                                    </div>
+                                    
+                                    <div class="asset-item">
+                                        <div class="text-sm font-bold text-slate-800">SAP SD / 接口网关</div>
+                                        <div class="text-xs text-slate-400 mt-1 uppercase font-bold">接口调用</div>
+                                    </div>
+                                    
+                                    <div class="asset-item">
+                                        <div class="text-sm font-bold text-slate-800">过账凭证表</div>
+                                        <div class="text-xs text-slate-400 mt-1 uppercase font-bold">凭证号/交货单查询</div>
+                                    </div>
+                                    
+                                </div>
+                            </td>
+                            
+                            <td>
+                                <div class="asset-group">
+                                    
+                                    <div class="asset-item">
+                                        <div class="text-sm font-bold text-slate-800">文件资料表 + 对象存储</div>
+                                        <div class="text-xs text-slate-400 mt-1 uppercase font-bold">业务对象关联查询</div>
+                                    </div>
+                                    
+                                    <div class="asset-item">
+                                        <div class="text-sm font-bold text-slate-800">模板库 / 配置表</div>
+                                        <div class="text-xs text-slate-400 mt-1 uppercase font-bold">模板匹配</div>
+                                    </div>
+                                    
+                                </div>
+                            </td>
+                            
+                            <td>
+                                <div class="asset-group">
+                                    
+                                    <div class="asset-item">
+                                        <div class="text-sm font-bold text-slate-800">配置表 / JSON</div>
+                                        <div class="text-xs text-slate-400 mt-1 uppercase font-bold">阈值比较</div>
+                                    </div>
+                                    
+                                    <div class="asset-item">
+                                        <div class="text-sm font-bold text-slate-800">工作台业务库 / MySQL</div>
+                                        <div class="text-xs text-slate-400 mt-1 uppercase font-bold">聚合统计查询</div>
+                                    </div>
+                                    
+                                    <div class="asset-item">
+                                        <div class="text-sm font-bold text-slate-800">组织权限/AD + 权限服务</div>
+                                        <div class="text-xs text-slate-400 mt-1 uppercase font-bold">权限规则校验</div>
+                                    </div>
+                                    
+                                </div>
+                            </td>
+                            
+                        </tr>
+
+                        <!-- 数据量与频度 -->
+                        <tr>
+                            <td class="dim-label">规模 / 更新频度</td>
+                            
+                            <td>
+                                <div class="asset-group">
+                                    
+                                    <div class="asset-item">
+                                        <div class="text-sm font-black">按客户×周期动态生成</div>
+                                        <div class="text-[10px] text-blue-500 font-bold mt-1 uppercase tracking-tighter">实时（每次任务）</div>
+                                    </div>
+                                    
+                                    <div class="asset-item">
+                                        <div class="text-sm font-black">按周期万级单据</div>
+                                        <div class="text-[10px] text-blue-500 font-bold mt-1 uppercase tracking-tighter">定时（如每小时/每日）</div>
+                                    </div>
+                                    
+                                    <div class="asset-item">
+                                        <div class="text-sm font-black">客户主数据千级</div>
+                                        <div class="text-[10px] text-blue-500 font-bold mt-1 uppercase tracking-tighter">低频（主数据变更）</div>
+                                    </div>
+                                    
+                                </div>
+                            </td>
+                            
+                            <td>
+                                <div class="asset-group">
+                                    
+                                    <div class="asset-item">
+                                        <div class="text-sm font-black">按日千级邮件</div>
+                                        <div class="text-[10px] text-blue-500 font-bold mt-1 uppercase tracking-tighter">定时拉取</div>
+                                    </div>
+                                    
+                                    <div class="asset-item">
+                                        <div class="text-sm font-black">少量模板（<20）</div>
+                                        <div class="text-[10px] text-blue-500 font-bold mt-1 uppercase tracking-tighter">随发版</div>
+                                    </div>
+                                    
+                                    <div class="asset-item">
+                                        <div class="text-sm font-black"><500 承运商</div>
+                                        <div class="text-[10px] text-blue-500 font-bold mt-1 uppercase tracking-tighter">低频</div>
+                                    </div>
+                                    
+                                </div>
+                            </td>
+                            
+                            <td>
+                                <div class="asset-group">
+                                    
+                                    <div class="asset-item">
+                                        <div class="text-sm font-black">按日千级文件</div>
+                                        <div class="text-[10px] text-blue-500 font-bold mt-1 uppercase tracking-tighter">定时拉取</div>
+                                    </div>
+                                    
+                                    <div class="asset-item">
+                                        <div class="text-sm font-black">多种单证版式</div>
+                                        <div class="text-[10px] text-blue-500 font-bold mt-1 uppercase tracking-tighter">随单证版式变化</div>
+                                    </div>
+                                    
+                                    <div class="asset-item">
+                                        <div class="text-sm font-black">万级样本</div>
+                                        <div class="text-[10px] text-blue-500 font-bold mt-1 uppercase tracking-tighter">月度沉淀</div>
+                                    </div>
+                                    
+                                </div>
+                            </td>
+                            
+                            <td>
+                                <div class="asset-group">
+                                    
+                                    <div class="asset-item">
+                                        <div class="text-sm font-black">按对账单批次</div>
+                                        <div class="text-[10px] text-blue-500 font-bold mt-1 uppercase tracking-tighter">上传触发</div>
+                                    </div>
+                                    
+                                    <div class="asset-item">
+                                        <div class="text-sm font-black"><100 条规则</div>
+                                        <div class="text-[10px] text-blue-500 font-bold mt-1 uppercase tracking-tighter">季度更新</div>
+                                    </div>
+                                    
+                                    <div class="asset-item">
+                                        <div class="text-sm font-black">按周期万级行</div>
+                                        <div class="text-[10px] text-blue-500 font-bold mt-1 uppercase tracking-tighter">随同步更新</div>
+                                    </div>
+                                    
+                                </div>
+                            </td>
+                            
+                            <td>
+                                <div class="asset-group">
+                                    
+                                    <div class="asset-item">
+                                        <div class="text-sm font-black"><50 条规则</div>
+                                        <div class="text-[10px] text-blue-500 font-bold mt-1 uppercase tracking-tighter">季度更新</div>
+                                    </div>
+                                    
+                                    <div class="asset-item">
+                                        <div class="text-sm font-black">按差异批次</div>
+                                        <div class="text-[10px] text-blue-500 font-bold mt-1 uppercase tracking-tighter">实时回写</div>
+                                    </div>
+                                    
+                                </div>
+                            </td>
+                            
+                            <td>
+                                <div class="asset-group">
+                                    
+                                    <div class="asset-item">
+                                        <div class="text-sm font-black"><30 条规则</div>
+                                        <div class="text-[10px] text-blue-500 font-bold mt-1 uppercase tracking-tighter">季度更新</div>
+                                    </div>
+                                    
+                                    <div class="asset-item">
+                                        <div class="text-sm font-black">按交货单实时</div>
+                                        <div class="text-[10px] text-blue-500 font-bold mt-1 uppercase tracking-tighter">实时</div>
+                                    </div>
+                                    
+                                    <div class="asset-item">
+                                        <div class="text-sm font-black"><20 模板</div>
+                                        <div class="text-[10px] text-blue-500 font-bold mt-1 uppercase tracking-tighter">随发版</div>
+                                    </div>
+                                    
+                                </div>
+                            </td>
+                            
+                            <td>
+                                <div class="asset-group">
+                                    
+                                    <div class="asset-item">
+                                        <div class="text-sm font-black">按确认批次</div>
+                                        <div class="text-[10px] text-blue-500 font-bold mt-1 uppercase tracking-tighter">实时</div>
+                                    </div>
+                                    
+                                    <div class="asset-item">
+                                        <div class="text-sm font-black">按确认批次</div>
+                                        <div class="text-[10px] text-blue-500 font-bold mt-1 uppercase tracking-tighter">实时调用</div>
+                                    </div>
+                                    
+                                    <div class="asset-item">
+                                        <div class="text-sm font-black">按过账批次</div>
+                                        <div class="text-[10px] text-blue-500 font-bold mt-1 uppercase tracking-tighter">实时回写</div>
+                                    </div>
+                                    
+                                </div>
+                            </td>
+                            
+                            <td>
+                                <div class="asset-group">
+                                    
+                                    <div class="asset-item">
+                                        <div class="text-sm font-black">按业务对象</div>
+                                        <div class="text-[10px] text-blue-500 font-bold mt-1 uppercase tracking-tighter">实时</div>
+                                    </div>
+                                    
+                                    <div class="asset-item">
+                                        <div class="text-sm font-black"><30 模板</div>
+                                        <div class="text-[10px] text-blue-500 font-bold mt-1 uppercase tracking-tighter">随发版</div>
+                                    </div>
+                                    
+                                </div>
+                            </td>
+                            
+                            <td>
+                                <div class="asset-group">
+                                    
+                                    <div class="asset-item">
+                                        <div class="text-sm font-black"><20 阈值项</div>
+                                        <div class="text-[10px] text-blue-500 font-bold mt-1 uppercase tracking-tighter">可配置（月度校准）</div>
+                                    </div>
+                                    
+                                    <div class="asset-item">
+                                        <div class="text-sm font-black">实时聚合</div>
+                                        <div class="text-[10px] text-blue-500 font-bold mt-1 uppercase tracking-tighter">实时</div>
+                                    </div>
+                                    
+                                    <div class="asset-item">
+                                        <div class="text-sm font-black">用户×角色×数据范围</div>
+                                        <div class="text-[10px] text-blue-500 font-bold mt-1 uppercase tracking-tighter">低频</div>
+                                    </div>
+                                    
+                                </div>
+                            </td>
+                            
+                        </tr>
+
+                        <!-- AI 辅助 & 状态 -->
+                        <tr>
+                            <td class="dim-label">AI 初始化 / 支持状态</td>
+                            
+                            <td>
+                                <div class="asset-group">
+                                    
+                                    <div class="asset-item flex items-center justify-between">
+                                        <div>
+                                            
+                                            <span class="text-slate-300 text-[10px] font-bold">—</span>
+                                            
+                                        </div>
+                                        <div class="status-indicator">
+                                            
+                                            <div class="dot dot-ready"></div>
+                                            <span class="text-[10px] font-black uppercase text-slate-400">已支持</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="asset-item flex items-center justify-between">
+                                        <div>
+                                            
+                                            <span class="text-slate-300 text-[10px] font-bold">—</span>
+                                            
+                                        </div>
+                                        <div class="status-indicator">
+                                            
+                                            <div class="dot dot-ready"></div>
+                                            <span class="text-[10px] font-black uppercase text-slate-400">已支持</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="asset-item flex items-center justify-between">
+                                        <div>
+                                            
+                                            <span class="text-slate-300 text-[10px] font-bold">—</span>
+                                            
+                                        </div>
+                                        <div class="status-indicator">
+                                            
+                                            <div class="dot dot-ready"></div>
+                                            <span class="text-[10px] font-black uppercase text-slate-400">已支持</span>
+                                        </div>
+                                    </div>
+                                    
+                                </div>
+                            </td>
+                            
+                            <td>
+                                <div class="asset-group">
+                                    
+                                    <div class="asset-item flex items-center justify-between">
+                                        <div>
+                                            
+                                            <span class="text-slate-300 text-[10px] font-bold">—</span>
+                                            
+                                        </div>
+                                        <div class="status-indicator">
+                                            
+                                            <div class="dot dot-ready"></div>
+                                            <span class="text-[10px] font-black uppercase text-slate-400">已支持</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="asset-item flex items-center justify-between">
+                                        <div>
+                                            
+                                            <div class="ai-init-sparkle">
+                                                <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+                                                <span>AI READY</span>
+                                            </div>
+                                            
+                                        </div>
+                                        <div class="status-indicator">
+                                            
+                                            <div class="dot dot-progress"></div>
+                                            <span class="text-[10px] font-black uppercase text-slate-400">建设中</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="asset-item flex items-center justify-between">
+                                        <div>
+                                            
+                                            <span class="text-slate-300 text-[10px] font-bold">—</span>
+                                            
+                                        </div>
+                                        <div class="status-indicator">
+                                            
+                                            <div class="dot dot-progress"></div>
+                                            <span class="text-[10px] font-black uppercase text-slate-400">建设中</span>
+                                        </div>
+                                    </div>
+                                    
+                                </div>
+                            </td>
+                            
+                            <td>
+                                <div class="asset-group">
+                                    
+                                    <div class="asset-item flex items-center justify-between">
+                                        <div>
+                                            
+                                            <span class="text-slate-300 text-[10px] font-bold">—</span>
+                                            
+                                        </div>
+                                        <div class="status-indicator">
+                                            
+                                            <div class="dot dot-ready"></div>
+                                            <span class="text-[10px] font-black uppercase text-slate-400">已支持</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="asset-item flex items-center justify-between">
+                                        <div>
+                                            
+                                            <div class="ai-init-sparkle">
+                                                <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+                                                <span>AI READY</span>
+                                            </div>
+                                            
+                                        </div>
+                                        <div class="status-indicator">
+                                            
+                                            <div class="dot dot-todo"></div>
+                                            <span class="text-[10px] font-black uppercase text-slate-400">待规划</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="asset-item flex items-center justify-between">
+                                        <div>
+                                            
+                                            <div class="ai-init-sparkle">
+                                                <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+                                                <span>AI READY</span>
+                                            </div>
+                                            
+                                        </div>
+                                        <div class="status-indicator">
+                                            
+                                            <div class="dot dot-todo"></div>
+                                            <span class="text-[10px] font-black uppercase text-slate-400">待规划</span>
+                                        </div>
+                                    </div>
+                                    
+                                </div>
+                            </td>
+                            
+                            <td>
+                                <div class="asset-group">
+                                    
+                                    <div class="asset-item flex items-center justify-between">
+                                        <div>
+                                            
+                                            <span class="text-slate-300 text-[10px] font-bold">—</span>
+                                            
+                                        </div>
+                                        <div class="status-indicator">
+                                            
+                                            <div class="dot dot-ready"></div>
+                                            <span class="text-[10px] font-black uppercase text-slate-400">已支持</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="asset-item flex items-center justify-between">
+                                        <div>
+                                            
+                                            <div class="ai-init-sparkle">
+                                                <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+                                                <span>AI READY</span>
+                                            </div>
+                                            
+                                        </div>
+                                        <div class="status-indicator">
+                                            
+                                            <div class="dot dot-progress"></div>
+                                            <span class="text-[10px] font-black uppercase text-slate-400">建设中</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="asset-item flex items-center justify-between">
+                                        <div>
+                                            
+                                            <span class="text-slate-300 text-[10px] font-bold">—</span>
+                                            
+                                        </div>
+                                        <div class="status-indicator">
+                                            
+                                            <div class="dot dot-ready"></div>
+                                            <span class="text-[10px] font-black uppercase text-slate-400">已支持</span>
+                                        </div>
+                                    </div>
+                                    
+                                </div>
+                            </td>
+                            
+                            <td>
+                                <div class="asset-group">
+                                    
+                                    <div class="asset-item flex items-center justify-between">
+                                        <div>
+                                            
+                                            <div class="ai-init-sparkle">
+                                                <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+                                                <span>AI READY</span>
+                                            </div>
+                                            
+                                        </div>
+                                        <div class="status-indicator">
+                                            
+                                            <div class="dot dot-todo"></div>
+                                            <span class="text-[10px] font-black uppercase text-slate-400">待规划</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="asset-item flex items-center justify-between">
+                                        <div>
+                                            
+                                            <span class="text-slate-300 text-[10px] font-bold">—</span>
+                                            
+                                        </div>
+                                        <div class="status-indicator">
+                                            
+                                            <div class="dot dot-progress"></div>
+                                            <span class="text-[10px] font-black uppercase text-slate-400">建设中</span>
+                                        </div>
+                                    </div>
+                                    
+                                </div>
+                            </td>
+                            
+                            <td>
+                                <div class="asset-group">
+                                    
+                                    <div class="asset-item flex items-center justify-between">
+                                        <div>
+                                            
+                                            <div class="ai-init-sparkle">
+                                                <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+                                                <span>AI READY</span>
+                                            </div>
+                                            
+                                        </div>
+                                        <div class="status-indicator">
+                                            
+                                            <div class="dot dot-progress"></div>
+                                            <span class="text-[10px] font-black uppercase text-slate-400">建设中</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="asset-item flex items-center justify-between">
+                                        <div>
+                                            
+                                            <span class="text-slate-300 text-[10px] font-bold">—</span>
+                                            
+                                        </div>
+                                        <div class="status-indicator">
+                                            
+                                            <div class="dot dot-ready"></div>
+                                            <span class="text-[10px] font-black uppercase text-slate-400">已支持</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="asset-item flex items-center justify-between">
+                                        <div>
+                                            
+                                            <div class="ai-init-sparkle">
+                                                <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+                                                <span>AI READY</span>
+                                            </div>
+                                            
+                                        </div>
+                                        <div class="status-indicator">
+                                            
+                                            <div class="dot dot-todo"></div>
+                                            <span class="text-[10px] font-black uppercase text-slate-400">待规划</span>
+                                        </div>
+                                    </div>
+                                    
+                                </div>
+                            </td>
+                            
+                            <td>
+                                <div class="asset-group">
+                                    
+                                    <div class="asset-item flex items-center justify-between">
+                                        <div>
+                                            
+                                            <span class="text-slate-300 text-[10px] font-bold">—</span>
+                                            
+                                        </div>
+                                        <div class="status-indicator">
+                                            
+                                            <div class="dot dot-ready"></div>
+                                            <span class="text-[10px] font-black uppercase text-slate-400">已支持</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="asset-item flex items-center justify-between">
+                                        <div>
+                                            
+                                            <span class="text-slate-300 text-[10px] font-bold">—</span>
+                                            
+                                        </div>
+                                        <div class="status-indicator">
+                                            
+                                            <div class="dot dot-todo"></div>
+                                            <span class="text-[10px] font-black uppercase text-slate-400">待规划</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="asset-item flex items-center justify-between">
+                                        <div>
+                                            
+                                            <span class="text-slate-300 text-[10px] font-bold">—</span>
+                                            
+                                        </div>
+                                        <div class="status-indicator">
+                                            
+                                            <div class="dot dot-progress"></div>
+                                            <span class="text-[10px] font-black uppercase text-slate-400">建设中</span>
+                                        </div>
+                                    </div>
+                                    
+                                </div>
+                            </td>
+                            
+                            <td>
+                                <div class="asset-group">
+                                    
+                                    <div class="asset-item flex items-center justify-between">
+                                        <div>
+                                            
+                                            <span class="text-slate-300 text-[10px] font-bold">—</span>
+                                            
+                                        </div>
+                                        <div class="status-indicator">
+                                            
+                                            <div class="dot dot-ready"></div>
+                                            <span class="text-[10px] font-black uppercase text-slate-400">已支持</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="asset-item flex items-center justify-between">
+                                        <div>
+                                            
+                                            <span class="text-slate-300 text-[10px] font-bold">—</span>
+                                            
+                                        </div>
+                                        <div class="status-indicator">
+                                            
+                                            <div class="dot dot-todo"></div>
+                                            <span class="text-[10px] font-black uppercase text-slate-400">待规划</span>
+                                        </div>
+                                    </div>
+                                    
+                                </div>
+                            </td>
+                            
+                            <td>
+                                <div class="asset-group">
+                                    
+                                    <div class="asset-item flex items-center justify-between">
+                                        <div>
+                                            
+                                            <span class="text-slate-300 text-[10px] font-bold">—</span>
+                                            
+                                        </div>
+                                        <div class="status-indicator">
+                                            
+                                            <div class="dot dot-progress"></div>
+                                            <span class="text-[10px] font-black uppercase text-slate-400">建设中</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="asset-item flex items-center justify-between">
+                                        <div>
+                                            
+                                            <span class="text-slate-300 text-[10px] font-bold">—</span>
+                                            
+                                        </div>
+                                        <div class="status-indicator">
+                                            
+                                            <div class="dot dot-ready"></div>
+                                            <span class="text-[10px] font-black uppercase text-slate-400">已支持</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="asset-item flex items-center justify-between">
+                                        <div>
+                                            
+                                            <span class="text-slate-300 text-[10px] font-bold">—</span>
+                                            
+                                        </div>
+                                        <div class="status-indicator">
+                                            
+                                            <div class="dot dot-ready"></div>
+                                            <span class="text-[10px] font-black uppercase text-slate-400">已支持</span>
+                                        </div>
+                                    </div>
+                                    
+                                </div>
+                            </td>
+                            
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <footer class="mt-24 pb-12 flex justify-between items-center animate-in" style="animation-delay: 0.4s;">
+            <div class="text-xs font-black text-slate-300 uppercase tracking-[0.3em]">
+                销售POD收入确认工作台 &bull; Asset Mapping
+            </div>
+            <div class="text-xs text-slate-400 font-medium">
+                Generated by <span class="font-bold text-slate-900">AI Workshop Skill</span> &copy; 2026
+            </div>
+        </footer>
+    </div>
+    <div class="toast" id="toast">已成功复制 YAML 数据</div>
+    
+    <script type="application/yaml" id="raw-yaml">
+title: "X销售收入确认 · 销售POD收入确认 CKD 映射报告"
+product: "销售POD收入确认工作台"
+description: "围绕销售POD收入确认全链路（交货单同步 → 邮件/物流关联 → 签收资料识别 → 对账差异 → 借贷项 → POD 确认 → 预制发票/过账 → 打印归档 → 驾驶舱），梳理每一步 AI 执行所需的上下文、知识与数据资产，为 RAG、规则引擎与接口集成提供资产清单。"
+steps:
+  - step_name: "1. SAP 交货单同步"
+    ckd_items:
+      - context_name: "交货单同步参数（客户/组织/周期）"
+        description: "本次同步的范围上下文，决定拉取哪些客户、销售组织与时间窗口的交货单。"
+        type: "请求上下文"
+        storage: "任务配置表 / MySQL"
+        volume: "按客户×周期动态生成"
+        ai_init: false
+        frequency: "实时（每次任务）"
+        retrieval: "任务参数直取"
+        status: "已支持"
+      - context_name: "SAP 交货单与明细"
+        description: "收入确认的业务主线数据，提供交货单号、客户、金额、出库日期与状态。"
+        type: "API 数据"
+        storage: "SAP SD / 接口网关 + 本地交货单表"
+        volume: "按周期万级单据"
+        ai_init: false
+        frequency: "定时（如每小时/每日）"
+        retrieval: "接口按条件查询 + 主键更新"
+        status: "已支持"
+      - context_name: "客户主数据与销售组织"
+        description: "校验客户归属、销售组织与 CS 负责人，支撑数据范围与权限过滤。"
+        type: "关系型数据"
+        storage: "主数据系统 / MySQL"
+        volume: "客户主数据千级"
+        ai_init: false
+        frequency: "低频（主数据变更）"
+        retrieval: "客户编码精确查询"
+        status: "已支持"
+
+  - step_name: "2. 邮件识别与物流发运关联"
+    ckd_items:
+      - context_name: "公共邮箱邮件原文"
+        description: "仓库/物流/客户自提邮件，是物流发运单号的原始审计依据，供 AI 提取交货单号、承运商、发运单号。"
+        type: "非结构化文档 / 邮件"
+        storage: "邮件系统 API + 对象存储归档"
+        volume: "按日千级邮件"
+        ai_init: false
+        frequency: "定时拉取"
+        retrieval: "规则解析 + 语义识别"
+        status: "已支持"
+      - context_name: "邮件识别提示词与字段规范"
+        description: "约束 AI 从邮件主题/正文提取交货单号、物流公司、发运单号、自提确认的字段口径与置信度输出。"
+        type: "Prompt Template"
+        storage: "配置中心 / 版本库"
+        volume: "少量模板（<20）"
+        ai_init: true
+        frequency: "随发版"
+        retrieval: "模板直接注入"
+        status: "建设中"
+      - context_name: "承运商清单与发运单号命名规则"
+        description: "承运商字典与单号格式规则，用于校验识别结果的合法性与歧义消解。"
+        type: "静态字典"
+        storage: "Redis / 配置表"
+        volume: "<500 承运商"
+        ai_init: false
+        frequency: "低频"
+        retrieval: "Key-Value + 正则规则"
+        status: "建设中"
+
+  - step_name: "3. 签收/POD资料识别"
+    ckd_items:
+      - context_name: "公共文件夹签收单/POD文件"
+        description: "物流签收单、POD 文件与客户反馈对账文件，供 OCR 提取签收人、时间、结果、单号。"
+        type: "非结构化文档"
+        storage: "公共文件夹/网盘 + 对象存储"
+        volume: "按日千级文件"
+        ai_init: false
+        frequency: "定时拉取"
+        retrieval: "目录扫描 + OCR"
+        status: "已支持"
+      - context_name: "单证识别模型与版面模板"
+        description: "多模态视觉模型与签收单/POD 版面模板，提升字段抽取准确率与置信度评估。"
+        type: "模型 / 版面模板"
+        storage: "AI 服务 + 模板库"
+        volume: "多种单证版式"
+        ai_init: true
+        frequency: "随单证版式变化"
+        retrieval: "版面匹配 + 字段抽取"
+        status: "待规划"
+      - context_name: "历史签收/自提样本"
+        description: "历史签收单与客户自提邮件样本，用于少样本提示与识别效果评估。"
+        type: "向量嵌入"
+        storage: "向量库 / Milvus"
+        volume: "万级样本"
+        ai_init: true
+        frequency: "月度沉淀"
+        retrieval: "语义相似度检索"
+        status: "待规划"
+
+  - step_name: "4. 对账单差异分析"
+    ckd_items:
+      - context_name: "客户反馈对账文件"
+        description: "客户回传的确认或带差异对账数据，是差异比对的动态输入。"
+        type: "结构化/半结构化文档"
+        storage: "对象存储 + 对账单明细表"
+        volume: "按对账单批次"
+        ai_init: false
+        frequency: "上传触发"
+        retrieval: "文件解析 + 明细行匹配"
+        status: "已支持"
+      - context_name: "对账差异规则集"
+        description: "客户一致性、交货单存在性、数量/金额一致性、重复/缺失反馈、容差等规则。"
+        type: "规则引擎配置"
+        storage: "规则中心 / JSON 配置"
+        volume: "<100 条规则"
+        ai_init: true
+        frequency: "季度更新"
+        retrieval: "规则引擎匹配"
+        status: "建设中"
+      - context_name: "SAP 交货单明细（对账基准）"
+        description: "作为对账比对的基准数量与金额，来自交货单同步结果。"
+        type: "API 数据"
+        storage: "本地交货单明细表 / MySQL"
+        volume: "按周期万级行"
+        ai_init: false
+        frequency: "随同步更新"
+        retrieval: "交货单号/客户关联查询"
+        status: "已支持"
+
+  - step_name: "5. 借贷项处理"
+    ckd_items:
+      - context_name: "借贷项生成规则"
+        description: "依据差异类型生成借项或贷项的判定规则与金额口径。"
+        type: "规则引擎配置"
+        storage: "规则中心 / JSON"
+        volume: "<50 条规则"
+        ai_init: true
+        frequency: "季度更新"
+        retrieval: "规则匹配"
+        status: "待规划"
+      - context_name: "借贷项过账状态"
+        description: "SAP/财务系统返回的借贷项单号与过账状态，决定是否开放 POD 确认。"
+        type: "API 数据"
+        storage: "借贷项表 + SAP 接口"
+        volume: "按差异批次"
+        ai_init: false
+        frequency: "实时回写"
+        retrieval: "借贷项号查询"
+        status: "建设中"
+
+  - step_name: "6. POD 匹配与确认"
+    ckd_items:
+      - context_name: "POD 确认条件规则"
+        description: "交货单已同步、物流关联、签收有效、对账完成、借贷项完成的五条件校验规则。"
+        type: "规则引擎配置"
+        storage: "规则中心 / JSON"
+        volume: "<30 条规则"
+        ai_init: true
+        frequency: "季度更新"
+        retrieval: "规则引擎校验"
+        status: "建设中"
+      - context_name: "横向匹配数据（五要素状态）"
+        description: "交货单、物流发运关联、签收/POD、对账单、借贷项的状态聚合，用于生成匹配结论与缺口提示。"
+        type: "关系型数据"
+        storage: "工作台业务库 / MySQL"
+        volume: "按交货单实时"
+        ai_init: false
+        frequency: "实时"
+        retrieval: "交货单号聚合查询"
+        status: "已支持"
+      - context_name: "POD 确认解释话术模板"
+        description: "将匹配结论与缺口转成可解释提示的模板，供 CS 理解与放行。"
+        type: "Prompt Template"
+        storage: "配置中心"
+        volume: "<20 模板"
+        ai_init: true
+        frequency: "随发版"
+        retrieval: "模板注入"
+        status: "待规划"
+
+  - step_name: "7. 预制发票与过账"
+    ckd_items:
+      - context_name: "POD 确认记录与 POD 日志"
+        description: "POD 确认结果与操作日志，作为自动生成预制发票的触发依据与审计记录。"
+        type: "关系型数据"
+        storage: "POD 确认表 / POD 日志表"
+        volume: "按确认批次"
+        ai_init: false
+        frequency: "实时"
+        retrieval: "交货单号查询"
+        status: "已支持"
+      - context_name: "SAP 预制发票与过账接口"
+        description: "生成预制发票、执行过账、查询凭证的接口能力与字段契约。"
+        type: "API 数据"
+        storage: "SAP SD / 接口网关"
+        volume: "按确认批次"
+        ai_init: false
+        frequency: "实时调用"
+        retrieval: "接口调用"
+        status: "待规划"
+      - context_name: "过账凭证与会计期间"
+        description: "SAP 返回的凭证号、会计期间、过账状态与返回信息，回写综合查询。"
+        type: "API 数据"
+        storage: "过账凭证表"
+        volume: "按过账批次"
+        ai_init: false
+        frequency: "实时回写"
+        retrieval: "凭证号/交货单查询"
+        status: "建设中"
+
+  - step_name: "8. 资料预览与打印归档"
+    ckd_items:
+      - context_name: "资料清单与预览地址"
+        description: "交货单、物流邮件、签收/POD、对账单、POD 日志、预制发票、凭证的预览与打印入口。"
+        type: "关系型数据 + 文件"
+        storage: "文件资料表 + 对象存储"
+        volume: "按业务对象"
+        ai_init: false
+        frequency: "实时"
+        retrieval: "业务对象关联查询"
+        status: "已支持"
+      - context_name: "打印模板与归档规则"
+        description: "系统生成资料（POD 日志/凭证）的打印样式与归档清单规则。"
+        type: "模版范例"
+        storage: "模板库 / 配置表"
+        volume: "<30 模板"
+        ai_init: false
+        frequency: "随发版"
+        retrieval: "模板匹配"
+        status: "待规划"
+
+  - step_name: "9. 驾驶舱与超期预警"
+    ckd_items:
+      - context_name: "超期异常阈值配置"
+        description: "已发货未取发运单、已取得未签收、已发货未创建对账单、具备条件未 POD 确认的超期天数阈值。"
+        type: "规则引擎配置"
+        storage: "配置表 / JSON"
+        volume: "<20 阈值项"
+        ai_init: false
+        frequency: "可配置（月度校准）"
+        retrieval: "阈值比较"
+        status: "建设中"
+      - context_name: "各节点单据与待办数据"
+        description: "物流分支、对账分支与 POD/过账各节点的单据数量与待办，用于看板与预警。"
+        type: "关系型数据"
+        storage: "工作台业务库 / MySQL"
+        volume: "实时聚合"
+        ai_init: false
+        frequency: "实时"
+        retrieval: "聚合统计查询"
+        status: "已支持"
+      - context_name: "角色与数据范围权限"
+        description: "按 CS/CS 经理/物流/财务/财务主管控制待处理清单、字段与按钮可见性。"
+        type: "权限数据"
+        storage: "组织权限/AD + 权限服务"
+        volume: "用户×角色×数据范围"
+        ai_init: false
+        frequency: "低频"
+        retrieval: "权限规则校验"
+        status: "已支持"
+
+    </script>
+
+    <script>
+        lucide.createIcons();
+
+        function copyYAML() {
+            const yaml = document.getElementById('raw-yaml').textContent.trim();
+            navigator.clipboard.writeText(yaml).then(() => {
+                const toast = document.getElementById('toast');
+                toast.style.display = 'block';
+                setTimeout(() => { toast.style.display = 'none'; }, 2500);
+            });
+        }
+    </script>
+</body>
+</html>

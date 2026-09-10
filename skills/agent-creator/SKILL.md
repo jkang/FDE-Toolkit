@@ -2,7 +2,7 @@
 name: agent-creator
 description: |
   编排一个新的 Subagent（组合若干已有 Skill 的编排层）：前置校验各 Skill 均在
-  skills/ 内且粒度一致（场景级 vs 用户故事级不混），边界与触发词不与既有 8 个 Agent 重叠；
+  skills/ 内且粒度一致（场景级 vs 用户故事级不混），边界与触发词不与既有 9 个 Agent 重叠；
   双端生成 .opencode/agents/<name>.md 与 .qoder/agents/<name>.md（正文一致，
   仅 frontmatter tools 格式按平台差异书写），交付前全库 grep 确认无旧名残留。
 
@@ -31,9 +31,9 @@ Skill」组合成一个可被 `@Agent` 调用的编排层。它**不**教用户�
    - 场景级示例：`mvp-prototype` = `agent-product-proposal-generator` +
      `ai-product-journey-generator` + `prototype-generator` + `ux-optimizer`。
    - 「用户故事级」技能（故事详述 / Story 原型等）属另一套更细粒度流程，**不得混入**场景级 Agent。
-3. **与既有 8 个 Agent 不重叠**：`nsm-analyst`、`client-insight-advisor`、
+3. **与既有 9 个 Agent 不重叠**：`nsm-analyst`、`client-insight-advisor`、
    `opportunity-advisor`、`agent-arch-designer`、`mvp-prototype`、`mvp-evaluator`、
-   `requirement-analyst`、`roadmap-planner`。新 Agent 的职责与触发词必须与其明确划界，
+   `requirement-analyst`、`roadmap-planner`、`ai-solution-designer`。新 Agent 的职责与触发词必须与其明确划界，
    触发词写明边界（避免误触发）。
 
 ## 二、生成双端文件（正文一致）

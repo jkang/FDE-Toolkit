@@ -1,0 +1,1525 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>X销售收入确认 · 销售POD收入确认 To-be 流程</title>
+
+    <!-- ===== Design System: Inspire (Enterprise Tech) ===== -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+        :root {
+            --color-primary: #10213E;       /* Starry Blues */
+            --color-accent: #5DB2E2;        /* Creative Blue */
+            --color-secondary: #625D9C;     /* Amethyst */
+            --color-success: #00524C;       /* Myrtle Deep Green */
+            --color-info: #6FB1C8;          /* Cerulean Frost */
+            --color-warning: #F59E0B;       /* Warning */
+            --color-destructive: #EF4444;   /* Danger */
+            --color-background: #FFFFFF;    /* Pure White */
+            --color-bg-alt: #F5F5F6;        /* Tech Gray */
+            --color-foreground: #10213E;    /* Primary Text */
+            --color-text-muted: #64748B;    /* Text Secondary */
+            --color-border: #E2E8F0;        /* Border/Line */
+            --shadow-inspire: 0 2px 8px rgba(16, 33, 62, 0.08);
+        }
+
+        *, *::before, *::after { box-sizing: border-box !important; }
+        html, body {
+            margin: 0 !important; padding: 0 !important;
+            background: var(--color-bg-alt) !important;
+            color: var(--color-foreground) !important;
+            font-family: "MiSans", "Inter", "Microsoft YaHei", sans-serif !important;
+            line-height: 1.6 !important;
+            overflow-x: auto !important;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 9px; height: 9px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: 5px; }
+        ::-webkit-scrollbar-thumb:hover { background: #CBD5E1; }
+
+        .unified-hdr {
+            width: 100% !important;
+            background: var(--color-background) !important;
+            border-bottom: 1px solid var(--color-border) !important;
+            border-radius: 0 !important;
+            box-shadow: none !important;
+            padding: 14px 28px !important;
+            margin-bottom: 20px !important;
+            display: flex !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+            gap: 16px !important;
+            flex-wrap: wrap !important;
+        }
+        .unified-hdr-left { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+        .unified-hdr-left h1 {
+            font-size: 22px !important; font-weight: 700 !important;
+            color: var(--color-primary) !important; line-height: 1.3 !important;
+            margin: 0 !important; display: flex !important; align-items: center !important; gap: 10px !important;
+        }
+        .unified-hdr-left h1::before {
+            content: "" !important; display: inline-block !important;
+            width: 4px !important; height: 22px !important;
+            background: var(--color-accent) !important; border-radius: 2px !important; flex-shrink: 0 !important;
+        }
+        .unified-hdr-left p {
+            font-size: 13px !important; color: var(--color-text-muted) !important;
+            margin: 4px 0 0 !important; padding-left: 14px !important; line-height: 1.5 !important;
+        }
+        .unified-hdr-right { display: flex; align-items: center; gap: 12px; flex-shrink: 0; flex-wrap: wrap; }
+        .unified-hdr-stats {
+            display: flex !important; align-items: center !important; gap: 8px !important;
+            background: var(--color-bg-alt) !important; border: 1px solid var(--color-border) !important;
+            border-radius: 20px !important; padding: 4px 14px !important;
+            font-size: 12px !important; color: var(--color-text-muted) !important;
+        }
+        .unified-hdr-stats b { color: var(--color-primary); font-weight: 700; margin-right: 3px; }
+        .hdr-stat-sep { width: 1px; height: 12px; background: var(--color-border); }
+        .btn-copy-yaml {
+            background: var(--color-primary) !important; color: #FFFFFF !important;
+            border: 1px solid var(--color-primary) !important; font-size: 12px !important;
+            padding: 6px 12px !important; border-radius: 6px !important; font-weight: 600 !important;
+            cursor: pointer !important; transition: all 0.15s ease-out !important;
+        }
+        .btn-copy-yaml:hover { opacity: 0.85 !important; }
+
+        /* ===== Main ===== */
+        main { width: 100% !important; max-width: none !important; margin: 0 auto !important; padding: 4px 28px 48px !important; display: block !important; }
+
+        /* ===== Legend Panel ===== */
+        .legend-panel {
+            background: var(--color-background) !important; border: 1px solid var(--color-border) !important;
+            border-radius: 8px !important; box-shadow: var(--shadow-inspire) !important;
+            padding: 14px 18px !important; margin-bottom: 20px !important;
+            display: flex !important; flex-wrap: wrap !important; gap: 8px 28px !important; align-items: center !important;
+        }
+        .legend-item { display: flex !important; align-items: center !important; gap: 6px !important; font-size: 12px !important; color: var(--color-text-muted) !important; white-space: nowrap !important; }
+        .legend-item .lbl { font-weight: 700 !important; color: var(--color-primary) !important; margin-right: 2px !important; }
+        .legend-pill {
+            display: inline-flex !important; align-items: center !important; gap: 3px !important;
+            padding: 1px 7px !important; border-radius: 10px !important; font-size: 11px !important; font-weight: 600 !important;
+            border: 1px solid var(--color-border) !important;
+        }
+
+        /* ===== Swimlane ===== */
+        .swim-panel {
+            background: var(--color-background) !important; border: 1px solid var(--color-border) !important;
+            border-radius: 8px !important; box-shadow: var(--shadow-inspire) !important;
+            padding: 16px !important; overflow-x: auto !important; overflow-y: hidden !important;
+        }
+        .swim-wrap { min-width: max-content !important; display: flex !important; flex-direction: column !important; gap: 10px !important; }
+
+        /* Row */
+        .swim-row { display: flex !important; gap: 10px !important; align-items: stretch !important; }
+        .swim-row.swim-head { align-items: stretch !important; }
+
+        /* Lane header (left fixed column) */
+        .lane-head {
+            width: 150px !important; flex-shrink: 0 !important;
+            display: flex !important; flex-direction: column !important; justify-content: center !important;
+            padding: 10px 12px !important; border-radius: 8px !important;
+            background: var(--color-bg-alt) !important; border: 1px solid var(--color-border) !important;
+        }
+        .lane-head .lane-name { font-size: 13px !important; font-weight: 700 !important; color: var(--color-primary) !important; line-height: 1.3 !important; }
+        .lane-head .lane-group { font-size: 11px !important; color: var(--color-text-muted) !important; margin-top: 2px !important; }
+        .lane-head .lane-desc { font-size: 11px !important; color: var(--color-info) !important; margin-top: 4px !important; line-height: 1.4 !important; }
+        .lane-head.corner { background: var(--color-primary) !important; border-color: var(--color-primary) !important; }
+        .lane-head.corner .lane-name { color: #FFFFFF !important; }
+        .lane-head.corner .lane-group { color: rgba(255,255,255,0.75) !important; }
+
+        /* Phase header (top column) */
+        .phase-head {
+            flex: 1 1 0 !important; min-width: 250px !important;
+            display: flex !important; flex-direction: column !important;
+            padding: 10px 14px !important; border-radius: 8px !important;
+            background: rgba(16,33,62,0.05) !important; border: 1px solid var(--color-border) !important;
+            border-top: 3px solid var(--color-primary) !important;
+        }
+        .phase-head .ph-badge {
+            display: inline-flex !important; align-items: center !important; gap: 5px !important;
+            font-size: 13px !important; font-weight: 700 !important; color: var(--color-primary) !important;
+        }
+        .phase-head .ph-num {
+            display: inline-flex !important; align-items: center !important; justify-content: center !important;
+            width: 20px !important; height: 20px !important; border-radius: 6px !important;
+            background: var(--color-primary) !important; color: #FFFFFF !important;
+            font-size: 11px !important; font-weight: 700 !important;
+        }
+        .phase-head .ph-sub { font-size: 12px !important; color: var(--color-text-muted) !important; margin-top: 2px !important; }
+        .phase-head .ph-count { font-size: 11px !important; color: var(--color-accent) !important; font-weight: 600 !important; margin-top: 3px !important; }
+
+        /* Phase cell (crossing grid) */
+        .phase-cell {
+            flex: 1 1 0 !important; min-width: 250px !important;
+            background: var(--color-bg-alt) !important; border: 1px solid var(--color-border) !important;
+            border-radius: 8px !important; padding: 10px !important;
+            display: flex !important; flex-direction: column !important; gap: 10px !important;
+            align-items: stretch !important;
+        }
+
+        /* ===== Task Card ===== */
+        .task-card {
+            background: var(--color-background) !important; border: 1px solid var(--color-border) !important;
+            border-left: 3px solid var(--color-accent) !important; border-radius: 8px !important;
+            box-shadow: var(--shadow-inspire) !important; padding: 10px 12px !important;
+            transition: all 0.2s ease-out !important; display: flex !important; flex-direction: column !important; gap: 7px !important;
+        }
+        .task-card:hover { transform: translateY(-2px) !important; box-shadow: 0 10px 18px -6px rgba(16,33,62,0.14) !important; border-color: var(--color-accent) !important; }
+
+        .task-top { display: flex !important; align-items: flex-start !important; gap: 8px !important; }
+        .actor-badge {
+            flex-shrink: 0 !important; width: 26px !important; height: 26px !important;
+            border-radius: 50% !important; display: flex !important; align-items: center !important; justify-content: center !important;
+            font-size: 13px !important; border: 2px solid var(--color-border) !important;
+        }
+        .task-title { flex: 1 1 auto !important; font-size: 13px !important; font-weight: 700 !important; color: var(--color-primary) !important; line-height: 1.35 !important; }
+        .hitl-pill {
+            flex-shrink: 0 !important; font-size: 10px !important; font-weight: 700 !important;
+            padding: 1px 6px !important; border-radius: 8px !important; border: 1px solid var(--color-border) !important;
+            white-space: nowrap !important;
+        }
+        .task-desc { font-size: 12px !important; color: var(--color-foreground) !important; line-height: 1.5 !important; }
+
+        .anchor-row { display: flex !important; flex-wrap: wrap !important; gap: 4px !important; }
+        .anchor-pill {
+            font-size: 10.5px !important; font-weight: 600 !important; padding: 1px 8px !important;
+            border-radius: 10px !important; border: 1px solid var(--color-border) !important;
+        }
+
+        .io-rule {
+            border-top: 1px dashed var(--color-border) !important; padding-top: 7px !important;
+            display: flex !important; flex-direction: column !important; gap: 4px !important;
+        }
+        .io-item { display: flex !important; align-items: baseline !important; gap: 6px !important; }
+        .io-tag {
+            flex-shrink: 0 !important; font-size: 10px !important; font-weight: 700 !important;
+            color: var(--color-text-muted) !important; text-transform: uppercase !important; letter-spacing: 0.03em !important;
+            width: 40px !important;
+        }
+        .io-val { font-size: 11.5px !important; color: var(--color-foreground) !important; line-height: 1.4 !important; flex: 1 1 auto !important; }
+        .rule-type { font-size: 10.5px !important; color: var(--color-secondary) !important; font-weight: 600 !important; line-height: 1.4 !important; }
+
+        .exception {
+            display: flex !important; align-items: baseline !important; gap: 5px !important;
+            font-size: 11px !important; font-weight: 600 !important;
+            background: rgba(239,68,68,0.06) !important; border-radius: 6px !important; padding: 3px 7px !important;
+        }
+        .exception .ex-tag { color: var(--color-destructive) !important; }
+        .exception .ex-val { color: #B91C1C !important; }
+
+        /* ===== Footer notes ===== */
+        .notes-panel {
+            background: var(--color-background) !important; border: 1px solid var(--color-border) !important;
+            border-radius: 8px !important; box-shadow: var(--shadow-inspire) !important;
+            padding: 16px 18px !important; margin-top: 20px !important;
+            display: flex !important; flex-wrap: wrap !important; gap: 16px 24px !important;
+        }
+        .notes-col { flex: 1 1 320px !important; }
+        .notes-col h3 { font-size: 13px !important; font-weight: 700 !important; color: var(--color-secondary) !important; margin: 0 0 8px !important; display: flex !important; align-items: center !important; gap: 6px !important; }
+        .notes-col ul { margin: 0 !important; padding-left: 4px !important; list-style: none !important; }
+        .notes-col li { font-size: 12px !important; color: var(--color-text-muted) !important; line-height: 1.6 !important; padding-left: 14px !important; position: relative !important; margin-bottom: 4px !important; }
+        .notes-col li::before { content: "•" !important; position: absolute !important; left: 0 !important; color: var(--color-accent) !important; font-weight: 700 !important; }
+
+        /* Responsive (375/768/1024/1440) */
+        @media (max-width: 768px) {
+            main { padding: 4px 12px 32px !important; }
+            .unified-hdr { padding: 12px 14px !important; }
+            .lane-head { width: 120px !important; }
+            .phase-head, .phase-cell { min-width: 230px !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== Unified Header ===== -->
+    <header class="unified-hdr">
+        <div class="unified-hdr-left">
+            <h1>X销售收入确认 · 销售POD收入确认 To-be 流程</h1>
+            <p>挖知识 阶段1 任务流程挖掘 · 步骤1.1 · 挖知识 阶段1方法（业务环节 L3 → 主要活动 L4 → 深度任务 L5）</p>
+        </div>
+        <div class="unified-hdr-right">
+            <div class="unified-hdr-stats">
+                <span class="hdr-stat"><b>深度任务</b> 23</span>
+                <span class="hdr-stat-sep"></span>
+                <span class="hdr-stat">🤖 12</span>
+                <span class="hdr-stat-sep"></span>
+                <span class="hdr-stat">👤 9</span>
+                <span class="hdr-stat-sep"></span>
+                <span class="hdr-stat">🤝 2</span>
+            </div>
+            <button id="copyYamlBtn" class="btn-copy-yaml" onclick="copyYAML()">复制原始 YAML</button>
+        </div>
+    </header>
+
+    <main>
+        <!-- ===== Legend ===== -->
+        <div class="legend-panel">
+            <div class="legend-item"><span class="lbl">执行主体</span>
+                
+                <span class="legend-pill" style=&#34;color:#1B6EA8; background:rgba(93,178,226,0.10); border-color:#9BD0EC;&#34;>🤖 Agent</span>
+                
+                <span class="legend-pill" style=&#34;color:#B45309; background:rgba(245,158,11,0.10); border-color:#FCD34D;&#34;>👤 人工</span>
+                
+                <span class="legend-pill" style=&#34;color:#4C4680; background:rgba(98,93,156,0.10); border-color:#B6B2DE;&#34;>🤝 混合</span>
+                
+            </div>
+            <div class="legend-item"><span class="lbl">HITL 焦点</span>
+                
+                <span class="legend-pill" style=&#34;color:#64748B; background:rgba(100,116,139,0.10); border-color:#CBD5E1;&#34;>低</span>
+                
+                <span class="legend-pill" style=&#34;color:#B45309; background:rgba(245,158,11,0.10); border-color:#FCD34D;&#34;>中</span>
+                
+                <span class="legend-pill" style=&#34;color:#B91C1C; background:rgba(239,68,68,0.10); border-color:#FCA5A5;&#34;>高</span>
+                
+                <span class="legend-pill" style=&#34;color:#B91C1C; background:rgba(239,68,68,0.10); border-color:#FCA5A5;&#34;>必停</span>
+                
+            </div>
+            
+            <div class="legend-item"><span class="lbl">流程流向</span>
+                <span class="legend-pill">角色泳道 任务泳道内转</span><span class="legend-pill">流程走向 任务正常后回填 AI</span>
+            </div>
+            
+            
+            <div class="legend-item"><span class="lbl">价值锚定</span>
+                <span class="legend-pill">收入确认时效</span><span class="legend-pill">采集自动化率</span><span class="legend-pill">对账差异处理效率</span><span class="legend-pill">POD确认合规率</span><span class="legend-pill">超期异常积压</span>
+            </div>
+            
+        </div>
+
+        <!-- ===== Swimlane Diagram ===== -->
+        <div class="swim-panel">
+            <div class="swim-wrap">
+                <!-- Header row (phases) -->
+                <div class="swim-row swim-head">
+                    <div class="lane-head corner">
+                        <span class="lane-name">角色泳道 \ 业务阶段</span>
+                        <span class="lane-group">L3 环节 → 泳道</span>
+                    </div>
+                    
+                    
+                    <div class="phase-head">
+                        <span class="ph-badge"><span class="ph-num">P1</span>数据采集</span>
+                        <span class="ph-sub">交货单与资料采集</span>
+                        <span class="ph-count">5 个深度任务</span>
+                    </div>
+                    
+                    
+                    <div class="phase-head">
+                        <span class="ph-badge"><span class="ph-num">P2</span>物流关联</span>
+                        <span class="ph-sub">物流发运关联与签收确认</span>
+                        <span class="ph-count">4 个深度任务</span>
+                    </div>
+                    
+                    
+                    <div class="phase-head">
+                        <span class="ph-badge"><span class="ph-num">P3</span>对账</span>
+                        <span class="ph-sub">对账单处理与差异分析</span>
+                        <span class="ph-count">6 个深度任务</span>
+                    </div>
+                    
+                    
+                    <div class="phase-head">
+                        <span class="ph-badge"><span class="ph-num">P4</span>POD确认</span>
+                        <span class="ph-sub">POD 匹配与收入确认</span>
+                        <span class="ph-count">4 个深度任务</span>
+                    </div>
+                    
+                    
+                    <div class="phase-head">
+                        <span class="ph-badge"><span class="ph-num">P5</span>过账归档</span>
+                        <span class="ph-sub">发票过账与打印归档</span>
+                        <span class="ph-count">4 个深度任务</span>
+                    </div>
+                    
+                </div>
+
+                <!-- Lane rows -->
+                
+                
+                <div class="swim-row">
+                    <div class="lane-head">
+                        <span class="lane-name">平台/定时任务</span>
+                        <span class="lane-group">平台自动</span>
+                        <span class="lane-desc">定时拉取、识别、校验、生成</span>
+                    </div>
+                    
+                    
+                    <div class="phase-cell">
+                        
+                        <div class="task-card" style=&#34;border-left-color:#5DB2E2;&#34;>
+                            <div class="task-top">
+                                <span class="actor-badge" style=&#34;background:rgba(93,178,226,0.10); border-color:#9BD0EC;&#34; title="Agent">🤖</span>
+                                <span class="task-title">同步 SAP 待处理交货单</span>
+                                <span class="hitl-pill" style=&#34;color:#64748B; background:rgba(100,116,139,0.10); border-color:#CBD5E1;&#34;>HITL 低</span>
+                            </div>
+                            <div class="task-desc">系统按客户与周期定时同步已发货交货单</div>
+                            
+                            <div class="anchor-row">
+                                
+                                <span class="anchor-pill" style=&#34;color:#64748B; background:rgba(100,116,139,0.10); border-color:#CBD5E1;&#34;>采集自动化率</span>
+                                
+                            </div>
+                            
+                            <div class="io-rule">
+                                
+                                <div class="io-item"><span class="io-tag">输入</span><span class="io-val">客户 · 销售组织 · 时间范围 · 交货状态</span></div>
+                                
+                                
+                                <div class="io-item"><span class="io-tag">输出</span><span class="io-val">SAP交货单与明细</span></div>
+                                
+                            </div>
+                            <div class="rule-type">规则依据：关键信息提取要点·交货单关键字段</div>
+                            
+                            <div class="exception" style=&#34;border-left:2px solid #5DB2E2;&#34;>
+                                <span class="ex-tag">异常</span><span class="ex-val">接口失败/数据缺失 → 重试，连续失败 → 拉人</span>
+                            </div>
+                            
+                        </div>
+                        
+                        <div class="task-card" style=&#34;border-left-color:#5DB2E2;&#34;>
+                            <div class="task-top">
+                                <span class="actor-badge" style=&#34;background:rgba(93,178,226,0.10); border-color:#9BD0EC;&#34; title="Agent">🤖</span>
+                                <span class="task-title">读取公共邮箱仓库/物流邮件</span>
+                                <span class="hitl-pill" style=&#34;color:#64748B; background:rgba(100,116,139,0.10); border-color:#CBD5E1;&#34;>HITL 低</span>
+                            </div>
+                            <div class="task-desc">定时读取指定邮箱，留存邮件原文作为审计依据</div>
+                            
+                            <div class="anchor-row">
+                                
+                                <span class="anchor-pill" style=&#34;color:#64748B; background:rgba(100,116,139,0.10); border-color:#CBD5E1;&#34;>采集自动化率</span>
+                                
+                            </div>
+                            
+                            <div class="io-rule">
+                                
+                                <div class="io-item"><span class="io-tag">输入</span><span class="io-val">邮箱 · 文件夹 · 时间范围</span></div>
+                                
+                                
+                                <div class="io-item"><span class="io-tag">输出</span><span class="io-val">邮件原文与附件</span></div>
+                                
+                            </div>
+                            <div class="rule-type">规则依据：关联关系类·交货单-发运单关联线索</div>
+                            
+                            <div class="exception" style=&#34;border-left:2px solid #5DB2E2;&#34;>
+                                <span class="ex-tag">异常</span><span class="ex-val">邮件格式异常 → 降级人工</span>
+                            </div>
+                            
+                        </div>
+                        
+                        <div class="task-card" style=&#34;border-left-color:#5DB2E2;&#34;>
+                            <div class="task-top">
+                                <span class="actor-badge" style=&#34;background:rgba(93,178,226,0.10); border-color:#9BD0EC;&#34; title="Agent">🤖</span>
+                                <span class="task-title">读取公共文件夹签收/POD资料</span>
+                                <span class="hitl-pill" style=&#34;color:#64748B; background:rgba(100,116,139,0.10); border-color:#CBD5E1;&#34;>HITL 低</span>
+                            </div>
+                            <div class="task-desc">定时从公共文件夹拉取物流签收单与 POD 文件</div>
+                            
+                            <div class="anchor-row">
+                                
+                                <span class="anchor-pill" style=&#34;color:#64748B; background:rgba(100,116,139,0.10); border-color:#CBD5E1;&#34;>采集自动化率</span>
+                                
+                            </div>
+                            
+                            <div class="io-rule">
+                                
+                                <div class="io-item"><span class="io-tag">输入</span><span class="io-val">目录 · 文件类型 · 时间范围</span></div>
+                                
+                                
+                                <div class="io-item"><span class="io-tag">输出</span><span class="io-val">签收单/POD原始文件</span></div>
+                                
+                            </div>
+                            <div class="rule-type">规则依据：关键信息提取要点·单证关键字段</div>
+                            
+                            <div class="exception" style=&#34;border-left:2px solid #5DB2E2;&#34;>
+                                <span class="ex-tag">异常</span><span class="ex-val">目录不可达 → 重试/降级人工</span>
+                            </div>
+                            
+                        </div>
+                        
+                        <div class="task-card" style=&#34;border-left-color:#5DB2E2;&#34;>
+                            <div class="task-top">
+                                <span class="actor-badge" style=&#34;background:rgba(93,178,226,0.10); border-color:#9BD0EC;&#34; title="Agent">🤖</span>
+                                <span class="task-title">OCR 识别签收单/POD字段</span>
+                                <span class="hitl-pill" style=&#34;color:#B45309; background:rgba(245,158,11,0.10); border-color:#FCD34D;&#34;>HITL 中</span>
+                            </div>
+                            <div class="task-desc">AI 识别签收人、签收时间、签收结果与物流单号</div>
+                            
+                            <div class="anchor-row">
+                                
+                                <span class="anchor-pill" style=&#34;color:#64748B; background:rgba(100,116,139,0.10); border-color:#CBD5E1;&#34;>采集自动化率</span>
+                                
+                            </div>
+                            
+                            <div class="io-rule">
+                                
+                                <div class="io-item"><span class="io-tag">输入</span><span class="io-val">签收单/POD原始文件</span></div>
+                                
+                                
+                                <div class="io-item"><span class="io-tag">输出</span><span class="io-val">结构化签收信息+置信度</span></div>
+                                
+                            </div>
+                            <div class="rule-type">规则依据：关键信息提取要点·签收人/时间/结果/单号</div>
+                            
+                            <div class="exception" style=&#34;border-left:2px solid #5DB2E2;&#34;>
+                                <span class="ex-tag">异常</span><span class="ex-val">识别失败/低置信度 → 人工复核</span>
+                            </div>
+                            
+                        </div>
+                        
+                    </div>
+                    
+                    
+                    <div class="phase-cell">
+                        
+                        <div class="task-card" style=&#34;border-left-color:#5DB2E2;&#34;>
+                            <div class="task-top">
+                                <span class="actor-badge" style=&#34;background:rgba(93,178,226,0.10); border-color:#9BD0EC;&#34; title="Agent">🤖</span>
+                                <span class="task-title">建立交货单-发运单关联</span>
+                                <span class="hitl-pill" style=&#34;color:#64748B; background:rgba(100,116,139,0.10); border-color:#CBD5E1;&#34;>HITL 低</span>
+                            </div>
+                            <div class="task-desc">AI 从邮件识别交货单号、物流公司与发运单号并建立关联</div>
+                            
+                            <div class="anchor-row">
+                                
+                                <span class="anchor-pill" style=&#34;color:#64748B; background:rgba(100,116,139,0.10); border-color:#CBD5E1;&#34;>采集自动化率</span>
+                                
+                                <span class="anchor-pill" style=&#34;color:#64748B; background:rgba(100,116,139,0.10); border-color:#CBD5E1;&#34;>超期异常积压</span>
+                                
+                            </div>
+                            
+                            <div class="io-rule">
+                                
+                                <div class="io-item"><span class="io-tag">输入</span><span class="io-val">邮件原文 · 交货单</span></div>
+                                
+                                
+                                <div class="io-item"><span class="io-tag">输出</span><span class="io-val">交货单与物流发运单关联</span></div>
+                                
+                            </div>
+                            <div class="rule-type">规则依据：关联关系类·交货单号↔物流发运单号</div>
+                            
+                            <div class="exception" style=&#34;border-left:2px solid #5DB2E2;&#34;>
+                                <span class="ex-tag">异常</span><span class="ex-val">多义/冲突 → 拉人复核</span>
+                            </div>
+                            
+                        </div>
+                        
+                        <div class="task-card" style=&#34;border-left-color:#5DB2E2;&#34;>
+                            <div class="task-top">
+                                <span class="actor-badge" style=&#34;background:rgba(93,178,226,0.10); border-color:#9BD0EC;&#34; title="Agent">🤖</span>
+                                <span class="task-title">识别客户自提邮件并视同签收</span>
+                                <span class="hitl-pill" style=&#34;color:#B45309; background:rgba(245,158,11,0.10); border-color:#FCD34D;&#34;>HITL 中</span>
+                            </div>
+                            <div class="task-desc">识别客户自提邮件，视同物流签收已确认并归档</div>
+                            
+                            <div class="anchor-row">
+                                
+                                <span class="anchor-pill" style=&#34;color:#64748B; background:rgba(100,116,139,0.10); border-color:#CBD5E1;&#34;>POD确认合规率</span>
+                                
+                            </div>
+                            
+                            <div class="io-rule">
+                                
+                                <div class="io-item"><span class="io-tag">输入</span><span class="io-val">客户自提邮件</span></div>
+                                
+                                
+                                <div class="io-item"><span class="io-tag">输出</span><span class="io-val">自提确认+归档邮件</span></div>
+                                
+                            </div>
+                            <div class="rule-type">规则依据：关联关系类·自提确认与签收等价</div>
+                            
+                            <div class="exception" style=&#34;border-left:2px solid #5DB2E2;&#34;>
+                                <span class="ex-tag">异常</span><span class="ex-val">表述不明确 → 人工确认</span>
+                            </div>
+                            
+                        </div>
+                        
+                    </div>
+                    
+                    
+                    <div class="phase-cell">
+                        
+                        <div class="task-card" style=&#34;border-left-color:#5DB2E2;&#34;>
+                            <div class="task-top">
+                                <span class="actor-badge" style=&#34;background:rgba(93,178,226,0.10); border-color:#9BD0EC;&#34; title="Agent">🤖</span>
+                                <span class="task-title">自动比对客户反馈与SAP差异</span>
+                                <span class="hitl-pill" style=&#34;color:#B45309; background:rgba(245,158,11,0.10); border-color:#FCD34D;&#34;>HITL 中</span>
+                            </div>
+                            <div class="task-desc">系统按差异规则自动比对并归因</div>
+                            
+                            <div class="anchor-row">
+                                
+                                <span class="anchor-pill" style=&#34;color:#64748B; background:rgba(100,116,139,0.10); border-color:#CBD5E1;&#34;>对账差异处理效率</span>
+                                
+                            </div>
+                            
+                            <div class="io-rule">
+                                
+                                <div class="io-item"><span class="io-tag">输入</span><span class="io-val">客户反馈文件 · SAP交货单/明细</span></div>
+                                
+                                
+                                <div class="io-item"><span class="io-tag">输出</span><span class="io-val">差异清单+归因</span></div>
+                                
+                            </div>
+                            <div class="rule-type">规则依据：决策模型类·对账差异规则（客户一致性/数量金额/重复缺失/容差）</div>
+                            
+                            <div class="exception" style=&#34;border-left:2px solid #5DB2E2;&#34;>
+                                <span class="ex-tag">异常</span><span class="ex-val">格式不识别/口径冲突 → 拉人</span>
+                            </div>
+                            
+                        </div>
+                        
+                        <div class="task-card" style=&#34;border-left-color:#5DB2E2;&#34;>
+                            <div class="task-top">
+                                <span class="actor-badge" style=&#34;background:rgba(93,178,226,0.10); border-color:#9BD0EC;&#34; title="Agent">🤖</span>
+                                <span class="task-title">生成/关联借贷项建议</span>
+                                <span class="hitl-pill" style=&#34;color:#B45309; background:rgba(245,158,11,0.10); border-color:#FCD34D;&#34;>HITL 中</span>
+                            </div>
+                            <div class="task-desc">依据差异自动生成或关联借贷项并跟踪过账状态</div>
+                            
+                            <div class="anchor-row">
+                                
+                                <span class="anchor-pill" style=&#34;color:#64748B; background:rgba(100,116,139,0.10); border-color:#CBD5E1;&#34;>对账差异处理效率</span>
+                                
+                            </div>
+                            
+                            <div class="io-rule">
+                                
+                                <div class="io-item"><span class="io-tag">输入</span><span class="io-val">差异清单</span></div>
+                                
+                                
+                                <div class="io-item"><span class="io-tag">输出</span><span class="io-val">借贷项建议</span></div>
+                                
+                            </div>
+                            <div class="rule-type">规则依据：决策模型类·借贷项生成规则</div>
+                            
+                            <div class="exception" style=&#34;border-left:2px solid #5DB2E2;&#34;>
+                                <span class="ex-tag">异常</span><span class="ex-val">无法自动生成 → 人工处理</span>
+                            </div>
+                            
+                        </div>
+                        
+                    </div>
+                    
+                    
+                    <div class="phase-cell">
+                        
+                        <div class="task-card" style=&#34;border-left-color:#5DB2E2;&#34;>
+                            <div class="task-top">
+                                <span class="actor-badge" style=&#34;background:rgba(93,178,226,0.10); border-color:#9BD0EC;&#34; title="Agent">🤖</span>
+                                <span class="task-title">汇总横向匹配表并校验POD条件</span>
+                                <span class="hitl-pill" style=&#34;color:#B45309; background:rgba(245,158,11,0.10); border-color:#FCD34D;&#34;>HITL 中</span>
+                            </div>
+                            <div class="task-desc">系统拉齐五要素状态，给出可解释的匹配结论与缺口</div>
+                            
+                            <div class="anchor-row">
+                                
+                                <span class="anchor-pill" style=&#34;color:#64748B; background:rgba(100,116,139,0.10); border-color:#CBD5E1;&#34;>POD确认合规率</span>
+                                
+                                <span class="anchor-pill" style=&#34;color:#64748B; background:rgba(100,116,139,0.10); border-color:#CBD5E1;&#34;>收入确认时效</span>
+                                
+                            </div>
+                            
+                            <div class="io-rule">
+                                
+                                <div class="io-item"><span class="io-tag">输入</span><span class="io-val">交货单 · 物流关联 · 签收资料 · 对账单 · 借贷项状态</span></div>
+                                
+                                
+                                <div class="io-item"><span class="io-tag">输出</span><span class="io-val">POD匹配结论+缺口提示</span></div>
+                                
+                            </div>
+                            <div class="rule-type">规则依据：决策模型类·POD确认条件规则</div>
+                            
+                            <div class="exception" style=&#34;border-left:2px solid #5DB2E2;&#34;>
+                                <span class="ex-tag">异常</span><span class="ex-val">条件缺口 → 生成待办/拉人</span>
+                            </div>
+                            
+                        </div>
+                        
+                        <div class="task-card" style=&#34;border-left-color:#5DB2E2;&#34;>
+                            <div class="task-top">
+                                <span class="actor-badge" style=&#34;background:rgba(93,178,226,0.10); border-color:#9BD0EC;&#34; title="Agent">🤖</span>
+                                <span class="task-title">自动生成 SAP 预制发票</span>
+                                <span class="hitl-pill" style=&#34;color:#64748B; background:rgba(100,116,139,0.10); border-color:#CBD5E1;&#34;>HITL 低</span>
+                            </div>
+                            <div class="task-desc">POD 确认后系统自动触发 SAP 生成预制发票</div>
+                            
+                            <div class="anchor-row">
+                                
+                                <span class="anchor-pill" style=&#34;color:#64748B; background:rgba(100,116,139,0.10); border-color:#CBD5E1;&#34;>收入确认时效</span>
+                                
+                            </div>
+                            
+                            <div class="io-rule">
+                                
+                                <div class="io-item"><span class="io-tag">输入</span><span class="io-val">POD确认 · 交货单 · 客户 · 金额</span></div>
+                                
+                                
+                                <div class="io-item"><span class="io-tag">输出</span><span class="io-val">预制发票号+状态</span></div>
+                                
+                            </div>
+                            <div class="rule-type">规则依据：关联关系类·POD确认→预制发票</div>
+                            
+                            <div class="exception" style=&#34;border-left:2px solid #5DB2E2;&#34;>
+                                <span class="ex-tag">异常</span><span class="ex-val">SAP 返回失败 → 记录并重试/拉人</span>
+                            </div>
+                            
+                        </div>
+                        
+                    </div>
+                    
+                    
+                    <div class="phase-cell">
+                        
+                        <div class="task-card" style=&#34;border-left-color:#5DB2E2;&#34;>
+                            <div class="task-top">
+                                <span class="actor-badge" style=&#34;background:rgba(93,178,226,0.10); border-color:#9BD0EC;&#34; title="Agent">🤖</span>
+                                <span class="task-title">回写凭证号与过账状态</span>
+                                <span class="hitl-pill" style=&#34;color:#64748B; background:rgba(100,116,139,0.10); border-color:#CBD5E1;&#34;>HITL 低</span>
+                            </div>
+                            <div class="task-desc">系统回写凭证号、会计期间与过账状态到综合查询</div>
+                            
+                            <div class="anchor-row">
+                                
+                                <span class="anchor-pill" style=&#34;color:#64748B; background:rgba(100,116,139,0.10); border-color:#CBD5E1;&#34;>收入确认时效</span>
+                                
+                            </div>
+                            
+                            <div class="io-rule">
+                                
+                                <div class="io-item"><span class="io-tag">输入</span><span class="io-val">SAP 返回凭证信息</span></div>
+                                
+                                
+                                <div class="io-item"><span class="io-tag">输出</span><span class="io-val">过账凭证记录</span></div>
+                                
+                            </div>
+                            <div class="rule-type">规则依据：关联关系类·凭证回写</div>
+                            
+                            <div class="exception" style=&#34;border-left:2px solid #5DB2E2;&#34;>
+                                <span class="ex-tag">异常</span><span class="ex-val">回写失败 → 重试</span>
+                            </div>
+                            
+                        </div>
+                        
+                        <div class="task-card" style=&#34;border-left-color:#5DB2E2;&#34;>
+                            <div class="task-top">
+                                <span class="actor-badge" style=&#34;background:rgba(93,178,226,0.10); border-color:#9BD0EC;&#34; title="Agent">🤖</span>
+                                <span class="task-title">更新驾驶舱与超期预警</span>
+                                <span class="hitl-pill" style=&#34;color:#64748B; background:rgba(100,116,139,0.10); border-color:#CBD5E1;&#34;>HITL 低</span>
+                            </div>
+                            <div class="task-desc">系统刷新全局看板并按阈值生成超期异常预警与待办推送</div>
+                            
+                            <div class="anchor-row">
+                                
+                                <span class="anchor-pill" style=&#34;color:#64748B; background:rgba(100,116,139,0.10); border-color:#CBD5E1;&#34;>超期异常积压</span>
+                                
+                            </div>
+                            
+                            <div class="io-rule">
+                                
+                                <div class="io-item"><span class="io-tag">输入</span><span class="io-val">各节点状态 · 异常阈值配置</span></div>
+                                
+                                
+                                <div class="io-item"><span class="io-tag">输出</span><span class="io-val">驾驶舱看板+超期预警</span></div>
+                                
+                            </div>
+                            <div class="rule-type">规则依据：决策模型类·超期异常阈值规则</div>
+                            
+                            <div class="exception" style=&#34;border-left:2px solid #5DB2E2;&#34;>
+                                <span class="ex-tag">异常</span><span class="ex-val">阈值口径存疑 → 拉人确认</span>
+                            </div>
+                            
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+                
+                
+                <div class="swim-row">
+                    <div class="lane-head">
+                        <span class="lane-name">物流人员</span>
+                        <span class="lane-group">物流</span>
+                        <span class="lane-desc">物流关联与签收资料补充</span>
+                    </div>
+                    
+                    
+                    <div class="phase-cell">
+                        
+                        <div class="task-card" style=&#34;border-left-color:#625D9C;&#34;>
+                            <div class="task-top">
+                                <span class="actor-badge" style=&#34;background:rgba(98,93,156,0.10); border-color:#B6B2DE;&#34; title="混合">🤝</span>
+                                <span class="task-title">复核并补充签收资料</span>
+                                <span class="hitl-pill" style=&#34;color:#B45309; background:rgba(245,158,11,0.10); border-color:#FCD34D;&#34;>HITL 中</span>
+                            </div>
+                            <div class="task-desc">物流人员复核低置信度识别结果并补充缺失资料</div>
+                            
+                            <div class="anchor-row">
+                                
+                                <span class="anchor-pill" style=&#34;color:#64748B; background:rgba(100,116,139,0.10); border-color:#CBD5E1;&#34;>采集自动化率</span>
+                                
+                                <span class="anchor-pill" style=&#34;color:#64748B; background:rgba(100,116,139,0.10); border-color:#CBD5E1;&#34;>POD确认合规率</span>
+                                
+                            </div>
+                            
+                            <div class="io-rule">
+                                
+                                <div class="io-item"><span class="io-tag">输入</span><span class="io-val">低置信度识别结果 · 原始文件</span></div>
+                                
+                                
+                                <div class="io-item"><span class="io-tag">输出</span><span class="io-val">人工确认的签收信息</span></div>
+                                
+                            </div>
+                            <div class="rule-type">规则依据：决策模型类·签收有效性判断</div>
+                            
+                            <div class="exception" style=&#34;border-left:2px solid #625D9C;&#34;>
+                                <span class="ex-tag">异常</span><span class="ex-val">资料缺失 → 补件/补邮件</span>
+                            </div>
+                            
+                        </div>
+                        
+                    </div>
+                    
+                    
+                    <div class="phase-cell">
+                        
+                        <div class="task-card" style=&#34;border-left-color:#F59E0B;&#34;>
+                            <div class="task-top">
+                                <span class="actor-badge" style=&#34;background:rgba(245,158,11,0.10); border-color:#FCD34D;&#34; title="人工">👤</span>
+                                <span class="task-title">处理物流关联异常</span>
+                                <span class="hitl-pill" style=&#34;color:#B45309; background:rgba(245,158,11,0.10); border-color:#FCD34D;&#34;>HITL 中</span>
+                            </div>
+                            <div class="task-desc">物流人员通过补邮件或补充说明修正关联异常并留痕</div>
+                            
+                            <div class="anchor-row">
+                                
+                                <span class="anchor-pill" style=&#34;color:#64748B; background:rgba(100,116,139,0.10); border-color:#CBD5E1;&#34;>超期异常积压</span>
+                                
+                            </div>
+                            
+                            <div class="io-rule">
+                                
+                                <div class="io-item"><span class="io-tag">输入</span><span class="io-val">关联异常清单</span></div>
+                                
+                                
+                                <div class="io-item"><span class="io-tag">输出</span><span class="io-val">补邮件/补充说明记录</span></div>
+                                
+                            </div>
+                            <div class="rule-type">规则依据：模版范例类·补邮件/补充说明模板</div>
+                            
+                            <div class="exception" style=&#34;border-left:2px solid #F59E0B;&#34;>
+                                <span class="ex-tag">异常</span><span class="ex-val">无法补全 → 升级 CS/经理</span>
+                            </div>
+                            
+                        </div>
+                        
+                    </div>
+                    
+                    
+                    <div class="phase-cell">
+                        
+                    </div>
+                    
+                    
+                    <div class="phase-cell">
+                        
+                    </div>
+                    
+                    
+                    <div class="phase-cell">
+                        
+                    </div>
+                    
+                </div>
+                
+                
+                <div class="swim-row">
+                    <div class="lane-head">
+                        <span class="lane-name">CS</span>
+                        <span class="lane-group">销售/对账</span>
+                        <span class="lane-desc">对账、差异处理、POD 确认</span>
+                    </div>
+                    
+                    
+                    <div class="phase-cell">
+                        
+                    </div>
+                    
+                    
+                    <div class="phase-cell">
+                        
+                        <div class="task-card" style=&#34;border-left-color:#625D9C;&#34;>
+                            <div class="task-top">
+                                <span class="actor-badge" style=&#34;background:rgba(98,93,156,0.10); border-color:#B6B2DE;&#34; title="混合">🤝</span>
+                                <span class="task-title">确认物流签收有效性</span>
+                                <span class="hitl-pill" style=&#34;color:#B45309; background:rgba(245,158,11,0.10); border-color:#FCD34D;&#34;>HITL 中</span>
+                            </div>
+                            <div class="task-desc">CS 依据关联与签收资料确认签收是否有效</div>
+                            
+                            <div class="anchor-row">
+                                
+                                <span class="anchor-pill" style=&#34;color:#64748B; background:rgba(100,116,139,0.10); border-color:#CBD5E1;&#34;>POD确认合规率</span>
+                                
+                            </div>
+                            
+                            <div class="io-rule">
+                                
+                                <div class="io-item"><span class="io-tag">输入</span><span class="io-val">物流发运关联 · 签收/POD资料</span></div>
+                                
+                                
+                                <div class="io-item"><span class="io-tag">输出</span><span class="io-val">签收有效性结论</span></div>
+                                
+                            </div>
+                            <div class="rule-type">规则依据：决策模型类·签收有效性规则</div>
+                            
+                            <div class="exception" style=&#34;border-left:2px solid #625D9C;&#34;>
+                                <span class="ex-tag">异常</span><span class="ex-val">签收存疑 → 拉人/退回物流</span>
+                            </div>
+                            
+                        </div>
+                        
+                    </div>
+                    
+                    
+                    <div class="phase-cell">
+                        
+                        <div class="task-card" style=&#34;border-left-color:#F59E0B;&#34;>
+                            <div class="task-top">
+                                <span class="actor-badge" style=&#34;background:rgba(245,158,11,0.10); border-color:#FCD34D;&#34; title="人工">👤</span>
+                                <span class="task-title">创建对账单</span>
+                                <span class="hitl-pill" style=&#34;color:#B45309; background:rgba(245,158,11,0.10); border-color:#FCD34D;&#34;>HITL 中</span>
+                            </div>
+                            <div class="task-desc">CS 按客户与周期勾选交货单批量创建对账单</div>
+                            
+                            <div class="anchor-row">
+                                
+                                <span class="anchor-pill" style=&#34;color:#64748B; background:rgba(100,116,139,0.10); border-color:#CBD5E1;&#34;>对账差异处理效率</span>
+                                
+                            </div>
+                            
+                            <div class="io-rule">
+                                
+                                <div class="io-item"><span class="io-tag">输入</span><span class="io-val">待处理交货单 · 客户 · 周期</span></div>
+                                
+                                
+                                <div class="io-item"><span class="io-tag">输出</span><span class="io-val">对账单主表/明细</span></div>
+                                
+                            </div>
+                            <div class="rule-type">规则依据：模版范例类·对账单生成模板</div>
+                            
+                            <div class="exception" style=&#34;border-left:2px solid #F59E0B;&#34;>
+                                <span class="ex-tag">异常</span><span class="ex-val">无可对账交货单 → 提示/终止</span>
+                            </div>
+                            
+                        </div>
+                        
+                        <div class="task-card" style=&#34;border-left-color:#F59E0B;&#34;>
+                            <div class="task-top">
+                                <span class="actor-badge" style=&#34;background:rgba(245,158,11,0.10); border-color:#FCD34D;&#34; title="人工">👤</span>
+                                <span class="task-title">下载对账单交客户确认</span>
+                                <span class="hitl-pill" style=&#34;color:#B91C1C; background:rgba(239,68,68,0.10); border-color:#FCA5A5;&#34;>HITL 必停</span>
+                            </div>
+                            <div class="task-desc">CS 下载对账单并发送客户确认（对外动作）</div>
+                            
+                            <div class="anchor-row">
+                                
+                                <span class="anchor-pill" style=&#34;color:#64748B; background:rgba(100,116,139,0.10); border-color:#CBD5E1;&#34;>对账差异处理效率</span>
+                                
+                            </div>
+                            
+                            <div class="io-rule">
+                                
+                                <div class="io-item"><span class="io-tag">输入</span><span class="io-val">对账单文件</span></div>
+                                
+                                
+                                <div class="io-item"><span class="io-tag">输出</span><span class="io-val">对账单已下载状态</span></div>
+                                
+                            </div>
+                            <div class="rule-type">规则依据：模版范例类·对账单下载模板</div>
+                            
+                            <div class="exception" style=&#34;border-left:2px solid #F59E0B;&#34;>
+                                <span class="ex-tag">异常</span><span class="ex-val">发送失败 → 重试/人工通知</span>
+                            </div>
+                            
+                        </div>
+                        
+                        <div class="task-card" style=&#34;border-left-color:#F59E0B;&#34;>
+                            <div class="task-top">
+                                <span class="actor-badge" style=&#34;background:rgba(245,158,11,0.10); border-color:#FCD34D;&#34; title="人工">👤</span>
+                                <span class="task-title">确认差异并处理借贷项</span>
+                                <span class="hitl-pill" style=&#34;color:#B91C1C; background:rgba(239,68,68,0.10); border-color:#FCA5A5;&#34;>HITL 高</span>
+                            </div>
+                            <div class="task-desc">CS 确认差异原因并完成借贷项处理（未完成不开放 POD 确认）</div>
+                            
+                            <div class="anchor-row">
+                                
+                                <span class="anchor-pill" style=&#34;color:#64748B; background:rgba(100,116,139,0.10); border-color:#CBD5E1;&#34;>对账差异处理效率</span>
+                                
+                                <span class="anchor-pill" style=&#34;color:#64748B; background:rgba(100,116,139,0.10); border-color:#CBD5E1;&#34;>POD确认合规率</span>
+                                
+                            </div>
+                            
+                            <div class="io-rule">
+                                
+                                <div class="io-item"><span class="io-tag">输入</span><span class="io-val">差异清单 · 借贷项建议</span></div>
+                                
+                                
+                                <div class="io-item"><span class="io-tag">输出</span><span class="io-val">借贷项完成状态</span></div>
+                                
+                            </div>
+                            <div class="rule-type">规则依据：决策模型类·差异处理决策</div>
+                            
+                            <div class="exception" style=&#34;border-left:2px solid #F59E0B;&#34;>
+                                <span class="ex-tag">异常</span><span class="ex-val">差异无法收敛 → 升级经理/财务</span>
+                            </div>
+                            
+                        </div>
+                        
+                    </div>
+                    
+                    
+                    <div class="phase-cell">
+                        
+                        <div class="task-card" style=&#34;border-left-color:#F59E0B;&#34;>
+                            <div class="task-top">
+                                <span class="actor-badge" style=&#34;background:rgba(245,158,11,0.10); border-color:#FCD34D;&#34; title="人工">👤</span>
+                                <span class="task-title">一键 POD 确认</span>
+                                <span class="hitl-pill" style=&#34;color:#B91C1C; background:rgba(239,68,68,0.10); border-color:#FCA5A5;&#34;>HITL 必停</span>
+                            </div>
+                            <div class="task-desc">CS 点击 POD 确认（对外确认收入的强制人工闸门）</div>
+                            
+                            <div class="anchor-row">
+                                
+                                <span class="anchor-pill" style=&#34;color:#64748B; background:rgba(100,116,139,0.10); border-color:#CBD5E1;&#34;>收入确认时效</span>
+                                
+                                <span class="anchor-pill" style=&#34;color:#64748B; background:rgba(100,116,139,0.10); border-color:#CBD5E1;&#34;>POD确认合规率</span>
+                                
+                            </div>
+                            
+                            <div class="io-rule">
+                                
+                                <div class="io-item"><span class="io-tag">输入</span><span class="io-val">POD匹配结论</span></div>
+                                
+                                
+                                <div class="io-item"><span class="io-tag">输出</span><span class="io-val">POD确认记录+POD日志</span></div>
+                                
+                            </div>
+                            <div class="rule-type">规则依据：决策模型类·POD确认放行</div>
+                            
+                            <div class="exception" style=&#34;border-left:2px solid #F59E0B;&#34;>
+                                <span class="ex-tag">异常</span><span class="ex-val">条件不足 → 阻断并提示缺口</span>
+                            </div>
+                            
+                        </div>
+                        
+                    </div>
+                    
+                    
+                    <div class="phase-cell">
+                        
+                    </div>
+                    
+                </div>
+                
+                
+                <div class="swim-row">
+                    <div class="lane-head">
+                        <span class="lane-name">CS 经理</span>
+                        <span class="lane-group">销售管理</span>
+                        <span class="lane-desc">全局看板、异常与特殊审批</span>
+                    </div>
+                    
+                    
+                    <div class="phase-cell">
+                        
+                    </div>
+                    
+                    
+                    <div class="phase-cell">
+                        
+                    </div>
+                    
+                    
+                    <div class="phase-cell">
+                        
+                    </div>
+                    
+                    
+                    <div class="phase-cell">
+                        
+                        <div class="task-card" style=&#34;border-left-color:#F59E0B;&#34;>
+                            <div class="task-top">
+                                <span class="actor-badge" style=&#34;background:rgba(245,158,11,0.10); border-color:#FCD34D;&#34; title="人工">👤</span>
+                                <span class="task-title">特殊 POD 确认审批</span>
+                                <span class="hitl-pill" style=&#34;color:#B91C1C; background:rgba(239,68,68,0.10); border-color:#FCA5A5;&#34;>HITL 高</span>
+                            </div>
+                            <div class="task-desc">CS 经理审批特殊或异常场景的 POD 确认</div>
+                            
+                            <div class="anchor-row">
+                                
+                                <span class="anchor-pill" style=&#34;color:#64748B; background:rgba(100,116,139,0.10); border-color:#CBD5E1;&#34;>POD确认合规率</span>
+                                
+                            </div>
+                            
+                            <div class="io-rule">
+                                
+                                <div class="io-item"><span class="io-tag">输入</span><span class="io-val">异常/特殊确认申请</span></div>
+                                
+                                
+                                <div class="io-item"><span class="io-tag">输出</span><span class="io-val">审批结论</span></div>
+                                
+                            </div>
+                            <div class="rule-type">规则依据：决策模型类·特殊确认审批</div>
+                            
+                            <div class="exception" style=&#34;border-left:2px solid #F59E0B;&#34;>
+                                <span class="ex-tag">异常</span><span class="ex-val">驳回 → 退回 CS</span>
+                            </div>
+                            
+                        </div>
+                        
+                    </div>
+                    
+                    
+                    <div class="phase-cell">
+                        
+                    </div>
+                    
+                </div>
+                
+                
+                <div class="swim-row">
+                    <div class="lane-head">
+                        <span class="lane-name">财务</span>
+                        <span class="lane-group">财务</span>
+                        <span class="lane-desc">过账、打印、归档</span>
+                    </div>
+                    
+                    
+                    <div class="phase-cell">
+                        
+                    </div>
+                    
+                    
+                    <div class="phase-cell">
+                        
+                    </div>
+                    
+                    
+                    <div class="phase-cell">
+                        
+                    </div>
+                    
+                    
+                    <div class="phase-cell">
+                        
+                    </div>
+                    
+                    
+                    <div class="phase-cell">
+                        
+                        <div class="task-card" style=&#34;border-left-color:#F59E0B;&#34;>
+                            <div class="task-top">
+                                <span class="actor-badge" style=&#34;background:rgba(245,158,11,0.10); border-color:#FCD34D;&#34; title="人工">👤</span>
+                                <span class="task-title">执行发票过账</span>
+                                <span class="hitl-pill" style=&#34;color:#B91C1C; background:rgba(239,68,68,0.10); border-color:#FCA5A5;&#34;>HITL 高</span>
+                            </div>
+                            <div class="task-desc">财务在发票过账页面执行过账（不提供预制按钮）</div>
+                            
+                            <div class="anchor-row">
+                                
+                                <span class="anchor-pill" style=&#34;color:#64748B; background:rgba(100,116,139,0.10); border-color:#CBD5E1;&#34;>收入确认时效</span>
+                                
+                            </div>
+                            
+                            <div class="io-rule">
+                                
+                                <div class="io-item"><span class="io-tag">输入</span><span class="io-val">预制发票 · 交货单</span></div>
+                                
+                                
+                                <div class="io-item"><span class="io-tag">输出</span><span class="io-val">会计凭证号+过账状态</span></div>
+                                
+                            </div>
+                            <div class="rule-type">规则依据：决策模型类·过账校验规则</div>
+                            
+                            <div class="exception" style=&#34;border-left:2px solid #F59E0B;&#34;>
+                                <span class="ex-tag">异常</span><span class="ex-val">过账失败 → 记录 SAP 返回，人工确认后重试</span>
+                            </div>
+                            
+                        </div>
+                        
+                        <div class="task-card" style=&#34;border-left-color:#F59E0B;&#34;>
+                            <div class="task-top">
+                                <span class="actor-badge" style=&#34;background:rgba(245,158,11,0.10); border-color:#FCD34D;&#34; title="人工">👤</span>
+                                <span class="task-title">打印与归档</span>
+                                <span class="hitl-pill" style=&#34;color:#B45309; background:rgba(245,158,11,0.10); border-color:#FCD34D;&#34;>HITL 中</span>
+                            </div>
+                            <div class="task-desc">财务按打印样式打印并归档，记录归档人/时间/清单</div>
+                            
+                            <div class="anchor-row">
+                                
+                                <span class="anchor-pill" style=&#34;color:#64748B; background:rgba(100,116,139,0.10); border-color:#CBD5E1;&#34;>POD确认合规率</span>
+                                
+                            </div>
+                            
+                            <div class="io-rule">
+                                
+                                <div class="io-item"><span class="io-tag">输入</span><span class="io-val">POD资料 · 对账单 · POD日志 · 预制发票 · 凭证</span></div>
+                                
+                                
+                                <div class="io-item"><span class="io-tag">输出</span><span class="io-val">打印件+归档记录</span></div>
+                                
+                            </div>
+                            <div class="rule-type">规则依据：模版范例类·打印与归档清单</div>
+                            
+                            <div class="exception" style=&#34;border-left:2px solid #F59E0B;&#34;>
+                                <span class="ex-tag">异常</span><span class="ex-val">缺件 → 补件后归档</span>
+                            </div>
+                            
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+                
+                
+                <div class="swim-row">
+                    <div class="lane-head">
+                        <span class="lane-name">客户/外部</span>
+                        <span class="lane-group">客户/外部</span>
+                        <span class="lane-desc">对账确认与自提确认</span>
+                    </div>
+                    
+                    
+                    <div class="phase-cell">
+                        
+                    </div>
+                    
+                    
+                    <div class="phase-cell">
+                        
+                    </div>
+                    
+                    
+                    <div class="phase-cell">
+                        
+                        <div class="task-card" style=&#34;border-left-color:#F59E0B;&#34;>
+                            <div class="task-top">
+                                <span class="actor-badge" style=&#34;background:rgba(245,158,11,0.10); border-color:#FCD34D;&#34; title="人工">👤</span>
+                                <span class="task-title">客户反馈对账结果</span>
+                                <span class="hitl-pill" style=&#34;color:#64748B; background:rgba(100,116,139,0.10); border-color:#CBD5E1;&#34;>HITL 低</span>
+                            </div>
+                            <div class="task-desc">客户回传确认或带差异的对账反馈文件</div>
+                            
+                            <div class="anchor-row">
+                                
+                                <span class="anchor-pill" style=&#34;color:#64748B; background:rgba(100,116,139,0.10); border-color:#CBD5E1;&#34;>对账差异处理效率</span>
+                                
+                            </div>
+                            
+                            <div class="io-rule">
+                                
+                                <div class="io-item"><span class="io-tag">输入</span><span class="io-val">对账单文件</span></div>
+                                
+                                
+                                <div class="io-item"><span class="io-tag">输出</span><span class="io-val">客户反馈对账文件</span></div>
+                                
+                            </div>
+                            <div class="rule-type">规则依据：模版范例类·客户反馈模板</div>
+                            
+                            <div class="exception" style=&#34;border-left:2px solid #F59E0B;&#34;>
+                                <span class="ex-tag">异常</span><span class="ex-val">逾期未反馈 → 提醒</span>
+                            </div>
+                            
+                        </div>
+                        
+                    </div>
+                    
+                    
+                    <div class="phase-cell">
+                        
+                    </div>
+                    
+                    
+                    <div class="phase-cell">
+                        
+                    </div>
+                    
+                </div>
+                
+            </div>
+        </div>
+
+        <!-- ===== Footer Notes ===== -->
+        <div class="notes-panel">
+            
+            <div class="notes-col">
+                <h3>🔹 流程说明</h3>
+                <ul><li>主链路 P1→P2→P3→P4→P5；P4 的「一键 POD 确认」为全场景 P0（对外确认收入，HITL 强制闸门）</li><li>对账差异/借贷项未完成前不开放 POD 确认（P3 未收敛则 P4 阻断）</li><li>物流发运单号以邮件原文为依据，不开放手工改写，异常走补邮件/补充说明留痕</li></ul>
+            </div>
+            
+            
+            <div class="notes-col">
+                <h3>📥 输入依据</h3>
+                <ul><li>定场景《X销售收入确认-POD收入确认-AI画布》（用户痛点 / 输入输出 / 人机流程 / 业务收益）</li><li>定场景《X销售收入确认-POD收入确认-机会点定义》（4 个机会点 + 价值收益拆解）</li><li>客户素材《销售收入确认_开发方案设计文档》（业务流程图 / 功能点 / 集成 / 状态规则）</li></ul>
+            </div>
+            
+            
+            <div class="notes-col">
+                <h3>🔁 需求返回节点</h3>
+                <ul><li>关联异常/签收存疑/差异无法收敛/过账失败 → 分别回物流、CS、CS 经理、财务处理</li></ul>
+            </div>
+            
+        </div>
+    </main>
+
+    <!-- Raw YAML Data (Hidden) -->
+    <script type="application/yaml" id="raw-yaml">
+meta:
+  title: "X销售收入确认 · 销售POD收入确认 To-be 流程"
+  version: "v1.0"
+  date: "2026-09-10"
+  scenarioName: "销售POD收入确认"
+  businessStage: "挖知识 阶段1 任务流程挖掘 · 步骤1.1"
+  methodology: "挖知识 阶段1方法（业务环节 L3 → 主要活动 L4 → 深度任务 L5）"
+  inputs:
+    - "定场景《X销售收入确认-POD收入确认-AI画布》（用户痛点 / 输入输出 / 人机流程 / 业务收益）"
+    - "定场景《X销售收入确认-POD收入确认-机会点定义》（4 个机会点 + 价值收益拆解）"
+    - "客户素材《销售收入确认_开发方案设计文档》（业务流程图 / 功能点 / 集成 / 状态规则）"
+  sourceRef: "X销售收入确认开发方案设计文档"
+  kpi:
+    - "收入确认时效"
+    - "采集自动化率"
+    - "对账差异处理效率"
+    - "POD确认合规率"
+    - "超期异常积压"
+
+legend:
+  execution:
+    - { type: "agent",  label: "Agent=AI 自动执行", icon: "🤖" }
+    - { type: "human",  label: "人工=人工执行",     icon: "👤" }
+    - { type: "hybrid", label: "混合=人机协同",     icon: "🤝" }
+  hitlFocus:
+    - { level: "low",    label: "低 · 人机介入",      desc: "全自动，无人工介入" }
+    - { level: "medium", label: "中 · 人机交错/审核", desc: "AI 产出，人工抽检/确认" }
+    - { level: "high",   label: "高 · 人机终审",      desc: "人类担任最终裁决" }
+    - { level: "gate",   label: "必停确认",           desc: "对外动作，强制人工放行" }
+  flowConventions:
+    - "角色泳道 任务泳道内转"
+    - "流程走向 任务正常后回填 AI"
+  valueAnchors:
+    - "收入确认时效"
+    - "采集自动化率"
+    - "对账差异处理效率"
+    - "POD确认合规率"
+    - "超期异常积压"
+
+phases:
+  - { id: "P1", order: 1, name: "数据采集", fullName: "交货单与资料采集", description: "定时拉取 SAP 交货单、公共邮箱邮件与公共文件夹签收资料" }
+  - { id: "P2", order: 2, name: "物流关联", fullName: "物流发运关联与签收确认", description: "建立交货单与物流发运单关联，识别签收/POD 有效性" }
+  - { id: "P3", order: 3, name: "对账", fullName: "对账单处理与差异分析", description: "创建/下载/上传对账单，自动差异分析与借贷项处理" }
+  - { id: "P4", order: 4, name: "POD确认", fullName: "POD 匹配与收入确认", description: "横向匹配校验确认条件，人工确认并自动生成预制发票" }
+  - { id: "P5", order: 5, name: "过账归档", fullName: "发票过账与打印归档", description: "财务过账、凭证回写、打印归档与全链路查询" }
+
+lanes:
+  - { id: "system",     order: 1, name: "平台/定时任务", group: "平台自动",   description: "定时拉取、识别、校验、生成" }
+  - { id: "logistics",  order: 2, name: "物流人员",       group: "物流",       description: "物流关联与签收资料补充" }
+  - { id: "cs",         order: 3, name: "CS",             group: "销售/对账",  description: "对账、差异处理、POD 确认" }
+  - { id: "cs_manager", order: 4, name: "CS 经理",        group: "销售管理",   description: "全局看板、异常与特殊审批" }
+  - { id: "finance",    order: 5, name: "财务",           group: "财务",       description: "过账、打印、归档" }
+  - { id: "customer",   order: 6, name: "客户/外部",      group: "客户/外部",  description: "对账确认与自提确认" }
+
+tasks:
+  - { id: "t01", order: 1, phaseId: "P1", laneId: "system",
+      name: "同步 SAP 待处理交货单", actor: "agent",
+      inputs: ["客户", "销售组织", "时间范围", "交货状态"], outputs: ["SAP交货单与明细"],
+      ruleType: "关键信息提取要点·交货单关键字段",
+      valueAnchors: ["采集自动化率"], hitlFocus: "low",
+      exception: "接口失败/数据缺失 → 重试，连续失败 → 拉人",
+      description: "系统按客户与周期定时同步已发货交货单" }
+  - { id: "t02", order: 2, phaseId: "P1", laneId: "system",
+      name: "读取公共邮箱仓库/物流邮件", actor: "agent",
+      inputs: ["邮箱", "文件夹", "时间范围"], outputs: ["邮件原文与附件"],
+      ruleType: "关联关系类·交货单-发运单关联线索",
+      valueAnchors: ["采集自动化率"], hitlFocus: "low",
+      exception: "邮件格式异常 → 降级人工",
+      description: "定时读取指定邮箱，留存邮件原文作为审计依据" }
+  - { id: "t03", order: 3, phaseId: "P1", laneId: "system",
+      name: "读取公共文件夹签收/POD资料", actor: "agent",
+      inputs: ["目录", "文件类型", "时间范围"], outputs: ["签收单/POD原始文件"],
+      ruleType: "关键信息提取要点·单证关键字段",
+      valueAnchors: ["采集自动化率"], hitlFocus: "low",
+      exception: "目录不可达 → 重试/降级人工",
+      description: "定时从公共文件夹拉取物流签收单与 POD 文件" }
+  - { id: "t04", order: 4, phaseId: "P1", laneId: "system",
+      name: "OCR 识别签收单/POD字段", actor: "agent",
+      inputs: ["签收单/POD原始文件"], outputs: ["结构化签收信息+置信度"],
+      ruleType: "关键信息提取要点·签收人/时间/结果/单号",
+      valueAnchors: ["采集自动化率"], hitlFocus: "medium",
+      exception: "识别失败/低置信度 → 人工复核",
+      description: "AI 识别签收人、签收时间、签收结果与物流单号" }
+  - { id: "t05", order: 5, phaseId: "P1", laneId: "logistics",
+      name: "复核并补充签收资料", actor: "hybrid",
+      inputs: ["低置信度识别结果", "原始文件"], outputs: ["人工确认的签收信息"],
+      ruleType: "决策模型类·签收有效性判断",
+      valueAnchors: ["采集自动化率", "POD确认合规率"], hitlFocus: "medium",
+      exception: "资料缺失 → 补件/补邮件",
+      description: "物流人员复核低置信度识别结果并补充缺失资料" }
+
+  - { id: "t06", order: 6, phaseId: "P2", laneId: "system",
+      name: "建立交货单-发运单关联", actor: "agent",
+      inputs: ["邮件原文", "交货单"], outputs: ["交货单与物流发运单关联"],
+      ruleType: "关联关系类·交货单号↔物流发运单号",
+      valueAnchors: ["采集自动化率", "超期异常积压"], hitlFocus: "low",
+      exception: "多义/冲突 → 拉人复核",
+      description: "AI 从邮件识别交货单号、物流公司与发运单号并建立关联" }
+  - { id: "t07", order: 7, phaseId: "P2", laneId: "system",
+      name: "识别客户自提邮件并视同签收", actor: "agent",
+      inputs: ["客户自提邮件"], outputs: ["自提确认+归档邮件"],
+      ruleType: "关联关系类·自提确认与签收等价",
+      valueAnchors: ["POD确认合规率"], hitlFocus: "medium",
+      exception: "表述不明确 → 人工确认",
+      description: "识别客户自提邮件，视同物流签收已确认并归档" }
+  - { id: "t08", order: 8, phaseId: "P2", laneId: "logistics",
+      name: "处理物流关联异常", actor: "human",
+      inputs: ["关联异常清单"], outputs: ["补邮件/补充说明记录"],
+      ruleType: "模版范例类·补邮件/补充说明模板",
+      valueAnchors: ["超期异常积压"], hitlFocus: "medium",
+      exception: "无法补全 → 升级 CS/经理",
+      description: "物流人员通过补邮件或补充说明修正关联异常并留痕" }
+  - { id: "t09", order: 9, phaseId: "P2", laneId: "cs",
+      name: "确认物流签收有效性", actor: "hybrid",
+      inputs: ["物流发运关联", "签收/POD资料"], outputs: ["签收有效性结论"],
+      ruleType: "决策模型类·签收有效性规则",
+      valueAnchors: ["POD确认合规率"], hitlFocus: "medium",
+      exception: "签收存疑 → 拉人/退回物流",
+      description: "CS 依据关联与签收资料确认签收是否有效" }
+
+  - { id: "t10", order: 10, phaseId: "P3", laneId: "cs",
+      name: "创建对账单", actor: "human",
+      inputs: ["待处理交货单", "客户", "周期"], outputs: ["对账单主表/明细"],
+      ruleType: "模版范例类·对账单生成模板",
+      valueAnchors: ["对账差异处理效率"], hitlFocus: "medium",
+      exception: "无可对账交货单 → 提示/终止",
+      description: "CS 按客户与周期勾选交货单批量创建对账单" }
+  - { id: "t11", order: 11, phaseId: "P3", laneId: "cs",
+      name: "下载对账单交客户确认", actor: "human",
+      inputs: ["对账单文件"], outputs: ["对账单已下载状态"],
+      ruleType: "模版范例类·对账单下载模板",
+      valueAnchors: ["对账差异处理效率"], hitlFocus: "gate",
+      exception: "发送失败 → 重试/人工通知",
+      description: "CS 下载对账单并发送客户确认（对外动作）" }
+  - { id: "t12", order: 12, phaseId: "P3", laneId: "customer",
+      name: "客户反馈对账结果", actor: "human",
+      inputs: ["对账单文件"], outputs: ["客户反馈对账文件"],
+      ruleType: "模版范例类·客户反馈模板",
+      valueAnchors: ["对账差异处理效率"], hitlFocus: "low",
+      exception: "逾期未反馈 → 提醒",
+      description: "客户回传确认或带差异的对账反馈文件" }
+  - { id: "t13", order: 13, phaseId: "P3", laneId: "system",
+      name: "自动比对客户反馈与SAP差异", actor: "agent",
+      inputs: ["客户反馈文件", "SAP交货单/明细"], outputs: ["差异清单+归因"],
+      ruleType: "决策模型类·对账差异规则（客户一致性/数量金额/重复缺失/容差）",
+      valueAnchors: ["对账差异处理效率"], hitlFocus: "medium",
+      exception: "格式不识别/口径冲突 → 拉人",
+      description: "系统按差异规则自动比对并归因" }
+  - { id: "t14", order: 14, phaseId: "P3", laneId: "system",
+      name: "生成/关联借贷项建议", actor: "agent",
+      inputs: ["差异清单"], outputs: ["借贷项建议"],
+      ruleType: "决策模型类·借贷项生成规则",
+      valueAnchors: ["对账差异处理效率"], hitlFocus: "medium",
+      exception: "无法自动生成 → 人工处理",
+      description: "依据差异自动生成或关联借贷项并跟踪过账状态" }
+  - { id: "t15", order: 15, phaseId: "P3", laneId: "cs",
+      name: "确认差异并处理借贷项", actor: "human",
+      inputs: ["差异清单", "借贷项建议"], outputs: ["借贷项完成状态"],
+      ruleType: "决策模型类·差异处理决策",
+      valueAnchors: ["对账差异处理效率", "POD确认合规率"], hitlFocus: "high",
+      exception: "差异无法收敛 → 升级经理/财务",
+      description: "CS 确认差异原因并完成借贷项处理（未完成不开放 POD 确认）" }
+
+  - { id: "t16", order: 16, phaseId: "P4", laneId: "system",
+      name: "汇总横向匹配表并校验POD条件", actor: "agent",
+      inputs: ["交货单", "物流关联", "签收资料", "对账单", "借贷项状态"], outputs: ["POD匹配结论+缺口提示"],
+      ruleType: "决策模型类·POD确认条件规则",
+      valueAnchors: ["POD确认合规率", "收入确认时效"], hitlFocus: "medium",
+      exception: "条件缺口 → 生成待办/拉人",
+      description: "系统拉齐五要素状态，给出可解释的匹配结论与缺口" }
+  - { id: "t17", order: 17, phaseId: "P4", laneId: "cs",
+      name: "一键 POD 确认", actor: "human",
+      inputs: ["POD匹配结论"], outputs: ["POD确认记录+POD日志"],
+      ruleType: "决策模型类·POD确认放行",
+      valueAnchors: ["收入确认时效", "POD确认合规率"], hitlFocus: "gate",
+      exception: "条件不足 → 阻断并提示缺口",
+      description: "CS 点击 POD 确认（对外确认收入的强制人工闸门）" }
+  - { id: "t18", order: 18, phaseId: "P4", laneId: "system",
+      name: "自动生成 SAP 预制发票", actor: "agent",
+      inputs: ["POD确认", "交货单", "客户", "金额"], outputs: ["预制发票号+状态"],
+      ruleType: "关联关系类·POD确认→预制发票",
+      valueAnchors: ["收入确认时效"], hitlFocus: "low",
+      exception: "SAP 返回失败 → 记录并重试/拉人",
+      description: "POD 确认后系统自动触发 SAP 生成预制发票" }
+  - { id: "t19", order: 19, phaseId: "P4", laneId: "cs_manager",
+      name: "特殊 POD 确认审批", actor: "human",
+      inputs: ["异常/特殊确认申请"], outputs: ["审批结论"],
+      ruleType: "决策模型类·特殊确认审批",
+      valueAnchors: ["POD确认合规率"], hitlFocus: "high",
+      exception: "驳回 → 退回 CS",
+      description: "CS 经理审批特殊或异常场景的 POD 确认" }
+
+  - { id: "t20", order: 20, phaseId: "P5", laneId: "finance",
+      name: "执行发票过账", actor: "human",
+      inputs: ["预制发票", "交货单"], outputs: ["会计凭证号+过账状态"],
+      ruleType: "决策模型类·过账校验规则",
+      valueAnchors: ["收入确认时效"], hitlFocus: "high",
+      exception: "过账失败 → 记录 SAP 返回，人工确认后重试",
+      description: "财务在发票过账页面执行过账（不提供预制按钮）" }
+  - { id: "t21", order: 21, phaseId: "P5", laneId: "system",
+      name: "回写凭证号与过账状态", actor: "agent",
+      inputs: ["SAP 返回凭证信息"], outputs: ["过账凭证记录"],
+      ruleType: "关联关系类·凭证回写",
+      valueAnchors: ["收入确认时效"], hitlFocus: "low",
+      exception: "回写失败 → 重试",
+      description: "系统回写凭证号、会计期间与过账状态到综合查询" }
+  - { id: "t22", order: 22, phaseId: "P5", laneId: "finance",
+      name: "打印与归档", actor: "human",
+      inputs: ["POD资料", "对账单", "POD日志", "预制发票", "凭证"], outputs: ["打印件+归档记录"],
+      ruleType: "模版范例类·打印与归档清单",
+      valueAnchors: ["POD确认合规率"], hitlFocus: "medium",
+      exception: "缺件 → 补件后归档",
+      description: "财务按打印样式打印并归档，记录归档人/时间/清单" }
+  - { id: "t23", order: 23, phaseId: "P5", laneId: "system",
+      name: "更新驾驶舱与超期预警", actor: "agent",
+      inputs: ["各节点状态", "异常阈值配置"], outputs: ["驾驶舱看板+超期预警"],
+      ruleType: "决策模型类·超期异常阈值规则",
+      valueAnchors: ["超期异常积压"], hitlFocus: "low",
+      exception: "阈值口径存疑 → 拉人确认",
+      description: "系统刷新全局看板并按阈值生成超期异常预警与待办推送" }
+
+flowNotes:
+  - "主链路 P1→P2→P3→P4→P5；P4 的「一键 POD 确认」为全场景 P0（对外确认收入，HITL 强制闸门）"
+  - "对账差异/借贷项未完成前不开放 POD 确认（P3 未收敛则 P4 阻断）"
+  - "物流发运单号以邮件原文为依据，不开放手工改写，异常走补邮件/补充说明留痕"
+returnNodes:
+  - "关联异常/签收存疑/差异无法收敛/过账失败 → 分别回物流、CS、CS 经理、财务处理"
+
+    </script>
+
+    <script>
+        function copyYAML() {
+            const yamlContent = document.getElementById('raw-yaml').textContent.trim();
+            navigator.clipboard.writeText(yamlContent).then(() => {
+                const btn = document.getElementById('copyYamlBtn');
+                const originalHtml = btn.innerHTML;
+                btn.innerHTML = '✓ 已复制';
+                setTimeout(() => { btn.innerHTML = originalHtml; }, 1600);
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+                alert('复制失败，请手动复制。');
+            });
+        }
+    </script>
+</body>
+</html>

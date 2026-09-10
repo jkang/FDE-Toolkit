@@ -1,0 +1,1149 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>X销售收入确认 · 销售POD收入确认业务规则挖掘清单</title>
+
+    <!-- ===== Design System: Inspire (Enterprise Tech) ===== -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+        :root {
+            --color-primary: #10213E;       /* Starry Blues */
+            --color-accent: #5DB2E2;        /* Creative Blue */
+            --color-secondary: #625D9C;     /* Amethyst */
+            --color-success: #00524C;       /* Myrtle Deep Green */
+            --color-info: #6FB1C8;          /* Cerulean Frost */
+            --color-warning: #F59E0B;       /* Warning */
+            --color-destructive: #EF4444;   /* Danger */
+            --color-background: #FFFFFF;    /* Pure White */
+            --color-bg-alt: #F5F5F6;        /* Tech Gray */
+            --color-foreground: #10213E;    /* Primary Text */
+            --color-text-muted: #64748B;    /* Text Secondary */
+            --color-border: #E2E8F0;        /* Border/Line */
+            --shadow-inspire: 0 2px 8px rgba(16, 33, 62, 0.08);
+        }
+
+        *, *::before, *::after { box-sizing: border-box !important; }
+        html, body {
+            margin: 0 !important; padding: 0 !important;
+            background: var(--color-bg-alt) !important;
+            color: var(--color-foreground) !important;
+            font-family: "MiSans", "Inter", "Microsoft YaHei", sans-serif !important;
+            line-height: 1.6 !important;
+            overflow-x: auto !important;
+        }
+
+        ::-webkit-scrollbar { width: 9px; height: 9px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: 5px; }
+        ::-webkit-scrollbar-thumb:hover { background: #CBD5E1; }
+
+        /* ===== Unified Header ===== */
+        .unified-hdr {
+            width: 100% !important; background: var(--color-background) !important;
+            border-bottom: 1px solid var(--color-border) !important; border-radius: 0 !important;
+            box-shadow: none !important; padding: 14px 28px !important; margin-bottom: 18px !important;
+            display: flex !important; justify-content: space-between !important; align-items: center !important;
+            gap: 16px !important; flex-wrap: wrap !important;
+        }
+        .unified-hdr-left { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+        .unified-hdr-left h1 {
+            font-size: 22px !important; font-weight: 700 !important; color: var(--color-primary) !important;
+            line-height: 1.3 !important; margin: 0 !important; display: flex !important; align-items: center !important; gap: 10px !important;
+        }
+        .unified-hdr-left h1::before {
+            content: "" !important; display: inline-block !important; width: 4px !important; height: 22px !important;
+            background: var(--color-secondary) !important; border-radius: 2px !important; flex-shrink: 0 !important;
+        }
+        .unified-hdr-left p {
+            font-size: 13px !important; color: var(--color-text-muted) !important;
+            margin: 4px 0 0 !important; padding-left: 14px !important; line-height: 1.5 !important;
+        }
+        .unified-hdr-right { display: flex; align-items: center; gap: 12px; flex-shrink: 0; flex-wrap: wrap; }
+        .unified-hdr-stats {
+            display: flex !important; align-items: center !important; gap: 8px !important;
+            background: var(--color-bg-alt) !important; border: 1px solid var(--color-border) !important;
+            border-radius: 20px !important; padding: 4px 14px !important;
+            font-size: 12px !important; color: var(--color-text-muted) !important;
+        }
+        .unified-hdr-stats b { color: var(--color-primary); font-weight: 700; margin-right: 3px; }
+        .hdr-stat-sep { width: 1px; height: 12px; background: var(--color-border); }
+        .btn-copy-yaml {
+            background: var(--color-primary) !important; color: #FFFFFF !important;
+            border: 1px solid var(--color-primary) !important; font-size: 12px !important;
+            padding: 6px 12px !important; border-radius: 6px !important; font-weight: 600 !important;
+            cursor: pointer !important; transition: all 0.15s ease-out !important;
+        }
+        .btn-copy-yaml:hover { opacity: 0.85 !important; }
+
+        main { width: 100% !important; max-width: none !important; margin: 0 auto !important; padding: 4px 28px 48px !important; display: block !important; }
+
+        /* ===== Panel ===== */
+        .panel {
+            background: var(--color-background) !important; border: 1px solid var(--color-border) !important;
+            border-radius: 8px !important; box-shadow: var(--shadow-inspire) !important;
+            padding: 16px 18px !important; margin-bottom: 18px !important;
+        }
+        .panel-head { display: flex !important; justify-content: space-between !important; align-items: center !important; gap: 12px !important; margin-bottom: 14px !important; flex-wrap: wrap !important; }
+        .panel-title { display: flex !important; align-items: center !important; gap: 8px !important; font-size: 14px !important; font-weight: 700 !important; color: var(--color-primary) !important; }
+        .panel-title .emoji { font-size: 16px !important; }
+        .panel-badge { font-size: 11px !important; font-weight: 600 !important; color: var(--color-text-muted) !important; background: var(--color-bg-alt) !important; border-radius: 10px !important; padding: 2px 10px !important; }
+
+        /* ===== Overview strip ===== */
+        .overview-strip {
+            background: var(--color-primary) !important; border-radius: 8px !important;
+            color: #FFFFFF !important; padding: 16px 20px !important; margin-bottom: 18px !important;
+            display: flex !important; align-items: center !important; flex-wrap: wrap !important; gap: 12px 22px !important;
+        }
+        .overview-stat { display: flex !important; align-items: baseline !important; gap: 6px !important; }
+        .overview-stat .num { font-size: 24px !important; font-weight: 800 !important; line-height: 1 !important; color: #FFFFFF !important; }
+        .overview-stat .lbl { font-size: 12px !important; color: rgba(255,255,255,0.8) !important; }
+        .overview-sep { width: 1px !important; height: 26px !important; background: rgba(255,255,255,0.2) !important; }
+
+        /* ===== Legend ===== */
+        .legend-panel {
+            background: var(--color-background) !important; border: 1px solid var(--color-border) !important;
+            border-radius: 8px !important; box-shadow: var(--shadow-inspire) !important;
+            padding: 12px 18px !important; margin-bottom: 18px !important;
+            display: flex !important; flex-wrap: wrap !important; gap: 8px 24px !important; align-items: center !important;
+        }
+        .legend-item { display: flex !important; align-items: center !important; gap: 6px !important; font-size: 12px !important; color: var(--color-text-muted) !important; white-space: nowrap !important; }
+        .legend-item .lbl { font-weight: 700 !important; color: var(--color-primary) !important; margin-right: 2px !important; }
+        .legend-pill {
+            display: inline-flex !important; align-items: center !important; gap: 4px !important;
+            padding: 2px 9px !important; border-radius: 10px !important; font-size: 11px !important; font-weight: 600 !important;
+            border: 1px solid var(--color-border) !important;
+        }
+
+        /* ===== Section label ===== */
+        .rule-section { margin-bottom: 22px !important; }
+        .rule-section-hd { display: flex !important; align-items: center !important; gap: 10px !important; margin: 20px 0 12px !important; }
+        .rule-section-hd .rs-icon { font-size: 18px !important; }
+        .rule-section-hd .rs-title { font-size: 15px !important; font-weight: 700 !important; color: var(--color-primary) !important; }
+        .rule-section-hd .rs-desc { font-size: 12px !important; color: var(--color-text-muted) !important; }
+        .rule-section-hd .rs-count { margin-left: auto !important; font-size: 11px !important; font-weight: 700 !important; color: var(--color-secondary) !important; background: rgba(98,93,156,0.08) !important; border-radius: 10px !important; padding: 2px 10px !important; }
+
+        /* ===== Decision case ===== */
+        .decision-case {
+            border: 1px solid var(--color-border) !important; border-radius: 8px !important;
+            box-shadow: var(--shadow-inspire) !important; padding: 14px 16px !important; margin-bottom: 14px !important;
+            background: var(--color-background) !important;
+        }
+        .decision-case-hd { display: flex !important; align-items: center !important; gap: 8px !important; flex-wrap: wrap !important; margin-bottom: 12px !important; }
+        .decision-case-hd .dc-name { font-size: 14px !important; font-weight: 700 !important; color: var(--color-primary) !important; }
+        .usage-chip { display: inline-flex !important; align-items: center !important; gap: 4px !important; font-size: 11px !important; font-weight: 600 !important; color: var(--color-accent) !important; background: rgba(93,178,226,0.10) !important; border-radius: 10px !important; padding: 2px 9px !important; }
+        .decision-flow { display: flex !important; gap: 10px !important; align-items: stretch !important; }
+        .df-step { flex: 1 1 0 !important; background: var(--color-bg-alt) !important; border-radius: 8px !important; padding: 11px 12px !important; display: flex !important; flex-direction: column !important; gap: 4px !important; }
+        .df-step .df-num { font-size: 11px !important; font-weight: 700 !important; color: var(--color-secondary) !important; }
+        .df-step .df-label { font-size: 12.5px !important; font-weight: 700 !important; color: var(--color-primary) !important; }
+        .df-step .df-val { font-size: 12px !important; color: var(--color-foreground) !important; line-height: 1.5 !important; }
+        .df-step .df-val b { color: var(--color-destructive) !important; font-weight: 600 !important; }
+        .df-step.conflict { background: rgba(245,158,11,0.08) !important; border: 1px solid #FCD34D !important; }
+        .df-arrow { display: flex !important; align-items: center !important; color: var(--color-text-muted) !important; font-size: 16px !important; flex-shrink: 0 !important; }
+        .decision-summary { margin-top: 10px !important; font-size: 12px !important; color: var(--color-text-muted) !important; border-top: 1px dashed var(--color-border) !important; padding-top: 8px !important; }
+
+        /* ===== Template case ===== */
+        .template-case { border: 1px solid var(--color-border) !important; border-radius: 8px !important; box-shadow: var(--shadow-inspire) !important; padding: 14px 16px !important; margin-bottom: 14px !important; }
+        .template-case-hd { display: flex !important; align-items: center !important; justify-content: space-between !important; gap: 10px !important; flex-wrap: wrap !important; margin-bottom: 12px !important; }
+        .template-case-hd .tc-name { font-size: 14px !important; font-weight: 700 !important; color: var(--color-primary) !important; }
+        .template-anatomy { display: flex !important; gap: 6px !important; align-items: center !important; flex-wrap: wrap !important; }
+        .tpl-block { background: var(--color-bg-alt) !important; border-radius: 8px !important; padding: 10px 12px !important; margin-bottom: 10px !important; }
+        .tpl-block-hd { font-size: 12px !important; font-weight: 700 !important; color: var(--color-secondary) !important; margin-bottom: 8px !important; }
+        .tpl-mini-table { font-size: 11.5px !important; }
+        .tpl-mini-table .mt-row { display: flex !important; border-bottom: 1px solid var(--color-border) !important; padding: 6px 0 !important; gap: 8px !important; }
+        .tpl-mini-table .mt-row.head { font-weight: 700 !important; color: var(--color-primary) !important; background: var(--color-bg-alt) !important; padding: 7px 8px !important; border-radius: 6px !important; }
+        .tpl-mini-table .mt-row span { flex: 1 1 0 !important; }
+        .tpl-rule { display: flex !important; gap: 8px !important; flex-wrap: wrap !important; margin-top: 6px !important; }
+        .tpl-rule .tr-pill { font-size: 11px !important; font-weight: 600 !important; padding: 3px 9px !important; border-radius: 8px !important; border: 1px solid var(--color-border) !important; }
+        .tpl-sample { display: flex !important; gap: 8px !important; flex-wrap: wrap !important; margin-top: 8px !important; }
+        .sample-chip { font-size: 11px !important; padding: 3px 9px !important; border-radius: 8px !important; }
+        .sample-chip.good { background: rgba(0,82,76,0.08) !important; color: var(--color-success) !important; border: 1px solid #7FB6B0 !important; }
+        .sample-chip.bad { background: rgba(239,68,68,0.08) !important; color: #B91C1C !important; border: 1px solid #FCA5A5 !important; }
+
+        /* ===== Dictionary ===== */
+        .dict-case { border: 1px solid var(--color-border) !important; border-radius: 8px !important; box-shadow: var(--shadow-inspire) !important; padding: 14px 16px !important; margin-bottom: 14px !important; }
+        .dict-grid { display: grid !important; grid-template-columns: repeat(auto-fill, minmax(210px,1fr)) !important; gap: 8px !important; margin-top: 10px !important; }
+        .dict-entry { background: var(--color-bg-alt) !important; border-radius: 8px !important; padding: 9px 11px !important; }
+        .dict-entry .de-term { font-size: 12.5px !important; font-weight: 700 !important; color: var(--color-primary) !important; }
+        .dict-entry .de-def { font-size: 11.5px !important; color: var(--color-foreground) !important; margin-top: 3px !important; line-height: 1.5 !important; }
+        .dict-entry .de-ctx { font-size: 10.5px !important; color: var(--color-text-muted) !important; margin-top: 3px !important; }
+
+        /* ===== Extraction ===== */
+        .extract-case { border: 1px solid var(--color-border) !important; border-radius: 8px !important; box-shadow: var(--shadow-inspire) !important; padding: 14px 16px !important; margin-bottom: 14px !important; }
+        .extract-table { width: 100% !important; border-collapse: collapse !important; font-size: 11.5px !important; }
+        .extract-table thead th { text-align: left !important; background: var(--color-primary) !important; color: #FFFFFF !important; font-weight: 600 !important; padding: 8px 10px !important; }
+        .extract-table tbody td { padding: 9px 10px !important; border-bottom: 1px solid var(--color-border) !important; vertical-align: top !important; }
+        .extract-table tbody tr:nth-child(even) td { background: var(--color-bg-alt) !important; }
+        .extract-table .td-field { font-weight: 700 !important; color: var(--color-primary) !important; }
+        .acceptance { margin-top: 10px !important; background: rgba(98,93,156,0.06) !important; border-radius: 8px !important; padding: 9px 12px !important; font-size: 12px !important; color: var(--color-secondary) !important; font-weight: 600 !important; }
+
+        /* ===== Relation ===== */
+        .relation-case { border: 1px solid var(--color-border) !important; border-radius: 8px !important; box-shadow: var(--shadow-inspire) !important; padding: 14px 16px !important; margin-bottom: 14px !important; }
+        .relation-network { display: flex !important; align-items: center !important; gap: 8px !important; flex-wrap: wrap !important; margin-bottom: 10px !important; }
+        .rel-node { background: var(--color-bg-alt) !important; border: 1px solid var(--color-border) !important; border-radius: 8px !important; padding: 7px 11px !important; font-size: 12px !important; font-weight: 600 !important; color: var(--color-primary) !important; text-align: center !important; }
+        .rel-node small { display: block !important; font-size: 10px !important; font-weight: 500 !important; color: var(--color-text-muted) !important; }
+        .rel-link { color: var(--color-secondary) !important; font-size: 15px !important; }
+        .rel-rules { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 8px !important; font-size: 12px !important; }
+        .rel-rule-box { background: var(--color-bg-alt) !important; border-radius: 6px !important; padding: 8px 10px !important; }
+        .rel-rule-box b { color: var(--color-primary) !important; display: block !important; margin-bottom: 3px !important; font-size: 11.5px !important; }
+
+        /* ===== Reconciliation ===== */
+        .recon-table { width: 100% !important; border-collapse: collapse !important; font-size: 11.5px !important; }
+        .recon-table thead th { text-align: left !important; background: var(--color-secondary) !important; color: #FFFFFF !important; font-weight: 600 !important; padding: 8px 10px !important; white-space: nowrap !important; }
+        .recon-table tbody td { padding: 9px 10px !important; border-bottom: 1px solid var(--color-border) !important; vertical-align: top !important; }
+        .recon-check { font-size: 11px !important; font-weight: 700 !important; color: var(--color-success) !important; }
+        .recon-check.no { color: var(--color-destructive) !important; }
+
+        /* ===== Notes panel ===== */
+        .notes-panel {
+            background: var(--color-background) !important; border: 1px solid var(--color-border) !important;
+            border-radius: 8px !important; box-shadow: var(--shadow-inspire) !important;
+            padding: 16px 18px !important; margin-top: 4px !important;
+            display: flex !important; flex-wrap: wrap !important; gap: 16px 24px !important;
+        }
+        .notes-col { flex: 1 1 320px !important; }
+        .notes-col h3 { font-size: 13px !important; font-weight: 700 !important; color: var(--color-secondary) !important; margin: 0 0 8px !important; display: flex !important; align-items: center !important; gap: 6px !important; }
+        .notes-col p { margin: 0 !important; font-size: 12px !important; color: var(--color-text-muted) !important; line-height: 1.6 !important; }
+
+        @media (max-width: 768px) {
+            main { padding: 4px 12px 32px !important; }
+            .unified-hdr { padding: 12px 14px !important; }
+            .decision-flow { flex-direction: column !important; }
+            .df-arrow { transform: rotate(90deg) !important; align-self: center !important; }
+            .rel-rules { grid-template-columns: 1fr !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== Unified Header ===== -->
+    <header class="unified-hdr">
+        <div class="unified-hdr-left">
+            <h1>X销售收入确认 · 销售POD收入确认业务规则挖掘清单</h1>
+            <p>来自阶段2 · P2 任务处理规则挖掘 · 阶段2方法（五类任务处理规则：决策/模板/术语/提取点/关联）</p>
+        </div>
+        <div class="unified-hdr-right">
+            <div class="unified-hdr-stats">
+                <span class="hdr-stat"><b>规则</b> 11</span>
+                <span class="hdr-stat-sep"></span>
+                <span class="hdr-stat">⚖️ 4</span>
+                <span class="hdr-stat-sep"></span>
+                <span class="hdr-stat">📝 3</span>
+                <span class="hdr-stat-sep"></span>
+                <span class="hdr-stat">📖 1</span>
+                <span class="hdr-stat-sep"></span>
+                <span class="hdr-stat">🔍 2</span>
+                <span class="hdr-stat-sep"></span>
+                <span class="hdr-stat">🔗 1</span>
+            </div>
+            <button id="copyYamlBtn" class="btn-copy-yaml" onclick="copyYAML()">复制原始 YAML</button>
+        </div>
+    </header>
+
+    <main>
+        <!-- ===== Overview strip ===== -->
+        <div class="overview-strip">
+            <div class="overview-stat"><span class="num">11</span><span class="lbl">条规则/词条/样本</span></div>
+            <div class="overview-sep"></div>
+            <div class="overview-stat"><span class="num">⚖️ 4</span><span class="lbl">决策模型</span></div>
+            <div class="overview-sep"></div>
+            <div class="overview-stat"><span class="num">📝 3</span><span class="lbl">模版范例</span></div>
+            <div class="overview-sep"></div>
+            <div class="overview-stat"><span class="num">📖 1</span><span class="lbl">术语字典</span></div>
+            <div class="overview-sep"></div>
+            <div class="overview-stat"><span class="num">🔍 2</span><span class="lbl">提取要点</span></div>
+            <div class="overview-sep"></div>
+            <div class="overview-stat"><span class="num">🔗 1</span><span class="lbl">关联关系</span></div>
+        </div>
+
+        <!-- ===== Legend ===== -->
+        <div class="legend-panel">
+            <div class="legend-item"><span class="lbl">规则类型</span>
+                
+                <span class="legend-pill">⚖️ 决策模型类</span>
+                
+                <span class="legend-pill">📝 模版范例类</span>
+                
+                <span class="legend-pill">📖 术语字典类</span>
+                
+                <span class="legend-pill">🔍 关键信息提取要点</span>
+                
+                <span class="legend-pill">🔗 关联关系类</span>
+                
+            </div>
+        </div>
+
+        <!-- ===== 决策模型类 ===== -->
+        
+        <div class="rule-section">
+            <div class="rule-section-hd">
+                <span class="rs-icon">⚖️</span><span class="rs-title">决策模型类</span>
+                <span class="rs-desc">怎么算、怎么判、走哪条路径（决策因子 → 逻辑分支 → 分支动作 → 冲突仲裁）</span>
+                <span class="rs-count">4 条</span>
+            </div>
+            
+            <div class="decision-case">
+                <div class="decision-case-hd">
+                    <span class="dc-name">物流发运关联匹配规则</span>
+                    <span class="usage-chip">使用点 · 识别邮件关键字段</span><span class="usage-chip">使用点 · 建立交货单-发运单关联</span>
+                </div>
+                <div class="decision-flow">
+                    <div class="df-step">
+                        <span class="df-num">①</span><span class="df-label">决策因子</span>
+                        
+                        <div class="df-val"><b>交货单号 / DN</b>：邮件中出现的 SAP 交货单号 <small>(来源 公共邮箱邮件正文/主题)</small></div>
+                        
+                        <div class="df-val"><b>物流公司 / 承运商</b>：邮件中的承运商名称 <small>(来源 公共邮箱邮件 + 承运商字典)</small></div>
+                        
+                        <div class="df-val"><b>物流发运单号</b>：承运商开具的发运单号 <small>(来源 公共邮箱邮件正文/附件)</small></div>
+                        
+                        <div class="df-val"><b>邮件发件人与时间</b>：判断邮件来源与时效 <small>(来源 公共邮箱邮件头)</small></div>
+                        
+                    </div>
+                    <div class="df-arrow">→</div>
+                    <div class="df-step">
+                        <span class="df-num">②</span><span class="df-label">逻辑分支</span>
+                        <div class="df-val">交货单号 + 发运单号唯一且承运商可识别 → → 自动建立交货单-发运单关联</div><div class="df-val">一封邮件含多个交货单号 / 发运单号 → → 逐单拆分关联并标注一对多</div><div class="df-val">发运单号缺失或格式异常 → → 转人工复核/补邮件</div>
+                    </div>
+                    <div class="df-arrow">→</div>
+                    <div class="df-step">
+                        <span class="df-num">③</span><span class="df-label">分支动作</span>
+                        <div class="df-val">从公共邮箱邮件识别交货单号、承运商、发运单号并建立交货单-发运单关联。</div>
+                    </div>
+                    <div class="df-arrow">→</div>
+                    <div class="df-step conflict">
+                        <span class="df-num">④</span><span class="df-label">冲突仲裁</span>
+                        <div class="df-val">以邮件原文为唯一依据；同一交货单出现多条冲突发运单号时，取最新有效邮件并留痕。</div>
+                        <div class="df-val"><b>例外/HITL：</b>识别置信度低或存在冲突 → 拉人复核，物流补邮件/补充说明留痕，不开放手工直接改写。</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="decision-case">
+                <div class="decision-case-hd">
+                    <span class="dc-name">对账差异规则</span>
+                    <span class="usage-chip">使用点 · 自动比对差异并归因</span>
+                </div>
+                <div class="decision-flow">
+                    <div class="df-step">
+                        <span class="df-num">①</span><span class="df-label">决策因子</span>
+                        
+                        <div class="df-val"><b>客户一致性</b>：客户反馈中的客户与对账单客户是否一致 <small>(来源 客户主数据)</small></div>
+                        
+                        <div class="df-val"><b>交货单存在性</b>：反馈中的交货单是否在 SAP 交货单范围内 <small>(来源 SAP 交货单/明细)</small></div>
+                        
+                        <div class="df-val"><b>数量一致性</b>：SAP 数量 vs 客户确认数量 <small>(来源 对账单明细)</small></div>
+                        
+                        <div class="df-val"><b>金额一致性</b>：SAP 金额 vs 客户确认金额 <small>(来源 对账单明细)</small></div>
+                        
+                        <div class="df-val"><b>反馈完整性</b>：是否存在重复反馈或缺失反馈 <small>(来源 客户反馈文件)</small></div>
+                        
+                    </div>
+                    <div class="df-arrow">→</div>
+                    <div class="df-step">
+                        <span class="df-num">②</span><span class="df-label">逻辑分支</span>
+                        <div class="df-val">数量与金额均一致 → → 标记对账完成，进入 POD 确认</div><div class="df-val">数量或金额不一致（在容差内） → → 标记差异并建议调整借贷项</div><div class="df-val">交货单不存在 / 客户不一致 → → 标记异常并转人工核实</div><div class="df-val">重复或缺失反馈 → → 提示去重/补全后重跑</div>
+                    </div>
+                    <div class="df-arrow">→</div>
+                    <div class="df-step">
+                        <span class="df-num">③</span><span class="df-label">分支动作</span>
+                        <div class="df-val">按客户一致性、交货单存在性、数量/金额一致性、重复缺失与容差规则自动比对并归因。</div>
+                    </div>
+                    <div class="df-arrow">→</div>
+                    <div class="df-step conflict">
+                        <span class="df-num">④</span><span class="df-label">冲突仲裁</span>
+                        <div class="df-val">金额差异以 SAP 为准、数量差异以签收/对账确认为准；超容差差异必须人工裁决。</div>
+                        <div class="df-val"><b>例外/HITL：</b>文件格式不识别或口径冲突 → 拉人处理；差异无法收敛 → 升级 CS 经理/财务。</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="decision-case">
+                <div class="decision-case-hd">
+                    <span class="dc-name">POD 确认条件规则</span>
+                    <span class="usage-chip">使用点 · 校验POD确认条件</span><span class="usage-chip">使用点 · 一键POD确认</span>
+                </div>
+                <div class="decision-flow">
+                    <div class="df-step">
+                        <span class="df-num">①</span><span class="df-label">决策因子</span>
+                        
+                        <div class="df-val"><b>交货单已同步</b>：SAP 交货单已进入工作台 <small>(来源 交货单表)</small></div>
+                        
+                        <div class="df-val"><b>物流发运关联已建立</b>：存在交货单-发运单关联 <small>(来源 物流发运关联表)</small></div>
+                        
+                        <div class="df-val"><b>签收/POD 有效</b>：存在有效签收资料或客户自提确认 <small>(来源 POD资料表)</small></div>
+                        
+                        <div class="df-val"><b>对账已完成</b>：对账单状态为对账完成 <small>(来源 对账单表)</small></div>
+                        
+                        <div class="df-val"><b>借贷项已完成或不适用</b>：差异借贷项已过账或无差异 <small>(来源 借贷项表)</small></div>
+                        
+                        <div class="df-val"><b>用户具备 POD 确认权限</b>：当前用户角色与数据范围 <small>(来源 权限服务)</small></div>
+                        
+                    </div>
+                    <div class="df-arrow">→</div>
+                    <div class="df-step">
+                        <span class="df-num">②</span><span class="df-label">逻辑分支</span>
+                        <div class="df-val">五要素全部满足 → → 允许 POD 确认（人工闸门放行）</div><div class="df-val">存在条件缺口 → → 阻断并提示缺口，生成待办</div><div class="df-val">特殊/异常场景 → → 转 CS 经理审批</div>
+                    </div>
+                    <div class="df-arrow">→</div>
+                    <div class="df-step">
+                        <span class="df-num">③</span><span class="df-label">分支动作</span>
+                        <div class="df-val">五要素硬校验，全部满足才允许人工一键 POD 确认。</div>
+                    </div>
+                    <div class="df-arrow">→</div>
+                    <div class="df-step conflict">
+                        <span class="df-num">④</span><span class="df-label">冲突仲裁</span>
+                        <div class="df-val">任一硬条件不满足一律阻断；借贷项未完成优先于其它条件阻断。</div>
+                        <div class="df-val"><b>例外/HITL：</b>条件缺口 → 引导补件/补对账；特殊场景 → CS 经理终审。</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="decision-case">
+                <div class="decision-case-hd">
+                    <span class="dc-name">超期异常阈值规则</span>
+                    <span class="usage-chip">使用点 · 更新驾驶舱与超期预警</span>
+                </div>
+                <div class="decision-flow">
+                    <div class="df-step">
+                        <span class="df-num">①</span><span class="df-label">决策因子</span>
+                        
+                        <div class="df-val"><b>已发货未取发运单天数</b>：交货单出库后未关联发运单的持续天数 <small>(来源 交货单表 + 物流关联表)</small></div>
+                        
+                        <div class="df-val"><b>已取得未签收天数</b>：已关联发运单但未取得有效签收的持续天数 <small>(来源 物流关联表 + POD资料表)</small></div>
+                        
+                        <div class="df-val"><b>已发货未创建对账单天数</b>：交货单出库后未创建对账单的持续天数 <small>(来源 交货单表 + 对账单表)</small></div>
+                        
+                        <div class="df-val"><b>具备条件未 POD 确认天数</b>：条件齐备但未 POD 确认的持续天数 <small>(来源 POD匹配表)</small></div>
+                        
+                    </div>
+                    <div class="df-arrow">→</div>
+                    <div class="df-step">
+                        <span class="df-num">②</span><span class="df-label">逻辑分支</span>
+                        <div class="df-val">未超配置阈值 → → 正常展示待办</div><div class="df-val">超过预警阈值 → → 黄色预警并推送待办</div><div class="df-val">超过严重阈值 → → 红色预警并升级责任人/经理</div>
+                    </div>
+                    <div class="df-arrow">→</div>
+                    <div class="df-step">
+                        <span class="df-num">③</span><span class="df-label">分支动作</span>
+                        <div class="df-val">按可配置阈值计算四类超期异常并驱动驾驶舱预警与待办推送。</div>
+                    </div>
+                    <div class="df-arrow">→</div>
+                    <div class="df-step conflict">
+                        <span class="df-num">④</span><span class="df-label">冲突仲裁</span>
+                        <div class="df-val">阈值按业务配置，口径存疑时以业务确认值为准；四类异常独立计算不合并。</div>
+                        <div class="df-val"><b>例外/HITL：</b>阈值口径存疑 → 拉人确认后回填配置。</div>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+        
+
+        <!-- ===== 模版范例类 ===== -->
+        
+        <div class="rule-section">
+            <div class="rule-section-hd">
+                <span class="rs-icon">📝</span><span class="rs-title">模版范例类</span>
+                <span class="rs-desc">照什么结构和范例生成（固定骨架 + 动态字段来源 + 生成/合规规则 + 典型/反面样本）</span>
+                <span class="rs-count">3 条</span>
+            </div>
+            
+            <div class="template-case">
+                <div class="template-case-hd">
+                    <span class="tc-name">对账单生成模板</span>
+                    <div class="template-anatomy">
+                        <span class="usage-chip">使用点 · 创建对账单</span><span class="usage-chip">使用点 · 下载对账单交客户确认</span>
+                    </div>
+                </div>
+                
+                <div class="tpl-block">
+                    <div class="tpl-block-hd">固定骨架（章节 / 表头）</div>
+                    
+                    <div class="tpl-mini-table">
+                        <div class="mt-row"><span><b>① 对账单头</b></span></div>
+                        <div class="mt-row"><span>固定：固定栏（对账单号/客户编码/客户名称/对账周期/币种/生成人/生成时间）</span></div>
+                        <div class="mt-row"><span>动态：随创建参数动态填充</span></div>
+                    </div>
+                    
+                    <div class="tpl-mini-table">
+                        <div class="mt-row"><span><b>② 交货单明细</b></span></div>
+                        <div class="mt-row"><span>固定：固定栏（交货单号/出库日期/数量/金额/对账状态）</span></div>
+                        <div class="mt-row"><span>动态：随勾选交货单动态填充</span></div>
+                    </div>
+                    
+                    <div class="tpl-mini-table">
+                        <div class="mt-row"><span><b>③ 汇总与差异</b></span></div>
+                        <div class="mt-row"><span>固定：固定栏（合计数量/合计金额/差异金额/借贷项状态）</span></div>
+                        <div class="mt-row"><span>动态：随差异分析结果动态填充</span></div>
+                    </div>
+                    
+                </div>
+                
+                
+                <div class="tpl-block">
+                    <div class="tpl-block-hd">动态字段来源</div>
+                    <div class="df-val" style="font-size:12px;"><b>对账单号</b> ← 系统按规则生成（如 RC-2026-09-001）</div><div class="df-val" style="font-size:12px;"><b>对账周期</b> ← 来自 CS 选择的起止日期</div><div class="df-val" style="font-size:12px;"><b>客户名称</b> ← 来自客户主数据</div>
+                </div>
+                
+                <div class="tpl-rule">
+                    <span class="tr-pill">生成规则：存在 SAP 交货单才可创建；按客户与周期批量创建，一张对账单对应多张交货单。</span>
+                    <span class="tr-pill">合规：下载给客户的对账单必须含客户、周期、交货单明细与合计金额；缺一不可。</span>
+                </div>
+                
+                <div class="tpl-sample">
+                    
+                    <span class="sample-chip good">典型 · 单客户单周期对账 · 交货单齐全，差异为零，客户一次确认通过</span>
+                    
+                    <span class="sample-chip bad">反面 · 含未同步交货单 · 未同步交货单不得入对账单，否则差异无法归因</span>
+                    
+                </div>
+                
+            </div>
+            
+            <div class="template-case">
+                <div class="template-case-hd">
+                    <span class="tc-name">客户反馈与差异说明模板</span>
+                    <div class="template-anatomy">
+                        <span class="usage-chip">使用点 · 下载对账单交客户确认</span><span class="usage-chip">使用点 · 确认差异并处理借贷项</span>
+                    </div>
+                </div>
+                
+                <div class="tpl-block">
+                    <div class="tpl-block-hd">固定骨架（章节 / 表头）</div>
+                    
+                    <div class="tpl-mini-table">
+                        <div class="mt-row"><span><b>① 反馈头</b></span></div>
+                        <div class="mt-row"><span>固定：固定栏（对账单号/客户/反馈日期/反馈人）</span></div>
+                        <div class="mt-row"><span>动态：随客户反馈文件动态填充</span></div>
+                    </div>
+                    
+                    <div class="tpl-mini-table">
+                        <div class="mt-row"><span><b>② 明细差异</b></span></div>
+                        <div class="mt-row"><span>固定：固定栏（交货单号/SAP数量金额/客户确认数量金额/差异）</span></div>
+                        <div class="mt-row"><span>动态：随客户反馈数据动态填充</span></div>
+                    </div>
+                    
+                    <div class="tpl-mini-table">
+                        <div class="mt-row"><span><b>③ 差异说明与处理</b></span></div>
+                        <div class="mt-row"><span>固定：固定栏（差异类型/原因/借贷项处理结论）</span></div>
+                        <div class="mt-row"><span>动态：随 CS 处理结果动态填充</span></div>
+                    </div>
+                    
+                </div>
+                
+                
+                <div class="tpl-block">
+                    <div class="tpl-block-hd">动态字段来源</div>
+                    <div class="df-val" style="font-size:12px;"><b>差异类型</b> ← 来自对账差异规则归因结果</div><div class="df-val" style="font-size:12px;"><b>借贷项处理结论</b> ← 来自借贷项处理状态</div>
+                </div>
+                
+                <div class="tpl-rule">
+                    <span class="tr-pill">生成规则：客户反馈上传后自动解析生成差异说明；人工确认差异原因后回写结论。</span>
+                    <span class="tr-pill">合规：差异说明必须逐条对应交货单并给出处理结论，未清差异不得标记对账完成。</span>
+                </div>
+                
+                <div class="tpl-sample">
+                    
+                    <span class="sample-chip good">典型 · 数量差异 · 客户少计一箱，生成借项并完成过账后对账完成</span>
+                    
+                    <span class="sample-chip bad">反面 · 差异未说明 · 存在差异但无原因与处理结论，禁止进入 POD 确认</span>
+                    
+                </div>
+                
+            </div>
+            
+            <div class="template-case">
+                <div class="template-case-hd">
+                    <span class="tc-name">POD日志与过账凭证打印模板</span>
+                    <div class="template-anatomy">
+                        <span class="usage-chip">使用点 · 打印与归档</span>
+                    </div>
+                </div>
+                
+                <div class="tpl-block">
+                    <div class="tpl-block-hd">固定骨架（章节 / 表头）</div>
+                    
+                    <div class="tpl-mini-table">
+                        <div class="mt-row"><span><b>① POD 日志</b></span></div>
+                        <div class="mt-row"><span>固定：固定栏（交货单号/确认时间/确认人/POD日志号/预制发票号）</span></div>
+                        <div class="mt-row"><span>动态：随 POD 确认记录动态填充</span></div>
+                    </div>
+                    
+                    <div class="tpl-mini-table">
+                        <div class="mt-row"><span><b>② 过账凭证</b></span></div>
+                        <div class="mt-row"><span>固定：固定栏（凭证号/会计期间/过账状态/过账人/过账时间）</span></div>
+                        <div class="mt-row"><span>动态：随 SAP 回写凭证信息动态填充</span></div>
+                    </div>
+                    
+                </div>
+                
+                
+                <div class="tpl-block">
+                    <div class="tpl-block-hd">动态字段来源</div>
+                    <div class="df-val" style="font-size:12px;"><b>凭证号</b> ← 来自 SAP 过账返回</div><div class="df-val" style="font-size:12px;"><b>归档清单</b> ← 来自资料清单与归档规则</div>
+                </div>
+                
+                <div class="tpl-rule">
+                    <span class="tr-pill">生成规则：系统生成资料按确认样式打印；原始资料（签收单/客户反馈）直接打印。</span>
+                    <span class="tr-pill">合规：归档需记录归档人、归档时间与资料清单；缺件不得归档。</span>
+                </div>
+                
+                <div class="tpl-sample">
+                    
+                    <span class="sample-chip good">典型 · 全链路归档 · 交货单/签收/POD/对账单/POD日志/预制发票/凭证齐全归档</span>
+                    
+                    <span class="sample-chip bad">反面 · 缺过账凭证 · 未过账或凭证缺失不得标记归档完成</span>
+                    
+                </div>
+                
+            </div>
+            
+        </div>
+        
+
+        <!-- ===== 术语字典类 ===== -->
+        
+        <div class="rule-section">
+            <div class="rule-section-hd">
+                <span class="rs-icon">📖</span><span class="rs-title">术语字典类</span>
+                <span class="rs-desc">词、缩写、业务口径（标准名 + 定义 + 引用范围 + 维护方）</span>
+                <span class="rs-count">1 条</span>
+            </div>
+            
+            <div class="dict-case">
+                <div class="decision-case-hd">
+                    <span class="dc-name">销售POD收入确认业务口径词典</span>
+                    <span class="usage-chip">使用点 · 识别邮件关键字段</span><span class="usage-chip">使用点 · 自动比对差异并归因</span><span class="usage-chip">使用点 · 校验POD确认条件</span><span class="usage-chip">使用点 · 执行发票过账</span>
+                </div>
+                
+                <div class="dict-grid">
+                    
+                    <div class="dict-entry">
+                        <div class="de-term">DN / 交货单</div>
+                        <div class="de-def">SAP 交货单（Delivery Note），收入确认的业务主线与确认颗粒度</div>
+                        <div class="de-ctx">适用：交货单同步</div>
+                    </div>
+                    
+                    <div class="dict-entry">
+                        <div class="de-term">POD</div>
+                        <div class="de-def">Proof of Delivery，签收凭据（物流签收单 / 客户自提确认）</div>
+                        <div class="de-ctx">适用：签收/POD资料识别</div>
+                    </div>
+                    
+                    <div class="dict-entry">
+                        <div class="de-term">PID</div>
+                        <div class="de-def">价格审批单，其审批结果生成价格条件作为 SO 基准</div>
+                        <div class="de-ctx">适用：POD确认与开票口径</div>
+                    </div>
+                    
+                    <div class="dict-entry">
+                        <div class="de-term">借贷项</div>
+                        <div class="de-def">对账差异处理后生成的借项或贷项调整</div>
+                        <div class="de-ctx">适用：差异与借贷项处理</div>
+                    </div>
+                    
+                    <div class="dict-entry">
+                        <div class="de-term">预制发票</div>
+                        <div class="de-def">POD 确认后由 SAP 自动生成的待过账发票</div>
+                        <div class="de-ctx">适用：预制发票与过账</div>
+                    </div>
+                    
+                    <div class="dict-entry">
+                        <div class="de-term">过账</div>
+                        <div class="de-def">财务执行发票入账，产生会计凭证号与会计期间</div>
+                        <div class="de-ctx">适用：发票过账</div>
+                    </div>
+                    
+                    <div class="dict-entry">
+                        <div class="de-term">对账单</div>
+                        <div class="de-def">按客户与周期汇总交货单、交客户确认的核对单据</div>
+                        <div class="de-ctx">适用：对账单处理</div>
+                    </div>
+                    
+                    <div class="dict-entry">
+                        <div class="de-term">客户自提</div>
+                        <div class="de-def">客户自提货并邮件确认，视同物流签收已确认</div>
+                        <div class="de-ctx">适用：签收确认</div>
+                    </div>
+                    
+                </div>
+                
+                <div class="decision-summary">
+                    <b>维护方：</b>销售/CS 与财务团队，随口径与政策更新<br>
+                    <b>引用范围：</b>物流关联、对账、POD确认、过账、综合查询
+                </div>
+            </div>
+            
+        </div>
+        
+
+        <!-- ===== 关键信息提取要点 ===== -->
+        
+        <div class="rule-section">
+            <div class="rule-section-hd">
+                <span class="rs-icon">🔍</span><span class="rs-title">关键信息提取要点</span>
+                <span class="rs-desc">专家看资料重点看什么（目标字段 + 典型位置 + 易错点 + 验收门槛）</span>
+                <span class="rs-count">2 条</span>
+            </div>
+            
+            <div class="extract-case">
+                <div class="decision-case-hd">
+                    <span class="dc-name">物流邮件字段抽取要点</span>
+                    <span class="usage-chip">使用点 · 识别邮件关键字段</span>
+                </div>
+                <table class="extract-table">
+                    <thead><tr><th>目标字段</th><th>定义</th><th>典型位置</th><th>变体</th><th>易错点</th></tr></thead>
+                    <tbody>
+                        
+                        <tr>
+                            <td class="td-field">交货单号</td>
+                            <td>SAP 交货单号 / DN</td>
+                            <td>邮件主题、邮件正文、附件文件名</td>
+                            <td>多单号、带前缀</td>
+                            <td>一封邮件多单号需拆分</td>
+                        </tr>
+                        
+                        <tr>
+                            <td class="td-field">物流公司</td>
+                            <td>承运商名称</td>
+                            <td>邮件正文、发件人域名</td>
+                            <td>简称/全称</td>
+                            <td>需映射承运商字典</td>
+                        </tr>
+                        
+                        <tr>
+                            <td class="td-field">物流发运单号</td>
+                            <td>承运商发运单号</td>
+                            <td>邮件正文、附件</td>
+                            <td>多格式</td>
+                            <td>格式校验避免误提</td>
+                        </tr>
+                        
+                        <tr>
+                            <td class="td-field">客户自提确认</td>
+                            <td>自提完成的明确表述</td>
+                            <td>邮件正文</td>
+                            <td>不同措辞</td>
+                            <td>表述不明确需人工确认</td>
+                        </tr>
+                        
+                    </tbody>
+                </table>
+                <div class="acceptance">🎯 验收门槛：交货单号/发运单号抽取准确率 ≥98%；无法唯一对应或低置信度 → 标黄转人工复核。</div>
+            </div>
+            
+            <div class="extract-case">
+                <div class="decision-case-hd">
+                    <span class="dc-name">签收单/POD 字段抽取要点</span>
+                    <span class="usage-chip">使用点 · OCR识别签收/POD字段</span>
+                </div>
+                <table class="extract-table">
+                    <thead><tr><th>目标字段</th><th>定义</th><th>典型位置</th><th>变体</th><th>易错点</th></tr></thead>
+                    <tbody>
+                        
+                        <tr>
+                            <td class="td-field">签收人</td>
+                            <td>收货方签收人姓名</td>
+                            <td>签收栏</td>
+                            <td>手写/打印</td>
+                            <td>手写潦草需复核</td>
+                        </tr>
+                        
+                        <tr>
+                            <td class="td-field">签收时间</td>
+                            <td>签收日期时间</td>
+                            <td>签收栏、日期戳</td>
+                            <td>多种日期格式</td>
+                            <td>格式归一化</td>
+                        </tr>
+                        
+                        <tr>
+                            <td class="td-field">签收结果</td>
+                            <td>正常签收/异常签收</td>
+                            <td>签收栏、备注</td>
+                            <td>图章/文字</td>
+                            <td>异常标记需人工确认</td>
+                        </tr>
+                        
+                        <tr>
+                            <td class="td-field">物流发运单号</td>
+                            <td>单据上的发运单号</td>
+                            <td>单头、条码</td>
+                            <td>多格式</td>
+                            <td>与邮件发运单号交叉核对</td>
+                        </tr>
+                        
+                    </tbody>
+                </table>
+                <div class="acceptance">🎯 验收门槛：签收人/时间/结果识别准确率 ≥95%；低置信度 → 标黄转人工复核。</div>
+            </div>
+            
+        </div>
+        
+
+        <!-- ===== 关联关系类 ===== -->
+        
+        <div class="rule-section">
+            <div class="rule-section-hd">
+                <span class="rs-icon">🔗</span><span class="rs-title">关联关系类</span>
+                <span class="rs-desc">对象之间怎么关联（关系网络 + 建立/特殊规则 + 使用点）</span>
+                <span class="rs-count">1 条</span>
+            </div>
+            
+            <div class="relation-case">
+                <div class="decision-case-hd">
+                    <span class="dc-name">交货单—物流—签收—对账—借贷项—POD确认—预制发票—凭证关联</span>
+                    <span class="usage-chip">使用点 · 建立交货单-发运单关联</span><span class="usage-chip">使用点 · 创建对账单</span><span class="usage-chip">使用点 · 校验POD确认条件</span><span class="usage-chip">使用点 · 自动生成SAP预制发票</span><span class="usage-chip">使用点 · 回写凭证号与过账状态</span>
+                </div>
+                <div class="relation-network">
+                    <span class="rel-node">交货单号(DN)</span><span class="rel-link">↔</span><span class="rel-node">发运单号</span><span class="rel-link">↔</span><span class="rel-node">签收资料</span><span class="rel-link">↔</span><span class="rel-node">对账单</span><span class="rel-link">↔</span><span class="rel-node">借贷项</span><span class="rel-link">↔</span><span class="rel-node">POD确认</span><span class="rel-link">↔</span><span class="rel-node">预制发票</span><span class="rel-link">↔</span><span class="rel-node">凭证</span>
+                </div>
+                <div class="decision-summary">用交货单号(DN) 贯穿全链路：关联物流发运单、签收/POD、对账单明细、借贷项、POD 确认、预制发票与过账凭证，作为综合查询与审计的主键锚点。</div>
+                <div class="rel-rules">
+                    <div class="rel-rule-box"><b>建立规则</b>交货单号关联物流发运单与签收资料；对账单明细按交货单号汇总；差异借贷项挂对账单并关联交货单；POD 确认以交货单/DN 为颗粒度；POD 确认触发预制发票；过账凭证回写交货单</div>
+                    <div class="rel-rule-box"><b>特殊情况</b>一张对账单含多张交货单；一张交货单可有多个 POD 资料；客户自提以邮件确认视同签收；同交货单可拆分多箱需按箱级追踪（后续扩展）</div>
+                </div>
+            </div>
+            
+        </div>
+        
+
+        <!-- ===== 双向可追踪 ===== -->
+        
+        <div class="panel">
+            <div class="panel-head">
+                <span class="panel-title"><span class="emoji">🔗</span>P1 ↔ P2 双向可追踪（交叉核对）</span>
+                <span class="panel-badge">规则能找到 / 使用点能找到 / 名称一致 / 异常链一致</span>
+            </div>
+            <table class="recon-table">
+                <thead><tr><th>任务</th><th>规则依据</th><th>因子</th><th>仲裁</th><th>异常/HITL</th><th>四项检查</th></tr></thead>
+                <tbody>
+                    
+                    <tr>
+                        <td class="td-field">建立交货单-发运单关联</td>
+                        <td>物流发运关联匹配规则</td>
+                        <td>交货单号、承运商、发运单号、邮件来源与时间</td>
+                        <td>以邮件原文为依据；冲突取最新有效邮件并留痕</td>
+                        <td>低置信度/冲突 → 拉人复核，补邮件留痕</td>
+                        <td>
+                            <span class="recon-check">✓ 规则找到</span><br>
+                            <span class="recon-check">✓ 使用点找到</span><br>
+                            <span class="recon-check">✓ 名称一致</span><br>
+                            <span class="recon-check">✓ 异常链一致</span>
+                        </td>
+                    </tr>
+                    
+                    <tr>
+                        <td class="td-field">自动比对差异并归因</td>
+                        <td>对账差异规则</td>
+                        <td>客户一致性、交货单存在性、数量/金额一致性、反馈完整性</td>
+                        <td>金额以 SAP 为准、数量以签收/对账确认为准；超容差人工裁决</td>
+                        <td>格式不识别/口径冲突 → 拉人；无法收敛 → 升级经理/财务</td>
+                        <td>
+                            <span class="recon-check">✓ 规则找到</span><br>
+                            <span class="recon-check">✓ 使用点找到</span><br>
+                            <span class="recon-check">✓ 名称一致</span><br>
+                            <span class="recon-check">✓ 异常链一致</span>
+                        </td>
+                    </tr>
+                    
+                    <tr>
+                        <td class="td-field">校验POD确认条件</td>
+                        <td>POD 确认条件规则</td>
+                        <td>交货单已同步、物流关联、签收有效、对账完成、借贷项完成、权限</td>
+                        <td>任一硬条件不满足一律阻断；借贷项未完成优先阻断</td>
+                        <td>条件缺口 → 引导补件/补对账；特殊场景 → CS 经理终审</td>
+                        <td>
+                            <span class="recon-check">✓ 规则找到</span><br>
+                            <span class="recon-check">✓ 使用点找到</span><br>
+                            <span class="recon-check">✓ 名称一致</span><br>
+                            <span class="recon-check">✓ 异常链一致</span>
+                        </td>
+                    </tr>
+                    
+                    <tr>
+                        <td class="td-field">更新驾驶舱与超期预警</td>
+                        <td>超期异常阈值规则</td>
+                        <td>未取发运单、未签收、未创建对账单、具备条件未确认天数</td>
+                        <td>阈值按业务配置；四类异常独立计算不合并</td>
+                        <td>阈值口径存疑 → 拉人确认后回填配置</td>
+                        <td>
+                            <span class="recon-check">✓ 规则找到</span><br>
+                            <span class="recon-check">✓ 使用点找到</span><br>
+                            <span class="recon-check">✓ 名称一致</span><br>
+                            <span class="recon-check">✓ 异常链一致</span>
+                        </td>
+                    </tr>
+                    
+                </tbody>
+            </table>
+        </div>
+        
+
+        <!-- ===== Notes ===== -->
+        <div class="notes-panel">
+            
+            <div class="notes-col"><h3>🔹 共通原则</h3><p>每条规则/样本均绑定到使用点；内容可验证、来源可追溯。</p></div>
+            
+            
+            <div class="notes-col"><h3>⚠️ 冲突与缺口</h3><p>知识缺口如实标注，不由 Skill 猜测补全；越权问题反馈上游。</p></div>
+            
+            
+            <div class="notes-col"><h3>📥 输入依据</h3><p>《X销售收入确认-POD收入确认-任务流程拆解》（25 个深度任务使用点 + 输入输出 + 规则依据类型） · 《X销售收入确认-POD收入确认-AI画布》（dataKnowledge/workflow 识别的规则类型） · 客户素材《销售收入确认_开发方案设计文档》（业务流程图 / 状态与规则定义 / 接口清单 / 权限）</p></div>
+            
+        </div>
+    </main>
+
+    <script type="application/yaml" id="raw-yaml">
+meta:
+  title: "X销售收入确认 · 销售POD收入确认业务规则挖掘清单"
+  subtitle: "来自阶段2 · P2 任务处理规则挖掘"
+  version: "v1.0"
+  date: "2026-09-10"
+  scenarioName: "销售POD收入确认"
+  businessStage: "阶段2 任务处理规则挖掘 · P2"
+  methodology: "阶段2方法（五类任务处理规则：决策/模板/术语/提取点/关联）"
+  inputs:
+    - "《X销售收入确认-POD收入确认-任务流程拆解》（25 个深度任务使用点 + 输入输出 + 规则依据类型）"
+    - "《X销售收入确认-POD收入确认-AI画布》（dataKnowledge/workflow 识别的规则类型）"
+    - "客户素材《销售收入确认_开发方案设计文档》（业务流程图 / 状态与规则定义 / 接口清单 / 权限）"
+  sourceRef: "X销售收入确认-POD收入确认-任务流程拆解.yaml 使用点 + 开发方案文档规则清单"
+  kpi:
+    - "收入确认时效"
+    - "采集自动化率"
+    - "对账差异处理效率"
+    - "POD确认合规率"
+    - "超期异常积压"
+
+overview:
+  ruleCount: 11
+  decisionCount: 4
+  templateCount: 3
+  dictionaryCount: 1
+  extractionCount: 2
+  relationCount: 1
+
+legend:
+  bindingNote: "每条规则/样本均绑定到使用点；内容可验证、来源可追溯。"
+  conflictNote: "知识缺口如实标注，不由 Skill 猜测补全；越权问题反馈上游。"
+  ruleTypes:
+    - { type: "decision",   label: "决策模型类",      icon: "⚖️", desc: "怎么算、怎么判、走哪条路径" }
+    - { type: "template",   label: "模版范例类",      icon: "📝", desc: "照什么结构和范例生成" }
+    - { type: "dictionary", label: "术语字典类",      icon: "📖", desc: "词、缩写、业务口径" }
+    - { type: "extraction", label: "关键信息提取要点", icon: "🔍", desc: "专家看资料重点看什么" }
+    - { type: "relation",   label: "关联关系类",      icon: "🔗", desc: "对象之间怎么关联" }
+
+categories:
+  decision:
+    - id: "rd_01"
+      name: "物流发运关联匹配规则"
+      usagePoints: ["识别邮件关键字段", "建立交货单-发运单关联"]
+      factors:
+        - { name: "交货单号 / DN", def: "邮件中出现的 SAP 交货单号", source: "公共邮箱邮件正文/主题", deterministic: true }
+        - { name: "物流公司 / 承运商", def: "邮件中的承运商名称", source: "公共邮箱邮件 + 承运商字典", deterministic: true }
+        - { name: "物流发运单号", def: "承运商开具的发运单号", source: "公共邮箱邮件正文/附件", deterministic: false }
+        - { name: "邮件发件人与时间", def: "判断邮件来源与时效", source: "公共邮箱邮件头", deterministic: true }
+      branches:
+        - { cond: "交货单号 + 发运单号唯一且承运商可识别", action: "→ 自动建立交货单-发运单关联", priority: 1 }
+        - { cond: "一封邮件含多个交货单号 / 发运单号", action: "→ 逐单拆分关联并标注一对多", priority: 2 }
+        - { cond: "发运单号缺失或格式异常", action: "→ 转人工复核/补邮件", priority: 3 }
+      arbitration: "以邮件原文为唯一依据；同一交货单出现多条冲突发运单号时，取最新有效邮件并留痕。"
+      exception: "识别置信度低或存在冲突 → 拉人复核，物流补邮件/补充说明留痕，不开放手工直接改写。"
+      summary: "从公共邮箱邮件识别交货单号、承运商、发运单号并建立交货单-发运单关联。"
+    - id: "rd_02"
+      name: "对账差异规则"
+      usagePoints: ["自动比对差异并归因"]
+      factors:
+        - { name: "客户一致性", def: "客户反馈中的客户与对账单客户是否一致", source: "客户主数据", deterministic: true }
+        - { name: "交货单存在性", def: "反馈中的交货单是否在 SAP 交货单范围内", source: "SAP 交货单/明细", deterministic: true }
+        - { name: "数量一致性", def: "SAP 数量 vs 客户确认数量", source: "对账单明细", deterministic: true }
+        - { name: "金额一致性", def: "SAP 金额 vs 客户确认金额", source: "对账单明细", deterministic: true }
+        - { name: "反馈完整性", def: "是否存在重复反馈或缺失反馈", source: "客户反馈文件", deterministic: true }
+      branches:
+        - { cond: "数量与金额均一致", action: "→ 标记对账完成，进入 POD 确认", priority: 1 }
+        - { cond: "数量或金额不一致（在容差内）", action: "→ 标记差异并建议调整借贷项", priority: 2 }
+        - { cond: "交货单不存在 / 客户不一致", action: "→ 标记异常并转人工核实", priority: 3 }
+        - { cond: "重复或缺失反馈", action: "→ 提示去重/补全后重跑", priority: 4 }
+      arbitration: "金额差异以 SAP 为准、数量差异以签收/对账确认为准；超容差差异必须人工裁决。"
+      exception: "文件格式不识别或口径冲突 → 拉人处理；差异无法收敛 → 升级 CS 经理/财务。"
+      summary: "按客户一致性、交货单存在性、数量/金额一致性、重复缺失与容差规则自动比对并归因。"
+    - id: "rd_03"
+      name: "POD 确认条件规则"
+      usagePoints: ["校验POD确认条件", "一键POD确认"]
+      factors:
+        - { name: "交货单已同步", def: "SAP 交货单已进入工作台", source: "交货单表", deterministic: true }
+        - { name: "物流发运关联已建立", def: "存在交货单-发运单关联", source: "物流发运关联表", deterministic: true }
+        - { name: "签收/POD 有效", def: "存在有效签收资料或客户自提确认", source: "POD资料表", deterministic: true }
+        - { name: "对账已完成", def: "对账单状态为对账完成", source: "对账单表", deterministic: true }
+        - { name: "借贷项已完成或不适用", def: "差异借贷项已过账或无差异", source: "借贷项表", deterministic: true }
+        - { name: "用户具备 POD 确认权限", def: "当前用户角色与数据范围", source: "权限服务", deterministic: true }
+      branches:
+        - { cond: "五要素全部满足", action: "→ 允许 POD 确认（人工闸门放行）", priority: 1 }
+        - { cond: "存在条件缺口", action: "→ 阻断并提示缺口，生成待办", priority: 2 }
+        - { cond: "特殊/异常场景", action: "→ 转 CS 经理审批", priority: 3 }
+      arbitration: "任一硬条件不满足一律阻断；借贷项未完成优先于其它条件阻断。"
+      exception: "条件缺口 → 引导补件/补对账；特殊场景 → CS 经理终审。"
+      summary: "五要素硬校验，全部满足才允许人工一键 POD 确认。"
+    - id: "rd_04"
+      name: "超期异常阈值规则"
+      usagePoints: ["更新驾驶舱与超期预警"]
+      factors:
+        - { name: "已发货未取发运单天数", def: "交货单出库后未关联发运单的持续天数", source: "交货单表 + 物流关联表", deterministic: true }
+        - { name: "已取得未签收天数", def: "已关联发运单但未取得有效签收的持续天数", source: "物流关联表 + POD资料表", deterministic: true }
+        - { name: "已发货未创建对账单天数", def: "交货单出库后未创建对账单的持续天数", source: "交货单表 + 对账单表", deterministic: true }
+        - { name: "具备条件未 POD 确认天数", def: "条件齐备但未 POD 确认的持续天数", source: "POD匹配表", deterministic: true }
+      branches:
+        - { cond: "未超配置阈值", action: "→ 正常展示待办", priority: 1 }
+        - { cond: "超过预警阈值", action: "→ 黄色预警并推送待办", priority: 2 }
+        - { cond: "超过严重阈值", action: "→ 红色预警并升级责任人/经理", priority: 3 }
+      arbitration: "阈值按业务配置，口径存疑时以业务确认值为准；四类异常独立计算不合并。"
+      exception: "阈值口径存疑 → 拉人确认后回填配置。"
+      summary: "按可配置阈值计算四类超期异常并驱动驾驶舱预警与待办推送。"
+
+  template:
+    - id: "rt_01"
+      name: "对账单生成模板"
+      usagePoints: ["创建对账单", "下载对账单交客户确认"]
+      skeleton:
+        - { part: "① 对账单头", fixed: "固定栏（对账单号/客户编码/客户名称/对账周期/币种/生成人/生成时间）", variable: "随创建参数动态填充" }
+        - { part: "② 交货单明细", fixed: "固定栏（交货单号/出库日期/数量/金额/对账状态）", variable: "随勾选交货单动态填充" }
+        - { part: "③ 汇总与差异", fixed: "固定栏（合计数量/合计金额/差异金额/借贷项状态）", variable: "随差异分析结果动态填充" }
+      dynamicFields:
+        - { field: "对账单号", source: "系统按规则生成（如 RC-2026-09-001）" }
+        - { field: "对账周期", source: "来自 CS 选择的起止日期" }
+        - { field: "客户名称", source: "来自客户主数据" }
+      generationRules: "存在 SAP 交货单才可创建；按客户与周期批量创建，一张对账单对应多张交货单。"
+      complianceRules: "下载给客户的对账单必须含客户、周期、交货单明细与合计金额；缺一不可。"
+      samples:
+        - { label: "典型 · 单客户单周期对账", note: "交货单齐全，差异为零，客户一次确认通过" }
+        - { label: "反面 · 含未同步交货单", note: "未同步交货单不得入对账单，否则差异无法归因" }
+      fieldSource: "依据《销售收入确认_开发方案设计文档》11.4/11.5 数据对象定义拆出固定栏与动态字段。"
+    - id: "rt_02"
+      name: "客户反馈与差异说明模板"
+      usagePoints: ["下载对账单交客户确认", "确认差异并处理借贷项"]
+      skeleton:
+        - { part: "① 反馈头", fixed: "固定栏（对账单号/客户/反馈日期/反馈人）", variable: "随客户反馈文件动态填充" }
+        - { part: "② 明细差异", fixed: "固定栏（交货单号/SAP数量金额/客户确认数量金额/差异）", variable: "随客户反馈数据动态填充" }
+        - { part: "③ 差异说明与处理", fixed: "固定栏（差异类型/原因/借贷项处理结论）", variable: "随 CS 处理结果动态填充" }
+      dynamicFields:
+        - { field: "差异类型", source: "来自对账差异规则归因结果" }
+        - { field: "借贷项处理结论", source: "来自借贷项处理状态" }
+      generationRules: "客户反馈上传后自动解析生成差异说明；人工确认差异原因后回写结论。"
+      complianceRules: "差异说明必须逐条对应交货单并给出处理结论，未清差异不得标记对账完成。"
+      samples:
+        - { label: "典型 · 数量差异", note: "客户少计一箱，生成借项并完成过账后对账完成" }
+        - { label: "反面 · 差异未说明", note: "存在差异但无原因与处理结论，禁止进入 POD 确认" }
+      fieldSource: "依据开发方案文档 8.4/8.5 时序与 11.5/11.6 数据对象定义整理。"
+    - id: "rt_03"
+      name: "POD日志与过账凭证打印模板"
+      usagePoints: ["打印与归档"]
+      skeleton:
+        - { part: "① POD 日志", fixed: "固定栏（交货单号/确认时间/确认人/POD日志号/预制发票号）", variable: "随 POD 确认记录动态填充" }
+        - { part: "② 过账凭证", fixed: "固定栏（凭证号/会计期间/过账状态/过账人/过账时间）", variable: "随 SAP 回写凭证信息动态填充" }
+      dynamicFields:
+        - { field: "凭证号", source: "来自 SAP 过账返回" }
+        - { field: "归档清单", source: "来自资料清单与归档规则" }
+      generationRules: "系统生成资料按确认样式打印；原始资料（签收单/客户反馈）直接打印。"
+      complianceRules: "归档需记录归档人、归档时间与资料清单；缺件不得归档。"
+      samples:
+        - { label: "典型 · 全链路归档", note: "交货单/签收/POD/对账单/POD日志/预制发票/凭证齐全归档" }
+        - { label: "反面 · 缺过账凭证", note: "未过账或凭证缺失不得标记归档完成" }
+      fieldSource: "依据开发方案文档 9.6 资料预览与打印归档方案整理。"
+
+  dictionary:
+    - id: "rdict_01"
+      name: "销售POD收入确认业务口径词典"
+      aliases: ["DN", "POD", "PID", "借贷项", "预制发票", "过账", "对账单", "客户自提"]
+      definition: "销售POD收入确认全链路统一业务口径词表，供采集、对账、POD 确认、过账、查询共同引用。"
+      entries:
+        - { term: "DN / 交货单", def: "SAP 交货单（Delivery Note），收入确认的业务主线与确认颗粒度", context: "交货单同步" }
+        - { term: "POD", def: "Proof of Delivery，签收凭据（物流签收单 / 客户自提确认）", context: "签收/POD资料识别" }
+        - { term: "PID", def: "价格审批单，其审批结果生成价格条件作为 SO 基准", context: "POD确认与开票口径" }
+        - { term: "借贷项", def: "对账差异处理后生成的借项或贷项调整", context: "差异与借贷项处理" }
+        - { term: "预制发票", def: "POD 确认后由 SAP 自动生成的待过账发票", context: "预制发票与过账" }
+        - { term: "过账", def: "财务执行发票入账，产生会计凭证号与会计期间", context: "发票过账" }
+        - { term: "对账单", def: "按客户与周期汇总交货单、交客户确认的核对单据", context: "对账单处理" }
+        - { term: "客户自提", def: "客户自提货并邮件确认，视同物流签收已确认", context: "签收确认" }
+      maintainer: "销售/CS 与财务团队，随口径与政策更新"
+      referenced: ["物流关联", "对账", "POD确认", "过账", "综合查询"]
+      usagePoints: ["识别邮件关键字段", "自动比对差异并归因", "校验POD确认条件", "执行发票过账"]
+
+  extraction:
+    - id: "rext_01"
+      name: "物流邮件字段抽取要点"
+      usagePoints: ["识别邮件关键字段"]
+      fields:
+        - { fieldName: "交货单号", definition: "SAP 交货单号 / DN", typicalLocations: ["邮件主题", "邮件正文", "附件文件名"], variants: ["多单号", "带前缀"], pitfalls: ["一封邮件多单号需拆分"] }
+        - { fieldName: "物流公司", definition: "承运商名称", typicalLocations: ["邮件正文", "发件人域名"], variants: ["简称/全称"], pitfalls: ["需映射承运商字典"] }
+        - { fieldName: "物流发运单号", definition: "承运商发运单号", typicalLocations: ["邮件正文", "附件"], variants: ["多格式"], pitfalls: ["格式校验避免误提"] }
+        - { fieldName: "客户自提确认", definition: "自提完成的明确表述", typicalLocations: ["邮件正文"], variants: ["不同措辞"], pitfalls: ["表述不明确需人工确认"] }
+      acceptance: "交货单号/发运单号抽取准确率 ≥98%；无法唯一对应或低置信度 → 标黄转人工复核。"
+      samples: ["主题含『DN 交货单号』→ 优先取主题；正文多单号 → 逐单拆分并标注一对多"]
+    - id: "rext_02"
+      name: "签收单/POD 字段抽取要点"
+      usagePoints: ["OCR识别签收/POD字段"]
+      fields:
+        - { fieldName: "签收人", definition: "收货方签收人姓名", typicalLocations: ["签收栏"], variants: ["手写/打印"], pitfalls: ["手写潦草需复核"] }
+        - { fieldName: "签收时间", definition: "签收日期时间", typicalLocations: ["签收栏", "日期戳"], variants: ["多种日期格式"], pitfalls: ["格式归一化"] }
+        - { fieldName: "签收结果", definition: "正常签收/异常签收", typicalLocations: ["签收栏", "备注"], variants: ["图章/文字"], pitfalls: ["异常标记需人工确认"] }
+        - { fieldName: "物流发运单号", definition: "单据上的发运单号", typicalLocations: ["单头", "条码"], variants: ["多格式"], pitfalls: ["与邮件发运单号交叉核对"] }
+      acceptance: "签收人/时间/结果识别准确率 ≥95%；低置信度 → 标黄转人工复核。"
+      samples: ["签收时间多格式统一为 YYYY-MM-DD HH:mm；异常签收需附说明并转人工"]
+
+  relation:
+    - id: "rrel_01"
+      name: "交货单—物流—签收—对账—借贷项—POD确认—预制发票—凭证关联"
+      fromObject: "SAP 交货单"
+      toObject: "物流发运关联 / POD资料 / 对账单明细 / 借贷项 / POD确认 / 预制发票 / 过账凭证"
+      objectType: "交货单号(DN) ↔ 发运单号 ↔ 签收资料 ↔ 对账单 ↔ 借贷项 ↔ POD确认 ↔ 预制发票 ↔ 凭证"
+      meaning: "用交货单号(DN) 贯穿全链路：关联物流发运单、签收/POD、对账单明细、借贷项、POD 确认、预制发票与过账凭证，作为综合查询与审计的主键锚点。"
+      rules:
+        establish: "交货单号关联物流发运单与签收资料；对账单明细按交货单号汇总；差异借贷项挂对账单并关联交货单；POD 确认以交货单/DN 为颗粒度；POD 确认触发预制发票；过账凭证回写交货单"
+        special: "一张对账单含多张交货单；一张交货单可有多个 POD 资料；客户自提以邮件确认视同签收；同交货单可拆分多箱需按箱级追踪（后续扩展）"
+      scenarios: ["物流关联", "对账", "POD确认", "过账", "综合查询"]
+      usagePoints: ["建立交货单-发运单关联", "创建对账单", "校验POD确认条件", "自动生成SAP预制发票", "回写凭证号与过账状态"]
+      extra: "交货单号(DN) 是全链路主键锚点；物流发运单号以邮件原文为依据不开放手工改写。"
+
+reconciliation:
+  - task: "建立交货单-发运单关联"
+    rule: "物流发运关联匹配规则"
+    factor: "交货单号、承运商、发运单号、邮件来源与时间"
+    arbitration: "以邮件原文为依据；冲突取最新有效邮件并留痕"
+    exception: "低置信度/冲突 → 拉人复核，补邮件留痕"
+    checks: { ruleFound: true, usageFound: true, nameMatch: true, exceptionMatch: true }
+  - task: "自动比对差异并归因"
+    rule: "对账差异规则"
+    factor: "客户一致性、交货单存在性、数量/金额一致性、反馈完整性"
+    arbitration: "金额以 SAP 为准、数量以签收/对账确认为准；超容差人工裁决"
+    exception: "格式不识别/口径冲突 → 拉人；无法收敛 → 升级经理/财务"
+    checks: { ruleFound: true, usageFound: true, nameMatch: true, exceptionMatch: true }
+  - task: "校验POD确认条件"
+    rule: "POD 确认条件规则"
+    factor: "交货单已同步、物流关联、签收有效、对账完成、借贷项完成、权限"
+    arbitration: "任一硬条件不满足一律阻断；借贷项未完成优先阻断"
+    exception: "条件缺口 → 引导补件/补对账；特殊场景 → CS 经理终审"
+    checks: { ruleFound: true, usageFound: true, nameMatch: true, exceptionMatch: true }
+  - task: "更新驾驶舱与超期预警"
+    rule: "超期异常阈值规则"
+    factor: "未取发运单、未签收、未创建对账单、具备条件未确认天数"
+    arbitration: "阈值按业务配置；四类异常独立计算不合并"
+    exception: "阈值口径存疑 → 拉人确认后回填配置"
+    checks: { ruleFound: true, usageFound: true, nameMatch: true, exceptionMatch: true }
+
+    </script>
+
+    <script>
+        function copyYAML() {
+            const yamlContent = document.getElementById('raw-yaml').textContent.trim();
+            navigator.clipboard.writeText(yamlContent).then(() => {
+                const btn = document.getElementById('copyYamlBtn');
+                const originalHtml = btn.innerHTML;
+                btn.innerHTML = '✓ 已复制';
+                setTimeout(() => { btn.innerHTML = originalHtml; }, 1600);
+            }).catch(err => { console.error('Failed to copy: ', err); alert('复制失败，请手动复制。'); });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,401 @@
+meta:
+  projectName: "pod-revenue-recognition"
+  productName: "销售POD收入确认工作台"
+  businessDomain: "金融/财务"
+  frontend: "react"
+  designSystem: "antd"
+  theme:
+    source: "user"
+    primary: "#1e3a5f"
+    accent: "#c9a227"
+    layout: "side"
+  ports:
+    dev: 5173
+    api: 8080
+
+personas:
+  - id: "cs_wang"
+    name: "王静"
+    role: "CS（销售支持）"
+    department: "销售/客户服务"
+    goals:
+      - "快速完成对账并清理差异"
+      - "尽快推进 POD 确认并触发预制发票"
+  - id: "logistics_li"
+    name: "李强"
+    role: "物流人员"
+    department: "物流/仓储"
+    goals:
+      - "快速处理物流发运关联异常"
+      - "保证签收凭据齐全且可追溯"
+  - id: "finance_chen"
+    name: "陈敏"
+    role: "财务"
+    department: "财务"
+    goals:
+      - "快速完成发票过账并回写凭证"
+      - "过账失败可追溯、可人工确认后重试"
+
+scenarios:
+  - id: "s1"
+    name: "标准交货单的 POD 确认"
+    personaId: "cs_wang"
+    trigger: "一批已完成对账、条件齐备的交货单待 POD 确认"
+    goal: "5 分钟内完成多张交货单的 POD 匹配确认并自动触发预制发票"
+  - id: "s2"
+    name: "物流关联异常与签收补件"
+    personaId: "logistics_li"
+    trigger: "邮件识别发运单号缺失或冲突，交货单长期未关联或未签收"
+    goal: "补邮件/补充说明修正关联并留痕，恢复审计链"
+  - id: "s3"
+    name: "发票过账与归档"
+    personaId: "finance_chen"
+    trigger: "POD 已确认、预制发票已生成，进入财务待过账清单"
+    goal: "完成过账、回写凭证并打印归档，闭环收入确认"
+
+dataModels:
+  - name: "DeliveryOrder"
+    description: "SAP 交货单（收入确认主线）"
+    fields:
+      - { key: "deliveryNo", title: "交货单号/DN", type: "string" }
+      - { key: "customer", title: "客户", type: "string" }
+      - { key: "amount", title: "金额", type: "number" }
+      - { key: "deliveryDate", title: "出库日期", type: "string" }
+      - { key: "reconStatus", title: "对账状态", type: "string" }
+      - { key: "podStatus", title: "POD状态", type: "string" }
+      - { key: "owner", title: "责任人", type: "string" }
+    mockData:
+      - { deliveryNo: "8000123456", customer: "比亚迪电池", amount: 128600, deliveryDate: "2026-08-28", reconStatus: "对账完成", podStatus: "待确认", owner: "王静" }
+      - { deliveryNo: "8000123457", customer: "福耀玻璃", amount: 86500, deliveryDate: "2026-08-29", reconStatus: "对账差异", podStatus: "待确认", owner: "王静" }
+      - { deliveryNo: "8000123458", customer: "宁德时代", amount: 205000, deliveryDate: "2026-08-30", reconStatus: "未创建", podStatus: "未确认", owner: "王静" }
+      - { deliveryNo: "8000123459", customer: "比亚迪整车", amount: 342000, deliveryDate: "2026-08-31", reconStatus: "对账完成", podStatus: "已确认", owner: "王静" }
+  - name: "ReconciliationStatement"
+    description: "对账单"
+    fields:
+      - { key: "statementNo", title: "对账单号", type: "string" }
+      - { key: "customer", title: "客户", type: "string" }
+      - { key: "period", title: "对账周期", type: "string" }
+      - { key: "difference", title: "差异金额", type: "number" }
+      - { key: "creditDebit", title: "借贷项状态", type: "string" }
+      - { key: "status", title: "对账状态", type: "string" }
+    mockData:
+      - { statementNo: "RC-2026-08-001", customer: "比亚迪电池", period: "2026-08", difference: 0, creditDebit: "不适用", status: "对账完成" }
+      - { statementNo: "RC-2026-08-002", customer: "福耀玻璃", period: "2026-08", difference: 1200, creditDebit: "待生成", status: "对账差异" }
+      - { statementNo: "RC-2026-08-003", customer: "宁德时代", period: "2026-08", difference: 0, creditDebit: "不适用", status: "已下载" }
+  - name: "PodMatch"
+    description: "POD 横向匹配表"
+    fields:
+      - { key: "deliveryNo", title: "交货单号/DN", type: "string" }
+      - { key: "logistics", title: "物流关联", type: "string" }
+      - { key: "sign", title: "签收/POD", type: "string" }
+      - { key: "recon", title: "对账完成", type: "string" }
+      - { key: "creditDebit", title: "借贷项", type: "string" }
+      - { key: "matchResult", title: "匹配结论", type: "string" }
+    mockData:
+      - { deliveryNo: "8000123456", logistics: "已关联", sign: "已签收", recon: "已完成", creditDebit: "不适用", matchResult: "具备条件" }
+      - { deliveryNo: "8000123457", logistics: "已关联", sign: "已签收", recon: "有差异", creditDebit: "待生成", matchResult: "条件缺口" }
+      - { deliveryNo: "8000123458", logistics: "未关联", sign: "未签收", recon: "未创建", creditDebit: "不适用", matchResult: "条件缺口" }
+  - name: "PreInvoice"
+    description: "预制发票与过账凭证"
+    fields:
+      - { key: "prebillNo", title: "预制发票号", type: "string" }
+      - { key: "deliveryNo", title: "交货单号/DN", type: "string" }
+      - { key: "amount", title: "金额", type: "number" }
+      - { key: "postingStatus", title: "过账状态", type: "string" }
+      - { key: "voucherNo", title: "凭证号", type: "string" }
+    mockData:
+      - { prebillNo: "PI-2026-08-001", deliveryNo: "8000123459", amount: 342000, postingStatus: "未过账", voucherNo: "" }
+      - { prebillNo: "PI-2026-08-002", deliveryNo: "8000123460", amount: 158000, postingStatus: "已过账", voucherNo: "1000234567" }
+      - { prebillNo: "PI-2026-08-003", deliveryNo: "8000123461", amount: 76000, postingStatus: "过账失败", voucherNo: "" }
+
+pages:
+  - id: "dashboard"
+    title: "首页驾驶舱"
+    route: "/dashboard"
+    icon: "DashboardOutlined"
+    description: "流程节点数量看板与超期异常，待办按角色过滤"
+    actions:
+      - { name: "loadDashboard", button: "刷新看板" }
+    sections:
+      - type: "steps"
+        current: 0
+        items: ["进入工作台", "采集与关联确认", "对账与差异处理", "POD匹配确认", "过账归档"]
+      - type: "statRow"
+        stats:
+          - { label: "待物流关联", value: 3, suffix: "单" }
+          - { label: "待签收", value: 5, suffix: "单" }
+          - { label: "待创建对账单", value: 2, suffix: "单" }
+          - { label: "待POD确认", value: 18, suffix: "单" }
+          - { label: "待过账", value: 7, suffix: "单" }
+      - type: "table"
+        title: "待办清单（按角色/数据范围过滤）"
+        data: "mock:DeliveryOrder"
+        rowKey: "deliveryNo"
+        columns:
+          - { key: "deliveryNo", title: "交货单号/DN" }
+          - { key: "customer", title: "客户" }
+          - { key: "amount", title: "金额" }
+          - { key: "reconStatus", title: "对账状态", tag: { "对账完成": "success", "对账差异": "warning", "未创建": "default" } }
+          - { key: "podStatus", title: "POD状态", tag: { "已确认": "success", "待确认": "processing", "未确认": "default" } }
+          - { key: "owner", title: "责任人" }
+      - type: "alert"
+        message: "超期异常：已发货未取发运单 3 单 / 已取得未签收 5 单 / 已发货未创建对账单 2 单 / 具备条件未 POD 确认 4 单"
+        level: "warning"
+        description: "超期阈值可在系统配置中维护，超过严重阈值将升级责任人/经理"
+      - type: "buttonRow"
+        buttons:
+          - { text: "进入数据采集中心", type: "primary", action: "navigate:/collect" }
+
+  - id: "collect"
+    title: "数据采集中心"
+    route: "/collect"
+    icon: "CloudUploadOutlined"
+    description: "交货单同步、邮件识别与物流发运关联、签收/POD资料识别"
+    actions:
+      - { name: "syncCollection", button: "刷新采集并识别" }
+    sections:
+      - type: "steps"
+        current: 1
+        items: ["进入工作台", "采集与关联确认", "对账与差异处理", "POD匹配确认", "过账归档"]
+      - type: "uploadCard"
+        title: "刷新公共邮箱 / 公共文件夹采集"
+        accept: ".eml,.pdf,.xlsx,.png"
+        hint: "系统定时拉取为主、手工刷新为辅；物流发运单号以邮件原文为依据，不开放手工改写（示例：邮件含 DN 8000123456）"
+        action: "syncCollection"
+      - type: "aiResultCard"
+        title: "邮件识别与物流发运关联结果"
+        bind: "syncCollection"
+        render: "table"
+        columns:
+          - { key: "deliveryNo", title: "交货单号/DN" }
+          - { key: "carrier", title: "承运商" }
+          - { key: "shipmentNo", title: "物流发运单号" }
+          - { key: "confidence", title: "置信度" }
+          - { key: "status", title: "关联状态", tag: { "已关联": "success", "待复核": "warning", "关联异常": "error" } }
+      - type: "aiResultCard"
+        title: "签收/POD 识别结果"
+        bind: "syncCollection"
+        render: "table"
+        columns:
+          - { key: "deliveryNo", title: "交货单号/DN" }
+          - { key: "signPerson", title: "签收人" }
+          - { key: "signTime", title: "签收时间" }
+          - { key: "signResult", title: "签收结果" }
+          - { key: "status", title: "复核状态", tag: { "有效": "success", "待复核": "warning" } }
+      - type: "buttonRow"
+        buttons:
+          - { text: "进入对账单工作台", type: "primary", action: "navigate:/reconcile" }
+
+  - id: "reconcile"
+    title: "对账单工作台"
+    route: "/reconcile"
+    icon: "FileSyncOutlined"
+    description: "创建对账单、上传客户反馈、差异分析、借贷项处理"
+    actions:
+      - { name: "analyzeReconciliation", button: "上传反馈并分析差异" }
+    sections:
+      - type: "steps"
+        current: 2
+        items: ["进入工作台", "采集与关联确认", "对账与差异处理", "POD匹配确认", "过账归档"]
+      - type: "table"
+        title: "对账单清单"
+        data: "mock:ReconciliationStatement"
+        rowKey: "statementNo"
+        columns:
+          - { key: "statementNo", title: "对账单号" }
+          - { key: "customer", title: "客户" }
+          - { key: "period", title: "对账周期" }
+          - { key: "difference", title: "差异金额" }
+          - { key: "creditDebit", title: "借贷项状态", tag: { "不适用": "default", "待生成": "warning", "已过账": "success" } }
+          - { key: "status", title: "对账状态", tag: { "对账完成": "success", "对账差异": "warning", "已下载": "processing" } }
+      - type: "uploadCard"
+        title: "上传客户反馈对账文件"
+        accept: ".xlsx,.pdf"
+        hint: "上传后系统自动按客户一致性/交货单存在性/数量金额一致性/重复缺失/容差规则比对（示例：客户反馈交货单 8000123456 数量少 1 箱）"
+        action: "analyzeReconciliation"
+      - type: "aiResultCard"
+        title: "差异分析结果与借贷项建议"
+        bind: "analyzeReconciliation"
+        render: "table"
+        columns:
+          - { key: "deliveryNo", title: "交货单号/DN" }
+          - { key: "differenceType", title: "差异类型" }
+          - { key: "differenceAmount", title: "差异金额" }
+          - { key: "suggestion", title: "借贷项建议" }
+          - { key: "status", title: "处理状态", tag: { "容差内": "success", "超容差待裁决": "error", "已处理": "processing" } }
+      - type: "buttonRow"
+        buttons:
+          - { text: "进入 POD 匹配与确认", type: "primary", action: "navigate:/podmatch" }
+
+  - id: "podmatch"
+    title: "POD 匹配与确认"
+    route: "/podmatch"
+    icon: "SafetyCertificateOutlined"
+    description: "五要素横向匹配、POD 条件校验与一键 POD 确认（对外确认收入的强制人工闸门）"
+    actions:
+      - { name: "checkPodConditions", button: "校验 POD 确认条件" }
+      - { name: "confirmPod", button: "一键 POD 确认" }
+    sections:
+      - type: "steps"
+        current: 3
+        items: ["进入工作台", "采集与关联确认", "对账与差异处理", "POD匹配确认", "过账归档"]
+      - type: "table"
+        title: "横向匹配表（五要素状态）"
+        data: "mock:PodMatch"
+        rowKey: "deliveryNo"
+        columns:
+          - { key: "deliveryNo", title: "交货单号/DN" }
+          - { key: "logistics", title: "物流关联", tag: { "已关联": "success", "未关联": "error" } }
+          - { key: "sign", title: "签收/POD", tag: { "已签收": "success", "未签收": "error" } }
+          - { key: "recon", title: "对账完成", tag: { "已完成": "success", "有差异": "warning", "未创建": "error" } }
+          - { key: "creditDebit", title: "借贷项", tag: { "不适用": "default", "待生成": "warning", "已过账": "success" } }
+          - { key: "matchResult", title: "匹配结论", tag: { "具备条件": "success", "条件缺口": "warning" } }
+      - type: "aiResultCard"
+        title: "POD 条件校验结论"
+        bind: "checkPodConditions"
+        render: "kv"
+      - type: "alert"
+        message: "POD 确认是对外确认收入的强制人工闸门，五要素任一不满足将被阻断"
+        level: "warning"
+        description: "确认后系统自动生成 POD 日志并触发 SAP 预制发票"
+      - type: "buttonRow"
+        buttons:
+          - { text: "校验 POD 条件", type: "default", action: "checkPodConditions" }
+          - { text: "一键 POD 确认", type: "primary", action: "confirmPod" }
+          - { text: "进入发票过账", type: "link", action: "navigate:/posting" }
+
+  - id: "posting"
+    title: "发票过账"
+    route: "/posting"
+    icon: "AuditOutlined"
+    description: "待过账清单、财务过账、凭证回写与打印归档"
+    actions:
+      - { name: "executePosting", button: "执行发票过账" }
+    sections:
+      - type: "steps"
+        current: 4
+        items: ["进入工作台", "采集与关联确认", "对账与差异处理", "POD匹配确认", "过账归档"]
+      - type: "table"
+        title: "待过账清单"
+        data: "mock:PreInvoice"
+        rowKey: "prebillNo"
+        columns:
+          - { key: "prebillNo", title: "预制发票号" }
+          - { key: "deliveryNo", title: "交货单号/DN" }
+          - { key: "amount", title: "金额" }
+          - { key: "postingStatus", title: "过账状态", tag: { "未过账": "processing", "已过账": "success", "过账失败": "error" } }
+          - { key: "voucherNo", title: "凭证号" }
+      - type: "buttonRow"
+        buttons:
+          - { text: "执行发票过账", type: "primary", action: "executePosting" }
+      - type: "aiResultCard"
+        title: "过账凭证回写"
+        bind: "executePosting"
+        render: "kv"
+      - type: "timeline"
+        items:
+          - { title: "POD 已确认", status: "finish" }
+          - { title: "预制发票已生成", status: "finish" }
+          - { title: "财务过账", status: "process" }
+          - { title: "打印与归档", status: "wait" }
+
+aiMocks:
+  - name: "syncCollection"
+    latency: 900
+    response:
+      summary: "已识别 3 条邮件关联，2 条签收资料；1 条发运单号低置信度待复核"
+      relations:
+        - { deliveryNo: "8000123456", carrier: "顺丰物流", shipmentNo: "SF-2026-0828-001", confidence: "98%", status: "已关联" }
+        - { deliveryNo: "8000123457", carrier: "德邦物流", shipmentNo: "DB-2026-0829-014", confidence: "96%", status: "已关联" }
+        - { deliveryNo: "8000123458", carrier: "安能物流", shipmentNo: "", confidence: "61%", status: "待复核" }
+      pods:
+        - { deliveryNo: "8000123456", signPerson: "刘伟", signTime: "2026-08-29 14:20", signResult: "正常签收", status: "有效" }
+        - { deliveryNo: "8000123457", signPerson: "张强", signTime: "2026-08-30 10:05", signResult: "异常签收（外箱破损）", status: "待复核" }
+  - name: "analyzeReconciliation"
+    latency: 800
+    response:
+      summary: "比对完成：1 条一致、1 条容差内差异、1 条超容差待裁决"
+      diffs:
+        - { deliveryNo: "8000123456", differenceType: "一致", differenceAmount: 0, suggestion: "无", status: "容差内" }
+        - { deliveryNo: "8000123457", differenceType: "数量差异（少 1 箱）", differenceAmount: 1200, suggestion: "生成借项 ¥1,200", status: "超容差待裁决" }
+        - { deliveryNo: "8000123458", differenceType: "金额差异（运费分摊）", differenceAmount: 300, suggestion: "容差内不调整", status: "已处理" }
+  - name: "checkPodConditions"
+    latency: 600
+    response:
+      deliveryNo: "8000123456"
+      conclusion: "五要素全部满足，允许 POD 确认"
+      conditions:
+        - { name: "交货单已同步", status: "满足" }
+        - { name: "物流发运关联已建立", status: "满足" }
+        - { name: "签收/POD 有效", status: "满足" }
+        - { name: "对账已完成", status: "满足" }
+        - { name: "借贷项已完成或不适用", status: "满足" }
+  - name: "confirmPod"
+    latency: 700
+    response:
+      deliveryNo: "8000123456"
+      status: "POD 已确认"
+      podLog: "PODLOG-2026-09-0001"
+      prebillNo: "PI-2026-09-0001"
+      message: "已生成 POD 日志并自动触发 SAP 预制发票"
+  - name: "executePosting"
+    latency: 900
+    response:
+      prebillNo: "PI-2026-09-0001"
+      voucherNo: "1000234568"
+      fiscalPeriod: "2026-09"
+      status: "已过账"
+      message: "过账成功，凭证已回写；打印归档资料清单已生成"
+  - name: "chatAssistant"
+    latency: 500
+    response:
+      reply: "交货单 8000123457 因对账存在超容差差异（借项 ¥1,200 待处理），暂不满足 POD 确认条件。建议先在对账单工作台确认差异并完成借贷项过账。"
+
+businessMocks:
+  - name: "getDeliveries"
+    system: "sap"
+    latency: 200
+    response:
+      items:
+        - { deliveryNo: "8000123456", customer: "比亚迪电池", amount: 128600, deliveryDate: "2026-08-28", reconStatus: "对账完成", podStatus: "待确认", owner: "王静" }
+        - { deliveryNo: "8000123457", customer: "福耀玻璃", amount: 86500, deliveryDate: "2026-08-29", reconStatus: "对账差异", podStatus: "待确认", owner: "王静" }
+        - { deliveryNo: "8000123458", customer: "宁德时代", amount: 205000, deliveryDate: "2026-08-30", reconStatus: "未创建", podStatus: "未确认", owner: "王静" }
+  - name: "getReconciliations"
+    system: "sap"
+    latency: 200
+    response:
+      items:
+        - { statementNo: "RC-2026-08-001", customer: "比亚迪电池", period: "2026-08", difference: 0, creditDebit: "不适用", status: "对账完成" }
+        - { statementNo: "RC-2026-08-002", customer: "福耀玻璃", period: "2026-08", difference: 1200, creditDebit: "待生成", status: "对账差异" }
+  - name: "getPreInvoices"
+    system: "sap"
+    latency: 200
+    response:
+      items:
+        - { prebillNo: "PI-2026-08-001", deliveryNo: "8000123459", amount: 342000, postingStatus: "未过账", voucherNo: "" }
+        - { prebillNo: "PI-2026-08-003", deliveryNo: "8000123461", amount: 76000, postingStatus: "过账失败", voucherNo: "" }
+  - name: "getDashboard"
+    system: "internal"
+    latency: 200
+    response:
+      nodes:
+        - { name: "待物流关联", count: 3 }
+        - { name: "待签收", count: 5 }
+        - { name: "待创建对账单", count: 2 }
+        - { name: "待POD确认", count: 18 }
+        - { name: "待过账", count: 7 }
+      overdue:
+        - { name: "已发货未取发运单", count: 3 }
+        - { name: "已取得未签收", count: 5 }
+        - { name: "已发货未创建对账单", count: 2 }
+        - { name: "具备条件未POD确认", count: 4 }
+
+apiRoutes:
+  - { name: "loadDashboard", method: "GET", path: "/api/dashboard", target: "compose", compose: [ { key: "nodes", service: "business", method: "getDashboard" } ] }
+  - { name: "syncCollection", method: "POST", path: "/api/collection/sync", target: "ai:syncCollection" }
+  - { name: "getDeliveries", method: "GET", path: "/api/deliveries", target: "business:getDeliveries" }
+  - { name: "getReconciliations", method: "GET", path: "/api/reconciliations", target: "business:getReconciliations" }
+  - { name: "analyzeReconciliation", method: "POST", path: "/api/reconciliation/analyze", target: "ai:analyzeReconciliation" }
+  - { name: "checkPodConditions", method: "POST", path: "/api/pod/check", target: "ai:checkPodConditions" }
+  - { name: "confirmPod", method: "POST", path: "/api/pod/confirm", target: "ai:confirmPod" }
+  - { name: "executePosting", method: "POST", path: "/api/posting/execute", target: "ai:executePosting" }

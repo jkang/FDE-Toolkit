@@ -1,0 +1,73 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# agent-tech-architecture · YAML 数据契约（Schema）
+# 本文件是 LLM 产物与 build_tech_architecture.py / tech_arch_layout.html 之间的唯一契约。
+# 字段名与枚举必须与此一致；下方注释即字段说明。
+# ─────────────────────────────────────────────────────────────────────────────
+
+meta:
+  title: "「场景名」· 落地技术架构方案"
+  scenario: "场景名"
+  company: "公司/业务名"
+  route: "Autonomous Planner"          # 枚举：Workflow | Autonomous Planner
+  routeReason: "一句话说明为什么选该路线"
+  patternSummary: "1 编排 Agent + N Skill + 1 本体"
+  date: "YYYY-MM-DD"
+
+# 编排 Agent：唯一规划者
+agent:
+  name: "编排 Agent · Autonomous Planner"
+  role: "意图识别 · 规划 · 调度 Skill · 发起 HITL · 异常兜底"
+  loop: "Plan → Act → Observe"
+  memory: ["任务级上下文", "场景级会员画像"]
+  note: "不直接算数，只做规划与调度"
+
+# 意图 → Skill 调度映射
+routing:
+  - { intent: "询价 / 推荐", skill: "skill_1" }
+  - { intent: "订舱 / 单证", skill: "skill_2" }
+
+# 每个 Skill 是一条纵向逻辑流程
+skills:
+  - id: "skill_1"                       # 唯一 id（英文）
+    name: "Skill ① 能力名"
+    type: "skill"                       # 枚举：skill | subagent
+    trigger: "触发条件"
+    pattern: "orchestrator-worker"      # 编排模式（自由文本，如 pipeline + human-in-the-loop）
+    whyNotSubagent: "一句判据：为什么是 Skill 而非 Sub-Agent"
+    handoff: "→ 交给下一个 Skill / 触发条件"   # 可选
+    nodes:
+      - { id: "a0", label: "业务动作", note: "小字备注", type: "op" }
+      # type 枚举：op | det | small | llm | rag | mcp | onto | hitl | eval | loop | exception | out
+    edges:
+      - { from: "a0", to: "a1", label: "", style: "solid" }     # style: solid | dashed
+      - { from: "a1", to: "a0", label: "不通过 ×2", style: "dashed" }
+
+# 共享底座
+sharedBase:
+  ontology:
+    title: "本体（确定性底座）"
+    read:  ["会员画像（报价推荐）", "订舱单/规则（表单预填）"]
+    write: ["订舱请求/确认书（提交签发）", "SI（推送入库）"]
+    note: "对象 / 关系 / 状态迁移 + 业务事实；Skill 读写本体，不靠 LLM 猜事实。"
+  mcp:
+    title: "MCP / 外部系统"
+    calls: ["报价引擎（报价检索）", "OMS（提交订舱）"]
+    note: "仅需要外部读写的步骤才走 MCP；未接的标 N/A。"
+  kb:                                    # 可选
+    title: "知识库 / RAG"
+    calls: ["品名词典 / HS 库", "D&D 规则库"]
+    note: "法规 / SOP / 案例等非结构化知识。"
+
+exceptionPool: "校验不通过 / 信用受限 / HS 无法映射 / 复杂投诉 / Loop 超限 → 升级人工，附上下文摘要。"
+
+failureTable:
+  - { trigger: "触发条件", action: "处理动作", type: "retry / fallback / escalate" }
+
+kpi:
+  - { name: "指标名", link: "由哪条链路支撑" }
+
+guardrails:
+  - { rule: "护栏规则", detail: "落点说明" }
+
+notes:
+  - { title: "⚠️ 口径待确认", text: "需要用户确认的口径 / 假设。" }

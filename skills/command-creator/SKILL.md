@@ -3,7 +3,7 @@ name: command-creator
 description: |
   自动生成跨平台一致的命令（/command）定义：双端生成 .opencode/commands/<name>.md 与
   .qoder/commands/<name>.md（正文一致，frontmatter 差异仅在于 opencode 端可选 agent 路由，
-  qoder 端仅 name/description）。命令命名小写连字符、不与既有 9 个命令重名，
+  qoder 端仅 name/description）。命令命名小写连字符、不与既有 10 个命令重名，
   正文交代目标（串哪些 Skill/Agent、读哪些上游产物、写哪些产物路径）与边界。
 
   Triggers when user mentions:
@@ -26,7 +26,7 @@ author: KK
 - 命令命名**小写连字符**；先核对是否与既有命令重复/重叠边界。
 - 本库已有命令（先查再建）：
   `nsm`、`client-insight`、`opportunity`、`agent-arch`、`mvp-prototype`、
-  `mvp-eval`、`requirement`、`roadmap`、`discovery`。
+  `mvp-eval`、`requirement`、`roadmap`、`discovery`、`scenario-solution`。
 - 命令正文要**交代目标**：串哪些 Skill / @Agent、读取哪些上游产物、产出写哪些路径，
   以及边界（不属于本命令范围的需求转给哪个流程）。
 
@@ -85,7 +85,7 @@ description: <与 opencode 端 description 完全一致>
 
 ## 五、交付前自查
 
-1. 命令名小写连字符、与既有 9 个命令不重名。
+1. 命令名小写连字符、与既有 10 个命令不重名。
 2. 双端正文一致：`diff .opencode/commands/<name>.md .qoder/commands/<name>.md`
    应只差 frontmatter。
 3. 若命令路由到新 Subagent，先经 `agent-creator` 生成双端 Agent；若新增/更名 Skill，
