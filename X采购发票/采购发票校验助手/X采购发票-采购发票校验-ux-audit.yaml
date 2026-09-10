@@ -1,0 +1,124 @@
+# =========================================================
+# UX-Optimizer · 定制设计系统（ux-audit）
+# X · 采购发票校验助手 —— 企业控制台（Enterprise Console）
+# 规范：继承 Ant Design 5 标准 token，仅将品牌色映射到标准色阶
+#   主色 = antd blue-7 #0958d9（半导体/财务 · 科技深蓝）
+#   语义色/中性色/圆角/阴影 = antd 标准值，禁止自造未成体系 hex
+# =========================================================
+meta:
+  company: "X"
+  scenario: "采购发票校验"
+  businessDomain: "供应链"
+  productName: "X · 采购发票校验助手"
+  mode: "企业控制台（Enterprise Console）"
+  brandSource: "antd 标准色阶映射（domain 推断）"
+
+brandProfile:
+  primaryTone: "科技深蓝（antd blue）"
+  primaryColor: "#0958d9"
+  userGroup: "内部员工"
+  seriousness: "合规严苛"
+  maturity: "专业细分"
+
+designLanguage:
+  # 1. 色彩系统 —— Ant Design 标准色阶（blue + gold）
+  colors:
+    primary: "#0958d9"        # antd blue-7
+    primaryDark: "#002c8c"    # antd blue-9
+    primaryLight: "#91caff"   # antd blue-3
+    accent: "#faad14"         # antd gold-6
+    success: "#52c41a"        # antd green-6
+    warning: "#faad14"        # antd gold-6
+    danger: "#ff4d4f"         # antd red-6
+    info: "#1677ff"           # antd blue-6
+    neutral:
+      text: "#1f1f1f"         # antd colorTextBase
+      textSecondary: "#595959" # antd 次级文字
+      border: "#d9d9d9"       # antd colorBorder
+      bg: "#ffffff"
+      bgAlt: "#f5f5f5"        # antd colorBgLayout
+    gradient:
+      from: "#001529"         # antd 经典深色导航底色
+      to: "#0958d9"
+
+  # 2. 字体系统 —— antd 标准字体栈
+  typography:
+    fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif"
+    h1: { size: 20, weight: "600", lineHeight: 1.3, spacing: "0" }
+    h2: { size: 16, weight: "600", lineHeight: 1.35, spacing: "0" }
+    h3: { size: 14, weight: "600", lineHeight: 1.4, spacing: "0" }
+    body: { size: 13, weight: "400", lineHeight: 1.57, spacing: "0" }
+    label: { size: 12, weight: "500", lineHeight: 1.4, spacing: "0" }
+    caption: { size: 12, weight: "400", lineHeight: 1.5, spacing: "0" }
+
+  # 3. 间距 & 栅格（antd 8pt 体系，紧凑）
+  spacing:
+    scale: [4, 8, 12, 16, 24, 32]
+    contentMaxWidth: 1600
+    cardPadding: 16
+    sectionGap: 16
+    elementGap: 12
+
+  # 4. 圆角 / 阴影 / 边框 —— antd 标准
+  radius:
+    sm: 4
+    md: 6
+    lg: 8
+    pill: 999
+  shadow:
+    card: "0 1px 2px 0 rgba(0,0,0,0.03), 0 1px 6px -1px rgba(0,0,0,0.02)"
+    raised: "0 6px 16px 0 rgba(0,0,0,0.08), 0 3px 6px -4px rgba(0,0,0,0.12)"
+  border:
+    color: "#d9d9d9"
+    width: 1
+
+  # 5. 组件设计语言
+  components:
+    card: { radius: 8, shadow: "card", background: "#ffffff", border: true }
+    button: { radius: 6, transition: "0.15s ease-out", hoverOpacity: 1 }
+    table: { density: "compact", rowHover: true, headerBg: "#fafafa" }
+    input: { radius: 6, focusOutline: "#91caff" }
+
+  # 6. 状态体系
+  states:
+    hoverTime: "0.2s"
+    focusOutline: "#91caff"
+    loadingType: "skeleton"
+    emptyStyle: "icon + hint + cta"
+
+  # 7. 布局模式 —— 深色侧栏（#001529）+ 浅色高密度内容（#f5f5f5）
+  layout:
+    mode: "side"
+    siderWidth: 208
+    headerHeight: 48
+
+  # 8. 微交互 & 响应式
+  motion:
+    transition: "0.2s ease"
+    enableSpring: false
+  responsive:
+    breakpoints: [375, 768, 1024, 1440]
+
+# ---- 11 类组件专业化升级（企业控制台语言） ----
+componentSpecs:
+  - { element: "steps", v2: { style: "antd Steps · 当前步主色 + 已完成对勾" } }
+  - { element: "uploadCard", v2: { style: "antd Dragger · 1px 虚线 + hover 主色描边" } }
+  - { element: "aiResultCard", v2: { style: "antd Card + AI 徽章 + 左主色条 + 骨架屏" } }
+  - { element: "table", v2: { style: "antd Table · size=small + 表头 #fafafa + 等宽数字" } }
+  - { element: "statRow", v2: { style: "antd Statistic · 小标签 + 主色数字 + 等宽" } }
+  - { element: "buttonRow", v2: { style: "antd Space · 主/默认/文字按钮，controlHeight 32" } }
+  - { element: "alert", v2: { style: "antd Alert · showIcon + 标准语义四色" } }
+  - { element: "timeline", v2: { style: "antd Timeline · 语义色节点" } }
+  - { element: "chatPanel", v2: { style: "antd 气泡 + 紧凑建议 chips" } }
+  - { element: "formCard", v2: { style: "antd Form · label 上置 + 12px 字段间距" } }
+  - { element: "tagRow", v2: { style: "antd Tag · 标准语义色对（浅底深字）" } }
+
+diffChecklist:
+  - "主色是否取自 antd 标准色阶（blue-7 #0958d9），而非自造 hex"
+  - "语义色（success/warning/error/info）是否采用 antd 标准值"
+  - "中性色（text/border/bg）是否采用 antd 标准值（#1f1f1f/#d9d9d9/#f5f5f5）"
+  - "深色侧栏是否采用 antd 经典 #001529"
+  - "圆角/字号/控件高度是否用 antd 标准尺度（6/13/32）"
+  - "组件是否优先使用 antd 原生组件与 token，而非手写样式覆盖"
+  - "信息密度是否为企业控制台级（表格 size=small、行高 ~36）"
+  - "六态 + 焦点可见 + 响应式断点是否完备"

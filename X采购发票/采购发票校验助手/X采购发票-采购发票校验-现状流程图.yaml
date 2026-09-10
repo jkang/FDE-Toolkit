@@ -1,0 +1,322 @@
+meta:
+  title: "X采购发票 · 采购发票校验与应付 — 现状流程图"
+  sectionNo: "3.1"
+  version: "v1.0"
+  date: "2026-09-10"
+  business: "X（半导体制造 · 财务部/采购部）"
+  domain: "采购到付款财务自动化（应付账款 · 采购发票校验）"
+  valueSegment: "发票校验与应付（价值流③采购到付款 · 价值段3.4：发票多渠道采集 → 用途确认与识别校验 → 三单匹配 → 异常凭证确认 → 发票校验记账 → 台账归档与入账标识更新）"
+  currentStateNote: "环节现状痛点详述（采购发票校验与应付）：【高耗时】发票靠邮件/微信人工收集，无送货单时还要去公共文件夹下载；入库单/送货单、PO 分处 ERP 与公盘，逐票人工读取识别；三单匹配以发票行为主线逐票逐行比对，数量扣减、金额差异全靠人工核算；单票校验耗时与月度量级基线待回填，整体周期被拉长。【高认知负荷·费脑子】匹配结果判定、金额差异是否异常、哪些差异可容忍必拉人，全凭资深应付会计经验，无书面标准，换人即断档；含税/未税口径、金额比对边界（发票金额不能大于合同金额）散落在研讨记录与 ERP 规则中，难标准化。【高频错误】多来源人工读取抄录错漏、多对多匹配关系易错、发票校验数量/金额对不上需冲销重做，三单匹配错误率基线待回填。【来回往复】异常票（补单/换票/冲红）需与采购、供应商多轮邮件往返，修正后返回三单匹配重跑，一次异常动辄数日。【系统瓶颈】发票（电子税务局/乐企）、入库单/送货单（ERP/公盘）、PO（ERP/SAP）多系统割裂、依赖人工搬运归集，易漏票重票；金额比对规则落在 ERP 模拟校验接口、本平台仅能感知结果；入账标识需财务到乐企/电子税务局手工确认。现状虽有 ERP 与乐企接口，但未贯通「采集—匹配—记账—归档」全链，是后续 AI 改造的核心痛点。"
+  upstream:
+    valueStream: "采购到付款主价值流（采购申请 → 来料收货与检验 → 发票校验与应付 → 付款）"
+    valueSegment: "发票校验与应付（价值段3.4）"
+    focusLink: "采购发票校验助手（A1 · 🟢 速赢）"
+    sourceRef: "采购发票校验-业务流程图（客户提供）+ 采购发票处理开发方案设计文档 V1.0（客户，2026-06-30）+ 场景定义画布/任务流程挖掘清单/规则挖掘清单（FDE，2026-09-09）+ 入库单/送货单/物流邮件样本"
+  kpi: ["单票校验耗时", "三单匹配错误率", "自动匹配通过率", "发票到过账周期", "异常处理周期"]
+
+painTypes:
+  - { id: "highTime",   label: "高耗时",     color: "#EF4444" }
+  - { id: "cognitive",  label: "高认知负荷", color: "#F59E0B" }
+  - { id: "freqError",  label: "高频错误",   color: "#3B82F6" }
+  - { id: "backForth",  label: "来回往复",   color: "#625D9C" }
+  - { id: "bottleneck", label: "系统瓶颈",   color: "#0E7490" }
+
+legend:
+  flowNote: "🔄 流程走向"
+  ruleNote: "⚠️ 业务规则及固化度"
+  painLabel: "该环节痛点"
+
+stages:
+  - { id: "STG1", order: 1, name: "发票多渠道采集与识别", desc: "邮件/微信/乐企/公盘多源收集发票与三单单据，人工读取识别" }
+  - { id: "STG2", order: 2, name: "用途确认与三单匹配",   desc: "电子发票平台确认用途，以发票行为主线逐行匹配 PO/入库/送货" }
+  - { id: "STG3", order: 3, name: "异常凭证确认与返工",   desc: "差异/异常票人工确认，与采购/供应商沟通补单换票，重跑匹配" }
+  - { id: "STG4", order: 4, name: "发票校验记账与过账审核", desc: "ERP 模拟校验 + 预制发票，财务负责人过账审核生成凭证" }
+  - { id: "STG5", order: 5, name: "台账归档与入账标识更新", desc: "更新台账、打印归档发票文件、乐企/电子税务局确认入账标识" }
+
+lanes:
+  - { id: "L1", order: 1, name: "供应商 · 外部",      desc: "提交数电发票/纸质发票与送货单的外部供货方" }
+  - { id: "L2", order: 2, name: "采购业务员",         desc: "补录发票、按 PO 权限复核，异常沟通与升级" }
+  - { id: "L3", order: 3, name: "应付会计（执行层）",  desc: "采集识别、三单匹配、异常确认、记账归档主责" }
+  - { id: "L4", order: 4, name: "财务负责人（审核层）", desc: "过账审核与放行" }
+  - { id: "L5", order: 5, name: "系统与平台",         desc: "电子税务局/乐企 · ERP(SAP) · 公共网盘 · OCR · 邮件/微信" }
+
+steps:
+  - id: "ST1"
+    order: 1
+    stageId: "STG1"
+    laneId: "L1"
+    name: "多渠道提交发票与送货单"
+    description: "供应商通过邮件、微信、电子发票平台或纸质邮寄提交发票；送货单随货或经邮件/网盘送达，无统一提交入口。"
+    duration: "持续发生、无固定时点 [推断]"
+    source: "邮件 / 微信 / 电子发票平台 / 纸质邮寄"
+    businessRule: "无标准提交渠道与命名规范；送货单常在到货后补送；纸质票需人工转交"
+    ruleSolidity: "人工"
+    inputs: ["采购发票（数电/纸质）", "送货单", "物流/出货邮件"]
+    outputs: ["待收集的发票与送货单文件"]
+    pains: ["bottleneck", "backForth"]
+
+  - id: "ST2"
+    order: 2
+    stageId: "STG1"
+    laneId: "L3"
+    name: "人工多渠道收集发票"
+    description: "应付会计逐渠道从邮件、微信收集发票文件；无送货单时到公共文件夹下载；95% 发票票面无 PO 号，需另行追溯。"
+    duration: "单票数分钟、月度批量累计 [待回填]"
+    source: "邮件 / 微信 / 公共文件夹（公盘）"
+    businessRule: "如无送货单则从公共文件夹下载；票面 PO 信息仅约 5% 存在，多数需按供应商/物料反查"
+    ruleSolidity: "人工"
+    inputs: ["供应商提交的发票/送货单文件"]
+    outputs: ["归集到位的发票文件（发票池/公盘）"]
+    pains: ["highTime", "bottleneck", "freqError"]
+
+  - id: "ST3"
+    order: 3
+    stageId: "STG1"
+    laneId: "L3"
+    name: "入库单/送货单读取识别"
+    description: "从 ERP 与公共网盘读取入库单、送货单并人工识别关键字段（供应商、物料描述、数量、PO 号）。"
+    duration: "单票数分钟 [待回填]"
+    source: "ERP / 公共文件夹（网盘）"
+    businessRule: "送货单经公共文件夹人工读取（无 API）；识别物料描述、数量、PO 号；入库数量以 ERP 为准"
+    ruleSolidity: "人工 + 系统"
+    inputs: ["入库单（ERP）", "送货单（公盘）"]
+    outputs: ["入库/送货数量与物料信息"]
+    pains: ["highTime", "freqError", "bottleneck"]
+
+  - id: "ST4"
+    order: 4
+    stageId: "STG1"
+    laneId: "L3"
+    name: "采购订单（PO）读取"
+    description: "从 ERP/SAP 读取采购订单主信息与 PO 行，为三单匹配提供权威数据。"
+    duration: "单票数分钟 [待回填]"
+    source: "ERP/SAP（PO 主信息 + PO 行）"
+    businessRule: "PO 按采购员权限隔离；一票可能对应多个 PO、多个 PO 行"
+    ruleSolidity: "系统"
+    inputs: ["PO 号 / 供应商 / 物料"]
+    outputs: ["PO 主信息与 PO 行数据"]
+    pains: ["highTime", "bottleneck"]
+
+  - id: "ST5"
+    order: 5
+    stageId: "STG1"
+    laneId: "L5"
+    name: "发票池/公盘分散存储"
+    description: "发票进入发票池（公盘），送货单、入库单、PO 分处网盘/ERP 多系统，缺乏统一归集视图。"
+    duration: "系统存储、人工搬运"
+    source: "发票池（公盘） / ERP / 公共文件夹"
+    businessRule: "发票池与送货单池分离；送货单依赖公共文件夹人工读取，无接口贯通"
+    ruleSolidity: "系统"
+    inputs: ["发票文件", "送货单文件", "ERP 单据"]
+    outputs: ["分散存储的单据（多系统孤岛）"]
+    pains: ["bottleneck"]
+
+  - id: "ST6"
+    order: 6
+    stageId: "STG2"
+    laneId: "L3"
+    name: "确认发票用途"
+    description: "登录电子发票平台，逐票确认发票用途（抵扣/入账），作为后续校验与入账前置。"
+    duration: "单票数分钟 [待回填]"
+    source: "电子发票平台 / 电子税务局"
+    businessRule: "用途确认是入账前置；采购员仅可操作自有权限 PO 相关发票"
+    ruleSolidity: "系统 + 人工"
+    inputs: ["待确认发票清单"]
+    outputs: ["已确认用途的发票"]
+    pains: ["highTime", "bottleneck"]
+
+  - id: "ST7"
+    order: 7
+    stageId: "STG2"
+    laneId: "L3"
+    name: "三单信息汇入与匹配"
+    description: "获取 PO、入库、发票三方信息，以发票行为主线汇入匹配，支持一对一/一对多/多对多关系。"
+    duration: "单票人工比对，累计高耗时 [待回填]"
+    source: "发票 / ERP（PO、入库单） / 送货单"
+    businessRule: "以发票行为主线、非整张发票粒度；支持一张发票对应多个送货单/入库单/PO 行；匹配关系以横向大表维护"
+    ruleSolidity: "人工"
+    inputs: ["发票行", "PO 行", "入库行", "送货行"]
+    outputs: ["三单行级匹配工作集"]
+    pains: ["highTime", "freqError"]
+
+  - id: "ST8"
+    order: 8
+    stageId: "STG2"
+    laneId: "L3"
+    name: "数量核对与扣减"
+    description: "以发票数量扣减入库单/送货单数量，逐行核对差异；不比对入库单与送货单是否一致。"
+    duration: "单票逐行核对 [待回填]"
+    source: "ERP / 送货单"
+    businessRule: "以发票数量扣减入库/送货数量；不校验入库单与送货单一致性；通过报表列示 PO/送货/入库/发票四数量与差异数量"
+    ruleSolidity: "人工"
+    inputs: ["三单行级匹配工作集（数量）"]
+    outputs: ["行级数量核对结果与差异数量"]
+    pains: ["highTime", "freqError", "cognitive"]
+
+  - id: "ST9"
+    order: 9
+    stageId: "STG2"
+    laneId: "L3"
+    name: "金额/差异核对"
+    description: "发票金额与合同/PO 金额比对，经 ERP 模拟校验接口判定；含税/未税口径与税额、单价等规则依赖经验。"
+    duration: "单票人工核算 [待回填]"
+    source: "ERP 模拟校验接口 / 采购订单"
+    businessRule: "发票金额不能大于合同金额（硬边界）；金额比对由 ERP 接口承载、本平台仅感知结果；以不含税金额为基准，其余税额/单价/尾差规则待访谈回填"
+    ruleSolidity: "系统 + 人工"
+    inputs: ["发票金额", "合同/PO 金额"]
+    outputs: ["行级金额核对结果与差异金额"]
+    pains: ["cognitive", "bottleneck"]
+
+  - id: "ST10"
+    order: 10
+    stageId: "STG2"
+    laneId: "L3"
+    name: "匹配结果判定"
+    description: "综合数量、金额、物料、供应商一致性，人工判定匹配通过或异常；差异是否可容忍依赖经验。"
+    duration: "单票判定 [待回填]"
+    source: "匹配工作集 / 个人经验"
+    businessRule: "可容忍差异无书面标准；数量超差、金额尾差等判定阈值待访谈回填；超容忍转异常"
+    ruleSolidity: "人工"
+    inputs: ["行级数量/金额/物料/供应商核对结果"]
+    outputs: ["匹配结论（通过/差异）与差异记录"]
+    pains: ["cognitive", "freqError"]
+
+  - id: "ST11"
+    order: 11
+    stageId: "STG3"
+    laneId: "L3"
+    name: "异常识别与人工确认"
+    description: "对匹配差异逐票人工确认异常类型，判断处理方式（补单/换票/冲红/退票等）。"
+    duration: "异常单数十分钟-数日 [待回填]"
+    source: "匹配差异 / 邮件 / 经验"
+    businessRule: "异常类型清单（补单/换票/冲红/退票/抬头税号不符/单价不符/数量超差/金额超尾差/跨期发票）为假设值，待访谈回填"
+    ruleSolidity: "人工"
+    inputs: ["匹配差异清单"]
+    outputs: ["异常类型与处理方向"]
+    pains: ["cognitive", "highTime"]
+
+  - id: "ST12"
+    order: 12
+    stageId: "STG3"
+    laneId: "L2"
+    name: "与采购/供应商沟通处理异常"
+    description: "采购业务员按升级路径与供应商沟通补单、换票或冲红，多轮邮件/微信往返，结果回填。"
+    duration: "单次异常 1-3 工作日 [推断]"
+    source: "邮件 / 微信 / ERP"
+    businessRule: "异常沟通与升级路径为隐性经验（持有人：应付会计/采购业务员）；超差无法裁决逐级升级至财务负责人"
+    ruleSolidity: "人工"
+    inputs: ["异常类型与沟通对象"]
+    outputs: ["沟通结果（补单/换票/冲红）"]
+    pains: ["backForth", "highTime"]
+
+  - id: "ST13"
+    order: 13
+    stageId: "STG3"
+    laneId: "L3"
+    name: "修正后返回三单匹配重跑"
+    description: "供应商补单/换票或单据修正后，人工重新发起三单匹配，形成返工回环。"
+    duration: "每轮返工重新匹配 [待回填]"
+    source: "ERP / 匹配工作集"
+    businessRule: "修正后的发票/PO/入库/送货重新进入三单匹配；差异记录不覆盖原始单据数据"
+    ruleSolidity: "人工"
+    inputs: ["修正后的发票/PO/入库/送货数据"]
+    outputs: ["重新进入三单匹配"]
+    pains: ["backForth", "highTime", "freqError"]
+
+  - id: "ST14"
+    order: 14
+    stageId: "STG4"
+    laneId: "L3"
+    name: "发票校验记账（预制）"
+    description: "匹配通过后经 ERP 接口完成发票校验，按「预制 + 过账」两阶段模式生成预制发票。"
+    duration: "单票预制 [待回填]"
+    source: "ERP/SAP（IF005 预制发票）"
+    businessRule: "预制前置：发票已识别、匹配关系已建立、关键差异已说明、供应商/PO/入库信息完整、金额/数量/物料校验通过或已备注、具备预制权限"
+    ruleSolidity: "系统 + 人工"
+    inputs: ["匹配通过的发票/PO/入库信息"]
+    outputs: ["预制发票（ERP 预制凭证）"]
+    pains: ["highTime", "freqError"]
+
+  - id: "ST15"
+    order: 15
+    stageId: "STG4"
+    laneId: "L4"
+    name: "过账审核与放行"
+    description: "财务负责人对已预制发票逐票/抽查审核，确认后执行过账，生成会计凭证并回写凭证号。"
+    duration: "审核等待 [待回填]"
+    source: "ERP/SAP（IF006 发票过账）"
+    businessRule: "过账前置：发票已预制、ERP 预制状态有效、具备财务过账权限；过账后返回凭证号/会计期间/过账状态"
+    ruleSolidity: "系统 + 人工"
+    inputs: ["预制发票"]
+    outputs: ["会计凭证（凭证号）"]
+    pains: ["highTime", "cognitive"]
+
+  - id: "ST16"
+    order: 16
+    stageId: "STG4"
+    laneId: "L5"
+    name: "ERP 预制与过账执行"
+    description: "ERP/SAP 承载预制与过账执行，并作为金额校验规则的权威来源（模拟校验接口）。"
+    duration: "接口调用（受 ERP 响应约束）"
+    source: "ERP/SAP（IF003–IF006）"
+    businessRule: "金额比对规则由 ERP 模拟发票校验接口承载、本平台不落规则；ERP 规则调整后本平台无需调整"
+    ruleSolidity: "系统"
+    inputs: ["发票/发票行/PO 行/入库行"]
+    outputs: ["预制结果 / 过账凭证号与状态"]
+    pains: ["bottleneck"]
+
+  - id: "ST17"
+    order: 17
+    stageId: "STG5"
+    laneId: "L3"
+    name: "更新发票台账"
+    description: "人工将发票校验、凭证号、入账状态等信息登记到发票台账（Excel/系统）。"
+    duration: "单票登记 [待回填]"
+    source: "台账（Excel/系统）"
+    businessRule: "台账需登记发票号、凭证号、入账状态；与综合报表口径需一致"
+    ruleSolidity: "人工"
+    inputs: ["会计凭证 / 入账状态"]
+    outputs: ["发票台账记录"]
+    pains: ["highTime", "freqError"]
+
+  - id: "ST18"
+    order: 18
+    stageId: "STG5"
+    laneId: "L3"
+    name: "单据打印与归档"
+    description: "整理、命名、打印发票及凭证资料并归档备份；非原始凭证（入库单/匹配结果/ERP 凭证）打印样式未确认。"
+    duration: "单批整理打印 [待回填]"
+    source: "打印服务 / 文件服务（对象存储）"
+    businessRule: "发票、送货单直接打印；入库单、匹配结果、ERP 凭证需确认样式；归档按发票编号索引"
+    ruleSolidity: "人工 + 系统"
+    inputs: ["发票影像 / 会计凭证 / 匹配结果"]
+    outputs: ["归档文件与打印件"]
+    pains: ["highTime", "freqError"]
+
+  - id: "ST19"
+    order: 19
+    stageId: "STG5"
+    laneId: "L3"
+    name: "确认入账标识"
+    description: "财务人员登录乐企/电子税务局，手工确认发票入账标识，更新入账状态。"
+    duration: "单票/单批手工确认 [待回填]"
+    source: "乐企平台 / 电子税务局"
+    businessRule: "入账标识更新前置：发票已过账、存在 ERP 凭证号、具备乐企状态更新权限；过渡期由财务手工勾选"
+    ruleSolidity: "系统 + 人工"
+    inputs: ["发票号 / ERP 凭证号"]
+    outputs: ["入账状态（电子税务局/乐企）"]
+    pains: ["highTime", "bottleneck"]
+
+  - id: "ST20"
+    order: 20
+    stageId: "STG5"
+    laneId: "L5"
+    name: "乐企/电子税务局状态回写"
+    description: "乐企平台承载入账状态回写；当前过渡期未直连时需人工到平台更新并记录结果。"
+    duration: "接口/人工"
+    source: "乐企平台（IF002 入账状态更新） / 电子税务局"
+    businessRule: "若暂时无法直连乐企，提示财务人工更新并记录；更新失败记录接口日志并支持重试"
+    ruleSolidity: "系统"
+    inputs: ["发票号 / 凭证号 / 入账状态"]
+    outputs: ["入账状态更新结果"]
+    pains: ["bottleneck"]

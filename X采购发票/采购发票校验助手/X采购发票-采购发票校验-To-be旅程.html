@@ -1,0 +1,1839 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>采购发票校验助手 · To-be 旅程设计</title>
+  <style>
+    /* ============ 基础重置 ============ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: #f3f5f9;
+      padding: 28px 24px;
+      color: #1e293b;
+    }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+    .container { max-width: 100%; background: #fff; border-radius: 16px; box-shadow: 0 4px 24px rgba(15, 23, 42, 0.08); padding: 28px 32px 20px; }
+
+    /* ============ 头部 ============ */
+    .page-header {
+      display: flex; justify-content: space-between; align-items: flex-start; gap: 16px;
+      flex-wrap: wrap; padding-bottom: 20px; border-bottom: 2px solid #eef2f7;
+    }
+    .title-row { display: flex; align-items: center; gap: 14px; }
+    .title-icon {
+      width: 52px; height: 52px; border-radius: 14px; display: flex; align-items: center; justify-content: center;
+      font-size: 26px; background: linear-gradient(135deg, #6366f1, #8b5cf6); color: #fff; flex-shrink: 0;
+    }
+    .page-title { font-size: 24px; font-weight: 700; color: #0f172a; line-height: 1.3; }
+    .page-subtitle { font-size: 13px; color: #64748b; margin-top: 4px; }
+    .meta-badges { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
+    .badge {
+      font-size: 12px; padding: 5px 12px; border-radius: 999px; background: #f1f5f9;
+      color: #475569; border: 1px solid #e2e8f0; white-space: nowrap;
+    }
+    .badge.mode-badge { background: linear-gradient(135deg, #4f46e5, #7c3aed); color: #fff; border: none; font-weight: 600; }
+
+    /* ============ Section ============ */
+    .section { margin-top: 32px; }
+    .section-title {
+      display: flex; align-items: center; gap: 10px; font-size: 17px; font-weight: 700; color: #0f172a;
+      margin-bottom: 16px;
+    }
+    .section-num {
+      width: 28px; height: 28px; border-radius: 8px; background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      color: #fff; font-size: 13px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center;
+    }
+    .section-en { font-size: 11px; color: #94a3b8; font-weight: 500; letter-spacing: 0.5px; }
+
+    /* ============ Persona 卡片 ============ */
+    .persona-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; }
+    .persona-card {
+      background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 18px;
+      box-shadow: 0 1px 3px rgba(15,23,42,0.04); transition: all 0.2s;
+    }
+    .persona-card:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(99,102,241,0.10); border-color: #c7d2fe; }
+    .persona-head { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+    .avatar {
+      width: 46px; height: 46px; border-radius: 50%; background: linear-gradient(135deg, #6366f1, #a855f7);
+      color: #fff; font-size: 19px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .persona-name { font-size: 16px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+    .role-badge { font-size: 11px; font-weight: 600; color: #4f46e5; background: #eef2ff; border: 1px solid #c7d2fe; border-radius: 999px; padding: 2px 10px; }
+    .persona-dept { font-size: 12px; color: #94a3b8; margin-top: 2px; }
+    .persona-bg { font-size: 13px; color: #475569; line-height: 1.6; background: #f8fafc; border-radius: 8px; padding: 10px 12px; margin-bottom: 12px; }
+    .p-block { margin-bottom: 10px; }
+    .p-label { font-size: 12px; font-weight: 600; margin-bottom: 4px; }
+    .p-label.goals-label { color: #059669; }
+    .p-label.pains-label { color: #e11d48; }
+    .p-label.data-label { color: #b45309; }
+    .p-label.errors-label { color: #9333ea; margin-top: 8px; }
+    .p-block ul { list-style: none; }
+    .p-block ul li { font-size: 12.5px; color: #334155; line-height: 1.55; padding-left: 14px; position: relative; margin-bottom: 2px; }
+    .goals-label + ul li::before { content: "✓"; position: absolute; left: 0; color: #10b981; font-weight: 700; }
+    .pains-label + ul li::before { content: "✕"; position: absolute; left: 0; color: #f43f5e; font-weight: 700; }
+    .data-label + ul li::before, .errors-label + ul li::before { content: "•"; position: absolute; left: 2px; color: #94a3b8; }
+    .freq-badge {
+      display: inline-block; font-size: 11px; color: #7c3aed; background: #f5f3ff; border: 1px solid #ddd6fe;
+      border-radius: 999px; padding: 2px 10px; margin-bottom: 6px;
+    }
+
+    /* ============ Scenario 卡片 ============ */
+    .scenario-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+    .scenario-card {
+      background: #fff; border: 1px solid #e2e8f0; border-left: 4px solid #6366f1; border-radius: 14px; padding: 18px;
+      box-shadow: 0 1px 3px rgba(15,23,42,0.04); transition: all 0.2s;
+    }
+    .scenario-card:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(99,102,241,0.10); }
+    .scenario-head { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
+    .scenario-id { font-size: 11px; font-weight: 700; color: #6366f1; background: #eef2ff; border-radius: 6px; padding: 3px 8px; }
+    .scenario-name { font-size: 16px; font-weight: 700; }
+    .persona-link { margin-left: auto; font-size: 11px; color: #64748b; background: #f1f5f9; border-radius: 999px; padding: 3px 10px; }
+    .sc-trigger { font-size: 13px; color: #475569; background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 8px 12px; margin-bottom: 10px; line-height: 1.5; }
+    .sc-biz { list-style: none; margin-bottom: 10px; }
+    .sc-biz li { font-size: 12.5px; color: #334155; line-height: 1.55; padding-left: 14px; position: relative; }
+    .sc-biz li::before { content: "📊"; position: absolute; left: 0; top: 1px; font-size: 10px; }
+    .sc-goal { font-size: 13px; font-weight: 600; color: #047857; background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 8px; padding: 8px 12px; }
+
+    /* ============ 旅程泳道图 ============ */
+    .journey-map-canvas { display: flex; position: relative; min-width: 2266px; border: 1px solid #e2e8f0; border-radius: 12px; background: #fff; overflow: hidden; }
+    .labels-column { display: flex; flex-direction: column; flex-shrink: 0; position: sticky; left: 0; z-index: 30; background: #f8fafc; }
+    .lane-label {
+      width: 132px; min-width: 132px; display: flex; align-items: center; justify-content: flex-start;
+      padding: 0 12px; font-size: 12.5px; font-weight: 600; color: #475569;
+      background: #f8fafc; border-right: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0;
+    }
+    .content-column { display: flex; flex-direction: column; flex-grow: 1; position: relative; min-width: 0; }
+    .lane-row { position: relative; border-bottom: 1px solid #e2e8f0; background: #fff; }
+    .h-stage { height: 46px; }
+    .h-behavior { height: 92px; }
+    .h-touchpoint { height: 78px; }
+    .h-thoughts { height: 120px; }
+    .h-inputs { height: 190px; }
+    .h-ai { height: 210px; }
+    .h-visible { height: 170px; }
+    .h-design { height: 140px; }
+
+    /* 阶段块 */
+    .stage-block {
+      position: absolute; top: 0; height: 100%; border-right: 2px solid #fff;
+      display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; color: #1e293b;
+      background: linear-gradient(180deg, #eef2ff, #e0e7ff);
+    }
+
+    /* 行为卡片 + 流程箭头 */
+    .action-wrapper { position: absolute; transform: translateX(-50%); }
+    .behavior-card {
+      width: 170px; height: 74px; margin-top: 8px;
+      display: flex; align-items: center; justify-content: center; text-align: center; padding: 10px;
+      background: #fff; border: 2px solid #10b981; border-radius: 10px; box-shadow: 0 2px 6px rgba(16,185,129,0.08);
+      font-size: 12.5px; font-weight: 600; color: #065f46; transition: all 0.2s;
+    }
+    .behavior-card:hover { transform: translateY(-2px); box-shadow: 0 6px 14px rgba(16,185,129,0.16); }
+    .flow-arrow {
+      position: absolute; top: 36px; right: -14px; color: #10b981; font-size: 14px; font-weight: 700; z-index: 2;
+    }
+    .flow-arrow-dash { color: #94a3b8; }
+
+    /* 触点 */
+    .touchpoint-card {
+      width: 170px; height: 62px; margin-top: 8px;
+      background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 6px;
+    }
+    .tp-badge { font-size: 11.5px; font-weight: 600; color: #2563eb; background: #eff6ff; padding: 2px 10px; border-radius: 999px; }
+    .tp-device { font-size: 11px; color: #64748b; text-align: center; line-height: 1.3; }
+
+    /* 想法 */
+    .thoughts-container { width: 170px; margin-top: 8px; max-height: 108px; overflow-y: auto; padding-right: 2px; display: flex; flex-direction: column; gap: 4px; }
+    .thought-bubble {
+      font-size: 11.5px; color: #475569; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; border-top-left-radius: 2px;
+      padding: 6px 10px; line-height: 1.45; box-shadow: 0 1px 2px rgba(0,0,0,0.04); word-break: break-all;
+    }
+
+    /* 用户输入数据 */
+    .inputs-container { width: 170px; margin-top: 8px; max-height: 178px; overflow-y: auto; padding-right: 2px; display: flex; flex-direction: column; gap: 6px; }
+    .input-card { background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 8px 10px; transition: all 0.2s; }
+    .input-card:hover { border-color: #f59e0b; box-shadow: 0 2px 6px rgba(245,158,11,0.12); }
+    .input-head { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-bottom: 4px; }
+    .input-type { font-size: 10px; font-weight: 700; color: #92400e; background: #fef3c7; border-radius: 4px; padding: 1px 6px; }
+    .input-name { font-size: 12px; font-weight: 700; color: #78350f; }
+    .input-format { font-size: 10px; color: #b45309; border: 1px dashed #fcd34d; border-radius: 4px; padding: 0 5px; }
+    .input-example { font-size: 11px; color: #92400e; background: #fff7ed; border-radius: 5px; padding: 3px 6px; margin-bottom: 3px; word-break: break-all; }
+    .input-content { font-size: 10.5px; color: #a16207; line-height: 1.4; word-break: break-all; }
+
+    /* AI 交互与推荐指令 */
+    .ai-container { width: 170px; margin-top: 8px; max-height: 198px; overflow-y: auto; padding-right: 2px; display: flex; flex-direction: column; gap: 6px; }
+    .ai-action { font-size: 11.5px; color: #312e81; background: #eef2ff; border: 1px solid #c7d2fe; border-radius: 8px; padding: 7px 9px; line-height: 1.45; }
+    .sugg-label { font-size: 10.5px; font-weight: 700; color: #6d28d9; margin-top: 2px; }
+    .sugg-chips { display: flex; flex-direction: column; gap: 4px; }
+    .sugg-chip {
+      font-size: 11px; color: #5b21b6; background: #f5f3ff; border: 1px solid #ddd6fe; border-radius: 8px;
+      padding: 4px 9px; display: flex; align-items: center; gap: 5px; line-height: 1.35; transition: all 0.15s;
+    }
+    .sugg-chip:hover { background: #ede9fe; border-color: #a78bfa; }
+    .sugg-chip::before { content: "⚡"; font-size: 10px; flex-shrink: 0; }
+
+    /* 可见数据 */
+    .visible-container { width: 170px; margin-top: 8px; max-height: 158px; overflow-y: auto; padding-right: 2px; display: flex; flex-direction: column; gap: 5px; }
+    .visible-item {
+      font-size: 11px; color: #064e3b; background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 7px;
+      padding: 5px 9px; line-height: 1.45; word-break: break-all;
+    }
+    .visible-item::before { content: "📊"; font-size: 10px; margin-right: 4px; }
+
+    /* 设计意图与改善 */
+    .design-container { width: 170px; margin-top: 8px; max-height: 128px; overflow-y: auto; padding-right: 2px; display: flex; flex-direction: column; gap: 5px; }
+    .design-item {
+      font-size: 11px; color: #7c2d12; background: #fff7ed; border: 1px solid #fed7aa; border-radius: 7px;
+      padding: 5px 9px; line-height: 1.45; word-break: break-all;
+    }
+    .design-item::before { content: "🎨"; font-size: 10px; margin-right: 4px; }
+
+    /* ============ 原型衔接区 ============ */
+    .handoff-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; }
+    .handoff-block {
+      background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px;
+    }
+    .handoff-block.wide { grid-column: 1 / -1; }
+    .ho-title { font-size: 13.5px; font-weight: 700; color: #0f172a; margin-bottom: 10px; }
+    .chip-wrap { display: flex; flex-wrap: wrap; gap: 6px; }
+    .chip { font-size: 11.5px; border-radius: 8px; padding: 5px 10px; line-height: 1.4; }
+    .chip-blue { color: #1e40af; background: #eff6ff; border: 1px solid #bfdbfe; }
+    .chip-amber { color: #92400e; background: #fffbeb; border: 1px solid #fde68a; }
+    .chip-violet { color: #5b21b6; background: #f5f3ff; border: 1px solid #ddd6fe; }
+    .path-list { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+    .path-list li {
+      font-size: 12.5px; color: #334155; background: #fff; border: 1px solid #e2e8f0; border-radius: 8px;
+      padding: 8px 12px; line-height: 1.5;
+    }
+    .path-list li::before { content: "🔀 "; }
+
+    .footer-mark { margin-top: 24px; font-size: 12px; color: #94a3b8; text-align: right; }
+
+    @media (max-width: 640px) {
+      body { padding: 14px 10px; }
+      .container { padding: 18px 14px; }
+      .page-title { font-size: 19px; }
+      .persona-grid, .scenario-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+
+    <!-- ===== Unified Report Shell: 撑满容器 + 精简 Header + 溢出滚动 ===== -->
+    <style>
+      *, *::before, *::after { box-sizing: border-box !important; }
+      html, body { margin: 0 !important; padding: 0 !important; background: #F5F5F6 !important; overflow-x: auto !important; }
+      .container {
+        width: 100% !important;
+        max-width: none !important;
+        margin: 0 auto !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        border: none !important;
+        padding: 24px 28px 48px !important;
+        overflow-x: auto !important;
+      }
+      .page-header { margin-bottom: 20px !important; align-items: center !important; }
+      .page-header h1 { font-size: 22px !important; line-height: 1.3 !important; margin: 0 !important; }
+    
+      /* ===== Unified Header (v2) ===== */
+      .page-header {
+        background: #FFFFFF !important;
+        border-bottom: 1px solid #E2E8F0 !important;
+        border-radius: 0 !important;
+        padding: 12px 0 !important;
+        margin-bottom: 20px !important;
+        min-height: auto !important;
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        gap: 16px !important;
+        flex-wrap: wrap !important;
+      }
+      .page-header h1 {
+        font-size: 22px !important;
+        font-weight: 700 !important;
+        color: #10213E !important;
+        line-height: 1.3 !important;
+        margin: 0 !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 10px !important;
+      }
+
+      .page-title, .page-header .title-row > div > div:first-child:not(.page-subtitle) {
+        font-size: 22px !important;
+        font-weight: 700 !important;
+        color: #10213E !important;
+        line-height: 1.3 !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 10px !important;
+      }
+      .page-title::before, .title-row .page-title::before {
+        content: "" !important;
+        display: inline-block !important;
+        width: 4px !important;
+        height: 22px !important;
+        background: #5DB2E2 !important;
+        border-radius: 2px !important;
+        flex-shrink: 0 !important;
+      }
+      .title-icon { font-size: 18px !important; }
+      .page-header h1::before {
+        content: "" !important;
+        display: inline-block !important;
+        width: 4px !important;
+        height: 22px !important;
+        background: #5DB2E2 !important;
+        border-radius: 2px !important;
+        flex-shrink: 0 !important;
+      }
+      .page-header h1 svg, .page-header h1 .icon, .page-header h1 img {
+        width: 20px !important;
+        height: 20px !important;
+        flex-shrink: 0 !important;
+      }
+      .page-subtitle, .header-meta, .meta-scenario, .header-left p, .header-content p {
+        font-size: 13px !important;
+        color: #64748B !important;
+        margin: 4px 0 0 !important;
+        padding-left: 14px !important;
+      }
+      .meta-badge, .badge, .brand-tag {
+        font-size: 12px !important;
+        color: #64748B !important;
+        background: #F5F5F6 !important;
+        border-radius: 10px !important;
+        padding: 2px 10px !important;
+      }
+      .page-header .btn-group, .header-right, .header-right > div {
+        display: flex !important;
+        align-items: center !important;
+        gap: 8px !important;
+      }
+      .btn-secondary, .btn-primary, .btn-copy-yaml {
+        font-size: 12px !important;
+        padding: 6px 12px !important;
+        border-radius: 6px !important;
+        font-weight: 600 !important;
+      }
+      .btn-secondary {
+        background: #FFFFFF !important;
+        color: #10213E !important;
+        border: 1px solid #E2E8F0 !important;
+      }
+      .btn-primary {
+        background: #10213E !important;
+        color: #FFFFFF !important;
+        border: 1px solid #10213E !important;
+      }
+</style>
+
+
+</head>
+<body>
+
+<div class="container">
+
+  <!-- ================= 头部 ================= -->
+  <header class="page-header">
+    <div class="title-row">
+      <div class="title-icon">🧭</div>
+      <div>
+        <div class="page-title">采购发票校验助手 · To-be 旅程设计</div>
+        <div class="page-subtitle">AI 产品设计 · To-be User Journey Design</div>
+      </div>
+    </div>
+    <div class="meta-badges">
+      <span class="badge mode-badge">TO-BE 设计态</span>
+      <span class="badge">🎯 场景：采购发票校验助手</span>
+      <span class="badge">📎 来源：AI画布: X采购发票/采购发票校验助手/X采购发票-采购发票校验-AI画布.yaml</span>
+      <span class="badge">📦 形态：嵌入 ERP/应付工作台的发票校验助手（三单匹配工作台 + 异常确认台）+ 财务共享应付岗批量校验任务台</span>
+    </div>
+  </header>
+
+  <!-- ================= 01 用户角色细化 ================= -->
+  <section class="section">
+    <div class="section-title">
+      <span class="section-num">01</span> 用户角色细化 <span class="section-en">PERSONAS</span>
+    </div>
+    <div class="persona-grid">
+      
+      <div class="persona-card">
+        <div class="persona-head">
+          <div class="avatar">王</div>
+          <div>
+            <div class="persona-name">王敏 <span class="role-badge">应付会计</span></div>
+            <div class="persona-dept">财务部 · 应付组</div>
+          </div>
+        </div>
+        <p class="persona-bg">负责采购发票校验与应付入账 6 年，日均处理多渠道采购发票，月度量级与单票校验耗时基线待客户回填；日常使用 ERP（SAP）、乐企平台、公共网盘与邮件/微信。</p>
+        <div class="p-block">
+          <div class="p-label goals-label">🎯 核心目标</div>
+          <ul>
+            
+            <li>把每天多渠道进来的采购发票尽快完成三单匹配并安全入账</li>
+            
+            <li>不再逐票逐行人工比对，只处理真正拿不准的异常</li>
+            
+            <li>把资深经验沉淀成可复核的标准动作，换人不断档</li>
+            
+          </ul>
+        </div>
+        <div class="p-block">
+          <div class="p-label pains-label">⚠️ 当前痛点</div>
+          <ul>
+            
+            <li>三单匹配需逐票逐行人工比对发票/入库送货/PO，高耗时且易错（现状痛点：高耗时 + 高频错误）</li>
+            
+            <li>差异容忍与异常判定依赖资深经验，无书面标准，换人即断档（高认知负荷）</li>
+            
+            <li>发票在乐企、入库单在 ERP、送货单在公共网盘，多系统割裂、人工归集易漏票重票（系统瓶颈）</li>
+            
+          </ul>
+        </div>
+        <div class="p-block">
+          <div class="p-label data-label">🗃️ 典型业务数据</div>
+          <div class="freq-badge">使用频率：高频（月度批量 + 每日增量）</div>
+          <ul>
+            
+            <li>本批待校验采购发票 46 张（乐企同步 38 张 + 供应商上传 6 张 + 采购补录 2 张）</li>
+            
+            <li>数电发票号 25312000000012345678，不含税金额 77,700.00 元，税额 10,101.00 元，价税合计 87,801.00 元，开票日期 2026-06-18</li>
+            
+            <li>采购订单号 6300002695，物料 二级RO膜，规格 东丽 TM720D 400，数量 42 支</li>
+            
+          </ul>
+          
+          <div class="p-label errors-label">常见失误</div>
+          <ul>
+            
+            <li>多来源人工读取抄录错漏、发票号重复归集</li>
+            
+            <li>多对多匹配关系易错，数量/金额对不上需冲销重做</li>
+            
+          </ul>
+          
+        </div>
+      </div>
+      
+      <div class="persona-card">
+        <div class="persona-head">
+          <div class="avatar">李</div>
+          <div>
+            <div class="persona-name">李强 <span class="role-badge">采购业务员</span></div>
+            <div class="persona-dept">采购部 · 生产物料组</div>
+          </div>
+        </div>
+        <p class="persona-bg">负责生产物料采购与到货跟进，按 PO 权限复核异常发票并与供应商沟通补单/换票；日均处理多张采购订单与到货异常。</p>
+        <div class="p-block">
+          <div class="p-label goals-label">🎯 核心目标</div>
+          <ul>
+            
+            <li>异常发票按类型快速分流，一眼看清处理建议与沟通对象</li>
+            
+            <li>与供应商沟通有据可依，减少多轮邮件往返</li>
+            
+          </ul>
+        </div>
+        <div class="p-block">
+          <div class="p-label pains-label">⚠️ 当前痛点</div>
+          <ul>
+            
+            <li>异常票（补单/换票/冲红）需与供应商多轮邮件往返，一次异常动辄数日（来回往复）</li>
+            
+            <li>沟通对象与升级路径靠隐性经验，新人无从下手</li>
+            
+            <li>只能看/操作自有权限 PO 行项，跨权限数据需人工隔离</li>
+            
+          </ul>
+        </div>
+        <div class="p-block">
+          <div class="p-label data-label">🗃️ 典型业务数据</div>
+          <div class="freq-badge">使用频率：中频（异常触发）</div>
+          <ul>
+            
+            <li>待复核异常发票 5 张（数量超差 ×1、金额超尾差 ×1、抬头税号不符 ×1、单价不符 ×1、跨期发票 ×1）</li>
+            
+            <li>数量超差样例：发票 INV-2026-0618-002，物料 精密轴承 NSK 6205，发票 500 件 > 入库 480 件</li>
+            
+            <li>供应商 XX环保科技（脱敏），采购订单号 6300002695</li>
+            
+          </ul>
+          
+          <div class="p-label errors-label">常见失误</div>
+          <ul>
+            
+            <li>漏看升级路径导致异常票长期挂起</li>
+            
+            <li>跨权限查看非自有 PO 行项</li>
+            
+          </ul>
+          
+        </div>
+      </div>
+      
+      <div class="persona-card">
+        <div class="persona-head">
+          <div class="avatar">陈</div>
+          <div>
+            <div class="persona-name">陈静 <span class="role-badge">财务负责人</span></div>
+            <div class="persona-dept">财务部 · 核算与共享中心</div>
+          </div>
+        </div>
+        <p class="persona-bg">负责应付过账审核与放行，关注凭证合规与入账留痕；过渡期还需确认乐企入账标识更新。</p>
+        <div class="p-block">
+          <div class="p-label goals-label">🎯 核心目标</div>
+          <ul>
+            
+            <li>预制/过账前置条件全绿才放行，过账留痕可追溯</li>
+            
+            <li>发票到过账周期缩短，台账与乐企状态一次到位</li>
+            
+          </ul>
+        </div>
+        <div class="p-block">
+          <div class="p-label pains-label">⚠️ 当前痛点</div>
+          <ul>
+            
+            <li>过账审核需逐票/抽查核对，等待与重复确认耗时（高耗时）</li>
+            
+            <li>入账标识需财务到乐企/电子税务局手工确认，过渡期重复劳动（系统瓶颈）</li>
+            
+          </ul>
+        </div>
+        <div class="p-block">
+          <div class="p-label data-label">🗃️ 典型业务数据</div>
+          <div class="freq-badge">使用频率：中频（批量过账）</div>
+          <ul>
+            
+            <li>待过账预制发票 39 张（含 2 张预制失败待补）</li>
+            
+            <li>ERP 过账凭证号、会计期间、过账状态回写</li>
+            
+            <li>乐企入账标识状态：待更新 / 已更新 / 人工已更新</li>
+            
+          </ul>
+          
+          <div class="p-label errors-label">常见失误</div>
+          <ul>
+            
+            <li>漏审预制失败票导致台账缺口</li>
+            
+            <li>过账后忘记更新乐企入账标识</li>
+            
+          </ul>
+          
+        </div>
+      </div>
+      
+    </div>
+  </section>
+
+  <!-- ================= 02 典型使用场景 ================= -->
+  <section class="section">
+    <div class="section-title">
+      <span class="section-num">02</span> 典型使用场景 <span class="section-en">SCENARIOS</span>
+    </div>
+    <div class="scenario-grid">
+      
+      <div class="scenario-card">
+        <div class="scenario-head">
+          <span class="scenario-id">s1</span>
+          <span class="scenario-name">月初批量校验</span>
+          <span class="persona-link">👤 ap_accountant_wang</span>
+        </div>
+        <div class="sc-trigger">⚡ 触发：月初发票集中到票，应付会计需要对本月采购发票批量完成归集、识别与三单匹配</div>
+        <div class="p-label data-label">📊 涉及业务数据</div>
+        <ul class="sc-biz">
+          
+          <li>本批采购发票 46 张（乐企同步 38 张 + 供应商上传 6 张 + 采购补录 2 张）</li>
+          
+          <li>三单单据：ERP PO（6300002695）、ERP 入库单（NJ-2026061801）、公共网盘送货单（20260618170457663.pdf）</li>
+          
+          <li>数电发票 25312000000012345678：二级RO膜 东丽 TM720D 400 × 42 支，不含税 77,700.00 元</li>
+          
+        </ul>
+        <div class="sc-goal">🎯 批量完成 46 张发票的归集、识别与三单匹配，自动放行匹配通过票、按类型分流异常票</div>
+      </div>
+      
+      <div class="scenario-card">
+        <div class="scenario-head">
+          <span class="scenario-id">s2</span>
+          <span class="scenario-name">异常票返工</span>
+          <span class="persona-link">👤 buyer_li</span>
+        </div>
+        <div class="sc-trigger">⚡ 触发：三单匹配出现数量超差/抬头税号不符等异常，需采购业务员按 PO 权限复核并与供应商沟通</div>
+        <div class="p-label data-label">📊 涉及业务数据</div>
+        <ul class="sc-biz">
+          
+          <li>异常发票 INV-2026-0618-002：精密轴承 NSK 6205，发票 500 件 > 入库 480 件（数量超差）</li>
+          
+          <li>四数量对照：PO 500 / 送货 480 / 入库 480 / 发票 500，差异数量 20 件</li>
+          
+          <li>供应商沟通对象：采购员李强；升级路径：2 个工作日未响应升级财务负责人</li>
+          
+        </ul>
+        <div class="sc-goal">🎯 异常票按类型分流并给出处理建议与升级路径，沟通结果登记后自动挂起重跑三单匹配</div>
+      </div>
+      
+      <div class="scenario-card">
+        <div class="scenario-head">
+          <span class="scenario-id">s3</span>
+          <span class="scenario-name">批量预制过账</span>
+          <span class="persona-link">👤 fin_manager_chen</span>
+        </div>
+        <div class="sc-trigger">⚡ 触发：匹配通过票批量预制后，财务负责人对待过账发票审核放行并更新乐企入账标识</div>
+        <div class="p-label data-label">📊 涉及业务数据</div>
+        <ul class="sc-biz">
+          
+          <li>匹配通过发票 41 张，其中预制成功 39 张、预制失败 2 张（成本中心缺失）</li>
+          
+          <li>ERP 过账返回：凭证号、会计期间、过账状态</li>
+          
+          <li>乐企入账状态（IF002）与台账、归档索引（按发票编号）</li>
+          
+        </ul>
+        <div class="sc-goal">🎯 预制/过账硬门禁全绿后批量放行，台账、乐企入账标识、归档索引一次更新到位</div>
+      </div>
+      
+    </div>
+  </section>
+
+  <!-- ================= 03 To-be 旅程泳道图 ================= -->
+  <section class="section">
+    <div class="section-title">
+      <span class="section-num">03</span> To-be 旅程泳道图 <span class="section-en">USER JOURNEY</span>
+    </div>
+
+    <div class="journey-map-canvas">
+      <!-- 左侧标签列 -->
+      <div class="labels-column">
+        <div class="lane-label h-stage">阶段</div>
+        <div class="lane-label h-behavior">用户行为</div>
+        <div class="lane-label h-touchpoint">触点</div>
+        <div class="lane-label h-thoughts">用户想法</div>
+        <div class="lane-label h-inputs">📎 用户输入数据</div>
+        <div class="lane-label h-ai">🤖 AI 交互与推荐指令</div>
+        <div class="lane-label h-visible">📊 可见数据</div>
+        <div class="lane-label h-design">🎨 设计意图与改善</div>
+      </div>
+
+      <!-- 右侧内容列 -->
+      <div class="content-column">
+
+        <!-- ===== 阶段 ===== -->
+        <div class="lane-row h-stage">
+          
+          <div class="stage-block" style="left: 0.0%; width: 18.181818181818183%;">发票多渠道采集归集</div>
+          
+          <div class="stage-block" style="left: 18.181818181818183%; width: 18.181818181818183%;">用途确认与识别校验</div>
+          
+          <div class="stage-block" style="left: 36.36363636363637%; width: 27.27272727272727%;">三单匹配与差异识别</div>
+          
+          <div class="stage-block" style="left: 63.63636363636363%; width: 18.181818181818183%;">异常凭证确认与返工</div>
+          
+          <div class="stage-block" style="left: 81.81818181818183%; width: 18.181818181818183%;">自动入账与归档</div>
+          
+        </div>
+
+        <!-- ===== 用户行为 ===== -->
+        <div class="lane-row h-behavior">
+          
+            
+            <div class="action-wrapper" style="left: 4.1544477028347995%;">
+              <div class="behavior-card">发起今日归集并确认范围</div>
+              
+              <div class="flow-arrow ">➜</div>
+              
+            </div>
+            
+            <div class="action-wrapper" style="left: 13.24535679374389%;">
+              <div class="behavior-card">核验归集完整性并查重</div>
+              
+              <div class="flow-arrow flow-arrow-dash">➜</div>
+              
+            </div>
+            
+          
+            
+            <div class="action-wrapper" style="left: 22.33626588465298%;">
+              <div class="behavior-card">确认用途并复核识别结果</div>
+              
+              <div class="flow-arrow ">➜</div>
+              
+            </div>
+            
+            <div class="action-wrapper" style="left: 31.42717497556207%;">
+              <div class="behavior-card">校验发票真伪与购方抬头</div>
+              
+              <div class="flow-arrow flow-arrow-dash">➜</div>
+              
+            </div>
+            
+          
+            
+            <div class="action-wrapper" style="left: 40.51808406647116%;">
+              <div class="behavior-card">以发票行为主线汇入三单并匹配</div>
+              
+              <div class="flow-arrow ">➜</div>
+              
+            </div>
+            
+            <div class="action-wrapper" style="left: 49.608993157380255%;">
+              <div class="behavior-card">行级数量扣减与四数量对照</div>
+              
+              <div class="flow-arrow ">➜</div>
+              
+            </div>
+            
+            <div class="action-wrapper" style="left: 58.69990224828935%;">
+              <div class="behavior-card">金额比对与差异判定</div>
+              
+              <div class="flow-arrow flow-arrow-dash">➜</div>
+              
+            </div>
+            
+          
+            
+            <div class="action-wrapper" style="left: 67.79081133919843%;">
+              <div class="behavior-card">判定异常类型并采纳处理建议</div>
+              
+              <div class="flow-arrow ">➜</div>
+              
+            </div>
+            
+            <div class="action-wrapper" style="left: 76.88172043010752%;">
+              <div class="behavior-card">登记沟通结果并挂起重跑</div>
+              
+              <div class="flow-arrow flow-arrow-dash">➜</div>
+              
+            </div>
+            
+          
+            
+            <div class="action-wrapper" style="left: 85.97262952101661%;">
+              <div class="behavior-card">批量预制并检查硬门禁</div>
+              
+              <div class="flow-arrow ">➜</div>
+              
+            </div>
+            
+            <div class="action-wrapper" style="left: 95.06353861192571%;">
+              <div class="behavior-card">过账审核并更新台账归档</div>
+              
+            </div>
+            
+          
+        </div>
+
+        <!-- ===== 触点 ===== -->
+        <div class="lane-row h-touchpoint">
+          
+            
+            <div class="action-wrapper" style="left: 4.1544477028347995%;">
+              <div class="touchpoint-card">
+                <span class="tp-badge">应付会计</span>
+                <span class="tp-device">发票校验工作台 · 归集看板</span>
+              </div>
+            </div>
+            
+            <div class="action-wrapper" style="left: 13.24535679374389%;">
+              <div class="touchpoint-card">
+                <span class="tp-badge">应付会计</span>
+                <span class="tp-device">发票校验工作台 · 归集看板 · 重复标记</span>
+              </div>
+            </div>
+            
+          
+            
+            <div class="action-wrapper" style="left: 22.33626588465298%;">
+              <div class="touchpoint-card">
+                <span class="tp-badge">应付会计 / 采购业务员</span>
+                <span class="tp-device">发票校验工作台 · 识别复核卡片</span>
+              </div>
+            </div>
+            
+            <div class="action-wrapper" style="left: 31.42717497556207%;">
+              <div class="touchpoint-card">
+                <span class="tp-badge">应付会计</span>
+                <span class="tp-device">发票校验工作台 · 识别复核卡片 · 术语 hover 卡</span>
+              </div>
+            </div>
+            
+          
+            
+            <div class="action-wrapper" style="left: 40.51808406647116%;">
+              <div class="touchpoint-card">
+                <span class="tp-badge">应付会计</span>
+                <span class="tp-device">三单匹配工作台 · 横向匹配大表</span>
+              </div>
+            </div>
+            
+            <div class="action-wrapper" style="left: 49.608993157380255%;">
+              <div class="touchpoint-card">
+                <span class="tp-badge">应付会计</span>
+                <span class="tp-device">三单匹配工作台 · 四数量对照报表</span>
+              </div>
+            </div>
+            
+            <div class="action-wrapper" style="left: 58.69990224828935%;">
+              <div class="touchpoint-card">
+                <span class="tp-badge">应付会计</span>
+                <span class="tp-device">三单匹配工作台 · 匹配判定卡 · 出处引用悬浮卡</span>
+              </div>
+            </div>
+            
+          
+            
+            <div class="action-wrapper" style="left: 67.79081133919843%;">
+              <div class="touchpoint-card">
+                <span class="tp-badge">采购业务员 / 应付会计</span>
+                <span class="tp-device">异常凭证队列 · 处理建议内联卡</span>
+              </div>
+            </div>
+            
+            <div class="action-wrapper" style="left: 76.88172043010752%;">
+              <div class="touchpoint-card">
+                <span class="tp-badge">采购业务员</span>
+                <span class="tp-device">异常凭证队列 · 沟通登记 · 待办通知</span>
+              </div>
+            </div>
+            
+          
+            
+            <div class="action-wrapper" style="left: 85.97262952101661%;">
+              <div class="touchpoint-card">
+                <span class="tp-badge">应付会计</span>
+                <span class="tp-device">入账与归档台账 · 预制门禁检查列</span>
+              </div>
+            </div>
+            
+            <div class="action-wrapper" style="left: 95.06353861192571%;">
+              <div class="touchpoint-card">
+                <span class="tp-badge">财务负责人</span>
+                <span class="tp-device">入账与归档台账 · 过账确认对话框 · 资料预览</span>
+              </div>
+            </div>
+            
+          
+        </div>
+
+        <!-- ===== 用户想法 ===== -->
+        <div class="lane-row h-thoughts">
+          
+            
+            <div class="action-wrapper" style="left: 4.1544477028347995%;">
+              <div class="thoughts-container">
+                
+                <div class="thought-bubble">希望系统自动把乐企、供应商上传、采购补录的票一次收齐，别再让我逐个渠道下载</div>
+                
+                <div class="thought-bubble">先确认本批范围，避免混入已入账发票</div>
+                
+              </div>
+            </div>
+            
+            <div class="action-wrapper" style="left: 13.24535679374389%;">
+              <div class="thoughts-container">
+                
+                <div class="thought-bubble">最怕漏票和重票，希望系统主动告诉我哪张重复了</div>
+                
+              </div>
+            </div>
+            
+          
+            
+            <div class="action-wrapper" style="left: 22.33626588465298%;">
+              <div class="thoughts-container">
+                
+                <div class="thought-bubble">模糊票的金额字段我要能直接对照票面截图补录</div>
+                
+                <div class="thought-bubble">采购员只能看到自己权限 PO 相关的发票</div>
+                
+              </div>
+            </div>
+            
+            <div class="action-wrapper" style="left: 31.42717497556207%;">
+              <div class="thoughts-container">
+                
+                <div class="thought-bubble">抬头和税号要对得上，供应商别名我能悬停看标准口径</div>
+                
+              </div>
+            </div>
+            
+          
+            
+            <div class="action-wrapper" style="left: 40.51808406647116%;">
+              <div class="thoughts-container">
+                
+                <div class="thought-bubble">一张发票可能对多个 PO 行、多张送货单，希望系统按发票行自动拉齐</div>
+                
+                <div class="thought-bubble">匹配关系要能人工调整，但不能覆盖原始单据</div>
+                
+              </div>
+            </div>
+            
+            <div class="action-wrapper" style="left: 49.608993157380255%;">
+              <div class="thoughts-container">
+                
+                <div class="thought-bubble">数量对不对，我要同时看到 PO/送货/入库/发票四个数</div>
+                
+                <div class="thought-bubble">入库单和送货单不用互相校验，但数量超差必须拉人</div>
+                
+              </div>
+            </div>
+            
+            <div class="action-wrapper" style="left: 58.69990224828935%;">
+              <div class="thoughts-container">
+                
+                <div class="thought-bubble">金额比对走 ERP 接口，我只需要看接口返回的通过/差异结果</div>
+                
+                <div class="thought-bubble">尾差很小能自动容忍，但超阈值一定要提醒我</div>
+                
+              </div>
+            </div>
+            
+          
+            
+            <div class="action-wrapper" style="left: 67.79081133919843%;">
+              <div class="thoughts-container">
+                
+                <div class="thought-bubble">每张异常票都告诉我是什么类型、该找谁、怎么处理就好了</div>
+                
+              </div>
+            </div>
+            
+            <div class="action-wrapper" style="left: 76.88172043010752%;">
+              <div class="thoughts-container">
+                
+                <div class="thought-bubble">沟通结果记下来后，补单到货能自动重跑就好了</div>
+                
+              </div>
+            </div>
+            
+          
+            
+            <div class="action-wrapper" style="left: 85.97262952101661%;">
+              <div class="thoughts-container">
+                
+                <div class="thought-bubble">前置条件不满足的票别硬放行，失败原因要清楚</div>
+                
+              </div>
+            </div>
+            
+            <div class="action-wrapper" style="left: 95.06353861192571%;">
+              <div class="thoughts-container">
+                
+                <div class="thought-bubble">过账前必须我确认，凭证号、乐企状态、台账要一次到位</div>
+                
+              </div>
+            </div>
+            
+          
+        </div>
+
+        <!-- ===== 用户输入数据 ===== -->
+        <div class="lane-row h-inputs">
+          
+            
+            <div class="action-wrapper" style="left: 4.1544477028347995%;">
+              <div class="inputs-container">
+                
+                <div class="input-card">
+                  <div class="input-head">
+                    <span class="input-type">系统自动带入</span>
+                    <span class="input-name">归集渠道范围与批次</span>
+                    <span class="input-format">页面内选择（乐企 / 供应商上传 / 采购补录）</span>
+                  </div>
+                  <div class="input-example">📄 本批 46 张：乐企 38 张 + 供应商上传 6 张 + 采购补录 2 张</div>
+                  <div class="input-content">待校验发票批次、渠道来源、开票日期区间</div>
+                </div>
+                
+                <div class="input-card">
+                  <div class="input-head">
+                    <span class="input-type">文件上传</span>
+                    <span class="input-name">采购补录纸质票影像</span>
+                    <span class="input-format">PDF / JPG</span>
+                  </div>
+                  <div class="input-example">📄 纸质票补录-20260618-02.jpg</div>
+                  <div class="input-content">发票号、开票日期、供应商、不含税金额、税额、价税合计</div>
+                </div>
+                
+              </div>
+            </div>
+            
+            <div class="action-wrapper" style="left: 13.24535679374389%;">
+              <div class="inputs-container">
+                
+                <div class="input-card">
+                  <div class="input-head">
+                    <span class="input-type">系统自动带入</span>
+                    <span class="input-name">本批发票清单与历史批次</span>
+                    <span class="input-format">结构化比对</span>
+                  </div>
+                  <div class="input-example">📄 46 张发票号去重比对历史批次</div>
+                  <div class="input-content">发票号、供应商税号、开票日期、金额</div>
+                </div>
+                
+              </div>
+            </div>
+            
+          
+            
+            <div class="action-wrapper" style="left: 22.33626588465298%;">
+              <div class="inputs-container">
+                
+                <div class="input-card">
+                  <div class="input-head">
+                    <span class="input-type">文件上传 / 系统带入</span>
+                    <span class="input-name">采购发票文件与用途确认信息</span>
+                    <span class="input-format">数电票 XML/PDF/OFD + 用途确认信息</span>
+                  </div>
+                  <div class="input-example">📄 25312000000012345678.xml（含税 87,801.00 元）</div>
+                  <div class="input-content">发票号、开票日期、供应商税号、不含税金额、税额、价税合计、用途</div>
+                </div>
+                
+                <div class="input-card">
+                  <div class="input-head">
+                    <span class="input-type">页面内编辑</span>
+                    <span class="input-name">低置信字段人工补录</span>
+                    <span class="input-format">表单补录</span>
+                  </div>
+                  <div class="input-example">📄 金额字段置信度 82%，人工补录为 77,700.00</div>
+                  <div class="input-content">金额、税额、供应商税号等低置信或缺失字段</div>
+                </div>
+                
+              </div>
+            </div>
+            
+            <div class="action-wrapper" style="left: 31.42717497556207%;">
+              <div class="inputs-container">
+                
+                <div class="input-card">
+                  <div class="input-head">
+                    <span class="input-type">系统自动带入</span>
+                    <span class="input-name">结构化识别字段与主数据</span>
+                    <span class="input-format">结构化字段 + 供应商/税号/科目字典</span>
+                  </div>
+                  <div class="input-example">📄 供应商 XX环保科技（脱敏），统一社会信用代码 91310000MA1KXXXXXX</div>
+                  <div class="input-content">供应商标准名、供应商代码、统一社会信用代码、SAP 会计科目、成本中心、付款条件</div>
+                </div>
+                
+              </div>
+            </div>
+            
+          
+            
+            <div class="action-wrapper" style="left: 40.51808406647116%;">
+              <div class="inputs-container">
+                
+                <div class="input-card">
+                  <div class="input-head">
+                    <span class="input-type">系统自动带入</span>
+                    <span class="input-name">发票行 + PO 行 + 入库行 + 送货单行</span>
+                    <span class="input-format">ERP 接口（IF003/IF004）+ 网盘送货单（IF008）+ 匹配关系表</span>
+                  </div>
+                  <div class="input-example">📄 发票行：二级RO膜 东丽 TM720D 400 × 42 支；PO 行 6300002695；入库单 NJ-2026061801</div>
+                  <div class="input-content">发票行、PO 行、入库行、送货单行（含 PO 号、PO 行号、物料、数量）</div>
+                </div>
+                
+              </div>
+            </div>
+            
+            <div class="action-wrapper" style="left: 49.608993157380255%;">
+              <div class="inputs-container">
+                
+                <div class="input-card">
+                  <div class="input-head">
+                    <span class="input-type">系统自动带入</span>
+                    <span class="input-name">三单行级数量</span>
+                    <span class="input-format">结构化数量比对</span>
+                  </div>
+                  <div class="input-example">📄 PO 42 / 送货 42 / 入库 42 / 发票 42（差异 0）；异常样例 INV-2026-0618-002：PO 500 / 送货 480 / 入库 480 / 发票 500（差异 20）</div>
+                  <div class="input-content">采购订单数量、送货单数量、入库数量、发票校验数量、差异数量</div>
+                </div>
+                
+              </div>
+            </div>
+            
+            <div class="action-wrapper" style="left: 58.69990224828935%;">
+              <div class="inputs-container">
+                
+                <div class="input-card">
+                  <div class="input-head">
+                    <span class="input-type">系统自动带入</span>
+                    <span class="input-name">发票金额与合同/PO 金额</span>
+                    <span class="input-format">ERP 模拟校验接口（IF003–IF007）返回</span>
+                  </div>
+                  <div class="input-example">📄 发票不含税 77,700.80 vs PO 77,700.00，尾差 0.80（差异率 0.0010%）；超差样例单价不符</div>
+                  <div class="input-content">发票不含税金额、合同/PO 金额、差异金额、差异率、ERP 校验结果</div>
+                </div>
+                
+              </div>
+            </div>
+            
+          
+            
+            <div class="action-wrapper" style="left: 67.79081133919843%;">
+              <div class="inputs-container">
+                
+                <div class="input-card">
+                  <div class="input-head">
+                    <span class="input-type">系统自动带入</span>
+                    <span class="input-name">匹配差异清单</span>
+                    <span class="input-format">异常队列（按类型分组）</span>
+                  </div>
+                  <div class="input-example">📄 5 张异常：数量超差、金额超尾差、抬头/税号不符、单价不符、跨期发票</div>
+                  <div class="input-content">异常类型、差异明细、处理建议、沟通对象、升级路径</div>
+                </div>
+                
+              </div>
+            </div>
+            
+            <div class="action-wrapper" style="left: 76.88172043010752%;">
+              <div class="inputs-container">
+                
+                <div class="input-card">
+                  <div class="input-head">
+                    <span class="input-type">页面内编辑</span>
+                    <span class="input-name">沟通结果登记</span>
+                    <span class="input-format">表单登记</span>
+                  </div>
+                  <div class="input-example">📄 供应商确认补单，预计 2026-06-25 重开送货单</div>
+                  <div class="input-content">沟通对象、沟通结果（补单/换票/冲红）、预计完成时间</div>
+                </div>
+                
+              </div>
+            </div>
+            
+          
+            
+            <div class="action-wrapper" style="left: 85.97262952101661%;">
+              <div class="inputs-container">
+                
+                <div class="input-card">
+                  <div class="input-head">
+                    <span class="input-type">系统自动带入</span>
+                    <span class="input-name">匹配通过的发票与三单单据</span>
+                    <span class="input-format">ERP 预制接口（IF005）</span>
+                  </div>
+                  <div class="input-example">📄 匹配通过 41 张，预制成功 39 张、失败 2 张（成本中心缺失）</div>
+                  <div class="input-content">发票主信息、发票行、PO 行、入库行、税率、金额、预制权限</div>
+                </div>
+                
+              </div>
+            </div>
+            
+            <div class="action-wrapper" style="left: 95.06353861192571%;">
+              <div class="inputs-container">
+                
+                <div class="input-card">
+                  <div class="input-head">
+                    <span class="input-type">页面内确认</span>
+                    <span class="input-name">预制发票过账确认</span>
+                    <span class="input-format">ERP 过账接口（IF006）+ 乐企状态更新（IF002）</span>
+                  </div>
+                  <div class="input-example">📄 39 张预制发票全选过账，返回凭证号与会计期间</div>
+                  <div class="input-content">预制发票、过账权限、凭证号、会计期间、过账状态、乐企入账标识</div>
+                </div>
+                
+              </div>
+            </div>
+            
+          
+        </div>
+
+        <!-- ===== AI 交互与推荐指令 ===== -->
+        <div class="lane-row h-ai">
+          
+            
+            <div class="action-wrapper" style="left: 4.1544477028347995%;">
+              <div class="ai-container">
+                
+                <div class="ai-action">🤖 按渠道范围调用乐企发票池（IF001）、供应商上传区、采购补录记录，归集发票文件并保存至文件服务（IF009）</div>
+                
+                
+                <div class="sugg-label">⚡ 对话推荐操作指令</div>
+                <div class="sugg-chips">
+                  
+                  <span class="sugg-chip">开始今日归集（三渠道）</span>
+                  
+                  <span class="sugg-chip">仅同步乐企发票池</span>
+                  
+                  <span class="sugg-chip">查看本批渠道分布</span>
+                  
+                </div>
+                
+              </div>
+            </div>
+            
+            <div class="action-wrapper" style="left: 13.24535679374389%;">
+              <div class="ai-container">
+                
+                <div class="ai-action">🤖 对归集结果做完整性校验：发票号去重、必填字段校验、与历史批次比对</div>
+                
+                
+                <div class="sugg-label">⚡ 对话推荐操作指令</div>
+                <div class="sugg-chips">
+                  
+                  <span class="sugg-chip">核验归集完整性</span>
+                  
+                  <span class="sugg-chip">查看重复票比对详情</span>
+                  
+                  <span class="sugg-chip">标记为已确认无遗漏</span>
+                  
+                </div>
+                
+              </div>
+            </div>
+            
+          
+            
+            <div class="action-wrapper" style="left: 22.33626588465298%;">
+              <div class="ai-container">
+                
+                <div class="ai-action">🤖 调用 OCR/AI 识别（IF010）抽取票面关键字段并返回置信度；低于 95% 的字段标红转人工复核；按权限过滤 PO 范围</div>
+                
+                
+                <div class="sugg-label">⚡ 对话推荐操作指令</div>
+                <div class="sugg-chips">
+                  
+                  <span class="sugg-chip">识别并校验票面关键字段</span>
+                  
+                  <span class="sugg-chip">查看标红字段票面位置</span>
+                  
+                  <span class="sugg-chip">补录后继续校验</span>
+                  
+                </div>
+                
+              </div>
+            </div>
+            
+            <div class="action-wrapper" style="left: 31.42717497556207%;">
+              <div class="ai-container">
+                
+                <div class="ai-action">🤖 以术语字典（供应商/税号/科目映射字典）校验发票真伪与购方抬头，比对供应商一致性</div>
+                
+                
+                <div class="sugg-label">⚡ 对话推荐操作指令</div>
+                <div class="sugg-chips">
+                  
+                  <span class="sugg-chip">校验真伪与购方抬头</span>
+                  
+                  <span class="sugg-chip">查看供应商标准口径</span>
+                  
+                  <span class="sugg-chip">标记抬头/税号不符转换票</span>
+                  
+                </div>
+                
+              </div>
+            </div>
+            
+          
+            
+            <div class="action-wrapper" style="left: 40.51808406647116%;">
+              <div class="ai-container">
+                
+                <div class="ai-action">🤖 以发票行为主线汇入三单行信息，执行三层匹配（发票行↔送货/入库行、入库单↔PO 行、发票行↔PO 行）与 6 条匹配规则（供应商/行金额/总金额/数量/物料/PO 完整性）</div>
+                
+                
+                <div class="sugg-label">⚡ 对话推荐操作指令</div>
+                <div class="sugg-chips">
+                  
+                  <span class="sugg-chip">以发票行为主线汇入三单</span>
+                  
+                  <span class="sugg-chip">查看三层匹配结构</span>
+                  
+                  <span class="sugg-chip">人工调整匹配关系</span>
+                  
+                  <span class="sugg-chip">保存匹配结果（不覆盖原始单据）</span>
+                  
+                </div>
+                
+              </div>
+            </div>
+            
+            <div class="action-wrapper" style="left: 49.608993157380255%;">
+              <div class="ai-container">
+                
+                <div class="ai-action">🤖 以发票数量扣减入库/送货数量（不校验入库单与送货单一致性），行级核对差异并标注超差</div>
+                
+                
+                <div class="sugg-label">⚡ 对话推荐操作指令</div>
+                <div class="sugg-chips">
+                  
+                  <span class="sugg-chip">行级核对数量并扣减</span>
+                  
+                  <span class="sugg-chip">查看四数量对照报表</span>
+                  
+                  <span class="sugg-chip">转异常确认（数量超差）</span>
+                  
+                </div>
+                
+              </div>
+            </div>
+            
+            <div class="action-wrapper" style="left: 58.69990224828935%;">
+              <div class="ai-container">
+                
+                <div class="ai-action">🤖 调用 ERP 模拟校验接口做金额比对（本平台仅感知结果，以不含税金额为基准），按差异容忍规则判定可容忍/必拉人</div>
+                
+                
+                <div class="sugg-label">⚡ 对话推荐操作指令</div>
+                <div class="sugg-chips">
+                  
+                  <span class="sugg-chip">核对金额与差异（ERP 接口）</span>
+                  
+                  <span class="sugg-chip">查看尾差容忍依据</span>
+                  
+                  <span class="sugg-chip">展开匹配推理链</span>
+                  
+                  <span class="sugg-chip">转异常确认（金额超尾差/单价不符）</span>
+                  
+                </div>
+                
+              </div>
+            </div>
+            
+          
+            
+            <div class="action-wrapper" style="left: 67.79081133919843%;">
+              <div class="ai-container">
+                
+                <div class="ai-action">🤖 按差异容忍与异常判定经验判定异常类型，生成处理建议与沟通对象、升级路径</div>
+                
+                
+                <div class="sugg-label">⚡ 对话推荐操作指令</div>
+                <div class="sugg-chips">
+                  
+                  <span class="sugg-chip">判定异常类型并生成处理建议</span>
+                  
+                  <span class="sugg-chip">生成沟通对象与升级路径</span>
+                  
+                  <span class="sugg-chip">采纳建议并登记沟通</span>
+                  
+                  <span class="sugg-chip">转人工线下处理</span>
+                  
+                </div>
+                
+              </div>
+            </div>
+            
+            <div class="action-wrapper" style="left: 76.88172043010752%;">
+              <div class="ai-container">
+                
+                <div class="ai-action">🤖 登记沟通结果并挂起该票、设置提醒；补单到货后自动重跑三单匹配（混合：人工修正 + AI 重跑）</div>
+                
+                
+                <div class="sugg-label">⚡ 对话推荐操作指令</div>
+                <div class="sugg-chips">
+                  
+                  <span class="sugg-chip">登记沟通结果</span>
+                  
+                  <span class="sugg-chip">挂起并设置提醒</span>
+                  
+                  <span class="sugg-chip">撤销沟通登记</span>
+                  
+                  <span class="sugg-chip">补单到货后重跑匹配</span>
+                  
+                </div>
+                
+              </div>
+            </div>
+            
+          
+            
+            <div class="action-wrapper" style="left: 85.97262952101661%;">
+              <div class="ai-container">
+                
+                <div class="ai-action">🤖 逐票检查预制硬门禁（已识别/匹配关系/差异说明/信息完整/校验通过/权限），满足则提交 ERP 预制发票（IF005）</div>
+                
+                
+                <div class="sugg-label">⚡ 对话推荐操作指令</div>
+                <div class="sugg-chips">
+                  
+                  <span class="sugg-chip">批量预制（检查硬门禁）</span>
+                  
+                  <span class="sugg-chip">查看预制失败原因</span>
+                  
+                  <span class="sugg-chip">补齐成本中心后重试</span>
+                  
+                </div>
+                
+              </div>
+            </div>
+            
+            <div class="action-wrapper" style="left: 95.06353861192571%;">
+              <div class="ai-container">
+                
+                <div class="ai-action">🤖 校验过账硬门禁（已预制/ERP 预制状态有效/具备过账权限）后调用 ERP 过账，回写凭证号并更新台账、归档索引与乐企入账状态</div>
+                
+                
+                <div class="sugg-label">⚡ 对话推荐操作指令</div>
+                <div class="sugg-chips">
+                  
+                  <span class="sugg-chip">批量过账（财务负责人确认）</span>
+                  
+                  <span class="sugg-chip">抽查 2 张后全选放行</span>
+                  
+                  <span class="sugg-chip">确认同步乐企并更新台账</span>
+                  
+                  <span class="sugg-chip">预览/打印归档资料</span>
+                  
+                </div>
+                
+              </div>
+            </div>
+            
+          
+        </div>
+
+        <!-- ===== 可见数据 ===== -->
+        <div class="lane-row h-visible">
+          
+            
+            <div class="action-wrapper" style="left: 4.1544477028347995%;">
+              <div class="visible-container">
+                
+                <div class="visible-item">归集进度：乐企已拉取 38 张、供应商上传新增 6 张、采购补录 2 张，共 46 张</div>
+                
+                <div class="visible-item">渠道分栏看板：发票号、供应商、不含税金额、税额、开票日期、渠道来源</div>
+                
+                <div class="visible-item">识别准确率口径：票面关键字段置信度阈值 95%</div>
+                
+              </div>
+            </div>
+            
+            <div class="action-wrapper" style="left: 13.24535679374389%;">
+              <div class="visible-container">
+                
+                <div class="visible-item">归集核对结果：共 46 张，无重复；1 张发票号与昨日批次重复，已黄色标记</div>
+                
+                <div class="visible-item">漏票提示：无缺失渠道；纸质补录 2 张待人工确认抬头</div>
+                
+              </div>
+            </div>
+            
+          
+            
+            <div class="action-wrapper" style="left: 22.33626588465298%;">
+              <div class="visible-container">
+                
+                <div class="visible-item">识别结果：发票号 25312000000012345678、不含税金额 77,700.00、税额 10,101.00、供应商税号 91310000MA1KXXXXXX（脱敏）</div>
+                
+                <div class="visible-item">低置信提示：1 张发票金额字段置信度 82%（<95% 阈值），已标红转人工复核</div>
+                
+                <div class="visible-item">用途确认状态：本批 46 张用途已确认</div>
+                
+              </div>
+            </div>
+            
+            <div class="action-wrapper" style="left: 31.42717497556207%;">
+              <div class="visible-container">
+                
+                <div class="visible-item">真伪校验：通过（发票号有效、非重复）</div>
+                
+                <div class="visible-item">抬头校验：45 张通过；1 张抬头/税号不符，已标记进入异常队列</div>
+                
+                <div class="visible-item">供应商对照：XX环保科技（脱敏）= 供应商代码 100XXX（SAP）</div>
+                
+              </div>
+            </div>
+            
+          
+            
+            <div class="action-wrapper" style="left: 40.51808406647116%;">
+              <div class="visible-container">
+                
+                <div class="visible-item">匹配工作集：发票行 46 行 ↔ PO 行 / 入库行 / 送货单行，一对一/一对多/多对多关系可见</div>
+                
+                <div class="visible-item">匹配规则结果：供应商一致性、物料一致性、PO 完整性逐行标记通过/差异</div>
+                
+                <div class="visible-item">匹配关系表：记录发票行、送货单行、入库单行、PO 行对应关系与备注</div>
+                
+              </div>
+            </div>
+            
+            <div class="action-wrapper" style="left: 49.608993157380255%;">
+              <div class="visible-container">
+                
+                <div class="visible-item">四数量对照报表：PO 数 / 送货数 / 入库数 / 发票数四列并列 + 差异数量</div>
+                
+                <div class="visible-item">数量核对：44 行差异为 0；1 行数量超差（发票 500 件 > 入库 480 件），超容忍必拉人</div>
+                
+                <div class="visible-item">规则提示：数量无容忍区间（领域专家假设值，待访谈回填）</div>
+                
+              </div>
+            </div>
+            
+            <div class="action-wrapper" style="left: 58.69990224828935%;">
+              <div class="visible-container">
+                
+                <div class="visible-item">金额判定：发票 77,700.80 vs PO 77,700.00，尾差 0.80（≤1 元且 ≤0.5%）→ 自动容忍放行</div>
+                
+                <div class="visible-item">差异提示：1 张单价不符判为超容忍，标记决策因子确定性为「中」</div>
+                
+                <div class="visible-item">出处引用：规则依据=差异容忍与异常判定经验（假设值）；票面位置=金额右下角（大小写以大写为准）；ERP 接口返回=模拟校验通过</div>
+                
+              </div>
+            </div>
+            
+          
+            
+            <div class="action-wrapper" style="left: 67.79081133919843%;">
+              <div class="visible-container">
+                
+                <div class="visible-item">异常队列：5 张按类型分组，每票带差异明细与处理建议</div>
+                
+                <div class="visible-item">建议样例：与供应商 XX环保科技（脱敏）确认少送 20 件 → 走补单流程；沟通对象：采购员李强；2 个工作日未响应升级财务负责人</div>
+                
+                <div class="visible-item">异常类型清单为领域专家假设值，待访谈回填</div>
+                
+              </div>
+            </div>
+            
+            <div class="action-wrapper" style="left: 76.88172043010752%;">
+              <div class="visible-container">
+                
+                <div class="visible-item">发票状态：数量超差票置为「补单中」，抬头税号不符票置为「换票中」</div>
+                
+                <div class="visible-item">重跑提醒：预计 2026-06-25 补单到货后自动重跑三单匹配</div>
+                
+                <div class="visible-item">撤销窗口：登记后窗口期内可一键撤销（Toast）</div>
+                
+              </div>
+            </div>
+            
+          
+            
+            <div class="action-wrapper" style="left: 85.97262952101661%;">
+              <div class="visible-container">
+                
+                <div class="visible-item">门禁检查：发票已识别 ✓ 匹配关系已建立 ✓ 差异已说明 ✓ 供应商/PO/入库完整 ✓ 校验通过 ✓ 预制权限 ✓</div>
+                
+                <div class="visible-item">预制结果：39 张成功取得 ERP 预制凭证号；2 张失败（成本中心缺失）进入待补队列</div>
+                
+              </div>
+            </div>
+            
+            <div class="action-wrapper" style="left: 95.06353861192571%;">
+              <div class="visible-container">
+                
+                <div class="visible-item">过账结果：39 张凭证号逐票返回，会计期间 2026-06，过账状态「已过账」</div>
+                
+                <div class="visible-item">台账刷新：凭证号、入账状态「已更新」、归档索引按发票编号生成</div>
+                
+                <div class="visible-item">乐企状态：入账标识已更新（过渡期提示财务人工确认并记录）</div>
+                
+              </div>
+            </div>
+            
+          
+        </div>
+
+        <!-- ===== 设计意图与改善 ===== -->
+        <div class="lane-row h-design">
+          
+            
+            <div class="action-wrapper" style="left: 4.1544477028347995%;">
+              <div class="design-container">
+                
+                <div class="design-item">采集归集覆盖率目标 100%（AI 画布 businessGains）</div>
+                
+                <div class="design-item">多系统孤岛在界面上消失，人工归集耗时下降（现状痛点：系统瓶颈）</div>
+                
+              </div>
+            </div>
+            
+            <div class="action-wrapper" style="left: 13.24535679374389%;">
+              <div class="design-container">
+                
+                <div class="design-item">漏票/重复转人工确认（SKP 深度任务·采集渠道确认点）</div>
+                
+                <div class="design-item">为后续三单匹配提供干净的发票池，降低高频错误</div>
+                
+              </div>
+            </div>
+            
+          
+            
+            <div class="action-wrapper" style="left: 22.33626588465298%;">
+              <div class="design-container">
+                
+                <div class="design-item">识别准确率目标 >95%（AI 画布 businessGains）；字段缺失/模糊票/新版式转人工（SKP 关键信息提取要点）</div>
+                
+                <div class="design-item">采购员仅可见/操作自有权限 PO 行项（SRP 用户功能需求）</div>
+                
+              </div>
+            </div>
+            
+            <div class="action-wrapper" style="left: 31.42717497556207%;">
+              <div class="design-container">
+                
+                <div class="design-item">校验覆盖率目标 100%；抬头/税号不符进入异常换票流程（现状痛点：高认知负荷）</div>
+                
+                <div class="design-item">隐性经验知识化，术语口径不再依赖个人记忆</div>
+                
+              </div>
+            </div>
+            
+          
+            
+            <div class="action-wrapper" style="left: 40.51808406647116%;">
+              <div class="design-container">
+                
+                <div class="design-item">以发票行为主线、非整张发票粒度（客户开发方案确认）；匹配关系表不覆盖原始单据</div>
+                
+                <div class="design-item">压缩人工逐票逐行比对耗时（现状痛点：高耗时）</div>
+                
+              </div>
+            </div>
+            
+            <div class="action-wrapper" style="left: 49.608993157380255%;">
+              <div class="design-container">
+                
+                <div class="design-item">不校验入库单与送货单一致性（客户研讨确认）；四数量并列供人工定位差异来源</div>
+                
+                <div class="design-item">数量超差 100% 拉人复核，杜绝静默错配（AI 画布 businessGains）</div>
+                
+              </div>
+            </div>
+            
+            <div class="action-wrapper" style="left: 58.69990224828935%;">
+              <div class="design-container">
+                
+                <div class="design-item">金额比对由 ERP 模拟校验接口承载、本平台不落规则（SKP 冲突仲裁）</div>
+                
+                <div class="design-item">尾差容忍阈值为领域专家假设值，待二轮访谈回填；超容忍 100% 拉人</div>
+                
+              </div>
+            </div>
+            
+          
+            
+            <div class="action-wrapper" style="left: 67.79081133919843%;">
+              <div class="design-container">
+                
+                <div class="design-item">异常处理周期缩短（AI 画布 businessGains）；隐性经验「异常沟通与升级路径」知识化</div>
+                
+                <div class="design-item">超差无法裁决逐级升级（应付会计 → 财务负责人）</div>
+                
+              </div>
+            </div>
+            
+            <div class="action-wrapper" style="left: 76.88172043010752%;">
+              <div class="design-container">
+                
+                <div class="design-item">减少与采购/供应商往返轮次（现状痛点：来回往复）</div>
+                
+                <div class="design-item">修正后重跑形成闭环，差异记录不覆盖原始单据</div>
+                
+              </div>
+            </div>
+            
+          
+            
+            <div class="action-wrapper" style="left: 85.97262952101661%;">
+              <div class="design-container">
+                
+                <div class="design-item">预制硬门禁（客户开发方案确认）；失败给降级建议（错误态）</div>
+                
+                <div class="design-item">入账自动化覆盖率目标 100%（AI 画布 businessGains）</div>
+                
+              </div>
+            </div>
+            
+            <div class="action-wrapper" style="left: 95.06353861192571%;">
+              <div class="design-container">
+                
+                <div class="design-item">过账/乐企硬门禁（客户开发方案确认）；过账前必停确认（HITL）</div>
+                
+                <div class="design-item">发票到过账周期缩短、台账与归档一次到位（现状痛点：高耗时 + 系统瓶颈）</div>
+                
+              </div>
+            </div>
+            
+          
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 04 原型衔接要点 ================= -->
+  <section class="section">
+    <div class="section-title">
+      <span class="section-num">04</span> 原型衔接要点 <span class="section-en">PROTOTYPE HANDOFF</span>
+    </div>
+    <div class="handoff-grid">
+      <div class="handoff-block">
+        <div class="ho-title">🖥️ 页面 / 触点清单</div>
+        <div class="chip-wrap">
+          
+          <span class="chip chip-blue">发票校验工作台 · 归集看板</span>
+          
+          <span class="chip chip-blue">发票校验工作台 · 归集看板 · 重复标记</span>
+          
+          <span class="chip chip-blue">发票校验工作台 · 识别复核卡片</span>
+          
+          <span class="chip chip-blue">发票校验工作台 · 识别复核卡片 · 术语 hover 卡</span>
+          
+          <span class="chip chip-blue">三单匹配工作台 · 横向匹配大表</span>
+          
+          <span class="chip chip-blue">三单匹配工作台 · 四数量对照报表</span>
+          
+          <span class="chip chip-blue">三单匹配工作台 · 匹配判定卡 · 出处引用悬浮卡</span>
+          
+          <span class="chip chip-blue">异常凭证队列 · 处理建议内联卡</span>
+          
+          <span class="chip chip-blue">异常凭证队列 · 沟通登记 · 待办通知</span>
+          
+          <span class="chip chip-blue">入账与归档台账 · 预制门禁检查列</span>
+          
+          <span class="chip chip-blue">入账与归档台账 · 过账确认对话框 · 资料预览</span>
+          
+        </div>
+      </div>
+      <div class="handoff-block">
+        <div class="ho-title">🗃️ 核心 Mock 数据实体</div>
+        <div class="chip-wrap">
+          
+          <span class="chip chip-amber">归集渠道范围与批次 (页面内选择（乐企 / 供应商上传 / 采购补录）)</span>
+          
+          <span class="chip chip-amber">采购补录纸质票影像 (PDF / JPG)</span>
+          
+          <span class="chip chip-amber">本批发票清单与历史批次 (结构化比对)</span>
+          
+          <span class="chip chip-amber">采购发票文件与用途确认信息 (数电票 XML/PDF/OFD + 用途确认信息)</span>
+          
+          <span class="chip chip-amber">低置信字段人工补录 (表单补录)</span>
+          
+          <span class="chip chip-amber">结构化识别字段与主数据 (结构化字段 + 供应商/税号/科目字典)</span>
+          
+          <span class="chip chip-amber">发票行 + PO 行 + 入库行 + 送货单行 (ERP 接口（IF003/IF004）+ 网盘送货单（IF008）+ 匹配关系表)</span>
+          
+          <span class="chip chip-amber">三单行级数量 (结构化数量比对)</span>
+          
+          <span class="chip chip-amber">发票金额与合同/PO 金额 (ERP 模拟校验接口（IF003–IF007）返回)</span>
+          
+          <span class="chip chip-amber">匹配差异清单 (异常队列（按类型分组）)</span>
+          
+          <span class="chip chip-amber">沟通结果登记 (表单登记)</span>
+          
+          <span class="chip chip-amber">匹配通过的发票与三单单据 (ERP 预制接口（IF005）)</span>
+          
+          <span class="chip chip-amber">预制发票过账确认 (ERP 过账接口（IF006）+ 乐企状态更新（IF002）)</span>
+          
+        </div>
+      </div>
+      <div class="handoff-block">
+        <div class="ho-title">⚡ 推荐操作指令库</div>
+        <div class="chip-wrap">
+          
+          <span class="chip chip-violet">“开始今日归集（三渠道）”</span>
+          
+          <span class="chip chip-violet">“仅同步乐企发票池”</span>
+          
+          <span class="chip chip-violet">“查看本批渠道分布”</span>
+          
+          <span class="chip chip-violet">“核验归集完整性”</span>
+          
+          <span class="chip chip-violet">“查看重复票比对详情”</span>
+          
+          <span class="chip chip-violet">“标记为已确认无遗漏”</span>
+          
+          <span class="chip chip-violet">“识别并校验票面关键字段”</span>
+          
+          <span class="chip chip-violet">“查看标红字段票面位置”</span>
+          
+          <span class="chip chip-violet">“补录后继续校验”</span>
+          
+          <span class="chip chip-violet">“校验真伪与购方抬头”</span>
+          
+          <span class="chip chip-violet">“查看供应商标准口径”</span>
+          
+          <span class="chip chip-violet">“标记抬头/税号不符转换票”</span>
+          
+          <span class="chip chip-violet">“以发票行为主线汇入三单”</span>
+          
+          <span class="chip chip-violet">“查看三层匹配结构”</span>
+          
+          <span class="chip chip-violet">“人工调整匹配关系”</span>
+          
+          <span class="chip chip-violet">“保存匹配结果（不覆盖原始单据）”</span>
+          
+          <span class="chip chip-violet">“行级核对数量并扣减”</span>
+          
+          <span class="chip chip-violet">“查看四数量对照报表”</span>
+          
+          <span class="chip chip-violet">“转异常确认（数量超差）”</span>
+          
+          <span class="chip chip-violet">“核对金额与差异（ERP 接口）”</span>
+          
+          <span class="chip chip-violet">“查看尾差容忍依据”</span>
+          
+          <span class="chip chip-violet">“展开匹配推理链”</span>
+          
+          <span class="chip chip-violet">“转异常确认（金额超尾差/单价不符）”</span>
+          
+          <span class="chip chip-violet">“判定异常类型并生成处理建议”</span>
+          
+          <span class="chip chip-violet">“生成沟通对象与升级路径”</span>
+          
+          <span class="chip chip-violet">“采纳建议并登记沟通”</span>
+          
+          <span class="chip chip-violet">“转人工线下处理”</span>
+          
+          <span class="chip chip-violet">“登记沟通结果”</span>
+          
+          <span class="chip chip-violet">“挂起并设置提醒”</span>
+          
+          <span class="chip chip-violet">“撤销沟通登记”</span>
+          
+          <span class="chip chip-violet">“补单到货后重跑匹配”</span>
+          
+          <span class="chip chip-violet">“批量预制（检查硬门禁）”</span>
+          
+          <span class="chip chip-violet">“查看预制失败原因”</span>
+          
+          <span class="chip chip-violet">“补齐成本中心后重试”</span>
+          
+          <span class="chip chip-violet">“批量过账（财务负责人确认）”</span>
+          
+          <span class="chip chip-violet">“抽查 2 张后全选放行”</span>
+          
+          <span class="chip chip-violet">“确认同步乐企并更新台账”</span>
+          
+          <span class="chip chip-violet">“预览/打印归档资料”</span>
+          
+        </div>
+      </div>
+      <div class="handoff-block wide">
+        <div class="ho-title">🔀 交互路径 / 分支 / 异常（供原型路径控制器使用）</div>
+        <ul class="path-list">
+          
+          <li>主路径：发起归集 → 核验完整性 → 用途确认与识别复核 → 三单匹配与差异判定 → 异常分流/自动入账 → 台账归档与乐企状态更新</li>
+          
+          <li>分支：匹配差异在容忍内自动放行（金额尾差 ≤1 元且 ≤0.5%）→ 直接进入批量预制；超容忍必拉人转异常确认</li>
+          
+          <li>异常：识别置信度 <95% 转识别复核；数量超差/单价不符/抬头税号不符转异常队列，沟通登记后补单到货自动重跑匹配</li>
+          
+          <li>边界：金额比对规则由 ERP 模拟校验接口承载、本平台仅感知结果；不校验入库单与送货单一致性；跨权限 PO 行项对采购业务员不可见</li>
+          
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <div class="footer-mark">Generated by ai-product-journey-generator · 2026-09-10 12:36:10</div>
+
+</div>
+
+</body>
+</html>

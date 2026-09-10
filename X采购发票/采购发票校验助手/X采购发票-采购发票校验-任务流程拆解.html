@@ -1,0 +1,1020 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>X采购发票 · 采购发票校验助手 端到端深度任务流程地图</title>
+
+    <!-- ===== Design System: Inspire (Enterprise Tech) ===== -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+        :root {
+            --color-primary: #10213E;       /* Starry Blues */
+            --color-accent: #5DB2E2;        /* Creative Blue */
+            --color-secondary: #625D9C;     /* Amethyst */
+            --color-success: #00524C;       /* Myrtle Deep Green */
+            --color-info: #6FB1C8;          /* Cerulean Frost */
+            --color-warning: #F59E0B;       /* Warning */
+            --color-destructive: #EF4444;   /* Danger */
+            --color-background: #FFFFFF;    /* Pure White */
+            --color-bg-alt: #F5F5F6;        /* Tech Gray */
+            --color-foreground: #10213E;    /* Primary Text */
+            --color-text-muted: #64748B;    /* Text Secondary */
+            --color-border: #E2E8F0;        /* Border/Line */
+            --shadow-inspire: 0 2px 8px rgba(16, 33, 62, 0.08);
+        }
+
+        *, *::before, *::after { box-sizing: border-box !important; }
+        html, body {
+            margin: 0 !important; padding: 0 !important;
+            background: var(--color-bg-alt) !important;
+            color: var(--color-foreground) !important;
+            font-family: "MiSans", "Inter", "Microsoft YaHei", sans-serif !important;
+            line-height: 1.6 !important;
+            overflow-x: auto !important;
+        }
+
+        ::-webkit-scrollbar { width: 9px; height: 9px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: 5px; }
+        ::-webkit-scrollbar-thumb:hover { background: #CBD5E1; }
+
+        /* ===== Unified Header ===== */
+        .unified-hdr {
+            width: 100% !important; background: var(--color-background) !important;
+            border-bottom: 1px solid var(--color-border) !important; border-radius: 0 !important;
+            box-shadow: none !important; padding: 14px 28px !important; margin-bottom: 18px !important;
+            display: flex !important; justify-content: space-between !important; align-items: center !important;
+            gap: 16px !important; flex-wrap: wrap !important;
+        }
+        .unified-hdr-left { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+        .unified-hdr-left h1 {
+            font-size: 22px !important; font-weight: 700 !important; color: var(--color-primary) !important;
+            line-height: 1.3 !important; margin: 0 !important; display: flex !important; align-items: center !important; gap: 10px !important;
+        }
+        .unified-hdr-left h1::before {
+            content: "" !important; display: inline-block !important; width: 4px !important; height: 22px !important;
+            background: var(--color-accent) !important; border-radius: 2px !important; flex-shrink: 0 !important;
+        }
+        .unified-hdr-left p {
+            font-size: 13px !important; color: var(--color-text-muted) !important;
+            margin: 4px 0 0 !important; padding-left: 14px !important; line-height: 1.5 !important;
+        }
+        .unified-hdr-right { display: flex; align-items: center; gap: 12px; flex-shrink: 0; flex-wrap: wrap; }
+        .unified-hdr-stats {
+            display: flex !important; align-items: center !important; gap: 8px !important;
+            background: var(--color-bg-alt) !important; border: 1px solid var(--color-border) !important;
+            border-radius: 20px !important; padding: 4px 14px !important;
+            font-size: 12px !important; color: var(--color-text-muted) !important;
+        }
+        .unified-hdr-stats b { color: var(--color-primary); font-weight: 700; margin-right: 3px; }
+        .hdr-stat-sep { width: 1px; height: 12px; background: var(--color-border); }
+        .btn-copy-yaml {
+            background: var(--color-primary) !important; color: #FFFFFF !important;
+            border: 1px solid var(--color-primary) !important; font-size: 12px !important;
+            padding: 6px 12px !important; border-radius: 6px !important; font-weight: 600 !important;
+            cursor: pointer !important; transition: all 0.15s ease-out !important;
+        }
+        .btn-copy-yaml:hover { opacity: 0.85 !important; }
+
+        main { width: 100% !important; max-width: none !important; margin: 0 auto !important; padding: 4px 28px 48px !important; display: block !important; }
+
+        /* ===== Panel helpers ===== */
+        .panel {
+            background: var(--color-background) !important; border: 1px solid var(--color-border) !important;
+            border-radius: 8px !important; box-shadow: var(--shadow-inspire) !important;
+            padding: 16px 18px !important; margin-bottom: 18px !important;
+        }
+        .panel-head { display: flex !important; justify-content: space-between !important; align-items: center !important; gap: 12px !important; margin-bottom: 12px !important; flex-wrap: wrap !important; }
+        .panel-title { display: flex !important; align-items: center !important; gap: 8px !important; font-size: 14px !important; font-weight: 700 !important; color: var(--color-primary) !important; }
+        .panel-title .emoji { font-size: 16px !important; }
+        .panel-badge { font-size: 11px !important; font-weight: 600 !important; color: var(--color-text-muted) !important; background: var(--color-bg-alt) !important; border-radius: 10px !important; padding: 2px 10px !important; }
+
+        /* ===== Legend ===== */
+        .legend-panel {
+            background: var(--color-background) !important; border: 1px solid var(--color-border) !important;
+            border-radius: 8px !important; box-shadow: var(--shadow-inspire) !important;
+            padding: 12px 18px !important; margin-bottom: 18px !important;
+            display: flex !important; flex-wrap: wrap !important; gap: 8px 28px !important; align-items: center !important;
+        }
+        .legend-item { display: flex !important; align-items: center !important; gap: 6px !important; font-size: 12px !important; color: var(--color-text-muted) !important; white-space: nowrap !important; }
+        .legend-item .lbl { font-weight: 700 !important; color: var(--color-primary) !important; margin-right: 2px !important; }
+        .legend-pill {
+            display: inline-flex !important; align-items: center !important; gap: 4px !important;
+            padding: 2px 9px !important; border-radius: 10px !important; font-size: 11px !important; font-weight: 600 !important;
+            border: 1px solid var(--color-border) !important;
+        }
+        .legend-pill.p0 { background: rgba(245,158,11,0.10) !important; color: #B45309 !important; border-color: #FCD34D !important; }
+        .legend-convention { display: flex !important; align-items: center !important; gap: 5px !important; font-size: 12px !important; color: var(--color-secondary) !important; font-weight: 600 !important; }
+        .legend-convention i { font-style: normal !important; color: var(--color-accent) !important; }
+
+        /* ===== Overview strip (5 L3 · 11 L4 · 21 L5) ===== */
+        .overview-strip {
+            background: var(--color-primary) !important; border-radius: 8px !important;
+            color: #FFFFFF !important; padding: 14px 20px !important; margin-bottom: 18px !important;
+            display: flex !important; align-items: center !important; flex-wrap: wrap !important; gap: 14px 28px !important;
+        }
+        .overview-stat { display: flex !important; align-items: baseline !important; gap: 8px !important; }
+        .overview-stat .num { font-size: 26px !important; font-weight: 800 !important; line-height: 1 !important; }
+        .overview-stat .lbl { font-size: 12px !important; color: rgba(255,255,255,0.8) !important; }
+        .overview-stat .lbl b { color: var(--color-accent) !important; }
+        .overview-sep { width: 1px !important; height: 30px !important; background: rgba(255,255,255,0.2) !important; }
+        .overview-focus { margin-left: auto !important; display: flex !important; align-items: center !important; gap: 8px !important; font-size: 12px !important; color: rgba(255,255,255,0.85) !important; }
+        .overview-focus .badge { background: var(--color-warning) !important; color: #FFFFFF !important; font-weight: 700 !important; border-radius: 6px !important; padding: 2px 9px !important; font-size: 12px !important; }
+
+        /* ===== Stage chain (端到端流程全景) ===== */
+        .stage-chain { display: flex !important; gap: 12px !important; align-items: stretch !important; flex-wrap: nowrap !important; overflow-x: auto !important; padding-bottom: 8px !important; }
+        .stage-card {
+            flex: 0 0 235px !important; background: var(--color-background) !important;
+            border: 1px solid var(--color-border) !important; border-radius: 8px !important;
+            box-shadow: var(--shadow-inspire) !important; display: flex !important; flex-direction: column !important;
+            overflow: hidden !important;
+        }
+        .stage-card.focus { border: 2px solid var(--color-warning) !important; box-shadow: 0 0 0 3px rgba(245,158,11,0.10) !important; }
+        .stage-hd {
+            display: flex !important; align-items: center !important; gap: 8px !important;
+            padding: 12px 14px !important; background: var(--color-bg-alt) !important;
+            border-bottom: 1px solid var(--color-border) !important;
+        }
+        .stage-hd.focus { background: rgba(245,158,11,0.08) !important; }
+        .stage-num {
+            width: 22px !important; height: 22px !important; flex-shrink: 0 !important; border-radius: 6px !important;
+            display: flex !important; align-items: center !important; justify-content: center !important;
+            font-size: 12px !important; font-weight: 700 !important; background: var(--color-primary) !important; color: #FFFFFF !important;
+        }
+        .stage-card.focus .stage-num { background: var(--color-warning) !important; }
+        .stage-name { flex: 1 1 auto !important; font-size: 13px !important; font-weight: 700 !important; color: var(--color-primary) !important; line-height: 1.3 !important; }
+        .stage-count { font-size: 11px !important; font-weight: 600 !important; color: var(--color-accent) !important; }
+        .stage-body { padding: 12px 14px !important; display: flex !important; flex-direction: column !important; gap: 12px !important; }
+        .group-hd { display: flex !important; align-items: center !important; gap: 6px !important; margin-bottom: 6px !important; }
+        .group-hd .g-dot { width: 6px !important; height: 6px !important; border-radius: 50% !important; background: var(--color-secondary) !important; flex-shrink: 0 !important; }
+        .group-hd .g-name { font-size: 12px !important; font-weight: 700 !important; color: var(--color-secondary) !important; }
+        .group-hd .p0-flag { font-size: 10px !important; font-weight: 700 !important; color: #B45309 !important; background: rgba(245,158,11,0.12) !important; border-radius: 6px !important; padding: 1px 6px !important; }
+        .task-item { display: flex !important; align-items: center !important; gap: 6px !important; padding: 5px 6px !important; border-radius: 6px !important; font-size: 12px !important; color: var(--color-foreground) !important; line-height: 1.4 !important; transition: background 0.15s ease-out !important; }
+        .task-item:hover { background: var(--color-bg-alt) !important; }
+        .task-item .dot { width: 8px !important; height: 8px !important; border-radius: 50% !important; flex-shrink: 0 !important; }
+        .task-item .t-name { flex: 1 1 auto !important; }
+        .stage-arrow { display: flex !important; align-items: center !important; color: var(--color-text-muted) !important; font-size: 16px !important; flex-shrink: 0 !important; }
+        .reading-strip {
+            display: flex !important; align-items: center !important; flex-wrap: wrap !important; gap: 8px 10px !important;
+            background: var(--color-bg-alt) !important; border-radius: 8px !important; padding: 12px 16px !important; margin-top: 14px !important;
+            font-size: 12px !important; color: var(--color-text-muted) !important;
+        }
+        .reading-strip span { display: flex !important; align-items: center !important; gap: 6px !important; }
+        .reading-strip .rs-b { font-weight: 700 !important; color: var(--color-primary) !important; }
+        .reading-strip .arr { color: var(--color-accent) !important; font-weight: 700 !important; }
+
+        /* ===== Focus drill (before/after) ===== */
+        .drill-wrap { display: grid !important; grid-template-columns: 1fr 90px 1.2fr !important; gap: 12px !important; align-items: stretch !important; }
+        .drill-col { background: var(--color-bg-alt) !important; border-radius: 8px !important; padding: 14px 16px !important; display: flex !important; flex-direction: column !important; gap: 8px !important; }
+        .drill-col.evidence { background: rgba(98,93,156,0.06) !important; }
+        .drill-label { font-size: 11px !important; font-weight: 700 !important; color: var(--color-text-muted) !important; text-transform: uppercase !important; letter-spacing: 0.04em !important; }
+        .drill-col h4 { font-size: 14px !important; font-weight: 700 !important; color: var(--color-primary) !important; margin: 0 !important; }
+        .drill-col p { font-size: 12.5px !important; color: var(--color-foreground) !important; line-height: 1.6 !important; margin: 0 !important; }
+        .drill-evidence-li { display: flex !important; align-items: flex-start !important; gap: 6px !important; font-size: 12.5px !important; color: var(--color-foreground) !important; line-height: 1.55 !important; }
+        .drill-evidence-li::before { content: "•" !important; color: var(--color-secondary) !important; font-weight: 700 !important; }
+        .drill-arrow { display: flex !important; align-items: center !important; justify-content: center !important; flex-direction: column !important; gap: 6px !important; color: var(--color-text-muted) !important; font-size: 12px !important; text-align: center !important; }
+        .drill-arrow .a { font-size: 26px !important; color: var(--color-accent) !important; }
+
+        /* ===== L5 sequence cards ===== */
+        .l5-seq { display: flex !important; gap: 12px !important; align-items: stretch !important; flex-wrap: wrap !important; }
+        .l5-seq-card {
+            flex: 1 1 30% !important; min-width: 200px !important; background: var(--color-background) !important;
+            border: 1px solid var(--color-border) !important; border-radius: 8px !important;
+            box-shadow: var(--shadow-inspire) !important; padding: 14px 16px !important;
+            display: flex !important; flex-direction: column !important; gap: 6px !important; border-top: 3px solid var(--color-accent) !important;
+        }
+        .l5-seq-card .l5-id { font-size: 11px !important; font-weight: 700 !important; color: var(--color-secondary) !important; }
+        .l5-seq-card .l5-name { font-size: 14px !important; font-weight: 700 !important; color: var(--color-primary) !important; line-height: 1.35 !important; }
+        .l5-seq-card .l5-q { font-size: 12px !important; color: var(--color-text-muted) !important; }
+        .l5-seq-card .l5-q b { color: var(--color-accent) !important; font-weight: 700 !important; }
+        .l5-seq-arrow { display: flex !important; align-items: center !important; color: var(--color-text-muted) !important; font-size: 16px !important; flex-shrink: 0 !important; }
+
+        /* ===== Task table ===== */
+        .task-table { width: 100% !important; border-collapse: collapse !important; font-size: 12px !important; }
+        .task-table thead th { text-align: left !important; background: var(--color-primary) !important; color: #FFFFFF !important; font-weight: 600 !important; padding: 9px 12px !important; white-space: nowrap !important; }
+        .task-table thead th:first-child { border-radius: 8px 0 0 0 !important; }
+        .task-table thead th:last-child { border-radius: 0 8px 0 0 !important; }
+        .task-table tbody td { padding: 10px 12px !important; border-bottom: 1px solid var(--color-border) !important; vertical-align: top !important; line-height: 1.5 !important; color: var(--color-foreground) !important; }
+        .task-table tbody tr:last-child td { border-bottom: none !important; }
+        .task-table tbody tr:nth-child(even) td { background: var(--color-bg-alt) !important; }
+        .task-table .td-l5 { font-weight: 700 !important; color: var(--color-primary) !important; white-space: nowrap !important; }
+        .task-table .actor-chip { display: inline-flex !important; align-items: center !important; gap: 3px !important; font-size: 10px !important; font-weight: 600 !important; border-radius: 10px !important; padding: 1px 7px !important; margin-top: 4px !important; border: 1px solid var(--color-border) !important; }
+        .task-table .exception { color: #B91C1C !important; font-weight: 600 !important; }
+
+        /* ===== IO chain ===== */
+        .io-chain { display: flex !important; align-items: center !important; flex-wrap: wrap !important; gap: 8px !important; }
+        .io-node {
+            background: var(--color-bg-alt) !important; border: 1px solid var(--color-border) !important; border-radius: 8px !important;
+            padding: 7px 12px !important; font-size: 12px !important; font-weight: 600 !important; color: var(--color-primary) !important; white-space: nowrap !important;
+        }
+        .io-node.downstream { background: rgba(0,82,76,0.08) !important; border-color: #7FB6B0 !important; color: var(--color-success) !important; }
+        .io-arrow { color: var(--color-accent) !important; font-size: 15px !important; font-weight: 700 !important; flex-shrink: 0 !important; }
+
+        /* ===== Learning ===== */
+        .learning-grid { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 12px !important; }
+        .learning-card { background: var(--color-bg-alt) !important; border-radius: 8px !important; padding: 14px 16px !important; border-left: 3px solid var(--color-secondary) !important; }
+        .learning-card.green { border-left-color: var(--color-success) !important; }
+        .learning-card h4 { font-size: 13px !important; font-weight: 700 !important; color: var(--color-primary) !important; margin: 0 0 6px !important; }
+        .learning-card p { font-size: 12.5px !important; color: var(--color-foreground) !important; line-height: 1.6 !important; margin: 0 !important; }
+
+        /* Responsive (375/768/1024) */
+        @media (max-width: 768px) {
+            main { padding: 4px 12px 32px !important; }
+            .unified-hdr { padding: 12px 14px !important; }
+            .drill-wrap { grid-template-columns: 1fr !important; }
+            .learning-grid { grid-template-columns: 1fr !important; }
+            .stage-arrow, .l5-seq-arrow { display: none !important; }
+            .stage-chain { flex-wrap: wrap !important; }
+            .stage-card { flex: 1 1 100% !important; }
+            .l5-seq-card { flex: 1 1 100% !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== Unified Header ===== -->
+    <header class="unified-hdr">
+        <div class="unified-hdr-left">
+            <h1>X采购发票 · 采购发票校验助手 端到端深度任务流程地图</h1>
+            <p>来自《采购发票校验助手-任务流程挖掘清单》主表（24 项 L5 深度任务） · 阶段1方法（业务环节 L3 → 主要活动 L4 → 深度任务 L5）</p>
+        </div>
+        <div class="unified-hdr-right">
+            <div class="unified-hdr-stats">
+                <span class="hdr-stat"><b>L3</b> 5</span>
+                <span class="hdr-stat-sep"></span>
+                <span class="hdr-stat"><b>L4</b> 11</span>
+                <span class="hdr-stat-sep"></span>
+                <span class="hdr-stat"><b>L5</b> 24</span>
+            </div>
+            <button id="copyYamlBtn" class="btn-copy-yaml" onclick="copyYAML()">复制原始 YAML</button>
+        </div>
+    </header>
+
+    <main>
+        <!-- ===== Overview Strip ===== -->
+        <div class="overview-strip">
+            <div class="overview-stat"><span class="num">5</span><span class="lbl">个 <b>L3</b> 业务阶段</span></div>
+            <div class="overview-sep"></div>
+            <div class="overview-stat"><span class="num">11</span><span class="lbl">个 <b>L4</b> 活动分组</span></div>
+            <div class="overview-sep"></div>
+            <div class="overview-stat"><span class="num">24</span><span class="lbl">个 <b>L5</b> 可执行动作</span></div>
+            <div class="overview-focus">焦点 L4 ≡ <span class="badge">匹配与核对</span></div>
+        </div>
+
+        <!-- ===== Legend ===== -->
+        <div class="legend-panel">
+            <div class="legend-item"><span class="lbl">执行主体</span>
+                
+                <span class="legend-pill" style=&#34;color:#1B6EA8; background:rgba(93,178,226,0.10); border-color:#9BD0EC;&#34;>🤖 Agent</span>
+                
+                <span class="legend-pill" style=&#34;color:#4C4680; background:rgba(98,93,156,0.10); border-color:#B6B2DE;&#34;>🤝 混合执行</span>
+                
+                <span class="legend-pill" style=&#34;color:#B45309; background:rgba(245,158,11,0.10); border-color:#FCD34D;&#34;>👤 人工</span>
+                
+            </div>
+            
+            <div class="legend-item"><span class="lbl">重点</span>
+                <span class="legend-pill p0">p0</span>
+            </div>
+            
+            
+            <div class="legend-convention">
+                L3 业务阶段 → L4 活动分组 → L5 可执行动作
+            </div>
+            
+        </div>
+
+        <!-- ===== End-to-end stage chain ===== -->
+        <div class="panel">
+            <div class="panel-head">
+                <span class="panel-title"><span class="emoji">🗺️</span>端到端深度任务流程地图</span>
+                <span class="panel-badge">全景 → 聚焦下钻</span>
+            </div>
+            <div class="stage-chain">
+                
+                
+                <div class="stage-card ">
+                    <div class="stage-hd ">
+                        <span class="stage-num">01</span>
+                        <span class="stage-name">发票多源采集归集</span>
+                        <span class="stage-count">4 L5</span>
+                    </div>
+                    <div class="stage-body">
+                        
+                        <div>
+                            <div class="group-hd">
+                                <span class="g-dot"></span>
+                                <span class="g-name">多源发票归集</span>
+                                
+                            </div>
+                            
+                            <div class="task-item">
+                                <span class="dot" style=&#34;background:#5DB2E2;&#34;></span>
+                                <span class="t-name">同步乐企发票数据</span>
+                            </div>
+                            
+                            <div class="task-item">
+                                <span class="dot" style=&#34;background:#5DB2E2;&#34;></span>
+                                <span class="t-name">归集供应商上传发票</span>
+                            </div>
+                            
+                            <div class="task-item">
+                                <span class="dot" style=&#34;background:#625D9C;&#34;></span>
+                                <span class="t-name">归集采购补录发票</span>
+                            </div>
+                            
+                        </div>
+                        
+                        <div>
+                            <div class="group-hd">
+                                <span class="g-dot"></span>
+                                <span class="g-name">归集完整性校验</span>
+                                
+                            </div>
+                            
+                            <div class="task-item">
+                                <span class="dot" style=&#34;background:#5DB2E2;&#34;></span>
+                                <span class="t-name">核验发票归集完整性</span>
+                            </div>
+                            
+                        </div>
+                        
+                    </div>
+                </div>
+                
+                <div class="stage-arrow">→</div>
+                <div class="stage-card ">
+                    <div class="stage-hd ">
+                        <span class="stage-num">02</span>
+                        <span class="stage-name">用途确认与识别校验</span>
+                        <span class="stage-count">3 L5</span>
+                    </div>
+                    <div class="stage-body">
+                        
+                        <div>
+                            <div class="group-hd">
+                                <span class="g-dot"></span>
+                                <span class="g-name">票面识别</span>
+                                
+                            </div>
+                            
+                            <div class="task-item">
+                                <span class="dot" style=&#34;background:#5DB2E2;&#34;></span>
+                                <span class="t-name">识别发票票面关键字段与行项目</span>
+                            </div>
+                            
+                        </div>
+                        
+                        <div>
+                            <div class="group-hd">
+                                <span class="g-dot"></span>
+                                <span class="g-name">真伪与抬头校验</span>
+                                
+                            </div>
+                            
+                            <div class="task-item">
+                                <span class="dot" style=&#34;background:#5DB2E2;&#34;></span>
+                                <span class="t-name">校验发票真伪与购方抬头</span>
+                            </div>
+                            
+                        </div>
+                        
+                        <div>
+                            <div class="group-hd">
+                                <span class="g-dot"></span>
+                                <span class="g-name">用途确认</span>
+                                
+                            </div>
+                            
+                            <div class="task-item">
+                                <span class="dot" style=&#34;background:#625D9C;&#34;></span>
+                                <span class="t-name">确认发票用途</span>
+                            </div>
+                            
+                        </div>
+                        
+                    </div>
+                </div>
+                
+                <div class="stage-arrow">→</div>
+                <div class="stage-card focus">
+                    <div class="stage-hd focus">
+                        <span class="stage-num">03</span>
+                        <span class="stage-name">三单匹配</span>
+                        <span class="stage-count">7 L5</span>
+                    </div>
+                    <div class="stage-body">
+                        
+                        <div>
+                            <div class="group-hd">
+                                <span class="g-dot"></span>
+                                <span class="g-name">三单信息获取</span>
+                                
+                            </div>
+                            
+                            <div class="task-item">
+                                <span class="dot" style=&#34;background:#5DB2E2;&#34;></span>
+                                <span class="t-name">获取采购订单信息</span>
+                            </div>
+                            
+                            <div class="task-item">
+                                <span class="dot" style=&#34;background:#5DB2E2;&#34;></span>
+                                <span class="t-name">获取入库单信息</span>
+                            </div>
+                            
+                            <div class="task-item">
+                                <span class="dot" style=&#34;background:#5DB2E2;&#34;></span>
+                                <span class="t-name">获取送货单信息</span>
+                            </div>
+                            
+                        </div>
+                        
+                        <div>
+                            <div class="group-hd">
+                                <span class="g-dot"></span>
+                                <span class="g-name">匹配与核对</span>
+                                <span class="p0-flag">★ P0</span>
+                            </div>
+                            
+                            <div class="task-item">
+                                <span class="dot" style=&#34;background:#5DB2E2;&#34;></span>
+                                <span class="t-name">以发票行为主线汇入三单行信息</span>
+                            </div>
+                            
+                            <div class="task-item">
+                                <span class="dot" style=&#34;background:#5DB2E2;&#34;></span>
+                                <span class="t-name">行级核对数量并扣减</span>
+                            </div>
+                            
+                            <div class="task-item">
+                                <span class="dot" style=&#34;background:#5DB2E2;&#34;></span>
+                                <span class="t-name">行级核对金额与差异</span>
+                            </div>
+                            
+                            <div class="task-item">
+                                <span class="dot" style=&#34;background:#5DB2E2;&#34;></span>
+                                <span class="t-name">判定行级匹配结果并记录匹配关系</span>
+                            </div>
+                            
+                        </div>
+                        
+                    </div>
+                </div>
+                
+                <div class="stage-arrow">→</div>
+                <div class="stage-card ">
+                    <div class="stage-hd ">
+                        <span class="stage-num">04</span>
+                        <span class="stage-name">异常凭证确认</span>
+                        <span class="stage-count">5 L5</span>
+                    </div>
+                    <div class="stage-body">
+                        
+                        <div>
+                            <div class="group-hd">
+                                <span class="g-dot"></span>
+                                <span class="g-name">异常判定与建议</span>
+                                
+                            </div>
+                            
+                            <div class="task-item">
+                                <span class="dot" style=&#34;background:#5DB2E2;&#34;></span>
+                                <span class="t-name">判定异常类型并生成处理建议</span>
+                            </div>
+                            
+                            <div class="task-item">
+                                <span class="dot" style=&#34;background:#5DB2E2;&#34;></span>
+                                <span class="t-name">生成沟通对象与升级路径建议</span>
+                            </div>
+                            
+                        </div>
+                        
+                        <div>
+                            <div class="group-hd">
+                                <span class="g-dot"></span>
+                                <span class="g-name">人工确认与返工</span>
+                                
+                            </div>
+                            
+                            <div class="task-item">
+                                <span class="dot" style=&#34;background:#F59E0B;&#34;></span>
+                                <span class="t-name">人工确认异常凭证</span>
+                            </div>
+                            
+                            <div class="task-item">
+                                <span class="dot" style=&#34;background:#F59E0B;&#34;></span>
+                                <span class="t-name">与供应商沟通处理异常</span>
+                            </div>
+                            
+                            <div class="task-item">
+                                <span class="dot" style=&#34;background:#625D9C;&#34;></span>
+                                <span class="t-name">返回三单匹配重跑</span>
+                            </div>
+                            
+                        </div>
+                        
+                    </div>
+                </div>
+                
+                <div class="stage-arrow">→</div>
+                <div class="stage-card ">
+                    <div class="stage-hd ">
+                        <span class="stage-num">05</span>
+                        <span class="stage-name">自动入账与归档</span>
+                        <span class="stage-count">5 L5</span>
+                    </div>
+                    <div class="stage-body">
+                        
+                        <div>
+                            <div class="group-hd">
+                                <span class="g-dot"></span>
+                                <span class="g-name">记账与过账</span>
+                                
+                            </div>
+                            
+                            <div class="task-item">
+                                <span class="dot" style=&#34;background:#5DB2E2;&#34;></span>
+                                <span class="t-name">预制发票凭证</span>
+                            </div>
+                            
+                            <div class="task-item">
+                                <span class="dot" style=&#34;background:#625D9C;&#34;></span>
+                                <span class="t-name">过账生成会计凭证</span>
+                            </div>
+                            
+                        </div>
+                        
+                        <div>
+                            <div class="group-hd">
+                                <span class="g-dot"></span>
+                                <span class="g-name">状态更新与归档</span>
+                                
+                            </div>
+                            
+                            <div class="task-item">
+                                <span class="dot" style=&#34;background:#5DB2E2;&#34;></span>
+                                <span class="t-name">更新电子税务局发票状态</span>
+                            </div>
+                            
+                            <div class="task-item">
+                                <span class="dot" style=&#34;background:#5DB2E2;&#34;></span>
+                                <span class="t-name">更新发票台账</span>
+                            </div>
+                            
+                            <div class="task-item">
+                                <span class="dot" style=&#34;background:#5DB2E2;&#34;></span>
+                                <span class="t-name">归档发票文件</span>
+                            </div>
+                            
+                        </div>
+                        
+                    </div>
+                </div>
+                
+            </div>
+            
+            <div class="reading-strip">
+                
+                <span>先看全链路：从发票多源采集归集到自动入账与归档，5 个 L3 阶段串成闭环</span>
+                <span class="arr">→</span>
+                
+                <span>再找高价值 L4：『匹配与核对』承载最密集的规则判断（数量扣减 / 金额比对 / 差异容忍判定）</span>
+                <span class="arr">→</span>
+                
+                <span>最后下钻 L5：拆成『汇入三单 / 核对数量 / 核对金额 / 判定并记录』四个可独立挂规则的动作</span>
+                
+                
+            </div>
+            
+        </div>
+
+        <!-- ===== Focus drill ===== -->
+        <div class="panel">
+            <div class="panel-head">
+                <span class="panel-title"><span class="emoji">⛏️</span>聚焦下钻 · 把「匹配与核对」拆到不可再分</span>
+                <span class="panel-badge">三单匹配 / P0</span>
+            </div>
+            <div class="drill-wrap">
+                <div class="drill-col">
+                    <span class="drill-label">拆解前 · L4</span>
+                    <h4>「匹配与核对」仍然太粗</h4>
+                    <p>它同时包含『以发票行为主线汇入三单行』『行级数量扣减』『行级金额比对』『差异容忍判定并记录匹配关系』四类动作，各自的输入输出、规则依据与异常兜底都不相同，不能直接作为最小执行单元或单独挂规则。</p>
+                </div>
+                <div class="drill-arrow"><span class="a">→</span><span>访谈走查＋材料还原 →</span></div>
+                <div class="drill-col evidence">
+                    <span class="drill-label">专家实际怎么做</span>
+                    <h4>证据 · 访谈走查</h4>
+                    <div class="drill-evidence-li">专家以发票行为主线（非整张发票粒度）把 PO 行、入库行、送货单行拉齐，支持一对一/一对多/多对多</div><div class="drill-evidence-li">数量以『发票数量扣减入库/送货数量』逐行核对，四数量对照（PO/送货/入库/发票）定位差异来源，不校验入库单与送货单一致性</div><div class="drill-evidence-li">金额以不含税金额为基准经 ERP 模拟校验接口比对，本平台仅感知通过/差异结果，不落规则</div><div class="drill-evidence-li">差异按容忍规则判定：数量无容忍区间、金额尾差 ≤1 元且 ≤0.5% 自动容忍、任一超容忍必拉人；差异记入匹配关系表不覆盖原始单据</div>
+                    <p style="margin-top:6px;color:var(--color-secondary);font-weight:600;">下钻为 4 个能独立挂规则的动作，各自回答『汇什么 / 数量怎么对 / 金额怎么判 / 结论怎么落』。</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== L5 depth task sequence ===== -->
+        <div class="panel">
+            <div class="panel-head">
+                <span class="panel-title"><span class="emoji">🧩</span>L5 深度任务序列（下钻 P0）</span>
+                <span class="panel-badge">单一动词 · 明确 I/O · 可观测</span>
+            </div>
+            <div class="l5-seq">
+                
+                
+                <div class="l5-seq-card">
+                    <span class="l5-id">L5-1</span>
+                    <span class="l5-name">以发票行为主线汇入三单行信息</span>
+                    <span class="l5-q">回答「<b>汇什么 / 以什么为主线</b>」</span>
+                </div>
+                
+                <div class="l5-seq-arrow">→</div>
+                <div class="l5-seq-card">
+                    <span class="l5-id">L5-2</span>
+                    <span class="l5-name">行级核对数量并扣减</span>
+                    <span class="l5-q">回答「<b>数量怎么对 / 依据什么扣减</b>」</span>
+                </div>
+                
+                <div class="l5-seq-arrow">→</div>
+                <div class="l5-seq-card">
+                    <span class="l5-id">L5-3</span>
+                    <span class="l5-name">行级核对金额与差异</span>
+                    <span class="l5-q">回答「<b>金额怎么判 / 由谁承载规则</b>」</span>
+                </div>
+                
+                <div class="l5-seq-arrow">→</div>
+                <div class="l5-seq-card">
+                    <span class="l5-id">L5-4</span>
+                    <span class="l5-name">判定行级匹配结果并记录匹配关系</span>
+                    <span class="l5-q">回答「<b>差异是否可容忍 / 结论怎么落</b>」</span>
+                </div>
+                
+            </div>
+        </div>
+
+        <!-- ===== L5 task table ===== -->
+        <div class="panel">
+            <div class="panel-head">
+                <span class="panel-title"><span class="emoji">📋</span>深度任务结构化表</span>
+                <span class="panel-badge">输入 / 输出 / 规则依据 / 异常·HITL</span>
+            </div>
+            <table class="task-table">
+                <thead>
+                    <tr>
+                        <th>L5 深度任务</th><th>输入</th><th>输出</th><th>规则依据</th><th>异常 / HITL</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    
+                    <tr>
+                        <td class="td-l5">以发票行为主线汇入三单行信息
+                            <br><span class="actor-chip" style=&#34;color:#1B6EA8; background:rgba(93,178,226,0.10); border-color:#9BD0EC;&#34;>🤖 Agent</span>
+                        </td>
+                        <td>发票行、PO 行、入库行、送货单行（含 PO 号/PO 行号/物料/数量）</td>
+                        <td>三单行级匹配工作集（一对一/一对多/多对多关系可见）</td>
+                        <td>决策模型类·三单匹配口径与数量扣减规则（三层匹配结构 + 6 条匹配规则）</td>
+                        <td class="exception">多对多关系冲突/单据缺失 → 记入匹配关系表待人工调整</td>
+                    </tr>
+                    
+                    <tr>
+                        <td class="td-l5">行级核对数量并扣减
+                            <br><span class="actor-chip" style=&#34;color:#1B6EA8; background:rgba(93,178,226,0.10); border-color:#9BD0EC;&#34;>🤖 Agent</span>
+                        </td>
+                        <td>三单行级匹配工作集（行数量）</td>
+                        <td>行级数量核对结果、四数量对照报表（PO/送货/入库/发票）</td>
+                        <td>决策模型类·三单匹配口径与数量扣减规则（发票数量扣减入库/送货）</td>
+                        <td class="exception">数量超差（发票数量 &gt; 入库/送货）→ 匹配差异确认点必拉人</td>
+                    </tr>
+                    
+                    <tr>
+                        <td class="td-l5">行级核对金额与差异
+                            <br><span class="actor-chip" style=&#34;color:#1B6EA8; background:rgba(93,178,226,0.10); border-color:#9BD0EC;&#34;>🤖 Agent</span>
+                        </td>
+                        <td>发票不含税金额、合同/PO 金额、ERP 模拟校验接口返回</td>
+                        <td>行级金额核对结果（差异金额/差异率/接口判定）</td>
+                        <td>决策模型类·金额比对规则（由 ERP 模拟校验接口承载，本平台仅感知结果）</td>
+                        <td class="exception">金额超尾差/单价不符 → 匹配差异确认点必拉人</td>
+                    </tr>
+                    
+                    <tr>
+                        <td class="td-l5">判定行级匹配结果并记录匹配关系
+                            <br><span class="actor-chip" style=&#34;color:#1B6EA8; background:rgba(93,178,226,0.10); border-color:#9BD0EC;&#34;>🤖 Agent</span>
+                        </td>
+                        <td>行级数量/金额/物料/供应商核对结果</td>
+                        <td>匹配结论（通过/差异）、匹配关系记录（差异类型/差异金额/差异数量）</td>
+                        <td>决策模型类·差异容忍与异常判定经验（假设值，待访谈回填）</td>
+                        <td class="exception">容忍内自动放行；任一超容忍 100% 拉人 → 异常确认点</td>
+                    </tr>
+                    
+                </tbody>
+            </table>
+        </div>
+
+        <!-- ===== IO chain ===== -->
+        <div class="panel">
+            <div class="panel-head">
+                <span class="panel-title"><span class="emoji">🔁</span>输入输出如何闭环</span>
+                <span class="panel-badge">下游衔接</span>
+            </div>
+            <div class="io-chain">
+                
+                
+                <span class="io-node ">发票行 + PO 行 + 入库行 + 送货单行</span>
+                
+                <span class="io-arrow">→</span>
+                <span class="io-node ">三单行级匹配工作集</span>
+                
+                <span class="io-arrow">→</span>
+                <span class="io-node ">行级数量扣减结果 + 四数量对照报表</span>
+                
+                <span class="io-arrow">→</span>
+                <span class="io-node ">行级金额核对结果（ERP 模拟校验接口）</span>
+                
+                <span class="io-arrow">→</span>
+                <span class="io-node ">匹配结论（通过/差异）+ 匹配关系记录</span>
+                
+                <span class="io-arrow">→</span>
+                <span class="io-node downstream">下游：批量预制发票 / 异常凭证队列（补单换票后重跑）→ 会计凭证 / 台账归档</span>
+                
+            </div>
+        </div>
+
+        <!-- ===== Learning ===== -->
+        <div class="panel">
+            <div class="panel-head">
+                <span class="panel-title"><span class="emoji">💡</span>挖掘的关键</span>
+            </div>
+            <div class="learning-grid">
+                <div class="learning-card">
+                    <h4>为什么这样拆？</h4>
+                    <p>每个 L5 各自只有一个核心动词（汇入 / 核对 / 判定），输入输出可列、结果可观察，并可独立挂接一类规则依据（三单匹配口径 / 数量扣减 / 金额比对 / 差异容忍）。</p>
+                </div>
+                <div class="learning-card green">
+                    <h4>挖掘的关键不是改写名称</h4>
+                    <p>挖掘的关键不是改写任务名称，而是把专家真实执行的动作顺序（汇入→数量→金额→判定）、输入输出、判断依据（匹配口径/容忍阈值）和异常链路（超容忍必拉人、匹配关系表不覆盖原始单据）结构化。</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Raw YAML Data (Hidden) -->
+    <script type="application/yaml" id="raw-yaml">
+meta:
+  title: "X采购发票 · 采购发票校验助手 端到端深度任务流程地图"
+  subtitle: "来自《采购发票校验助手-任务流程挖掘清单》主表（24 项 L5 深度任务）"
+  version: "v1.0"
+  date: "2026-09-10"
+  scenarioName: "采购发票校验助手（A1 · 🟢 速赢）"
+  businessStage: "挖知识 阶段1 任务流程挖掘 · P1"
+  methodology: "阶段1方法（业务环节 L3 → 主要活动 L4 → 深度任务 L5）"
+  inputs:
+    - "《X采购发票-采购发票校验-AI画布》（userPains / dataKnowledge / workflow / businessGains）"
+    - "《X采购发票-采购发票校验-To-be旅程》（P1–P5 阶段 / 动作 / 设计要点）"
+    - "《X采购发票-采购发票校验-现状流程图》（现状 L3 五阶段 / 五类痛点）"
+    - "《采购发票校验助手-任务流程挖掘清单》（24 项 L5 深度任务 + 操作流程类经验承接）"
+  sourceRef: "采购发票校验助手-任务流程挖掘清单.md 深度任务序列主表 + 客户开发方案设计文档 V1.0"
+  kpi:
+    - "采集归集覆盖率"
+    - "识别准确率"
+    - "自动匹配通过率"
+    - "三单匹配错误率"
+    - "单票校验耗时"
+    - "发票到过账周期"
+    - "异常处理周期"
+    - "入账自动化覆盖率"
+
+# ---- 统计与焦点 ----
+overview:
+  l3Count: 5
+  l4Count: 11
+  l5Count: 24
+  focusL3: "三单匹配"
+  focusL4: "匹配与核对"
+
+# ---- 图例区 ----
+legend:
+  focusType: "p0"
+  execution:
+    - { type: "agent",  label: "Agent",   icon: "🤖" }
+    - { type: "mixed",  label: "混合执行", icon: "🤝" }
+    - { type: "human",  label: "人工",     icon: "👤" }
+  convention: "L3 业务阶段 → L4 活动分组 → L5 可执行动作"
+
+# ---- 端到端流程全景（横向阶段卡）----
+stages:
+  - id: "S1"
+    num: "01"
+    name: "发票多源采集归集"
+    l5Count: 4
+    isFocus: false
+    groups:
+      - id: "G1_1"
+        name: "多源发票归集"
+        isP0: false
+        tasks:
+          - { id: "t01", name: "同步乐企发票数据",   actor: "agent" }
+          - { id: "t02", name: "归集供应商上传发票", actor: "agent" }
+          - { id: "t03", name: "归集采购补录发票",   actor: "mixed" }
+      - id: "G1_2"
+        name: "归集完整性校验"
+        isP0: false
+        tasks:
+          - { id: "t04", name: "核验发票归集完整性", actor: "agent" }
+
+  - id: "S2"
+    num: "02"
+    name: "用途确认与识别校验"
+    l5Count: 3
+    isFocus: false
+    groups:
+      - id: "G2_1"
+        name: "票面识别"
+        isP0: false
+        tasks:
+          - { id: "t05", name: "识别发票票面关键字段与行项目", actor: "agent" }
+      - id: "G2_2"
+        name: "真伪与抬头校验"
+        isP0: false
+        tasks:
+          - { id: "t06", name: "校验发票真伪与购方抬头", actor: "agent" }
+      - id: "G2_3"
+        name: "用途确认"
+        isP0: false
+        tasks:
+          - { id: "t07", name: "确认发票用途", actor: "mixed" }
+
+  - id: "S3"
+    num: "03"
+    name: "三单匹配"
+    l5Count: 7
+    isFocus: true
+    groups:
+      - id: "G3_1"
+        name: "三单信息获取"
+        isP0: false
+        tasks:
+          - { id: "t08", name: "获取采购订单信息", actor: "agent" }
+          - { id: "t09", name: "获取入库单信息",   actor: "agent" }
+          - { id: "t10", name: "获取送货单信息",   actor: "agent" }
+      - id: "G3_2"
+        name: "匹配与核对"
+        isP0: true
+        tasks:
+          - { id: "t11", name: "以发票行为主线汇入三单行信息",   actor: "agent" }
+          - { id: "t12", name: "行级核对数量并扣减",             actor: "agent" }
+          - { id: "t13", name: "行级核对金额与差异",             actor: "agent" }
+          - { id: "t14", name: "判定行级匹配结果并记录匹配关系", actor: "agent" }
+
+  - id: "S4"
+    num: "04"
+    name: "异常凭证确认"
+    l5Count: 5
+    isFocus: false
+    groups:
+      - id: "G4_1"
+        name: "异常判定与建议"
+        isP0: false
+        tasks:
+          - { id: "t15", name: "判定异常类型并生成处理建议", actor: "agent" }
+          - { id: "t16", name: "生成沟通对象与升级路径建议", actor: "agent" }
+      - id: "G4_2"
+        name: "人工确认与返工"
+        isP0: false
+        tasks:
+          - { id: "t17", name: "人工确认异常凭证",     actor: "human" }
+          - { id: "t18", name: "与供应商沟通处理异常", actor: "human" }
+          - { id: "t19", name: "返回三单匹配重跑",     actor: "mixed" }
+
+  - id: "S5"
+    num: "05"
+    name: "自动入账与归档"
+    l5Count: 5
+    isFocus: false
+    groups:
+      - id: "G5_1"
+        name: "记账与过账"
+        isP0: false
+        tasks:
+          - { id: "t20", name: "预制发票凭证",     actor: "agent" }
+          - { id: "t21", name: "过账生成会计凭证", actor: "mixed" }
+      - id: "G5_2"
+        name: "状态更新与归档"
+        isP0: false
+        tasks:
+          - { id: "t22", name: "更新电子税务局发票状态", actor: "agent" }
+          - { id: "t23", name: "更新发票台账",           actor: "agent" }
+          - { id: "t24", name: "归档发票文件",           actor: "agent" }
+
+# ---- 阅读指引 ----
+readingFlow:
+  - "先看全链路：从发票多源采集归集到自动入账与归档，5 个 L3 阶段串成闭环"
+  - "再找高价值 L4：『匹配与核对』承载最密集的规则判断（数量扣减 / 金额比对 / 差异容忍判定）"
+  - "最后下钻 L5：拆成『汇入三单 / 核对数量 / 核对金额 / 判定并记录』四个可独立挂规则的动作"
+
+# ---- 聚焦下钻（before / evidence / after）----
+focusDrill:
+  before:
+    l4Name: "匹配与核对"
+    whyTooCoarse: "它同时包含『以发票行为主线汇入三单行』『行级数量扣减』『行级金额比对』『差异容忍判定并记录匹配关系』四类动作，各自的输入输出、规则依据与异常兜底都不相同，不能直接作为最小执行单元或单独挂规则。"
+  approach: "访谈走查＋材料还原 →"
+  evidence:
+    - "专家以发票行为主线（非整张发票粒度）把 PO 行、入库行、送货单行拉齐，支持一对一/一对多/多对多"
+    - "数量以『发票数量扣减入库/送货数量』逐行核对，四数量对照（PO/送货/入库/发票）定位差异来源，不校验入库单与送货单一致性"
+    - "金额以不含税金额为基准经 ERP 模拟校验接口比对，本平台仅感知通过/差异结果，不落规则"
+    - "差异按容忍规则判定：数量无容忍区间、金额尾差 ≤1 元且 ≤0.5% 自动容忍、任一超容忍必拉人；差异记入匹配关系表不覆盖原始单据"
+  after: "下钻为 4 个能独立挂规则的动作，各自回答『汇什么 / 数量怎么对 / 金额怎么判 / 结论怎么落』。"
+
+# ---- L5 深度任务序列（焦点 L4 下钻）----
+focusSequence:
+  - { id: "L5-1", name: "以发票行为主线汇入三单行信息",   question: "汇什么 / 以什么为主线" }
+  - { id: "L5-2", name: "行级核对数量并扣减",             question: "数量怎么对 / 依据什么扣减" }
+  - { id: "L5-3", name: "行级核对金额与差异",             question: "金额怎么判 / 由谁承载规则" }
+  - { id: "L5-4", name: "判定行级匹配结果并记录匹配关系", question: "差异是否可容忍 / 结论怎么落" }
+
+# ---- L5 深度任务结构化表（焦点 L4 的 4 个 L5）----
+taskTable:
+  - l5: "以发票行为主线汇入三单行信息"
+    inputs: "发票行、PO 行、入库行、送货单行（含 PO 号/PO 行号/物料/数量）"
+    outputs: "三单行级匹配工作集（一对一/一对多/多对多关系可见）"
+    ruleType: "决策模型类·三单匹配口径与数量扣减规则（三层匹配结构 + 6 条匹配规则）"
+    exception: "多对多关系冲突/单据缺失 → 记入匹配关系表待人工调整"
+    actor: "agent"
+  - l5: "行级核对数量并扣减"
+    inputs: "三单行级匹配工作集（行数量）"
+    outputs: "行级数量核对结果、四数量对照报表（PO/送货/入库/发票）"
+    ruleType: "决策模型类·三单匹配口径与数量扣减规则（发票数量扣减入库/送货）"
+    exception: "数量超差（发票数量 > 入库/送货）→ 匹配差异确认点必拉人"
+    actor: "agent"
+  - l5: "行级核对金额与差异"
+    inputs: "发票不含税金额、合同/PO 金额、ERP 模拟校验接口返回"
+    outputs: "行级金额核对结果（差异金额/差异率/接口判定）"
+    ruleType: "决策模型类·金额比对规则（由 ERP 模拟校验接口承载，本平台仅感知结果）"
+    exception: "金额超尾差/单价不符 → 匹配差异确认点必拉人"
+    actor: "agent"
+  - l5: "判定行级匹配结果并记录匹配关系"
+    inputs: "行级数量/金额/物料/供应商核对结果"
+    outputs: "匹配结论（通过/差异）、匹配关系记录（差异类型/差异金额/差异数量）"
+    ruleType: "决策模型类·差异容忍与异常判定经验（假设值，待访谈回填）"
+    exception: "容忍内自动放行；任一超容忍 100% 拉人 → 异常确认点"
+    actor: "agent"
+
+# ---- 输入输出如何闭环 ----
+ioChain:
+  - "发票行 + PO 行 + 入库行 + 送货单行"
+  - "三单行级匹配工作集"
+  - "行级数量扣减结果 + 四数量对照报表"
+  - "行级金额核对结果（ERP 模拟校验接口）"
+  - "匹配结论（通过/差异）+ 匹配关系记录"
+  - "下游：批量预制发票 / 异常凭证队列（补单换票后重跑）→ 会计凭证 / 台账归档"
+
+# ---- 学习要点 ----
+learning:
+  why: "每个 L5 各自只有一个核心动词（汇入 / 核对 / 判定），输入输出可列、结果可观察，并可独立挂接一类规则依据（三单匹配口径 / 数量扣减 / 金额比对 / 差异容忍）。"
+  key: "挖掘的关键不是改写任务名称，而是把专家真实执行的动作顺序（汇入→数量→金额→判定）、输入输出、判断依据（匹配口径/容忍阈值）和异常链路（超容忍必拉人、匹配关系表不覆盖原始单据）结构化。"
+
+# ---- 使用点清单（P1→P2 数据契约）----
+# 使用点 = 本图全部 L5 深度任务（24 项），每项一个唯一稳定锚点 UP-<taskId>。
+# business-rule-miner（P2）以这些使用点为绑定对象深挖五类规则，做 P1↔P2 双向可追踪。
+usagePoints:
+  - { id: "UP-t01", name: "同步乐企发票数据",             actor: "agent", focus: false }
+  - { id: "UP-t02", name: "归集供应商上传发票",           actor: "agent", focus: false }
+  - { id: "UP-t03", name: "归集采购补录发票",             actor: "mixed", focus: false }
+  - { id: "UP-t04", name: "核验发票归集完整性",           actor: "agent", focus: false }
+  - { id: "UP-t05", name: "识别发票票面关键字段与行项目", actor: "agent", focus: false }
+  - { id: "UP-t06", name: "校验发票真伪与购方抬头",       actor: "agent", focus: false }
+  - { id: "UP-t07", name: "确认发票用途",                 actor: "mixed", focus: false }
+  - { id: "UP-t08", name: "获取采购订单信息",             actor: "agent", focus: false }
+  - { id: "UP-t09", name: "获取入库单信息",               actor: "agent", focus: false }
+  - { id: "UP-t10", name: "获取送货单信息",               actor: "agent", focus: false }
+  - { id: "UP-t11", name: "以发票行为主线汇入三单行信息",   actor: "agent", focus: true }
+  - { id: "UP-t12", name: "行级核对数量并扣减",             actor: "agent", focus: true }
+  - { id: "UP-t13", name: "行级核对金额与差异",             actor: "agent", focus: true }
+  - { id: "UP-t14", name: "判定行级匹配结果并记录匹配关系", actor: "agent", focus: true }
+  - { id: "UP-t15", name: "判定异常类型并生成处理建议",   actor: "agent", focus: false }
+  - { id: "UP-t16", name: "生成沟通对象与升级路径建议",   actor: "agent", focus: false }
+  - { id: "UP-t17", name: "人工确认异常凭证",             actor: "human", focus: false }
+  - { id: "UP-t18", name: "与供应商沟通处理异常",         actor: "human", focus: false }
+  - { id: "UP-t19", name: "返回三单匹配重跑",             actor: "mixed", focus: false }
+  - { id: "UP-t20", name: "预制发票凭证",                 actor: "agent", focus: false }
+  - { id: "UP-t21", name: "过账生成会计凭证",             actor: "mixed", focus: false }
+  - { id: "UP-t22", name: "更新电子税务局发票状态",       actor: "agent", focus: false }
+  - { id: "UP-t23", name: "更新发票台账",                 actor: "agent", focus: false }
+  - { id: "UP-t24", name: "归档发票文件",                 actor: "agent", focus: false }
+
+    </script>
+
+    <script>
+        function copyYAML() {
+            const yamlContent = document.getElementById('raw-yaml').textContent.trim();
+            navigator.clipboard.writeText(yamlContent).then(() => {
+                const btn = document.getElementById('copyYamlBtn');
+                const originalHtml = btn.innerHTML;
+                btn.innerHTML = '✓ 已复制';
+                setTimeout(() => { btn.innerHTML = originalHtml; }, 1600);
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+                alert('复制失败，请手动复制。');
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,858 @@
+title: 采购发票校验助手-Agent本体设计
+domain: 采购发票校验与应付
+scenario_description: "以发票行为主线，归集多渠道采购发票、识别校验票面、执行三单匹配与差异判定，安全预制过账并更新台账与乐企入账标识"
+target_agent_role: 采购发票校验助手（Invoice Matching Assistant）
+
+# ═══════════════════════════════════════════════════════════════════════════
+# Layer 1 · 对象关系（Object Relations）
+# ═══════════════════════════════════════════════════════════════════════════
+entities:
+  - id: invoice
+    name: 发票（Invoice）
+    type: core
+    description: "采购发票主信息，含票面字段与识别/匹配/预制/过账/乐企五类状态，是校验主线起点"
+    attributes:
+      - name: invoice_no
+        type: string
+        description: 数电发票号码（去重主键）
+      - name: amount_without_tax
+        type: number
+        description: 不含税金额（金额比对基准）
+      - name: tax_amount
+        type: number
+        description: 增值税税额
+      - name: source_type
+        type: enum
+        values: [leqi, supplier_upload, manual_supplement]
+        description: 发票来源渠道
+      - name: recognition_status
+        type: enum
+        values: [待识别, 识别成功, 识别异常]
+        description: 发票识别状态
+      - name: match_status
+        type: enum
+        values: [待匹配, 待确认, 匹配异常, 可预制, 已预制, 已过账]
+        description: 发票匹配状态
+      - name: prebill_status
+        type: enum
+        values: [未预制, 已预制, 预制失败]
+        description: 发票预制状态
+      - name: posting_status
+        type: enum
+        values: [未过账, 已过账, 过账失败]
+        description: 发票过账状态
+      - name: leqi_status
+        type: enum
+        values: [待更新, 已更新, 更新失败, 人工已更新]
+        description: 乐企入账标识状态
+    key_distinctions:
+      - "发票金额不得大于合同金额（硬边界，由 ERP 校验承载）"
+      - "本平台不含金额比对规则本体，仅感知 ERP 接口结果"
+      - "本平台不含付款执行与银行支付（下游价值段 3.5）"
+
+  - id: invoice_line
+    name: 发票行（InvoiceLine）
+    type: core
+    description: "发票行项目，含物料描述/数量/单价/行金额与 PO 提示，是三单匹配的最小粒度"
+    attributes:
+      - name: line_no
+        type: string
+        description: 发票行号
+      - name: material_desc
+        type: string
+        description: 物料描述
+      - name: quantity
+        type: number
+        description: 发票行数量（扣减基准）
+      - name: unit_price
+        type: number
+        description: 单价
+      - name: amount
+        type: number
+        description: 行金额
+      - name: po_hint
+        type: string
+        description: 从票面或备注识别出的 PO 提示
+      - name: line_match_status
+        type: enum
+        values: [待匹配, 通过, 差异]
+        description: 行匹配状态
+    key_distinctions:
+      - "三单匹配以发票行为主线，非整张发票粒度"
+      - "票面 PO 号仅约 5% 存在，多数需按供应商/物料反查"
+
+  - id: purchase_order
+    name: 采购订单（PO）
+    type: core
+    description: "ERP 采购订单主信息，为三单匹配提供权威 PO 数据，按采购员权限隔离"
+    attributes:
+      - name: po_no
+        type: string
+        description: 采购订单号
+      - name: supplier_code
+        type: string
+        description: 供应商编码
+      - name: po_amount
+        type: number
+        description: PO 约定金额
+      - name: po_status
+        type: string
+        description: PO 状态
+    key_distinctions:
+      - "PO 数据以 ERP/SAP 为权威源，本平台只读不写"
+      - "跨权限 PO 行项对采购业务员不可见"
+
+  - id: po_line
+    name: PO 行（PurchaseOrderLine）
+    type: reference
+    description: "采购订单行项，含 PO 号/行号/物料/数量/单价，是发票行校验的权威依据"
+    attributes:
+      - name: po_no
+        type: string
+        description: PO 号
+      - name: po_line_no
+        type: string
+        description: PO 行号
+      - name: material_code
+        type: string
+        description: 物料编码
+      - name: quantity
+        type: number
+        description: PO 行数量
+    key_distinctions:
+      - "PO 行是第三层匹配（发票行↔PO 行）的权威依据"
+
+  - id: goods_receipt
+    name: 入库单（GoodsReceipt）
+    type: core
+    description: "ERP 入库单主信息，记录实际入库，是数量核对的权威来源"
+    attributes:
+      - name: gr_no
+        type: string
+        description: 入库单号
+      - name: supplier_code
+        type: string
+        description: 供应商编码
+      - name: gr_date
+        type: datetime
+        description: 入库日期
+    key_distinctions:
+      - "入库单来自 ERP，本平台不含来料收货与检验（上游 3.3）"
+      - "入库数量以 ERP 为准，本平台不修改入库数据"
+
+  - id: goods_receipt_line
+    name: 入库行（GoodsReceiptLine）
+    type: reference
+    description: "入库单行项，含入库数量与批次，供发票行数量扣减核对"
+    attributes:
+      - name: gr_line_id
+        type: string
+        description: 入库行 ID
+      - name: material_code
+        type: string
+        description: 物料编码
+      - name: quantity
+        type: number
+        description: 入库数量
+    key_distinctions:
+      - "不校验入库单与送货单一致性（客户研讨确认口径）"
+
+  - id: delivery_note
+    name: 送货单（DeliveryNote）
+    type: core
+    description: "供应商送货单，经公共网盘/手工上传获取，提供送货数量与 PO 线索"
+    attributes:
+      - name: delivery_no
+        type: string
+        description: 送货单号
+      - name: supplier_code
+        type: string
+        description: 供应商编码
+      - name: delivery_date
+        type: datetime
+        description: 送货日期
+      - name: source_type
+        type: enum
+        values: [public_folder, manual_upload]
+        description: 来源（公共文件夹/手工上传）
+    key_distinctions:
+      - "送货单无 API、经公共网盘人工读取（系统孤岛）"
+      - "送货单为辅助核对依据，不校验其与入库单一致性"
+
+  - id: delivery_line
+    name: 送货行（DeliveryLine）
+    type: reference
+    description: "送货单行项，含物料描述、数量与 PO 号/行号，参与第一层匹配"
+    attributes:
+      - name: line_no
+        type: string
+        description: 送货行号
+      - name: material_desc
+        type: string
+        description: 物料描述
+      - name: recommended_material_code
+        type: string
+        description: AI 推荐物料编码
+      - name: quantity
+        type: number
+        description: 送货数量
+      - name: po_no
+        type: string
+        description: PO 号
+      - name: po_line_no
+        type: string
+        description: PO 行号
+    key_distinctions:
+      - "物料编码为空时由 AI 按描述推荐，须人工确认"
+
+  - id: match_relation
+    name: 匹配关系（MatchRelation）
+    type: core
+    description: "记录发票行↔送货/入库行↔PO 行的匹配结果、差异类型与备注，不覆盖原始单据"
+    attributes:
+      - name: match_id
+        type: string
+        description: 匹配关系 ID
+      - name: invoice_line_id
+        type: string
+        description: 发票行 ID
+      - name: delivery_line_id
+        type: string
+        description: 送货单行 ID
+      - name: gr_line_id
+        type: string
+        description: 入库单行 ID
+      - name: po_no
+        type: string
+        description: PO 号
+      - name: po_line_no
+        type: string
+        description: PO 行号
+      - name: match_result
+        type: enum
+        values: [通过, 差异]
+        description: 匹配结果
+      - name: difference_type
+        type: string
+        description: 差异类型
+      - name: difference_amount
+        type: number
+        description: 差异金额
+      - name: difference_quantity
+        type: number
+        description: 差异数量
+    key_distinctions:
+      - "匹配关系表记录差异，不覆盖原始发票行/入库行数据"
+      - "匹配关系 ≠ 修改原始单据；原始单据保持只读"
+
+  - id: pre_invoice
+    name: 预制发票（PreInvoice）
+    type: core
+    description: "经预制硬门禁校验后由 ERP 生成的预制凭证，是过账的前置，不等于已过账"
+    attributes:
+      - name: prebill_no
+        type: string
+        description: ERP 预制发票号
+      - name: prebill_status
+        type: enum
+        values: [未预制, 已预制, 预制失败]
+        description: 预制状态
+      - name: erp_status
+        type: string
+        description: ERP 预制状态有效性
+    key_distinctions:
+      - "预制 ≠ 过账；预制后仍需财务负责人确认才能过账"
+      - "预制前置 6 项任一不满足即阻断，不得越级预制"
+
+  - id: accounting_voucher
+    name: 会计凭证（AccountingVoucher）
+    type: event
+    description: "ERP 过账生成的会计凭证，含凭证号/会计期间/过账状态，是入账完成的证据"
+    attributes:
+      - name: voucher_no
+        type: string
+        description: ERP 凭证号
+      - name: fiscal_period
+        type: string
+        description: 会计期间
+      - name: posting_status
+        type: enum
+        values: [未过账, 已过账, 过账失败]
+        description: 过账状态
+    key_distinctions:
+      - "已过账凭证不可在产品内撤销，须走 ERP 冲销流程"
+
+  - id: leqi_status
+    name: 乐企入账状态（LeqiStatus）
+    type: event
+    description: "电子税务局/乐企平台入账标识状态，过账后回写，过渡期可人工更新"
+    attributes:
+      - name: invoice_no
+        type: string
+        description: 发票号
+      - name: voucher_no
+        type: string
+        description: ERP 凭证号
+      - name: status
+        type: enum
+        values: [待更新, 已更新, 更新失败, 人工已更新]
+        description: 入账标识状态
+    key_distinctions:
+      - "已过账 ≠ 乐企入账标识已更新"
+      - "过渡期未直连时由财务人工勾选并记录"
+
+  - id: supplier_dict
+    name: 供应商/税号/科目映射字典
+    type: reference
+    description: "供应商标准名/代码、统一社会信用代码、SAP 科目/成本中心/付款条件口径对照表"
+    attributes:
+      - name: term
+        type: string
+        description: 术语（供应商标准名/代码/税号/科目）
+      - name: standard_value
+        type: string
+        description: 标准口径值
+      - name: source
+        type: string
+        description: 来源（SAP 主数据）
+    key_distinctions:
+      - "以 SAP 主数据为准，实例条目待取回回填"
+
+  - id: material_master
+    name: 物料主数据（MaterialMaster）
+    type: reference
+    description: "物料编码与描述主数据，用于送货单/发票行物料描述匹配与编码推荐"
+    attributes:
+      - name: material_code
+        type: string
+        description: 物料编码
+      - name: material_desc
+        type: string
+        description: 物料描述
+    key_distinctions:
+      - "物料编码缺失时按描述推荐候选，最终以主数据为准"
+
+  - id: ledger
+    name: 发票台账（Ledger）
+    type: reference
+    description: "登记发票号、凭证号与入账状态的台账，口径须与综合报表一致"
+    attributes:
+      - name: invoice_no
+        type: string
+        description: 发票号
+      - name: voucher_no
+        type: string
+        description: 凭证号
+      - name: posting_state
+        type: string
+        description: 入账状态
+    key_distinctions:
+      - "台账口径与综合报表须一致，不一致需拉人核对"
+
+  - id: attachment
+    name: 归档文件（Attachment）
+    type: reference
+    description: "发票影像、凭证与匹配结果的归档文件，按发票编号建立索引"
+    attributes:
+      - name: attachment_id
+        type: string
+        description: 文件 ID
+      - name: file_name
+        type: string
+        description: 文件名
+      - name: file_type
+        type: string
+        description: 文件类型
+      - name: preview_url
+        type: string
+        description: 预览地址
+      - name: print_rule
+        type: string
+        description: 打印规则
+    key_distinctions:
+      - "非原始凭证（入库单/匹配结果/ERP 凭证）打印样式未确认前不打印正式件"
+
+  - id: user_role
+    name: 用户/角色/权限（UserRole）
+    type: reference
+    description: "用户、角色与数据范围（采购/仓库/财务/财务主管），控制字段与操作权限"
+    attributes:
+      - name: user_id
+        type: string
+        description: 用户 ID
+      - name: role
+        type: enum
+        values: [采购, 仓库, 财务, 财务主管, 系统管理员]
+        description: 角色
+      - name: data_scope
+        type: string
+        description: 数据范围（供应商/采购组/物料组/组织）
+    key_distinctions:
+      - "权限同时覆盖页面、按钮、字段与数据范围四个维度"
+      - "采购业务员仅可查看/操作自有权限 PO 行项"
+
+relationships:
+  - from: invoice
+    to: invoice_line
+    label: 包含
+    cardinality: "1:N"
+    description: "一张发票含多个发票行，行是匹配最小粒度"
+  - from: purchase_order
+    to: po_line
+    label: 包含
+    cardinality: "1:N"
+    description: "一张 PO 含多个 PO 行，提供权威采购依据"
+  - from: goods_receipt
+    to: goods_receipt_line
+    label: 包含
+    cardinality: "1:N"
+    description: "一张入库单含多个入库行"
+  - from: delivery_note
+    to: delivery_line
+    label: 包含
+    cardinality: "1:N"
+    description: "一张送货单含多个送货行"
+  - from: invoice_line
+    to: match_relation
+    label: 关联
+    cardinality: "1:N"
+    description: "以发票行为主线，逐行建立匹配关系"
+  - from: match_relation
+    to: delivery_line
+    label: 匹配
+    cardinality: "N:1"
+    description: "第一层匹配：发票行↔送货行"
+  - from: match_relation
+    to: goods_receipt_line
+    label: 匹配
+    cardinality: "N:1"
+    description: "第一层匹配：发票行↔入库行"
+  - from: match_relation
+    to: po_line
+    label: 校验
+    cardinality: "N:1"
+    description: "第三层匹配：发票行↔PO 行校验"
+  - from: goods_receipt
+    to: purchase_order
+    label: 校验
+    cardinality: "N:N"
+    description: "第二层匹配：入库单↔PO 行校验"
+  - from: invoice
+    to: pre_invoice
+    label: 触发
+    cardinality: "1:1"
+    description: "匹配可预制后生成预制发票"
+  - from: pre_invoice
+    to: accounting_voucher
+    label: 触发
+    cardinality: "1:1"
+    description: "预制发票经财务确认过账生成会计凭证"
+  - from: accounting_voucher
+    to: leqi_status
+    label: 触发
+    cardinality: "1:1"
+    description: "过账后回写乐企入账标识"
+  - from: invoice
+    to: attachment
+    label: 归档
+    cardinality: "1:N"
+    description: "发票与凭证按发票编号归档"
+  - from: supplier_dict
+    to: invoice
+    label: 约束
+    cardinality: "N:N"
+    description: "供应商/税号/科目口径约束发票校验与预制"
+  - from: material_master
+    to: delivery_line
+    label: 约束
+    cardinality: "N:N"
+    description: "物料主数据用于送货行物料描述匹配与编码推荐"
+  - from: invoice
+    to: ledger
+    label: 登记
+    cardinality: "1:1"
+    description: "入账后登记台账凭证号与入账状态"
+  - from: user_role
+    to: pre_invoice
+    label: 执行
+    cardinality: "N:N"
+    description: "仅具备预制权限的角色可发起预制"
+
+# ═══════════════════════════════════════════════════════════════════════════
+# Layer 2 · 行动边界（Action Boundaries）
+# ═══════════════════════════════════════════════════════════════════════════
+action_boundaries:
+  - id: ab_recognition
+    situation: 票面识别与真伪抬头校验
+    situation_description: "发票已归集入库，需 OCR 抽取票面关键字段并校验真伪、购方抬头与供应商一致性，字段置信度低于 95% 时不得视为识别成功"
+    required_evidence:
+      - source: OCR/AI 识别服务（IF010）
+        checks: 票面关键字段（发票号/金额/税额/供应商税号/开票日期）与置信度
+      - source: 供应商/税号/科目映射字典
+        checks: 供应商标准名/代码、统一社会信用代码一致性
+      - source: 发票文件（IF009）
+        checks: 票面影像与结构化字段可逐项对照
+    valid_actions:
+      - 抽取票面关键字段并保留置信度
+      - 校验发票真伪与购方抬头一致性
+      - 对置信度 <95% 字段标红转识别复核点
+      - 复核通过后继续进入三单匹配
+    invalid_actions:
+      - action: 在字段置信度 <95% 时标记识别成功并放行
+        reason: 低置信字段未经人工确认会传导为静默错配
+      - action: 未对照票面影像直接采信识别结果
+        reason: 模糊票/新版式易识别错误，须以票面为准
+    exception_triggers:
+      - condition: 关键字段缺失/模糊票/新版式，置信度 <95%
+        action: 标红转识别复核点，人工补录后继续
+      - condition: 抬头/税号与主数据不符
+        action: 标记进入异常队列，走换票流程
+
+  - id: ab_three_way_match
+    situation: 以发票行为主线的三单匹配
+    situation_description: "需以发票行为主线汇入 PO 行/入库行/送货单行，执行三层匹配并以发票数量扣减入库/送货数量，差异记入匹配关系表"
+    required_evidence:
+      - source: 发票行 / PO 行 / 入库行 / 送货单行
+        checks: 各行含 PO 号/行号/物料/数量，可逐行对齐
+      - source: 匹配关系表（MatchRelation）
+        checks: 一对一/一对多/多对多对应关系与差异记录
+    valid_actions:
+      - 以发票行为主线汇入三单行信息
+      - 执行三层匹配（发票行↔送货/入库行、入库单↔PO 行、发票行↔PO 行）
+      - 以发票数量扣减入库/送货数量并出四数量对照报表
+      - 将差异记入匹配关系表、不覆盖原始单据
+    invalid_actions:
+      - action: 以整张发票为粒度匹配而不拆到发票行
+        reason: 发票行才是匹配最小单元，整票粒度会掩盖行级差异
+      - action: 用匹配关系表回写覆盖原始发票行/入库行
+        reason: 原始单据须保持只读，覆盖将破坏可追溯性
+      - action: 校验入库单与送货单一致性
+        reason: 客户研讨确认不校验该一致性，越界会产生伪差异
+    exception_triggers:
+      - condition: 多对多关系冲突或单据缺失
+        action: 记入匹配关系表待人工调整，不自动放行
+      - condition: 发票数量 > 入库/送货数量（数量超差）
+        action: 标记数量超差，转匹配差异确认点必拉人
+
+  - id: ab_amount_compare
+    situation: 金额比对与差异感知
+    situation_description: "需以不含税金额为基准经 ERP 模拟校验接口比对发票与合同/PO 金额，本平台仅感知接口返回的通过/差异结果"
+    required_evidence:
+      - source: ERP 模拟校验接口（IF003–IF007）
+        checks: 金额比对通过/差异结果与差异金额
+      - source: 发票不含税金额 / 合同-PO 金额
+        checks: 比对基准金额、差异金额与差异率
+    valid_actions:
+      - 以不含税金额为基准调用 ERP 模拟校验接口
+      - 感知接口返回的通过/差异结果并标注差异金额与差异率
+      - 将金额差异传入差异容忍判定
+    invalid_actions:
+      - action: 在本平台自行落地金额比对规则本体
+        reason: 金额比对规则由 ERP 接口承载，双源落规则会造成口径不一致
+      - action: 未经接口判定直接认定金额匹配通过
+        reason: 本平台无金额规则本体，自判将产生错误结论
+    exception_triggers:
+      - condition: 接口返回金额差异（发票金额 > 合同/PO 金额）
+        action: 标记金额差异，转匹配差异确认点拉人
+      - condition: 接口超时/失败且重试无果
+        action: 转人工线下核对并记录接口日志
+
+  - id: ab_tolerance
+    situation: 差异容忍与异常类型判定
+    situation_description: "需按差异容忍规则判定差异是否可容忍：数量无容忍区间、金额尾差 ≤1 元且 ≤0.5% 自动容忍，任一超容忍必拉人；阈值与异常类型为领域专家假设值"
+    required_evidence:
+      - source: 行级数量/金额/物料/供应商核对结果
+        checks: 数量差异、金额尾差与差异率
+      - source: 供应商历史异常记录
+        checks: 异常因子优先级判定依据
+    valid_actions:
+      - 按数量无容忍区间、金额尾差阈值判定可容忍/必拉人
+      - 容忍内自动放行进入预制
+      - 超容忍标记异常类型并生成处理建议
+      - 默认路径指向人工确认（安全行为）
+    invalid_actions:
+      - action: 在数量超差或金额超尾差时自动放行
+        reason: 数量与金额为独立风险，任一超容忍即须拉人
+      - action: 将数量超差与金额超尾差相互抵消
+        reason: 两者独立、不叠加不抵消，抵消会漏判风险
+      - action: 将假设阈值当作已确认的确定值执行
+        reason: 阈值与异常类型清单为领域专家假设值，待访谈回填
+    exception_triggers:
+      - condition: 数量超差（发票数量 > 入库/送货数量）
+        action: 必拉人，标记数量超差
+      - condition: 金额尾差 > 1 元或 > 0.5%
+        action: 必拉人，标记金额超尾差
+      - condition: 异常类型无法判定或超差无法裁决
+        action: 默认转人工确认，逐级升级至财务负责人
+
+  - id: ab_pre_invoice
+    situation: 发票预制硬门禁校验
+    situation_description: "预制前须逐票检查 6 项硬门禁（已识别/匹配关系/差异说明/信息完整/校验通过/权限），任一不满足即阻断并给降级建议"
+    required_evidence:
+      - source: 发票识别状态与匹配关系表
+        checks: 发票已识别、发票行已存在匹配关系、关键差异已保存说明
+      - source: 供应商/PO/入库信息与字典
+        checks: 供应商/PO/入库信息完整，科目/成本中心/付款条件齐备
+      - source: 金额/数量/物料校验结果与用户权限
+        checks: 校验通过或已备注，且用户具备预制权限
+    valid_actions:
+      - 逐票检查预制 6 项硬门禁
+      - 门禁全绿后提交 ERP 预制发票（IF005）
+      - 保存 ERP 返回的预制号与状态
+      - 失败时给降级建议（补齐后重试）
+    invalid_actions:
+      - action: 在预制前置任一不满足时强行提交预制
+        reason: 硬门禁为强前置，越级预制会产生无效凭证
+      - action: 将预制完成视为已过账
+        reason: 预制 ≠ 过账，过账须财务负责人确认
+    exception_triggers:
+      - condition: 预制前置不满足（如成本中心缺失）
+        action: 标红拦截并给降级建议，补齐后重试
+      - condition: 预制接口失败且重试无果
+        action: 转人工线下处理并入待补队列
+
+  - id: ab_posting_leqi
+    situation: 过账放行与乐企入账回写
+    situation_description: "过账前须财务负责人确认（对外/记账必停），过账后凭凭证号回写乐企入账标识；过渡期未直连时提示财务人工更新并记录"
+    required_evidence:
+      - source: 预制发票与过账权限
+        checks: 发票已预制、ERP 预制状态有效、用户具备财务过账权限
+      - source: 会计凭证（IF006）
+        checks: 凭证号、会计期间与过账状态
+      - source: 乐企状态更新权限
+        checks: 发票已过账且存在 ERP 凭证号
+    valid_actions:
+      - 校验过账硬门禁后由财务负责人确认放行
+      - 调用 ERP 过账（IF006）生成凭证并回写凭证号
+      - 凭发票号与凭证号回写乐企入账标识（IF002）
+      - 更新台账与归档索引
+    invalid_actions:
+      - action: 未经财务负责人确认自动过账
+        reason: 过账为对外/记账动作，必须人工终审放行
+      - action: 在无 ERP 凭证号时更新乐企入账标识
+        reason: 乐企更新前置要求已过账且有凭证号，越级会状态不一致
+      - action: 在产品内撤销已过账凭证
+        reason: 已过账凭证不可在产品内撤销，须走 ERP 冲销流程
+    exception_triggers:
+      - condition: 过账硬门禁不满足或审核不通过
+        action: 退回待处理，不得放行
+      - condition: 乐企接口失败或过渡期未直连
+        action: 记录接口日志并支持重试，提示财务人工更新并记录
+
+# ═══════════════════════════════════════════════════════════════════════════
+# Layer 3 · 状态迁移（State Transitions）
+# ═══════════════════════════════════════════════════════════════════════════
+workstreams:
+  - id: ws_recognition
+    name: 发票识别校验流
+    description: "从发票归集到完成票面识别、真伪抬头校验的识别状态流转"
+    anchor_objects:
+      - invoice
+      - invoice_line
+      - supplier_dict
+    states:
+      - id: s_pending_recognition
+        name: 待识别
+        description: "发票已归集入库，尚未完成票面字段抽取与置信度判定"
+        transitions:
+          - to_state: s_recognized
+            trigger_action: 抽取票面关键字段并校验真伪抬头
+            required_evidence: "OCR 返回关键字段且置信度 ≥95%，抬头/税号一致"
+            type: normal
+          - to_state: s_recognition_error
+            trigger_action: 判定识别异常
+            required_evidence: "置信度 <95% 或字段缺失/模糊/新版式"
+            type: exception
+      - id: s_recognized
+        name: 识别成功
+        description: "票面关键字段已识别且置信度达标，真伪与抬头校验通过，可进入匹配"
+        transitions: []
+      - id: s_recognition_error
+        name: 识别异常
+        description: "存在低置信/缺失字段或抬头税号不符，暂不可进入匹配"
+        transitions:
+          - to_state: s_recognized
+            trigger_action: 人工补录低置信字段后复核
+            required_evidence: "补录后字段完整且抬头/税号一致"
+            type: recovery
+    guardrails:
+      - "字段置信度 <95% 不得标记识别成功，必须转人工复核"
+      - "抬头/税号与主数据不符不得放行，须走换票流程"
+    dependency_mapping:
+      - workstream: ws_match
+        condition: "发票处于识别异常状态"
+        impact: "三单匹配流被阻塞，须等待识别复核完成"
+
+  - id: ws_match
+    name: 三单匹配流
+    description: "以发票行为主线汇入三单行、执行数量扣减与金额比对并判定匹配结果的流转"
+    anchor_objects:
+      - invoice
+      - invoice_line
+      - match_relation
+      - purchase_order
+      - goods_receipt
+      - delivery_note
+    states:
+      - id: s_pending_match
+        name: 待匹配
+        description: "发票已识别成功，尚未汇入 PO/入库/送货行执行匹配"
+        transitions:
+          - to_state: s_pending_confirm
+            trigger_action: 以发票行为主线汇入三单行并执行匹配
+            required_evidence: "三单行已汇入，三层匹配与 6 条匹配规则执行完成"
+            type: normal
+          - to_state: s_match_error
+            trigger_action: 检测单据缺失或关系冲突
+            required_evidence: "PO/入库/送货单缺失或多对多关系冲突"
+            type: exception
+      - id: s_pending_confirm
+        name: 待确认
+        description: "匹配已完成，存在待判定的数量/金额差异，等待容忍判定"
+        transitions:
+          - to_state: s_match_ready
+            trigger_action: 按容忍规则判定为可容忍
+            required_evidence: "数量差异=0 且金额尾差 ≤1 元且 ≤0.5%"
+            type: normal
+          - to_state: s_match_error
+            trigger_action: 判定差异超容忍
+            required_evidence: "数量超差或金额尾差超阈值，任一超容忍"
+            type: exception
+      - id: s_match_error
+        name: 匹配异常
+        description: "存在超容忍差异或单据缺失，须人工确认/补单换票后重跑"
+        transitions:
+          - to_state: s_pending_confirm
+            trigger_action: 补单到货/换票后重跑三单匹配
+            required_evidence: "修正后数据回填，差异重新判定"
+            type: recovery
+      - id: s_match_ready
+        name: 可预制
+        description: "匹配通过且差异在容忍内，具备进入预制的前置条件"
+        transitions: []
+    guardrails:
+      - "数量超差或金额尾差超阈值即必拉人，不得自动放行"
+      - "数量与金额为独立风险，任一超容忍即拉人，不相互抵消"
+      - "匹配关系表记录差异、不覆盖原始单据数据"
+      - "差异容忍阈值与异常类型清单为领域专家假设值，待访谈回填"
+    dependency_mapping:
+      - workstream: ws_recognition
+        condition: "发票未达识别成功状态"
+        impact: "三单匹配流无法启动"
+      - workstream: ws_prebill
+        condition: "发票达到可预制状态"
+        impact: "预制流解除等待，可进入预制硬门禁校验"
+
+  - id: ws_prebill
+    name: 预制与过账流
+    description: "从可预制到预制、过账生成会计凭证的入账状态流转，含预制/过账两类硬门禁"
+    anchor_objects:
+      - invoice
+      - pre_invoice
+      - accounting_voucher
+      - user_role
+    states:
+      - id: s_not_prebilled
+        name: 未预制
+        description: "匹配可预制但尚未通过预制硬门禁或尚未提交 ERP 预制"
+        transitions:
+          - to_state: s_prebilled
+            trigger_action: 通过预制硬门禁并提交 ERP 预制
+            required_evidence: "预制 6 项前置全绿，ERP 返回预制号"
+            type: normal
+          - to_state: s_prebill_failed
+            trigger_action: 预制前置不满足或接口失败
+            required_evidence: "如成本中心缺失或 ERP 返回失败"
+            type: exception
+      - id: s_prebilled
+        name: 已预制
+        description: "已生成 ERP 预制发票，等待财务负责人过账确认"
+        transitions:
+          - to_state: s_posted
+            trigger_action: 财务负责人确认后调用 ERP 过账
+            required_evidence: "过账前置满足且财务负责人已放行，ERP 返回凭证号"
+            type: normal
+          - to_state: s_posting_failed
+            trigger_action: 过账失败或审核不通过
+            required_evidence: "ERP 过账返回失败或审核未通过"
+            type: exception
+      - id: s_prebill_failed
+        name: 预制失败
+        description: "预制前置不满足或接口失败，票进入待补队列"
+        transitions:
+          - to_state: s_prebilled
+            trigger_action: 补齐缺失字段后重试预制
+            required_evidence: "缺失字段补齐，预制前置全绿"
+            type: recovery
+      - id: s_posting_failed
+        name: 过账失败
+        description: "过账未成功，须重试或转人工线下处理"
+        transitions:
+          - to_state: s_posted
+            trigger_action: 人工确认后重试过账
+            required_evidence: "ERP 过账返回凭证号与过账状态"
+            type: recovery
+      - id: s_posted
+        name: 已过账
+        description: "已生成会计凭证并回写凭证号，发票入账完成"
+        transitions: []
+    guardrails:
+      - "预制前置 6 项任一不满足即阻断，不得越级预制"
+      - "过账前必须财务负责人确认，不可自动放行"
+      - "预制 ≠ 过账；已过账凭证不可在产品内撤销，须走 ERP 冲销"
+    dependency_mapping:
+      - workstream: ws_match
+        condition: "发票未达可预制状态"
+        impact: "预制流无法启动"
+      - workstream: ws_leqi
+        condition: "发票达到已过账状态"
+        impact: "乐企流解除等待，可回写入账标识"
+
+  - id: ws_leqi
+    name: 乐企入账状态流
+    description: "过账后回写电子税务局/乐企入账标识的状态流转，过渡期支持人工更新"
+    anchor_objects:
+      - invoice
+      - leqi_status
+      - accounting_voucher
+    states:
+      - id: s_leqi_pending
+        name: 待更新
+        description: "发票已过账且有 ERP 凭证号，尚未回写乐企入账标识"
+        transitions:
+          - to_state: s_leqi_updated
+            trigger_action: 调用乐企接口回写入账标识
+            required_evidence: "发票已过账、存在 ERP 凭证号、具备更新权限且接口返回成功"
+            type: normal
+          - to_state: s_leqi_failed
+            trigger_action: 乐企接口失败或过渡期未直连
+            required_evidence: "接口返回失败或无直连通道"
+            type: exception
+      - id: s_leqi_updated
+        name: 已更新
+        description: "乐企入账标识已更新，发票全链路闭环"
+        transitions: []
+      - id: s_leqi_failed
+        name: 更新失败
+        description: "乐企入账标识未更新成功，须重试或人工更新"
+        transitions:
+          - to_state: s_leqi_updated
+            trigger_action: 重试接口回写
+            required_evidence: "接口返回成功"
+            type: recovery
+          - to_state: s_leqi_manual
+            trigger_action: 提示财务人工到平台勾选并记录
+            required_evidence: "财务人工更新结果已记录"
+            type: recovery
+      - id: s_leqi_manual
+        name: 人工已更新
+        description: "过渡期由财务人工在乐企/电子税务局更新入账标识并记录"
+        transitions: []
+    guardrails:
+      - "乐企更新前置：发票已过账且存在 ERP 凭证号，缺一不可"
+      - "更新失败须记录接口日志并支持重试，不得静默跳过"
+      - "过渡期人工更新须记录结果，保证入账留痕可追溯"
+    dependency_mapping:
+      - workstream: ws_prebill
+        condition: "发票未达已过账状态"
+        impact: "乐企流无法启动，入账标识不得回写"

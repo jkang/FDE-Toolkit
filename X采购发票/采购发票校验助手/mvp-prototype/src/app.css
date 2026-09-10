@@ -1,0 +1,159 @@
+/* =========================================================
+   X · 采购发票校验助手 · 组件级样式（业务 UI）
+   风格：企业控制台（Enterprise Console）
+   规范：颜色全部取自 Ant Design 5 标准语义色（浅底深字），禁止自造 hex
+   - 主色 #0958d9（antd blue-7）；深色侧栏 #001529（antd 经典）
+   - 语义：success #389e0d/#f6ffed · warning #d48806/#fffbe6 · danger #cf1322/#fff2f0 · info #0958d9/#e6f4ff
+   ========================================================= */
+
+:root {
+  --x-primary: #0958d9;
+  --x-ink: #1f1f1f;
+  --x-sub: #595959;
+  --x-line: #d9d9d9;
+  --x-line-soft: #f0f0f0;
+  --x-bg-alt: #f5f5f5;
+  --x-danger: #cf1322;
+  --x-danger-bg: #fff2f0;
+  --x-warn: #d48806;
+  --x-warn-bg: #fffbe6;
+  --x-ok: #389e0d;
+  --x-ok-bg: #f6ffed;
+  --x-info-bg: #e6f4ff;
+  --x-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+}
+
+body { background: var(--x-bg-alt); }
+
+.muted { color: var(--x-sub); }
+.mt8 { margin-top: 8px; }
+.mt12 { margin-top: 12px; }
+.mb12 { margin-bottom: 12px; }
+.clickable { cursor: pointer; }
+
+/* ---------- 页面头 ---------- */
+.page-head { margin-bottom: 12px; }
+.page-title { margin: 0; font-size: 20px; font-weight: 600; color: var(--x-ink); }
+.page-desc { margin: 4px 0 0; color: var(--x-sub); font-size: 12.5px; }
+
+/* ---------- 阶段条（方形小块） ---------- */
+.stage-banner { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.stage-pill {
+  display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px;
+  border-radius: 6px; font-size: 12px; border: 1px solid var(--x-line);
+  background: #fff; color: var(--x-sub); line-height: 1;
+}
+.stage-pill.active { background: var(--x-primary); color: #fff; border-color: var(--x-primary); font-weight: 600; }
+.stage-pill.done { background: var(--x-ok-bg); color: var(--x-ok); border-color: #b7eb8f; }
+
+/* ---------- Agent 控制台（结构化活动日志） ---------- */
+.agent-console .ant-card-head-title { font-weight: 600; }
+.agent-events { display: flex; flex-direction: column; gap: 8px; }
+.stream-line { display: flex; align-items: flex-start; gap: 8px; font-size: 12.5px; color: var(--x-ink); line-height: 1.55; padding: 1px 0; }
+.stream-line .stream-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--x-primary); margin-top: 6px; flex-shrink: 0; }
+.stream-line.warn { color: var(--x-warn); }
+.stream-line.warn .stream-dot { background: var(--x-warn); }
+.stream-line.ok { color: var(--x-ok); }
+.stream-line.ok .stream-dot { background: var(--x-ok); }
+
+/* 工具调用：结构化面板（1px 边框 + 左侧主色条 + 等宽 I/O） */
+.tool-call-card { border: 1px solid var(--x-line); border-left: 3px solid var(--x-primary); border-radius: 6px; background: #fff; padding: 8px 10px; }
+.tool-call-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.tool-call-head > .anticon { color: var(--x-primary); font-size: 14px; }
+.tool-call-head .ant-typography, .tool-call-head strong { font-size: 13px; font-weight: 600; color: var(--x-ink); }
+.tool-call-head > .ant-tag:last-child { margin-left: auto; }
+.tool-call-sys { margin-left: 2px; }
+.tool-call-body { margin-top: 7px; display: flex; flex-direction: column; gap: 3px; border-top: 1px dashed var(--x-line-soft); padding-top: 7px; }
+.tool-io { display: flex; gap: 8px; font-size: 12px; align-items: baseline; }
+.tool-io-label { color: var(--x-sub); flex-shrink: 0; width: 28px; font-size: 11px; }
+.tool-io code {
+  background: #fafafa; padding: 1px 6px; border-radius: 4px; font-size: 11.5px; color: #1f1f1f;
+  word-break: break-all; font-family: var(--x-mono); border: 1px solid var(--x-line-soft);
+}
+
+.think-block { background: #fff; }
+.think-lines { margin: 0; padding-left: 18px; color: var(--x-sub); font-size: 12.5px; line-height: 1.85; }
+
+.citation-pop { max-width: 380px; }
+.citation-row { display: flex; gap: 10px; padding: 4px 0; font-size: 12.5px; }
+.citation-k { color: var(--x-sub); flex-shrink: 0; width: 68px; }
+.citation-v { color: var(--x-ink); }
+.term-hint { border-bottom: 1px dashed #bfbfbf; cursor: help; color: var(--x-primary); }
+
+/* ---------- HITL（banner：1px 边框 + 左侧语义条） ---------- */
+.hitl-card { border: 1px solid #ffe58f; border-left: 3px solid var(--x-warn); border-radius: 6px; background: var(--x-warn-bg); padding: 10px 12px; }
+.hitl-head { display: flex; align-items: center; gap: 8px; color: var(--x-warn); font-size: 13px; }
+.hitl-desc { margin: 6px 0 4px !important; color: #874d00; font-size: 12.5px; }
+.hitl-basis { font-size: 11.5px; color: #ad6800; margin-bottom: 8px; }
+.hitl-resolved { border-color: #b7eb8f; border-left-color: var(--x-ok); background: var(--x-ok-bg); }
+.hitl-resolved .hitl-head { color: var(--x-ok); }
+
+/* ---------- 空态 ---------- */
+.empty-hint { padding: 16px 0; text-align: center; }
+.empty-sub { color: var(--x-sub); font-size: 12px; margin-top: 6px; }
+.empty-cta { margin-top: 10px; }
+
+/* ---------- 指标卡（compact KPI） ---------- */
+.metric-card { height: 100%; }
+.metric-label { font-size: 12px; color: var(--x-sub); margin-bottom: 6px; font-weight: 400; }
+.metric-value { font-size: 24px; font-weight: 600; color: var(--x-ink); line-height: 1.2; font-variant-numeric: tabular-nums; }
+.metric-suffix { font-size: 13px; font-weight: 500; color: var(--x-sub); margin-left: 3px; }
+.metric-hint { font-size: 11.5px; color: var(--x-sub); margin-top: 5px; }
+.metric-danger .metric-value { color: var(--x-danger); }
+.metric-warn .metric-value { color: var(--x-warn); }
+.metric-ok .metric-value { color: var(--x-ok); }
+
+/* ---------- 归集看板 ---------- */
+.channel-col { height: 100%; }
+.channel-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.channel-name { display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 13px; }
+.channel-count { font-size: 20px; font-weight: 600; color: var(--x-ink); font-variant-numeric: tabular-nums; }
+.dup-mark { color: var(--x-warn); }
+
+/* ---------- 识别复核 ---------- */
+.field-row { display: flex; align-items: center; gap: 10px; padding: 6px 0; border-bottom: 1px dashed var(--x-line-soft); }
+.field-row:last-child { border-bottom: none; }
+.field-label { width: 104px; color: var(--x-sub); font-size: 12.5px; flex-shrink: 0; }
+.field-value { flex: 1; font-weight: 600; color: var(--x-ink); font-size: 12.5px; }
+.field-value.low-conf { color: var(--x-danger); background: var(--x-danger-bg); padding: 2px 8px; border-radius: 4px; }
+.conf-chip { font-size: 11px; }
+.invoice-shot { border: 1px solid var(--x-line); border-radius: 6px; background: repeating-linear-gradient(0deg, #fcfdff, #fcfdff 26px, #f3f6fb 26px, #f3f6fb 27px); padding: 12px 14px; min-height: 250px; }
+.invoice-shot .shot-title { text-align: center; font-weight: 600; color: var(--x-primary); border-bottom: 1px solid var(--x-line); padding-bottom: 8px; margin-bottom: 10px; font-size: 13px; }
+.invoice-shot .shot-line { font-size: 11.5px; color: #595959; display: flex; justify-content: space-between; padding: 3px 0; }
+.invoice-shot .shot-total { text-align: right; font-weight: 600; color: var(--x-ink); margin-top: 8px; }
+.shot-hl { background: var(--x-danger-bg); border: 1px dashed var(--x-danger); border-radius: 4px; padding: 0 6px; }
+
+/* ---------- 表格差异高亮 ---------- */
+.diff-bad { background: var(--x-danger-bg) !important; color: var(--x-danger) !important; font-weight: 600; }
+.diff-warn { background: var(--x-warn-bg) !important; color: var(--x-warn) !important; font-weight: 600; }
+.diff-ok { color: var(--x-ok) !important; font-weight: 500; }
+.rule-chip { font-size: 10.5px !important; height: 19px !important; line-height: 17px !important; }
+.rule-chip.ok { color: var(--x-ok) !important; border-color: #b7eb8f !important; background: var(--x-ok-bg) !important; }
+.rule-chip.bad { color: var(--x-danger) !important; border-color: #ffccc7 !important; background: var(--x-danger-bg) !important; }
+
+/* ---------- 台账门禁 ---------- */
+.gate-list { display: flex; flex-direction: column; gap: 3px; font-size: 11.5px; }
+.gate-ok { color: var(--x-ok); }
+.gate-fail { color: var(--x-danger); font-weight: 600; }
+.archive-index { font-family: var(--x-mono); font-size: 11.5px; color: #595959; }
+
+/* ---------- 待办 ---------- */
+.todo-item { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 4px; border-bottom: 1px dashed var(--x-line-soft); cursor: pointer; }
+.todo-item:last-child { border-bottom: none; }
+.todo-item:hover { background: #fafafa; }
+.todo-type { font-weight: 600; color: var(--x-ink); font-size: 12.5px; }
+.todo-desc { color: var(--x-sub); font-size: 11.5px; }
+
+/* ---------- 对话（copilot） ---------- */
+.chat-bubble { padding: 9px 11px; border-radius: 8px; font-size: 12.5px; line-height: 1.6; margin-bottom: 8px; }
+.chat-bubble.user { background: var(--x-info-bg); color: var(--x-primary); align-self: flex-end; }
+.chat-bubble.ai { background: #fafafa; color: var(--x-ink); border: 1px solid var(--x-line-soft); }
+.chat-thread { display: flex; flex-direction: column; max-height: 280px; overflow-y: auto; padding: 4px; }
+.chat-suggestion { cursor: pointer; }
+
+.code-inline { background: #fafafa; padding: 1px 6px; border-radius: 4px; font-size: 12px; font-family: var(--x-mono); border: 1px solid var(--x-line-soft); }
+
+@media (max-width: 768px) {
+  .field-label { width: 84px; }
+  .metric-value { font-size: 20px; }
+}

@@ -20,6 +20,7 @@ skills/superpowers/
 OOCL大客户销售/
 # 依赖与构建产物
 node_modules/
+.npm-cache/
 dist/
 .vite/
 *.js.map
