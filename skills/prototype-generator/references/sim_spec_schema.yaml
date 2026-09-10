@@ -11,7 +11,7 @@ meta:
   businessDomain: "供应链物流"
   frontend: "react"                 # react | vue
   designSystem: "antd"
-  theme: { source: "auto", primary: "#2563eb", accent: "#f97316", layout: "side" }
+  theme: { source: "auto", primary: "#0958d9", accent: "#faad14", layout: "side" }
   ports: { dev: 5173, api: 8080 }
 
 # ---- 场景数据源（每个场景 = 一个数据块，驱动 scenarioData.js）----

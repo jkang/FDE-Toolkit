@@ -6,8 +6,8 @@ meta:
   designSystem: "antd"
   theme:
     source: "user"
-    primary: "#10213E"
-    accent: "#5DB2E2"
+    primary: "#1f1f1f"
+    accent: "#91caff"
     layout: "side"
   ports:
     dev: 5173

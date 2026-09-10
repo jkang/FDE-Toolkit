@@ -56,6 +56,11 @@ mvp_spec.yaml + mvp-prototype/ (已运行)
 > - **特别声明**：本 Skill 服务于**产品级 MVP-prototype**，其视觉遵循**为该客户/场景定制的产品设计系统**，**与 `design.md`（discovery 报告类规范）完全解耦**。
 > - 定制设计系统由 `references/brand_business_matrix.md`（企业品牌 × 业务主题）推导。
 > - 若同场景同时存在 discovery 报告产物（如 To-be 旅程、服务蓝图），二者样式**可不同**：报告走 design.md，MVP 走定制系统。
+>
+> **★ 设计基线（强制前置）**：定制设计系统必须**继承组件库标准**（React→Ant Design / Vue→Arco Design），
+> 仅将品牌色**映射到组件库标准色阶**（antd blue/geekblue/… 的 -6/-7 档）；语义色 / 中性色 / 尺度一律用组件库标准值，
+> **禁止自造未成体系的 hex**。优先用 token（`ConfigProvider`）表达，CSS 覆盖层保持最小。
+> 详见 `references/design_system_baseline.md`（antd 标准色板速查 + 企业控制台基线 + 「山寨感」反模式清单）。
 
 ---
 

@@ -11,8 +11,8 @@ meta:
   designSystem: "antd"                        # antd(react) | arco(vue)
   theme:
     source: "auto"                            # auto=按业务域推导 | user=用户提供
-    primary: "#2563eb"                        # 主色
-    accent: "#f97316"                         # 强调色
+    primary: "#0958d9"                        # 主色
+    accent: "#faad14"                         # 强调色
     layout: "side"                            # side=侧边栏 | top=顶栏
   ports:
     dev: 5173                                 # Vite 开发端口

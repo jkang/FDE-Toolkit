@@ -151,8 +151,8 @@ def normalize(spec):
     theme = meta.get("theme") or {}
     ports = meta.get("ports") or {}
     design_system = ensure_str(meta.get("designSystem"), "antd" if frontend == "react" else "arco")
-    primary = ensure_str(theme.get("primary"), "#2563eb")
-    accent = ensure_str(theme.get("accent"), "#f97316")
+    primary = ensure_str(theme.get("primary"), "#0958d9")   # antd blue-7（标准色阶）
+    accent = ensure_str(theme.get("accent"), "#faad14")     # antd gold-6（标准色阶）
 
     personas = ensure_list(spec.get("personas"))
     scenarios = ensure_list(spec.get("scenarios"))

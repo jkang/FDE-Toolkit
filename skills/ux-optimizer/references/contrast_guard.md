@@ -32,22 +32,22 @@ L = 0.2126*R + 0.7152*G + 0.0722*B   (R/G/B 先归一化为 sRGB 线性分量)
 
 | 语义 | 背景 hex | 文字 hex | 对比度 | 用途 |
 |------|---------|---------|:------:|------|
-| primary | `#FFFFFF` | `#10213E` | ≈15:1 | 主要正文/标题 |
-| primary 强调底 | `#EAF2FB` | `#10213E` | ≈12:1 | 高亮标签/推荐 chips |
-| primary 实底(按钮) | `#10213E` | `#FFFFFF` | ≈15:1 | 主按钮文字 |
-| accent | `#FFFFFF` | `#1E6FB8` | ≈5.5:1 | 链接/强调文字 |
-| success | `#EAF7EE` | `#15803D` | ≈4.6:1 | 成功状态 |
-| warning | `#FFF4E5` | `#B45309` | ≈4.6:1 | 警告状态 |
-| danger | `#FDECEC` | `#B91C1C` | ≈5.2:1 | 错误/失败 |
-| info | `#EAF2FB` | `#1D4ED8` | ≈6:1 | 信息状态 |
-| neutral muted | `#F5F5F6` | `#475569` | ≈7:1 | 次要说明文字（Slate-600，白底/浅灰底均达标） |
-| tag 默认底 | `#EEF2F7` | `#334155` | ≈8:1 | 普通胶囊标签 |
+| primary | `#FFFFFF` | `#1f1f1f` | ≈15:1 | 主要正文/标题 |
+| primary 强调底 | `#e6f4ff` | `#1f1f1f` | ≈12:1 | 高亮标签/推荐 chips |
+| primary 实底(按钮) | `#1f1f1f` | `#FFFFFF` | ≈15:1 | 主按钮文字 |
+| accent | `#FFFFFF` | `#0958d9` | ≈5.5:1 | 链接/强调文字 |
+| success | `#f6ffed` | `#389e0d` | ≈4.6:1 | 成功状态 |
+| warning | `#fffbe6` | `#d48806` | ≈4.6:1 | 警告状态 |
+| danger | `#fff2f0` | `#cf1322` | ≈5.2:1 | 错误/失败 |
+| info | `#e6f4ff` | `#0958d9` | ≈6:1 | 信息状态 |
+| neutral muted | `#f5f5f5` | `#595959` | ≈7:1 | 次要说明文字（Slate-600，白底/浅灰底均达标） |
+| tag 默认底 | `#fafafa` | `#595959` | ≈8:1 | 普通胶囊标签 |
 
 ### 语义 → 背景/文字 映射速查（写 yaml / 组件时直接用）
 ```
-primary-block:  bg #10213E  text #FFFFFF   (按钮/强调块)
-primary-soft:   bg #EAF2FB  text #10213E   (高亮 chip / 推荐标签)
-accent-text:    bg #FFFFFF  text #1E6FB8   (链接/强调)
+primary-block:  bg #1f1f1f  text #FFFFFF   (按钮/强调块)
+primary-soft:   bg #e6f4ff  text #1f1f1f   (高亮 chip / 推荐标签)
+accent-text:    bg #FFFFFF  text #0958d9   (链接/强调)
 tag-*:          bg <浅色底> text <深色字>  (一律用上表"软底+深字"模式)
 ```
 
@@ -66,4 +66,4 @@ tag-*:          bg <浅色底> text <深色字>  (一律用上表"软底+深字"
 3. 状态标签必须是"浅底 + 深字"（软底）模式，禁止"深底深字"。
 4. 若某个业务色找不到达标组合，用 `--ux-text` + 对应浅色底近似，优先保可读性。
 
-> 案例基准：推荐指令 chips → 应改用 `primary-soft`（浅蓝底 `#EAF2FB` + 深字 `#10213E`，对比度 ≈12:1）。
+> 案例基准：推荐指令 chips → 应改用 `primary-soft`（浅蓝底 `#e6f4ff` + 深字 `#1f1f1f`，对比度 ≈12:1）。

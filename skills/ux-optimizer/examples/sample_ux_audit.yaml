@@ -17,10 +17,10 @@ brandProfile:
 
 designLanguage:
   colors:
-    primary: "#2563eb"
+    primary: "#0958d9"
     primaryDark: "#1d4ed8"
     primaryLight: "#93c5fd"
-    accent: "#f97316"
+    accent: "#faad14"
     success: "#16a34a"
     warning: "#f59e0b"
     danger: "#ef4444"
@@ -63,10 +63,10 @@ designLanguage:
     card: { radius: 8, shadow: "card", background: "#ffffff", border: true }
     button: { radius: 6, transition: "0.15s ease-out", hoverOpacity: 0.8 }
     table: { density: "compact", rowHover: true, headerBg: "#f8fafc" }
-    input: { radius: 6, focusOutline: "#5DB2E2" }
+    input: { radius: 6, focusOutline: "#91caff" }
   states:
     hoverTime: "0.15s ease-out"
-    focusOutline: "#5DB2E2"
+    focusOutline: "#91caff"
     loadingType: "skeleton"
     emptyStyle: "icon + hint + cta"
   layout:

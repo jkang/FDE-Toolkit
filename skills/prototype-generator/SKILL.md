@@ -60,7 +60,7 @@ AI Canvas YAML + To-be Journey YAML（+ 用户偏好：前端框架/配色）
 | ② AI 功能独立 service | `server/services/aiService.js` 独立模块（识别/推荐/审批/对话，含模拟延迟，可抽离微服务） |
 | ③ 业务系统交互 mock | `server/services/businessMock.js` 独立模块（ERP/SRM/HR 数据接口） |
 | ④ 专业设计系统 | AntD / Arco 工作台布局（侧边栏+顶栏+卡片/表格/表单/对话组件） |
-| ⑤ 主题配色 | 用户提供配色→直接用；否则按业务域自动推导（供应链→蓝+橙；金融→深蓝+金…） |
+| ⑤ 主题配色 | 用户提供品牌色 → **映射到最接近的 antd/arco 标准色阶档位**（blue/geekblue/… 的 -6/-7）；否则按业务域映射 antd 标准色阶（见 `references/mvp_prompts.md`）。**语义色/中性色/尺度一律用组件库标准值，禁止自造未成体系 hex**（防「山寨感」） |
 | ⑥ 输出目录 | `<客户案例目录>/<场景目录>/mvp-prototype/`（脚手架 `--case` / `--scenario` 指定） |
 | ⑦ 启动验证 | 安装依赖 → 启动 → curl API 实测 + 浏览器打开前端验证 UI 与 AI 交互 |
 | ⑧ 业务数据 & 过程仿真 | `--sim sim_spec.yaml`，生成场景数据源 + 可视化组件（segChart/routeMap/nestedGroup/documentBlock/stateMachine/processTimeline）。**SimVisuals 可视化组件当前仅 React 模板提供**（`templates/frontend_vue/` 下无 SimVisuals 源模板），选择 Vue 时 sim 的交互可视化不可自动注入（Vue 侧亦缺 `scenarioData` 源模板），须手工补 `scenarioData.js` 与页面 |
@@ -71,7 +71,7 @@ AI Canvas YAML + To-be Journey YAML（+ 用户偏好：前端框架/配色）
 
 ### Step 0 · 需求澄清（必问）
 1. **前端框架**：React 还是 Vue？
-2. **配色**：是否有指定主色/强调色/Logo？（无则按业务域自动推导）
+2. **配色**：是否有指定主色/强调色/Logo？（有则**映射到 antd/arco 标准色阶**后再用；无则按业务域映射 antd 标准色阶。语义/中性色一律用组件库标准值，禁止自造 hex）
 3. **端口偏好**：默认 Vite `:5173` / API `:8080`，是否冲突？
 
 ### Step 0' · sim_spec（业务数据 & 过程仿真，推荐）

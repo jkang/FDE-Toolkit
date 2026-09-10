@@ -13,7 +13,7 @@
 - **阴影**：统一蓝色相阴影 `0 2px 8px rgba(16,33,62,0.08)`，禁用粗糙黑灰。
 - **过渡**：统一 `0.15s ease-out`。
 - **可点击**：`cursor-pointer` 全覆盖。
-- **Focus**：统一强调色 Outline `#5DB2E2`。
+- **Focus**：统一强调色 Outline `#91caff`。
 
 ---
 
@@ -34,7 +34,7 @@
 - **落地**：`Card` 左上角 `<Tag color="processing">AI</Tag>` + 自定义边框。
 
 ## 4. table（数据表格）
-- **视觉**：表头浅底 `#f8fafc` + 加粗；斑马纹行；状态列用 Tag 着色（色+文）。
+- **视觉**：表头浅底 `#f5f5f5` + 加粗；斑马纹行；状态列用 Tag 着色（色+文）。
 - **交互**：行 hover 高亮；表头 sticky；支持分页（数据多时）。
 - **落地**：`pagination` 开启（数据量>10）；`rowClassName` 做 hover；列 `render` Tag。
 

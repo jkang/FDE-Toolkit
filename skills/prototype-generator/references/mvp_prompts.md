@@ -47,15 +47,17 @@ Python 脚手架 `scaffold_mvp.py` 会将其编译为 `mvp-prototype/`（React/V
 6. **列定义（columns）**：`key` / `title` 必填；状态列用 `tag: {值: 颜色}` 映射（颜色限 success/processing/warning/error/default）。
 7. **主题**：`theme.source` 默认 `auto`。自动推导规则（按 `businessDomain`）：
 
-| 业务域 | 主色 | 强调色 |
+> **配色铁律（防「山寨感」）**：主色/强调色**必须取自 Ant Design 标准色板**（blue / geekblue / cyan / green / gold / orange / volcano / red / magenta / purple / lime 的 `-6`/`-7` 档），**禁止自造未成体系的 hex**（如 Tailwind 的 `#2563eb`、`#1E3A8A`）。语义色固定用 antd 标准值（success `#52c41a` / warning `#faad14` / error `#ff4d4f` / info `#1677ff`）；中性色用 antd 标准（text `#1f1f1f` / border `#d9d9d9` / layoutBg `#f5f5f5`）。若用户提供品牌色，**先将其映射到最接近的 antd 标准色阶档位**再用。
+
+| 业务域 | 主色（antd 标准） | 强调色（antd 标准） |
 |--------|------|--------|
-| 供应链/采购/制造 | #2563eb（蓝） | #f97316（橙） |
-| 金融/银行/保险 | #1e3a5f（深蓝） | #c9a227（金） |
-| 医疗/健康 | #0d9488（青绿） | #0ea5e9（天蓝） |
-| 零售/电商 | #e11d48（玫红） | #f59e0b（琥珀） |
-| 教育/培训 | #7c3aed（紫） | #f59e0b（琥珀） |
-| 企服/办公 | #0ea5e9（天蓝） | #64748b（灰蓝） |
-| 默认 | #2563eb | #f97316 |
+| 供应链/采购/制造 | `#0958d9`（blue-7） | `#faad14`（gold-6） |
+| 金融/银行/保险 | `#1d39c4`（geekblue-7） | `#faad14`（gold-6） |
+| 医疗/健康 | `#13c2c2`（cyan-6） | `#1677ff`（blue-6） |
+| 零售/电商 | `#eb2f96`（magenta-6） | `#fa8c16`（orange-6） |
+| 教育/培训 | `#722ed1`（purple-6） | `#faad14`（gold-6） |
+| 企服/办公 | `#1677ff`（blue-6） | `#13c2c2`（cyan-6） |
+| 默认 | `#0958d9` | `#faad14` |
 
 8. **端口**：默认 `dev: 5173` / `api: 8080`；用户有要求时覆盖。
 9. **输出路径**：编译产物固定置于 `<客户案例目录>/<场景目录>/mvp-prototype/`（由脚手架 `--case` / `--scenario` 控制），meta 中无需声明输出路径。

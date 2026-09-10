@@ -5,7 +5,7 @@ ux-optimizer · WCAG 对比度检查工具
 ========================================
 校验前景/背景色（hex）的对比度是否达标。
 用法:
-    python3 contrast_check.py "#10213E" "#FFFFFF"          # 单对
+    python3 contrast_check.py "#1f1f1f" "#FFFFFF"          # 单对
     python3 contrast_check.py --file <colors.yaml>          # 批量（yaml: pairs: [ {fg,bg,name} ]）
 """
 import sys

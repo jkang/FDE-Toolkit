@@ -41,14 +41,14 @@ def deep_get(d, key, default=""):
 
 def css_var_value(g):
     return {
-        "primary": deep_get(g, "primary", "#2563eb"),
-        "primaryDark": deep_get(g, "primaryDark", "#1d4ed8"),
-        "primaryLight": deep_get(g, "primaryLight", "#93c5fd"),
-        "accent": deep_get(g, "accent", "#f97316"),
-        "success": deep_get(g, "success", "#16a34a"),
-        "warning": deep_get(g, "warning", "#f59e0b"),
-        "danger": deep_get(g, "danger", "#ef4444"),
-        "info": deep_get(g, "info", "#0ea5e9"),
+        "primary": deep_get(g, "primary", "#0958d9"),
+        "primaryDark": deep_get(g, "primaryDark", "#002c8c"),
+        "primaryLight": deep_get(g, "primaryLight", "#91caff"),
+        "accent": deep_get(g, "accent", "#faad14"),
+        "success": deep_get(g, "success", "#52c41a"),
+        "warning": deep_get(g, "warning", "#faad14"),
+        "danger": deep_get(g, "danger", "#ff4d4f"),
+        "info": deep_get(g, "info", "#1677ff"),
     }
 
 
@@ -62,9 +62,9 @@ def js_str(value):
 
 
 # ---- WCAG 对比度护栏（见 references/contrast_guard.md）----
-_MUTED_BG = "#F5F5F6"          # 次要文字最常叠的浅灰底
-_SAFE_SECONDARY = "#475569"     # 在浅灰底/白底均 ≥4.5:1 的达标次文字
-_SAFE_TEXT = "#1e293b"
+_MUTED_BG = "#f5f5f5"          # 次要文字最常叠的浅灰底（antd layoutBg）
+_SAFE_SECONDARY = "#595959"     # 在浅灰底/白底均 ≥4.5:1 的达标次文字（antd 标准）
+_SAFE_TEXT = "#1f1f1f"
 
 def _lin(c):
     c = c / 255.0
@@ -84,7 +84,7 @@ def _contrast(fg, bg):
 
 def guard_secondary_color(value):
     """次要文字色护栏：若在浅灰底上 <4.5:1，则提升到达标深次色。"""
-    v = value if value else "#64748b"
+    v = value if value else "#595959"
     try:
         if _contrast(v, _MUTED_BG) < 4.5:
             return _SAFE_SECONDARY
@@ -94,7 +94,7 @@ def guard_secondary_color(value):
 
 def guard_text_color(value):
     """正文主色护栏：若在浅灰底上 <4.5:1，则提升到达标深色。"""
-    v = value if value else "#1e293b"
+    v = value if value else "#1f1f1f"
     try:
         if _contrast(v, _MUTED_BG) < 4.5:
             return _SAFE_TEXT
@@ -109,7 +109,7 @@ def guard_text_color(value):
 
 def build_design_js(dl, typo, spacing):
     c = css_var_value(dl.get("colors", {}))
-    font = deep_get(typo, "fontFamily", "MiSans, Inter, -apple-system, 'Microsoft YaHei', sans-serif")
+    font = deep_get(typo, "fontFamily", "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'PingFang SC', 'Microsoft YaHei', sans-serif")
     h1 = typo.get("h1", {})
     h2 = typo.get("h2", {})
     h3 = typo.get("h3", {})
@@ -134,9 +134,9 @@ def build_design_js(dl, typo, spacing):
     lines.append(f"  colorSuccess: '{c['success']}',")
     lines.append(f"  colorWarning: '{c['warning']}',")
     lines.append(f"  colorError: '{c['danger']}',")
-    lines.append(f"  colorText: '{guard_text_color(deep_get(dl.get('colors', {}).get('neutral', {}), 'text', '#1e293b'))}',")
-    lines.append(f"  colorTextSecondary: '{guard_secondary_color(deep_get(dl.get('colors', {}).get('neutral', {}), 'textSecondary', '#64748b'))}',")
-    lines.append(f"  colorBorder: '{deep_get(dl.get('colors', {}).get('neutral', {}), 'border', '#e2e8f0')}',")
+    lines.append(f"  colorText: '{guard_text_color(deep_get(dl.get('colors', {}).get('neutral', {}), 'text', '#1f1f1f'))}',")
+    lines.append(f"  colorTextSecondary: '{guard_secondary_color(deep_get(dl.get('colors', {}).get('neutral', {}), 'textSecondary', '#595959'))}',")
+    lines.append(f"  colorBorder: '{deep_get(dl.get('colors', {}).get('neutral', {}), 'border', '#d9d9d9')}',")
     lines.append(f"  colorBgBase: '{deep_get(dl.get('colors', {}).get('neutral', {}), 'bg', '#ffffff')}',")
     lines.append(f"  borderRadius: {deep_get(radius, 'md', 8)},")
     # ---- 完整排版 token（antd Heading/lineHeight/weight）----
@@ -167,11 +167,11 @@ def build_design_js(dl, typo, spacing):
     lines.append(f"  root.setProperty('--ux-warning', '{c['warning']}');")
     lines.append(f"  root.setProperty('--ux-danger', '{c['danger']}');")
     lines.append(f"  root.setProperty('--ux-info', '{c['info']}');")
-    lines.append(f"  root.setProperty('--ux-text', '{deep_get(dl.get('colors', {}).get('neutral', {}), 'text', '#1e293b')}');")
-    lines.append(f"  root.setProperty('--ux-text-secondary', '{guard_secondary_color(deep_get(dl.get('colors', {}).get('neutral', {}), 'textSecondary', '#64748b'))}');")
-    lines.append(f"  root.setProperty('--ux-border', '{deep_get(dl.get('colors', {}).get('neutral', {}), 'border', '#e2e8f0')}');")
+    lines.append(f"  root.setProperty('--ux-text', '{deep_get(dl.get('colors', {}).get('neutral', {}), 'text', '#1f1f1f')}');")
+    lines.append(f"  root.setProperty('--ux-text-secondary', '{guard_secondary_color(deep_get(dl.get('colors', {}).get('neutral', {}), 'textSecondary', '#595959'))}');")
+    lines.append(f"  root.setProperty('--ux-border', '{deep_get(dl.get('colors', {}).get('neutral', {}), 'border', '#d9d9d9')}');")
     lines.append(f"  root.setProperty('--ux-bg', '{deep_get(dl.get('colors', {}).get('neutral', {}), 'bg', '#ffffff')}');")
-    lines.append(f"  root.setProperty('--ux-bg-alt', '{deep_get(dl.get('colors', {}).get('neutral', {}), 'bgAlt', '#f8fafc')}');")
+    lines.append(f"  root.setProperty('--ux-bg-alt', '{deep_get(dl.get('colors', {}).get('neutral', {}), 'bgAlt', '#f5f5f5')}');")
     lines.append(f"  root.setProperty('--ux-radius-sm', '{deep_get(radius, 'sm', 6)}px');")
     lines.append(f"  root.setProperty('--ux-radius-md', '{deep_get(radius, 'md', 8)}px');")
     lines.append(f"  root.setProperty('--ux-radius-lg', '{deep_get(radius, 'lg', 12)}px');")
@@ -197,7 +197,7 @@ def build_design_css(dl, typo, spacing, radius, motion):
     c = dl.get("colors", {})
     neu = c.get("neutral", {}) if isinstance(c, dict) else {}
     g = c.get("gradient", {}) if isinstance(c, dict) else {}
-    font = deep_get(typo, "fontFamily", "MiSans, Inter, sans-serif")
+    font = deep_get(typo, "fontFamily", "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'PingFang SC', 'Microsoft YaHei', sans-serif")
     h1 = typo.get("h1", {})
     h2 = typo.get("h2", {})
     h3 = typo.get("h3", {})
@@ -224,20 +224,20 @@ def build_design_css(dl, typo, spacing, radius, motion):
    ========================================================= */
 
 :root {{
-  --ux-primary: {deep_get(c, 'primary', '#2563eb')};
-  --ux-primary-dark: {deep_get(c, 'primaryDark', '#1d4ed8')};
-  --ux-accent: {deep_get(c, 'accent', '#f97316')};
-  --ux-success: {deep_get(c, 'success', '#16a34a')};
-  --ux-warning: {deep_get(c, 'warning', '#f59e0b')};
-  --ux-danger: {deep_get(c, 'danger', '#ef4444')};
-  --ux-info: {deep_get(c, 'info', '#0ea5e9')};
-  --ux-text: {guard_text_color(deep_get(neu, 'text', '#1e293b'))};
-  --ux-text-secondary: {guard_secondary_color(deep_get(neu, 'textSecondary', '#64748b'))};
-  --ux-border: {deep_get(neu, 'border', '#e2e8f0')};
+  --ux-primary: {deep_get(c, 'primary', '#0958d9')};
+  --ux-primary-dark: {deep_get(c, 'primaryDark', '#002c8c')};
+  --ux-accent: {deep_get(c, 'accent', '#faad14')};
+  --ux-success: {deep_get(c, 'success', '#52c41a')};
+  --ux-warning: {deep_get(c, 'warning', '#faad14')};
+  --ux-danger: {deep_get(c, 'danger', '#ff4d4f')};
+  --ux-info: {deep_get(c, 'info', '#1677ff')};
+  --ux-text: {guard_text_color(deep_get(neu, 'text', '#1f1f1f'))};
+  --ux-text-secondary: {guard_secondary_color(deep_get(neu, 'textSecondary', '#595959'))};
+  --ux-border: {deep_get(neu, 'border', '#d9d9d9')};
   --ux-bg: {deep_get(neu, 'bg', '#ffffff')};
-  --ux-bg-alt: {deep_get(neu, 'bgAlt', '#f8fafc')};
-  --ux-gradient-from: {deep_get(g, 'from', '#1e3a5f')};
-  --ux-gradient-to: {deep_get(g, 'to', '#4A9FD8')};
+  --ux-bg-alt: {deep_get(neu, 'bgAlt', '#f5f5f5')};
+  --ux-gradient-from: {deep_get(g, 'from', '#001529')};
+  --ux-gradient-to: {deep_get(g, 'to', '#0958d9')};
   --ux-font-family: {font};
   --ux-radius-md: {radius_md}px;
   --ux-radius-lg: {radius_lg}px;
@@ -313,7 +313,7 @@ h4.ant-typography {{ font-size: {h2_size}px !important; font-weight: 650 !import
 a, .ant-btn, .arco-btn, .ant-card, .arco-card, .ant-menu-item, .arco-menu-item, [role="button"], .clickable {{ cursor: pointer; }}
 a:focus-visible, .ant-btn:focus-visible, .arco-btn:focus-visible, .ant-input:focus-visible, .arco-input:focus-visible,
 input:focus-visible, .ant-select-selector:focus-visible, .arco-select-view:focus-visible {{
-  outline: 2px solid #5db2e2 !important; outline-offset: 1px;
+  outline: 2px solid #91caff !important; outline-offset: 1px;
 }}
 .ant-btn-primary, .arco-btn-primary {{ box-shadow: var(--ux-shadow-card); }}
 .ant-btn-primary:hover, .arco-btn-primary:hover {{ opacity: 0.85; }}
@@ -334,28 +334,29 @@ input:focus-visible, .ant-select-selector:focus-visible, .arco-select-view:focus
 /* ---------- WCAG 对比度护栏（Contrast Guard） ----------
    强制语义色对达标（见 references/contrast_guard.md）。
    修复 antd 预设 gold/cyan/processing 深底深字/浅字等低对比色。 */
-.ant-tag{{ background: var(--ux-bg) !important; border-color: var(--ux-border) !important; color: var(--ux-text) !important; font-weight: 500; border-radius: 6px; }}
-.ant-tag-gold, .ant-tag-warning {{ background: #FFF4E5 !important; color: #B45309 !important; border: 1px solid #F0C98A !important; }}
-.ant-tag-cyan, .ant-tag-info, .ant-tag-processing {{ background: #EAF2FB !important; color: #1D4ED8 !important; border: 1px solid #BFD8F0 !important; }}
-.ant-tag-blue, .ant-tag-primary {{ background: #EAF2FB !important; color: #10213E !important; border: 1px solid #BFD8F0 !important; }}
-.ant-tag-green, .ant-tag-success {{ background: #EAF7EE !important; color: #15803D !important; border: 1px solid #B5E0C0 !important; }}
-.ant-tag-red, .ant-tag-error {{ background: #FDECEC !important; color: #B91C1C !important; border: 1px solid #F0B6B6 !important; }}
-.ant-tag-geekblue, .ant-tag-purple {{ background: #EEF2FF !important; color: #4338CA !important; border: 1px solid #C7D2FE !important; }}
-.ant-tag-default {{ background: #EEF2F7 !important; color: #334155 !important; border: 1px solid #E2E8F0 !important; }}
+.ant-tag{{ background: var(--ux-bg) !important; border-color: var(--ux-border) !important; color: var(--ux-text) !important; font-weight: 500; border-radius: 4px; }}
+.ant-tag-gold, .ant-tag-warning {{ background: #fffbe6 !important; color: #d48806 !important; border: 1px solid #ffe58f !important; }}
+.ant-tag-cyan, .ant-tag-info, .ant-tag-processing {{ background: #e6f4ff !important; color: #0958d9 !important; border: 1px solid #91caff !important; }}
+.ant-tag-blue, .ant-tag-primary {{ background: #e6f4ff !important; color: #0958d9 !important; border: 1px solid #91caff !important; }}
+.ant-tag-green, .ant-tag-success {{ background: #f6ffed !important; color: #389e0d !important; border: 1px solid #b7eb8f !important; }}
+.ant-tag-red, .ant-tag-error {{ background: #fff2f0 !important; color: #cf1322 !important; border: 1px solid #ffccc7 !important; }}
+.ant-tag-geekblue, .ant-tag-purple {{ background: #f9f0ff !important; color: #531dab !important; border: 1px solid #d3adf7 !important; }}
+.ant-tag-default {{ background: #fafafa !important; color: #595959 !important; border: 1px solid #d9d9d9 !important; }}
 
-/* 推荐指令 chips：primary-soft 浅蓝底 + 深字（≈14:1）高可读 */
-.chat-suggestion, .ant-tag[color="processing"], .ant-tag.processing-chip {{ background: #EAF2FB !important; color: #10213E !important; border: 1px solid #BFD8F0 !important; }}
+/* 推荐指令 chips：primary-soft 浅蓝底 + 深字（antd 标准，高可读） */
+.chat-suggestion, .ant-tag[color="processing"], .ant-tag.processing-chip {{ background: #e6f4ff !important; color: #0958d9 !important; border: 1px solid #91caff !important; }}
 
-/* Alert 语义色对（浅底深字，阈值达标） */
+/* Alert 语义色对（antd 标准浅底深字，阈值达标） */
 .ant-alert{{ border-radius: var(--ux-radius-md); }}
-.ant-alert-info {{ background: #EAF2FB !important; border-color: #BFD8F0 !important; }}
-.ant-alert-info .ant-alert-message, .ant-alert-info .ant-alert-icon {{ color: #10213E !important; }}
-.ant-alert-info .ant-alert-description {{ color: #1E293B !important; }}
-.ant-alert-success {{ background: #EAF7EE !important; border-color: #B5E0C0 !important; }}
-.ant-alert-warning {{ background: #FFF4E5 !important; border-color: #F0C98A !important; }}
-.ant-alert-warning .ant-alert-message, .ant-alert-warning .ant-alert-icon {{ color: #B45309 !important; }}
-.ant-alert-error {{ background: #FDECEC !important; border-color: #F0B6B6 !important; }}
-.ant-alert-error .ant-alert-message, .ant-alert-error .ant-alert-icon {{ color: #B91C1C !important; }}
+.ant-alert-info {{ background: #e6f4ff !important; border-color: #91caff !important; }}
+.ant-alert-info .ant-alert-message, .ant-alert-info .ant-alert-icon {{ color: #0958d9 !important; }}
+.ant-alert-info .ant-alert-description {{ color: #1f1f1f !important; }}
+.ant-alert-success {{ background: #f6ffed !important; border-color: #b7eb8f !important; }}
+.ant-alert-success .ant-alert-message, .ant-alert-success .ant-alert-icon {{ color: #389e0d !important; }}
+.ant-alert-warning {{ background: #fffbe6 !important; border-color: #ffe58f !important; }}
+.ant-alert-warning .ant-alert-message, .ant-alert-warning .ant-alert-icon {{ color: #d48806 !important; }}
+.ant-alert-error {{ background: #fff2f0 !important; border-color: #ffccc7 !important; }}
+.ant-alert-error .ant-alert-message, .ant-alert-error .ant-alert-icon {{ color: #cf1322 !important; }}
 
 /* 次要说明文字保底可读（防浅灰叠白） */
 .text-secondary, .ant-typography-secondary {{ color: var(--ux-text-secondary) !important; }}

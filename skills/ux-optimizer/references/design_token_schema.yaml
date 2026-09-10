@@ -15,7 +15,7 @@ meta:
 
 brandProfile:
   primaryTone: "<信任蓝|科技深蓝|奢华金|沉稳灰|活力橙|医疗青绿>"
-  primaryColor: "#2563eb"
+  primaryColor: "#0958d9"
   userGroup: "<内部员工|客户|经销商|终端消费者>"
   seriousness: "<合规严苛|严谨流程|开放协同>"
   maturity: "<传统巨头|专业细分|新锐>"
@@ -23,23 +23,23 @@ brandProfile:
 designLanguage:
   # 1. 色彩系统
   colors:
-    primary: "#2563eb"
-    primaryDark: "#1d4ed8"
-    primaryLight: "#93c5fd"
-    accent: "#f97316"
-    success: "#16a34a"
-    warning: "#f59e0b"
-    danger: "#ef4444"
-    info: "#0ea5e9"
+    primary: "#0958d9"
+    primaryDark: "#002c8c"
+    primaryLight: "#91caff"
+    accent: "#faad14"
+    success: "#52c41a"
+    warning: "#faad14"
+    danger: "#ff4d4f"
+    info: "#1677ff"
     neutral:
-      text: "#1e293b"
-      textSecondary: "#64748b"
-      border: "#e2e8f0"
+      text: "#1f1f1f"
+      textSecondary: "#595959"
+      border: "#d9d9d9"
       bg: "#ffffff"
-      bgAlt: "#f8fafc"
+      bgAlt: "#f5f5f5"
     gradient:
-      from: "#1e3a5f"
-      to: "#4A9FD8"
+      from: "#001529"
+      to: "#0958d9"
 
   # 2. 字体系统
   typography:
@@ -69,7 +69,7 @@ designLanguage:
     card: "0 2px 8px rgba(16, 33, 62, 0.08)"
     raised: "0 4px 16px rgba(16, 33, 62, 0.12)"
   border:
-    color: "#e2e8f0"
+    color: "#d9d9d9"
     width: 1
 
   # 5. 组件设计语言（视觉基调）
@@ -82,15 +82,15 @@ designLanguage:
     table:
       density: "compact"
       rowHover: true
-      headerBg: "#f8fafc"
+      headerBg: "#f5f5f5"
     input:
       radius: 6
-      focusOutline: "#5DB2E2"
+      focusOutline: "#91caff"
 
   # 6. 状态体系
   states:
     hoverTime: "0.15s ease-out"
-    focusOutline: "#5DB2E2"
+    focusOutline: "#91caff"
     loadingType: "skeleton"
     emptyStyle: "icon + hint + cta"
 
