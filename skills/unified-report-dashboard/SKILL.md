@@ -21,7 +21,7 @@ author: KK
 > [!IMPORTANT]
 > **输出路径与命名规范 (Output Path & Naming Convention)**:
 > - **目录**: 输出到 `<公司/业务名>/` 公司/业务级目录；若产物属于**具体 AI 场景**（如某场景的测试数据集 / 故事地图 / Agent 本体等），**必须**放入 `<公司/业务名>/<场景名>/` 场景子目录（两层规范；场景级文件名需含场景名，如 `[公司]-[场景]-[业务类型].html`）。
-> - **文件名**: 仪表盘 HTML 文件名必须格式为 `[公司/业务名]-统一报告仪表盘.html` (例如：`张雪机车海外销售-统一报告仪表盘.html`)；场景级仪表盘为 `[公司/业务名]-[场景名]-统一报告仪表盘.html`。
+> - **文件名**: 仪表盘 HTML 文件名必须格式为 `[公司/业务名]-统一报告仪表盘.html` (例如：`ZX机车海外销售-统一报告仪表盘.html`)；场景级仪表盘为 `[公司/业务名]-[场景名]-统一报告仪表盘.html`。
 >
 > **视觉设计规范 (Visual Design Standard)**:
 > - **样式风格**: 默认按本 skill `references/` 内示例的视觉规范输出。
@@ -149,7 +149,7 @@ unified-report-dashboard/
 │   └── dashboard_layout.html         # Jinja2 模板（文字菜单 + 可收缩侧边栏）
 └── examples/
     ├── scenario_planning_template.yaml   # 场景化两段式骨架（推荐）
-    └── zhangxue_dashboard.yaml           # 公司级单流程参考
+    └── zx_dashboard.yaml           # 公司级单流程参考
 ```
 
 ## 输入规范

@@ -49,7 +49,7 @@ mvp_spec.yaml + mvp-prototype/ (已运行)
 >
 > **输出路径与命名规范 (Output Path & Naming Convention)**:
 > - **目录**: 属于**具体 AI 场景**的产物（UX 优化报告），**必须**放入 `<公司/业务名>/<场景名>/` 场景子目录（两层规范）。
-> - **文件命名**: `[公司/业务名]-[场景名]-UX设计报告.html`（例如：`张雪机车海外销售-售后理赔-UX设计报告.html`）；YAML 同理 `[公司/业务名]-[场景名]-ux-audit.yaml`。
+> - **文件命名**: `[公司/业务名]-[场景名]-UX设计报告.html`（例如：`ZX机车海外销售-售后理赔-UX设计报告.html`）；YAML 同理 `[公司/业务名]-[场景名]-ux-audit.yaml`。
 > - **注入目标**: 定制设计系统覆盖层注入到 `<公司/业务名>/<场景名>/mvp-prototype/`（`src/ux-design.js` / `src/ux-design.css`），不改原型业务逻辑。
 >
 > **视觉设计标准 (Visual Design Standard)**:

@@ -1,10 +1,10 @@
-# 演示样例：张雪机车海外销售 · 售后理赔
+# 演示样例：ZX机车海外销售 · 售后理赔
 # 示例：面向制造业出海 + 售后理赔场景的定制设计系统
 meta:
-  company: "张雪机车海外销售"
+  company: "ZX机车海外销售"
   scenario: "售后理赔"
   businessDomain: "供应链"
-  productName: "张雪机车海外售后理赔助手"
+  productName: "ZX机车海外售后理赔助手"
   mode: "Modern SaaS 工作台"
   brandSource: "domain 推断"
 

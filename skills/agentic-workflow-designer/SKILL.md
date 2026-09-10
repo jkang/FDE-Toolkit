@@ -37,7 +37,7 @@ author: KK
 >
 > **输出路径与命名规范 (Output Path & Naming Convention)**:
 > - **目录**: 场景级产物**必须**输出到 `<公司/业务名>/<场景名>/` 场景子目录（两层规范）。
-> - **文件名**: HTML 文件名必须反映内容，格式为 `[公司/业务名]-[场景名]-Agentic工作流.html` (例如：`张雪机车海外销售-售后理赔-Agentic工作流.html`)。YAML 文件同理，如 `[公司/业务名]-[场景名]-Agentic工作流.yaml`。
+> - **文件名**: HTML 文件名必须反映内容，格式为 `[公司/业务名]-[场景名]-Agentic工作流.html` (例如：`ZX机车海外销售-售后理赔-Agentic工作流.html`)。YAML 文件同理，如 `[公司/业务名]-[场景名]-Agentic工作流.yaml`。
 > - **禁止**将场景级产物输出到 `<公司/业务名>/` 根目录或 Skill 的 `examples/` 目录（examples/ 仅存放演示样例）。
 >
 > **视觉设计规范 (Visual Design Standard)**:
