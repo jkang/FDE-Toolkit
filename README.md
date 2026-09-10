@@ -14,9 +14,31 @@
 
 所有 Skill 遵循**双重输出**（结构化 YAML + 交互式 HTML）与**两层目录**（`[公司/业务名]/` 与 `[公司/业务名]/[场景名]/`）规范；各 Skill 详细 SOP 见其 `SKILL.md`，总索引见 `skills/index.md`。
 
+### 1.1 全局视图：FDE 四步法
+
+```mermaid
+flowchart TD
+    S(["客户 / 业务领域 + 资料"])
+    S --> P1["① 理需求<br/>Understand the Need<br/><br/>NSM 北极星 · AI 成熟度 · OSM<br/>价值流 · L3/L4 流程 · 问题定义<br/>机会地图 · 机会点定义 · AI 画布 · 优先级矩阵"]
+    P1 --> P2["② 挖知识<br/>Mine the Knowledge<br/><br/>To-be 流程泳道 · 任务流程拆解 P1<br/>业务规则挖掘 P2 · CKD 数据映射 · Agentic 工作流"]
+    P2 --> P3["③ 建本体<br/>Build the Ontology<br/><br/>对象关系 → 行动边界 → 状态迁移"]
+    P3 --> P4["④ 生智能<br/>Generate the Intelligence<br/><br/>Agent 产品方案 · To-be 旅程 · MVP 原型<br/>UX 优化 · 技术架构 · 指标 · 测试数据集 · ROI"]
+    P4 --> R(["统一报告仪表盘 / 交付 Deck"])
+```
+
+> 上一步产物（YAML）作为下一步输入；全链路可用 `/discovery` 一键编排，或按场景用 `/scenario-solution` 跑单场景端到端。
+
 ---
 
 ## 2. 技能工具链与编排总览
+
+```mermaid
+flowchart TB
+    U(["用户"]) --> C["命令层 · 10 条 /command<br/>/discovery · /scenario-solution · /nsm · /client-insight<br/>/opportunity · /agent-arch · /mvp-prototype · /mvp-eval · /requirement · /roadmap"]
+    C --> A["编排层 · 9 个 Subagent + 1 个宏编排 Skill<br/>nsm-analyst · client-insight-advisor · opportunity-advisor<br/>agent-arch-designer · ai-solution-designer · mvp-prototype<br/>mvp-evaluator · requirement-analyst · roadmap-planner · discovery-agent"]
+    A --> K["技能层 · 39 个 Skill<br/>理需求 / 挖知识 / 建本体 / 生智能 + 编排汇总 + 元技能"]
+    K --> O(["产物 · 双重输出<br/>结构化 YAML + 交互式 HTML · 两层目录（公司级 / 场景级）"])
+```
 
 ### 2.1 命令（`/command`）——推荐入口
 
