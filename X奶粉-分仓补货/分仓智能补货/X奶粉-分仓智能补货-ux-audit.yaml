@@ -1,0 +1,142 @@
+# =========================================================
+# UX-Optimizer · 定制设计系统
+# X奶粉 · 分仓智能补货（供应链 / 内部 B 端工作台）
+# 基线：Ant Design 5 标准色阶（不造未成体系 hex）
+# =========================================================
+meta:
+  company: "X奶粉"
+  scenario: "分仓智能补货"
+  businessDomain: "供应链"
+  productName: "分仓智能补货 Agent"
+  mode: "企业控制台"
+  brandSource: "domain 推断（X奶粉事业部内部物流计划工作台，无独立品牌手册 → 按供应链业务域映射）"
+
+brandProfile:
+  primaryTone: "信任蓝"
+  primaryColor: "#0958d9"
+  userGroup: "内部员工"
+  seriousness: "严谨流程"
+  maturity: "传统巨头"
+
+designLanguage:
+  # 1. 色彩系统（全部 antd 标准色阶）
+  colors:
+    primary: "#0958d9"          # antd blue-7：供应链/采购/制造主色
+    primaryDark: "#002c8c"      # antd blue-9
+    primaryLight: "#91caff"     # antd blue-3
+    accent: "#faad14"           # antd gold-6：强调 / 警示（库存缺口 / 待确认）
+    success: "#52c41a"
+    warning: "#faad14"
+    danger: "#ff4d4f"
+    info: "#1677ff"
+    neutral:
+      text: "#1f1f1f"
+      textSecondary: "#595959"
+      border: "#d9d9d9"
+      bg: "#ffffff"
+      bgAlt: "#f5f5f5"
+    gradient:
+      from: "#001529"           # antd 经典深色侧栏
+      to: "#0958d9"
+
+  # 2. 字体系统
+  typography:
+    fontFamily: "MiSans, Inter, -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif"
+    h1: { size: 28, weight: "600", lineHeight: 1.2, spacing: "-0.02em" }
+    h2: { size: 22, weight: "600", lineHeight: 1.25, spacing: "0" }
+    h3: { size: 18, weight: "600", lineHeight: 1.3, spacing: "0" }
+    body: { size: 14, weight: "400", lineHeight: 1.5, spacing: "0" }
+    label: { size: 12, weight: "600", lineHeight: 1.2, spacing: "0.05em", uppercase: true }
+    caption: { size: 12, weight: "400", lineHeight: 1.4, spacing: "0" }
+
+  # 3. 间距 & 栅格（8pt 节奏；企业控制台偏紧凑）
+  spacing:
+    scale: [4, 8, 12, 16, 24, 32, 48]
+    contentMaxWidth: 1440
+    cardPadding: 20
+    sectionGap: 20
+    elementGap: 12
+
+  # 4. 圆角 / 阴影 / 边框（企业控制台收敛：硬边界优先，弱阴影）
+  radius:
+    sm: 4
+    md: 6
+    lg: 8
+    pill: 999
+  shadow:
+    card: "0 1px 2px rgba(16, 33, 62, 0.06)"
+    raised: "0 4px 12px rgba(16, 33, 62, 0.10)"
+  border:
+    color: "#d9d9d9"
+    width: 1
+
+  # 5. 组件设计语言
+  components:
+    card: { radius: 6, shadow: "card", background: "#ffffff", border: true }
+    button: { radius: 6, transition: "0.15s ease-out", hoverOpacity: 0.85 }
+    table: { density: "compact", rowHover: true, headerBg: "#fafafa" }
+    input: { radius: 6, focusOutline: "#91caff" }
+
+  # 6. 状态体系
+  states:
+    hoverTime: "0.15s ease-out"
+    focusOutline: "#91caff"
+    loadingType: "skeleton"
+    emptyStyle: "icon + hint + cta"
+
+  # 7. 布局模式
+  layout:
+    mode: "side"
+    siderWidth: 216
+    headerHeight: 56
+
+  # 8. 微交互 & 响应式
+  motion:
+    transition: "0.15s ease-out"
+    enableSpring: false
+  responsive:
+    breakpoints: [375, 768, 1024, 1440]
+
+# ---- 11 类元素专业化（v2 升级方向） ----
+componentSpecs:
+  - { element: "steps", v2: { style: "progress accent · 当前步主色高亮", height: "compact" } }
+  - { element: "uploadCard", v2: { style: "drag zone focus ring", hintIcon: true } }
+  - { element: "aiResultCard", v2: { style: "AI insight panel · 左侧主色条 + 出处引用", badge: "AI", loading: skeleton } }
+  - { element: "table", v2: { style: "rowsZebra headerSticky · 等宽数字 tabular-nums", rowHover: true } }
+  - { element: "statRow", v2: { style: "metric hero · 主色数值 + 次级标签", accentPrefix: true } }
+  - { element: "buttonRow", v2: { style: "primaryFullBleed hoverLift", hoverLift: true } }
+  - { element: "alert", v2: { style: "showIcon bordered · 浅底深字语义色对", bordered: true } }
+  - { element: "timeline", v2: { style: "state tracker · 节点状态色 + 连接线", dotStatus: true } }
+  - { element: "chatPanel", v2: { style: "AI copilot · 推荐指令 chips + typing indicator", suggestionChips: true } }
+  - { element: "formCard", v2: { style: "field group labelAbove", labelAbove: true } }
+  - { element: "tagRow", v2: { style: "status chips · 色+图标+文字三重表达", pill: false } }
+
+# ---- 六维 UX 专业评分（figma_expertise · 优化后） ----
+uxScores:
+  - { name: "布局与栅格", score: 9 }
+  - { name: "视觉层级与排版", score: 9 }
+  - { name: "色彩与对比度", score: 10 }
+  - { name: "组件状态完备", score: 9 }
+  - { name: "微交互与动效", score: 8 }
+  - { name: "可访问性与响应式", score: 9 }
+
+# ---- Before / After 对照 ----
+diffBeforeAfter:
+  - { dimension: "主色", before: "自造深蓝 #10213E / 蓝 #5DB2E2（未成体系）", after: "antd blue-7 #0958d9 + gold-6 #faad14（标准色阶）" }
+  - { dimension: "语义色", before: "自造 #1a8f5c / #F59E0B / #EF4444", after: "antd 标准 #52c41a / #faad14 / #ff4d4f" }
+  - { dimension: "中性色", before: "自造 #10213E / #E2E8F0 / #F5F6FA", after: "antd 标准 #1f1f1f / #595959 / #d9d9d9 / #f5f5f5" }
+  - { dimension: "圆角/阴影", before: "统一 8px 圆角 + 软阴影卡片堆叠", after: "收敛 4/6/8px + 1px 硬边界 + 弱阴影（企业控制台）" }
+  - { dimension: "状态标签", before: "默认 antd Tag（gold/processing 低对比风险）", after: "浅底深字标准色对（对比度 ≥4.5:1）" }
+  - { dimension: "对比度护栏", before: "无显式校验", after: "语义色对强制护栏 + 次要文字 ≥4.5:1" }
+  - { dimension: "可访问性", before: "焦点环不统一", after: "统一 2px #91caff 焦点环 + cursor-pointer + 响应式断点" }
+  - { dimension: "数字对齐", before: "普通字体", after: "表格/指标 font-variant-numeric: tabular-nums" }
+
+diffChecklist:
+  - "自定义主色是否已注入 ConfigProvider + CSS 变量"
+  - "字体系统是否覆盖全局 + 标题层级"
+  - "间距是否统一为 8pt 体系"
+  - "圆角/阴影是否按产品气质定制（企业控制台：收敛 + 硬边界）"
+  - "11 类元素是否按 componentSpecs 升级"
+  - "六态（hover/focus/empty/loading/error/disabled）是否完备"
+  - "响应式断点 375/768/1024/1440 是否生效"
+  - "cursor-pointer 是否加到所有可交互区"

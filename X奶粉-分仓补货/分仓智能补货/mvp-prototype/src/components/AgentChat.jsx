@@ -32,7 +32,7 @@ function InlineArtifact({ kind, data, onOpen }) {
             <Tag color="error">红 · 紧急 {red} 项</Tag>
             <Tag color="warning">黄 · 常规 {yellow} 项</Tag>
             <Tag color="processing">蓝 · 积压 {blue} 项</Tag>
-            <span style={{ fontSize: 11, color: '#8a94ab', alignSelf: 'center' }}>4 基地仓 × 11 销售分仓 · 近 700 SKU</span>
+            <span style={{ fontSize: 11, color: '#8a94ab', alignSelf: 'center' }}>4 基地仓 × 9+ 销售分仓 · 近 700 SKU</span>
           </div>
           <div style={{ maxHeight: 180, overflow: 'auto' }}>
             {(data.gaps || []).slice(0, 6).map((g, i) => (

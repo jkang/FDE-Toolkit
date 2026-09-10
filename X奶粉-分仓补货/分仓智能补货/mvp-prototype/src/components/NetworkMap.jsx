@@ -1,4 +1,4 @@
-// 仓网拓扑图（SVG · 4 基地仓 → 11 销售分仓）
+// 仓网拓扑图（SVG · 4 基地仓 → 9+ 销售分仓）
 import React from 'react';
 
 const BASE = [

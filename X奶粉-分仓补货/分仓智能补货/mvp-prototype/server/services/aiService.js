@@ -92,8 +92,8 @@ function buildScript(story, userInput) {
         { type: 'thinking', title: '缺口识别思路', content: '按 SKP 缺口分级规则（决策因子：库存天数 DOS、未来14天需求、促销计划）：拉取 4 个基地仓可分配库存 + 在途，匹配未来 14 天销售计划，计算各仓×SKU 库存可销天数 DOS。判定口径——红色＝可发量+在途<未来7天需求 且 DOS<7（紧急补货）；黄色＝7≤DOS<14（常规补货）；蓝色＝DOS>60 且无促销（积压预警，有促销则抑制）。' },
         { type: 'tool', name: '读现货库存', system: '库存系统', target: '4 基地仓 · 可发量/待检/合格', status: 'done', latency: 210 },
         { type: 'tool', name: '读在途库存', system: '库存系统', target: '4 基地仓 · 在途总量/已下发未发货', status: 'done', latency: 180 },
-        { type: 'tool', name: '读销售计划+促销', system: '奶粉分仓补调系统', target: '11 销售分仓 · 未来14天销售计划 + 促销计划', status: 'done', latency: 240 },
-        { type: 'stream', text: '已扫描 4 基地仓 × 11 销售分仓 × 近 700 SKU 货源。识别出红色缺口 2 项（北京顺义仓·金领冠珍护 1段/3段，可发量+在途已低于未来 7 天需求且 DOS<7）、黄色缺口 5 项、蓝色积压 3 项——柳州/济南的安儿宝大日期库存偏高且无促销，建议纳入促销联动消化。' },
+        { type: 'tool', name: '读销售计划+促销', system: '奶粉分仓补调系统', target: '9+ 销售分仓 · 未来14天销售计划 + 促销计划', status: 'done', latency: 240 },
+        { type: 'stream', text: '已扫描 4 基地仓 × 9+ 销售分仓 × 近 700 SKU 货源。识别出红色缺口 2 项（北京顺义仓·金领冠珍护 1段/3段，可发量+在途已低于未来 7 天需求且 DOS<7）、黄色缺口 5 项、蓝色积压 3 项——柳州/济南的安儿宝大日期库存偏高且无促销，建议纳入促销联动消化。' },
         { type: 'artifact', kind: 'supplyOverview', data: { base: MOCK.baseWarehouses, sale: MOCK.saleWarehouses, gaps: MOCK.gapRows } },
         {
           type: 'final', text: '全仓网供需全景已生成，详见右侧看板。',
@@ -111,7 +111,7 @@ function buildScript(story, userInput) {
       steps: [
         { type: 'status', status: 'thinking', label: '正在读取京慧建议量并求解分配方案…' },
         { type: 'thinking', title: '多约束分配求解思路', content: '按 SKP 备货率分配规则：生产备货率=(现货+在途+本月已出库)/销售计划，订单完成率=(当月未发+本月累出)/销售计划，目标备货率=订单进度+20%（封顶 100%，中旬标准 50%）。叠加约束：① 分配量≤可发量（硬约束）；② 就近优先选仓（可发量覆盖且时效最快）；③ 凑车微调 ±200 件；④ 分配后库存天数≥安全水位。冲突仲裁：可发量约束 > 时效优先。' },
-        { type: 'tool', name: '读京慧建议量', system: '京慧一盘货', target: '11 销售分仓 × 本周建议量', status: 'done', latency: 320 },
+        { type: 'tool', name: '读京慧建议量', system: '京慧一盘货', target: '9+ 销售分仓 × 本周建议量', status: 'done', latency: 320 },
         { type: 'tool', name: '读可发量/订单完成率', system: '奶粉分仓补调系统', target: '基地仓可发量 · 分仓订单完成率', status: 'done', latency: 260 },
         { type: 'tool', name: '读促销计划+旬度进度', system: '促销管理系统', target: '本周 140+ 广促品 · 旬度标准进度（中旬50%）', status: 'done', latency: 190 },
         { type: 'stream', text: '多约束求解完成：目标备货率=订单进度+20%（封顶 100%）已应用到各仓。方案A 均衡版全仓分配后库存天数均在 10 天以上；方案B 优先版将北京顺义仓上调至 1500 罐（优先保障促销放量）。两版均满足可发量硬约束与安全水位。' },
@@ -193,7 +193,7 @@ export const aiService = {
   async detectGaps(body = {}) {
     await latency(900);
     return {
-      summary: '已扫描 4 基地仓 × 11 销售分仓 × 近 700 SKU 货源，识别红色缺口 2 项、黄色缺口 5 项、蓝色积压 3 项',
+      summary: '已扫描 4 基地仓 × 9+ 销售分仓 × 近 700 SKU 货源，识别红色缺口 2 项、黄色缺口 5 项、蓝色积压 3 项',
       createdAt: '2026-08-23 09:30',
       base: MOCK.baseWarehouses,
       sale: MOCK.saleWarehouses,

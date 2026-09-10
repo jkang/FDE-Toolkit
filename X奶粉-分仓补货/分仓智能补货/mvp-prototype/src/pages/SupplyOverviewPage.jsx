@@ -120,7 +120,7 @@ export default function SupplyOverviewPage() {
         <Card
           size="small"
           title={<span style={{ fontSize: 13.5, fontWeight: 800 }}>供需全景 · 仓网拓扑</span>}
-          extra={<Tag color="processing">4 基地仓 → 11 销售分仓</Tag>}
+          extra={<Tag color="processing">4 基地仓 → 9+ 销售分仓</Tag>}
         >
           <NetworkMap />
         </Card>
