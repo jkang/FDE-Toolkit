@@ -1,0 +1,249 @@
+meta:
+  title: "张雪机车海外销售 · 赛事内容工厂业务规则挖掘清单"
+  subtitle: "来自阶段2 · P2 任务处理规则挖掘"
+  version: "v1.0"
+  date: "2026-09-10"
+  scenarioName: "赛事内容工厂"
+  businessStage: "阶段2 任务处理规则挖掘 · P2"
+  methodology: "阶段2方法（五类任务处理规则：决策/模板/术语/提取点/关联）"
+  inputs:
+    - "《张雪机车-赛事内容工厂-任务流程拆解》（深度任务使用点 + 输入输出 + 规则依据类型）"
+    - "《_cache-使用点清单》（P1→P2 绑定契约，19 个使用点）"
+    - "《AI赛事内容工厂-AI画布》（dataKnowledge/workflow 识别的规则类型）"
+    - "《张雪机车-赛事内容工厂-CKD矩阵分析》（上下文/知识/数据资产）"
+    - "客户素材《赛事内容生产规则手账》（访谈/历史高互动内容/品牌VI/平台规范）"
+  sourceRef: "张雪机车-赛事内容工厂-任务流程拆解.yaml 使用点 + _cache-使用点清单.yaml 契约"
+  kpi:
+    - "赛事内容产出时效"
+    - "多语言内容单位成本"
+    - "内容互动率"
+    - "社媒内容日更量"
+    - "内容合规通过率"
+
+overview:
+  ruleCount: 11
+  decisionCount: 5
+  templateCount: 3
+  dictionaryCount: 1
+  extractionCount: 1
+  relationCount: 1
+
+legend:
+  bindingNote: "每条规则/样本均绑定到使用点；内容可验证、来源可追溯。"
+  conflictNote: "知识缺口如实标注，不由 Skill 猜测补全；越权问题反馈上游。"
+  ruleTypes:
+    - { type: "decision",   label: "决策模型类",      icon: "⚖️", desc: "怎么算、怎么判、走哪条路径" }
+    - { type: "template",   label: "模版范例类",      icon: "📝", desc: "照什么结构和范例生成" }
+    - { type: "dictionary", label: "术语字典类",      icon: "📖", desc: "词、缩写、业务口径" }
+    - { type: "extraction", label: "关键信息提取要点", icon: "🔍", desc: "专家看资料重点看什么" }
+    - { type: "relation",   label: "关联关系类",      icon: "🔗", desc: "对象之间怎么关联" }
+
+categories:
+  decision:
+    - id: "rd_01"
+      name: "高光片段判定与打分规则"
+      usagePoints: ["高光片段识别与打分"]
+      factors:
+        - { name: "精彩度（Action Intensity）", def: "超车/贴身缠斗/事故/极限压弯等动作激烈程度", source: "多模态视频理解模型", deterministic: false }
+        - { name: "叙事价值（Narrative Value）", def: "是否改变比赛结果（夺冠/反超/退赛）或形成情绪张力", source: "赛事数据库 + 视频理解", deterministic: false }
+        - { name: "品牌相关度（Brand Relevance）", def: "是否含 ZXMOTO 车手/涂装/赞助露出", source: "品牌VI/赞助标记", deterministic: true }
+        - { name: "历史互动偏好", def: "历史高互动素材中同类镜头的表现", source: "历史高互动内容素材库", deterministic: false }
+      branches:
+        - { cond: "品牌相关度高 + 叙事价值高（夺冠/反超）", action: "→ 置顶为封面级高光并优先成片", priority: 1 }
+        - { cond: "精彩度高但品牌露出弱", action: "→ 入选高光但叠加品牌角标补足露出", priority: 2 }
+        - { cond: "高光分低于阈值或候选不足", action: "→ 回退候选池或拉人判定", priority: 3 }
+      arbitration: "品牌相关度 ＞ 叙事价值 ＞ 精彩度 ＞ 历史互动偏好；赛事结果类镜头优先于纯动作镜头。"
+      exception: "高光分低于阈值 / 候选不足 → 回退候选池或拉人判定"
+      summary: "综合精彩度/叙事价值/品牌相关度/历史偏好对镜头打分，产出高光片段清单。"
+    - id: "rd_02"
+      name: "平台适配规则（时长/比例/编码/拆条）"
+      usagePoints: ["平台格式适配"]
+      factors:
+        - { name: "平台时长上限", def: "YouTube/TikTok/Instagram/Reels 各自时长上限", source: "各平台内容规范", deterministic: true }
+        - { name: "画幅比例", def: "竖屏 9:16 / 横屏 16:9 / 方形 1:1 要求", source: "各平台内容规范", deterministic: true }
+        - { name: "编码与码率", def: "平台推荐编码、码率与文件大小上限", source: "各平台内容规范", deterministic: true }
+      branches:
+        - { cond: "成片时长 ≤ 平台上限且比例匹配", action: "→ 直接适配输出", priority: 1 }
+        - { cond: "成片超时长上限", action: "→ 自动裁切高光核心段或拆条为多集", priority: 2 }
+        - { cond: "比例不匹配", action: "→ 智能重构画幅（主体追踪裁切/加安全边）", priority: 3 }
+      arbitration: "合规（时长/编码硬约束）优先于画质；超限必须先裁切/拆条再适配，不得强推超限内容。"
+      exception: "编码转换失败 → 重试 2 次→降级标准编码并标注"
+      summary: "按各平台硬规范批量适配时长/比例/编码，超限自动裁切或拆条。"
+    - id: "rd_03"
+      name: "最佳发布时间与排期规则"
+      usagePoints: ["发布排期与最佳时间选择"]
+      factors:
+        - { name: "目标市场时区", def: "各目标市场本地活跃时段", source: "平台开放数据/分析平台", deterministic: true }
+        - { name: "历史时段互动表现", def: "各市场历史发布时段的互动/完播表现", source: "互动与转化效果数据", deterministic: false }
+        - { name: "热点时效窗口", def: "赛事热点衰减速度（比赛结束后的黄金传播窗口）", source: "赛事赛程", deterministic: true }
+      branches:
+        - { cond: "处于热点黄金窗口 + 目标市场活跃时段", action: "→ 立即排期发布", priority: 1 }
+        - { cond: "热点窗口与活跃时段不重合", action: "→ 优先抢热点窗口发布，后续补发第二波", priority: 2 }
+        - { cond: "档期冲突/热点已过期", action: "→ 顺延或提示人工调整选题", priority: 3 }
+      arbitration: "热点时效性 ＞ 本地活跃时段；赛事热点转瞬即逝时优先抢窗口，不为等活跃时段牺牲时效。"
+      exception: "档期冲突 / 热点过期 → 顺延或提示人工调整"
+      summary: "结合时区、历史互动与热点窗口生成发布排期，抢赛事传播黄金期。"
+    - id: "rd_04"
+      name: "品牌红线与合规分级规则"
+      usagePoints: ["品牌调性与内容红线终审", "脚本抽检确认"]
+      factors:
+        - { name: "品牌调性一致性", def: "内容是否符合 ZXMOTO 品牌调性与视觉规范", source: "品牌调性/内容红线", deterministic: false }
+        - { name: "内容红线命中", def: "是否触碰政治/宗教/暴力/竞品贬损等红线", source: "品牌红线 + 文化禁忌库", deterministic: true }
+        - { name: "事实准确性", def: "车手/成绩/名次等事实是否与赛事数据一致", source: "WSBK 赛事数据库", deterministic: true }
+      branches:
+        - { cond: "调性一致 + 无红线命中 + 事实准确", action: "→ 放行进入排期发布", priority: 1 }
+        - { cond: "调性偏差或表述问题（非红线）", action: "→ 退回修改后重新送审", priority: 2 }
+        - { cond: "触碰内容红线/事实重大错误", action: "→ 拦截，禁止发布并升级品牌内容经理", priority: 3 }
+      arbitration: "红线命中或事实重大错误者一票否决（不得放行）；调性偏差可修改后复检。"
+      exception: "触碰品牌红线/文化禁忌 → 退回修改或拦截（对外必停确认）"
+      summary: "对外内容发布前的品牌调性、红线与事实三级校验，红线一票否决。"
+    - id: "rd_05"
+      name: "效果归因与内容策略优化规则"
+      usagePoints: ["效果归因与内容策略优化"]
+      factors:
+        - { name: "互动率差异", def: "本批内容互动率相对基准的偏离", source: "互动与转化效果数据", deterministic: false }
+        - { name: "高光类型偏好", def: "哪类高光/叙事/平台组合表现更好", source: "互动数据 + 历史高互动素材库", deterministic: false }
+        - { name: "样本量充分性", def: "数据量是否足以支撑策略调整", source: "分析数仓", deterministic: true }
+      branches:
+        - { cond: "样本充分 + 某类高光显著更优", action: "→ 上调该类高光权重并更新偏好库", priority: 1 }
+        - { cond: "样本充分但差异不显著", action: "→ 保守微调，不改变主策略", priority: 2 }
+        - { cond: "样本不足或波动大", action: "→ 不调整，继续观察", priority: 3 }
+      arbitration: "样本充分性为前置门槛；数据不足时宁可不动，避免被噪声带偏策略。"
+      exception: "样本不足/波动大 → 保守微调或不调整"
+      summary: "把互动效果归因到高光选择/脚本风格/平台/时段，回流更新内容策略与高光偏好。"
+
+  template:
+    - id: "rt_01"
+      name: "多语言解说脚本模板"
+      usagePoints: ["多语言解说脚本生成"]
+      skeleton:
+        - { part: "① 开场钩子（Hook）", fixed: "固定结构（悬念/结果前置）", variable: "随高光片段与叙事要素动态生成" }
+        - { part: "② 高潮叙述（Build-up）", fixed: "固定结构（车手/对战/关键动作）", variable: "随赛事数据与画面动态填充" }
+        - { part: "③ 结果与情绪（Payoff）", fixed: "固定结构（名次/意义/情绪收束）", variable: "随赛事结果动态生成" }
+        - { part: "④ 品牌 CTA", fixed: "固定收尾（品牌名/话题标签/引导）", variable: "随目标市场与平台动态适配" }
+      dynamicFields:
+        - { field: "车手/名次/圈速", source: "来自 WSBK 赛事数据库与叙事要素提取结果" }
+        - { field: "品牌调性用语", source: "来自品牌调性与内容红线库" }
+        - { field: "本地化表达", source: "来自目标市场文化偏好与禁忌库（逐语言改写）" }
+      generationRules: "先锁定叙事要素再逐语言生成；6 语言并行产出，保持事实一致、表达本地化。"
+      complianceRules: "事实必须与赛事数据一致；命中文化禁忌/政治宗教敏感表述必须改写；品牌名与话题标签不可缺。"
+      samples:
+        - { label: "典型 · 夺冠高光脚本", note: "钩子前置结果 + 高潮动作 + 情绪收束 + 品牌 CTA，6 语言事实一致" }
+        - { label: "反面 · 只罗列成绩数据", note: "禁止把脚本写成成绩流水账，无情绪与钩子，互动率低" }
+      fieldSource: "依据历史高互动赛事解说拆出「钩子→高潮→结果→CTA」骨架与动态字段来源。"
+    - id: "rt_02"
+      name: "短视频品牌包装与封面模板"
+      usagePoints: ["品牌元素与封面包装", "自动剪辑高光片段"]
+      skeleton:
+        - { part: "① 片头/角标", fixed: "固定品牌 Logo 位与赛事角标", variable: "随赛事分站/车手动态填充" }
+        - { part: "② 字幕样式", fixed: "固定字体/配色/安全区", variable: "随语言与平台动态适配" }
+        - { part: "③ 片尾 CTA 版式", fixed: "固定版式（品牌 Slogan/话题标签）", variable: "随市场动态填充" }
+        - { part: "④ 封面缩略图", fixed: "固定构图规则（主体+大字标题）", variable: "随高光画面与标题动态生成" }
+      dynamicFields:
+        - { field: "品牌配色/字体", source: "来自品牌 VI 规范与视觉标准手册" }
+        - { field: "封面标题文案", source: "来自解说脚本钩子与平台标签" }
+        - { field: "分站/车手标识", source: "来自赛事数据与叙事要素" }
+      generationRules: "品牌元素按 VI 规范自动叠加；封面标题取脚本钩子，保证与视频内容一致。"
+      complianceRules: "Logo 不可变形/遮挡主体；封面不得使用未经授权的第三方素材；品牌色值必须符合 VI。"
+      samples:
+        - { label: "典型 · 夺冠封面", note: "车手夺冠瞬间 + 大字标题 + 品牌角标，符合 VI 规范" }
+        - { label: "反面 · Logo 遮挡主体/配色跑偏", note: "禁止品牌元素压住关键画面或偏离 VI，影响品牌一致性" }
+      fieldSource: "依据品牌 VI 规范与历史成片拆出固定元素与动态字段。"
+    - id: "rt_03"
+      name: "平台标签与 SEO 图文模板"
+      usagePoints: ["标签与 SEO 图文生成"]
+      skeleton:
+        - { part: "① 标题（Title）", fixed: "固定结构（赛事+车手+结果+钩子词）", variable: "随内容与平台动态生成" }
+        - { part: "② 正文/描述（Description）", fixed: "固定结构（看点摘要+话题标签）", variable: "随脚本与关键词动态填充" }
+        - { part: "③ 标签（Hashtags）", fixed: "固定组合（品牌词+赛事词+品类词+热点词）", variable: "随平台与市场动态适配" }
+      dynamicFields:
+        - { field: "SEO 关键词", source: "来自 SEO 关键词与标签库" }
+        - { field: "平台标签规范", source: "来自各平台内容规范" }
+        - { field: "看点摘要", source: "来自解说脚本与叙事要素" }
+      generationRules: "标题含赛事+车手+结果；标签按品牌/赛事/品类/热点四类组合，逐平台微调。"
+      complianceRules: "不得使用误导性标题党；不得堆砌无关热词；品牌词与赛事词必须包含。"
+      samples:
+        - { label: "典型 · 夺冠短视频标签", note: "品牌词 + WSBK + 车手 + 结果钩子，四类标签齐全" }
+        - { label: "反面 · 标题党/无关热词堆砌", note: "禁止夸大或堆砌无关热词，平台可能限流且损害品牌" }
+      fieldSource: "依据平台标签规范与 SEO 关键词库拆出标题/描述/标签结构。"
+
+  dictionary:
+    - id: "rdict_01"
+      name: "赛事与品牌业务口径词典"
+      aliases: ["WSBK", "ZXMOTO", "Superbike", "Pole Position", "Lap Record", "高光", "解说脚本", "内容包"]
+      definition: "赛事内容工厂统一业务口径词表，供多模态理解、赛事数据关联、脚本生成、平台适配共同引用，保证事实与品牌表达一致。"
+      entries:
+        - { term: "WSBK", def: "世界超级摩托车锦标赛（World Superbike Championship）", context: "赛事理解/脚本生成" }
+        - { term: "ZXMOTO", def: "张雪机车品牌英文名，赛事内容中的品牌主标识", context: "品牌包装/脚本生成" }
+        - { term: "高光（Highlight）", def: "具备精彩度/叙事价值/品牌相关度的可独立成片的赛事片段", context: "高光识别与打分" }
+        - { term: "叙事要素", def: "从赛事数据提取的可叙述事实（车手/名次/超车/圈速/对战）", context: "叙事要素提取" }
+        - { term: "内容包", def: "同一内容按多平台规范适配后的成品集合（视频+图文+标签）", context: "平台适配" }
+        - { term: "内容红线", def: "品牌不可触碰的敏感/禁忌内容边界，发布前强制校验", context: "品牌红线终审" }
+      maintainer: "品牌内容经理 + 海外市场营销，随赛事规则/平台政策/品牌策略更新"
+      referenced: ["高光识别与打分", "多语言解说脚本生成", "品牌包装", "平台标签生成"]
+      usagePoints: ["多模态理解赛事素材", "关联赛事数据库上下文", "多语言解说脚本生成"]
+
+  extraction:
+    - id: "rext_01"
+      name: "赛事素材与叙事要素抽取要点"
+      usagePoints: ["多模态理解赛事素材", "赛事数据到叙事要素提取"]
+      fields:
+        - { fieldName: "高光事件类型", definition: "超车/缠斗/事故/夺冠/反超等事件类别", typicalLocations: ["视频画面+解说音轨"], variants: ["多机位", "慢镜回放"], pitfalls: ["慢镜重复计数"] }
+        - { fieldName: "车手与车队", definition: "画面中的车手/车队标识", typicalLocations: ["画面涂装/号码", "赛事数据"], variants: ["涂装更换", "外卡车手"], pitfalls: ["号码相似混淆"] }
+        - { fieldName: "名次与成绩", definition: "当前名次、圈速、领先差距", typicalLocations: ["赛事计时数据", "画面计时板"], variants: ["单位差异"], pitfalls: ["与画面不同步"] }
+        - { fieldName: "品牌露出", definition: "ZXMOTO Logo/涂装/赞助露出的位置与时点", typicalLocations: ["车手赛车/队服/背景板"], variants: ["局部遮挡"], pitfalls: ["露出过短需标注"] }
+        - { fieldName: "对战/历史上下文", definition: "车手间历史对战与积分关系", typicalLocations: ["WSBK 赛事数据库"], variants: ["跨赛季"], pitfalls: ["数据滞后"] }
+      acceptance: "高光事件识别召回率 ≥95%、品牌露出漏标率 0；名次/成绩与赛事数据一致率 100%；置信度低 → 标注待人工核对。"
+      samples: ["夺冠瞬间取『冲线+庆祝』段并关联最终名次；超车镜头关联双方车手与历史对战；品牌露出短于阈值时标注待复核"]
+
+  relation:
+    - id: "rrel_01"
+      name: "赛事—车手—成绩—高光—内容—平台—效果关联"
+      fromObject: "赛事（Race）"
+      toObject: "车手 / 成绩 / 高光片段 / 内容成品 / 发布平台 / 效果指标"
+      objectType: "赛事ID ↔ 车手ID ↔ 成绩记录 ↔ 高光片段 ↔ 内容成品 ↔ 发布记录 ↔ 效果指标"
+      meaning: "用赛事ID贯穿车手与成绩；用高光片段关联赛事事件与内容成品；用内容成品关联发布平台与效果指标，形成可归因闭环。"
+      rules:
+        establish: "赛事ID 关联车手与成绩记录；高光片段由赛事事件触发并作为内容成品素材；内容成品按平台适配后生成发布记录；发布记录回收效果指标并回流高光偏好"
+        special: "一场赛事可产出多条高光与多个内容成品；一条内容成品可适配多平台生成多个发布记录；同一高光可跨平台复用但需重新适配"
+      scenarios: ["高光识别", "脚本生成", "平台适配", "效果归因"]
+      usagePoints: ["关联赛事数据库上下文", "高光片段识别与打分", "互动数据采集", "效果归因与内容策略优化"]
+      extra: "内容ID 是内容→平台→效果全链路的主键锚点；赛事ID 是素材→高光→叙事的主键锚点。"
+
+reconciliation:
+  - task: "高光片段识别与打分"
+    rule: "高光片段判定与打分规则"
+    factor: "精彩度、叙事价值、品牌相关度、历史互动偏好"
+    arbitration: "品牌相关度 ＞ 叙事价值 ＞ 精彩度 ＞ 历史互动偏好"
+    exception: "高光分低于阈值 → 回退候选池/拉人"
+    checks: { ruleFound: true, usageFound: true, nameMatch: true, exceptionMatch: true }
+  - task: "多语言解说脚本生成"
+    rule: "多语言解说脚本模板"
+    factor: "叙事要素、品牌调性、文化偏好与禁忌"
+    arbitration: "事实一致优先，命中禁忌必须改写"
+    exception: "文化禁忌/敏感表述 → 改写或降级，仍冲突则拉人"
+    checks: { ruleFound: true, usageFound: true, nameMatch: true, exceptionMatch: true }
+  - task: "平台格式适配"
+    rule: "平台适配规则（时长/比例/编码/拆条）"
+    factor: "平台时长上限、画幅比例、编码与码率"
+    arbitration: "合规硬约束优先于画质；超限先裁切/拆条"
+    exception: "编码转换失败 → 重试/降级标准编码"
+    checks: { ruleFound: true, usageFound: true, nameMatch: true, exceptionMatch: true }
+  - task: "品牌调性与内容红线终审"
+    rule: "品牌红线与合规分级规则"
+    factor: "品牌调性一致性、内容红线命中、事实准确性"
+    arbitration: "红线命中/事实重大错误一票否决"
+    exception: "触碰红线 → 退回修改或拦截（对外必停确认）"
+    checks: { ruleFound: true, usageFound: true, nameMatch: true, exceptionMatch: true }
+  - task: "发布排期与最佳时间选择"
+    rule: "最佳发布时间与排期规则"
+    factor: "目标市场时区、历史时段互动、热点时效窗口"
+    arbitration: "热点时效性 ＞ 本地活跃时段"
+    exception: "档期冲突/热点过期 → 顺延或提示人工"
+    checks: { ruleFound: true, usageFound: true, nameMatch: true, exceptionMatch: true }
+  - task: "效果归因与内容策略优化"
+    rule: "效果归因与内容策略优化规则"
+    factor: "互动率差异、高光类型偏好、样本量充分性"
+    arbitration: "样本充分性为前置门槛，数据不足不调整"
+    exception: "样本不足/波动大 → 保守微调或不调整"
+    checks: { ruleFound: true, usageFound: true, nameMatch: true, exceptionMatch: true }

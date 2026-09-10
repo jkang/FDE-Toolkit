@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>X奶粉 · 分仓智能补货 · 机会点定义</title>
+<style>
+  :root{
+    --bg:#f6f8fa; --card:#ffffff; --line:#e5e7eb; --ink:#1f2937; --sub:#6b7280;
+    --accent:#0e7490; --chip:#f1f5f9; --chipb:#cbd5e1;
+    --t-repetitive:#0e7490; --t-cognitive:#b45309; --t-longtail:#7c3aed; --t-innovation:#be185d;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+    background:var(--bg);color:var(--ink);line-height:1.65}
+  .wrap{max-width:1000px;margin:0 auto;padding:28px 20px 64px}
+  header{margin-bottom:16px}
+  .crumb{font-size:12px;color:var(--sub)}
+  h1{font-size:23px;margin:6px 0 4px}
+  .meta-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+  .chip{font-size:12px;color:var(--sub);background:var(--chip);border:1px solid var(--chipb);padding:3px 9px;border-radius:999px}
+  .tools{display:flex;gap:8px;justify-content:flex-end;margin-bottom:6px}
+  .btn{font-size:13px;border:1px solid var(--chipb);background:#fff;color:var(--ink);padding:6px 12px;border-radius:8px;cursor:pointer}
+  .btn:hover{background:var(--chip)}
+  .op-card{border:1px solid var(--line);border-radius:14px;background:var(--card);margin:18px 0;overflow:hidden}
+  .op-head{padding:14px 18px;border-bottom:1px solid var(--line);background:#fafbfc;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+  .op-name{font-size:17px;font-weight:700;margin-right:auto}
+  .badge{font-size:12px;color:#fff;padding:2px 9px;border-radius:999px;font-weight:600}
+  .op-body{padding:4px 18px 16px}
+  .elem{display:flex;gap:12px;padding:12px 0;border-bottom:1px dashed #eef0f2}
+  .elem:last-child{border-bottom:none}
+  .elem .no{flex:0 0 26px;height:26px;border-radius:7px;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px}
+  .elem .k{font-weight:700;font-size:14px;margin-bottom:4px}
+  .elem .v{white-space:pre-line;font-size:14px;color:#374151}
+  .vd{margin-top:12px;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+  .vd .h{font-size:13px;font-weight:700;color:var(--accent);padding:9px 14px;background:#f0f9ff;border-bottom:1px solid var(--line)}
+  table{width:100%;border-collapse:collapse}
+  th,td{text-align:left;font-size:13px;padding:8px 14px;border-bottom:1px solid var(--line)}
+  th{background:#fafbfc;color:var(--sub);font-weight:600}
+  td:first-child{font-weight:600}
+  tr:last-child td{border-bottom:none}
+  footer{color:var(--sub);font-size:12px;margin-top:26px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="crumb">3.1 · 机会点定义</div>
+    <h1>X奶粉 · 分仓智能补货 · 机会点定义</h1>
+    <div class="tools"><button class="btn" onclick="copyYaml()">📋 复制 YAML</button></div>
+    <div class="meta-chips">
+      <span class="chip">🎯 分仓智能补货</span>
+      <span class="chip">来源：AI 需求场景全景图 · 业务 Agent A2「分仓智能补货」（价值流② 需求与供应计划 · 聚焦范围①）</span>
+      <span class="chip">X（乳制品事业部 / 奶粉）</span>
+      <span class="chip">2026-09-10</span>
+    </div>
+  </header>
+
+  
+  <div class="op-head" style="border:none;background:#eff9ff;border-radius:10px;margin:0 0 4px">
+    <div class="op-name" style="font-size:13px;font-weight:600">🧩 承接《分仓智能补货_现状痛点汇总》问题①：分货数据准备与分配核算高度依赖人工 Excel 与老计划员隐性经验，多仓×多 SKU×多约束下人工无法全局最优，分货效率低、有货率与周转/新鲜度难兼顾</div>
+  </div>
+  
+
+  
+  <div class="op-card">
+    <div class="op-head">
+      <div class="op-name">1. 分仓智能补货 Agent · 多约束智能分货</div>
+      <span class="badge" style="background:var(--t-innovation)">流程创新</span>
+      <span class="chip">根因：复杂度高靠专家经验（分配量/备货率/安全水位/积兆逻辑均为隐性经验）+ 操作量大靠人工（待检/合格/在途/库存经 Excel 汇总、逐仓逐 SKU 核算分配）</span>
+      <span class="chip">能力：Agent / 运筹优化（多约束全局求解）/ 数据集成 / 知识沉淀 / 决策解释</span>
+    </div>
+    <div class="op-body">
+      
+      
+      <div class="elem">
+        <div class="no">1</div>
+        <div>
+          <div class="k">① 机会点一句话描述</div>
+          <div class="v">为X奶粉事业部的物流计划岗构建「分仓智能补货 Agent」，把「半自动化的 Excel 推式分货」升级为「推拉结合 + 多约束全局优化的智能分仓补货」：从全仓网供需缺口识别、分货数据底表自动汇总，到多约束分配方案编制与人工确认、补货单生成校验下发、执行跟踪与月度复盘，端到端由 Agent 主驱动，人工只在关键确认点介入。</div>
+        </div>
+      </div>
+      
+      <div class="elem">
+        <div class="no">2</div>
+        <div>
+          <div class="k">② 业务角色及场景</div>
+          <div class="v">角色：物流计划岗（分货方案确认/微调/下发/复盘审批）、调度组（分货底表口径复核）、仓储/物流岗（执行跟踪与入库异常处理）。
+场景：每个分货周期，物流计划岗拿到「分仓销售计划 + 各仓现货/在途/待检/合格库存 + 促销计划」后启动，从货源评估到补货单下发、入库同步、月末复盘形成闭环。</div>
+        </div>
+      </div>
+      
+      <div class="elem">
+        <div class="no">3</div>
+        <div>
+          <div class="k">③ 问题痛点</div>
+          <div class="v">① 分货覆盖 4 基地仓 × 9+ 销售分仓 × 近 700 SKU，待检/合格/在途/库存经 Excel 传递汇总（约 1 天/轮），分配量在京慧建议量上逐仓逐 SKU 人工调整（约 1 天/轮）；② 分配量、备货率、安全水位、异常诊断（积兆逻辑）、复盘调参高度依赖老计划员隐性经验，未固化、难传承；③ 多约束下人工无法全局最优，易多补/缺补，导致部分仓缺货、部分仓积压；④ 分货计划未与促销计划实时联动，大促放量击穿补货节奏，TMS/WMS 与分货系统未打通。</div>
+        </div>
+      </div>
+      
+      <div class="elem">
+        <div class="no">4</div>
+        <div>
+          <div class="k">④ 方案假设</div>
+          <div class="v">用 Agent 编排确定性服务（库存/在途/需求数据拉取与校验、DOS 分级、备货率计算、多约束分配优化求解、补货单校验），把「多仓 × 多 SKU × 多约束（库存/在途/待检/合格/新鲜度/促销）」的全局寻优交给机器按统一口径执行；LLM 负责缺口与异常的解释、备选方案生成与调参建议；「分配量偏离京慧建议量」「对外下发补货单」「安全水位调整」保留人工闸门与规则护栏兜底 → 把分货方案编制由约 1.5 天/轮向小时级收敛，并让分仓有货率、库存周转率、新鲜度一起改善。</div>
+        </div>
+      </div>
+      
+      <div class="elem">
+        <div class="no">5</div>
+        <div>
+          <div class="k">⑤ 价值收益</div>
+          <div class="v">分货数据准备 + 方案编制由约 2.5 天/轮压缩至小时级；多约束全局优化减少多补/缺补；隐性经验固化为可复用规则；补货单秒级生成校验下发；月末复盘由约 1 天/月压缩至分钟级。</div>
+        </div>
+      </div>
+      
+
+      
+      <div class="vd">
+        <div class="h">价值收益拆解（对齐上游问题定义的 8 要素）</div>
+        <table>
+          <thead><tr><th>拆解维度</th><th>对应问题定义要素</th><th>量化口径</th></tr></thead>
+          <tbody>
+            
+            <tr><td>覆盖范围</td><td>⑥ 影响范围</td><td>4 基地仓 × 9+ 销售分仓 × 近 700 SKU；受益角色：物流计划岗 + 调度组 + 仓储/物流岗；系统链路：现货库存/在途库存/销售计划/京慧一盘货/奶粉分仓补调系统/TMS/WMS/物流调度/财务核算</td></tr>
+            
+            <tr><td>发生频度</td><td>⑤ 发生频度</td><td>每个分货周期 1 轮（高频，含异常分支）；复盘 1 次/月；大促放量期触发额外分货轮次</td></tr>
+            
+            <tr><td>单次收益</td><td>⑦ 每次发生对业务的影响</td><td>分货数据准备约 1 天/轮 → 分钟级；分配方案编制约 1 天/轮 → 小时级；补货单生成约 0.5 天/批 → 秒级；执行跟踪由人工 4h 刷新 → 4h 自动刷新（As-Is 基线均为 [待客户确认]）</td></tr>
+            
+            <tr><td>累计影响</td><td>⑧ 累计对业务影响</td><td>分货效率、分仓有货率、库存周转率、新鲜度四个 KPI 协同改善；复盘阈值 时效达成率≥90%、缺货缓解率≥85%、周转率同比降幅≤10%、入库差异率≤0.5%；隐性经验沉淀、可传承</td></tr>
+            
+          </tbody>
+        </table>
+      </div>
+      
+    </div>
+  </div>
+  
+
+  <footer>场景：分仓智能补货 · 承接：承接《分仓智能补货_现状痛点汇总》问题①：分货数据准备与分配核算高度依赖人工 Excel 与老计划员隐性经验，多仓×多 SKU×多约束下人工无法全局最优，分货效率低、有货率与周转/新鲜度难兼顾 · 生成于 2026-09-10</footer>
+</div>
+
+<textarea id="yamlSrc" style="display:none">meta:
+  title: &quot;X奶粉 · 分仓智能补货 · 机会点定义&quot;
+  sectionNo: &quot;3.1&quot;
+  version: &quot;v1.0&quot;
+  date: &quot;2026-09-10&quot;
+  business: &quot;X（乳制品事业部 / 奶粉）&quot;
+  domain: &quot;供应链 · 需求与供应计划（分货与补货）&quot;
+  scenario: &quot;分仓智能补货&quot;
+  problemRef: &quot;承接《分仓智能补货_现状痛点汇总》问题①：分货数据准备与分配核算高度依赖人工 Excel 与老计划员隐性经验，多仓×多 SKU×多约束下人工无法全局最优，分货效率低、有货率与周转/新鲜度难兼顾&quot;
+  opportunitySource: &quot;AI 需求场景全景图 · 业务 Agent A2「分仓智能补货」（价值流② 需求与供应计划 · 聚焦范围①）&quot;
+
+opportunities:
+  - id: &quot;OP1&quot;
+    order: 1
+    name: &quot;分仓智能补货 Agent · 多约束智能分货&quot;
+    type: &quot;innovation&quot;
+    rootCauseType: &quot;复杂度高靠专家经验（分配量/备货率/安全水位/积兆逻辑均为隐性经验）+ 操作量大靠人工（待检/合格/在途/库存经 Excel 汇总、逐仓逐 SKU 核算分配）&quot;
+    capabilityMatch: &quot;Agent / 运筹优化（多约束全局求解）/ 数据集成 / 知识沉淀 / 决策解释&quot;
+    e1: &quot;为X奶粉事业部的物流计划岗构建「分仓智能补货 Agent」，把「半自动化的 Excel 推式分货」升级为「推拉结合 + 多约束全局优化的智能分仓补货」：从全仓网供需缺口识别、分货数据底表自动汇总，到多约束分配方案编制与人工确认、补货单生成校验下发、执行跟踪与月度复盘，端到端由 Agent 主驱动，人工只在关键确认点介入。&quot;
+    e2: &quot;角色：物流计划岗（分货方案确认/微调/下发/复盘审批）、调度组（分货底表口径复核）、仓储/物流岗（执行跟踪与入库异常处理）。\n场景：每个分货周期，物流计划岗拿到「分仓销售计划 + 各仓现货/在途/待检/合格库存 + 促销计划」后启动，从货源评估到补货单下发、入库同步、月末复盘形成闭环。&quot;
+    e3: &quot;① 分货覆盖 4 基地仓 × 9+ 销售分仓 × 近 700 SKU，待检/合格/在途/库存经 Excel 传递汇总（约 1 天/轮），分配量在京慧建议量上逐仓逐 SKU 人工调整（约 1 天/轮）；② 分配量、备货率、安全水位、异常诊断（积兆逻辑）、复盘调参高度依赖老计划员隐性经验，未固化、难传承；③ 多约束下人工无法全局最优，易多补/缺补，导致部分仓缺货、部分仓积压；④ 分货计划未与促销计划实时联动，大促放量击穿补货节奏，TMS/WMS 与分货系统未打通。&quot;
+    e4: &quot;用 Agent 编排确定性服务（库存/在途/需求数据拉取与校验、DOS 分级、备货率计算、多约束分配优化求解、补货单校验），把「多仓 × 多 SKU × 多约束（库存/在途/待检/合格/新鲜度/促销）」的全局寻优交给机器按统一口径执行；LLM 负责缺口与异常的解释、备选方案生成与调参建议；「分配量偏离京慧建议量」「对外下发补货单」「安全水位调整」保留人工闸门与规则护栏兜底 → 把分货方案编制由约 1.5 天/轮向小时级收敛，并让分仓有货率、库存周转率、新鲜度一起改善。&quot;
+    e5: &quot;分货数据准备 + 方案编制由约 2.5 天/轮压缩至小时级；多约束全局优化减少多补/缺补；隐性经验固化为可复用规则；补货单秒级生成校验下发；月末复盘由约 1 天/月压缩至分钟级。&quot;
+    valueBreakdown:
+      - dimension: &quot;覆盖范围&quot;
+        aligns: &quot;⑥ 影响范围&quot;
+        metric: &quot;4 基地仓 × 9+ 销售分仓 × 近 700 SKU；受益角色：物流计划岗 + 调度组 + 仓储/物流岗；系统链路：现货库存/在途库存/销售计划/京慧一盘货/奶粉分仓补调系统/TMS/WMS/物流调度/财务核算&quot;
+      - dimension: &quot;发生频度&quot;
+        aligns: &quot;⑤ 发生频度&quot;
+        metric: &quot;每个分货周期 1 轮（高频，含异常分支）；复盘 1 次/月；大促放量期触发额外分货轮次&quot;
+      - dimension: &quot;单次收益&quot;
+        aligns: &quot;⑦ 每次发生对业务的影响&quot;
+        metric: &quot;分货数据准备约 1 天/轮 → 分钟级；分配方案编制约 1 天/轮 → 小时级；补货单生成约 0.5 天/批 → 秒级；执行跟踪由人工 4h 刷新 → 4h 自动刷新（As-Is 基线均为 [待客户确认]）&quot;
+      - dimension: &quot;累计影响&quot;
+        aligns: &quot;⑧ 累计对业务影响&quot;
+        metric: &quot;分货效率、分仓有货率、库存周转率、新鲜度四个 KPI 协同改善；复盘阈值 时效达成率≥90%、缺货缓解率≥85%、周转率同比降幅≤10%、入库差异率≤0.5%；隐性经验沉淀、可传承&quot;
+</textarea>
+<script>
+function copyYaml(){
+  var src = document.getElementById('yamlSrc').value;
+  navigator.clipboard.writeText(src).then(function(){ alert('✅ YAML 已复制'); })
+    .catch(function(){ window.prompt('复制失败，请手动复制：', src); });
+}
+</script>
+</body>
+</html>

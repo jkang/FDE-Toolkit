@@ -1,0 +1,3636 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>张雪机车海外销售业务流程深度分析</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --zx-bg: #FFFFFF; --zx-bg-secondary: #F7F8F9; --zx-fg: #0F141D; --zx-fg-secondary: #45546C; --zx-fg-muted: #5C6B82;
+      --zx-primary: #1A6BC4; --zx-primary-hover: #1558A5; --zx-primary-fg: #FFFFFF; --zx-primary-muted: #EBF4FD;
+      --zx-secondary: #EBEEF2; --zx-secondary-hover: #D5DAE2; --zx-secondary-fg: #1E2634;
+      --zx-accent: #E63946; --zx-accent-hover: #CF212F;
+      --zx-border: #D5DAE2; --zx-border-light: #EBEEF2; --zx-divider: #F3F4F6;
+      --zx-success: #16A34A; --zx-warning: #F59E0B; --zx-danger: #DC2626;
+      --zx-card-bg: #FFFFFF;
+      --zx-font-sans: 'Inter', 'Noto Sans SC', -apple-system, BlinkMacSystemFont, 'PingFang SC', sans-serif;
+      --zx-radius-sm: 2px; --zx-radius-md: 8px; --zx-radius-lg: 12px;
+      --zx-shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05); --zx-shadow-default: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+      --zx-shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1); --zx-shadow-lg: 0 10px 25px -5px rgb(0 0 0 / 0.15);
+      
+      /* Base colors */
+      --bg-page: var(--zx-bg-secondary);
+      --bg-card: var(--zx-card-bg);
+      --bg-section: var(--zx-bg-secondary);
+      --border-color: var(--zx-border);
+      --border-light: var(--zx-border-light);
+      --text-main: var(--zx-fg);
+      --text-secondary: var(--zx-fg-secondary);
+      --text-muted: var(--zx-fg-secondary);
+      --text-light: var(--zx-fg-muted);
+      
+      /* Severity colors */
+      --pain-critical: var(--zx-danger);
+      --pain-critical-bg: #fef2f2;
+      --pain-high: #ea580c;
+      --pain-high-bg: #fff7ed;
+      --pain-medium: var(--zx-warning);
+      --pain-medium-bg: #fefce8;
+      --pain-low: var(--zx-primary);
+      --pain-low-bg: var(--zx-primary-muted);
+      
+      /* Business type colors */
+      --bt-color-1: #0ea5e9;   /* Sky */
+      --bt-color-2: #8b5cf6;   /* Violet */
+      --bt-color-3: var(--zx-success);   /* Emerald */
+      --bt-color-4: var(--zx-warning);   /* Amber */
+      --bt-color-5: #ec4899;   /* Pink */
+      --bt-color-6: #6366f1;   /* Indigo */
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body {
+      font-family: var(--zx-font-sans);
+      background: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.6;
+      padding: 24px;
+    }
+
+    /* ── Header ── */
+    .page-header {
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      color: white;
+      padding: 32px 40px;
+      border-radius: 16px;
+      margin-bottom: 32px;
+      box-shadow: 0 10px 25px -5px rgba(0,0,0,0.15);
+    }
+    .page-header h1 {
+      font-size: 1.8rem;
+      font-weight: 800;
+      margin-bottom: 8px;
+      letter-spacing: -0.02em;
+    }
+    .header-meta {
+      display: flex;
+      gap: 24px;
+      margin-top: 12px;
+      font-size: 0.9rem;
+      color: #94a3b8;
+      flex-wrap: wrap;
+    }
+    .header-meta span {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .header-desc {
+      margin-top: 12px;
+      color: #cbd5e1;
+      font-size: 0.95rem;
+      max-width: 800px;
+      line-height: 1.5;
+    }
+
+    /* ── Section Title ── */
+    .section-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--text-main);
+      margin: 32px 0 16px 0;
+      padding-left: 14px;
+      border-left: 4px solid #0ea5e9;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .section-subtitle {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin: -8px 0 16px 18px;
+    }
+
+    /* ── Business Type Matrix ── */
+    .bt-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .bt-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 20px;
+      transition: all 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+    .bt-card:hover {
+      box-shadow: 0 8px 20px -4px rgba(0,0,0,0.08);
+      transform: translateY(-2px);
+    }
+    .bt-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 100%;
+      background: var(--bt-color);
+    }
+    .bt-name {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: var(--text-main);
+    }
+    .bt-tags {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+    .bt-tag {
+      font-size: 0.72rem;
+      padding: 3px 10px;
+      border-radius: 20px;
+      background: var(--bg-section);
+      color: var(--text-secondary);
+      font-weight: 500;
+      border: 1px solid var(--border-color);
+    }
+    .bt-desc {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    /* ── Value Stream Section ── */
+    .vs-section {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+    .vs-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border-light);
+    }
+    .vs-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+    .vs-bt-badge {
+      font-size: 0.72rem;
+      padding: 3px 12px;
+      border-radius: 20px;
+      background: var(--bt-color);
+      color: white;
+      font-weight: 600;
+    }
+    .vs-desc {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 20px;
+    }
+
+    /* ── L1 Timeline ── */
+    .l1-timeline {
+      display: flex;
+      align-items: stretch;
+      gap: 0;
+      overflow-x: auto;
+      padding: 8px 0;
+    }
+    .l1-stage {
+      flex: 1;
+      min-width: 160px;
+      position: relative;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .l1-stage:hover .l1-stage-inner {
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .l1-stage-inner {
+      background: var(--bg-card);
+      border: 2px solid var(--border-color);
+      border-radius: 10px;
+      padding: 16px;
+      margin: 0 8px;
+      text-align: center;
+      position: relative;
+      transition: all 0.2s;
+    }
+    .l1-stage.active .l1-stage-inner {
+      border-color: var(--bt-color);
+      background: linear-gradient(135deg, var(--bt-color-bg) 0%, var(--bg-card) 100%);
+    }
+    .l1-stage-order {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--bt-color);
+      color: white;
+      font-size: 0.8rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 10px;
+    }
+    .l1-stage-name {
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+    .l1-stage-desc {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      line-height: 1.4;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    /* Arrow between stages */
+    .l1-stage::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      right: -8px;
+      width: 16px;
+      height: 2px;
+      background: var(--border-color);
+      z-index: 1;
+    }
+    .l1-stage:last-child::after {
+      display: none;
+    }
+    .l1-stage-arrow {
+      position: absolute;
+      top: 50%;
+      right: -12px;
+      transform: translateY(-50%);
+      color: var(--text-light);
+      font-size: 1rem;
+      z-index: 2;
+    }
+    .l1-stage:last-child .l1-stage-arrow {
+      display: none;
+    }
+    /* Pain indicator on L1 */
+    .l1-pain-indicator {
+      display: flex;
+      justify-content: center;
+      gap: 4px;
+      margin-top: 8px;
+      flex-wrap: wrap;
+    }
+    .pain-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+    .pain-dot.critical { background: var(--pain-critical); box-shadow: 0 0 4px var(--pain-critical); }
+    .pain-dot.high { background: var(--pain-high); }
+    .pain-dot.medium { background: var(--pain-medium); }
+    .pain-dot.low { background: var(--pain-low); }
+
+    /* ── L2 Detail Panel ── */
+    .l2-panel {
+      display: none;
+      margin-top: 20px;
+      padding: 20px;
+      background: var(--bg-section);
+      border-radius: 10px;
+      border: 1px solid var(--border-color);
+    }
+    .l2-panel.active {
+      display: block;
+      animation: slideDown 0.3s ease;
+    }
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .l2-panel-header {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .l2-flow {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .l2-activity {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 16px;
+      position: relative;
+      transition: all 0.2s;
+    }
+    .l2-activity:hover {
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+    /* Activity connector line */
+    .l2-activity::before {
+      content: '';
+      position: absolute;
+      left: 24px;
+      top: -12px;
+      width: 2px;
+      height: 12px;
+      background: var(--border-color);
+    }
+    .l2-activity:first-child::before {
+      display: none;
+    }
+    .l2-activity-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 10px;
+    }
+    .l2-activity-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+    .l2-activity-order {
+      font-size: 0.7rem;
+      color: var(--text-light);
+      background: var(--bg-section);
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+    .l2-activity-meta {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+    .l2-meta-item {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .l2-meta-item b {
+      color: var(--text-secondary);
+      font-weight: 600;
+    }
+    .l2-io {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+    .l2-io-item {
+      font-size: 0.78rem;
+    }
+    .l2-io-label {
+      color: var(--text-light);
+      font-size: 0.72rem;
+      margin-bottom: 2px;
+    }
+    .l2-io-value {
+      color: var(--text-secondary);
+    }
+    .l2-desc {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+      line-height: 1.5;
+    }
+
+    /* ── Pain Points in L2 ── */
+    .l2-pains {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .pain-card {
+      border-radius: 6px;
+      padding: 10px 12px;
+      border-left: 3px solid;
+      font-size: 0.8rem;
+    }
+    .pain-card.critical {
+      background: var(--pain-critical-bg);
+      border-left-color: var(--pain-critical);
+    }
+    .pain-card.high {
+      background: var(--pain-high-bg);
+      border-left-color: var(--pain-high);
+    }
+    .pain-card.medium {
+      background: var(--pain-medium-bg);
+      border-left-color: var(--pain-medium);
+    }
+    .pain-card.low {
+      background: var(--pain-low-bg);
+      border-left-color: var(--pain-low);
+    }
+    .pain-severity {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-weight: 600;
+      font-size: 0.72rem;
+      margin-bottom: 4px;
+    }
+    .pain-severity.critical { color: var(--pain-critical); }
+    .pain-severity.high { color: var(--pain-high); }
+    .pain-severity.medium { color: var(--pain-medium); }
+    .pain-severity.low { color: var(--pain-low); }
+    .pain-desc {
+      color: var(--text-secondary);
+      margin-bottom: 4px;
+    }
+    .pain-impact {
+      color: var(--text-muted);
+      font-size: 0.75rem;
+    }
+    .pain-root {
+      color: var(--text-light);
+      font-size: 0.75rem;
+      margin-top: 4px;
+      font-style: italic;
+    }
+
+    /* ── Pain Summary Panel ── */
+    .summary-panel {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 24px;
+      margin-top: 24px;
+    }
+    .summary-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .stat-card {
+      text-align: center;
+      padding: 12px;
+      border-radius: 8px;
+      background: var(--bg-section);
+    }
+    .stat-number {
+      font-size: 1.5rem;
+      font-weight: 800;
+      margin-bottom: 4px;
+    }
+    .stat-number.critical { color: var(--pain-critical); }
+    .stat-number.high { color: var(--pain-high); }
+    .stat-number.medium { color: var(--pain-medium); }
+    .stat-number.low { color: var(--pain-low); }
+    .stat-label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    /* Pain table */
+    .pain-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+    }
+    .pain-table th {
+      text-align: left;
+      padding: 10px;
+      background: var(--bg-section);
+      color: var(--text-secondary);
+      font-weight: 600;
+      border-bottom: 2px solid var(--border-color);
+      position: sticky;
+      top: 0;
+    }
+    .pain-table td {
+      padding: 10px;
+      border-bottom: 1px solid var(--border-light);
+      vertical-align: top;
+    }
+    .pain-table tr:hover td {
+      background: var(--bg-section);
+    }
+    .pain-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.72rem;
+      font-weight: 600;
+    }
+    .pain-badge.critical {
+      background: var(--pain-critical-bg);
+      color: var(--pain-critical);
+    }
+    .pain-badge.high {
+      background: var(--pain-high-bg);
+      color: var(--pain-high);
+    }
+    .pain-badge.medium {
+      background: var(--pain-medium-bg);
+      color: var(--pain-medium);
+    }
+    .pain-badge.low {
+      background: var(--pain-low-bg);
+      color: var(--pain-low);
+    }
+    .table-stage {
+      font-size: 0.75rem;
+      color: var(--text-light);
+    }
+    .table-activity {
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+
+    /* ── Footer ── */
+    .page-footer {
+      text-align: center;
+      padding: 24px;
+      color: var(--text-light);
+      font-size: 0.8rem;
+      margin-top: 32px;
+    }
+
+    /* ── Scrollbar styling ── */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: var(--bg-section);
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 1024px) {
+      .l1-timeline {
+        flex-wrap: wrap;
+      }
+      .l1-stage {
+        min-width: 140px;
+        flex: 0 0 calc(50% - 16px);
+        margin-bottom: 16px;
+      }
+      .l1-stage::after,
+      .l1-stage-arrow {
+        display: none;
+      }
+    }
+    @media (max-width: 768px) {
+      body { padding: 12px; }
+      .page-header { padding: 20px 24px; }
+      .page-header h1 { font-size: 1.4rem; }
+      .header-meta { gap: 12px; }
+      .bt-grid { grid-template-columns: 1fr; }
+      .l1-stage {
+        flex: 0 0 100%;
+      }
+      .l2-activity-header {
+        flex-direction: column;
+      }
+      .pain-table {
+        font-size: 0.78rem;
+      }
+      .pain-table th,
+      .pain-table td {
+        padding: 6px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="page-header">
+    <h1>张雪机车海外销售业务流程深度分析</h1>
+    <div class="header-meta">
+      <span>🏢 张雪机车（ZXMOTO）</span>
+      <span>📋 海外销售（市场营销→销售→售后服务）</span>
+      <span>🕐 2026-04-29 21:13</span>
+    </div>
+    
+    <div class="header-desc">对张雪机车海外市场从营销获客、多渠道销售转化到售后服务的全链路业务流程进行系统化分析，涵盖线下经销商、电商平台、DTC直销三种业务模式，并识别海外合规、物流、支付等关键环节的痛点</div>
+    
+  </div>
+
+  <div class="section-title">📊 业务类型分析</div>
+  <div class="section-subtitle">基于业务模式、产品类型、市场类型的三维分型</div>
+  <div class="bt-grid">
+    
+    <div class="bt-card" style="--bt-color: var(--bt-color-1); --bt-color-bg: #0ea5e915;">
+      <div class="bt-name">海外线下经销商渠道</div>
+      <div class="bt-tags">
+        <span class="bt-tag">B2B2C</span>
+        <span class="bt-tag">实体产品</span>
+        <span class="bt-tag">利基市场</span>
+      </div>
+      <div class="bt-desc">通过海外本地经销商/代理商网络销售摩托车，经销商负责展厅、试驾、交付和本地售后服务</div>
+    </div>
+    
+    <div class="bt-card" style="--bt-color: var(--bt-color-2); --bt-color-bg: #8b5cf615;">
+      <div class="bt-name">海外电商平台渠道</div>
+      <div class="bt-tags">
+        <span class="bt-tag">B2C平台</span>
+        <span class="bt-tag">实体产品</span>
+        <span class="bt-tag">大众市场</span>
+      </div>
+      <div class="bt-desc">通过亚马逊、eBay、阿里国际站等第三方电商平台面向海外消费者直接销售</div>
+    </div>
+    
+    <div class="bt-card" style="--bt-color: var(--bt-color-3); --bt-color-bg: #10b98115;">
+      <div class="bt-name">海外DTC直销渠道</div>
+      <div class="bt-tags">
+        <span class="bt-tag">B2C自营</span>
+        <span class="bt-tag">实体产品</span>
+        <span class="bt-tag">垂直市场</span>
+      </div>
+      <div class="bt-desc">通过品牌官网、社交媒体、线下体验店等自营渠道直接面向消费者销售</div>
+    </div>
+    
+  </div>
+
+  <div class="section-title">🔄 L1 端到端价值流 & L2 流程详情</div>
+  <div class="section-subtitle">点击阶段卡片展开 L2 级业务流程与痛点分析</div>
+  
+  
+  <div class="vs-section">
+    <div class="vs-header">
+      <div>
+        <div class="vs-title">海外线下经销商销售价值流</div>
+        <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;">从海外市场调研到经销商交付摩托车给终端消费者的全链路</div>
+      </div>
+      <span class="vs-bt-badge" style="--bt-color: var(--bt-color-1);">海外线下经销商渠道</span>
+    </div>
+    
+    <div class="l1-timeline">
+      
+      <div class="l1-stage" 
+           data-vs="0" 
+           data-stage="0"
+           onclick="toggleL2(0, '市场调研与经销商招募')"
+           style="--bt-color: var(--bt-color-1); --bt-color-bg: #0ea5e915;">
+        <div class="l1-stage-inner">
+          <div class="l1-stage-order">1</div>
+          <div class="l1-stage-name">市场调研与经销商招募</div>
+          <div class="l1-stage-desc">评估目标市场，寻找并签约本地经销商合作伙伴</div>
+          
+          <div class="l1-pain-indicator">
+            
+            <span class="pain-dot high"></span>
+            
+            <span class="pain-dot critical"></span>
+            
+            <span class="pain-dot critical"></span>
+            
+          </div>
+          
+        </div>
+        
+        <div class="l1-stage-arrow">▶</div>
+        
+      </div>
+      
+      <div class="l1-stage" 
+           data-vs="1" 
+           data-stage="1"
+           onclick="toggleL2(1, '产品出口与物流')"
+           style="--bt-color: var(--bt-color-1); --bt-color-bg: #0ea5e915;">
+        <div class="l1-stage-inner">
+          <div class="l1-stage-order">2</div>
+          <div class="l1-stage-name">产品出口与物流</div>
+          <div class="l1-stage-desc">完成出口报关、国际运输、清关和本地仓储</div>
+          
+          <div class="l1-pain-indicator">
+            
+            <span class="pain-dot medium"></span>
+            
+            <span class="pain-dot high"></span>
+            
+            <span class="pain-dot high"></span>
+            
+            <span class="pain-dot medium"></span>
+            
+          </div>
+          
+        </div>
+        
+        <div class="l1-stage-arrow">▶</div>
+        
+      </div>
+      
+      <div class="l1-stage" 
+           data-vs="2" 
+           data-stage="2"
+           onclick="toggleL2(2, '本地营销与销售转化')"
+           style="--bt-color: var(--bt-color-1); --bt-color-bg: #0ea5e915;">
+        <div class="l1-stage-inner">
+          <div class="l1-stage-order">3</div>
+          <div class="l1-stage-name">本地营销与销售转化</div>
+          <div class="l1-stage-desc">经销商开展本地营销，吸引客户到店试驾并完成销售</div>
+          
+          <div class="l1-pain-indicator">
+            
+            <span class="pain-dot high"></span>
+            
+            <span class="pain-dot medium"></span>
+            
+            <span class="pain-dot high"></span>
+            
+            <span class="pain-dot medium"></span>
+            
+          </div>
+          
+        </div>
+        
+        <div class="l1-stage-arrow">▶</div>
+        
+      </div>
+      
+      <div class="l1-stage" 
+           data-vs="3" 
+           data-stage="3"
+           onclick="toggleL2(3, '售后服务与客户维系')"
+           style="--bt-color: var(--bt-color-1); --bt-color-bg: #0ea5e915;">
+        <div class="l1-stage-inner">
+          <div class="l1-stage-order">4</div>
+          <div class="l1-stage-name">售后服务与客户维系</div>
+          <div class="l1-stage-desc">提供维修保养、配件供应、客户关怀等售后服务</div>
+          
+          <div class="l1-pain-indicator">
+            
+            <span class="pain-dot critical"></span>
+            
+            <span class="pain-dot critical"></span>
+            
+            <span class="pain-dot medium"></span>
+            
+          </div>
+          
+        </div>
+        
+      </div>
+      
+    </div>
+
+    
+    <div class="l2-panel" id="l2-panel-0" data-vs="0">
+      <div class="l2-panel-header">
+        <span style="color: var(--bt-color-1);">▸</span>
+        阶段 1: 市场调研与经销商招募 — L2 流程详情
+      </div>
+      <div class="l2-flow">
+        
+        <div class="l2-activity">
+          <div class="l2-activity-header">
+            <div class="l2-activity-title">目标市场评估</div>
+            <span class="l2-activity-order">#1</span>
+          </div>
+          <div class="l2-activity-meta">
+            <span class="l2-meta-item">👤 <b>角色:</b> 海外市场经理</span>
+            <span class="l2-meta-item">💻 <b>系统:</b> 市场调研工具/Google Trends</span>
+          </div>
+          
+          <div class="l2-io">
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输入</div>
+              <div class="l2-io-value">全球摩托车市场数据, 竞品市场分布, 当地法规要求</div>
+            </div>
+            
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输出</div>
+              <div class="l2-io-value">目标市场优先级报告</div>
+            </div>
+            
+          </div>
+          
+          
+          <div class="l2-desc">分析欧洲、东南亚、拉美等市场的规模、增长率、竞争格局和准入门槛</div>
+          
+          
+          <div class="l2-pains">
+            
+            <div class="pain-card high">
+              <div class="pain-severity high">
+                🟠
+                HIGH 严重程度
+              </div>
+              <div class="pain-desc">缺乏海外市场一手数据，依赖第三方报告，决策依据不充分</div>
+              <div class="pain-impact">💥 影响: 市场选择偏差，资源错配到潜力有限的市场</div>
+              <div class="pain-root">🔍 根因: 无海外本地团队，无持续的市场情报收集机制</div>
+            </div>
+            
+          </div>
+          
+        </div>
+        
+        <div class="l2-activity">
+          <div class="l2-activity-header">
+            <div class="l2-activity-title">经销商筛选与谈判</div>
+            <span class="l2-activity-order">#2</span>
+          </div>
+          <div class="l2-activity-meta">
+            <span class="l2-meta-item">👤 <b>角色:</b> 渠道总监</span>
+            <span class="l2-meta-item">💻 <b>系统:</b> CRM/合同管理系统</span>
+          </div>
+          
+          <div class="l2-io">
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输入</div>
+              <div class="l2-io-value">经销商候选名单, 合作条款模板</div>
+            </div>
+            
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输出</div>
+              <div class="l2-io-value">经销商合作协议</div>
+            </div>
+            
+          </div>
+          
+          
+          <div class="l2-desc">评估经销商资质（资金、场地、售后能力），谈判合作条款</div>
+          
+          
+          <div class="l2-pains">
+            
+            <div class="pain-card critical">
+              <div class="pain-severity critical">
+                🔴
+                CRITICAL 严重程度
+              </div>
+              <div class="pain-desc">优质经销商资源稀缺，大品牌已占据核心渠道</div>
+              <div class="pain-impact">💥 影响: 只能签约次级经销商，品牌形象和销量受限</div>
+              <div class="pain-root">🔍 根因: 品牌知名度低，无海外销售记录，经销商合作意愿弱</div>
+            </div>
+            
+          </div>
+          
+        </div>
+        
+        <div class="l2-activity">
+          <div class="l2-activity-header">
+            <div class="l2-activity-title">合规准入准备</div>
+            <span class="l2-activity-order">#3</span>
+          </div>
+          <div class="l2-activity-meta">
+            <span class="l2-meta-item">👤 <b>角色:</b> 合规专员</span>
+            <span class="l2-meta-item">💻 <b>系统:</b> 合规管理系统</span>
+          </div>
+          
+          <div class="l2-io">
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输入</div>
+              <div class="l2-io-value">目标市场法规清单, 产品技术参数</div>
+            </div>
+            
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输出</div>
+              <div class="l2-io-value">认证证书（ECE/e-mark/EPA等）</div>
+            </div>
+            
+          </div>
+          
+          
+          <div class="l2-desc">完成目标市场的车辆认证、环保标准、安全法规合规</div>
+          
+          
+          <div class="l2-pains">
+            
+            <div class="pain-card critical">
+              <div class="pain-severity critical">
+                🔴
+                CRITICAL 严重程度
+              </div>
+              <div class="pain-desc">欧盟ECE认证、美国EPA认证周期长（6-12个月），费用高（数十万元）</div>
+              <div class="pain-impact">💥 影响: 无法快速进入核心市场，错失赛事热度窗口期</div>
+              <div class="pain-root">🔍 根因: 认证流程复杂，需本地代理，缺乏经验</div>
+            </div>
+            
+          </div>
+          
+        </div>
+        
+      </div>
+    </div>
+    
+    <div class="l2-panel" id="l2-panel-1" data-vs="1">
+      <div class="l2-panel-header">
+        <span style="color: var(--bt-color-1);">▸</span>
+        阶段 2: 产品出口与物流 — L2 流程详情
+      </div>
+      <div class="l2-flow">
+        
+        <div class="l2-activity">
+          <div class="l2-activity-header">
+            <div class="l2-activity-title">出口报关</div>
+            <span class="l2-activity-order">#1</span>
+          </div>
+          <div class="l2-activity-meta">
+            <span class="l2-meta-item">👤 <b>角色:</b> 外贸专员</span>
+            <span class="l2-meta-item">💻 <b>系统:</b> ERP/报关系统</span>
+          </div>
+          
+          <div class="l2-io">
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输入</div>
+              <div class="l2-io-value">销售订单, 车辆合格证</div>
+            </div>
+            
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输出</div>
+              <div class="l2-io-value">出口报关单</div>
+            </div>
+            
+          </div>
+          
+          
+          <div class="l2-desc">办理中国出口报关、车辆出口许可证、原产地证明</div>
+          
+          
+          <div class="l2-pains">
+            
+            <div class="pain-card medium">
+              <div class="pain-severity medium">
+                🟡
+                MEDIUM 严重程度
+              </div>
+              <div class="pain-desc">摩托车出口涉及特殊监管，单证准备复杂</div>
+              <div class="pain-impact">💥 影响: 报关周期不确定，影响交付时效</div>
+              <div class="pain-root">🔍 根因: 缺乏摩托车出口经验，外贸团队待建设</div>
+            </div>
+            
+          </div>
+          
+        </div>
+        
+        <div class="l2-activity">
+          <div class="l2-activity-header">
+            <div class="l2-activity-title">国际运输</div>
+            <span class="l2-activity-order">#2</span>
+          </div>
+          <div class="l2-activity-meta">
+            <span class="l2-meta-item">👤 <b>角色:</b> 物流经理</span>
+            <span class="l2-meta-item">💻 <b>系统:</b> TMS/货代系统</span>
+          </div>
+          
+          <div class="l2-io">
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输入</div>
+              <div class="l2-io-value">出口报关单</div>
+            </div>
+            
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输出</div>
+              <div class="l2-io-value">提单/运单</div>
+            </div>
+            
+          </div>
+          
+          
+          <div class="l2-desc">安排海运/空运，选择货代，跟踪在途状态</div>
+          
+          
+          <div class="l2-pains">
+            
+            <div class="pain-card high">
+              <div class="pain-severity high">
+                🟠
+                HIGH 严重程度
+              </div>
+              <div class="pain-desc">摩托车属大件危险品，运输成本高，货损风险大</div>
+              <div class="pain-impact">💥 影响: 单车物流成本占售价10-15%，挤压利润</div>
+              <div class="pain-root">🔍 根因: 运输量小，无规模效应，缺乏专业摩托车物流方案</div>
+            </div>
+            
+          </div>
+          
+        </div>
+        
+        <div class="l2-activity">
+          <div class="l2-activity-header">
+            <div class="l2-activity-title">进口清关与缴税</div>
+            <span class="l2-activity-order">#3</span>
+          </div>
+          <div class="l2-activity-meta">
+            <span class="l2-meta-item">👤 <b>角色:</b> 本地代理/经销商</span>
+            <span class="l2-meta-item">💻 <b>系统:</b> 本地海关系统</span>
+          </div>
+          
+          <div class="l2-io">
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输入</div>
+              <div class="l2-io-value">提单, 认证证书</div>
+            </div>
+            
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输出</div>
+              <div class="l2-io-value">清关放行单</div>
+            </div>
+            
+          </div>
+          
+          
+          <div class="l2-desc">在目的国完成进口清关，缴纳关税和增值税</div>
+          
+          
+          <div class="l2-pains">
+            
+            <div class="pain-card high">
+              <div class="pain-severity high">
+                🟠
+                HIGH 严重程度
+              </div>
+              <div class="pain-desc">欧盟关税10%+增值税19-27%，美国关税0-2.5%+州税</div>
+              <div class="pain-impact">💥 影响: 终端售价大幅上升，削弱性价比优势</div>
+              <div class="pain-root">🔍 根因: 贸易政策固定，只能通过本地化生产规避</div>
+            </div>
+            
+          </div>
+          
+        </div>
+        
+        <div class="l2-activity">
+          <div class="l2-activity-header">
+            <div class="l2-activity-title">本地仓储与分拨</div>
+            <span class="l2-activity-order">#4</span>
+          </div>
+          <div class="l2-activity-meta">
+            <span class="l2-meta-item">👤 <b>角色:</b> 经销商</span>
+            <span class="l2-meta-item">💻 <b>系统:</b> WMS</span>
+          </div>
+          
+          <div class="l2-io">
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输入</div>
+              <div class="l2-io-value">清关放行车辆</div>
+            </div>
+            
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输出</div>
+              <div class="l2-io-value">库存台账</div>
+            </div>
+            
+          </div>
+          
+          
+          <div class="l2-desc">车辆入库经销商仓库，完成PDI检测和准备</div>
+          
+          
+          <div class="l2-pains">
+            
+            <div class="pain-card medium">
+              <div class="pain-severity medium">
+                🟡
+                MEDIUM 严重程度
+              </div>
+              <div class="pain-desc">经销商库存资金占用大，补货周期长</div>
+              <div class="pain-impact">💥 影响: 畅销车型断货，滞销车型积压</div>
+              <div class="pain-root">🔍 根因: 需求预测不准，订单到交付周期2-3个月</div>
+            </div>
+            
+          </div>
+          
+        </div>
+        
+      </div>
+    </div>
+    
+    <div class="l2-panel" id="l2-panel-2" data-vs="2">
+      <div class="l2-panel-header">
+        <span style="color: var(--bt-color-1);">▸</span>
+        阶段 3: 本地营销与销售转化 — L2 流程详情
+      </div>
+      <div class="l2-flow">
+        
+        <div class="l2-activity">
+          <div class="l2-activity-header">
+            <div class="l2-activity-title">本地市场推广</div>
+            <span class="l2-activity-order">#1</span>
+          </div>
+          <div class="l2-activity-meta">
+            <span class="l2-meta-item">👤 <b>角色:</b> 经销商市场专员</span>
+            <span class="l2-meta-item">💻 <b>系统:</b> 本地广告平台/Google/Facebook</span>
+          </div>
+          
+          <div class="l2-io">
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输入</div>
+              <div class="l2-io-value">品牌素材包, 市场预算</div>
+            </div>
+            
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输出</div>
+              <div class="l2-io-value">广告曝光/线索</div>
+            </div>
+            
+          </div>
+          
+          
+          <div class="l2-desc">投放本地广告、社交媒体推广、参加本地车展</div>
+          
+          
+          <div class="l2-pains">
+            
+            <div class="pain-card high">
+              <div class="pain-severity high">
+                🟠
+                HIGH 严重程度
+              </div>
+              <div class="pain-desc">品牌认知度低，获客成本高，转化率低</div>
+              <div class="pain-impact">💥 影响: 单车获客成本$500-1000，ROI低</div>
+              <div class="pain-root">🔍 根因: 无品牌积淀，消费者对中国摩托车品牌信任度低</div>
+            </div>
+            
+          </div>
+          
+        </div>
+        
+        <div class="l2-activity">
+          <div class="l2-activity-header">
+            <div class="l2-activity-title">试驾体验</div>
+            <span class="l2-activity-order">#2</span>
+          </div>
+          <div class="l2-activity-meta">
+            <span class="l2-meta-item">👤 <b>角色:</b> 销售顾问</span>
+            <span class="l2-meta-item">💻 <b>系统:</b> 试驾预约系统</span>
+          </div>
+          
+          <div class="l2-io">
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输入</div>
+              <div class="l2-io-value">潜在客户</div>
+            </div>
+            
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输出</div>
+              <div class="l2-io-value">试驾反馈</div>
+            </div>
+            
+          </div>
+          
+          
+          <div class="l2-desc">安排客户试驾，讲解车辆性能和配置</div>
+          
+          
+          <div class="l2-pains">
+            
+            <div class="pain-card medium">
+              <div class="pain-severity medium">
+                🟡
+                MEDIUM 严重程度
+              </div>
+              <div class="pain-desc">试驾车辆配置不全，客户体验不完整</div>
+              <div class="pain-impact">💥 影响: 试驾转化率低于行业平均</div>
+              <div class="pain-root">🔍 根因: 试驾车投入成本高，经销商意愿低</div>
+            </div>
+            
+          </div>
+          
+        </div>
+        
+        <div class="l2-activity">
+          <div class="l2-activity-header">
+            <div class="l2-activity-title">订单签约与金融</div>
+            <span class="l2-activity-order">#3</span>
+          </div>
+          <div class="l2-activity-meta">
+            <span class="l2-meta-item">👤 <b>角色:</b> 销售顾问</span>
+            <span class="l2-meta-item">💻 <b>系统:</b> DMS/金融系统</span>
+          </div>
+          
+          <div class="l2-io">
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输入</div>
+              <div class="l2-io-value">试驾满意客户</div>
+            </div>
+            
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输出</div>
+              <div class="l2-io-value">销售合同</div>
+            </div>
+            
+          </div>
+          
+          
+          <div class="l2-desc">签订销售合同，办理分期/贷款（如有）</div>
+          
+          
+          <div class="l2-pains">
+            
+            <div class="pain-card high">
+              <div class="pain-severity high">
+                🟠
+                HIGH 严重程度
+              </div>
+              <div class="pain-desc">缺乏本地金融合作，无法提供分期付款</div>
+              <div class="pain-impact">💥 影响: 大额消费一次性支付门槛高，流失意向客户</div>
+              <div class="pain-root">🔍 根因: 无海外金融业务资质和合作银行</div>
+            </div>
+            
+          </div>
+          
+        </div>
+        
+        <div class="l2-activity">
+          <div class="l2-activity-header">
+            <div class="l2-activity-title">车辆交付</div>
+            <span class="l2-activity-order">#4</span>
+          </div>
+          <div class="l2-activity-meta">
+            <span class="l2-meta-item">👤 <b>角色:</b> 交付专员</span>
+            <span class="l2-meta-item">💻 <b>系统:</b> DMS</span>
+          </div>
+          
+          <div class="l2-io">
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输入</div>
+              <div class="l2-io-value">销售合同</div>
+            </div>
+            
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输出</div>
+              <div class="l2-io-value">交付确认单</div>
+            </div>
+            
+          </div>
+          
+          
+          <div class="l2-desc">完成车辆交付、手续办理、保险购买</div>
+          
+          
+          <div class="l2-pains">
+            
+            <div class="pain-card medium">
+              <div class="pain-severity medium">
+                🟡
+                MEDIUM 严重程度
+              </div>
+              <div class="pain-desc">交付流程繁琐，客户等待时间长</div>
+              <div class="pain-impact">💥 影响: 交付体验差，首印象不佳</div>
+              <div class="pain-root">🔍 根因: 流程未标准化，缺乏数字化交付工具</div>
+            </div>
+            
+          </div>
+          
+        </div>
+        
+      </div>
+    </div>
+    
+    <div class="l2-panel" id="l2-panel-3" data-vs="3">
+      <div class="l2-panel-header">
+        <span style="color: var(--bt-color-1);">▸</span>
+        阶段 4: 售后服务与客户维系 — L2 流程详情
+      </div>
+      <div class="l2-flow">
+        
+        <div class="l2-activity">
+          <div class="l2-activity-header">
+            <div class="l2-activity-title">保修服务</div>
+            <span class="l2-activity-order">#1</span>
+          </div>
+          <div class="l2-activity-meta">
+            <span class="l2-meta-item">👤 <b>角色:</b> 售后技师</span>
+            <span class="l2-meta-item">💻 <b>系统:</b> 售后管理系统</span>
+          </div>
+          
+          <div class="l2-io">
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输入</div>
+              <div class="l2-io-value">客户保修申请</div>
+            </div>
+            
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输出</div>
+              <div class="l2-io-value">维修记录</div>
+            </div>
+            
+          </div>
+          
+          
+          <div class="l2-desc">处理保修期内的车辆故障维修</div>
+          
+          
+          <div class="l2-pains">
+            
+            <div class="pain-card critical">
+              <div class="pain-severity critical">
+                🔴
+                CRITICAL 严重程度
+              </div>
+              <div class="pain-desc">海外无直属售后网点，完全依赖经销商能力</div>
+              <div class="pain-impact">💥 影响: 服务质量参差不齐，客户投诉难处理</div>
+              <div class="pain-root">🔍 根因: 无海外售后培训体系，配件供应不及时</div>
+            </div>
+            
+          </div>
+          
+        </div>
+        
+        <div class="l2-activity">
+          <div class="l2-activity-header">
+            <div class="l2-activity-title">配件供应</div>
+            <span class="l2-activity-order">#2</span>
+          </div>
+          <div class="l2-activity-meta">
+            <span class="l2-meta-item">👤 <b>角色:</b> 配件专员</span>
+            <span class="l2-meta-item">💻 <b>系统:</b> 配件管理系统</span>
+          </div>
+          
+          <div class="l2-io">
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输入</div>
+              <div class="l2-io-value">配件订单</div>
+            </div>
+            
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输出</div>
+              <div class="l2-io-value">配件发货</div>
+            </div>
+            
+          </div>
+          
+          
+          <div class="l2-desc">从国内或本地仓供应维修配件</div>
+          
+          
+          <div class="l2-pains">
+            
+            <div class="pain-card critical">
+              <div class="pain-severity critical">
+                🔴
+                CRITICAL 严重程度
+              </div>
+              <div class="pain-desc">配件跨境供应周期长（2-4周），影响维修时效</div>
+              <div class="pain-impact">💥 影响: 客户车辆长期停用，满意度骤降</div>
+              <div class="pain-root">🔍 根因: 无海外配件前置仓，库存规划缺失</div>
+            </div>
+            
+          </div>
+          
+        </div>
+        
+        <div class="l2-activity">
+          <div class="l2-activity-header">
+            <div class="l2-activity-title">客户关怀与回访</div>
+            <span class="l2-activity-order">#3</span>
+          </div>
+          <div class="l2-activity-meta">
+            <span class="l2-meta-item">👤 <b>角色:</b> 客服</span>
+            <span class="l2-meta-item">💻 <b>系统:</b> CRM</span>
+          </div>
+          
+          <div class="l2-io">
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输入</div>
+              <div class="l2-io-value">客户购车记录</div>
+            </div>
+            
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输出</div>
+              <div class="l2-io-value">回访记录</div>
+            </div>
+            
+          </div>
+          
+          
+          <div class="l2-desc">定期回访客户，收集反馈，促进复购和推荐</div>
+          
+          
+          <div class="l2-pains">
+            
+            <div class="pain-card medium">
+              <div class="pain-severity medium">
+                🟡
+                MEDIUM 严重程度
+              </div>
+              <div class="pain-desc">无海外CRM系统，客户数据分散</div>
+              <div class="pain-impact">💥 影响: 无法精准营销，客户流失后无感知</div>
+              <div class="pain-root">🔍 根因: 数字化基础薄弱，无客户数据平台</div>
+            </div>
+            
+          </div>
+          
+        </div>
+        
+      </div>
+    </div>
+    
+  </div>
+  
+  <div class="vs-section">
+    <div class="vs-header">
+      <div>
+        <div class="vs-title">海外电商平台销售价值流</div>
+        <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;">从平台入驻到消费者在线下单并收到摩托车的全链路</div>
+      </div>
+      <span class="vs-bt-badge" style="--bt-color: var(--bt-color-2);">海外电商平台渠道</span>
+    </div>
+    
+    <div class="l1-timeline">
+      
+      <div class="l1-stage" 
+           data-vs="0" 
+           data-stage="0"
+           onclick="toggleL2(0, '平台入驻与店铺运营')"
+           style="--bt-color: var(--bt-color-2); --bt-color-bg: #8b5cf615;">
+        <div class="l1-stage-inner">
+          <div class="l1-stage-order">1</div>
+          <div class="l1-stage-name">平台入驻与店铺运营</div>
+          <div class="l1-stage-desc">在亚马逊、eBay等平台开设店铺，上架商品</div>
+          
+          <div class="l1-pain-indicator">
+            
+            <span class="pain-dot high"></span>
+            
+            <span class="pain-dot high"></span>
+            
+            <span class="pain-dot medium"></span>
+            
+          </div>
+          
+        </div>
+        
+        <div class="l1-stage-arrow">▶</div>
+        
+      </div>
+      
+      <div class="l1-stage" 
+           data-vs="1" 
+           data-stage="1"
+           onclick="toggleL2(1, '在线获客与转化')"
+           style="--bt-color: var(--bt-color-2); --bt-color-bg: #8b5cf615;">
+        <div class="l1-stage-inner">
+          <div class="l1-stage-order">2</div>
+          <div class="l1-stage-name">在线获客与转化</div>
+          <div class="l1-stage-desc">通过平台流量和广告获取订单</div>
+          
+          <div class="l1-pain-indicator">
+            
+            <span class="pain-dot medium"></span>
+            
+            <span class="pain-dot critical"></span>
+            
+            <span class="pain-dot medium"></span>
+            
+          </div>
+          
+        </div>
+        
+        <div class="l1-stage-arrow">▶</div>
+        
+      </div>
+      
+      <div class="l1-stage" 
+           data-vs="2" 
+           data-stage="2"
+           onclick="toggleL2(2, '跨境物流与交付')"
+           style="--bt-color: var(--bt-color-2); --bt-color-bg: #8b5cf615;">
+        <div class="l1-stage-inner">
+          <div class="l1-stage-order">3</div>
+          <div class="l1-stage-name">跨境物流与交付</div>
+          <div class="l1-stage-desc">完成从国内仓到海外消费者的物流配送</div>
+          
+          <div class="l1-pain-indicator">
+            
+            <span class="pain-dot medium"></span>
+            
+            <span class="pain-dot high"></span>
+            
+            <span class="pain-dot high"></span>
+            
+          </div>
+          
+        </div>
+        
+        <div class="l1-stage-arrow">▶</div>
+        
+      </div>
+      
+      <div class="l1-stage" 
+           data-vs="3" 
+           data-stage="3"
+           onclick="toggleL2(3, '售后与评价管理')"
+           style="--bt-color: var(--bt-color-2); --bt-color-bg: #8b5cf615;">
+        <div class="l1-stage-inner">
+          <div class="l1-stage-order">4</div>
+          <div class="l1-stage-name">售后与评价管理</div>
+          <div class="l1-stage-desc">处理退换货、维修、评价回复等售后</div>
+          
+          <div class="l1-pain-indicator">
+            
+            <span class="pain-dot high"></span>
+            
+            <span class="pain-dot critical"></span>
+            
+          </div>
+          
+        </div>
+        
+      </div>
+      
+    </div>
+
+    
+    <div class="l2-panel" id="l2-panel-0" data-vs="0">
+      <div class="l2-panel-header">
+        <span style="color: var(--bt-color-2);">▸</span>
+        阶段 1: 平台入驻与店铺运营 — L2 流程详情
+      </div>
+      <div class="l2-flow">
+        
+        <div class="l2-activity">
+          <div class="l2-activity-header">
+            <div class="l2-activity-title">平台选择与入驻</div>
+            <span class="l2-activity-order">#1</span>
+          </div>
+          <div class="l2-activity-meta">
+            <span class="l2-meta-item">👤 <b>角色:</b> 电商运营经理</span>
+            <span class="l2-meta-item">💻 <b>系统:</b> 卖家后台</span>
+          </div>
+          
+          <div class="l2-io">
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输入</div>
+              <div class="l2-io-value">企业资质, 产品资料</div>
+            </div>
+            
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输出</div>
+              <div class="l2-io-value">店铺账号</div>
+            </div>
+            
+          </div>
+          
+          
+          <div class="l2-desc">选择目标平台，完成卖家注册和资质审核</div>
+          
+          
+          <div class="l2-pains">
+            
+            <div class="pain-card high">
+              <div class="pain-severity high">
+                🟠
+                HIGH 严重程度
+              </div>
+              <div class="pain-desc">亚马逊、eBay对摩托车类目审核严格，入驻门槛高</div>
+              <div class="pain-impact">💥 影响: 无法快速铺货，错过销售旺季</div>
+              <div class="pain-root">🔍 根因: 缺乏海外电商经验，资质准备不充分</div>
+            </div>
+            
+          </div>
+          
+        </div>
+        
+        <div class="l2-activity">
+          <div class="l2-activity-header">
+            <div class="l2-activity-title">商品Listing上架</div>
+            <span class="l2-activity-order">#2</span>
+          </div>
+          <div class="l2-activity-meta">
+            <span class="l2-meta-item">👤 <b>角色:</b> 电商运营</span>
+            <span class="l2-meta-item">💻 <b>系统:</b> 卖家后台</span>
+          </div>
+          
+          <div class="l2-io">
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输入</div>
+              <div class="l2-io-value">产品图片/视频, 多语言描述</div>
+            </div>
+            
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输出</div>
+              <div class="l2-io-value">在线商品页</div>
+            </div>
+            
+          </div>
+          
+          
+          <div class="l2-desc">创建商品Listing，优化标题、关键词、图片、描述</div>
+          
+          
+          <div class="l2-pains">
+            
+            <div class="pain-card high">
+              <div class="pain-severity high">
+                🟠
+                HIGH 严重程度
+              </div>
+              <div class="pain-desc">多语言Listing制作成本高，本地化程度低</div>
+              <div class="pain-impact">💥 影响: 搜索排名低，转化率差</div>
+              <div class="pain-root">🔍 根因: 无AI翻译和本地化工具，依赖人工</div>
+            </div>
+            
+          </div>
+          
+        </div>
+        
+        <div class="l2-activity">
+          <div class="l2-activity-header">
+            <div class="l2-activity-title">定价与促销</div>
+            <span class="l2-activity-order">#3</span>
+          </div>
+          <div class="l2-activity-meta">
+            <span class="l2-meta-item">👤 <b>角色:</b> 电商运营</span>
+            <span class="l2-meta-item">💻 <b>系统:</b> 定价工具</span>
+          </div>
+          
+          <div class="l2-io">
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输入</div>
+              <div class="l2-io-value">成本数据, 竞品价格</div>
+            </div>
+            
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输出</div>
+              <div class="l2-io-value">售价策略</div>
+            </div>
+            
+          </div>
+          
+          
+          <div class="l2-desc">制定平台售价，参与平台促销活动</div>
+          
+          
+          <div class="l2-pains">
+            
+            <div class="pain-card medium">
+              <div class="pain-severity medium">
+                🟡
+                MEDIUM 严重程度
+              </div>
+              <div class="pain-desc">平台佣金（8-15%）+广告费+物流费，成本叠加</div>
+              <div class="pain-impact">💥 影响: 利润空间被严重压缩</div>
+              <div class="pain-root">🔍 根因: 平台模式固定成本结构，只能通过提价或降本</div>
+            </div>
+            
+          </div>
+          
+        </div>
+        
+      </div>
+    </div>
+    
+    <div class="l2-panel" id="l2-panel-1" data-vs="1">
+      <div class="l2-panel-header">
+        <span style="color: var(--bt-color-2);">▸</span>
+        阶段 2: 在线获客与转化 — L2 流程详情
+      </div>
+      <div class="l2-flow">
+        
+        <div class="l2-activity">
+          <div class="l2-activity-header">
+            <div class="l2-activity-title">站内广告投放</div>
+            <span class="l2-activity-order">#1</span>
+          </div>
+          <div class="l2-activity-meta">
+            <span class="l2-meta-item">👤 <b>角色:</b> 电商运营</span>
+            <span class="l2-meta-item">💻 <b>系统:</b> 平台广告系统</span>
+          </div>
+          
+          <div class="l2-io">
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输入</div>
+              <div class="l2-io-value">广告预算</div>
+            </div>
+            
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输出</div>
+              <div class="l2-io-value">广告曝光/点击</div>
+            </div>
+            
+          </div>
+          
+          
+          <div class="l2-desc">投放平台内搜索广告、展示广告</div>
+          
+          
+          <div class="l2-pains">
+            
+            <div class="pain-card medium">
+              <div class="pain-severity medium">
+                🟡
+                MEDIUM 严重程度
+              </div>
+              <div class="pain-desc">摩托车关键词竞价激烈，CPC高</div>
+              <div class="pain-impact">💥 影响: 广告ROI低，获客成本高</div>
+              <div class="pain-root">🔍 根因: 品牌词无搜索量，依赖品类词竞争</div>
+            </div>
+            
+          </div>
+          
+        </div>
+        
+        <div class="l2-activity">
+          <div class="l2-activity-header">
+            <div class="l2-activity-title">客户咨询响应</div>
+            <span class="l2-activity-order">#2</span>
+          </div>
+          <div class="l2-activity-meta">
+            <span class="l2-meta-item">👤 <b>角色:</b> 客服</span>
+            <span class="l2-meta-item">💻 <b>系统:</b> 平台消息系统</span>
+          </div>
+          
+          <div class="l2-io">
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输入</div>
+              <div class="l2-io-value">客户咨询</div>
+            </div>
+            
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输出</div>
+              <div class="l2-io-value">客服回复</div>
+            </div>
+            
+          </div>
+          
+          
+          <div class="l2-desc">回复客户关于产品、物流、售后的咨询</div>
+          
+          
+          <div class="l2-pains">
+            
+            <div class="pain-card critical">
+              <div class="pain-severity critical">
+                🔴
+                CRITICAL 严重程度
+              </div>
+              <div class="pain-desc">时差导致响应慢，多语言客服能力不足</div>
+              <div class="pain-impact">💥 影响: 响应超时影响店铺评分，订单流失</div>
+              <div class="pain-root">🔍 根因: 无AI客服，纯人工且语言覆盖不足</div>
+            </div>
+            
+          </div>
+          
+        </div>
+        
+        <div class="l2-activity">
+          <div class="l2-activity-header">
+            <div class="l2-activity-title">订单处理</div>
+            <span class="l2-activity-order">#3</span>
+          </div>
+          <div class="l2-activity-meta">
+            <span class="l2-meta-item">👤 <b>角色:</b> 运营专员</span>
+            <span class="l2-meta-item">💻 <b>系统:</b> OMS</span>
+          </div>
+          
+          <div class="l2-io">
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输入</div>
+              <div class="l2-io-value">客户订单</div>
+            </div>
+            
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输出</div>
+              <div class="l2-io-value">发货指令</div>
+            </div>
+            
+          </div>
+          
+          
+          <div class="l2-desc">确认订单，安排发货，更新物流跟踪</div>
+          
+          
+          <div class="l2-pains">
+            
+            <div class="pain-card medium">
+              <div class="pain-severity medium">
+                🟡
+                MEDIUM 严重程度
+              </div>
+              <div class="pain-desc">摩托车大件物流复杂，订单处理环节多</div>
+              <div class="pain-impact">💥 影响: 发货周期长，客户催单多</div>
+              <div class="pain-root">🔍 根因: 缺乏大件商品物流SOP</div>
+            </div>
+            
+          </div>
+          
+        </div>
+        
+      </div>
+    </div>
+    
+    <div class="l2-panel" id="l2-panel-2" data-vs="2">
+      <div class="l2-panel-header">
+        <span style="color: var(--bt-color-2);">▸</span>
+        阶段 3: 跨境物流与交付 — L2 流程详情
+      </div>
+      <div class="l2-flow">
+        
+        <div class="l2-activity">
+          <div class="l2-activity-header">
+            <div class="l2-activity-title">国内集货打包</div>
+            <span class="l2-activity-order">#1</span>
+          </div>
+          <div class="l2-activity-meta">
+            <span class="l2-meta-item">👤 <b>角色:</b> 仓库管理员</span>
+            <span class="l2-meta-item">💻 <b>系统:</b> WMS</span>
+          </div>
+          
+          <div class="l2-io">
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输入</div>
+              <div class="l2-io-value">发货指令</div>
+            </div>
+            
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输出</div>
+              <div class="l2-io-value">打包包裹</div>
+            </div>
+            
+          </div>
+          
+          
+          <div class="l2-desc">车辆防护包装，准备出口文件</div>
+          
+          
+          <div class="l2-pains">
+            
+            <div class="pain-card medium">
+              <div class="pain-severity medium">
+                🟡
+                MEDIUM 严重程度
+              </div>
+              <div class="pain-desc">摩托车包装要求高，防护成本高</div>
+              <div class="pain-impact">💥 影响: 包装成本占物流成本20%</div>
+              <div class="pain-root">🔍 根因: 无标准化包装方案</div>
+            </div>
+            
+          </div>
+          
+        </div>
+        
+        <div class="l2-activity">
+          <div class="l2-activity-header">
+            <div class="l2-activity-title">跨境运输</div>
+            <span class="l2-activity-order">#2</span>
+          </div>
+          <div class="l2-activity-meta">
+            <span class="l2-meta-item">👤 <b>角色:</b> 物流经理</span>
+            <span class="l2-meta-item">💻 <b>系统:</b> TMS</span>
+          </div>
+          
+          <div class="l2-io">
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输入</div>
+              <div class="l2-io-value">打包车辆</div>
+            </div>
+            
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输出</div>
+              <div class="l2-io-value">在途跟踪信息</div>
+            </div>
+            
+          </div>
+          
+          
+          <div class="l2-desc">通过海运/空运将车辆运至海外</div>
+          
+          
+          <div class="l2-pains">
+            
+            <div class="pain-card high">
+              <div class="pain-severity high">
+                🟠
+                HIGH 严重程度
+              </div>
+              <div class="pain-desc">跨境运输周期长（海运30-45天），客户等待焦虑</div>
+              <div class="pain-impact">💥 影响: 退款率高，差评多</div>
+              <div class="pain-root">🔍 根因: 无海外前置仓，必须从国内发货</div>
+            </div>
+            
+          </div>
+          
+        </div>
+        
+        <div class="l2-activity">
+          <div class="l2-activity-header">
+            <div class="l2-activity-title">末端配送</div>
+            <span class="l2-activity-order">#3</span>
+          </div>
+          <div class="l2-activity-meta">
+            <span class="l2-meta-item">👤 <b>角色:</b> 本地物流</span>
+            <span class="l2-meta-item">💻 <b>系统:</b> TMS</span>
+          </div>
+          
+          <div class="l2-io">
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输入</div>
+              <div class="l2-io-value">清关放行车辆</div>
+            </div>
+            
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输出</div>
+              <div class="l2-io-value">客户签收</div>
+            </div>
+            
+          </div>
+          
+          
+          <div class="l2-desc">本地物流将车辆配送至客户指定地址</div>
+          
+          
+          <div class="l2-pains">
+            
+            <div class="pain-card high">
+              <div class="pain-severity high">
+                🟠
+                HIGH 严重程度
+              </div>
+              <div class="pain-desc">摩托车大件配送需专业设备和人员</div>
+              <div class="pain-impact">💥 影响: 配送失败率高，二次配送成本大</div>
+              <div class="pain-root">🔍 根因: 无专业摩托车配送网络</div>
+            </div>
+            
+          </div>
+          
+        </div>
+        
+      </div>
+    </div>
+    
+    <div class="l2-panel" id="l2-panel-3" data-vs="3">
+      <div class="l2-panel-header">
+        <span style="color: var(--bt-color-2);">▸</span>
+        阶段 4: 售后与评价管理 — L2 流程详情
+      </div>
+      <div class="l2-flow">
+        
+        <div class="l2-activity">
+          <div class="l2-activity-header">
+            <div class="l2-activity-title">评价管理</div>
+            <span class="l2-activity-order">#1</span>
+          </div>
+          <div class="l2-activity-meta">
+            <span class="l2-meta-item">👤 <b>角色:</b> 电商运营</span>
+            <span class="l2-meta-item">💻 <b>系统:</b> 卖家后台</span>
+          </div>
+          
+          <div class="l2-io">
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输入</div>
+              <div class="l2-io-value">客户评价</div>
+            </div>
+            
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输出</div>
+              <div class="l2-io-value">回复/改进措施</div>
+            </div>
+            
+          </div>
+          
+          
+          <div class="l2-desc">监控和回复客户评价，处理差评</div>
+          
+          
+          <div class="l2-pains">
+            
+            <div class="pain-card high">
+              <div class="pain-severity high">
+                🟠
+                HIGH 严重程度
+              </div>
+              <div class="pain-desc">差评对店铺评分影响大，但问题解决周期长</div>
+              <div class="pain-impact">💥 影响: 店铺评分下降，流量减少</div>
+              <div class="pain-root">🔍 根因: 售后问题需跨国协调，响应慢</div>
+            </div>
+            
+          </div>
+          
+        </div>
+        
+        <div class="l2-activity">
+          <div class="l2-activity-header">
+            <div class="l2-activity-title">退货处理</div>
+            <span class="l2-activity-order">#2</span>
+          </div>
+          <div class="l2-activity-meta">
+            <span class="l2-meta-item">👤 <b>角色:</b> 售后专员</span>
+            <span class="l2-meta-item">💻 <b>系统:</b> 售后系统</span>
+          </div>
+          
+          <div class="l2-io">
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输入</div>
+              <div class="l2-io-value">退货申请</div>
+            </div>
+            
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输出</div>
+              <div class="l2-io-value">退款/换货</div>
+            </div>
+            
+          </div>
+          
+          
+          <div class="l2-desc">处理客户退货，安排退运或本地处置</div>
+          
+          
+          <div class="l2-pains">
+            
+            <div class="pain-card critical">
+              <div class="pain-severity critical">
+                🔴
+                CRITICAL 严重程度
+              </div>
+              <div class="pain-desc">摩托车退货物流成本极高，退运不现实</div>
+              <div class="pain-impact">💥 影响: 只能退款不退货，损失大</div>
+              <div class="pain-root">🔍 根因: 大件商品逆向物流成本过高</div>
+            </div>
+            
+          </div>
+          
+        </div>
+        
+      </div>
+    </div>
+    
+  </div>
+  
+  <div class="vs-section">
+    <div class="vs-header">
+      <div>
+        <div class="vs-title">海外DTC直销价值流</div>
+        <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;">从品牌建设到官网下单并交付给消费者的全链路</div>
+      </div>
+      <span class="vs-bt-badge" style="--bt-color: var(--bt-color-3);">海外DTC直销渠道</span>
+    </div>
+    
+    <div class="l1-timeline">
+      
+      <div class="l1-stage" 
+           data-vs="0" 
+           data-stage="0"
+           onclick="toggleL2(0, '品牌建设与内容营销')"
+           style="--bt-color: var(--bt-color-3); --bt-color-bg: #10b98115;">
+        <div class="l1-stage-inner">
+          <div class="l1-stage-order">1</div>
+          <div class="l1-stage-name">品牌建设与内容营销</div>
+          <div class="l1-stage-desc">通过社交媒体、赛事IP、KOL等建立品牌认知</div>
+          
+          <div class="l1-pain-indicator">
+            
+            <span class="pain-dot high"></span>
+            
+            <span class="pain-dot high"></span>
+            
+            <span class="pain-dot medium"></span>
+            
+            <span class="pain-dot medium"></span>
+            
+          </div>
+          
+        </div>
+        
+        <div class="l1-stage-arrow">▶</div>
+        
+      </div>
+      
+      <div class="l1-stage" 
+           data-vs="1" 
+           data-stage="1"
+           onclick="toggleL2(1, '官网运营与销售转化')"
+           style="--bt-color: var(--bt-color-3); --bt-color-bg: #10b98115;">
+        <div class="l1-stage-inner">
+          <div class="l1-stage-order">2</div>
+          <div class="l1-stage-name">官网运营与销售转化</div>
+          <div class="l1-stage-desc">通过官网吸引流量并完成在线销售</div>
+          
+          <div class="l1-pain-indicator">
+            
+            <span class="pain-dot high"></span>
+            
+            <span class="pain-dot low"></span>
+            
+            <span class="pain-dot critical"></span>
+            
+            <span class="pain-dot high"></span>
+            
+          </div>
+          
+        </div>
+        
+        <div class="l1-stage-arrow">▶</div>
+        
+      </div>
+      
+      <div class="l1-stage" 
+           data-vs="2" 
+           data-stage="2"
+           onclick="toggleL2(2, '订单履约与交付')"
+           style="--bt-color: var(--bt-color-3); --bt-color-bg: #10b98115;">
+        <div class="l1-stage-inner">
+          <div class="l1-stage-order">3</div>
+          <div class="l1-stage-name">订单履约与交付</div>
+          <div class="l1-stage-desc">完成从订单到车辆交付的全流程</div>
+          
+          <div class="l1-pain-indicator">
+            
+            <span class="pain-dot critical"></span>
+            
+            <span class="pain-dot high"></span>
+            
+            <span class="pain-dot high"></span>
+            
+          </div>
+          
+        </div>
+        
+        <div class="l1-stage-arrow">▶</div>
+        
+      </div>
+      
+      <div class="l1-stage" 
+           data-vs="3" 
+           data-stage="3"
+           onclick="toggleL2(3, '社区运营与长期价值')"
+           style="--bt-color: var(--bt-color-3); --bt-color-bg: #10b98115;">
+        <div class="l1-stage-inner">
+          <div class="l1-stage-order">4</div>
+          <div class="l1-stage-name">社区运营与长期价值</div>
+          <div class="l1-stage-desc">建立用户社区，促进口碑传播和复购</div>
+          
+          <div class="l1-pain-indicator">
+            
+            <span class="pain-dot medium"></span>
+            
+            <span class="pain-dot medium"></span>
+            
+            <span class="pain-dot high"></span>
+            
+          </div>
+          
+        </div>
+        
+      </div>
+      
+    </div>
+
+    
+    <div class="l2-panel" id="l2-panel-0" data-vs="0">
+      <div class="l2-panel-header">
+        <span style="color: var(--bt-color-3);">▸</span>
+        阶段 1: 品牌建设与内容营销 — L2 流程详情
+      </div>
+      <div class="l2-flow">
+        
+        <div class="l2-activity">
+          <div class="l2-activity-header">
+            <div class="l2-activity-title">多语言官网建设</div>
+            <span class="l2-activity-order">#1</span>
+          </div>
+          <div class="l2-activity-meta">
+            <span class="l2-meta-item">👤 <b>角色:</b> 数字营销经理</span>
+            <span class="l2-meta-item">💻 <b>系统:</b> CMS/Shopify</span>
+          </div>
+          
+          <div class="l2-io">
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输入</div>
+              <div class="l2-io-value">品牌素材, 产品资料</div>
+            </div>
+            
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输出</div>
+              <div class="l2-io-value">多语言官网</div>
+            </div>
+            
+          </div>
+          
+          
+          <div class="l2-desc">搭建支持多语言、多币种的品牌官网</div>
+          
+          
+          <div class="l2-pains">
+            
+            <div class="pain-card high">
+              <div class="pain-severity high">
+                🟠
+                HIGH 严重程度
+              </div>
+              <div class="pain-desc">官网建设成本高，多语言本地化复杂</div>
+              <div class="pain-impact">💥 影响: 上线周期长，无法快速测试市场</div>
+              <div class="pain-root">🔍 根因: 无海外官网建设经验，技术团队在国内</div>
+            </div>
+            
+          </div>
+          
+        </div>
+        
+        <div class="l2-activity">
+          <div class="l2-activity-header">
+            <div class="l2-activity-title">社交媒体运营</div>
+            <span class="l2-activity-order">#2</span>
+          </div>
+          <div class="l2-activity-meta">
+            <span class="l2-meta-item">👤 <b>角色:</b> 社媒运营</span>
+            <span class="l2-meta-item">💻 <b>系统:</b> Hootsuite/Sprout</span>
+          </div>
+          
+          <div class="l2-io">
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输入</div>
+              <div class="l2-io-value">赛事视频/图片, 品牌故事</div>
+            </div>
+            
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输出</div>
+              <div class="l2-io-value">社媒内容</div>
+            </div>
+            
+          </div>
+          
+          
+          <div class="l2-desc">在YouTube、TikTok、Instagram发布内容，运营社区</div>
+          
+          
+          <div class="l2-pains">
+            
+            <div class="pain-card high">
+              <div class="pain-severity high">
+                🟠
+                HIGH 严重程度
+              </div>
+              <div class="pain-desc">内容生产速度慢，多语言本地化成本高</div>
+              <div class="pain-impact">💥 影响: 更新频率低，粉丝增长慢</div>
+              <div class="pain-root">🔍 根因: 无AI内容生成工具，纯人工制作</div>
+            </div>
+            
+          </div>
+          
+        </div>
+        
+        <div class="l2-activity">
+          <div class="l2-activity-header">
+            <div class="l2-activity-title">KOL/骑手合作</div>
+            <span class="l2-activity-order">#3</span>
+          </div>
+          <div class="l2-activity-meta">
+            <span class="l2-meta-item">👤 <b>角色:</b> 品牌合作经理</span>
+            <span class="l2-meta-item">💻 <b>系统:</b> CRM</span>
+          </div>
+          
+          <div class="l2-io">
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输入</div>
+              <div class="l2-io-value">KOL名单, 合作预算</div>
+            </div>
+            
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输出</div>
+              <div class="l2-io-value">合作内容</div>
+            </div>
+            
+          </div>
+          
+          
+          <div class="l2-desc">与海外摩托车KOL、骑手社群合作推广</div>
+          
+          
+          <div class="l2-pains">
+            
+            <div class="pain-card medium">
+              <div class="pain-severity medium">
+                🟡
+                MEDIUM 严重程度
+              </div>
+              <div class="pain-desc">优质KOL合作成本高，小KOL效果难评估</div>
+              <div class="pain-impact">💥 影响: 营销预算使用效率不确定</div>
+              <div class="pain-root">🔍 根因: 无KOL数据平台，合作依赖关系</div>
+            </div>
+            
+          </div>
+          
+        </div>
+        
+        <div class="l2-activity">
+          <div class="l2-activity-header">
+            <div class="l2-activity-title">赛事IP内容传播</div>
+            <span class="l2-activity-order">#4</span>
+          </div>
+          <div class="l2-activity-meta">
+            <span class="l2-meta-item">👤 <b>角色:</b> 内容团队</span>
+            <span class="l2-meta-item">💻 <b>系统:</b> 视频剪辑/AI生成</span>
+          </div>
+          
+          <div class="l2-io">
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输入</div>
+              <div class="l2-io-value">WSBK赛事素材</div>
+            </div>
+            
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输出</div>
+              <div class="l2-io-value">短视频/图文</div>
+            </div>
+            
+          </div>
+          
+          
+          <div class="l2-desc">将WSBK夺冠素材加工为传播内容，全球分发</div>
+          
+          
+          <div class="l2-pains">
+            
+            <div class="pain-card medium">
+              <div class="pain-severity medium">
+                🟡
+                MEDIUM 严重程度
+              </div>
+              <div class="pain-desc">赛事内容版权复杂，二次创作受限</div>
+              <div class="pain-impact">💥 影响: 内容传播效果打折扣</div>
+              <div class="pain-root">🔍 根因: WSBK版权归属需明确，需与赛事方协商</div>
+            </div>
+            
+          </div>
+          
+        </div>
+        
+      </div>
+    </div>
+    
+    <div class="l2-panel" id="l2-panel-1" data-vs="1">
+      <div class="l2-panel-header">
+        <span style="color: var(--bt-color-3);">▸</span>
+        阶段 2: 官网运营与销售转化 — L2 流程详情
+      </div>
+      <div class="l2-flow">
+        
+        <div class="l2-activity">
+          <div class="l2-activity-header">
+            <div class="l2-activity-title">SEO/SEM投放</div>
+            <span class="l2-activity-order">#1</span>
+          </div>
+          <div class="l2-activity-meta">
+            <span class="l2-meta-item">👤 <b>角色:</b> 数字营销专员</span>
+            <span class="l2-meta-item">💻 <b>系统:</b> Google Ads/Analytics</span>
+          </div>
+          
+          <div class="l2-io">
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输入</div>
+              <div class="l2-io-value">关键词策略, 广告预算</div>
+            </div>
+            
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输出</div>
+              <div class="l2-io-value">网站流量</div>
+            </div>
+            
+          </div>
+          
+          
+          <div class="l2-desc">投放搜索广告，优化自然搜索排名</div>
+          
+          
+          <div class="l2-pains">
+            
+            <div class="pain-card high">
+              <div class="pain-severity high">
+                🟠
+                HIGH 严重程度
+              </div>
+              <div class="pain-desc">摩托车关键词竞争激烈，SEO周期长（6-12个月）</div>
+              <div class="pain-impact">💥 影响: 早期流量获取成本高</div>
+              <div class="pain-root">🔍 根因: 新域名权重低，无外链积累</div>
+            </div>
+            
+          </div>
+          
+        </div>
+        
+        <div class="l2-activity">
+          <div class="l2-activity-header">
+            <div class="l2-activity-title">AI个性化推荐</div>
+            <span class="l2-activity-order">#2</span>
+          </div>
+          <div class="l2-activity-meta">
+            <span class="l2-meta-item">👤 <b>角色:</b> 系统</span>
+            <span class="l2-meta-item">💻 <b>系统:</b> 推荐引擎</span>
+          </div>
+          
+          <div class="l2-io">
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输入</div>
+              <div class="l2-io-value">用户行为数据</div>
+            </div>
+            
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输出</div>
+              <div class="l2-io-value">个性化内容</div>
+            </div>
+            
+          </div>
+          
+          
+          <div class="l2-desc">基于用户浏览行为推荐车型、配件、内容</div>
+          
+          
+          <div class="l2-pains">
+            
+            <div class="pain-card low">
+              <div class="pain-severity low">
+                🔵
+                LOW 严重程度
+              </div>
+              <div class="pain-desc">用户数据积累不足，推荐准确度低</div>
+              <div class="pain-impact">💥 影响: 推荐效果有限，初期ROI低</div>
+              <div class="pain-root">🔍 根因: 新品牌无历史用户数据</div>
+            </div>
+            
+          </div>
+          
+        </div>
+        
+        <div class="l2-activity">
+          <div class="l2-activity-header">
+            <div class="l2-activity-title">在线咨询与试驾预约</div>
+            <span class="l2-activity-order">#3</span>
+          </div>
+          <div class="l2-activity-meta">
+            <span class="l2-meta-item">👤 <b>角色:</b> AI客服/销售</span>
+            <span class="l2-meta-item">💻 <b>系统:</b> AI客服系统</span>
+          </div>
+          
+          <div class="l2-io">
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输入</div>
+              <div class="l2-io-value">客户咨询</div>
+            </div>
+            
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输出</div>
+              <div class="l2-io-value">试驾预约</div>
+            </div>
+            
+          </div>
+          
+          
+          <div class="l2-desc">AI客服解答咨询，引导客户预约试驾或下单</div>
+          
+          
+          <div class="l2-pains">
+            
+            <div class="pain-card critical">
+              <div class="pain-severity critical">
+                🔴
+                CRITICAL 严重程度
+              </div>
+              <div class="pain-desc">无AI客服系统，人工无法覆盖多语言多时区</div>
+              <div class="pain-impact">💥 影响: 咨询响应慢，线索流失严重</div>
+              <div class="pain-root">🔍 根因: 无AI技术投入，无多语言客服团队</div>
+            </div>
+            
+          </div>
+          
+        </div>
+        
+        <div class="l2-activity">
+          <div class="l2-activity-header">
+            <div class="l2-activity-title">在线下单与支付</div>
+            <span class="l2-activity-order">#4</span>
+          </div>
+          <div class="l2-activity-meta">
+            <span class="l2-meta-item">👤 <b>角色:</b> 客户</span>
+            <span class="l2-meta-item">💻 <b>系统:</b> 电商系统</span>
+          </div>
+          
+          <div class="l2-io">
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输入</div>
+              <div class="l2-io-value">客户订单</div>
+            </div>
+            
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输出</div>
+              <div class="l2-io-value">支付确认</div>
+            </div>
+            
+          </div>
+          
+          
+          <div class="l2-desc">客户在线配置车型、选择配件、完成支付</div>
+          
+          
+          <div class="l2-pains">
+            
+            <div class="pain-card high">
+              <div class="pain-severity high">
+                🟠
+                HIGH 严重程度
+              </div>
+              <div class="pain-desc">跨境支付手续费高（3-5%），汇率波动风险</div>
+              <div class="pain-impact">💥 影响: 利润被压缩，财务对账复杂</div>
+              <div class="pain-root">🔍 根因: 国际支付通道成本高，无本地支付方案</div>
+            </div>
+            
+          </div>
+          
+        </div>
+        
+      </div>
+    </div>
+    
+    <div class="l2-panel" id="l2-panel-2" data-vs="2">
+      <div class="l2-panel-header">
+        <span style="color: var(--bt-color-3);">▸</span>
+        阶段 3: 订单履约与交付 — L2 流程详情
+      </div>
+      <div class="l2-flow">
+        
+        <div class="l2-activity">
+          <div class="l2-activity-header">
+            <div class="l2-activity-title">订单处理与排产</div>
+            <span class="l2-activity-order">#1</span>
+          </div>
+          <div class="l2-activity-meta">
+            <span class="l2-meta-item">👤 <b>角色:</b> 运营专员</span>
+            <span class="l2-meta-item">💻 <b>系统:</b> ERP/OMS</span>
+          </div>
+          
+          <div class="l2-io">
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输入</div>
+              <div class="l2-io-value">客户订单</div>
+            </div>
+            
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输出</div>
+              <div class="l2-io-value">生产/发货指令</div>
+            </div>
+            
+          </div>
+          
+          
+          <div class="l2-desc">确认订单，安排生产或从库存发货</div>
+          
+          
+          <div class="l2-pains">
+            
+            <div class="pain-card critical">
+              <div class="pain-severity critical">
+                🔴
+                CRITICAL 严重程度
+              </div>
+              <div class="pain-desc">产能不足，交付周期2-3个月，客户流失</div>
+              <div class="pain-impact">💥 影响: 订单取消率高，品牌口碑受损</div>
+              <div class="pain-root">🔍 根因: 国内产能饱和，无海外备货</div>
+            </div>
+            
+          </div>
+          
+        </div>
+        
+        <div class="l2-activity">
+          <div class="l2-activity-header">
+            <div class="l2-activity-title">出口物流</div>
+            <span class="l2-activity-order">#2</span>
+          </div>
+          <div class="l2-activity-meta">
+            <span class="l2-meta-item">👤 <b>角色:</b> 物流经理</span>
+            <span class="l2-meta-item">💻 <b>系统:</b> TMS</span>
+          </div>
+          
+          <div class="l2-io">
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输入</div>
+              <div class="l2-io-value">发货指令</div>
+            </div>
+            
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输出</div>
+              <div class="l2-io-value">在途跟踪</div>
+            </div>
+            
+          </div>
+          
+          
+          <div class="l2-desc">安排出口报关、国际运输、进口清关</div>
+          
+          
+          <div class="l2-pains">
+            
+            <div class="pain-card high">
+              <div class="pain-severity high">
+                🟠
+                HIGH 严重程度
+              </div>
+              <div class="pain-desc">大件商品物流复杂，成本高，时效长</div>
+              <div class="pain-impact">💥 影响: 客户等待焦虑，满意度低</div>
+              <div class="pain-root">🔍 根因: 无海外仓，必须从国内发货</div>
+            </div>
+            
+          </div>
+          
+        </div>
+        
+        <div class="l2-activity">
+          <div class="l2-activity-header">
+            <div class="l2-activity-title">本地交付与上牌</div>
+            <span class="l2-activity-order">#3</span>
+          </div>
+          <div class="l2-activity-meta">
+            <span class="l2-meta-item">👤 <b>角色:</b> 交付专员</span>
+            <span class="l2-meta-item">💻 <b>系统:</b> DMS</span>
+          </div>
+          
+          <div class="l2-io">
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输入</div>
+              <div class="l2-io-value">清关车辆</div>
+            </div>
+            
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输出</div>
+              <div class="l2-io-value">交付完成</div>
+            </div>
+            
+          </div>
+          
+          
+          <div class="l2-desc">本地配送，协助客户办理上牌和保险</div>
+          
+          
+          <div class="l2-pains">
+            
+            <div class="pain-card high">
+              <div class="pain-severity high">
+                🟠
+                HIGH 严重程度
+              </div>
+              <div class="pain-desc">上牌流程复杂，各地法规不同</div>
+              <div class="pain-impact">💥 影响: 交付体验差，客户需自行办理</div>
+              <div class="pain-root">🔍 根因: 无本地交付团队，无法提供上牌服务</div>
+            </div>
+            
+          </div>
+          
+        </div>
+        
+      </div>
+    </div>
+    
+    <div class="l2-panel" id="l2-panel-3" data-vs="3">
+      <div class="l2-panel-header">
+        <span style="color: var(--bt-color-3);">▸</span>
+        阶段 4: 社区运营与长期价值 — L2 流程详情
+      </div>
+      <div class="l2-flow">
+        
+        <div class="l2-activity">
+          <div class="l2-activity-header">
+            <div class="l2-activity-title">用户社区建设</div>
+            <span class="l2-activity-order">#1</span>
+          </div>
+          <div class="l2-activity-meta">
+            <span class="l2-meta-item">👤 <b>角色:</b> 社区运营</span>
+            <span class="l2-meta-item">💻 <b>系统:</b> 社区平台/Discord</span>
+          </div>
+          
+          <div class="l2-io">
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输入</div>
+              <div class="l2-io-value">车主名单</div>
+            </div>
+            
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输出</div>
+              <div class="l2-io-value">活跃社区</div>
+            </div>
+            
+          </div>
+          
+          
+          <div class="l2-desc">建立海外车主社区，组织线上线下活动</div>
+          
+          
+          <div class="l2-pains">
+            
+            <div class="pain-card medium">
+              <div class="pain-severity medium">
+                🟡
+                MEDIUM 严重程度
+              </div>
+              <div class="pain-desc">海外用户分散，社区活跃度难维持</div>
+              <div class="pain-impact">💥 影响: 社区变成死群，无法产生口碑效应</div>
+              <div class="pain-root">🔍 根因: 无专职社区运营，活动内容单一</div>
+            </div>
+            
+          </div>
+          
+        </div>
+        
+        <div class="l2-activity">
+          <div class="l2-activity-header">
+            <div class="l2-activity-title">骑行数据服务</div>
+            <span class="l2-activity-order">#2</span>
+          </div>
+          <div class="l2-activity-meta">
+            <span class="l2-meta-item">👤 <b>角色:</b> 产品团队</span>
+            <span class="l2-meta-item">💻 <b>系统:</b> 车联网APP</span>
+          </div>
+          
+          <div class="l2-io">
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输入</div>
+              <div class="l2-io-value">车辆骑行数据</div>
+            </div>
+            
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输出</div>
+              <div class="l2-io-value">骑行报告</div>
+            </div>
+            
+          </div>
+          
+          
+          <div class="l2-desc">通过APP提供骑行记录、路线分享、车辆状态</div>
+          
+          
+          <div class="l2-pains">
+            
+            <div class="pain-card medium">
+              <div class="pain-severity medium">
+                🟡
+                MEDIUM 严重程度
+              </div>
+              <div class="pain-desc">车联网系统开发中，功能不完善</div>
+              <div class="pain-impact">💥 影响: 用户粘性低，无法形成数据壁垒</div>
+              <div class="pain-root">🔍 根因: 技术投入不足，APP功能单一</div>
+            </div>
+            
+          </div>
+          
+        </div>
+        
+        <div class="l2-activity">
+          <div class="l2-activity-header">
+            <div class="l2-activity-title">配件与增值服务</div>
+            <span class="l2-activity-order">#3</span>
+          </div>
+          <div class="l2-activity-meta">
+            <span class="l2-meta-item">👤 <b>角色:</b> 电商运营</span>
+            <span class="l2-meta-item">💻 <b>系统:</b> 电商系统</span>
+          </div>
+          
+          <div class="l2-io">
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输入</div>
+              <div class="l2-io-value">车主画像</div>
+            </div>
+            
+            
+            <div class="l2-io-item">
+              <div class="l2-io-label">输出</div>
+              <div class="l2-io-value">配件订单</div>
+            </div>
+            
+          </div>
+          
+          
+          <div class="l2-desc">向车主推荐配件、周边、服务套餐</div>
+          
+          
+          <div class="l2-pains">
+            
+            <div class="pain-card high">
+              <div class="pain-severity high">
+                🟠
+                HIGH 严重程度
+              </div>
+              <div class="pain-desc">配件跨境供应慢，本地库存不足</div>
+              <div class="pain-impact">💥 影响: 复购率低，客户流失到第三方配件商</div>
+              <div class="pain-root">🔍 根因: 无海外配件仓，供应链未打通</div>
+            </div>
+            
+          </div>
+          
+        </div>
+        
+      </div>
+    </div>
+    
+  </div>
+  
+
+  <div class="section-title">⚠️ 业务痛点汇总分析</div>
+  <div class="section-subtitle">全量痛点按严重程度统计与明细</div>
+  
+  <div class="summary-panel">
+    <div class="summary-stats">
+      <div class="stat-card">
+        <div class="stat-number critical">8</div>
+        <div class="stat-label">严重痛点</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number high">17</div>
+        <div class="stat-label">高优先级</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number medium">13</div>
+        <div class="stat-label">中优先级</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number low">1</div>
+        <div class="stat-label">低优先级</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" style="color: var(--text-main);">39</div>
+        <div class="stat-label">痛点总数</div>
+      </div>
+    </div>
+
+    <table class="pain-table">
+      <thead>
+        <tr>
+          <th style="width: 80px;">严重程度</th>
+          <th style="width: 120px;">价值流 / 阶段</th>
+          <th style="width: 120px;">活动</th>
+          <th>痛点描述</th>
+          <th>影响</th>
+        </tr>
+      </thead>
+      <tbody>
+        
+        <tr>
+          <td>
+            <span class="pain-badge critical">
+              🔴
+              CRITICAL
+            </span>
+          </td>
+          <td>
+            <div class="table-activity">海外线下经销商销售价值流</div>
+            <div class="table-stage">市场调研与经销商招募</div>
+          </td>
+          <td class="table-activity">经销商筛选与谈判</td>
+          <td>优质经销商资源稀缺，大品牌已占据核心渠道</td>
+          <td style="font-size: 0.78rem; color: var(--text-muted);">只能签约次级经销商，品牌形象和销量受限</td>
+        </tr>
+        
+        <tr>
+          <td>
+            <span class="pain-badge critical">
+              🔴
+              CRITICAL
+            </span>
+          </td>
+          <td>
+            <div class="table-activity">海外线下经销商销售价值流</div>
+            <div class="table-stage">市场调研与经销商招募</div>
+          </td>
+          <td class="table-activity">合规准入准备</td>
+          <td>欧盟ECE认证、美国EPA认证周期长（6-12个月），费用高（数十万元）</td>
+          <td style="font-size: 0.78rem; color: var(--text-muted);">无法快速进入核心市场，错失赛事热度窗口期</td>
+        </tr>
+        
+        <tr>
+          <td>
+            <span class="pain-badge critical">
+              🔴
+              CRITICAL
+            </span>
+          </td>
+          <td>
+            <div class="table-activity">海外线下经销商销售价值流</div>
+            <div class="table-stage">售后服务与客户维系</div>
+          </td>
+          <td class="table-activity">保修服务</td>
+          <td>海外无直属售后网点，完全依赖经销商能力</td>
+          <td style="font-size: 0.78rem; color: var(--text-muted);">服务质量参差不齐，客户投诉难处理</td>
+        </tr>
+        
+        <tr>
+          <td>
+            <span class="pain-badge critical">
+              🔴
+              CRITICAL
+            </span>
+          </td>
+          <td>
+            <div class="table-activity">海外线下经销商销售价值流</div>
+            <div class="table-stage">售后服务与客户维系</div>
+          </td>
+          <td class="table-activity">配件供应</td>
+          <td>配件跨境供应周期长（2-4周），影响维修时效</td>
+          <td style="font-size: 0.78rem; color: var(--text-muted);">客户车辆长期停用，满意度骤降</td>
+        </tr>
+        
+        <tr>
+          <td>
+            <span class="pain-badge critical">
+              🔴
+              CRITICAL
+            </span>
+          </td>
+          <td>
+            <div class="table-activity">海外电商平台销售价值流</div>
+            <div class="table-stage">在线获客与转化</div>
+          </td>
+          <td class="table-activity">客户咨询响应</td>
+          <td>时差导致响应慢，多语言客服能力不足</td>
+          <td style="font-size: 0.78rem; color: var(--text-muted);">响应超时影响店铺评分，订单流失</td>
+        </tr>
+        
+        <tr>
+          <td>
+            <span class="pain-badge critical">
+              🔴
+              CRITICAL
+            </span>
+          </td>
+          <td>
+            <div class="table-activity">海外电商平台销售价值流</div>
+            <div class="table-stage">售后与评价管理</div>
+          </td>
+          <td class="table-activity">退货处理</td>
+          <td>摩托车退货物流成本极高，退运不现实</td>
+          <td style="font-size: 0.78rem; color: var(--text-muted);">只能退款不退货，损失大</td>
+        </tr>
+        
+        <tr>
+          <td>
+            <span class="pain-badge critical">
+              🔴
+              CRITICAL
+            </span>
+          </td>
+          <td>
+            <div class="table-activity">海外DTC直销价值流</div>
+            <div class="table-stage">官网运营与销售转化</div>
+          </td>
+          <td class="table-activity">在线咨询与试驾预约</td>
+          <td>无AI客服系统，人工无法覆盖多语言多时区</td>
+          <td style="font-size: 0.78rem; color: var(--text-muted);">咨询响应慢，线索流失严重</td>
+        </tr>
+        
+        <tr>
+          <td>
+            <span class="pain-badge critical">
+              🔴
+              CRITICAL
+            </span>
+          </td>
+          <td>
+            <div class="table-activity">海外DTC直销价值流</div>
+            <div class="table-stage">订单履约与交付</div>
+          </td>
+          <td class="table-activity">订单处理与排产</td>
+          <td>产能不足，交付周期2-3个月，客户流失</td>
+          <td style="font-size: 0.78rem; color: var(--text-muted);">订单取消率高，品牌口碑受损</td>
+        </tr>
+        
+        <tr>
+          <td>
+            <span class="pain-badge high">
+              🟠
+              HIGH
+            </span>
+          </td>
+          <td>
+            <div class="table-activity">海外线下经销商销售价值流</div>
+            <div class="table-stage">市场调研与经销商招募</div>
+          </td>
+          <td class="table-activity">目标市场评估</td>
+          <td>缺乏海外市场一手数据，依赖第三方报告，决策依据不充分</td>
+          <td style="font-size: 0.78rem; color: var(--text-muted);">市场选择偏差，资源错配到潜力有限的市场</td>
+        </tr>
+        
+        <tr>
+          <td>
+            <span class="pain-badge high">
+              🟠
+              HIGH
+            </span>
+          </td>
+          <td>
+            <div class="table-activity">海外线下经销商销售价值流</div>
+            <div class="table-stage">产品出口与物流</div>
+          </td>
+          <td class="table-activity">国际运输</td>
+          <td>摩托车属大件危险品，运输成本高，货损风险大</td>
+          <td style="font-size: 0.78rem; color: var(--text-muted);">单车物流成本占售价10-15%，挤压利润</td>
+        </tr>
+        
+        <tr>
+          <td>
+            <span class="pain-badge high">
+              🟠
+              HIGH
+            </span>
+          </td>
+          <td>
+            <div class="table-activity">海外线下经销商销售价值流</div>
+            <div class="table-stage">产品出口与物流</div>
+          </td>
+          <td class="table-activity">进口清关与缴税</td>
+          <td>欧盟关税10%+增值税19-27%，美国关税0-2.5%+州税</td>
+          <td style="font-size: 0.78rem; color: var(--text-muted);">终端售价大幅上升，削弱性价比优势</td>
+        </tr>
+        
+        <tr>
+          <td>
+            <span class="pain-badge high">
+              🟠
+              HIGH
+            </span>
+          </td>
+          <td>
+            <div class="table-activity">海外线下经销商销售价值流</div>
+            <div class="table-stage">本地营销与销售转化</div>
+          </td>
+          <td class="table-activity">本地市场推广</td>
+          <td>品牌认知度低，获客成本高，转化率低</td>
+          <td style="font-size: 0.78rem; color: var(--text-muted);">单车获客成本$500-1000，ROI低</td>
+        </tr>
+        
+        <tr>
+          <td>
+            <span class="pain-badge high">
+              🟠
+              HIGH
+            </span>
+          </td>
+          <td>
+            <div class="table-activity">海外线下经销商销售价值流</div>
+            <div class="table-stage">本地营销与销售转化</div>
+          </td>
+          <td class="table-activity">订单签约与金融</td>
+          <td>缺乏本地金融合作，无法提供分期付款</td>
+          <td style="font-size: 0.78rem; color: var(--text-muted);">大额消费一次性支付门槛高，流失意向客户</td>
+        </tr>
+        
+        <tr>
+          <td>
+            <span class="pain-badge high">
+              🟠
+              HIGH
+            </span>
+          </td>
+          <td>
+            <div class="table-activity">海外电商平台销售价值流</div>
+            <div class="table-stage">平台入驻与店铺运营</div>
+          </td>
+          <td class="table-activity">平台选择与入驻</td>
+          <td>亚马逊、eBay对摩托车类目审核严格，入驻门槛高</td>
+          <td style="font-size: 0.78rem; color: var(--text-muted);">无法快速铺货，错过销售旺季</td>
+        </tr>
+        
+        <tr>
+          <td>
+            <span class="pain-badge high">
+              🟠
+              HIGH
+            </span>
+          </td>
+          <td>
+            <div class="table-activity">海外电商平台销售价值流</div>
+            <div class="table-stage">平台入驻与店铺运营</div>
+          </td>
+          <td class="table-activity">商品Listing上架</td>
+          <td>多语言Listing制作成本高，本地化程度低</td>
+          <td style="font-size: 0.78rem; color: var(--text-muted);">搜索排名低，转化率差</td>
+        </tr>
+        
+        <tr>
+          <td>
+            <span class="pain-badge high">
+              🟠
+              HIGH
+            </span>
+          </td>
+          <td>
+            <div class="table-activity">海外电商平台销售价值流</div>
+            <div class="table-stage">跨境物流与交付</div>
+          </td>
+          <td class="table-activity">跨境运输</td>
+          <td>跨境运输周期长（海运30-45天），客户等待焦虑</td>
+          <td style="font-size: 0.78rem; color: var(--text-muted);">退款率高，差评多</td>
+        </tr>
+        
+        <tr>
+          <td>
+            <span class="pain-badge high">
+              🟠
+              HIGH
+            </span>
+          </td>
+          <td>
+            <div class="table-activity">海外电商平台销售价值流</div>
+            <div class="table-stage">跨境物流与交付</div>
+          </td>
+          <td class="table-activity">末端配送</td>
+          <td>摩托车大件配送需专业设备和人员</td>
+          <td style="font-size: 0.78rem; color: var(--text-muted);">配送失败率高，二次配送成本大</td>
+        </tr>
+        
+        <tr>
+          <td>
+            <span class="pain-badge high">
+              🟠
+              HIGH
+            </span>
+          </td>
+          <td>
+            <div class="table-activity">海外电商平台销售价值流</div>
+            <div class="table-stage">售后与评价管理</div>
+          </td>
+          <td class="table-activity">评价管理</td>
+          <td>差评对店铺评分影响大，但问题解决周期长</td>
+          <td style="font-size: 0.78rem; color: var(--text-muted);">店铺评分下降，流量减少</td>
+        </tr>
+        
+        <tr>
+          <td>
+            <span class="pain-badge high">
+              🟠
+              HIGH
+            </span>
+          </td>
+          <td>
+            <div class="table-activity">海外DTC直销价值流</div>
+            <div class="table-stage">品牌建设与内容营销</div>
+          </td>
+          <td class="table-activity">多语言官网建设</td>
+          <td>官网建设成本高，多语言本地化复杂</td>
+          <td style="font-size: 0.78rem; color: var(--text-muted);">上线周期长，无法快速测试市场</td>
+        </tr>
+        
+        <tr>
+          <td>
+            <span class="pain-badge high">
+              🟠
+              HIGH
+            </span>
+          </td>
+          <td>
+            <div class="table-activity">海外DTC直销价值流</div>
+            <div class="table-stage">品牌建设与内容营销</div>
+          </td>
+          <td class="table-activity">社交媒体运营</td>
+          <td>内容生产速度慢，多语言本地化成本高</td>
+          <td style="font-size: 0.78rem; color: var(--text-muted);">更新频率低，粉丝增长慢</td>
+        </tr>
+        
+        <tr>
+          <td>
+            <span class="pain-badge high">
+              🟠
+              HIGH
+            </span>
+          </td>
+          <td>
+            <div class="table-activity">海外DTC直销价值流</div>
+            <div class="table-stage">官网运营与销售转化</div>
+          </td>
+          <td class="table-activity">SEO/SEM投放</td>
+          <td>摩托车关键词竞争激烈，SEO周期长（6-12个月）</td>
+          <td style="font-size: 0.78rem; color: var(--text-muted);">早期流量获取成本高</td>
+        </tr>
+        
+        <tr>
+          <td>
+            <span class="pain-badge high">
+              🟠
+              HIGH
+            </span>
+          </td>
+          <td>
+            <div class="table-activity">海外DTC直销价值流</div>
+            <div class="table-stage">官网运营与销售转化</div>
+          </td>
+          <td class="table-activity">在线下单与支付</td>
+          <td>跨境支付手续费高（3-5%），汇率波动风险</td>
+          <td style="font-size: 0.78rem; color: var(--text-muted);">利润被压缩，财务对账复杂</td>
+        </tr>
+        
+        <tr>
+          <td>
+            <span class="pain-badge high">
+              🟠
+              HIGH
+            </span>
+          </td>
+          <td>
+            <div class="table-activity">海外DTC直销价值流</div>
+            <div class="table-stage">订单履约与交付</div>
+          </td>
+          <td class="table-activity">出口物流</td>
+          <td>大件商品物流复杂，成本高，时效长</td>
+          <td style="font-size: 0.78rem; color: var(--text-muted);">客户等待焦虑，满意度低</td>
+        </tr>
+        
+        <tr>
+          <td>
+            <span class="pain-badge high">
+              🟠
+              HIGH
+            </span>
+          </td>
+          <td>
+            <div class="table-activity">海外DTC直销价值流</div>
+            <div class="table-stage">订单履约与交付</div>
+          </td>
+          <td class="table-activity">本地交付与上牌</td>
+          <td>上牌流程复杂，各地法规不同</td>
+          <td style="font-size: 0.78rem; color: var(--text-muted);">交付体验差，客户需自行办理</td>
+        </tr>
+        
+        <tr>
+          <td>
+            <span class="pain-badge high">
+              🟠
+              HIGH
+            </span>
+          </td>
+          <td>
+            <div class="table-activity">海外DTC直销价值流</div>
+            <div class="table-stage">社区运营与长期价值</div>
+          </td>
+          <td class="table-activity">配件与增值服务</td>
+          <td>配件跨境供应慢，本地库存不足</td>
+          <td style="font-size: 0.78rem; color: var(--text-muted);">复购率低，客户流失到第三方配件商</td>
+        </tr>
+        
+        <tr>
+          <td>
+            <span class="pain-badge medium">
+              🟡
+              MEDIUM
+            </span>
+          </td>
+          <td>
+            <div class="table-activity">海外线下经销商销售价值流</div>
+            <div class="table-stage">产品出口与物流</div>
+          </td>
+          <td class="table-activity">出口报关</td>
+          <td>摩托车出口涉及特殊监管，单证准备复杂</td>
+          <td style="font-size: 0.78rem; color: var(--text-muted);">报关周期不确定，影响交付时效</td>
+        </tr>
+        
+        <tr>
+          <td>
+            <span class="pain-badge medium">
+              🟡
+              MEDIUM
+            </span>
+          </td>
+          <td>
+            <div class="table-activity">海外线下经销商销售价值流</div>
+            <div class="table-stage">产品出口与物流</div>
+          </td>
+          <td class="table-activity">本地仓储与分拨</td>
+          <td>经销商库存资金占用大，补货周期长</td>
+          <td style="font-size: 0.78rem; color: var(--text-muted);">畅销车型断货，滞销车型积压</td>
+        </tr>
+        
+        <tr>
+          <td>
+            <span class="pain-badge medium">
+              🟡
+              MEDIUM
+            </span>
+          </td>
+          <td>
+            <div class="table-activity">海外线下经销商销售价值流</div>
+            <div class="table-stage">本地营销与销售转化</div>
+          </td>
+          <td class="table-activity">试驾体验</td>
+          <td>试驾车辆配置不全，客户体验不完整</td>
+          <td style="font-size: 0.78rem; color: var(--text-muted);">试驾转化率低于行业平均</td>
+        </tr>
+        
+        <tr>
+          <td>
+            <span class="pain-badge medium">
+              🟡
+              MEDIUM
+            </span>
+          </td>
+          <td>
+            <div class="table-activity">海外线下经销商销售价值流</div>
+            <div class="table-stage">本地营销与销售转化</div>
+          </td>
+          <td class="table-activity">车辆交付</td>
+          <td>交付流程繁琐，客户等待时间长</td>
+          <td style="font-size: 0.78rem; color: var(--text-muted);">交付体验差，首印象不佳</td>
+        </tr>
+        
+        <tr>
+          <td>
+            <span class="pain-badge medium">
+              🟡
+              MEDIUM
+            </span>
+          </td>
+          <td>
+            <div class="table-activity">海外线下经销商销售价值流</div>
+            <div class="table-stage">售后服务与客户维系</div>
+          </td>
+          <td class="table-activity">客户关怀与回访</td>
+          <td>无海外CRM系统，客户数据分散</td>
+          <td style="font-size: 0.78rem; color: var(--text-muted);">无法精准营销，客户流失后无感知</td>
+        </tr>
+        
+        <tr>
+          <td>
+            <span class="pain-badge medium">
+              🟡
+              MEDIUM
+            </span>
+          </td>
+          <td>
+            <div class="table-activity">海外电商平台销售价值流</div>
+            <div class="table-stage">平台入驻与店铺运营</div>
+          </td>
+          <td class="table-activity">定价与促销</td>
+          <td>平台佣金（8-15%）+广告费+物流费，成本叠加</td>
+          <td style="font-size: 0.78rem; color: var(--text-muted);">利润空间被严重压缩</td>
+        </tr>
+        
+        <tr>
+          <td>
+            <span class="pain-badge medium">
+              🟡
+              MEDIUM
+            </span>
+          </td>
+          <td>
+            <div class="table-activity">海外电商平台销售价值流</div>
+            <div class="table-stage">在线获客与转化</div>
+          </td>
+          <td class="table-activity">站内广告投放</td>
+          <td>摩托车关键词竞价激烈，CPC高</td>
+          <td style="font-size: 0.78rem; color: var(--text-muted);">广告ROI低，获客成本高</td>
+        </tr>
+        
+        <tr>
+          <td>
+            <span class="pain-badge medium">
+              🟡
+              MEDIUM
+            </span>
+          </td>
+          <td>
+            <div class="table-activity">海外电商平台销售价值流</div>
+            <div class="table-stage">在线获客与转化</div>
+          </td>
+          <td class="table-activity">订单处理</td>
+          <td>摩托车大件物流复杂，订单处理环节多</td>
+          <td style="font-size: 0.78rem; color: var(--text-muted);">发货周期长，客户催单多</td>
+        </tr>
+        
+        <tr>
+          <td>
+            <span class="pain-badge medium">
+              🟡
+              MEDIUM
+            </span>
+          </td>
+          <td>
+            <div class="table-activity">海外电商平台销售价值流</div>
+            <div class="table-stage">跨境物流与交付</div>
+          </td>
+          <td class="table-activity">国内集货打包</td>
+          <td>摩托车包装要求高，防护成本高</td>
+          <td style="font-size: 0.78rem; color: var(--text-muted);">包装成本占物流成本20%</td>
+        </tr>
+        
+        <tr>
+          <td>
+            <span class="pain-badge medium">
+              🟡
+              MEDIUM
+            </span>
+          </td>
+          <td>
+            <div class="table-activity">海外DTC直销价值流</div>
+            <div class="table-stage">品牌建设与内容营销</div>
+          </td>
+          <td class="table-activity">KOL/骑手合作</td>
+          <td>优质KOL合作成本高，小KOL效果难评估</td>
+          <td style="font-size: 0.78rem; color: var(--text-muted);">营销预算使用效率不确定</td>
+        </tr>
+        
+        <tr>
+          <td>
+            <span class="pain-badge medium">
+              🟡
+              MEDIUM
+            </span>
+          </td>
+          <td>
+            <div class="table-activity">海外DTC直销价值流</div>
+            <div class="table-stage">品牌建设与内容营销</div>
+          </td>
+          <td class="table-activity">赛事IP内容传播</td>
+          <td>赛事内容版权复杂，二次创作受限</td>
+          <td style="font-size: 0.78rem; color: var(--text-muted);">内容传播效果打折扣</td>
+        </tr>
+        
+        <tr>
+          <td>
+            <span class="pain-badge medium">
+              🟡
+              MEDIUM
+            </span>
+          </td>
+          <td>
+            <div class="table-activity">海外DTC直销价值流</div>
+            <div class="table-stage">社区运营与长期价值</div>
+          </td>
+          <td class="table-activity">用户社区建设</td>
+          <td>海外用户分散，社区活跃度难维持</td>
+          <td style="font-size: 0.78rem; color: var(--text-muted);">社区变成死群，无法产生口碑效应</td>
+        </tr>
+        
+        <tr>
+          <td>
+            <span class="pain-badge medium">
+              🟡
+              MEDIUM
+            </span>
+          </td>
+          <td>
+            <div class="table-activity">海外DTC直销价值流</div>
+            <div class="table-stage">社区运营与长期价值</div>
+          </td>
+          <td class="table-activity">骑行数据服务</td>
+          <td>车联网系统开发中，功能不完善</td>
+          <td style="font-size: 0.78rem; color: var(--text-muted);">用户粘性低，无法形成数据壁垒</td>
+        </tr>
+        
+        <tr>
+          <td>
+            <span class="pain-badge low">
+              🔵
+              LOW
+            </span>
+          </td>
+          <td>
+            <div class="table-activity">海外DTC直销价值流</div>
+            <div class="table-stage">官网运营与销售转化</div>
+          </td>
+          <td class="table-activity">AI个性化推荐</td>
+          <td>用户数据积累不足，推荐准确度低</td>
+          <td style="font-size: 0.78rem; color: var(--text-muted);">推荐效果有限，初期ROI低</td>
+        </tr>
+        
+      </tbody>
+    </table>
+  </div>
+
+  <div class="page-footer">
+    Generated by Business Process Deep Analyzer · 2026-04-29 21:13
+  </div>
+
+  <script>
+    // Track active L2 panels per value stream
+    var activePanels = {};
+    
+    function toggleL2(stageIndex, stageName) {
+      var panel = document.getElementById('l2-panel-' + stageIndex);
+      if (!panel) return;
+      
+      // Close other panels in the same value stream
+      var vsPanels = document.querySelectorAll('.l2-panel[data-vs="' + stageIndex + '"]');
+      
+      if (panel.classList.contains('active')) {
+        panel.classList.remove('active');
+      } else {
+        // Close all panels first
+        document.querySelectorAll('.l2-panel.active').forEach(function(p) {
+          p.classList.remove('active');
+        });
+        // Open clicked panel
+        panel.classList.add('active');
+        // Scroll to panel
+        setTimeout(function() {
+          panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }, 100);
+      }
+    }
+    
+    // Highlight L1 stage on hover
+    document.querySelectorAll('.l1-stage').forEach(function(stage) {
+      stage.addEventListener('mouseenter', function() {
+        this.classList.add('active');
+      });
+      stage.addEventListener('mouseleave', function() {
+        if (!document.getElementById('l2-panel-' + this.dataset.stage).classList.contains('active')) {
+          this.classList.remove('active');
+        }
+      });
+    });
+  </script>
+
+</body>
+</html>

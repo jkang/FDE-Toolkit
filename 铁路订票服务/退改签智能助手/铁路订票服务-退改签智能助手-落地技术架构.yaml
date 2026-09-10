@@ -1,0 +1,195 @@
+meta:
+  title: "退改签智能助手 · 落地技术架构方案"
+  scenario: "退改签智能助手"
+  company: "铁路订票服务"
+  route: "Autonomous Planner"
+  routeReason: "用户入口开放（订单详情页 / 运行变更 Push / 站内终端），路径需按订单状态、旅客偏好与事件运行时规划；5 个 Skill 职责稳定但调用路径由上下文决定。"
+  patternSummary: "1 编排 Agent + 5 Skill + 1 本体"
+  date: "2026-09-10"
+
+agent:
+  name: "编排 Agent · Autonomous Planner"
+  role: "意图识别 · 规划 · 调度 Skill · 发起 HITL · 异常兜底"
+  loop: "Plan → Act → Observe"
+  memory: ["会话级上下文", "订单与偏好", "处置全链路状态"]
+  note: "不直接算数，只做规划与调度"
+
+routing:
+  - { intent: "识别 / 订单", skill: "skill_identify" }
+  - { intent: "费用 / 规则", skill: "skill_translate" }
+  - { intent: "改签 / 方案", skill: "skill_recommend" }
+  - { intent: "退改 / 关联", skill: "skill_dispose" }
+  - { intent: "通知 / 确认", skill: "skill_notify" }
+
+skills:
+  - id: "skill_identify"
+    name: "Skill ① 场景识别与订单拉取"
+    type: "skill"
+    trigger: "运行变更事件 / 用户操作"
+    pattern: "event-driven + pipeline"
+    whyNotSubagent: "步骤固定、共享上下文、无独立规划，I/O 清晰 → 判 Skill"
+    handoff: "→ 场景识别完成进入 Skill ② 规则转译"
+    nodes:
+      - { id: "a0", label: "事件 / 操作输入", type: "op" }
+      - { id: "a1", label: "监听运行变更", note: "MCP · 运行监控", type: "mcp" }
+      - { id: "a2", label: "识别退改签场景类型", note: "小模型 · 意图", type: "small" }
+      - { id: "a3", label: "拉取原订单", note: "MCP · 票务核心", type: "mcp" }
+      - { id: "a4", label: "订单可退改校验", note: "确定性", type: "det" }
+      - { id: "a5", label: "可退改判定", note: "Evaluator", type: "eval" }
+      - { id: "a6", label: "提示并终止", type: "out" }
+      - { id: "a7", label: "识别完成", type: "out" }
+    edges:
+      - { from: "a0", to: "a1", style: "solid" }
+      - { from: "a1", to: "a2", style: "solid" }
+      - { from: "a2", to: "a3", style: "solid" }
+      - { from: "a3", to: "a4", style: "solid" }
+      - { from: "a4", to: "a5", style: "solid" }
+      - { from: "a5", to: "a7", label: "可退改", style: "solid" }
+      - { from: "a5", to: "a6", label: "不可退改", style: "dashed" }
+      - { from: "a1", to: "a1", label: "事件重连 ×1", style: "dashed" }
+
+  - id: "skill_translate"
+    name: "Skill ② 规则转译与费用对比"
+    type: "skill"
+    trigger: "订单已识别 / 用户发起退改"
+    pattern: "pipeline + human-in-the-loop"
+    whyNotSubagent: "计费为确定性规则、说明为固定结构，可独立验收 → 判 Skill"
+    handoff: "→ 费用确认后进入 Skill ③ 方案推荐"
+    nodes:
+      - { id: "b0", label: "订单 / 时间差输入", type: "op" }
+      - { id: "b1", label: "计算阶梯费率", note: "规则引擎 · 确定性", type: "det" }
+      - { id: "b2", label: "规则转译为大白话", note: "LLM", type: "llm" }
+      - { id: "b3", label: "输出费用对比表", note: "模板", type: "det" }
+      - { id: "b4", label: "旅客确认费用", note: "HITL", type: "hitl" }
+      - { id: "b5", label: "转译完成", type: "out" }
+      - { id: "b6", label: "异常池", note: "特殊票种 / 规则盲区", type: "exception" }
+    edges:
+      - { from: "b0", to: "b1", style: "solid" }
+      - { from: "b1", to: "b2", style: "solid" }
+      - { from: "b2", to: "b3", style: "solid" }
+      - { from: "b3", to: "b4", style: "solid" }
+      - { from: "b4", to: "b5", label: "确认", style: "solid" }
+      - { from: "b4", to: "b2", label: "追问解释", style: "dashed" }
+      - { from: "b1", to: "b6", label: "特殊票种", style: "dashed" }
+
+  - id: "skill_recommend"
+    name: "Skill ③ 改签方案寻优推荐"
+    type: "skill"
+    trigger: "需要改签 / 运行变更"
+    pattern: "orchestrator-worker + human-in-the-loop"
+    whyNotSubagent: "约束寻优为预定义因子、对外放行门禁明确 → 判 Skill"
+    handoff: "→ 方案选定后进入 Skill ④ 一体化处置"
+    nodes:
+      - { id: "c0", label: "订单 / 偏好输入", type: "op" }
+      - { id: "c1", label: "并发检索候选方案", note: "MCP · 余票 / 运行图", type: "mcp" }
+      - { id: "c2", label: "结合偏好与成功率排序", note: "确定性", type: "det" }
+      - { id: "c3", label: "生成风险评估与损失", note: "LLM", type: "llm" }
+      - { id: "c4", label: "输出 Top 3 方案", note: "模板", type: "det" }
+      - { id: "c5", label: "旅客选定方案", note: "HITL · 对外必停", type: "hitl" }
+      - { id: "c6", label: "推荐完成", type: "out" }
+      - { id: "c7", label: "异常池", note: "无候选 / 偏好冲突", type: "exception" }
+    edges:
+      - { from: "c0", to: "c1", style: "solid" }
+      - { from: "c1", to: "c2", style: "solid" }
+      - { from: "c2", to: "c3", style: "solid" }
+      - { from: "c3", to: "c4", style: "solid" }
+      - { from: "c4", to: "c5", style: "solid" }
+      - { from: "c5", to: "c6", label: "选定", style: "solid" }
+      - { from: "c5", to: "c1", label: "放宽条件重算", style: "dashed" }
+      - { from: "c1", to: "c7", label: "无候选", style: "dashed" }
+
+  - id: "skill_dispose"
+    name: "Skill ④ 一体化处置"
+    type: "skill"
+    trigger: "方案已选定"
+    pattern: "pipeline + human-in-the-loop"
+    whyNotSubagent: "涉钱交易但路径固定、需人工确认，非独立规划 → 判 Skill"
+    handoff: "→ 处置完成进入 Skill ⑤ 确认与通知"
+    nodes:
+      - { id: "d0", label: "选定方案输入", type: "op" }
+      - { id: "d1", label: "退改交易前置校验", note: "规则引擎", type: "det" }
+      - { id: "d2", label: "发起主票退改", note: "MCP · 票务核心 · 写本体 W", type: "mcp" }
+      - { id: "d3", label: "交易结果判定", note: "Evaluator", type: "eval" }
+      - { id: "d4", label: "识别关联延伸服务", note: "读关联协议 R", type: "onto" }
+      - { id: "d5", label: "同步处置关联服务", note: "MCP · 订单协同中心", type: "mcp" }
+      - { id: "d6", label: "跨业务一致性校验", note: "确定性", type: "det" }
+      - { id: "d7", label: "处置完成", type: "out" }
+      - { id: "d8", label: "失败记录 + 人工重试", note: "HITL · 高风险", type: "hitl" }
+      - { id: "d9", label: "异常池", note: "关联不明 / 不一致", type: "exception" }
+    edges:
+      - { from: "d0", to: "d1", style: "solid" }
+      - { from: "d1", to: "d2", style: "solid" }
+      - { from: "d2", to: "d3", style: "solid" }
+      - { from: "d3", to: "d4", label: "成功", style: "solid" }
+      - { from: "d3", to: "d8", label: "失败", style: "dashed" }
+      - { from: "d8", to: "d2", label: "人工确认后重试", style: "dashed" }
+      - { from: "d4", to: "d5", style: "solid" }
+      - { from: "d5", to: "d6", style: "solid" }
+      - { from: "d6", to: "d7", label: "通过", style: "solid" }
+      - { from: "d6", to: "d9", label: "不一致", style: "dashed" }
+
+  - id: "skill_notify"
+    name: "Skill ⑤ 确认与通知"
+    type: "skill"
+    trigger: "处置完成"
+    pattern: "pipeline"
+    whyNotSubagent: "分支为预定义（通知/更新/建单），无独立规划 → 判 Skill"
+    nodes:
+      - { id: "e0", label: "处置结果输入", type: "op" }
+      - { id: "e1", label: "生成处置确认清单", note: "模板", type: "det" }
+      - { id: "e2", label: "推送通知", note: "MCP · Push 网关", type: "mcp" }
+      - { id: "e3", label: "更新行程", note: "写本体 W", type: "onto" }
+      - { id: "e4", label: "异常建单转客服", note: "MCP · 工单系统", type: "mcp" }
+      - { id: "e5", label: "确认完成", type: "out" }
+    edges:
+      - { from: "e0", to: "e1", style: "solid" }
+      - { from: "e1", to: "e2", style: "solid" }
+      - { from: "e1", to: "e3", style: "solid" }
+      - { from: "e1", to: "e4", label: "异常", style: "dashed" }
+      - { from: "e2", to: "e5", style: "solid" }
+      - { from: "e3", to: "e5", style: "solid" }
+
+sharedBase:
+  ontology:
+    title: "本体（确定性底座）"
+    read: ["票务订单（识别/处置）", "费率规则（转译）", "延伸服务订单（关联处置）"]
+    write: ["退改记录（处置回写）", "关联服务处置状态（同步回写）", "通知与行程（确认回写）"]
+    note: "对象 / 关系 / 状态迁移 + 业务事实；计费与校验走确定性规则，不靠 LLM 猜事实。"
+  mcp:
+    title: "MCP / 外部系统"
+    calls: ["票务核心交易（退/改/订）", "实时列车运行监控", "全业务订单协同中心（餐饮/约车/接送站/行程单）", "Push / 消息网关", "智能客服工单系统", "12306 退改签费率知识库"]
+    note: "仅需要外部读写的步骤才走 MCP。"
+  kb:
+    title: "知识库 / RAG"
+    calls: ["12306 退改签阶梯费率知识库", "改签方案寻优经验", "跨业务关联处置协议", "铁路票务退改签术语字典"]
+    note: "计费走规则引擎而非向量检索；费率条款、寻优经验、关联协议、术语走 RAG。"
+
+exceptionPool: "订单不可退改 / 特殊票种 / 规则盲区 / 无候选方案 / 偏好冲突 / 交易失败 / 关联处置不一致 / Loop 超限 → 升级人工，附上下文摘要。"
+
+failureTable:
+  - { trigger: "运行监控事件丢失", action: "兜底为用户主动发起 + 事件重连 1 次", type: "fallback / retry" }
+  - { trigger: "订单不存在 / 已失效", action: "提示并终止，不进入退改流程", type: "fallback" }
+  - { trigger: "特殊票种 / 规则盲区", action: "转规则兜底 / 人工，标注待确认，不臆造费率", type: "escalate" }
+  - { trigger: "无候选方案 / 偏好冲突", action: "给出权衡说明或放宽条件重算", type: "fallback" }
+  - { trigger: "票务核心退改交易失败", action: "记录返回 → 人工确认后重试，禁止无限制自动重试", type: "retry / escalate" }
+  - { trigger: "关联服务处置失败 / 一致性不一致", action: "回滚或转客服人工处理并留痕", type: "escalate" }
+  - { trigger: "Push 推送失败", action: "重试，不影响处置结果记录", type: "retry" }
+
+kpi:
+  - { name: "退改签自助率", link: "① 识别 + ② 转译 + ③ 推荐 + ④ 处置　目标 ≥95%" }
+  - { name: "决策耗时", link: "③ 方案寻优　15–20 分钟 → 秒级" }
+  - { name: "高峰期改签成功率", link: "③ 方案寻优（历史成功率排序）" }
+  - { name: "客服进线量", link: "⑤ 异常建单转客服　标准场景分流" }
+  - { name: "关联服务遗漏损失", link: "④ 一体化处置 + 一致性校验" }
+
+guardrails:
+  - { rule: "计费走确定性规则引擎", detail: "LLM 不算钱；说明与规则引擎结果必须一致" }
+  - { rule: "对外承诺必须人工放行", detail: "选择改签方案、发起退改交易前必停" }
+  - { rule: "交易失败不得无限制自动重试", detail: "高风险资金动作，须人工确认后重试" }
+  - { rule: "关联服务未一致性校验通过不得标记完成", detail: "避免遗漏关联服务造成损失" }
+  - { rule: "硬约束不可突破", detail: "席别一致等硬约束不可被偏好排序覆盖" }
+
+notes:
+  - { title: "⚠️ 口径待确认：", text: "阶梯费率档位与特殊票种规则是否与最新 12306 政策一致；方案寻优偏好优先级；跨业务关联处置口径。" }
+  - { title: "⚠️ 基线待回填：", text: "退改签自助率 ≥95%、高峰期改签成功率、决策耗时的基线口径。" }
+  - { title: "⚠️ MCP 边界：", text: "本方案把票务核心/运行监控/订单协同/Push/工单画成 MCP 外部调用；若确认「MCP=0，数据全部来自绑定本体」，则归入本体/内部服务并标 N/A。" }

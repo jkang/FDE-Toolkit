@@ -1,0 +1,79 @@
+title: AI赛事内容工厂
+description: AI自动剪辑WSBK赛事高光片段，生成多语言解说视频与图文内容，适配全球主流社媒平台格式。
+userRoles:
+  - 品牌内容经理
+  - 社媒运营专员
+  - 海外市场营销
+  - 赛事运营负责人
+userPains:
+  - WSBK赛事素材量大，人工剪辑耗时巨大且难以及时产出
+  - 多语言内容制作成本高，需要雇佣本地化团队
+  - 各平台格式要求不同，人工适配效率低
+  - 赛事热点转瞬即逝，内容产出速度跟不上传播窗口
+aiInput:
+  - 上传WSBK原始赛事素材（视频/音频/数据）
+  - 选择目标市场与语言（默认6语言）
+  - 设定品牌调性与内容红线
+  - 触发AI自动剪辑与生成指令
+dataKnowledge:
+  - WSBK赛事数据库（车手信息/成绩/历史对战）
+  - 品牌VI规范与视觉标准手册
+  - 目标市场文化偏好与禁忌数据库
+  - 各平台内容规范（时长/比例/标签）
+  - 历史高互动内容素材库
+workflow:
+  - actor: human
+    action: 赛事运营负责人上传 WSBK 原始赛事素材，品牌内容经理设定目标市场语言与品牌调性/内容红线
+  - actor: agent
+    action: 多模态理解赛事视频与赛事数据，识别并打分高光时刻与精彩镜头
+  - actor: agent
+    action: 基于赛事数据生成多语言解说脚本，调用 TTS 完成多语言配音与字幕
+  - actor: agent
+    action: 自动剪辑高光片段、合成配音字幕、添加品牌元素与封面缩略图
+  - actor: human
+    action: 品牌内容经理审阅品牌调性与内容红线，对敏感/对外内容放行或退回
+  - actor: agent
+    action: 按各平台规范调整分辨率/时长/比例/标签，生成多平台内容包
+  - actor: agent
+    action: 生成发布排期、选择最佳发布时间并自动排期发布
+  - actor: agent
+    action: 监控互动数据，回流效果报告并优化后续内容策略
+modelUsage:
+  - 多模态视频理解模型：自动识别赛事高光片段与镜头语义
+  - GPT-4o级大语言模型：生成多语言解说脚本与文化本地化改写
+  - ElevenLabs语音合成：多语言配音与本地化
+  - 图像生成模型：自动封面图与缩略图生成
+aiOutput:
+  - 6语言短视频成品（YouTube/TikTok/Instagram/Reels）
+  - 多平台格式适配内容包
+  - SEO优化文章与图文内容
+  - 自动发布排期表
+  - 内容效果分析报告
+systemIntegration:
+  - system: WSBK赛事数据库 / 赛事数据源
+    direction: upstream
+    purpose: 读入车手信息、成绩与历史对战数据，作为高光识别与脚本生成依据
+  - system: 品牌VI与内容红线库
+    direction: upstream
+    purpose: 读入品牌调性、VI规范与内容红线，约束剪辑包装与审核
+  - system: 视频剪辑API（Runway/Descript）
+    direction: bidirectional
+    purpose: 调用自动剪辑/合成能力并回收剪辑成品
+  - system: 语音合成API（ElevenLabs/Azure TTS）
+    direction: downstream
+    purpose: 生成多语言配音音轨并回写成品
+  - system: 社媒管理平台（Hootsuite/Sprinklr）
+    direction: downstream
+    purpose: 回写排期并执行多平台发布
+  - system: 数据分析平台（Google Analytics / 各平台开放数据）
+    direction: upstream
+    purpose: 读入互动与转化数据，驱动效果反馈闭环
+productType:
+  - AI内容生产工作台（Web端）
+  - 社媒发布自动化插件
+  - 内容效果追踪仪表盘
+businessGains:
+  - 赛事内容产出速度从3天缩短至30分钟（时效提升约 98%）
+  - 多语言内容制作成本降低90%
+  - 内容互动率提升35%（AI精准把握高光时刻）
+  - 社媒运营人力需求从5人降至1人

@@ -1,0 +1,2415 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>张雪机车海外AI-Native DTC销售工作流 v2.0</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'Noto Sans SC', 'system-ui', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'Fira Code', 'monospace'],
+                    },
+                    colors: {
+                        snowblade: {
+                            50: '#EBF4FD', 100: '#D0E7FA', 200: '#A1CFF5', 300: '#6DB5EE',
+                            400: '#3B99E0', 500: '#1A6BC4', 600: '#1558A5', 700: '#104586',
+                            800: '#0C3368', 900: '#08224A', 950: '#05142E',
+                        },
+                        racing: {
+                            50: '#F7F8F9', 100: '#EBEEF2', 200: '#D5DAE2', 300: '#AEB7C8',
+                            400: '#7D8BA3', 500: '#5C6B82', 600: '#45546C', 700: '#313D53',
+                            800: '#1E2634', 900: '#0F141D', 950: '#080B11',
+                        },
+                        'racing-red': {
+                            500: '#E63946', 600: '#CF212F',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* ===== ZXMOTO Brand Design System ===== */
+        /* Based on design.md - Three-Layer Token Architecture */
+        
+        :root {
+            /* === Primitive Tokens === */
+            --color-snowblade-50: #EBF4FD; --color-snowblade-100: #D0E7FA; --color-snowblade-200: #A1CFF5;
+            --color-snowblade-300: #6DB5EE; --color-snowblade-400: #3B99E0; --color-snowblade-500: #1A6BC4;
+            --color-snowblade-600: #1558A5; --color-snowblade-700: #104586; --color-snowblade-800: #0C3368;
+            --color-snowblade-900: #08224A; --color-snowblade-950: #05142E;
+            
+            --color-racing-50: #F7F8F9; --color-racing-100: #EBEEF2; --color-racing-200: #D5DAE2;
+            --color-racing-300: #AEB7C8; --color-racing-400: #7D8BA3; --color-racing-500: #5C6B82;
+            --color-racing-600: #45546C; --color-racing-700: #313D53; --color-racing-800: #1E2634;
+            --color-racing-900: #0F141D; --color-racing-950: #080B11;
+            
+            --color-racing-red-500: #E63946; --color-racing-red-600: #CF212F;
+            --color-green-600: #16A34A; --color-yellow-500: #F59E0B;
+            
+            /* === Semantic Tokens (Light Mode) === */
+            --color-background: #FFFFFF;
+            --color-foreground: var(--color-racing-900);
+            --color-surface: #FFFFFF;
+            --color-surface-raised: #F8F9FB;
+            
+            --color-primary: var(--color-snowblade-500);
+            --color-primary-hover: var(--color-snowblade-600);
+            --color-primary-active: var(--color-snowblade-700);
+            --color-primary-foreground: #FFFFFF;
+            --color-primary-muted: var(--color-snowblade-50);
+            
+            --color-secondary: var(--color-racing-100);
+            --color-secondary-hover: var(--color-racing-200);
+            --color-secondary-foreground: var(--color-racing-800);
+            
+            --color-accent: var(--color-racing-red-500);
+            --color-accent-hover: var(--color-racing-red-600);
+            --color-accent-foreground: #FFFFFF;
+            
+            --color-muted: var(--color-racing-100);
+            --color-muted-foreground: var(--color-racing-500);
+            
+            --color-border: var(--color-racing-200);
+            --color-input: var(--color-racing-200);
+            --color-ring: var(--color-snowblade-400);
+            
+            --color-card: #FFFFFF;
+            --color-card-foreground: var(--color-racing-900);
+            
+            --color-success: var(--color-green-600);
+            --color-warning: var(--color-yellow-500);
+            --color-destructive: var(--color-racing-red-600);
+            
+            /* === Typography === */
+            --font-family-sans: 'Inter', 'Noto Sans SC', -apple-system, BlinkMacSystemFont, 'PingFang SC', sans-serif;
+            --font-family-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+            
+            /* === Spacing (4px base) === */
+            --space-0-5: 0.125rem; --space-1: 0.25rem; --space-2: 0.5rem; --space-3: 0.75rem;
+            --space-4: 1rem; --space-5: 1.25rem; --space-6: 1.5rem; --space-8: 2rem;
+            --space-10: 2.5rem; --space-12: 3rem; --space-16: 4rem; --space-20: 5rem;
+            --space-24: 6rem;
+            
+            /* === Radius === */
+            --radius-sm: 0.125rem;   /* 2px - sharp/hardcore */
+            --radius-md: 0.5rem;     /* 8px */
+            --radius-lg: 0.75rem;    /* 12px */
+            --radius-full: 9999px;
+            
+            /* === Shadows === */
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.15), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 25px -5px rgb(0 0 0 / 0.2), 0 4px 10px -6px rgb(0 0 0 / 0.1);
+            --shadow-glow: 0 0 20px rgb(26 107 196 / 0.3);  /* Snow Blade Blue glow */
+            
+            /* === Duration === */
+            --duration-fast: 150ms;
+            --duration-normal: 200ms;
+            --duration-slow: 300ms;
+        }
+        
+        body { 
+            font-family: var(--font-family-sans);
+            background-color: var(--color-background);
+            color: var(--color-foreground);
+            background-image: 
+                radial-gradient(at 0% 0%, rgb(235 244 253 / 0.6) 0, transparent 50%),
+                radial-gradient(at 50% 0%, rgb(26 107 196 / 0.06) 0, transparent 50%),
+                radial-gradient(at 100% 0%, rgb(230 57 70 / 0.04) 0, transparent 50%);
+            background-attachment: fixed;
+        }
+        
+        /* === Glass Panel (Light Mode) === */
+        .glass-panel { 
+            background: rgb(255 255 255 / 0.85);
+            backdrop-filter: blur(16px); 
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--color-border);
+            box-shadow: var(--shadow-sm);
+        }
+        
+        /* === Node Card === */
+        .node-card { 
+            transition: all var(--duration-slow) cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid var(--color-border);
+            background: var(--color-card);
+        }
+        .node-card:hover { 
+            transform: translateY(-4px); 
+            box-shadow: var(--shadow-lg);
+            border-color: rgb(26 107 196 / 0.25);
+            background: var(--color-surface-raised);
+        }
+        
+        /* === Custom scrollbar (Light theme) === */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--color-racing-300); border-radius: var(--radius-sm); }
+        ::-webkit-scrollbar-thumb:hover { background: var(--color-racing-400); }
+
+        /* === Phase Connector === */
+        .phase-connector {
+            position: relative;
+        }
+        .phase-connector::after {
+            content: '';
+            position: absolute;
+            top: 24px;
+            right: -24px;
+            width: 24px;
+            height: 2px;
+            background: linear-gradient(90deg, rgb(26 107 196 / 0.4) 0%, rgb(59 153 224 / 0.3) 100%);
+            z-index: 0;
+        }
+        .phase-connector:last-child::after {
+            display: none;
+        }
+
+        /* === Tag (Badge) - Sharp corners for hardcore feel === */
+        .tag {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 0.125rem 0.375rem;
+            border-radius: var(--radius-sm);
+            font-weight: 600;
+        }
+
+        /* === Brand Color Overrides for Node Content (Light Theme - High Contrast) === */
+        .node-card .text-snowblade-400 { color: var(--color-snowblade-600); }
+        .node-card .text-snowblade-300 { color: var(--color-snowblade-700); }
+        .node-card .text-snowblade-200 { color: var(--color-snowblade-700); }
+        .node-card .text-racing-red-400 { color: #E63946; }
+        .node-card .text-racing-red-300 { color: #C62828; }
+        .node-card .text-racing-400 { color: var(--color-racing-600); }
+        .node-card .text-racing-600 { color: var(--color-racing-700); }
+        
+        /* === AI Capability Box === */
+        .ai-capability-box {
+            background: rgb(26 107 196 / 0.08);
+            border: 1px solid rgb(26 107 196 / 0.15);
+            border-radius: var(--radius-md);
+        }
+        
+        /* === Data Flow Boxes === */
+        .data-flow-box {
+            background: rgb(241 243 246 / 0.95);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-md);
+        }
+        
+        /* === Human Touchpoint Divider === */
+        .human-touchpoint-divider {
+            border-top: 1px solid var(--color-border);
+        }
+        
+        /* === Button (Brand Style) === */
+        .btn-brand {
+            background: var(--color-snowblade-500);
+            color: #FFFFFF;
+            border-radius: var(--radius-sm);
+            font-weight: 600;
+            font-size: 0.75rem;
+            padding: 0.5rem 1rem;
+            transition: all var(--duration-fast);
+            box-shadow: 0 0 15px rgb(26 107 196 / 0.2);
+        }
+        .btn-brand:hover {
+            background: var(--color-snowblade-600);
+            box-shadow: var(--shadow-glow);
+        }
+    </style>
+</head>
+<body class="min-h-screen text-racing-600">
+
+    <!-- Header -->
+    <header class="glass-panel sticky top-0 z-50 border-b border-racing-200 shadow-lg">
+        <div class="max-w-[1800px] mx-auto px-6 py-4 flex items-center justify-between">
+            <div>
+                <div class="flex items-center gap-3 mb-1">
+                    <span class="text-2xl">⚡️</span>
+                    <h1 class="text-xl font-bold text-racing-900 tracking-tight">张雪机车海外AI-Native DTC销售工作流 v2.0</h1>
+                </div>
+                <div class="flex items-center gap-4 text-xs text-racing-400">
+                    <span class="flex items-center gap-1">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                        AI-Native Direct-to-Consumer (DTC) 海外摩托车销售
+                    </span>
+                    <span>•</span>
+                    <span>Generated: 2026-05-08</span>
+                    <span>•</span>
+                    <span class="text-racing-red-400 font-medium">🎯 1-2年内可落地</span>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-6">
+                <!-- Stats -->
+                <div class="flex items-center gap-3 text-xs bg-racing-100/80 rounded-full px-4 py-1.5 border border-racing-300/60">
+                    <span class="font-semibold text-racing-600">Total Nodes: 19</span>
+                    <span class="w-px h-3 bg-racing-300"></span>
+                    <span class="text-snowblade-400 flex items-center gap-1">🤖 AI: 8</span>
+                    <span class="text-racing-red-400 flex items-center gap-1">🤝 Hybrid: 11</span>
+                    <span class="text-racing-red-400 flex items-center gap-1">👤 Human: 0</span>
+                </div>
+                
+                <button id="copyYamlBtn" class="bg-snowblade-600 hover:bg-snowblade-500 text-racing-900 text-xs font-medium px-4 py-2 rounded-md transition-colors flex items-center gap-2 shadow-lg shadow-snowblade-500/20">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                    Copy YAML
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-[1800px] mx-auto px-6 py-8">
+        
+        <!-- Objective / Description -->
+        <div class="glass-panel p-6 rounded-xl mb-10 border-l-4 border-l-snowblade-500 max-w-5xl">
+            <h2 class="text-sm font-semibold text-racing-400 uppercase tracking-wider mb-2 flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                Workflow Objective
+            </h2>
+            <p class="text-racing-700 text-lg leading-relaxed">以AI重构海外摩托车销售的价值链条，而非简单替代人工：AI做7×24全球运营、需求聚合、物流编排，人类聚焦品牌大使、专家决策、法规合规。实现"1-2年内可落地"的AI-Native出海模式——不是零团队，而是<strong class="text-racing-900">精益团队（5-8人覆盖全球）</strong>；不是零经销商，而是<strong class="text-racing-900">开放认证服务网络</strong>；不是替代试驾，而是<strong class="text-racing-900">分布式社交试驾</strong>。</p>
+        </div>
+        
+        <!-- Key Principles Banner -->
+        <div class="grid grid-cols-4 gap-4 mb-10">
+            <div class="glass-panel p-4 rounded-xl border border-racing-300/60">
+                <div class="text-xs text-snowblade-400 font-semibold uppercase mb-1">AI Engine</div>
+                <div class="text-sm text-racing-700">AI负责运营、聚合、编排——放大人类能力边界</div>
+            </div>
+            <div class="glass-panel p-4 rounded-xl border border-racing-300/60">
+                <div class="text-xs text-racing-red-400 font-semibold uppercase mb-1">Human Steering</div>
+                <div class="text-sm text-racing-700">人类负责决策、关系、合规——守住关键控制点</div>
+            </div>
+            <div class="glass-panel p-4 rounded-xl border border-racing-300/60">
+                <div class="text-xs text-racing-red-400 font-semibold uppercase mb-1">Physical Reality</div>
+                <div class="text-sm text-racing-700">尊重认证法规、产品责任、试驾体验等物理约束</div>
+            </div>
+            <div class="glass-panel p-4 rounded-xl border border-racing-300/60">
+                <div class="text-xs text-racing-red-400 font-semibold uppercase mb-1">Phase 1-2 Market</div>
+                <div class="text-sm text-racing-700">第一阶段聚焦1-2个市场验证，再扩展至全球</div>
+            </div>
+        </div>
+        
+
+        <!-- Horizontal Scrollable Canvas for Phases -->
+        <div class="overflow-x-auto pb-10 hide-scrollbar">
+            <div class="flex gap-6 min-w-max items-stretch">
+                
+                
+                <!-- Phase Column -->
+                <div class="w-[400px] flex-shrink-0 flex flex-col phase-connector">
+                    
+                    <!-- Phase Header -->
+                    <div class="mb-6 relative z-10">
+                        <div class="flex items-center gap-3 mb-2">
+                            <div class="w-8 h-8 rounded-full bg-racing-100 border border-racing-300 flex items-center justify-center text-sm font-bold text-racing-600 shadow-inner">
+                                0
+                            </div>
+                            <h3 class="text-lg font-bold text-racing-900">市场选择与合规路径规划</h3>
+                        </div>
+                        
+                        <p class="text-sm text-racing-400 pl-11">AI扫描全球市场法规与机会，规划合规进入路径，人类团队聚焦战略决策</p>
+                        
+                    </div>
+                    
+                    <!-- Nodes Container -->
+                    <div class="flex-1 flex flex-col gap-4 pl-4 border-l-2 border-racing-200/60 ml-4 relative z-10">
+                        
+                        
+                        <!-- Node Card -->
+                        <div class="node-card glass-panel rounded-xl p-5 border-l-4 border-snowblade-500 relative group">
+                            
+                            <!-- Actor Badge -->
+                            <div class="absolute -left-3.5 top-5 w-6 h-6 rounded-full bg-snowblade-500/10 border border-snowblade-500 flex items-center justify-center text-xs shadow-md z-20" title="Actor: AI">
+                                🤖
+                            </div>
+
+                            <div class="flex justify-between items-start mb-3">
+                                <a href="张雪机车_AI画布_全球机车市场雷达.html"><h4 class="font-bold text-racing-900 text-base ml-2 pr-2">AI全球机车市场雷达</h4></a>
+                                <span class="tag bg-snowblade-500/10 border-snowblade-500 text-snowblade-400 border flex-shrink-0 mt-0.5">AI</span>
+                            </div>
+                            
+                            <div class="space-y-4 ml-2">
+                                <!-- Action -->
+                                <div class="text-sm text-racing-600 leading-relaxed">
+                                    AI持续扫描全球50+市场的法规变动、关税政策、市场规模、竞争格局、消费者偏好，输出动态市场机会排名报告
+                                </div>
+                                
+                                <!-- AI Capability (if exists) -->
+                                
+                                <div class="bg-snowblade-900/20 border border-snowblade-500/20 rounded p-2.5">
+                                    <div class="text-[0.65rem] text-snowblade-400 uppercase font-semibold mb-1 flex items-center gap-1">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                                        AI Capability
+                                    </div>
+                                    <div class="text-xs text-snowblade-200">NLP法规文本分析+市场数据聚合+政策变动预警+竞争力评估模型</div>
+                                </div>
+                                
+                                
+                                <!-- I/O Data Flow -->
+                                <div class="flex items-stretch gap-2">
+                                    <div class="flex-1 bg-racing-100/60 border border-racing-300/60 rounded p-2">
+                                        <div class="text-[0.65rem] text-racing-400 uppercase font-semibold mb-1">Inputs</div>
+                                        <ul class="text-xs text-racing-600 space-y-1">
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="各国车辆认证法规数据库">各国车辆认证法规数据库</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="海关/关税政策变动">海关/关税政策变动</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="摩托车市场销量数据">摩托车市场销量数据</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="竞品价格与渠道数据">竞品价格与渠道数据</span></li>
+                                            
+                                        </ul>
+                                    </div>
+                                    <div class="flex-1 bg-racing-100/60 border border-racing-300/60 rounded p-2">
+                                        <div class="text-[0.65rem] text-racing-400 uppercase font-semibold mb-1">Outputs</div>
+                                        <ul class="text-xs text-racing-600 space-y-1">
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="市场机会排名报告">市场机会排名报告</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="法规风险预警">法规风险预警</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="进入成本估算">进入成本估算</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="竞品差距分析">竞品差距分析</span></li>
+                                            
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <!-- Human Touchpoint (Critical for Hybrid/Human) -->
+                                
+                                <div class="border-t border-racing-300/60 pt-3 mt-3">
+                                    <div class="text-[0.65rem] text-racing-400 uppercase font-semibold mb-1 flex items-center gap-1">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                        Human Touchpoint
+                                    </div>
+                                    <div class="text-xs text-racing-400">
+                                        AI持续监控，人类团队每季度做市场进入决策
+                                    </div>
+                                </div>
+                                
+                                
+                            </div>
+                        </div>
+                        
+                        <!-- Vertical connector arrow between nodes -->
+                        
+                        <div class="h-6 ml-6 border-l-2 border-dashed border-racing-400 flex items-center">
+                            <div class="w-2 h-2 rounded-full bg-racing-300 -ml-[5px]"></div>
+                        </div>
+                        
+                        
+                        
+                        <!-- Node Card -->
+                        <div class="node-card glass-panel rounded-xl p-5 border-l-4 border-racing-red-500 relative group">
+                            
+                            <!-- Actor Badge -->
+                            <div class="absolute -left-3.5 top-5 w-6 h-6 rounded-full bg-racing-red-500/10 border border-racing-red-500 flex items-center justify-center text-xs shadow-md z-20" title="Actor: HYBRID">
+                                🤝
+                            </div>
+
+                            <div class="flex justify-between items-start mb-3">
+                                <a href="张雪机车_AI画布_合规路径导航.html"><h4 class="font-bold text-racing-900 text-base ml-2 pr-2">AI合规路径导航</h4></a>
+                                <span class="tag bg-racing-red-500/10 border-racing-red-500 text-racing-red-400 border flex-shrink-0 mt-0.5">HYBRID</span>
+                            </div>
+                            
+                            <div class="space-y-4 ml-2">
+                                <!-- Action -->
+                                <div class="text-sm text-racing-600 leading-relaxed">
+                                    AI基于市场雷达报告，自动生成目标市场的合规路径规划（认证类型、时间节点、成本估算、所需文件），并追踪每个节点的执行进度
+                                </div>
+                                
+                                <!-- AI Capability (if exists) -->
+                                
+                                <div class="bg-snowblade-900/20 border border-snowblade-500/20 rounded p-2.5">
+                                    <div class="text-[0.65rem] text-snowblade-400 uppercase font-semibold mb-1 flex items-center gap-1">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                                        AI Capability
+                                    </div>
+                                    <div class="text-xs text-snowblade-200">知识图谱+项目管理自动化+文档生成+进度追踪</div>
+                                </div>
+                                
+                                
+                                <!-- I/O Data Flow -->
+                                <div class="flex items-stretch gap-2">
+                                    <div class="flex-1 bg-racing-100/60 border border-racing-300/60 rounded p-2">
+                                        <div class="text-[0.65rem] text-racing-400 uppercase font-semibold mb-1">Inputs</div>
+                                        <ul class="text-xs text-racing-600 space-y-1">
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="目标市场列表">目标市场列表</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="车辆技术参数">车辆技术参数</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="认证机构数据库">认证机构数据库</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="历史认证案例">历史认证案例</span></li>
+                                            
+                                        </ul>
+                                    </div>
+                                    <div class="flex-1 bg-racing-100/60 border border-racing-300/60 rounded p-2">
+                                        <div class="text-[0.65rem] text-racing-400 uppercase font-semibold mb-1">Outputs</div>
+                                        <ul class="text-xs text-racing-600 space-y-1">
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="合规路径规划表">合规路径规划表</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="认证文档模板">认证文档模板</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="进度追踪看板">进度追踪看板</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="风险预警通知">风险预警通知</span></li>
+                                            
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <!-- Human Touchpoint (Critical for Hybrid/Human) -->
+                                
+                                <div class="border-t border-racing-300/60 pt-3 mt-3">
+                                    <div class="text-[0.65rem] text-racing-red-400 uppercase font-semibold mb-1 flex items-center gap-1">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                        Human Touchpoint
+                                    </div>
+                                    <div class="text-xs text-racing-600">
+                                        法规合规涉及法律责任，必须由人类法务团队审核确认AI规划路径
+                                    </div>
+                                </div>
+                                
+                                
+                            </div>
+                        </div>
+                        
+                        <!-- Vertical connector arrow between nodes -->
+                        
+                        
+                        
+                    </div>
+                </div>
+                
+                <!-- Phase Column -->
+                <div class="w-[400px] flex-shrink-0 flex flex-col phase-connector">
+                    
+                    <!-- Phase Header -->
+                    <div class="mb-6 relative z-10">
+                        <div class="flex items-center gap-3 mb-2">
+                            <div class="w-8 h-8 rounded-full bg-racing-100 border border-racing-300 flex items-center justify-center text-sm font-bold text-racing-600 shadow-inner">
+                                1
+                            </div>
+                            <h3 class="text-lg font-bold text-racing-900">全球内容触达与需求激发</h3>
+                        </div>
+                        
+                        <p class="text-sm text-racing-400 pl-11">AI生成多语言赛事/品牌内容，通过社媒算法精准触达全球潜在骑手，零市场团队成本</p>
+                        
+                    </div>
+                    
+                    <!-- Nodes Container -->
+                    <div class="flex-1 flex flex-col gap-4 pl-4 border-l-2 border-racing-200/60 ml-4 relative z-10">
+                        
+                        
+                        <!-- Node Card -->
+                        <div class="node-card glass-panel rounded-xl p-5 border-l-4 border-snowblade-500 relative group">
+                            
+                            <!-- Actor Badge -->
+                            <div class="absolute -left-3.5 top-5 w-6 h-6 rounded-full bg-snowblade-500/10 border border-snowblade-500 flex items-center justify-center text-xs shadow-md z-20" title="Actor: AI">
+                                🤖
+                            </div>
+
+                            <div class="flex justify-between items-start mb-3">
+                                <a href="张雪机车_AI画布_赛事内容工厂.html"><h4 class="font-bold text-racing-900 text-base ml-2 pr-2">AI赛事内容工厂</h4></a>
+                                <span class="tag bg-snowblade-500/10 border-snowblade-500 text-snowblade-400 border flex-shrink-0 mt-0.5">AI</span>
+                            </div>
+                            
+                            <div class="space-y-4 ml-2">
+                                <!-- Action -->
+                                <div class="text-sm text-racing-600 leading-relaxed">
+                                    AI自动剪辑WSBK赛事高光片段，生成多语言解说视频、图文、短视频，适配YouTube/TikTok/Instagram/Reels各平台格式
+                                </div>
+                                
+                                <!-- AI Capability (if exists) -->
+                                
+                                <div class="bg-snowblade-900/20 border border-snowblade-500/20 rounded p-2.5">
+                                    <div class="text-[0.65rem] text-snowblade-400 uppercase font-semibold mb-1 flex items-center gap-1">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                                        AI Capability
+                                    </div>
+                                    <div class="text-xs text-snowblade-200">多模态视频理解+GPT-4o脚本生成+ElevenLabs多语言配音+自动平台适配</div>
+                                </div>
+                                
+                                
+                                <!-- I/O Data Flow -->
+                                <div class="flex items-stretch gap-2">
+                                    <div class="flex-1 bg-racing-100/60 border border-racing-300/60 rounded p-2">
+                                        <div class="text-[0.65rem] text-racing-400 uppercase font-semibold mb-1">Inputs</div>
+                                        <ul class="text-xs text-racing-600 space-y-1">
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="WSBK原始赛事素材">WSBK原始赛事素材</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="品牌VI规范">品牌VI规范</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="目标市场文化偏好数据">目标市场文化偏好数据</span></li>
+                                            
+                                        </ul>
+                                    </div>
+                                    <div class="flex-1 bg-racing-100/60 border border-racing-300/60 rounded p-2">
+                                        <div class="text-[0.65rem] text-racing-400 uppercase font-semibold mb-1">Outputs</div>
+                                        <ul class="text-xs text-racing-600 space-y-1">
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="6语言短视频成品">6语言短视频成品</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="多平台格式适配内容">多平台格式适配内容</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="SEO优化文章">SEO优化文章</span></li>
+                                            
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <!-- Human Touchpoint (Critical for Hybrid/Human) -->
+                                
+                                <div class="border-t border-racing-300/60 pt-3 mt-3">
+                                    <div class="text-[0.65rem] text-racing-400 uppercase font-semibold mb-1 flex items-center gap-1">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                        Human Touchpoint
+                                    </div>
+                                    <div class="text-xs text-racing-400">
+                                        AI全自动完成从素材到发布的全流程，人类只定品牌调性和内容红线
+                                    </div>
+                                </div>
+                                
+                                
+                            </div>
+                        </div>
+                        
+                        <!-- Vertical connector arrow between nodes -->
+                        
+                        <div class="h-6 ml-6 border-l-2 border-dashed border-racing-400 flex items-center">
+                            <div class="w-2 h-2 rounded-full bg-racing-300 -ml-[5px]"></div>
+                        </div>
+                        
+                        
+                        
+                        <!-- Node Card -->
+                        <div class="node-card glass-panel rounded-xl p-5 border-l-4 border-racing-red-500 relative group">
+                            
+                            <!-- Actor Badge -->
+                            <div class="absolute -left-3.5 top-5 w-6 h-6 rounded-full bg-racing-red-500/10 border border-racing-red-500 flex items-center justify-center text-xs shadow-md z-20" title="Actor: HYBRID">
+                                🤝
+                            </div>
+
+                            <div class="flex justify-between items-start mb-3">
+                                <a href="张雪机车_AI画布_KOL网络识别与对接.html"><h4 class="font-bold text-racing-900 text-base ml-2 pr-2">AI KOL网络识别与对接</h4></a>
+                                <span class="tag bg-racing-red-500/10 border-racing-red-500 text-racing-red-400 border flex-shrink-0 mt-0.5">HYBRID</span>
+                            </div>
+                            
+                            <div class="space-y-4 ml-2">
+                                <!-- Action -->
+                                <div class="text-sm text-racing-600 leading-relaxed">
+                                    AI扫描全球摩托车社媒账号，自动识别高影响力KOL、骑手社群领袖，生成个性化合作方案；人类团队负责关键KOL的关系建立和商务谈判
+                                </div>
+                                
+                                <!-- AI Capability (if exists) -->
+                                
+                                <div class="bg-snowblade-900/20 border border-snowblade-500/20 rounded p-2.5">
+                                    <div class="text-[0.65rem] text-snowblade-400 uppercase font-semibold mb-1 flex items-center gap-1">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                                        AI Capability
+                                    </div>
+                                    <div class="text-xs text-snowblade-200">社交网络分析+影响力评分算法+个性化方案生成+合作效果预测</div>
+                                </div>
+                                
+                                
+                                <!-- I/O Data Flow -->
+                                <div class="flex items-stretch gap-2">
+                                    <div class="flex-1 bg-racing-100/60 border border-racing-300/60 rounded p-2">
+                                        <div class="text-[0.65rem] text-racing-400 uppercase font-semibold mb-1">Inputs</div>
+                                        <ul class="text-xs text-racing-600 space-y-1">
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="全球摩托车KOL数据库">全球摩托车KOL数据库</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="社媒互动数据">社媒互动数据</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="品牌合作预算">品牌合作预算</span></li>
+                                            
+                                        </ul>
+                                    </div>
+                                    <div class="flex-1 bg-racing-100/60 border border-racing-300/60 rounded p-2">
+                                        <div class="text-[0.65rem] text-racing-400 uppercase font-semibold mb-1">Outputs</div>
+                                        <ul class="text-xs text-racing-600 space-y-1">
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="优先级排序KOL名单">优先级排序KOL名单</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="个性化合作方案">个性化合作方案</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="种子用户画像">种子用户画像</span></li>
+                                            
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <!-- Human Touchpoint (Critical for Hybrid/Human) -->
+                                
+                                <div class="border-t border-racing-300/60 pt-3 mt-3">
+                                    <div class="text-[0.65rem] text-racing-red-400 uppercase font-semibold mb-1 flex items-center gap-1">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                        Human Touchpoint
+                                    </div>
+                                    <div class="text-xs text-racing-600">
+                                        AI完成识别和方案生成，人类负责与头部KOL的关系建立和谈判——摩托车社区是关系驱动的
+                                    </div>
+                                </div>
+                                
+                                
+                            </div>
+                        </div>
+                        
+                        <!-- Vertical connector arrow between nodes -->
+                        
+                        <div class="h-6 ml-6 border-l-2 border-dashed border-racing-400 flex items-center">
+                            <div class="w-2 h-2 rounded-full bg-racing-300 -ml-[5px]"></div>
+                        </div>
+                        
+                        
+                        
+                        <!-- Node Card -->
+                        <div class="node-card glass-panel rounded-xl p-5 border-l-4 border-snowblade-500 relative group">
+                            
+                            <!-- Actor Badge -->
+                            <div class="absolute -left-3.5 top-5 w-6 h-6 rounded-full bg-snowblade-500/10 border border-snowblade-500 flex items-center justify-center text-xs shadow-md z-20" title="Actor: AI">
+                                🤖
+                            </div>
+
+                            <div class="flex justify-between items-start mb-3">
+                                <a href="张雪机车_AI画布_智能投放与算法优化.html"><h4 class="font-bold text-racing-900 text-base ml-2 pr-2">智能投放与算法优化</h4></a>
+                                <span class="tag bg-snowblade-500/10 border-snowblade-500 text-snowblade-400 border flex-shrink-0 mt-0.5">AI</span>
+                            </div>
+                            
+                            <div class="space-y-4 ml-2">
+                                <!-- Action -->
+                                <div class="text-sm text-racing-600 leading-relaxed">
+                                    AI自动管理全球社媒广告投放，实时优化受众定向、出价策略、创意组合，最大化ROI
+                                </div>
+                                
+                                <!-- AI Capability (if exists) -->
+                                
+                                <div class="bg-snowblade-900/20 border border-snowblade-500/20 rounded p-2.5">
+                                    <div class="text-[0.65rem] text-snowblade-400 uppercase font-semibold mb-1 flex items-center gap-1">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                                        AI Capability
+                                    </div>
+                                    <div class="text-xs text-snowblade-200">强化学习广告优化+实时竞价算法+A/B测试自动化</div>
+                                </div>
+                                
+                                
+                                <!-- I/O Data Flow -->
+                                <div class="flex items-stretch gap-2">
+                                    <div class="flex-1 bg-racing-100/60 border border-racing-300/60 rounded p-2">
+                                        <div class="text-[0.65rem] text-racing-400 uppercase font-semibold mb-1">Inputs</div>
+                                        <ul class="text-xs text-racing-600 space-y-1">
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="广告预算">广告预算</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="内容素材库">内容素材库</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="转化数据反馈">转化数据反馈</span></li>
+                                            
+                                        </ul>
+                                    </div>
+                                    <div class="flex-1 bg-racing-100/60 border border-racing-300/60 rounded p-2">
+                                        <div class="text-[0.65rem] text-racing-400 uppercase font-semibold mb-1">Outputs</div>
+                                        <ul class="text-xs text-racing-600 space-y-1">
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="优化后的投放策略">优化后的投放策略</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="实时ROI报告">实时ROI报告</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="受众洞察数据">受众洞察数据</span></li>
+                                            
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <!-- Human Touchpoint (Critical for Hybrid/Human) -->
+                                
+                                <div class="border-t border-racing-300/60 pt-3 mt-3">
+                                    <div class="text-[0.65rem] text-racing-400 uppercase font-semibold mb-1 flex items-center gap-1">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                        Human Touchpoint
+                                    </div>
+                                    <div class="text-xs text-racing-400">
+                                        无需人工调整，AI 24/7自动优化投放策略，人类设定预算上限和品牌安全红线
+                                    </div>
+                                </div>
+                                
+                                
+                            </div>
+                        </div>
+                        
+                        <!-- Vertical connector arrow between nodes -->
+                        
+                        
+                        
+                    </div>
+                </div>
+                
+                <!-- Phase Column -->
+                <div class="w-[400px] flex-shrink-0 flex flex-col phase-connector">
+                    
+                    <!-- Phase Header -->
+                    <div class="mb-6 relative z-10">
+                        <div class="flex items-center gap-3 mb-2">
+                            <div class="w-8 h-8 rounded-full bg-racing-100 border border-racing-300 flex items-center justify-center text-sm font-bold text-racing-600 shadow-inner">
+                                2
+                            </div>
+                            <h3 class="text-lg font-bold text-racing-900">AI个性化互动与需求培育</h3>
+                        </div>
+                        
+                        <p class="text-sm text-racing-400 pl-11">AI多语言客服7×24覆盖+人类品牌大使深化关键关系，零时差零语言障碍</p>
+                        
+                    </div>
+                    
+                    <!-- Nodes Container -->
+                    <div class="flex-1 flex flex-col gap-4 pl-4 border-l-2 border-racing-200/60 ml-4 relative z-10">
+                        
+                        
+                        <!-- Node Card -->
+                        <div class="node-card glass-panel rounded-xl p-5 border-l-4 border-racing-red-500 relative group">
+                            
+                            <!-- Actor Badge -->
+                            <div class="absolute -left-3.5 top-5 w-6 h-6 rounded-full bg-racing-red-500/10 border border-racing-red-500 flex items-center justify-center text-xs shadow-md z-20" title="Actor: HYBRID">
+                                🤝
+                            </div>
+
+                            <div class="flex justify-between items-start mb-3">
+                                <a href="张雪机车_AI画布_首席骑行官与品牌大使.html"><h4 class="font-bold text-racing-900 text-base ml-2 pr-2">AI首席骑行官 + 品牌大使</h4></a>
+                                <span class="tag bg-racing-red-500/10 border-racing-red-500 text-racing-red-400 border flex-shrink-0 mt-0.5">HYBRID</span>
+                            </div>
+                            
+                            <div class="space-y-4 ml-2">
+                                <!-- Action -->
+                                <div class="text-sm text-racing-600 leading-relaxed">
+                                    AI以"首席骑行官"角色与全球用户7×24互动，分享骑行经验、赛事故事；当用户显示高购买意向时，由人类品牌大使（退役车手/资深骑手）通过视频通话深化关系
+                                </div>
+                                
+                                <!-- AI Capability (if exists) -->
+                                
+                                <div class="bg-snowblade-900/20 border border-snowblade-500/20 rounded p-2.5">
+                                    <div class="text-[0.65rem] text-snowblade-400 uppercase font-semibold mb-1 flex items-center gap-1">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                                        AI Capability
+                                    </div>
+                                    <div class="text-xs text-snowblade-200">大语言模型角色扮演+RAG知识库+情感计算+多语言实时翻译+意向度评分</div>
+                                </div>
+                                
+                                
+                                <!-- I/O Data Flow -->
+                                <div class="flex items-stretch gap-2">
+                                    <div class="flex-1 bg-racing-100/60 border border-racing-300/60 rounded p-2">
+                                        <div class="text-[0.65rem] text-racing-400 uppercase font-semibold mb-1">Inputs</div>
+                                        <ul class="text-xs text-racing-600 space-y-1">
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="用户社媒互动记录">用户社媒互动记录</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="产品技术知识库">产品技术知识库</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="创始人张雪故事库">创始人张雪故事库</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="品牌大使排班表">品牌大使排班表</span></li>
+                                            
+                                        </ul>
+                                    </div>
+                                    <div class="flex-1 bg-racing-100/60 border border-racing-300/60 rounded p-2">
+                                        <div class="text-[0.65rem] text-racing-400 uppercase font-semibold mb-1">Outputs</div>
+                                        <ul class="text-xs text-racing-600 space-y-1">
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="个性化互动回复">个性化互动回复</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="用户意向度评分">用户意向度评分</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="高意向用户清单">高意向用户清单</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="品牌大使预约通知">品牌大使预约通知</span></li>
+                                            
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <!-- Human Touchpoint (Critical for Hybrid/Human) -->
+                                
+                                <div class="border-t border-racing-300/60 pt-3 mt-3">
+                                    <div class="text-[0.65rem] text-racing-red-400 uppercase font-semibold mb-1 flex items-center gap-1">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                        Human Touchpoint
+                                    </div>
+                                    <div class="text-xs text-racing-600">
+                                        AI覆盖95%的互动量；人类品牌大使聚焦5%的高意向用户——1个品牌大使可覆盖5000+AI触达用户
+                                    </div>
+                                </div>
+                                
+                                
+                            </div>
+                        </div>
+                        
+                        <!-- Vertical connector arrow between nodes -->
+                        
+                        <div class="h-6 ml-6 border-l-2 border-dashed border-racing-400 flex items-center">
+                            <div class="w-2 h-2 rounded-full bg-racing-300 -ml-[5px]"></div>
+                        </div>
+                        
+                        
+                        
+                        <!-- Node Card -->
+                        <div class="node-card glass-panel rounded-xl p-5 border-l-4 border-racing-red-500 relative group">
+                            
+                            <!-- Actor Badge -->
+                            <div class="absolute -left-3.5 top-5 w-6 h-6 rounded-full bg-racing-red-500/10 border border-racing-red-500 flex items-center justify-center text-xs shadow-md z-20" title="Actor: HYBRID">
+                                🤝
+                            </div>
+
+                            <div class="flex justify-between items-start mb-3">
+                                <a href="张雪机车_AI画布_购车分析引擎.html"><h4 class="font-bold text-racing-900 text-base ml-2 pr-2">AI购车分析引擎</h4></a>
+                                <span class="tag bg-racing-red-500/10 border-racing-red-500 text-racing-red-400 border flex-shrink-0 mt-0.5">HYBRID</span>
+                            </div>
+                            
+                            <div class="space-y-4 ml-2">
+                                <!-- Action -->
+                                <div class="text-sm text-racing-600 leading-relaxed">
+                                    AI通过对话深入了解用户骑行经验、预算、用途，推荐最适合的车型配置，生成个性化购车方案；高意向用户的最终推荐需人类骑行专家视频确认，规避产品责任风险
+                                </div>
+                                
+                                <!-- AI Capability (if exists) -->
+                                
+                                <div class="bg-snowblade-900/20 border border-snowblade-500/20 rounded p-2.5">
+                                    <div class="text-[0.65rem] text-snowblade-400 uppercase font-semibold mb-1 flex items-center gap-1">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                                        AI Capability
+                                    </div>
+                                    <div class="text-xs text-snowblade-200">对话式推荐系统+金融计算引擎+个性化配置生成+骑行能力评估</div>
+                                </div>
+                                
+                                
+                                <!-- I/O Data Flow -->
+                                <div class="flex items-stretch gap-2">
+                                    <div class="flex-1 bg-racing-100/60 border border-racing-300/60 rounded p-2">
+                                        <div class="text-[0.65rem] text-racing-400 uppercase font-semibold mb-1">Inputs</div>
+                                        <ul class="text-xs text-racing-600 space-y-1">
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="用户画像数据">用户画像数据</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="车型参数库">车型参数库</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="各国法规要求">各国法规要求</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="金融方案数据">金融方案数据</span></li>
+                                            
+                                        </ul>
+                                    </div>
+                                    <div class="flex-1 bg-racing-100/60 border border-racing-300/60 rounded p-2">
+                                        <div class="text-[0.65rem] text-racing-400 uppercase font-semibold mb-1">Outputs</div>
+                                        <ul class="text-xs text-racing-600 space-y-1">
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="个性化车型推荐">个性化车型推荐</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="落地价计算（含关税/运费）">落地价计算（含关税/运费）</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="金融分期方案">金融分期方案</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="骑行能力评估报告">骑行能力评估报告</span></li>
+                                            
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <!-- Human Touchpoint (Critical for Hybrid/Human) -->
+                                
+                                <div class="border-t border-racing-300/60 pt-3 mt-3">
+                                    <div class="text-[0.65rem] text-racing-red-400 uppercase font-semibold mb-1 flex items-center gap-1">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                        Human Touchpoint
+                                    </div>
+                                    <div class="text-xs text-racing-600">
+                                        AI完成95%的分析和推荐；人类专家15分钟视频确认——既用AI效率，又用人类背书规避法律风险
+                                    </div>
+                                </div>
+                                
+                                
+                            </div>
+                        </div>
+                        
+                        <!-- Vertical connector arrow between nodes -->
+                        
+                        <div class="h-6 ml-6 border-l-2 border-dashed border-racing-400 flex items-center">
+                            <div class="w-2 h-2 rounded-full bg-racing-300 -ml-[5px]"></div>
+                        </div>
+                        
+                        
+                        
+                        <!-- Node Card -->
+                        <div class="node-card glass-panel rounded-xl p-5 border-l-4 border-racing-red-500 relative group">
+                            
+                            <!-- Actor Badge -->
+                            <div class="absolute -left-3.5 top-5 w-6 h-6 rounded-full bg-racing-red-500/10 border border-racing-red-500 flex items-center justify-center text-xs shadow-md z-20" title="Actor: HYBRID">
+                                🤝
+                            </div>
+
+                            <div class="flex justify-between items-start mb-3">
+                                <a href="张雪机车_AI画布_分布式社交试驾网络.html"><h4 class="font-bold text-racing-900 text-base ml-2 pr-2">分布式社交试驾网络</h4></a>
+                                <span class="tag bg-racing-red-500/10 border-racing-red-500 text-racing-red-400 border flex-shrink-0 mt-0.5">HYBRID</span>
+                            </div>
+                            
+                            <div class="space-y-4 ml-2">
+                                <!-- Action -->
+                                <div class="text-sm text-racing-600 leading-relaxed">
+                                    AI匹配潜在买家与附近已有的车主（品牌大使/种子用户），提供激励（配件折扣/社区积分）让车主允许试驾。比传统试驾更真实——在真实车主陪伴下体验，边际成本为零
+                                </div>
+                                
+                                <!-- AI Capability (if exists) -->
+                                
+                                <div class="bg-snowblade-900/20 border border-snowblade-500/20 rounded p-2.5">
+                                    <div class="text-[0.65rem] text-snowblade-400 uppercase font-semibold mb-1 flex items-center gap-1">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                                        AI Capability
+                                    </div>
+                                    <div class="text-xs text-snowblade-200">地理匹配算法+保险方案生成+试驾路线推荐+车主激励管理+试驾反馈分析</div>
+                                </div>
+                                
+                                
+                                <!-- I/O Data Flow -->
+                                <div class="flex items-stretch gap-2">
+                                    <div class="flex-1 bg-racing-100/60 border border-racing-300/60 rounded p-2">
+                                        <div class="text-[0.65rem] text-racing-400 uppercase font-semibold mb-1">Inputs</div>
+                                        <ul class="text-xs text-racing-600 space-y-1">
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="潜在买家位置">潜在买家位置</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="车主网络数据库">车主网络数据库</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="试驾保险数据">试驾保险数据</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="车主评分与历史">车主评分与历史</span></li>
+                                            
+                                        </ul>
+                                    </div>
+                                    <div class="flex-1 bg-racing-100/60 border border-racing-300/60 rounded p-2">
+                                        <div class="text-[0.65rem] text-racing-400 uppercase font-semibold mb-1">Outputs</div>
+                                        <ul class="text-xs text-racing-600 space-y-1">
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="试驾匹配方案">试驾匹配方案</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="试驾保险单据">试驾保险单据</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="试驾路线推荐">试驾路线推荐</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="试驾反馈报告">试驾反馈报告</span></li>
+                                            
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <!-- Human Touchpoint (Critical for Hybrid/Human) -->
+                                
+                                <div class="border-t border-racing-300/60 pt-3 mt-3">
+                                    <div class="text-[0.65rem] text-racing-red-400 uppercase font-semibold mb-1 flex items-center gap-1">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                        Human Touchpoint
+                                    </div>
+                                    <div class="text-xs text-racing-600">
+                                        AI完成匹配和保险；车主是真实人类——这是比"虚拟试驾"更AI-Native的方案：用AI激活社群网络效应
+                                    </div>
+                                </div>
+                                
+                                
+                            </div>
+                        </div>
+                        
+                        <!-- Vertical connector arrow between nodes -->
+                        
+                        <div class="h-6 ml-6 border-l-2 border-dashed border-racing-400 flex items-center">
+                            <div class="w-2 h-2 rounded-full bg-racing-300 -ml-[5px]"></div>
+                        </div>
+                        
+                        
+                        
+                        <!-- Node Card -->
+                        <div class="node-card glass-panel rounded-xl p-5 border-l-4 border-snowblade-500 relative group">
+                            
+                            <!-- Actor Badge -->
+                            <div class="absolute -left-3.5 top-5 w-6 h-6 rounded-full bg-snowblade-500/10 border border-snowblade-500 flex items-center justify-center text-xs shadow-md z-20" title="Actor: AI">
+                                🤖
+                            </div>
+
+                            <div class="flex justify-between items-start mb-3">
+                                <a href="张雪机车_AI画布_信任聚合引擎.html"><h4 class="font-bold text-racing-900 text-base ml-2 pr-2">AI信任聚合引擎</h4></a>
+                                <span class="tag bg-snowblade-500/10 border-snowblade-500 text-snowblade-400 border flex-shrink-0 mt-0.5">AI</span>
+                            </div>
+                            
+                            <div class="space-y-4 ml-2">
+                                <!-- Action -->
+                                <div class="text-sm text-racing-600 leading-relaxed">
+                                    AI聚合真实存在的第三方评测、赛事成绩、车主口碑，在用户决策节点精准推送可验证的信任内容——只聚合真实内容，绝不生成虚假评价
+                                </div>
+                                
+                                <!-- AI Capability (if exists) -->
+                                
+                                <div class="bg-snowblade-900/20 border border-snowblade-500/20 rounded p-2.5">
+                                    <div class="text-[0.65rem] text-snowblade-400 uppercase font-semibold mb-1 flex items-center gap-1">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                                        AI Capability
+                                    </div>
+                                    <div class="text-xs text-snowblade-200">UGC内容聚合+评测视频自动剪辑+数据可视化+个性化推送</div>
+                                </div>
+                                
+                                
+                                <!-- I/O Data Flow -->
+                                <div class="flex items-stretch gap-2">
+                                    <div class="flex-1 bg-racing-100/60 border border-racing-300/60 rounded p-2">
+                                        <div class="text-[0.65rem] text-racing-400 uppercase font-semibold mb-1">Inputs</div>
+                                        <ul class="text-xs text-racing-600 space-y-1">
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="真实车主评价数据">真实车主评价数据</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="第三方评测数据源">第三方评测数据源</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="赛事成绩数据">赛事成绩数据</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="用户行为数据">用户行为数据</span></li>
+                                            
+                                        </ul>
+                                    </div>
+                                    <div class="flex-1 bg-racing-100/60 border border-racing-300/60 rounded p-2">
+                                        <div class="text-[0.65rem] text-racing-400 uppercase font-semibold mb-1">Outputs</div>
+                                        <ul class="text-xs text-racing-600 space-y-1">
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="个性化信任内容包">个性化信任内容包</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="实时社会认同提示">实时社会认同提示</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="竞品对比可视化">竞品对比可视化</span></li>
+                                            
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <!-- Human Touchpoint (Critical for Hybrid/Human) -->
+                                
+                                <div class="border-t border-racing-300/60 pt-3 mt-3">
+                                    <div class="text-[0.65rem] text-racing-400 uppercase font-semibold mb-1 flex items-center gap-1">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                        Human Touchpoint
+                                    </div>
+                                    <div class="text-xs text-racing-400">
+                                        AI聚合和呈现真实内容，消除"中国品牌"偏见——内容100%真实可溯源
+                                    </div>
+                                </div>
+                                
+                                
+                            </div>
+                        </div>
+                        
+                        <!-- Vertical connector arrow between nodes -->
+                        
+                        
+                        
+                    </div>
+                </div>
+                
+                <!-- Phase Column -->
+                <div class="w-[400px] flex-shrink-0 flex flex-col phase-connector">
+                    
+                    <!-- Phase Header -->
+                    <div class="mb-6 relative z-10">
+                        <div class="flex items-center gap-3 mb-2">
+                            <div class="w-8 h-8 rounded-full bg-racing-100 border border-racing-300 flex items-center justify-center text-sm font-bold text-racing-600 shadow-inner">
+                                3
+                            </div>
+                            <h3 class="text-lg font-bold text-racing-900">智能预订众筹与柔性生产</h3>
+                        </div>
+                        
+                        <p class="text-sm text-racing-400 pl-11">按单生产+众筹模式，零库存风险，AI预测需求优化排产</p>
+                        
+                    </div>
+                    
+                    <!-- Nodes Container -->
+                    <div class="flex-1 flex flex-col gap-4 pl-4 border-l-2 border-racing-200/60 ml-4 relative z-10">
+                        
+                        
+                        <!-- Node Card -->
+                        <div class="node-card glass-panel rounded-xl p-5 border-l-4 border-snowblade-500 relative group">
+                            
+                            <!-- Actor Badge -->
+                            <div class="absolute -left-3.5 top-5 w-6 h-6 rounded-full bg-snowblade-500/10 border border-snowblade-500 flex items-center justify-center text-xs shadow-md z-20" title="Actor: AI">
+                                🤖
+                            </div>
+
+                            <div class="flex justify-between items-start mb-3">
+                                <a href="张雪机车_AI画布_动态定价与预订系统.html"><h4 class="font-bold text-racing-900 text-base ml-2 pr-2">AI动态定价与预订系统</h4></a>
+                                <span class="tag bg-snowblade-500/10 border-snowblade-500 text-snowblade-400 border flex-shrink-0 mt-0.5">AI</span>
+                            </div>
+                            
+                            <div class="space-y-4 ml-2">
+                                <!-- Action -->
+                                <div class="text-sm text-racing-600 leading-relaxed">
+                                    AI根据汇率、关税、需求热度、竞品价格实时计算最优定价，用户支付定金锁定价格，AI自动计算交付时间
+                                </div>
+                                
+                                <!-- AI Capability (if exists) -->
+                                
+                                <div class="bg-snowblade-900/20 border border-snowblade-500/20 rounded p-2.5">
+                                    <div class="text-[0.65rem] text-snowblade-400 uppercase font-semibold mb-1 flex items-center gap-1">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                                        AI Capability
+                                    </div>
+                                    <div class="text-xs text-snowblade-200">动态定价算法+汇率预测+需求预测+交付时间估算</div>
+                                </div>
+                                
+                                
+                                <!-- I/O Data Flow -->
+                                <div class="flex items-stretch gap-2">
+                                    <div class="flex-1 bg-racing-100/60 border border-racing-300/60 rounded p-2">
+                                        <div class="text-[0.65rem] text-racing-400 uppercase font-semibold mb-1">Inputs</div>
+                                        <ul class="text-xs text-racing-600 space-y-1">
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="实时汇率数据">实时汇率数据</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="关税数据库">关税数据库</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="竞品价格监控">竞品价格监控</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="产能数据">产能数据</span></li>
+                                            
+                                        </ul>
+                                    </div>
+                                    <div class="flex-1 bg-racing-100/60 border border-racing-300/60 rounded p-2">
+                                        <div class="text-[0.65rem] text-racing-400 uppercase font-semibold mb-1">Outputs</div>
+                                        <ul class="text-xs text-racing-600 space-y-1">
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="实时落地价">实时落地价</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="最优定价策略">最优定价策略</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="交付时间预测">交付时间预测</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="定金锁定确认">定金锁定确认</span></li>
+                                            
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <!-- Human Touchpoint (Critical for Hybrid/Human) -->
+                                
+                                <div class="border-t border-racing-300/60 pt-3 mt-3">
+                                    <div class="text-[0.65rem] text-racing-400 uppercase font-semibold mb-1 flex items-center gap-1">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                        Human Touchpoint
+                                    </div>
+                                    <div class="text-xs text-racing-400">
+                                        定价策略完全由AI数据驱动，消除人为定价偏差，人类设定利润底线和价格上限
+                                    </div>
+                                </div>
+                                
+                                
+                            </div>
+                        </div>
+                        
+                        <!-- Vertical connector arrow between nodes -->
+                        
+                        <div class="h-6 ml-6 border-l-2 border-dashed border-racing-400 flex items-center">
+                            <div class="w-2 h-2 rounded-full bg-racing-300 -ml-[5px]"></div>
+                        </div>
+                        
+                        
+                        
+                        <!-- Node Card -->
+                        <div class="node-card glass-panel rounded-xl p-5 border-l-4 border-snowblade-500 relative group">
+                            
+                            <!-- Actor Badge -->
+                            <div class="absolute -left-3.5 top-5 w-6 h-6 rounded-full bg-snowblade-500/10 border border-snowblade-500 flex items-center justify-center text-xs shadow-md z-20" title="Actor: AI">
+                                🤖
+                            </div>
+
+                            <div class="flex justify-between items-start mb-3">
+                                <a href="张雪机车_AI画布_众筹生产决策引擎.html"><h4 class="font-bold text-racing-900 text-base ml-2 pr-2">众筹生产决策引擎</h4></a>
+                                <span class="tag bg-snowblade-500/10 border-snowblade-500 text-snowblade-400 border flex-shrink-0 mt-0.5">AI</span>
+                            </div>
+                            
+                            <div class="space-y-4 ml-2">
+                                <!-- Action -->
+                                <div class="text-sm text-racing-600 leading-relaxed">
+                                    当某地区订单达到集装箱最优装载量时，AI自动触发众筹成团，用户获额外折扣，工厂按单生产——把传统B2B2C变成真正的C2M
+                                </div>
+                                
+                                <!-- AI Capability (if exists) -->
+                                
+                                <div class="bg-snowblade-900/20 border border-snowblade-500/20 rounded p-2.5">
+                                    <div class="text-[0.65rem] text-snowblade-400 uppercase font-semibold mb-1 flex items-center gap-1">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                                        AI Capability
+                                    </div>
+                                    <div class="text-xs text-snowblade-200">运筹优化+集装箱装载算法+团购动态定价+生产排程</div>
+                                </div>
+                                
+                                
+                                <!-- I/O Data Flow -->
+                                <div class="flex items-stretch gap-2">
+                                    <div class="flex-1 bg-racing-100/60 border border-racing-300/60 rounded p-2">
+                                        <div class="text-[0.65rem] text-racing-400 uppercase font-semibold mb-1">Inputs</div>
+                                        <ul class="text-xs text-racing-600 space-y-1">
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="地区订单池">地区订单池</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="集装箱装载约束">集装箱装载约束</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="生产成本数据">生产成本数据</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="用户价格敏感度">用户价格敏感度</span></li>
+                                            
+                                        </ul>
+                                    </div>
+                                    <div class="flex-1 bg-racing-100/60 border border-racing-300/60 rounded p-2">
+                                        <div class="text-[0.65rem] text-racing-400 uppercase font-semibold mb-1">Outputs</div>
+                                        <ul class="text-xs text-racing-600 space-y-1">
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="最优成团阈值">最优成团阈值</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="动态折扣策略">动态折扣策略</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="生产排程计划">生产排程计划</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="用户成团通知">用户成团通知</span></li>
+                                            
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <!-- Human Touchpoint (Critical for Hybrid/Human) -->
+                                
+                                <div class="border-t border-racing-300/60 pt-3 mt-3">
+                                    <div class="text-[0.65rem] text-racing-400 uppercase font-semibold mb-1 flex items-center gap-1">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                        Human Touchpoint
+                                    </div>
+                                    <div class="text-xs text-racing-400">
+                                        AI自动平衡成本与用户体验，人类团队设定最低成团量和利润底线
+                                    </div>
+                                </div>
+                                
+                                
+                            </div>
+                        </div>
+                        
+                        <!-- Vertical connector arrow between nodes -->
+                        
+                        <div class="h-6 ml-6 border-l-2 border-dashed border-racing-400 flex items-center">
+                            <div class="w-2 h-2 rounded-full bg-racing-300 -ml-[5px]"></div>
+                        </div>
+                        
+                        
+                        
+                        <!-- Node Card -->
+                        <div class="node-card glass-panel rounded-xl p-5 border-l-4 border-snowblade-500 relative group">
+                            
+                            <!-- Actor Badge -->
+                            <div class="absolute -left-3.5 top-5 w-6 h-6 rounded-full bg-snowblade-500/10 border border-snowblade-500 flex items-center justify-center text-xs shadow-md z-20" title="Actor: AI">
+                                🤖
+                            </div>
+
+                            <div class="flex justify-between items-start mb-3">
+                                <a href="张雪机车_AI画布_柔性生产排程.html"><h4 class="font-bold text-racing-900 text-base ml-2 pr-2">AI柔性生产排程</h4></a>
+                                <span class="tag bg-snowblade-500/10 border-snowblade-500 text-snowblade-400 border flex-shrink-0 mt-0.5">AI</span>
+                            </div>
+                            
+                            <div class="space-y-4 ml-2">
+                                <!-- Action -->
+                                <div class="text-sm text-racing-600 leading-relaxed">
+                                    AI根据全球订单分布、配件库存、产能约束，自动优化生产顺序和配置组合，最大化产能利用率
+                                </div>
+                                
+                                <!-- AI Capability (if exists) -->
+                                
+                                <div class="bg-snowblade-900/20 border border-snowblade-500/20 rounded p-2.5">
+                                    <div class="text-[0.65rem] text-snowblade-400 uppercase font-semibold mb-1 flex items-center gap-1">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                                        AI Capability
+                                    </div>
+                                    <div class="text-xs text-snowblade-200">强化学习排程+约束优化+供应链协同预测</div>
+                                </div>
+                                
+                                
+                                <!-- I/O Data Flow -->
+                                <div class="flex items-stretch gap-2">
+                                    <div class="flex-1 bg-racing-100/60 border border-racing-300/60 rounded p-2">
+                                        <div class="text-[0.65rem] text-racing-400 uppercase font-semibold mb-1">Inputs</div>
+                                        <ul class="text-xs text-racing-600 space-y-1">
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="全球订单数据">全球订单数据</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="配件库存状态">配件库存状态</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="产线产能数据">产线产能数据</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="物流约束">物流约束</span></li>
+                                            
+                                        </ul>
+                                    </div>
+                                    <div class="flex-1 bg-racing-100/60 border border-racing-300/60 rounded p-2">
+                                        <div class="text-[0.65rem] text-racing-400 uppercase font-semibold mb-1">Outputs</div>
+                                        <ul class="text-xs text-racing-600 space-y-1">
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="最优生产排程">最优生产排程</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="配件采购建议">配件采购建议</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="产能利用率报告">产能利用率报告</span></li>
+                                            
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <!-- Human Touchpoint (Critical for Hybrid/Human) -->
+                                
+                                <div class="border-t border-racing-300/60 pt-3 mt-3">
+                                    <div class="text-[0.65rem] text-racing-400 uppercase font-semibold mb-1 flex items-center gap-1">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                        Human Touchpoint
+                                    </div>
+                                    <div class="text-xs text-racing-400">
+                                        复杂多约束优化由AI完成，人类无法实时处理，但生产计划需人工最终确认
+                                    </div>
+                                </div>
+                                
+                                
+                            </div>
+                        </div>
+                        
+                        <!-- Vertical connector arrow between nodes -->
+                        
+                        
+                        
+                    </div>
+                </div>
+                
+                <!-- Phase Column -->
+                <div class="w-[400px] flex-shrink-0 flex flex-col phase-connector">
+                    
+                    <!-- Phase Header -->
+                    <div class="mb-6 relative z-10">
+                        <div class="flex items-center gap-3 mb-2">
+                            <div class="w-8 h-8 rounded-full bg-racing-100 border border-racing-300 flex items-center justify-center text-sm font-bold text-racing-600 shadow-inner">
+                                4
+                            </div>
+                            <h3 class="text-lg font-bold text-racing-900">弹性全球物流网络</h3>
+                        </div>
+                        
+                        <p class="text-sm text-racing-400 pl-11">AI管理从工厂到用户手中的全链路物流，人类处理异常和关键合规节点</p>
+                        
+                    </div>
+                    
+                    <!-- Nodes Container -->
+                    <div class="flex-1 flex flex-col gap-4 pl-4 border-l-2 border-racing-200/60 ml-4 relative z-10">
+                        
+                        
+                        <!-- Node Card -->
+                        <div class="node-card glass-panel rounded-xl p-5 border-l-4 border-racing-red-500 relative group">
+                            
+                            <!-- Actor Badge -->
+                            <div class="absolute -left-3.5 top-5 w-6 h-6 rounded-full bg-racing-red-500/10 border border-racing-red-500 flex items-center justify-center text-xs shadow-md z-20" title="Actor: HYBRID">
+                                🤝
+                            </div>
+
+                            <div class="flex justify-between items-start mb-3">
+                                <a href="张雪机车_AI画布_全球物流编排.html"><h4 class="font-bold text-racing-900 text-base ml-2 pr-2">AI全球物流编排</h4></a>
+                                <span class="tag bg-racing-red-500/10 border-racing-red-500 text-racing-red-400 border flex-shrink-0 mt-0.5">HYBRID</span>
+                            </div>
+                            
+                            <div class="space-y-4 ml-2">
+                                <!-- Action -->
+                                <div class="text-sm text-racing-600 leading-relaxed">
+                                    AI自动选择最优运输路线（海运/铁路/空运）、承运商、清关代理，实时跟踪货物状态；人类团队处理清关异常、海关扣押等突发情况
+                                </div>
+                                
+                                <!-- AI Capability (if exists) -->
+                                
+                                <div class="bg-snowblade-900/20 border border-snowblade-500/20 rounded p-2.5">
+                                    <div class="text-[0.65rem] text-snowblade-400 uppercase font-semibold mb-1 flex items-center gap-1">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                                        AI Capability
+                                    </div>
+                                    <div class="text-xs text-snowblade-200">多式联运优化+承运商评分模型+清关知识图谱+ETA预测+异常预警</div>
+                                </div>
+                                
+                                
+                                <!-- I/O Data Flow -->
+                                <div class="flex items-stretch gap-2">
+                                    <div class="flex-1 bg-racing-100/60 border border-racing-300/60 rounded p-2">
+                                        <div class="text-[0.65rem] text-racing-400 uppercase font-semibold mb-1">Inputs</div>
+                                        <ul class="text-xs text-racing-600 space-y-1">
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="订单目的地">订单目的地</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="运输成本数据">运输成本数据</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="承运商绩效数据">承运商绩效数据</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="海关法规库">海关法规库</span></li>
+                                            
+                                        </ul>
+                                    </div>
+                                    <div class="flex-1 bg-racing-100/60 border border-racing-300/60 rounded p-2">
+                                        <div class="text-[0.65rem] text-racing-400 uppercase font-semibold mb-1">Outputs</div>
+                                        <ul class="text-xs text-racing-600 space-y-1">
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="最优运输方案">最优运输方案</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="清关单据模板">清关单据模板</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="实时物流跟踪">实时物流跟踪</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="异常预警通知">异常预警通知</span></li>
+                                            
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <!-- Human Touchpoint (Critical for Hybrid/Human) -->
+                                
+                                <div class="border-t border-racing-300/60 pt-3 mt-3">
+                                    <div class="text-[0.65rem] text-racing-red-400 uppercase font-semibold mb-1 flex items-center gap-1">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                        Human Touchpoint
+                                    </div>
+                                    <div class="text-xs text-racing-600">
+                                        AI处理95%的标准化物流编排；人类团队处理清关异常、海关扣押等突发——这些无法自动化
+                                    </div>
+                                </div>
+                                
+                                
+                            </div>
+                        </div>
+                        
+                        <!-- Vertical connector arrow between nodes -->
+                        
+                        <div class="h-6 ml-6 border-l-2 border-dashed border-racing-400 flex items-center">
+                            <div class="w-2 h-2 rounded-full bg-racing-300 -ml-[5px]"></div>
+                        </div>
+                        
+                        
+                        
+                        <!-- Node Card -->
+                        <div class="node-card glass-panel rounded-xl p-5 border-l-4 border-racing-red-500 relative group">
+                            
+                            <!-- Actor Badge -->
+                            <div class="absolute -left-3.5 top-5 w-6 h-6 rounded-full bg-racing-red-500/10 border border-racing-red-500 flex items-center justify-center text-xs shadow-md z-20" title="Actor: HYBRID">
+                                🤝
+                            </div>
+
+                            <div class="flex justify-between items-start mb-3">
+                                <a href="张雪机车_AI画布_交付合规引擎.html"><h4 class="font-bold text-racing-900 text-base ml-2 pr-2">AI交付合规引擎</h4></a>
+                                <span class="tag bg-racing-red-500/10 border-racing-red-500 text-racing-red-400 border flex-shrink-0 mt-0.5">HYBRID</span>
+                            </div>
+                            
+                            <div class="space-y-4 ml-2">
+                                <!-- Action -->
+                                <div class="text-sm text-racing-600 leading-relaxed">
+                                    AI根据用户所在地法规自动生成交付清单（上牌流程、保险推荐、税费明细）；关键法规合规性由本地专家审核确认，法律风险兜底
+                                </div>
+                                
+                                <!-- AI Capability (if exists) -->
+                                
+                                <div class="bg-snowblade-900/20 border border-snowblade-500/20 rounded p-2.5">
+                                    <div class="text-[0.65rem] text-snowblade-400 uppercase font-semibold mb-1 flex items-center gap-1">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                                        AI Capability
+                                    </div>
+                                    <div class="text-xs text-snowblade-200">法规知识图谱+本地服务商匹配+流程自动化+多语言文档生成</div>
+                                </div>
+                                
+                                
+                                <!-- I/O Data Flow -->
+                                <div class="flex items-stretch gap-2">
+                                    <div class="flex-1 bg-racing-100/60 border border-racing-300/60 rounded p-2">
+                                        <div class="text-[0.65rem] text-racing-400 uppercase font-semibold mb-1">Inputs</div>
+                                        <ul class="text-xs text-racing-600 space-y-1">
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="目的地国家法规">目的地国家法规</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="本地服务商网络">本地服务商网络</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="用户车辆配置">用户车辆配置</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="保险方案数据">保险方案数据</span></li>
+                                            
+                                        </ul>
+                                    </div>
+                                    <div class="flex-1 bg-racing-100/60 border border-racing-300/60 rounded p-2">
+                                        <div class="text-[0.65rem] text-racing-400 uppercase font-semibold mb-1">Outputs</div>
+                                        <ul class="text-xs text-racing-600 space-y-1">
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="个性化交付指南">个性化交付指南</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="上牌材料清单">上牌材料清单</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="保险推荐方案">保险推荐方案</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="服务商预约">服务商预约</span></li>
+                                            
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <!-- Human Touchpoint (Critical for Hybrid/Human) -->
+                                
+                                <div class="border-t border-racing-300/60 pt-3 mt-3">
+                                    <div class="text-[0.65rem] text-racing-red-400 uppercase font-semibold mb-1 flex items-center gap-1">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                        Human Touchpoint
+                                    </div>
+                                    <div class="text-xs text-racing-600">
+                                        AI生成所有文档，人类本地专家审核关键法规合规性——法律责任必须由人类承担
+                                    </div>
+                                </div>
+                                
+                                
+                            </div>
+                        </div>
+                        
+                        <!-- Vertical connector arrow between nodes -->
+                        
+                        <div class="h-6 ml-6 border-l-2 border-dashed border-racing-400 flex items-center">
+                            <div class="w-2 h-2 rounded-full bg-racing-300 -ml-[5px]"></div>
+                        </div>
+                        
+                        
+                        
+                        <!-- Node Card -->
+                        <div class="node-card glass-panel rounded-xl p-5 border-l-4 border-snowblade-500 relative group">
+                            
+                            <!-- Actor Badge -->
+                            <div class="absolute -left-3.5 top-5 w-6 h-6 rounded-full bg-snowblade-500/10 border border-snowblade-500 flex items-center justify-center text-xs shadow-md z-20" title="Actor: AI">
+                                🤖
+                            </div>
+
+                            <div class="flex justify-between items-start mb-3">
+                                <a href="张雪机车_AI画布_交付仪式感制造.html"><h4 class="font-bold text-racing-900 text-base ml-2 pr-2">AI交付仪式感制造</h4></a>
+                                <span class="tag bg-snowblade-500/10 border-snowblade-500 text-snowblade-400 border flex-shrink-0 mt-0.5">AI</span>
+                            </div>
+                            
+                            <div class="space-y-4 ml-2">
+                                <!-- Action -->
+                                <div class="text-sm text-racing-600 leading-relaxed">
+                                    AI生成个性化交车仪式方案：专属欢迎视频（创始人语音祝福）、定制化车辆设置推荐、首骑路线规划
+                                </div>
+                                
+                                <!-- AI Capability (if exists) -->
+                                
+                                <div class="bg-snowblade-900/20 border border-snowblade-500/20 rounded p-2.5">
+                                    <div class="text-[0.65rem] text-snowblade-400 uppercase font-semibold mb-1 flex items-center gap-1">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                                        AI Capability
+                                    </div>
+                                    <div class="text-xs text-snowblade-200">个性化内容生成+语音合成+路线规划+车辆配置推荐</div>
+                                </div>
+                                
+                                
+                                <!-- I/O Data Flow -->
+                                <div class="flex items-stretch gap-2">
+                                    <div class="flex-1 bg-racing-100/60 border border-racing-300/60 rounded p-2">
+                                        <div class="text-[0.65rem] text-racing-400 uppercase font-semibold mb-1">Inputs</div>
+                                        <ul class="text-xs text-racing-600 space-y-1">
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="用户画像">用户画像</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="车辆配置">车辆配置</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="地理位置">地理位置</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="骑行偏好">骑行偏好</span></li>
+                                            
+                                        </ul>
+                                    </div>
+                                    <div class="flex-1 bg-racing-100/60 border border-racing-300/60 rounded p-2">
+                                        <div class="text-[0.65rem] text-racing-400 uppercase font-semibold mb-1">Outputs</div>
+                                        <ul class="text-xs text-racing-600 space-y-1">
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="个性化欢迎视频">个性化欢迎视频</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="车辆设置推荐">车辆设置推荐</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="首骑路线">首骑路线</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="骑行技巧提示">骑行技巧提示</span></li>
+                                            
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <!-- Human Touchpoint (Critical for Hybrid/Human) -->
+                                
+                                <div class="border-t border-racing-300/60 pt-3 mt-3">
+                                    <div class="text-[0.65rem] text-racing-400 uppercase font-semibold mb-1 flex items-center gap-1">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                        Human Touchpoint
+                                    </div>
+                                    <div class="text-xs text-racing-400">
+                                        AI创造超越传统经销商的个性化交付体验——这是AI的绝对优势
+                                    </div>
+                                </div>
+                                
+                                
+                            </div>
+                        </div>
+                        
+                        <!-- Vertical connector arrow between nodes -->
+                        
+                        
+                        
+                    </div>
+                </div>
+                
+                <!-- Phase Column -->
+                <div class="w-[400px] flex-shrink-0 flex flex-col phase-connector">
+                    
+                    <!-- Phase Header -->
+                    <div class="mb-6 relative z-10">
+                        <div class="flex items-center gap-3 mb-2">
+                            <div class="w-8 h-8 rounded-full bg-racing-100 border border-racing-300 flex items-center justify-center text-sm font-bold text-racing-600 shadow-inner">
+                                5
+                            </div>
+                            <h3 class="text-lg font-bold text-racing-900">预测性用户运营与服务</h3>
+                        </div>
+                        
+                        <p class="text-sm text-racing-400 pl-11">AI持续运营用户社群，预测性维护，将每位用户转化为品牌传播节点</p>
+                        
+                    </div>
+                    
+                    <!-- Nodes Container -->
+                    <div class="flex-1 flex flex-col gap-4 pl-4 border-l-2 border-racing-200/60 ml-4 relative z-10">
+                        
+                        
+                        <!-- Node Card -->
+                        <div class="node-card glass-panel rounded-xl p-5 border-l-4 border-racing-red-500 relative group">
+                            
+                            <!-- Actor Badge -->
+                            <div class="absolute -left-3.5 top-5 w-6 h-6 rounded-full bg-racing-red-500/10 border border-racing-red-500 flex items-center justify-center text-xs shadow-md z-20" title="Actor: HYBRID">
+                                🤝
+                            </div>
+
+                            <div class="flex justify-between items-start mb-3">
+                                <a href="张雪机车_AI画布_全球骑行社区运营.html"><h4 class="font-bold text-racing-900 text-base ml-2 pr-2">AI全球骑行社区运营</h4></a>
+                                <span class="tag bg-racing-red-500/10 border-racing-red-500 text-racing-red-400 border flex-shrink-0 mt-0.5">HYBRID</span>
+                            </div>
+                            
+                            <div class="space-y-4 ml-2">
+                                <!-- Action -->
+                                <div class="text-sm text-racing-600 leading-relaxed">
+                                    AI自动运营多语言车主社区（日常内容、话题生成、线上活动）；人类品牌大使组织线下骑行活动、赛道日、品牌聚会
+                                </div>
+                                
+                                <!-- AI Capability (if exists) -->
+                                
+                                <div class="bg-snowblade-900/20 border border-snowblade-500/20 rounded p-2.5">
+                                    <div class="text-[0.65rem] text-snowblade-400 uppercase font-semibold mb-1 flex items-center gap-1">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                                        AI Capability
+                                    </div>
+                                    <div class="text-xs text-snowblade-200">社区内容生成+活动推荐+用户匹配+UGC激励设计+线下活动策划</div>
+                                </div>
+                                
+                                
+                                <!-- I/O Data Flow -->
+                                <div class="flex items-stretch gap-2">
+                                    <div class="flex-1 bg-racing-100/60 border border-racing-300/60 rounded p-2">
+                                        <div class="text-[0.65rem] text-racing-400 uppercase font-semibold mb-1">Inputs</div>
+                                        <ul class="text-xs text-racing-600 space-y-1">
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="车主地理位置">车主地理位置</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="骑行记录">骑行记录</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="社交关系">社交关系</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="活动偏好">活动偏好</span></li>
+                                            
+                                        </ul>
+                                    </div>
+                                    <div class="flex-1 bg-racing-100/60 border border-racing-300/60 rounded p-2">
+                                        <div class="text-[0.65rem] text-racing-400 uppercase font-semibold mb-1">Outputs</div>
+                                        <ul class="text-xs text-racing-600 space-y-1">
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="社区话题内容">社区话题内容</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="活动推荐">活动推荐</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="骑行伙伴匹配">骑行伙伴匹配</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="UGC激励方案">UGC激励方案</span></li>
+                                            
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <!-- Human Touchpoint (Critical for Hybrid/Human) -->
+                                
+                                <div class="border-t border-racing-300/60 pt-3 mt-3">
+                                    <div class="text-[0.65rem] text-racing-red-400 uppercase font-semibold mb-1 flex items-center gap-1">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                        Human Touchpoint
+                                    </div>
+                                    <div class="text-xs text-racing-600">
+                                        AI负责线上7×24社区运营；人类品牌大使负责组织线下骑行活动——摩托车社区需要物理连接
+                                    </div>
+                                </div>
+                                
+                                
+                            </div>
+                        </div>
+                        
+                        <!-- Vertical connector arrow between nodes -->
+                        
+                        <div class="h-6 ml-6 border-l-2 border-dashed border-racing-400 flex items-center">
+                            <div class="w-2 h-2 rounded-full bg-racing-300 -ml-[5px]"></div>
+                        </div>
+                        
+                        
+                        
+                        <!-- Node Card -->
+                        <div class="node-card glass-panel rounded-xl p-5 border-l-4 border-racing-red-500 relative group">
+                            
+                            <!-- Actor Badge -->
+                            <div class="absolute -left-3.5 top-5 w-6 h-6 rounded-full bg-racing-red-500/10 border border-racing-red-500 flex items-center justify-center text-xs shadow-md z-20" title="Actor: HYBRID">
+                                🤝
+                            </div>
+
+                            <div class="flex justify-between items-start mb-3">
+                                <a href="张雪机车_AI画布_预测性维护与开放服务网络.html"><h4 class="font-bold text-racing-900 text-base ml-2 pr-2">AI预测性维护 + 开放服务网络</h4></a>
+                                <span class="tag bg-racing-red-500/10 border-racing-red-500 text-racing-red-400 border flex-shrink-0 mt-0.5">HYBRID</span>
+                            </div>
+                            
+                            <div class="space-y-4 ml-2">
+                                <!-- Action -->
+                                <div class="text-sm text-racing-600 leading-relaxed">
+                                    AI通过车辆IoT数据预测维护需求，自动推荐附近认证服务商（开放网络，不限定品牌店），预约保养，预测配件需求——用AI调度而非自建服务网络
+                                </div>
+                                
+                                <!-- AI Capability (if exists) -->
+                                
+                                <div class="bg-snowblade-900/20 border border-snowblade-500/20 rounded p-2.5">
+                                    <div class="text-[0.65rem] text-snowblade-400 uppercase font-semibold mb-1 flex items-center gap-1">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                                        AI Capability
+                                    </div>
+                                    <div class="text-xs text-snowblade-200">时间序列预测+异常检测+服务商匹配+库存预测+预约自动化</div>
+                                </div>
+                                
+                                
+                                <!-- I/O Data Flow -->
+                                <div class="flex items-stretch gap-2">
+                                    <div class="flex-1 bg-racing-100/60 border border-racing-300/60 rounded p-2">
+                                        <div class="text-[0.65rem] text-racing-400 uppercase font-semibold mb-1">Inputs</div>
+                                        <ul class="text-xs text-racing-600 space-y-1">
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="车辆IoT数据">车辆IoT数据</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="骑行习惯数据">骑行习惯数据</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="开放服务商网络">开放服务商网络</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="配件库存">配件库存</span></li>
+                                            
+                                        </ul>
+                                    </div>
+                                    <div class="flex-1 bg-racing-100/60 border border-racing-300/60 rounded p-2">
+                                        <div class="text-[0.65rem] text-racing-400 uppercase font-semibold mb-1">Outputs</div>
+                                        <ul class="text-xs text-racing-600 space-y-1">
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="维护预警通知">维护预警通知</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="服务商推荐">服务商推荐</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="配件预购建议">配件预购建议</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="保养预约">保养预约</span></li>
+                                            
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <!-- Human Touchpoint (Critical for Hybrid/Human) -->
+                                
+                                <div class="border-t border-racing-300/60 pt-3 mt-3">
+                                    <div class="text-[0.65rem] text-racing-red-400 uppercase font-semibold mb-1 flex items-center gap-1">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                        Human Touchpoint
+                                    </div>
+                                    <div class="text-xs text-racing-600">
+                                        AI调度服务商网络，但认证服务商的准入标准、培训质量、配件真伪由人类团队管控
+                                    </div>
+                                </div>
+                                
+                                
+                            </div>
+                        </div>
+                        
+                        <!-- Vertical connector arrow between nodes -->
+                        
+                        <div class="h-6 ml-6 border-l-2 border-dashed border-racing-400 flex items-center">
+                            <div class="w-2 h-2 rounded-full bg-racing-300 -ml-[5px]"></div>
+                        </div>
+                        
+                        
+                        
+                        <!-- Node Card -->
+                        <div class="node-card glass-panel rounded-xl p-5 border-l-4 border-snowblade-500 relative group">
+                            
+                            <!-- Actor Badge -->
+                            <div class="absolute -left-3.5 top-5 w-6 h-6 rounded-full bg-snowblade-500/10 border border-snowblade-500 flex items-center justify-center text-xs shadow-md z-20" title="Actor: AI">
+                                🤖
+                            </div>
+
+                            <div class="flex justify-between items-start mb-3">
+                                <a href="张雪机车_AI画布_口碑裂变引擎.html"><h4 class="font-bold text-racing-900 text-base ml-2 pr-2">AI口碑裂变引擎</h4></a>
+                                <span class="tag bg-snowblade-500/10 border-snowblade-500 text-snowblade-400 border flex-shrink-0 mt-0.5">AI</span>
+                            </div>
+                            
+                            <div class="space-y-4 ml-2">
+                                <!-- Action -->
+                                <div class="text-sm text-racing-600 leading-relaxed">
+                                    AI识别高满意度车主，自动生成个性化推荐内容（视频/图文），激励推荐新用户，追踪推荐效果
+                                </div>
+                                
+                                <!-- AI Capability (if exists) -->
+                                
+                                <div class="bg-snowblade-900/20 border border-snowblade-500/20 rounded p-2.5">
+                                    <div class="text-[0.65rem] text-snowblade-400 uppercase font-semibold mb-1 flex items-center gap-1">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                                        AI Capability
+                                    </div>
+                                    <div class="text-xs text-snowblade-200">满意度预测+个性化推荐内容生成+效果追踪+动态激励优化</div>
+                                </div>
+                                
+                                
+                                <!-- I/O Data Flow -->
+                                <div class="flex items-stretch gap-2">
+                                    <div class="flex-1 bg-racing-100/60 border border-racing-300/60 rounded p-2">
+                                        <div class="text-[0.65rem] text-racing-400 uppercase font-semibold mb-1">Inputs</div>
+                                        <ul class="text-xs text-racing-600 space-y-1">
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="车主满意度数据">车主满意度数据</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="社交影响力评分">社交影响力评分</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="推荐效果数据">推荐效果数据</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="激励成本">激励成本</span></li>
+                                            
+                                        </ul>
+                                    </div>
+                                    <div class="flex-1 bg-racing-100/60 border border-racing-300/60 rounded p-2">
+                                        <div class="text-[0.65rem] text-racing-400 uppercase font-semibold mb-1">Outputs</div>
+                                        <ul class="text-xs text-racing-600 space-y-1">
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="推荐大使邀请">推荐大使邀请</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="个性化推荐素材">个性化推荐素材</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="裂变效果追踪">裂变效果追踪</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="激励发放">激励发放</span></li>
+                                            
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <!-- Human Touchpoint (Critical for Hybrid/Human) -->
+                                
+                                <div class="border-t border-racing-300/60 pt-3 mt-3">
+                                    <div class="text-[0.65rem] text-racing-400 uppercase font-semibold mb-1 flex items-center gap-1">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                        Human Touchpoint
+                                    </div>
+                                    <div class="text-xs text-racing-400">
+                                        AI精准识别最有可能推荐的车主，最大化口碑传播ROI，人类审核激励方案合规性
+                                    </div>
+                                </div>
+                                
+                                
+                            </div>
+                        </div>
+                        
+                        <!-- Vertical connector arrow between nodes -->
+                        
+                        <div class="h-6 ml-6 border-l-2 border-dashed border-racing-400 flex items-center">
+                            <div class="w-2 h-2 rounded-full bg-racing-300 -ml-[5px]"></div>
+                        </div>
+                        
+                        
+                        
+                        <!-- Node Card -->
+                        <div class="node-card glass-panel rounded-xl p-5 border-l-4 border-racing-red-500 relative group">
+                            
+                            <!-- Actor Badge -->
+                            <div class="absolute -left-3.5 top-5 w-6 h-6 rounded-full bg-racing-red-500/10 border border-racing-red-500 flex items-center justify-center text-xs shadow-md z-20" title="Actor: HYBRID">
+                                🤝
+                            </div>
+
+                            <div class="flex justify-between items-start mb-3">
+                                <a href="张雪机车_AI画布_产品迭代洞察.html"><h4 class="font-bold text-racing-900 text-base ml-2 pr-2">AI产品迭代洞察</h4></a>
+                                <span class="tag bg-racing-red-500/10 border-racing-red-500 text-racing-red-400 border flex-shrink-0 mt-0.5">HYBRID</span>
+                            </div>
+                            
+                            <div class="space-y-4 ml-2">
+                                <!-- Action -->
+                                <div class="text-sm text-racing-600 leading-relaxed">
+                                    AI聚合全球车主反馈、骑行数据、故障报告，生成产品改进洞察报告；人类工程师和设计师进行最终的产品决策和创新判断
+                                </div>
+                                
+                                <!-- AI Capability (if exists) -->
+                                
+                                <div class="bg-snowblade-900/20 border border-snowblade-500/20 rounded p-2.5">
+                                    <div class="text-[0.65rem] text-snowblade-400 uppercase font-semibold mb-1 flex items-center gap-1">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                                        AI Capability
+                                    </div>
+                                    <div class="text-xs text-snowblade-200">NLP反馈分析+使用模式挖掘+故障根因分析+需求优先级排序</div>
+                                </div>
+                                
+                                
+                                <!-- I/O Data Flow -->
+                                <div class="flex items-stretch gap-2">
+                                    <div class="flex-1 bg-racing-100/60 border border-racing-300/60 rounded p-2">
+                                        <div class="text-[0.65rem] text-racing-400 uppercase font-semibold mb-1">Inputs</div>
+                                        <ul class="text-xs text-racing-600 space-y-1">
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="用户反馈数据">用户反馈数据</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="骑行大数据">骑行大数据</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="故障报告">故障报告</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="竞品动态">竞品动态</span></li>
+                                            
+                                        </ul>
+                                    </div>
+                                    <div class="flex-1 bg-racing-100/60 border border-racing-300/60 rounded p-2">
+                                        <div class="text-[0.65rem] text-racing-400 uppercase font-semibold mb-1">Outputs</div>
+                                        <ul class="text-xs text-racing-600 space-y-1">
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="产品改进洞察报告">产品改进洞察报告</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="需求优先级排序">需求优先级排序</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="竞品差距分析">竞品差距分析</span></li>
+                                            
+                                            <li class="flex items-start gap-1"><span class="text-racing-400 mt-px">→</span> <span class="truncate" title="下一代产品建议">下一代产品建议</span></li>
+                                            
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <!-- Human Touchpoint (Critical for Hybrid/Human) -->
+                                
+                                <div class="border-t border-racing-300/60 pt-3 mt-3">
+                                    <div class="text-[0.65rem] text-racing-red-400 uppercase font-semibold mb-1 flex items-center gap-1">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                        Human Touchpoint
+                                    </div>
+                                    <div class="text-xs text-racing-600">
+                                        AI提供数据洞察和优先级建议，人类工程师做最终产品决策——创新和判断力是人类的绝对优势
+                                    </div>
+                                </div>
+                                
+                                
+                            </div>
+                        </div>
+                        
+                        <!-- Vertical connector arrow between nodes -->
+                        
+                        
+                        
+                    </div>
+                </div>
+                
+                
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Raw YAML Data (Hidden) -->
+    <script type="application/yaml" id="raw-yaml">
+title: "张雪机车海外AI-Native DTC销售工作流 v2.0"
+business_type: "AI-Native Direct-to-Consumer (DTC) 海外摩托车销售"
+description: "以AI重构海外摩托车销售的价值链条，而非简单替代人工：AI做7×24全球运营、需求聚合、物流编排，人类聚焦品牌大使、专家决策、法规合规。实现1-2年内可落地的AI-Native出海模式——精益团队（5-8人覆盖全球）、开放认证服务网络、分布式社交试驾。"
+principles:
+  - "AI Engine: AI负责运营、聚合、编排——放大人类能力边界"
+  - "Human Steering: 人类负责决策、关系、合规——守住关键控制点"
+  - "Physical Reality: 尊重认证法规、产品责任、试驾体验等物理约束"
+  - "Phase 1-2 Market: 第一阶段聚焦1-2个市场验证，再扩展至全球"
+phases:
+  - name: "市场选择与合规路径规划"
+    description: "AI扫描全球市场法规与机会，规划合规进入路径，人类团队聚焦战略决策"
+    nodes:
+      - name: "AI全球机车市场雷达"
+        actor: ai
+        action_description: "AI持续扫描全球50+市场的法规变动、关税政策、市场规模、竞争格局、消费者偏好，输出动态市场机会排名报告"
+        ai_capability: "NLP法规文本分析+市场数据聚合+政策变动预警+竞争力评估模型"
+        automation_level: high
+        inputs:
+          - "各国车辆认证法规数据库"
+          - "海关/关税政策变动"
+          - "摩托车市场销量数据"
+          - "竞品价格与渠道数据"
+        outputs:
+          - "市场机会排名报告"
+          - "法规风险预警"
+          - "进入成本估算"
+          - "竞品差距分析"
+        human_touchpoint: "AI持续监控，人类团队每季度做市场进入决策"
+
+      - name: "AI合规路径导航"
+        actor: hybrid
+        action_description: "AI基于市场雷达报告，自动生成目标市场的合规路径规划（认证类型、时间节点、成本估算、所需文件），并追踪每个节点的执行进度"
+        ai_capability: "知识图谱+项目管理自动化+文档生成+进度追踪"
+        automation_level: medium
+        inputs:
+          - "目标市场列表"
+          - "车辆技术参数"
+          - "认证机构数据库"
+          - "历史认证案例"
+        outputs:
+          - "合规路径规划表"
+          - "认证文档模板"
+          - "进度追踪看板"
+          - "风险预警通知"
+        human_touchpoint: "法规合规涉及法律责任，必须由人类法务团队审核确认AI规划路径"
+
+  - name: "全球内容触达与需求激发"
+    description: "AI生成多语言赛事/品牌内容，通过社媒算法精准触达全球潜在骑手，零市场团队成本"
+    nodes:
+      - name: "AI赛事内容工厂"
+        actor: ai
+        action_description: "AI自动剪辑WSBK赛事高光片段，生成多语言解说视频、图文、短视频，适配YouTube/TikTok/Instagram/Reels各平台格式"
+        ai_capability: "多模态视频理解+GPT-4o脚本生成+ElevenLabs多语言配音+自动平台适配"
+        automation_level: high
+        inputs:
+          - "WSBK原始赛事素材"
+          - "品牌VI规范"
+          - "目标市场文化偏好数据"
+        outputs:
+          - "6语言短视频成品"
+          - "多平台格式适配内容"
+          - "SEO优化文章"
+        human_touchpoint: "AI全自动完成从素材到发布的全流程，人类只定品牌调性和内容红线"
+
+      - name: "AI KOL网络识别与对接"
+        actor: hybrid
+        action_description: "AI扫描全球摩托车社媒账号，自动识别高影响力KOL、骑手社群领袖，生成个性化合作方案；人类团队负责关键KOL的关系建立和商务谈判"
+        ai_capability: "社交网络分析+影响力评分算法+个性化方案生成+合作效果预测"
+        automation_level: medium
+        inputs:
+          - "全球摩托车KOL数据库"
+          - "社媒互动数据"
+          - "品牌合作预算"
+        outputs:
+          - "优先级排序KOL名单"
+          - "个性化合作方案"
+          - "种子用户画像"
+        human_touchpoint: "AI完成识别和方案生成，人类负责与头部KOL的关系建立和谈判——摩托车社区是关系驱动的"
+
+      - name: "智能投放与算法优化"
+        actor: ai
+        action_description: "AI自动管理全球社媒广告投放，实时优化受众定向、出价策略、创意组合，最大化ROI"
+        ai_capability: "强化学习广告优化+实时竞价算法+A/B测试自动化"
+        automation_level: high
+        inputs:
+          - "广告预算"
+          - "内容素材库"
+          - "转化数据反馈"
+        outputs:
+          - "优化后的投放策略"
+          - "实时ROI报告"
+          - "受众洞察数据"
+        human_touchpoint: "无需人工调整，AI 24/7自动优化投放策略，人类设定预算上限和品牌安全红线"
+
+  - name: "AI个性化互动与需求培育"
+    description: "AI多语言客服7×24覆盖+人类品牌大使深化关键关系，零时差零语言障碍"
+    nodes:
+      - name: "AI首席骑行官 + 品牌大使"
+        actor: hybrid
+        action_description: "AI以'首席骑行官'角色与全球用户7×24互动，分享骑行经验、赛事故事；当用户显示高购买意向时，由人类品牌大使（退役车手/资深骑手）通过视频通话深化关系"
+        ai_capability: "大语言模型角色扮演+RAG知识库+情感计算+多语言实时翻译+意向度评分"
+        automation_level: medium
+        inputs:
+          - "用户社媒互动记录"
+          - "产品技术知识库"
+          - "创始人张雪故事库"
+          - "品牌大使排班表"
+        outputs:
+          - "个性化互动回复"
+          - "用户意向度评分"
+          - "高意向用户清单"
+          - "品牌大使预约通知"
+        human_touchpoint: "AI覆盖95%的互动量；人类品牌大使聚焦5%的高意向用户——1个品牌大使可覆盖5000+AI触达用户"
+
+      - name: "AI购车分析引擎"
+        actor: hybrid
+        action_description: "AI通过对话深入了解用户骑行经验、预算、用途，推荐最适合的车型配置，生成个性化购车方案；高意向用户的最终推荐需人类骑行专家视频确认，规避产品责任风险"
+        ai_capability: "对话式推荐系统+金融计算引擎+个性化配置生成+骑行能力评估"
+        automation_level: medium
+        inputs:
+          - "用户画像数据"
+          - "车型参数库"
+          - "各国法规要求"
+          - "金融方案数据"
+        outputs:
+          - "个性化车型推荐"
+          - "落地价计算（含关税/运费）"
+          - "金融分期方案"
+          - "骑行能力评估报告"
+        human_touchpoint: "AI完成95%的分析和推荐；人类专家15分钟视频确认——既用AI效率，又用人类背书规避法律风险"
+
+      - name: "分布式社交试驾网络"
+        actor: hybrid
+        action_description: "AI匹配潜在买家与附近已有的车主（品牌大使/种子用户），提供激励（配件折扣/社区积分）让车主允许试驾。比传统试驾更真实——在真实车主陪伴下体验，边际成本为零"
+        ai_capability: "地理匹配算法+保险方案生成+试驾路线推荐+车主激励管理+试驾反馈分析"
+        automation_level: medium
+        inputs:
+          - "潜在买家位置"
+          - "车主网络数据库"
+          - "试驾保险数据"
+          - "车主评分与历史"
+        outputs:
+          - "试驾匹配方案"
+          - "试驾保险单据"
+          - "试驾路线推荐"
+          - "试驾反馈报告"
+        human_touchpoint: "AI完成匹配和保险；车主是真实人类——这是比'虚拟试驾'更AI-Native的方案：用AI激活社群网络效应"
+
+      - name: "AI信任聚合引擎"
+        actor: ai
+        action_description: "AI聚合真实存在的第三方评测、赛事成绩、车主口碑，在用户决策节点精准推送可验证的信任内容——只聚合真实内容，绝不生成虚假评价"
+        ai_capability: "UGC内容聚合+评测视频自动剪辑+数据可视化+个性化推送"
+        automation_level: high
+        inputs:
+          - "真实车主评价数据"
+          - "第三方评测数据源"
+          - "赛事成绩数据"
+          - "用户行为数据"
+        outputs:
+          - "个性化信任内容包"
+          - "实时社会认同提示"
+          - "竞品对比可视化"
+        human_touchpoint: "AI聚合和呈现真实内容，消除'中国品牌'偏见——内容100%真实可溯源"
+
+  - name: "智能预订众筹与柔性生产"
+    description: "按单生产+众筹模式，零库存风险，AI预测需求优化排产"
+    nodes:
+      - name: "AI动态定价与预订系统"
+        actor: ai
+        action_description: "AI根据汇率、关税、需求热度、竞品价格实时计算最优定价，用户支付定金锁定价格，AI自动计算交付时间"
+        ai_capability: "动态定价算法+汇率预测+需求预测+交付时间估算"
+        automation_level: high
+        inputs:
+          - "实时汇率数据"
+          - "关税数据库"
+          - "竞品价格监控"
+          - "产能数据"
+        outputs:
+          - "实时落地价"
+          - "最优定价策略"
+          - "交付时间预测"
+          - "定金锁定确认"
+        human_touchpoint: "定价策略完全由AI数据驱动，消除人为定价偏差，人类设定利润底线和价格上限"
+
+      - name: "众筹生产决策引擎"
+        actor: ai
+        action_description: "当某地区订单达到集装箱最优装载量时，AI自动触发众筹成团，用户获额外折扣，工厂按单生产——把传统B2B2C变成真正的C2M"
+        ai_capability: "运筹优化+集装箱装载算法+团购动态定价+生产排程"
+        automation_level: high
+        inputs:
+          - "地区订单池"
+          - "集装箱装载约束"
+          - "生产成本数据"
+          - "用户价格敏感度"
+        outputs:
+          - "最优成团阈值"
+          - "动态折扣策略"
+          - "生产排程计划"
+          - "用户成团通知"
+        human_touchpoint: "AI自动平衡成本与用户体验，人类团队设定最低成团量和利润底线"
+
+      - name: "AI柔性生产排程"
+        actor: ai
+        action_description: "AI根据全球订单分布、配件库存、产能约束，自动优化生产顺序和配置组合，最大化产能利用率"
+        ai_capability: "强化学习排程+约束优化+供应链协同预测"
+        automation_level: high
+        inputs:
+          - "全球订单数据"
+          - "配件库存状态"
+          - "产线产能数据"
+          - "物流约束"
+        outputs:
+          - "最优生产排程"
+          - "配件采购建议"
+          - "产能利用率报告"
+        human_touchpoint: "复杂多约束优化由AI完成，人类无法实时处理，但生产计划需人工最终确认"
+
+  - name: "弹性全球物流网络"
+    description: "AI管理从工厂到用户手中的全链路物流，人类处理异常和关键合规节点"
+    nodes:
+      - name: "AI全球物流编排"
+        actor: hybrid
+        action_description: "AI自动选择最优运输路线（海运/铁路/空运）、承运商、清关代理，实时跟踪货物状态；人类团队处理清关异常、海关扣押等突发情况"
+        ai_capability: "多式联运优化+承运商评分模型+清关知识图谱+ETA预测+异常预警"
+        automation_level: medium
+        inputs:
+          - "订单目的地"
+          - "运输成本数据"
+          - "承运商绩效数据"
+          - "海关法规库"
+        outputs:
+          - "最优运输方案"
+          - "清关单据模板"
+          - "实时物流跟踪"
+          - "异常预警通知"
+        human_touchpoint: "AI处理95%的标准化物流编排；人类团队处理清关异常、海关扣押等突发——这些无法自动化"
+
+      - name: "AI交付合规引擎"
+        actor: hybrid
+        action_description: "AI根据用户所在地法规自动生成交付清单（上牌流程、保险推荐、税费明细）；关键法规合规性由本地专家审核确认，法律风险兜底"
+        ai_capability: "法规知识图谱+本地服务商匹配+流程自动化+多语言文档生成"
+        automation_level: medium
+        inputs:
+          - "目的地国家法规"
+          - "本地服务商网络"
+          - "用户车辆配置"
+          - "保险方案数据"
+        outputs:
+          - "个性化交付指南"
+          - "上牌材料清单"
+          - "保险推荐方案"
+          - "服务商预约"
+        human_touchpoint: "AI生成所有文档，人类本地专家审核关键法规合规性——法律责任必须由人类承担"
+
+      - name: "AI交付仪式感制造"
+        actor: ai
+        action_description: "AI生成个性化交车仪式方案：专属欢迎视频（创始人语音祝福）、定制化车辆设置推荐、首骑路线规划"
+        ai_capability: "个性化内容生成+语音合成+路线规划+车辆配置推荐"
+        automation_level: high
+        inputs:
+          - "用户画像"
+          - "车辆配置"
+          - "地理位置"
+          - "骑行偏好"
+        outputs:
+          - "个性化欢迎视频"
+          - "车辆设置推荐"
+          - "首骑路线"
+          - "骑行技巧提示"
+        human_touchpoint: "AI创造超越传统经销商的个性化交付体验——这是AI的绝对优势"
+
+  - name: "预测性用户运营与服务"
+    description: "AI持续运营用户社群，预测性维护，将每位用户转化为品牌传播节点"
+    nodes:
+      - name: "AI全球骑行社区运营"
+        actor: hybrid
+        action_description: "AI自动运营多语言车主社区（日常内容、话题生成、线上活动）；人类品牌大使组织线下骑行活动、赛道日、品牌聚会"
+        ai_capability: "社区内容生成+活动推荐+用户匹配+UGC激励设计+线下活动策划"
+        automation_level: medium
+        inputs:
+          - "车主地理位置"
+          - "骑行记录"
+          - "社交关系"
+          - "活动偏好"
+        outputs:
+          - "社区话题内容"
+          - "活动推荐"
+          - "骑行伙伴匹配"
+          - "UGC激励方案"
+        human_touchpoint: "AI负责线上7×24社区运营；人类品牌大使负责组织线下骑行活动——摩托车社区需要物理连接"
+
+      - name: "AI预测性维护 + 开放服务网络"
+        actor: hybrid
+        action_description: "AI通过车辆IoT数据预测维护需求，自动推荐附近认证服务商（开放网络，不限定品牌店），预约保养，预测配件需求——用AI调度而非自建服务网络"
+        ai_capability: "时间序列预测+异常检测+服务商匹配+库存预测+预约自动化"
+        automation_level: medium
+        inputs:
+          - "车辆IoT数据"
+          - "骑行习惯数据"
+          - "开放服务商网络"
+          - "配件库存"
+        outputs:
+          - "维护预警通知"
+          - "服务商推荐"
+          - "配件预购建议"
+          - "保养预约"
+        human_touchpoint: "AI调度服务商网络，但认证服务商的准入标准、培训质量、配件真伪由人类团队管控"
+
+      - name: "AI口碑裂变引擎"
+        actor: ai
+        action_description: "AI识别高满意度车主，自动生成个性化推荐内容（视频/图文），激励推荐新用户，追踪推荐效果"
+        ai_capability: "满意度预测+个性化推荐内容生成+效果追踪+动态激励优化"
+        automation_level: high
+        inputs:
+          - "车主满意度数据"
+          - "社交影响力评分"
+          - "推荐效果数据"
+          - "激励成本"
+        outputs:
+          - "推荐大使邀请"
+          - "个性化推荐素材"
+          - "裂变效果追踪"
+          - "激励发放"
+        human_touchpoint: "AI精准识别最有可能推荐的车主，最大化口碑传播ROI，人类审核激励方案合规性"
+
+      - name: "AI产品迭代洞察"
+        actor: hybrid
+        action_description: "AI聚合全球车主反馈、骑行数据、故障报告，生成产品改进洞察报告；人类工程师和设计师进行最终的产品决策和创新判断"
+        ai_capability: "NLP反馈分析+使用模式挖掘+故障根因分析+需求优先级排序"
+        automation_level: medium
+        inputs:
+          - "用户反馈数据"
+          - "骑行大数据"
+          - "故障报告"
+          - "竞品动态"
+        outputs:
+          - "产品改进洞察报告"
+          - "需求优先级排序"
+          - "竞品差距分析"
+          - "下一代产品建议"
+        human_touchpoint: "AI提供数据洞察和优先级建议，人类工程师做最终产品决策——创新和判断力是人类的绝对优势"
+    </script>
+
+    <script>
+        // Copy YAML Functionality
+        document.getElementById('copyYamlBtn').addEventListener('click', function() {
+            const yamlContent = document.getElementById('raw-yaml').textContent.trim();
+            navigator.clipboard.writeText(yamlContent).then(() => {
+                const btn = this;
+                const originalHtml = btn.innerHTML;
+                btn.innerHTML = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Copied!`;
+                btn.classList.replace('bg-snowblade-600', 'bg-green-600');
+                btn.classList.replace('hover:bg-snowblade-500', 'hover:bg-green-500');
+                btn.classList.replace('shadow-snowblade-500/20', 'shadow-green-500/20');
+                
+                setTimeout(() => {
+                    btn.innerHTML = originalHtml;
+                    btn.classList.replace('bg-green-600', 'bg-snowblade-600');
+                    btn.classList.replace('hover:bg-green-500', 'hover:bg-snowblade-500');
+                    btn.classList.replace('shadow-green-500/20', 'shadow-snowblade-500/20');
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+                alert('Failed to copy YAML to clipboard.');
+            });
+        });
+    </script>
+</body>
+</html>

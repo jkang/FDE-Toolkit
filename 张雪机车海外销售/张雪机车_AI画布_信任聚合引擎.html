@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI信任聚合引擎</title>
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans SC", "PingFang SC", Arial, sans-serif;
+      background: #f8fafc;
+      padding: 32px;
+      color: #1e293b;
+    }
+
+    .canvas-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+      display: flex;
+      flex-direction: column;
+      min-height: 800px;
+    }
+
+    .canvas-header {
+      padding: 24px 32px;
+    }
+    
+    .canvas-title {
+      font-size: 1.6rem;
+      margin-bottom: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .btn-copy-yaml {
+      background: #0f172a; color: #fff;
+      padding: 6px 12px; border-radius: 6px;
+      font-size: 12px; font-weight: 600;
+      border: none; cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-copy-yaml:hover { background: #334155; }
+    
+    .toast {
+      position: fixed; bottom: 24px; right: 24px;
+      background: #10b981; color: #fff;
+      padding: 12px 24px; border-radius: 8px;
+      font-size: 14px; font-weight: 600;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      display: none; z-index: 1000;
+    }
+
+    .canvas-desc {
+      font-size: 0.95rem;
+      color: #64748b;
+      line-height: 1.5;
+    }
+
+    .canvas-body {
+      padding: 0 32px 32px 32px;
+      display: flex;
+      flex: 1;
+      gap: 16px;
+      overflow-x: auto;
+    }
+
+    /* 5 columns Grid */
+    .column {
+      flex: 1;
+      min-width: 260px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    /* Card Base */
+    .card {
+      background: white;
+      border-radius: 10px;
+      overflow: hidden;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+      border-width: 2px;
+      border-style: solid;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 20px;
+      border-bottom-width: 1px;
+      border-bottom-style: solid;
+    }
+
+    .header-text {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .card-title {
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: #1e293b;
+      letter-spacing: 0.5px;
+    }
+
+    .card-subtitle {
+      font-size: 0.65rem;
+      color: #64748b;
+    }
+
+    .card-header-icon {
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      background: transparent;
+    }
+
+    .card-header-icon svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    .card-body {
+      padding: 20px;
+      font-size: 0.85rem;
+      color: #334155;
+      line-height: 1.7;
+      flex: 1;
+      background: white;
+    }
+
+    .card-body ul, .card-body ol {
+      list-style: none;
+    }
+
+    .card-body li {
+      margin-bottom: 12px;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      color: #475569;
+      font-weight: 500;
+    }
+    .card-body li:last-child {
+      margin-bottom: 0;
+    }
+
+    .bullet {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: #cbd5e1;
+      margin-top: 9px;
+      flex-shrink: 0;
+    }
+    
+    .number-bullet {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: #64748b;
+      margin-top: 1px;
+      flex-shrink: 0;
+    }
+
+    /* 1. Roles (Indigo) */
+    .theme-roles { border-color: #e0e7ff; }
+    .theme-roles .card-header { background-color: #eef2ff; border-bottom-color: #e0e7ff; }
+    .theme-roles .card-header-icon { color: #6366f1; }
+
+    /* 2. Pains (Amber) */
+    .theme-pains { border-color: #fef08a; }
+    .theme-pains .card-header { background-color: #fef9c3; border-bottom-color: #fef08a; }
+    .theme-pains .card-header-icon { color: #d97706; }
+
+    /* 3. Input (Blue) */
+    .theme-input { border-color: #dbeafe; }
+    .theme-input .card-header { background-color: #eff6ff; border-bottom-color: #dbeafe; }
+    .theme-input .card-header-icon { color: #3b82f6; }
+
+    /* 4. Data (Slate) */
+    .theme-data { border-color: #f1f5f9; }
+    .theme-data .card-header { background-color: #f8fafc; border-bottom-color: #f1f5f9; }
+    .theme-data .card-header-icon { color: #475569; }
+
+    /* 5. Workflow (Slate) */
+    .theme-workflow { border-color: #f1f5f9; }
+    .theme-workflow .card-header { background-color: #f8fafc; border-bottom-color: #f1f5f9; }
+    .theme-workflow .card-header-icon { color: #475569; }
+
+    /* 6. Capabilities (Blue) */
+    .theme-cap { border-color: #dbeafe; }
+    .theme-cap .card-header { background-color: #eff6ff; border-bottom-color: #dbeafe; }
+    .theme-cap .card-header-icon { color: #3b82f6; }
+
+    /* 7. Output (Fuchsia) */
+    .theme-output { border-color: #fae8ff; }
+    .theme-output .card-header { background-color: #fdf4ff; border-bottom-color: #fae8ff; }
+    .theme-output .card-header-icon { color: #d946ef; }
+
+    /* 8. Tools (Cyan) */
+    .theme-tools { border-color: #cffafe; }
+    .theme-tools .card-header { background-color: #ecfeff; border-bottom-color: #cffafe; }
+    .theme-tools .card-header-icon { color: #06b6d4; }
+
+    /* 9. Product (Emerald) */
+    .theme-product { border-color: #d1fae5; }
+    .theme-product .card-header { background-color: #ecfdf5; border-bottom-color: #d1fae5; }
+    .theme-product .card-header-icon { color: #10b981; }
+
+    /* 10. Gains (Emerald) */
+    .theme-gains { border-color: #d1fae5; }
+    .theme-gains .card-header { background-color: #ecfdf5; border-bottom-color: #d1fae5; }
+    .theme-gains .card-header-icon { color: #10b981; }
+
+  </style>
+</head>
+<body>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
+  <div class="canvas-container">
+    <div class="canvas-header">
+      <h1 class="canvas-title">
+        AI信任聚合引擎
+        <button class="btn-copy-yaml" onclick="copyYAML()">复制原始 YAML</button>
+      </h1>
+      <p class="canvas-desc">AI聚合真实第三方评测、赛事成绩、车主口碑，在决策节点精准推送可验证的信任内容，消除中国品牌偏见。</p>
+    </div>
+
+    <div class="canvas-body">
+      
+      <!-- Col 1: userRoles & userPains -->
+      <div class="column">
+        <!-- userRoles -->
+        <div class="card theme-roles">
+          <div class="card-header">
+            <div class="header-text">
+              <div class="card-title">用户角色</div>
+              <div class="card-subtitle">使用该AI场景的用户角色和群体</div>
+            </div>
+            <div class="card-header-icon">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+  </div>
+          </div>
+          <div class="card-body">
+            <ul>
+              
+                <li><span class="bullet"></span>潜在购车用户</li>
+              
+                <li><span class="bullet"></span>品牌内容运营</li>
+              
+                <li><span class="bullet"></span>社媒营销专员</li>
+              
+                <li><span class="bullet"></span>公关经理</li>
+              
+            </ul>
+          </div>
+        </div>
+        <!-- userPains -->
+        <div class="card theme-pains">
+          <div class="card-header">
+            <div class="header-text">
+              <div class="card-title">用户痛点</div>
+              <div class="card-subtitle">用户当前面临的问题 and 挑战</div>
+            </div>
+            <div class="card-header-icon">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2v1"/><path d="M12 6a6 6 0 0 1 6 6c0 1.66-.67 3.16-1.76 4.25a2.99 2.99 0 0 0-.88 2.12v.63h-6v-.63c0-.8-.31-1.55-.88-2.12A5.99 5.99 0 0 1 6 12a6 6 0 0 1 6-6Z"/></svg>
+  </div>
+          </div>
+          <div class="card-body">
+            <ul>
+              
+                <li><span class="bullet"></span>海外用户对中国品牌存在认知偏见</li>
+              
+                <li><span class="bullet"></span>真实口碑分散在各平台，用户难以获取</li>
+              
+                <li><span class="bullet"></span>竞品恶意评论影响品牌形象</li>
+              
+                <li><span class="bullet"></span>信任内容缺乏系统性呈现</li>
+              
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Col 2: aiInput & dataKnowledge -->
+      <div class="column">
+        <div class="card theme-input">
+          <div class="card-header">
+            <div class="header-text">
+              <div class="card-title">AI 场景输入</div>
+              <div class="card-subtitle">AI系统需要的输入数据和格式</div>
+            </div>
+            <div class="card-header-icon">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+  </div>
+          </div>
+          <div class="card-body">
+            <ul>
+              
+                <li><span class="bullet"></span>用户当前浏览的车型页面</li>
+              
+                <li><span class="bullet"></span>用户行为数据（停留时间/点击路径）</li>
+              
+                <li><span class="bullet"></span>用户所在市场与语言偏好</li>
+              
+                <li><span class="bullet"></span>触发信任内容推送</li>
+              
+            </ul>
+          </div>
+        </div>
+        <div class="card theme-data">
+          <div class="card-header">
+            <div class="header-text">
+              <div class="card-title">数据/知识</div>
+              <div class="card-subtitle">AI系统需要的数据 and 领域知识</div>
+            </div>
+            <div class="card-header-icon">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5V19A9 3 0 0 0 21 19V5"/><path d="M3 12A9 3 0 0 0 21 12"/></svg>
+  </div>
+          </div>
+          <div class="card-body">
+            <ul>
+              
+                <li><span class="bullet"></span>真实车主评价数据（多平台聚合）</li>
+              
+                <li><span class="bullet"></span>第三方评测数据源（媒体/YouTube）</li>
+              
+                <li><span class="bullet"></span>WSBK赛事成绩与官方数据</li>
+              
+                <li><span class="bullet"></span>用户行为数据与决策路径</li>
+              
+                <li><span class="bullet"></span>竞品口碑与评测数据</li>
+              
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Col 3: workflow & modelUsage (Core Capabilities) -->
+      <div class="column">
+        <div class="card theme-workflow">
+          <div class="card-header">
+            <div class="header-text">
+              <div class="card-title">AI 处理 WORKFLOW</div>
+              <div class="card-subtitle">AI系统的工作流程和步骤</div>
+            </div>
+            <div class="card-header-icon">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="8" x="2" y="2" rx="2"/><path d="M14 2c1.1 0 2 .9 2 2v4c0 1.1-.9 2-2 2"/><path d="M20 2c1.1 0 2 .9 2 2v4c0 1.1-.9 2-2 2"/><path d="M10 18H5c-1.7 0-3-1.3-3-3v-1"/><polyline points="7 21 10 18 7 15"/><rect width="8" height="8" x="14" y="14" rx="2"/></svg>
+  </div>
+          </div>
+          <div class="card-body">
+            <ol>
+              
+                <li><span class="number-bullet">1.</span>UGC内容聚合：实时抓取各平台真实车主评价</li>
+              
+                <li><span class="number-bullet">2.</span>内容真实性校验：识别并过滤虚假评论与恶意攻击</li>
+              
+                <li><span class="number-bullet">3.</span>评测视频自动剪辑：提取第三方评测关键片段</li>
+              
+                <li><span class="number-bullet">4.</span>数据可视化：将赛事成绩、性能数据可视化呈现</li>
+              
+                <li><span class="number-bullet">5.</span>个性化推送：基于用户决策节点推送相关信任内容</li>
+              
+                <li><span class="number-bullet">6.</span>社会认同提示：实时展示购买人数与用户评价</li>
+              
+                <li><span class="number-bullet">7.</span>竞品对比呈现：客观呈现与竞品的性能对比</li>
+              
+            </ol>
+          </div>
+        </div>
+        <div class="card theme-cap">
+          <div class="card-header">
+            <div class="header-text">
+              <div class="card-title">核心能力</div>
+              <div class="card-subtitle">场景所需的关键 AI 及工程能力</div>
+            </div>
+            <div class="card-header-icon">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 11 2-2"/><path d="m19 11-2-2"/><path d="M12 2v2"/><path d="m18 6 1-1"/><path d="m6 6-1-1"/><path d="M12 10a2 2 0 1 0 0 4 2 2 0 0 0 0-4Z"/><path d="M7 14a5 5 0 0 0 10 0"/></svg>
+  </div>
+          </div>
+          <div class="card-body">
+            <ul>
+              
+                <li><span class="bullet"></span>NLP情感分析：识别真实评价与恶意评论</li>
+              
+                <li><span class="bullet"></span>视频理解模型：自动提取评测关键片段</li>
+              
+                <li><span class="bullet"></span>推荐系统：个性化信任内容推送</li>
+              
+                <li><span class="bullet"></span>数据可视化引擎：动态图表生成</li>
+              
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Col 4: aiOutput & tools -->
+      <div class="column">
+        <div class="card theme-output">
+          <div class="card-header">
+            <div class="header-text">
+              <div class="card-title">AI 输出</div>
+              <div class="card-subtitle">AI系统产生的输出结果 and 格式</div>
+            </div>
+            <div class="card-header-icon">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M3 5h4"/></svg>
+  </div>
+          </div>
+          <div class="card-body">
+            <ul>
+              
+                <li><span class="bullet"></span>个性化信任内容包（评测/口碑/成绩）</li>
+              
+                <li><span class="bullet"></span>实时社会认同提示（购买人数/好评率）</li>
+              
+                <li><span class="bullet"></span>竞品对比可视化图表</li>
+              
+                <li><span class="bullet"></span>车主真实故事集锦</li>
+              
+                <li><span class="bullet"></span>信任度提升效果报告</li>
+              
+            </ul>
+          </div>
+        </div>
+        <div class="card theme-tools">
+          <div class="card-header">
+            <div class="header-text">
+              <div class="card-title">工具调用</div>
+              <div class="card-subtitle">AI系统需要调用的内外部 API</div>
+            </div>
+            <div class="card-header-icon">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+  </div>
+          </div>
+          <div class="card-body">
+            <ul>
+              
+                <li><span class="bullet"></span>社媒监听工具（Brandwatch）</li>
+              
+                <li><span class="bullet"></span>视频剪辑API</li>
+              
+                <li><span class="bullet"></span>数据可视化平台</li>
+              
+                <li><span class="bullet"></span>用户行为追踪系统</li>
+              
+                <li><span class="bullet"></span>评论聚合API</li>
+              
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Col 5: productType & userGains -->
+      <div class="column">
+        <div class="card theme-product">
+          <div class="card-header">
+            <div class="header-text">
+              <div class="card-title">产品形态</div>
+              <div class="card-subtitle">AI系统的产品形式 and 交互方式</div>
+            </div>
+            <div class="card-header-icon">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="M10 4v4"/><path d="M2 8h20"/><path d="M6 4v4"/></svg>
+  </div>
+          </div>
+          <div class="card-body">
+            <ul>
+              
+                <li><span class="bullet"></span>信任内容智能推送模块（嵌入产品页）</li>
+              
+                <li><span class="bullet"></span>车主口碑聚合页面</li>
+              
+                <li><span class="bullet"></span>竞品对比工具</li>
+              
+            </ul>
+          </div>
+        </div>
+        <div class="card theme-gains">
+          <div class="card-header">
+            <div class="header-text">
+              <div class="card-title">用户收益</div>
+              <div class="card-subtitle">用户通过使用该AI场景获得的好处</div>
+            </div>
+            <div class="card-header-icon">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+  </div>
+          </div>
+          <div class="card-body">
+            <ul>
+              
+                <li><span class="bullet"></span>用户信任度提升60%（真实内容背书）</li>
+              
+                <li><span class="bullet"></span>产品页转化率提升25%</li>
+              
+                <li><span class="bullet"></span>品牌偏见消除率提升70%</li>
+              
+                <li><span class="bullet"></span>用户决策时间缩短40%</li>
+              
+                <li><span class="bullet"></span>内容100%真实可溯源，零虚假风险</li>
+              
+            </ul>
+          </div>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div style="text-align: right; margin-top: 16px; font-size: 0.75rem; color: #94a3b8; max-width: 1400px; margin-left: auto; margin-right: auto;">
+    Generated by ai-canvas-generator &middot; Offline Engine
+  </div>
+
+  <div class="toast" id="toast">已成功复制 YAML 数据</div>
+  
+  <script type="application/yaml" id="raw-yaml">
+title: AI信任聚合引擎
+description: AI聚合真实第三方评测、赛事成绩、车主口碑，在决策节点精准推送可验证的信任内容，消除中国品牌偏见。
+userRoles:
+  - 潜在购车用户
+  - 品牌内容运营
+  - 社媒营销专员
+  - 公关经理
+userPains:
+  - 海外用户对中国品牌存在认知偏见
+  - 真实口碑分散在各平台，用户难以获取
+  - 竞品恶意评论影响品牌形象
+  - 信任内容缺乏系统性呈现
+aiInput:
+  - 用户当前浏览的车型页面
+  - 用户行为数据（停留时间/点击路径）
+  - 用户所在市场与语言偏好
+  - 触发信任内容推送
+dataKnowledge:
+  - 真实车主评价数据（多平台聚合）
+  - 第三方评测数据源（媒体/YouTube）
+  - WSBK赛事成绩与官方数据
+  - 用户行为数据与决策路径
+  - 竞品口碑与评测数据
+workflow:
+  - UGC内容聚合：实时抓取各平台真实车主评价
+  - 内容真实性校验：识别并过滤虚假评论与恶意攻击
+  - 评测视频自动剪辑：提取第三方评测关键片段
+  - 数据可视化：将赛事成绩、性能数据可视化呈现
+  - 个性化推送：基于用户决策节点推送相关信任内容
+  - 社会认同提示：实时展示购买人数与用户评价
+  - 竞品对比呈现：客观呈现与竞品的性能对比
+modelUsage:
+  - NLP情感分析：识别真实评价与恶意评论
+  - 视频理解模型：自动提取评测关键片段
+  - 推荐系统：个性化信任内容推送
+  - 数据可视化引擎：动态图表生成
+aiOutput:
+  - 个性化信任内容包（评测/口碑/成绩）
+  - 实时社会认同提示（购买人数/好评率）
+  - 竞品对比可视化图表
+  - 车主真实故事集锦
+  - 信任度提升效果报告
+tools:
+  - 社媒监听工具（Brandwatch）
+  - 视频剪辑API
+  - 数据可视化平台
+  - 用户行为追踪系统
+  - 评论聚合API
+productType:
+  - 信任内容智能推送模块（嵌入产品页）
+  - 车主口碑聚合页面
+  - 竞品对比工具
+userGains:
+  - 用户信任度提升60%（真实内容背书）
+  - 产品页转化率提升25%
+  - 品牌偏见消除率提升70%
+  - 用户决策时间缩短40%
+  - 内容100%真实可溯源，零虚假风险
+  </script>
+
+  <script>
+    function copyYAML() {
+      const yaml = document.getElementById('raw-yaml').textContent.trim();
+      navigator.clipboard.writeText(yaml).then(() => {
+        const toast = document.getElementById('toast');
+        toast.style.display = 'block';
+        setTimeout(() => { toast.style.display = 'none'; }, 2500);
+      });
+    }
+  </script>
+</body>
+</html>

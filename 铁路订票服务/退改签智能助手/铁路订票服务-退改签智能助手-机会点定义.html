@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>铁路订票服务 · 机会点定义</title>
+<style>
+  :root{
+    --bg:#f6f8fa; --card:#ffffff; --line:#e5e7eb; --ink:#1f2937; --sub:#6b7280;
+    --accent:#0e7490; --chip:#f1f5f9; --chipb:#cbd5e1;
+    --t-repetitive:#0e7490; --t-cognitive:#b45309; --t-longtail:#7c3aed; --t-innovation:#be185d;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+    background:var(--bg);color:var(--ink);line-height:1.65}
+  .wrap{max-width:1000px;margin:0 auto;padding:28px 20px 64px}
+  header{margin-bottom:16px}
+  .crumb{font-size:12px;color:var(--sub)}
+  h1{font-size:23px;margin:6px 0 4px}
+  .meta-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+  .chip{font-size:12px;color:var(--sub);background:var(--chip);border:1px solid var(--chipb);padding:3px 9px;border-radius:999px}
+  .tools{display:flex;gap:8px;justify-content:flex-end;margin-bottom:6px}
+  .btn{font-size:13px;border:1px solid var(--chipb);background:#fff;color:var(--ink);padding:6px 12px;border-radius:8px;cursor:pointer}
+  .btn:hover{background:var(--chip)}
+  .op-card{border:1px solid var(--line);border-radius:14px;background:var(--card);margin:18px 0;overflow:hidden}
+  .op-head{padding:14px 18px;border-bottom:1px solid var(--line);background:#fafbfc;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+  .op-name{font-size:17px;font-weight:700;margin-right:auto}
+  .badge{font-size:12px;color:#fff;padding:2px 9px;border-radius:999px;font-weight:600}
+  .op-body{padding:4px 18px 16px}
+  .elem{display:flex;gap:12px;padding:12px 0;border-bottom:1px dashed #eef0f2}
+  .elem:last-child{border-bottom:none}
+  .elem .no{flex:0 0 26px;height:26px;border-radius:7px;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px}
+  .elem .k{font-weight:700;font-size:14px;margin-bottom:4px}
+  .elem .v{white-space:pre-line;font-size:14px;color:#374151}
+  .vd{margin-top:12px;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+  .vd .h{font-size:13px;font-weight:700;color:var(--accent);padding:9px 14px;background:#f0f9ff;border-bottom:1px solid var(--line)}
+  table{width:100%;border-collapse:collapse}
+  th,td{text-align:left;font-size:13px;padding:8px 14px;border-bottom:1px solid var(--line)}
+  th{background:#fafbfc;color:var(--sub);font-weight:600}
+  td:first-child{font-weight:600}
+  tr:last-child td{border-bottom:none}
+  footer{color:var(--sub);font-size:12px;margin-top:26px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="crumb">3.1 · 机会点定义</div>
+    <h1>铁路订票服务 · 机会点定义</h1>
+    <div class="tools"><button class="btn" onclick="copyYaml()">📋 复制 YAML</button></div>
+    <div class="meta-chips">
+      <span class="chip">🎯 退改签智能助手</span>
+      <span class="chip">来源：核心票务 AI 机会地图 · 退改签智能助手（高焦虑、高复杂度售后场景）</span>
+      <span class="chip">铁路订票服务</span>
+      <span class="chip">2026-09-10</span>
+    </div>
+  </header>
+
+  
+  <div class="op-head" style="border:none;background:#eff9ff;border-radius:10px;margin:0 0 4px">
+    <div class="op-name" style="font-size:13px;font-weight:600">🧩 承接问题：退改签阶梯费率规则生涩难懂、旅客无法直观预估损失；运行变更（晚点/停运）时面对数十备选改签方案难以快速锁定最优；主票退改后关联的餐饮/约车/行程单服务需手动逐个处理、易遗漏导致损失</div>
+  </div>
+  
+
+  
+  <div class="op-card">
+    <div class="op-head">
+      <div class="op-name">1. 退改签规则实时转译（大白话费率解释）</div>
+      <span class="badge" style="background:var(--t-cognitive)">高认知辅助</span>
+      <span class="chip">根因：阶梯费率规则生涩、法律条文式描述，旅客无法直观预估损失</span>
+      <span class="chip">能力：LLM 规则转译 / 确定性计费</span>
+    </div>
+    <div class="op-body">
+      
+      
+      <div class="elem">
+        <div class="no">1</div>
+        <div>
+          <div class="k">① 机会点一句话描述</div>
+          <div class="v">为旅客构建「退改签规则实时转译」，把「自己读生涩的阶梯费率条款、猜退票损失」升级为「AI 结合当前订单实时转译为大白话说明 + 可视化费用对比」。</div>
+        </div>
+      </div>
+      
+      <div class="elem">
+        <div class="no">2</div>
+        <div>
+          <div class="k">② 业务角色及场景</div>
+          <div class="v">角色：核心票务旅客（日常/通勤/商务）、节假日高峰期旅客。
+场景：旅客在订单详情页发起退票或改签，AI 依据当前时间与发车时间差、票种与席别，实时算出阶梯费率并转译为易懂说明。</div>
+        </div>
+      </div>
+      
+      <div class="elem">
+        <div class="no">3</div>
+        <div>
+          <div class="k">③ 问题痛点</div>
+          <div class="v">退改签阶梯费率（开车前 8 天以上免费、48 小时以上 5%、24–48 小时 10%、不足 24 小时 20% 等）专业生涩，旅客难以自行判断，易产生「退费陷阱」误解。</div>
+        </div>
+      </div>
+      
+      <div class="elem">
+        <div class="no">4</div>
+        <div>
+          <div class="k">④ 方案假设</div>
+          <div class="v">计费走确定性规则引擎（不靠 LLM 算钱）→ LLM 将规则结果转译为当前订单下的「大白话」→ 输出可视化费用对比表（退票损失 vs 改签成本）→ 旅客一目了然 → 把规则理解成本降到最低。</div>
+        </div>
+      </div>
+      
+      <div class="elem">
+        <div class="no">5</div>
+        <div>
+          <div class="k">⑤ 价值收益</div>
+          <div class="v">规则理解从读条款走向实时转译；旅客对退改损失的预期明确；投诉与误解下降。</div>
+        </div>
+      </div>
+      
+
+      
+      <div class="vd">
+        <div class="h">价值收益拆解（对齐上游问题定义的 8 要素）</div>
+        <table>
+          <thead><tr><th>拆解维度</th><th>对应问题定义要素</th><th>量化口径</th></tr></thead>
+          <tbody>
+            
+            <tr><td>覆盖范围</td><td>⑥ 影响范围</td><td>全部退改签订单；受益角色：全体旅客</td></tr>
+            
+            <tr><td>发生频度</td><td>⑤ 发生频度</td><td>每次退改签一次</td></tr>
+            
+            <tr><td>单次收益</td><td>⑦ 每次发生对业务的影响</td><td>自行读条款 → 实时转译 + 费用对比；规则理解耗时下降</td></tr>
+            
+            <tr><td>累计影响</td><td>⑧ 累计对业务影响</td><td>「退费陷阱」误解减少；客服规则咨询进线量下降</td></tr>
+            
+          </tbody>
+        </table>
+      </div>
+      
+    </div>
+  </div>
+  
+  <div class="op-card">
+    <div class="op-head">
+      <div class="op-name">2. 运行变更下的最优改签方案推荐</div>
+      <span class="badge" style="background:var(--t-innovation)">流程创新</span>
+      <span class="chip">根因：晚点/停运时面对数十备选方案（直达/候补/换乘）难以快速锁定最优</span>
+      <span class="chip">能力：Agent / 多约束寻优 / 实时余票检索</span>
+    </div>
+    <div class="op-body">
+      
+      
+      <div class="elem">
+        <div class="no">1</div>
+        <div>
+          <div class="k">① 机会点一句话描述</div>
+          <div class="v">为旅客构建「运行变更最优改签方案推荐」，把「在数十个备选里人工比对、难以锁定最优」升级为「基于偏好与实时余票并发检索 + 智能排序 Top 3 + 风险评估」。</div>
+        </div>
+      </div>
+      
+      <div class="elem">
+        <div class="no">2</div>
+        <div>
+          <div class="k">② 业务角色及场景</div>
+          <div class="v">角色：旅客（选择方案）、一线客服（辅助处置）。
+场景：列车晚点/停运事件触发，AI 结合旅客偏好（尽早出发、不接受换乘、席别一致等）与实时余票，并发检索直达/候补/换乘方案并排序推荐。</div>
+        </div>
+      </div>
+      
+      <div class="elem">
+        <div class="no">3</div>
+        <div>
+          <div class="k">③ 问题痛点</div>
+          <div class="v">运行变更时备选方案众多，旅客在高压情境下难以快速决策；改签窗口有限，错过最优解损失大。</div>
+        </div>
+      </div>
+      
+      <div class="elem">
+        <div class="no">4</div>
+        <div>
+          <div class="k">④ 方案假设</div>
+          <div class="v">强推理模型做多约束方案寻优 → 并发检索直达/候补/换乘 → 结合历史同场景改签成功率大数据排序 → 输出 Top 3 方案卡片（含风险与损失评估）→ 旅客确认（对外必停）→ 决策耗时由 15–20 分钟降至秒级。</div>
+        </div>
+      </div>
+      
+      <div class="elem">
+        <div class="no">5</div>
+        <div>
+          <div class="k">⑤ 价值收益</div>
+          <div class="v">改签决策从人工比对走向智能寻优；高峰期改签成功率提升；决策耗时秒级。</div>
+        </div>
+      </div>
+      
+
+      
+      <div class="vd">
+        <div class="h">价值收益拆解（对齐上游问题定义的 8 要素）</div>
+        <table>
+          <thead><tr><th>拆解维度</th><th>对应问题定义要素</th><th>量化口径</th></tr></thead>
+          <tbody>
+            
+            <tr><td>覆盖范围</td><td>⑥ 影响范围</td><td>全部运行变更受影响旅客；受益角色：旅客 + 一线客服</td></tr>
+            
+            <tr><td>发生频度</td><td>⑤ 发生频度</td><td>事件驱动（晚点/停运）</td></tr>
+            
+            <tr><td>单次收益</td><td>⑦ 每次发生对业务的影响</td><td>15–20 分钟人工决策 → 秒级推荐</td></tr>
+            
+            <tr><td>累计影响</td><td>⑧ 累计对业务影响</td><td>高峰期改签成功率提升；错失最优解导致的损失下降</td></tr>
+            
+          </tbody>
+        </table>
+      </div>
+      
+    </div>
+  </div>
+  
+  <div class="op-card">
+    <div class="op-head">
+      <div class="op-name">3. 一体化关联服务同步处置</div>
+      <span class="badge" style="background:var(--t-repetitive)">重复性替代</span>
+      <span class="chip">根因：主票退改后关联的餐饮/约车/行程单需手动逐个处理，易遗漏</span>
+      <span class="chip">能力：跨业务编排 / 订单协同 / 一致性校验</span>
+    </div>
+    <div class="op-body">
+      
+      
+      <div class="elem">
+        <div class="no">1</div>
+        <div>
+          <div class="k">① 机会点一句话描述</div>
+          <div class="v">为旅客构建「一体化关联服务同步处置」，把「主票退改后手动逐个注销/更新餐饮、约车、行程单」升级为「主票退改确认后自动同步处置全部关联服务并给出确认清单」。</div>
+        </div>
+      </div>
+      
+      <div class="elem">
+        <div class="no">2</div>
+        <div>
+          <div class="k">② 业务角色及场景</div>
+          <div class="v">角色：旅客（确认处置）、一线客服（异常协助）。
+场景：主票退改确认后，AI 依据跨业务订单关联协议，自动发起关联延伸服务（餐饮、约车、接送站、行程单）的同步注销或更新。</div>
+        </div>
+      </div>
+      
+      <div class="elem">
+        <div class="no">3</div>
+        <div>
+          <div class="k">③ 问题痛点</div>
+          <div class="v">主票退改与关联服务割裂，需旅客手动逐个处理，易遗漏导致损失；跨业务一致性无保障。</div>
+        </div>
+      </div>
+      
+      <div class="elem">
+        <div class="no">4</div>
+        <div>
+          <div class="k">④ 方案假设</div>
+          <div class="v">依据跨业务订单关联协议识别关联订单 → 自动发起同步注销/更新 → 输出一体化服务同步清单与确认状态 → 异常项转客服 → 把关联服务遗漏损失降到最低。</div>
+        </div>
+      </div>
+      
+      <div class="elem">
+        <div class="no">5</div>
+        <div>
+          <div class="k">⑤ 价值收益</div>
+          <div class="v">关联服务处置从手动逐个走向一键同步；遗漏损失下降；跨业务一致性提升。</div>
+        </div>
+      </div>
+      
+
+      
+      <div class="vd">
+        <div class="h">价值收益拆解（对齐上游问题定义的 8 要素）</div>
+        <table>
+          <thead><tr><th>拆解维度</th><th>对应问题定义要素</th><th>量化口径</th></tr></thead>
+          <tbody>
+            
+            <tr><td>覆盖范围</td><td>⑥ 影响范围</td><td>有延伸服务的退改签订单；受益角色：旅客 + 客服</td></tr>
+            
+            <tr><td>发生频度</td><td>⑤ 发生频度</td><td>每次主票退改一次</td></tr>
+            
+            <tr><td>单次收益</td><td>⑦ 每次发生对业务的影响</td><td>手动逐个处理 → 一键同步；关联处置耗时下降</td></tr>
+            
+            <tr><td>累计影响</td><td>⑧ 累计对业务影响</td><td>关联服务遗漏损失下降；跨业务一致性提升</td></tr>
+            
+          </tbody>
+        </table>
+      </div>
+      
+    </div>
+  </div>
+  
+  <div class="op-card">
+    <div class="op-head">
+      <div class="op-name">4. 退改签全流程自助化</div>
+      <span class="badge" style="background:var(--t-repetitive)">重复性替代</span>
+      <span class="chip">根因：退改签依赖人工客服介入，高峰期进线量大、自助率低</span>
+      <span class="chip">能力：Agent / 流程编排 / HITL 兜底</span>
+    </div>
+    <div class="op-body">
+      
+      
+      <div class="elem">
+        <div class="no">1</div>
+        <div>
+          <div class="k">① 机会点一句话描述</div>
+          <div class="v">为旅客构建「退改签全流程自助化」，把「遇到问题就打客服电话、排队等待」升级为「AI 引导自助完成规则解释 → 方案选择 → 一体化处置，复杂异常才转人工」。</div>
+        </div>
+      </div>
+      
+      <div class="elem">
+        <div class="no">2</div>
+        <div>
+          <div class="k">② 业务角色及场景</div>
+          <div class="v">角色：旅客（自助）、一线客服（仅承接复杂异常）。
+场景：从订单详情页或运行变更 Push 卡片进入，AI 引导完成退改签全流程，异常自动建单并附上下文转人工。</div>
+        </div>
+      </div>
+      
+      <div class="elem">
+        <div class="no">3</div>
+        <div>
+          <div class="k">③ 问题痛点</div>
+          <div class="v">退改签流程依赖人工客服，高峰期进线量大、等待久，自助率低。</div>
+        </div>
+      </div>
+      
+      <div class="elem">
+        <div class="no">4</div>
+        <div>
+          <div class="k">④ 方案假设</div>
+          <div class="v">Agent 编排全流程自助 → 规则解释、方案推荐、一体化处置一气呵成 → 复杂异常自动建单并附完整上下文转人工 → 把退改签自助率推向 ≥95%、降低客服进线量。</div>
+        </div>
+      </div>
+      
+      <div class="elem">
+        <div class="no">5</div>
+        <div>
+          <div class="k">⑤ 价值收益</div>
+          <div class="v">退改签从人工介入走向全流程自助；自助率 ≥95%；客服进线量显著下降。</div>
+        </div>
+      </div>
+      
+
+      
+      <div class="vd">
+        <div class="h">价值收益拆解（对齐上游问题定义的 8 要素）</div>
+        <table>
+          <thead><tr><th>拆解维度</th><th>对应问题定义要素</th><th>量化口径</th></tr></thead>
+          <tbody>
+            
+            <tr><td>覆盖范围</td><td>⑥ 影响范围</td><td>全部退改签场景；受益角色：旅客 + 一线客服</td></tr>
+            
+            <tr><td>发生频度</td><td>⑤ 发生频度</td><td>每次退改签一次</td></tr>
+            
+            <tr><td>单次收益</td><td>⑦ 每次发生对业务的影响</td><td>人工客服介入 → 自助完成；处理时长下降</td></tr>
+            
+            <tr><td>累计影响</td><td>⑧ 累计对业务影响</td><td>退改签自助率 ≥95%；人工客服进线量显著下降</td></tr>
+            
+          </tbody>
+        </table>
+      </div>
+      
+    </div>
+  </div>
+  
+
+  <footer>场景：退改签智能助手 · 承接：承接问题：退改签阶梯费率规则生涩难懂、旅客无法直观预估损失；运行变更（晚点/停运）时面对数十备选改签方案难以快速锁定最优；主票退改后关联的餐饮/约车/行程单服务需手动逐个处理、易遗漏导致损失 · 生成于 2026-09-10</footer>
+</div>
+
+<textarea id="yamlSrc" style="display:none">meta:
+  title: &quot;铁路订票服务 · 机会点定义&quot;
+  sectionNo: &quot;3.1&quot;
+  version: &quot;v1.0&quot;
+  date: &quot;2026-09-10&quot;
+  business: &quot;铁路订票服务&quot;
+  domain: &quot;铁路票务售后（退票 / 改签 / 运行变更）&quot;
+  scenario: &quot;退改签智能助手&quot;
+  problemRef: &quot;承接问题：退改签阶梯费率规则生涩难懂、旅客无法直观预估损失；运行变更（晚点/停运）时面对数十备选改签方案难以快速锁定最优；主票退改后关联的餐饮/约车/行程单服务需手动逐个处理、易遗漏导致损失&quot;
+  opportunitySource: &quot;核心票务 AI 机会地图 · 退改签智能助手（高焦虑、高复杂度售后场景）&quot;
+
+opportunities:
+  - id: &quot;OP1&quot;
+    order: 1
+    name: &quot;退改签规则实时转译（大白话费率解释）&quot;
+    type: &quot;cognitive&quot;
+    rootCauseType: &quot;阶梯费率规则生涩、法律条文式描述，旅客无法直观预估损失&quot;
+    capabilityMatch: &quot;LLM 规则转译 / 确定性计费&quot;
+    e1: &quot;为旅客构建「退改签规则实时转译」，把「自己读生涩的阶梯费率条款、猜退票损失」升级为「AI 结合当前订单实时转译为大白话说明 + 可视化费用对比」。&quot;
+    e2: &quot;角色：核心票务旅客（日常/通勤/商务）、节假日高峰期旅客。\n场景：旅客在订单详情页发起退票或改签，AI 依据当前时间与发车时间差、票种与席别，实时算出阶梯费率并转译为易懂说明。&quot;
+    e3: &quot;退改签阶梯费率（开车前 8 天以上免费、48 小时以上 5%、24–48 小时 10%、不足 24 小时 20% 等）专业生涩，旅客难以自行判断，易产生「退费陷阱」误解。&quot;
+    e4: &quot;计费走确定性规则引擎（不靠 LLM 算钱）→ LLM 将规则结果转译为当前订单下的「大白话」→ 输出可视化费用对比表（退票损失 vs 改签成本）→ 旅客一目了然 → 把规则理解成本降到最低。&quot;
+    e5: &quot;规则理解从读条款走向实时转译；旅客对退改损失的预期明确；投诉与误解下降。&quot;
+    valueBreakdown:
+      - dimension: &quot;覆盖范围&quot;
+        aligns: &quot;⑥ 影响范围&quot;
+        metric: &quot;全部退改签订单；受益角色：全体旅客&quot;
+      - dimension: &quot;发生频度&quot;
+        aligns: &quot;⑤ 发生频度&quot;
+        metric: &quot;每次退改签一次&quot;
+      - dimension: &quot;单次收益&quot;
+        aligns: &quot;⑦ 每次发生对业务的影响&quot;
+        metric: &quot;自行读条款 → 实时转译 + 费用对比；规则理解耗时下降&quot;
+      - dimension: &quot;累计影响&quot;
+        aligns: &quot;⑧ 累计对业务影响&quot;
+        metric: &quot;「退费陷阱」误解减少；客服规则咨询进线量下降&quot;
+
+  - id: &quot;OP2&quot;
+    order: 2
+    name: &quot;运行变更下的最优改签方案推荐&quot;
+    type: &quot;innovation&quot;
+    rootCauseType: &quot;晚点/停运时面对数十备选方案（直达/候补/换乘）难以快速锁定最优&quot;
+    capabilityMatch: &quot;Agent / 多约束寻优 / 实时余票检索&quot;
+    e1: &quot;为旅客构建「运行变更最优改签方案推荐」，把「在数十个备选里人工比对、难以锁定最优」升级为「基于偏好与实时余票并发检索 + 智能排序 Top 3 + 风险评估」。&quot;
+    e2: &quot;角色：旅客（选择方案）、一线客服（辅助处置）。\n场景：列车晚点/停运事件触发，AI 结合旅客偏好（尽早出发、不接受换乘、席别一致等）与实时余票，并发检索直达/候补/换乘方案并排序推荐。&quot;
+    e3: &quot;运行变更时备选方案众多，旅客在高压情境下难以快速决策；改签窗口有限，错过最优解损失大。&quot;
+    e4: &quot;强推理模型做多约束方案寻优 → 并发检索直达/候补/换乘 → 结合历史同场景改签成功率大数据排序 → 输出 Top 3 方案卡片（含风险与损失评估）→ 旅客确认（对外必停）→ 决策耗时由 15–20 分钟降至秒级。&quot;
+    e5: &quot;改签决策从人工比对走向智能寻优；高峰期改签成功率提升；决策耗时秒级。&quot;
+    valueBreakdown:
+      - dimension: &quot;覆盖范围&quot;
+        aligns: &quot;⑥ 影响范围&quot;
+        metric: &quot;全部运行变更受影响旅客；受益角色：旅客 + 一线客服&quot;
+      - dimension: &quot;发生频度&quot;
+        aligns: &quot;⑤ 发生频度&quot;
+        metric: &quot;事件驱动（晚点/停运）&quot;
+      - dimension: &quot;单次收益&quot;
+        aligns: &quot;⑦ 每次发生对业务的影响&quot;
+        metric: &quot;15–20 分钟人工决策 → 秒级推荐&quot;
+      - dimension: &quot;累计影响&quot;
+        aligns: &quot;⑧ 累计对业务影响&quot;
+        metric: &quot;高峰期改签成功率提升；错失最优解导致的损失下降&quot;
+
+  - id: &quot;OP3&quot;
+    order: 3
+    name: &quot;一体化关联服务同步处置&quot;
+    type: &quot;repetitive&quot;
+    rootCauseType: &quot;主票退改后关联的餐饮/约车/行程单需手动逐个处理，易遗漏&quot;
+    capabilityMatch: &quot;跨业务编排 / 订单协同 / 一致性校验&quot;
+    e1: &quot;为旅客构建「一体化关联服务同步处置」，把「主票退改后手动逐个注销/更新餐饮、约车、行程单」升级为「主票退改确认后自动同步处置全部关联服务并给出确认清单」。&quot;
+    e2: &quot;角色：旅客（确认处置）、一线客服（异常协助）。\n场景：主票退改确认后，AI 依据跨业务订单关联协议，自动发起关联延伸服务（餐饮、约车、接送站、行程单）的同步注销或更新。&quot;
+    e3: &quot;主票退改与关联服务割裂，需旅客手动逐个处理，易遗漏导致损失；跨业务一致性无保障。&quot;
+    e4: &quot;依据跨业务订单关联协议识别关联订单 → 自动发起同步注销/更新 → 输出一体化服务同步清单与确认状态 → 异常项转客服 → 把关联服务遗漏损失降到最低。&quot;
+    e5: &quot;关联服务处置从手动逐个走向一键同步；遗漏损失下降；跨业务一致性提升。&quot;
+    valueBreakdown:
+      - dimension: &quot;覆盖范围&quot;
+        aligns: &quot;⑥ 影响范围&quot;
+        metric: &quot;有延伸服务的退改签订单；受益角色：旅客 + 客服&quot;
+      - dimension: &quot;发生频度&quot;
+        aligns: &quot;⑤ 发生频度&quot;
+        metric: &quot;每次主票退改一次&quot;
+      - dimension: &quot;单次收益&quot;
+        aligns: &quot;⑦ 每次发生对业务的影响&quot;
+        metric: &quot;手动逐个处理 → 一键同步；关联处置耗时下降&quot;
+      - dimension: &quot;累计影响&quot;
+        aligns: &quot;⑧ 累计对业务影响&quot;
+        metric: &quot;关联服务遗漏损失下降；跨业务一致性提升&quot;
+
+  - id: &quot;OP4&quot;
+    order: 4
+    name: &quot;退改签全流程自助化&quot;
+    type: &quot;repetitive&quot;
+    rootCauseType: &quot;退改签依赖人工客服介入，高峰期进线量大、自助率低&quot;
+    capabilityMatch: &quot;Agent / 流程编排 / HITL 兜底&quot;
+    e1: &quot;为旅客构建「退改签全流程自助化」，把「遇到问题就打客服电话、排队等待」升级为「AI 引导自助完成规则解释 → 方案选择 → 一体化处置，复杂异常才转人工」。&quot;
+    e2: &quot;角色：旅客（自助）、一线客服（仅承接复杂异常）。\n场景：从订单详情页或运行变更 Push 卡片进入，AI 引导完成退改签全流程，异常自动建单并附上下文转人工。&quot;
+    e3: &quot;退改签流程依赖人工客服，高峰期进线量大、等待久，自助率低。&quot;
+    e4: &quot;Agent 编排全流程自助 → 规则解释、方案推荐、一体化处置一气呵成 → 复杂异常自动建单并附完整上下文转人工 → 把退改签自助率推向 ≥95%、降低客服进线量。&quot;
+    e5: &quot;退改签从人工介入走向全流程自助；自助率 ≥95%；客服进线量显著下降。&quot;
+    valueBreakdown:
+      - dimension: &quot;覆盖范围&quot;
+        aligns: &quot;⑥ 影响范围&quot;
+        metric: &quot;全部退改签场景；受益角色：旅客 + 一线客服&quot;
+      - dimension: &quot;发生频度&quot;
+        aligns: &quot;⑤ 发生频度&quot;
+        metric: &quot;每次退改签一次&quot;
+      - dimension: &quot;单次收益&quot;
+        aligns: &quot;⑦ 每次发生对业务的影响&quot;
+        metric: &quot;人工客服介入 → 自助完成；处理时长下降&quot;
+      - dimension: &quot;累计影响&quot;
+        aligns: &quot;⑧ 累计对业务影响&quot;
+        metric: &quot;退改签自助率 ≥95%；人工客服进线量显著下降&quot;
+</textarea>
+<script>
+function copyYaml(){
+  var src = document.getElementById('yamlSrc').value;
+  navigator.clipboard.writeText(src).then(function(){ alert('✅ YAML 已复制'); })
+    .catch(function(){ window.prompt('复制失败，请手动复制：', src); });
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,213 @@
+title: "铁路订票服务 · 退改签智能助手 To-be 旅程设计"
+meta:
+  mode: "to-be"
+  source: "AI画布: 铁路订票服务/退改签智能助手/铁路订票服务-退改签智能助手-AI画布.yaml"
+  scenarioName: "退改签智能助手"
+  productType: "12306 App/Web 订单详情页深度集成组件 + 运行变更 Push 通知卡片 + 站内智能终端助手模式"
+personas:
+  - id: "biz_wang"
+    name: "王敏"
+    role: "商务旅客"
+    department: "企业差旅"
+    background: "每月多次高铁出行，行程变动频繁，习惯用手机 App 自助办理"
+    goals:
+      - "行程变动时快速改签，不影响会议"
+      - "清楚知道退改要花多少、哪个方案最优"
+    painPoints:
+      - "退改签费率条款生涩，算不清损失"
+      - "晚点时方案太多，人工比对慢"
+    dataProfile:
+      typicalValues:
+        - "订单：G1234 二等座 ¥553，发车 09:00"
+        - "偏好：尽早出发、席别一致、不接受换乘"
+      frequency: "高频"
+      commonErrors:
+        - "未看清费率就退票导致损失"
+  - id: "return_li"
+    name: "李婷"
+    role: "节假日返乡旅客"
+    department: "个人出行"
+    background: "春运/节假日集中出行，票源紧张，改签窗口有限"
+    goals:
+      - "高峰期也能改到合适的车次"
+      - "主票改签后餐饮/约车不遗漏"
+    painPoints:
+      - "高峰期余票紧张，难以判断改签成功率"
+      - "关联服务要手动逐个处理，容易忘"
+    dataProfile:
+      typicalValues:
+        - "订单：G2345 一等座 ¥880，含餐食与约车"
+        - "偏好：可接受换乘、席别一致"
+      frequency: "中频（高峰集中）"
+      commonErrors:
+        - "遗漏关联服务注销造成损失"
+  - id: "csr_zhang"
+    name: "张伟"
+    role: "一线客服"
+    department: "客服中心"
+    background: "承接复杂退改签异常与争议，日常处理进线"
+    goals:
+      - "只处理真正复杂的异常，不被标准退改签淹没"
+      - "异常单带完整上下文，快速处置"
+    painPoints:
+      - "标准退改签大量进线占用人力"
+      - "复杂问题需反复向旅客确认上下文"
+    dataProfile:
+      typicalValues:
+        - "进线：高峰期每小时数十通"
+        - "异常类型：特殊票种/规则争议/跨业务失败"
+      frequency: "高频（高峰期）"
+      commonErrors:
+        - "上下文不全导致重复沟通"
+handoff:
+  paths:
+    - "主路径：场景识别 → 规则转译 → 方案推荐 → 一体化处置 → 确认后续"
+    - "分支：偏好冲突/无候选方案 → 放宽条件重算"
+    - "异常：交易失败/关联处置失败 → 自动建单转客服"
+    - "边界：订单不可退改 → 直接提示并终止"
+scenarios:
+  - id: "s1"
+    name: "列车晚点改签"
+    personaId: "biz_wang"
+    trigger: "列车 G1234 晚点 95 分钟，Push 卡片唤醒"
+    businessData:
+      - "运行变更事件（晚点时长）"
+      - "实时余票与改签候选"
+    goal: "秒级锁定最优改签方案并完成处置"
+  - id: "s2"
+    name: "计划性退票"
+    personaId: "return_li"
+    trigger: "旅客行程取消，主动发起退票"
+    businessData:
+      - "原订单详情"
+      - "阶梯费率档位"
+    goal: "看清退票损失，判断退还是改更划算"
+  - id: "s3"
+    name: "复杂异常转人工"
+    personaId: "csr_zhang"
+    trigger: "特殊票种计费存疑，规则盲区"
+    businessData:
+      - "异常建单与上下文摘要"
+      - "关联业务处置失败记录"
+    goal: "带上下文一次性解决复杂争议"
+stages:
+  - name: "场景识别"
+    actions:
+      - name: "接收运行变更并确认订单"
+        owner: "旅客"
+        touchpoints: "订单详情页 / 运行变更 Push 卡片"
+        thoughts:
+          - "列车晚点了，希望马上告诉我能改哪趟"
+        userInputs:
+          - type: "系统自动带入"
+            name: "运行变更事件 + 原订单"
+            format: "事件 + 订单数据"
+            example: "G1234 晚点 95 分钟；订单含 1 名乘车人"
+            content: "车次、晚点时长、订单号、席别、票价、乘车人"
+        aiInteraction:
+          aiAction: "监听运行变更事件，识别退改签场景并拉取原订单"
+          suggestions:
+            - "查看改签方案"
+            - "我要退票"
+            - "帮我确认损失"
+        visibleData:
+          - "场景识别：运行变更（晚点 95 分钟）"
+          - "原订单：G1234 二等座 ¥553，09:00 发车"
+        designNotes:
+          - "运行变更主动唤醒，无需旅客自己发现"
+  - name: "规则转译"
+    actions:
+      - name: "查看费用对比与规则说明"
+        owner: "旅客"
+        touchpoints: "费用对比面板"
+        thoughts:
+          - "我想知道退票要扣多少，改签划不划算"
+        userInputs:
+          - type: "用户操作"
+            name: "发起退票或改签"
+            format: "页面操作"
+            example: "点『退票』或『改签』"
+            content: "处置意图"
+        aiInteraction:
+          aiAction: "规则引擎确定性计算阶梯费率，LLM 转译为大白话并输出费用对比"
+          suggestions:
+            - "为什么收这个费用"
+            - "退 vs 改哪个划算"
+            - "查看费率档位"
+        visibleData:
+          - "结论：开车前 30 小时退票收 10%，¥55.3"
+          - "对比：退票损失 ¥55.3 vs 改签成本 ¥0（同日改签）"
+        designNotes:
+          - "计费走确定性引擎，说明与结果一致；消除『退费陷阱』误解"
+  - name: "方案推荐"
+    actions:
+      - name: "选择最优改签方案"
+        owner: "旅客"
+        touchpoints: "改签方案推荐工作台"
+        thoughts:
+          - "把最合适的几个方案直接摆给我选就好"
+        userInputs:
+          - type: "选择确认"
+            name: "Top 3 方案"
+            format: "方案卡片"
+            example: "方案1：G1236 10:30 直达二等座（匹配度 95%，风险低）"
+            content: "车次、席别、匹配度、风险、票价差"
+        aiInteraction:
+          aiAction: "并发检索直达/候补/换乘方案，结合偏好与历史成功率排序，生成风险评估"
+          suggestions:
+            - "放宽条件重算"
+            - "查看方案依据"
+            - "选定方案"
+        visibleData:
+          - "Top 3：G1236（直达·匹配95%·低风险）/ G1240（换乘·匹配80%·中风险）/ 候补 G1238"
+          - "票价差：G1236 +¥0；G1240 -¥26"
+        designNotes:
+          - "对外承诺前必须旅客放行；硬约束（席别一致）不可突破"
+  - name: "一体化处置"
+    actions:
+      - name: "确认主票与关联服务处置"
+        owner: "旅客"
+        touchpoints: "一体化处置确认清单"
+        thoughts:
+          - "主票改完，餐食和约车也帮我一起改了吧"
+        userInputs:
+          - type: "确认"
+            name: "处置确认清单"
+            format: "页面确认"
+            example: "主票改签 G1236；餐食更新、约车注销、行程单更新"
+            content: "主票结果 + 关联服务处置状态"
+        aiInteraction:
+          aiAction: "发起主票退改交易，依据关联协议同步处置延伸服务并做一致性校验"
+          suggestions:
+            - "查看关联服务"
+            - "确认处置"
+            - "撤销登记"
+        visibleData:
+          - "主票：改签成功 G1236"
+          - "关联服务：餐食已更新、约车已注销、行程单已更新（一致性校验通过）"
+        designNotes:
+          - "关联服务未一致性校验通过前不得标记完成"
+  - name: "确认后续"
+    actions:
+      - name: "接收处置结果与行程更新"
+        owner: "旅客 / 客服"
+        touchpoints: "待办与通知中心"
+        thoughts:
+          - "希望结果和行程变更都能自动同步"
+        userInputs:
+          - type: "系统自动带入"
+            name: "处置结果"
+            format: "通知"
+            example: "改签成功，新行程 G1236 10:30"
+            content: "处置结果、异常建单、行程更新"
+        aiInteraction:
+          aiAction: "输出处置确认清单、通知推送与行程更新；复杂异常自动建单转客服"
+          suggestions:
+            - "查看新行程"
+            - "转人工"
+            - "稍后重试"
+        visibleData:
+          - "处置完成：改签成功，行程已更新"
+          - "异常项：无（或已建单转客服）"
+        designNotes:
+          - "复杂异常带上下文一次性解决；退改签自助率 ≥95%"

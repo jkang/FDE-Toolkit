@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI赛事内容工厂</title>
+  <style>
+    :root {
+      --color-primary: #10213E;
+      --color-accent: #5DB2E2;
+      --color-secondary: #625D9C;
+      --color-success: #00524C;
+      --color-info: #6FB1C8;
+      --color-warning: #F59E0B;
+      --color-destructive: #EF4444;
+      --color-background: #FFFFFF;
+      --color-bg-alt: #F5F5F6;
+      --color-foreground: #10213E;
+      --color-text-muted: #64748B;
+      --color-border: #E2E8F0;
+      --shadow-sm: 0 2px 8px rgba(16, 33, 62, 0.08);
+      --radius-md: 8px;
+      --font-family: "MiSans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans SC", "PingFang SC", Arial, sans-serif;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-family);
+      background: var(--color-bg-alt);
+      padding: 32px;
+      color: var(--color-foreground);
+      line-height: 1.5;
+    }
+
+    .canvas-container {
+      max-width: 1440px;
+      margin: 0 auto;
+      background: var(--color-background);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      min-height: 800px;
+    }
+
+    /* Standardized Header */
+    .page-header {
+      padding: 32px 40px;
+      border-bottom: 1px solid var(--color-border);
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+
+    .header-left {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .page-header h1 {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--color-primary);
+      line-height: 1.2;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .page-header h1::before {
+      content: "";
+      display: block;
+      width: 4px;
+      height: 24px;
+      background: var(--color-accent);
+      border-radius: 2px;
+      flex-shrink: 0;
+    }
+
+    .page-subtitle {
+      font-size: 16px;
+      color: var(--color-text-muted);
+      font-weight: 500;
+      padding-left: 16px;
+    }
+
+    .header-right {
+      text-align: right;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .meta-info {
+      font-size: 12px;
+      color: var(--color-text-muted);
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 12px;
+      justify-content: flex-end;
+    }
+
+    .btn-primary {
+      background: var(--color-primary);
+      color: white;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      transition: all 0.15s ease-out;
+    }
+    .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+
+    .btn-secondary {
+      background: white;
+      color: var(--color-primary);
+      border: 1px solid var(--color-border);
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease-out;
+    }
+    .btn-secondary:hover { background: var(--color-bg-alt); }
+
+    .toast {
+      position: fixed; bottom: 24px; right: 24px;
+      background: var(--color-primary); color: #fff;
+      padding: 12px 24px; border-radius: var(--radius-md);
+      font-size: 14px; font-weight: 600;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      display: none; z-index: 1000;
+    }
+
+    .canvas-body {
+      padding: 24px 40px 40px 40px;
+      display: flex;
+      flex: 1;
+      gap: 16px;
+      overflow-x: auto;
+    }
+
+    /* 5 columns Grid */
+    .column {
+      flex: 1;
+      min-width: 260px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    /* Card Base */
+    .card {
+      background: var(--color-background);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--color-border);
+      transition: transform 0.15s ease-out;
+    }
+    .card:hover {
+      transform: translateY(-2px);
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--color-border);
+      background: var(--color-bg-alt);
+    }
+
+    .header-text {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .card-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--color-primary);
+    }
+
+    .card-subtitle {
+      font-size: 11px;
+      color: var(--color-text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .card-header-icon {
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      border-radius: 6px;
+      background: rgba(16, 33, 62, 0.05);
+      color: var(--color-primary);
+    }
+
+    .card-header-icon svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    .card-body {
+      padding: 20px;
+      font-size: 14px;
+      color: var(--color-foreground);
+      line-height: 1.6;
+      flex: 1;
+    }
+
+    .card-body ul, .card-body ol {
+      list-style: none;
+    }
+
+    .card-body li {
+      margin-bottom: 12px;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+    .card-body li:last-child {
+      margin-bottom: 0;
+    }
+
+    .bullet {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--color-accent);
+      margin-top: 8px;
+      flex-shrink: 0;
+    }
+    
+    .number-bullet {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--color-accent);
+      margin-top: 1px;
+      flex-shrink: 0;
+    }
+
+    /* 人机流程：执行主体徽标 */
+    .wf-item { display: flex; gap: 10px; align-items: flex-start; }
+    .wf-action { flex: 1; }
+    .actor-badge {
+      font-size: 11px; font-weight: 700; padding: 2px 9px; border-radius: 6px;
+      color: #fff; flex-shrink: 0; margin-top: 0; white-space: nowrap;
+    }
+    .actor-badge.agent { background: #2563EB; }
+    .actor-badge.human { background: #7C3AED; }
+    .actor-badge.hybrid { background: #059669; }
+
+    /* 系统集成：方向徽标 */
+    .intg-item { display: flex; gap: 10px; align-items: flex-start; }
+    .intg-body { display: flex; flex-direction: column; gap: 2px; flex: 1; }
+    .intg-system { font-weight: 600; color: var(--color-foreground); }
+    .intg-purpose { font-size: 13px; color: var(--color-text-muted); }
+    .dir-badge {
+      font-size: 11px; font-weight: 700; padding: 2px 9px; border-radius: 6px;
+      color: #fff; flex-shrink: 0; margin-top: 0; white-space: nowrap;
+    }
+    .dir-badge.upstream { background: #2563EB; }
+    .dir-badge.downstream { background: #7C3AED; }
+    .dir-badge.bidirectional { background: #059669; }
+
+    /* Color Overrides for specific cards */
+    .theme-roles { border-left: 4px solid var(--color-secondary); }
+    .theme-pains { border-left: 4px solid var(--color-destructive); }
+    .theme-input { border-left: 4px solid var(--color-accent); }
+    .theme-data { border-left: 4px solid var(--color-info); }
+    .theme-workflow { border-left: 4px solid var(--color-primary); }
+    .theme-cap { border-left: 4px solid var(--color-secondary); }
+    .theme-output { border-left: 4px solid var(--color-accent); }
+    .theme-tools { border-left: 4px solid var(--color-info); }
+    .theme-product { border-left: 4px solid var(--color-success); }
+    .theme-gains { border-left: 4px solid var(--color-success); }
+
+  </style>
+
+    <!-- ===== Unified Report Shell: 撑满容器 + 精简 Header + 溢出滚动 ===== -->
+    <style>
+      *, *::before, *::after { box-sizing: border-box !important; }
+      html, body { margin: 0 !important; padding: 0 !important; background: #F5F5F6 !important; overflow-x: auto !important; }
+      .canvas-container {
+        width: 100% !important;
+        max-width: none !important;
+        margin: 0 auto !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        border: none !important;
+        padding: 24px 28px 48px !important;
+        overflow-x: auto !important;
+      }
+      .page-header { margin-bottom: 20px !important; align-items: center !important; }
+      .page-header h1 { font-size: 22px !important; line-height: 1.3 !important; margin: 0 !important; }
+    
+      /* ===== Unified Header (v2) ===== */
+      .page-header {
+        background: #FFFFFF !important;
+        border-bottom: 1px solid #E2E8F0 !important;
+        border-radius: 0 !important;
+        padding: 12px 0 !important;
+        margin-bottom: 20px !important;
+        min-height: auto !important;
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        gap: 16px !important;
+        flex-wrap: wrap !important;
+      }
+      .page-header h1 {
+        font-size: 22px !important;
+        font-weight: 700 !important;
+        color: #10213E !important;
+        line-height: 1.3 !important;
+        margin: 0 !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 10px !important;
+      }
+      .page-header h1::before {
+        content: "" !important;
+        display: inline-block !important;
+        width: 4px !important;
+        height: 22px !important;
+        background: #5DB2E2 !important;
+        border-radius: 2px !important;
+        flex-shrink: 0 !important;
+      }
+      .page-header h1 svg, .page-header h1 .icon, .page-header h1 img {
+        width: 20px !important;
+        height: 20px !important;
+        flex-shrink: 0 !important;
+      }
+      .page-subtitle, .header-meta, .meta-scenario, .header-left p, .header-content p {
+        font-size: 13px !important;
+        color: #64748B !important;
+        margin: 4px 0 0 !important;
+        padding-left: 14px !important;
+      }
+      .meta-badge, .badge, .brand-tag {
+        font-size: 12px !important;
+        color: #64748B !important;
+        background: #F5F5F6 !important;
+        border-radius: 10px !important;
+        padding: 2px 10px !important;
+      }
+      .page-header .btn-group, .header-right, .header-right > div {
+        display: flex !important;
+        align-items: center !important;
+        gap: 8px !important;
+      }
+      .btn-secondary, .btn-primary, .btn-copy-yaml {
+        font-size: 12px !important;
+        padding: 6px 12px !important;
+        border-radius: 6px !important;
+        font-weight: 600 !important;
+      }
+      .btn-secondary {
+        background: #FFFFFF !important;
+        color: #10213E !important;
+        border: 1px solid #E2E8F0 !important;
+      }
+      .btn-primary {
+        background: #10213E !important;
+        color: #FFFFFF !important;
+        border: 1px solid #10213E !important;
+      }
+</style>
+
+
+</head>
+<body>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
+  <div class="canvas-container">
+    <header class="page-header">
+      <div class="header-left">
+        <h1>AI赛事内容工厂</h1>
+      </div>
+      <div class="header-right">
+        <div class="btn-group">
+          <button class="btn-secondary" onclick="window.print()">导出 PDF / 打印</button>
+          <button class="btn-primary" onclick="copyYAML()">复制原始 YAML</button>
+        </div>
+      </div>
+    </header>
+
+    <div class="canvas-body">
+      
+      <!-- Col 1: userRoles & userPains -->
+      <div class="column">
+        <!-- userRoles -->
+        <div class="card theme-roles">
+          <div class="card-header">
+            <div class="header-text">
+              <div class="card-title">用户角色</div>
+              <div class="card-subtitle">使用该AI场景的用户角色和群体</div>
+            </div>
+            <div class="card-header-icon">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+  </div>
+          </div>
+          <div class="card-body">
+            <ul>
+              
+                <li><span class="bullet"></span>品牌内容经理</li>
+              
+                <li><span class="bullet"></span>社媒运营专员</li>
+              
+                <li><span class="bullet"></span>海外市场营销</li>
+              
+                <li><span class="bullet"></span>赛事运营负责人</li>
+              
+            </ul>
+          </div>
+        </div>
+        <!-- userPains -->
+        <div class="card theme-pains">
+          <div class="card-header">
+            <div class="header-text">
+              <div class="card-title">用户痛点</div>
+              <div class="card-subtitle">用户当前面临的问题 and 挑战</div>
+            </div>
+            <div class="card-header-icon">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2v1"/><path d="M12 6a6 6 0 0 1 6 6c0 1.66-.67 3.16-1.76 4.25a2.99 2.99 0 0 0-.88 2.12v.63h-6v-.63c0-.8-.31-1.55-.88-2.12A5.99 5.99 0 0 1 6 12a6 6 0 0 1 6-6Z"/></svg>
+  </div>
+          </div>
+          <div class="card-body">
+            <ul>
+              
+                <li><span class="bullet"></span>WSBK赛事素材量大，人工剪辑耗时巨大且难以及时产出</li>
+              
+                <li><span class="bullet"></span>多语言内容制作成本高，需要雇佣本地化团队</li>
+              
+                <li><span class="bullet"></span>各平台格式要求不同，人工适配效率低</li>
+              
+                <li><span class="bullet"></span>赛事热点转瞬即逝，内容产出速度跟不上传播窗口</li>
+              
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Col 2: aiInput & dataKnowledge -->
+      <div class="column">
+        <div class="card theme-input">
+          <div class="card-header">
+            <div class="header-text">
+              <div class="card-title">AI 场景输入</div>
+              <div class="card-subtitle">AI系统需要的输入数据和格式</div>
+            </div>
+            <div class="card-header-icon">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+  </div>
+          </div>
+          <div class="card-body">
+            <ul>
+              
+                <li><span class="bullet"></span>上传WSBK原始赛事素材（视频/音频/数据）</li>
+              
+                <li><span class="bullet"></span>选择目标市场与语言（默认6语言）</li>
+              
+                <li><span class="bullet"></span>设定品牌调性与内容红线</li>
+              
+                <li><span class="bullet"></span>触发AI自动剪辑与生成指令</li>
+              
+            </ul>
+          </div>
+        </div>
+        <div class="card theme-data">
+          <div class="card-header">
+            <div class="header-text">
+              <div class="card-title">数据/知识</div>
+              <div class="card-subtitle">AI系统需要的数据 and 领域知识</div>
+            </div>
+            <div class="card-header-icon">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5V19A9 3 0 0 0 21 19V5"/><path d="M3 12A9 3 0 0 0 21 12"/></svg>
+  </div>
+          </div>
+          <div class="card-body">
+            <ul>
+              
+                <li><span class="bullet"></span>WSBK赛事数据库（车手信息/成绩/历史对战）</li>
+              
+                <li><span class="bullet"></span>品牌VI规范与视觉标准手册</li>
+              
+                <li><span class="bullet"></span>目标市场文化偏好与禁忌数据库</li>
+              
+                <li><span class="bullet"></span>各平台内容规范（时长/比例/标签）</li>
+              
+                <li><span class="bullet"></span>历史高互动内容素材库</li>
+              
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Col 3: workflow & modelUsage (Core Capabilities) -->
+      <div class="column">
+        <div class="card theme-workflow">
+          <div class="card-header">
+            <div class="header-text">
+              <div class="card-title">AI 人机流程</div>
+              <div class="card-subtitle">改造后的完整人机协同流程（人 / Agent / 人机协同）</div>
+            </div>
+            <div class="card-header-icon">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="8" x="2" y="2" rx="2"/><path d="M14 2c1.1 0 2 .9 2 2v4c0 1.1-.9 2-2 2"/><path d="M20 2c1.1 0 2 .9 2 2v4c0 1.1-.9 2-2 2"/><path d="M10 18H5c-1.7 0-3-1.3-3-3v-1"/><polyline points="7 21 10 18 7 15"/><rect width="8" height="8" x="14" y="14" rx="2"/></svg>
+  </div>
+          </div>
+          <div class="card-body">
+            
+            <ol>
+              
+                <li class="wf-item">
+                  <span class="actor-badge human">人</span>
+                  <span class="wf-action">赛事运营负责人上传 WSBK 原始赛事素材，品牌内容经理设定目标市场语言与品牌调性/内容红线</span>
+                </li>
+              
+                <li class="wf-item">
+                  <span class="actor-badge agent">Agent</span>
+                  <span class="wf-action">多模态理解赛事视频与赛事数据，识别并打分高光时刻与精彩镜头</span>
+                </li>
+              
+                <li class="wf-item">
+                  <span class="actor-badge agent">Agent</span>
+                  <span class="wf-action">基于赛事数据生成多语言解说脚本，调用 TTS 完成多语言配音与字幕</span>
+                </li>
+              
+                <li class="wf-item">
+                  <span class="actor-badge agent">Agent</span>
+                  <span class="wf-action">自动剪辑高光片段、合成配音字幕、添加品牌元素与封面缩略图</span>
+                </li>
+              
+                <li class="wf-item">
+                  <span class="actor-badge human">人</span>
+                  <span class="wf-action">品牌内容经理审阅品牌调性与内容红线，对敏感/对外内容放行或退回</span>
+                </li>
+              
+                <li class="wf-item">
+                  <span class="actor-badge agent">Agent</span>
+                  <span class="wf-action">按各平台规范调整分辨率/时长/比例/标签，生成多平台内容包</span>
+                </li>
+              
+                <li class="wf-item">
+                  <span class="actor-badge agent">Agent</span>
+                  <span class="wf-action">生成发布排期、选择最佳发布时间并自动排期发布</span>
+                </li>
+              
+                <li class="wf-item">
+                  <span class="actor-badge agent">Agent</span>
+                  <span class="wf-action">监控互动数据，回流效果报告并优化后续内容策略</span>
+                </li>
+              
+            </ol>
+          </div>
+        </div>
+        <div class="card theme-cap">
+          <div class="card-header">
+            <div class="header-text">
+              <div class="card-title">核心能力</div>
+              <div class="card-subtitle">场景所需的关键 AI 及工程能力</div>
+            </div>
+            <div class="card-header-icon">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 11 2-2"/><path d="m19 11-2-2"/><path d="M12 2v2"/><path d="m18 6 1-1"/><path d="m6 6-1-1"/><path d="M12 10a2 2 0 1 0 0 4 2 2 0 0 0 0-4Z"/><path d="M7 14a5 5 0 0 0 10 0"/></svg>
+  </div>
+          </div>
+          <div class="card-body">
+            <ul>
+              
+                <li><span class="bullet"></span>多模态视频理解模型：自动识别赛事高光片段与镜头语义</li>
+              
+                <li><span class="bullet"></span>GPT-4o级大语言模型：生成多语言解说脚本与文化本地化改写</li>
+              
+                <li><span class="bullet"></span>ElevenLabs语音合成：多语言配音与本地化</li>
+              
+                <li><span class="bullet"></span>图像生成模型：自动封面图与缩略图生成</li>
+              
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Col 4: aiOutput & systemIntegration -->
+      <div class="column">
+        <div class="card theme-output">
+          <div class="card-header">
+            <div class="header-text">
+              <div class="card-title">AI 输出</div>
+              <div class="card-subtitle">AI系统产生的输出结果 and 格式</div>
+            </div>
+            <div class="card-header-icon">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M3 5h4"/></svg>
+  </div>
+          </div>
+          <div class="card-body">
+            <ul>
+              
+                <li><span class="bullet"></span>6语言短视频成品（YouTube/TikTok/Instagram/Reels）</li>
+              
+                <li><span class="bullet"></span>多平台格式适配内容包</li>
+              
+                <li><span class="bullet"></span>SEO优化文章与图文内容</li>
+              
+                <li><span class="bullet"></span>自动发布排期表</li>
+              
+                <li><span class="bullet"></span>内容效果分析报告</li>
+              
+            </ul>
+          </div>
+        </div>
+        <div class="card theme-tools">
+          <div class="card-header">
+            <div class="header-text">
+              <div class="card-title">工具调用/系统集成</div>
+              <div class="card-subtitle">需要调用、集成的内外部系统与上下游信息</div>
+            </div>
+            <div class="card-header-icon">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+  </div>
+          </div>
+          <div class="card-body">
+            
+            <ul>
+              
+                  <li class="intg-item">
+                    <span class="dir-badge upstream">↑ 上游输入</span>
+                    <div class="intg-body">
+                      <div class="intg-system">WSBK赛事数据库 / 赛事数据源</div><div class="intg-purpose">读入车手信息、成绩与历史对战数据，作为高光识别与脚本生成依据</div>
+                    </div>
+                  </li>
+              
+                  <li class="intg-item">
+                    <span class="dir-badge upstream">↑ 上游输入</span>
+                    <div class="intg-body">
+                      <div class="intg-system">品牌VI与内容红线库</div><div class="intg-purpose">读入品牌调性、VI规范与内容红线，约束剪辑包装与审核</div>
+                    </div>
+                  </li>
+              
+                  <li class="intg-item">
+                    <span class="dir-badge bidirectional">⇄ 双向</span>
+                    <div class="intg-body">
+                      <div class="intg-system">视频剪辑API（Runway/Descript）</div><div class="intg-purpose">调用自动剪辑/合成能力并回收剪辑成品</div>
+                    </div>
+                  </li>
+              
+                  <li class="intg-item">
+                    <span class="dir-badge downstream">↓ 下游执行</span>
+                    <div class="intg-body">
+                      <div class="intg-system">语音合成API（ElevenLabs/Azure TTS）</div><div class="intg-purpose">生成多语言配音音轨并回写成品</div>
+                    </div>
+                  </li>
+              
+                  <li class="intg-item">
+                    <span class="dir-badge downstream">↓ 下游执行</span>
+                    <div class="intg-body">
+                      <div class="intg-system">社媒管理平台（Hootsuite/Sprinklr）</div><div class="intg-purpose">回写排期并执行多平台发布</div>
+                    </div>
+                  </li>
+              
+                  <li class="intg-item">
+                    <span class="dir-badge upstream">↑ 上游输入</span>
+                    <div class="intg-body">
+                      <div class="intg-system">数据分析平台（Google Analytics / 各平台开放数据）</div><div class="intg-purpose">读入互动与转化数据，驱动效果反馈闭环</div>
+                    </div>
+                  </li>
+              
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Col 5: productType & businessGains -->
+      <div class="column">
+        <div class="card theme-product">
+          <div class="card-header">
+            <div class="header-text">
+              <div class="card-title">产品形态</div>
+              <div class="card-subtitle">AI系统的产品形式 and 交互方式</div>
+            </div>
+            <div class="card-header-icon">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="M10 4v4"/><path d="M2 8h20"/><path d="M6 4v4"/></svg>
+  </div>
+          </div>
+          <div class="card-body">
+            <ul>
+              
+                <li><span class="bullet"></span>AI内容生产工作台（Web端）</li>
+              
+                <li><span class="bullet"></span>社媒发布自动化插件</li>
+              
+                <li><span class="bullet"></span>内容效果追踪仪表盘</li>
+              
+            </ul>
+          </div>
+        </div>
+        <div class="card theme-gains">
+          <div class="card-header">
+            <div class="header-text">
+              <div class="card-title">业务收益</div>
+              <div class="card-subtitle">上线后预期达成的量化业务指标（对齐机会点定义）</div>
+            </div>
+            <div class="card-header-icon">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+  </div>
+          </div>
+          <div class="card-body">
+            <ul>
+              
+                <li><span class="bullet"></span>赛事内容产出速度从3天缩短至30分钟（时效提升约 98%）</li>
+              
+                <li><span class="bullet"></span>多语言内容制作成本降低90%</li>
+              
+                <li><span class="bullet"></span>内容互动率提升35%（AI精准把握高光时刻）</li>
+              
+                <li><span class="bullet"></span>社媒运营人力需求从5人降至1人</li>
+              
+            </ul>
+          </div>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div style="text-align: center; margin-top: 16px; font-size: 12px; color: var(--color-text-muted); max-width: 1440px; margin-left: auto; margin-right: auto; padding: 16px 0 8px;">
+    Generated by ai-canvas-generator &middot; &copy; 2026 Inspire AI4PM
+  </div>
+
+  <div class="toast" id="toast">已成功复制 YAML 数据</div>
+  
+  <script type="application/yaml" id="raw-yaml">
+title: AI赛事内容工厂
+description: AI自动剪辑WSBK赛事高光片段，生成多语言解说视频与图文内容，适配全球主流社媒平台格式。
+userRoles:
+  - 品牌内容经理
+  - 社媒运营专员
+  - 海外市场营销
+  - 赛事运营负责人
+userPains:
+  - WSBK赛事素材量大，人工剪辑耗时巨大且难以及时产出
+  - 多语言内容制作成本高，需要雇佣本地化团队
+  - 各平台格式要求不同，人工适配效率低
+  - 赛事热点转瞬即逝，内容产出速度跟不上传播窗口
+aiInput:
+  - 上传WSBK原始赛事素材（视频/音频/数据）
+  - 选择目标市场与语言（默认6语言）
+  - 设定品牌调性与内容红线
+  - 触发AI自动剪辑与生成指令
+dataKnowledge:
+  - WSBK赛事数据库（车手信息/成绩/历史对战）
+  - 品牌VI规范与视觉标准手册
+  - 目标市场文化偏好与禁忌数据库
+  - 各平台内容规范（时长/比例/标签）
+  - 历史高互动内容素材库
+workflow:
+  - actor: human
+    action: 赛事运营负责人上传 WSBK 原始赛事素材，品牌内容经理设定目标市场语言与品牌调性/内容红线
+  - actor: agent
+    action: 多模态理解赛事视频与赛事数据，识别并打分高光时刻与精彩镜头
+  - actor: agent
+    action: 基于赛事数据生成多语言解说脚本，调用 TTS 完成多语言配音与字幕
+  - actor: agent
+    action: 自动剪辑高光片段、合成配音字幕、添加品牌元素与封面缩略图
+  - actor: human
+    action: 品牌内容经理审阅品牌调性与内容红线，对敏感/对外内容放行或退回
+  - actor: agent
+    action: 按各平台规范调整分辨率/时长/比例/标签，生成多平台内容包
+  - actor: agent
+    action: 生成发布排期、选择最佳发布时间并自动排期发布
+  - actor: agent
+    action: 监控互动数据，回流效果报告并优化后续内容策略
+modelUsage:
+  - 多模态视频理解模型：自动识别赛事高光片段与镜头语义
+  - GPT-4o级大语言模型：生成多语言解说脚本与文化本地化改写
+  - ElevenLabs语音合成：多语言配音与本地化
+  - 图像生成模型：自动封面图与缩略图生成
+aiOutput:
+  - 6语言短视频成品（YouTube/TikTok/Instagram/Reels）
+  - 多平台格式适配内容包
+  - SEO优化文章与图文内容
+  - 自动发布排期表
+  - 内容效果分析报告
+systemIntegration:
+  - system: WSBK赛事数据库 / 赛事数据源
+    direction: upstream
+    purpose: 读入车手信息、成绩与历史对战数据，作为高光识别与脚本生成依据
+  - system: 品牌VI与内容红线库
+    direction: upstream
+    purpose: 读入品牌调性、VI规范与内容红线，约束剪辑包装与审核
+  - system: 视频剪辑API（Runway/Descript）
+    direction: bidirectional
+    purpose: 调用自动剪辑/合成能力并回收剪辑成品
+  - system: 语音合成API（ElevenLabs/Azure TTS）
+    direction: downstream
+    purpose: 生成多语言配音音轨并回写成品
+  - system: 社媒管理平台（Hootsuite/Sprinklr）
+    direction: downstream
+    purpose: 回写排期并执行多平台发布
+  - system: 数据分析平台（Google Analytics / 各平台开放数据）
+    direction: upstream
+    purpose: 读入互动与转化数据，驱动效果反馈闭环
+productType:
+  - AI内容生产工作台（Web端）
+  - 社媒发布自动化插件
+  - 内容效果追踪仪表盘
+businessGains:
+  - 赛事内容产出速度从3天缩短至30分钟（时效提升约 98%）
+  - 多语言内容制作成本降低90%
+  - 内容互动率提升35%（AI精准把握高光时刻）
+  - 社媒运营人力需求从5人降至1人
+  </script>
+
+  <script>
+    function copyYAML() {
+      const yaml = document.getElementById('raw-yaml').textContent.trim();
+      navigator.clipboard.writeText(yaml).then(() => {
+        const toast = document.getElementById('toast');
+        toast.style.display = 'block';
+        setTimeout(() => { toast.style.display = 'none'; }, 2500);
+      });
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,215 @@
+meta:
+  title: "X奶粉 · 分仓智能补货 To-be 流程"
+  version: "v1.0"
+  date: "2026-09-10"
+  scenarioName: "分仓智能补货"
+  businessStage: "挖知识 阶段1 任务流程挖掘 · 步骤1.1"
+  methodology: "挖知识 阶段1方法（业务环节 L3 → 主要活动 L4 → 深度任务 L5）"
+  inputs:
+    - "定场景《X奶粉-分仓智能补货-AI画布》"
+    - "SRP《12-分仓智能补货_场景定义画布》（现状流程全景/痛点/To-Be 旅程）"
+    - "SRP《11-分仓智能补货_数据与知识资产盘点》（数据实体/知识资产清单）"
+    - "《X奶粉-分仓智能补货-To-be旅程》（SKP 精化版）"
+  sourceRef: "奶粉分仓补货数据库表字段 / OSL 场景信息采集表（含示例）"
+  kpi:
+    - "分货效率"
+    - "分仓有货率"
+    - "库存周转率"
+    - "新鲜度"
+    - "物流时效"
+
+legend:
+  execution:
+    - { type: "agent",  label: "Agent=AI 自动执行", icon: "🤖" }
+    - { type: "human",  label: "人工=人工执行",     icon: "👤" }
+    - { type: "hybrid", label: "混合=人机协同",     icon: "🤝" }
+  hitlFocus:
+    - { level: "low",    label: "低 · 人机介入",      desc: "全自动，无人工介入" }
+    - { level: "medium", label: "中 · 人机交错/审核", desc: "AI 产出，人工抽检/确认" }
+    - { level: "high",   label: "高 · 人机终审",      desc: "人类担任最终裁决" }
+    - { level: "gate",   label: "必停确认",           desc: "对外动作，强制人工放行" }
+  flowConventions:
+    - "角色泳道 任务泳道内转"
+    - "流程走向 任务正常后回填 AI"
+  valueAnchors:
+    - "分货效率"
+    - "分仓有货率"
+    - "库存周转率"
+    - "新鲜度"
+    - "物流时效"
+
+phases:
+  - { id: "P1", order: 1, name: "货源评估", fullName: "货源评估与分货数据准备", description: "汇总供需视图、识别缺口、准备分货底表" }
+  - { id: "P2", order: 2, name: "分货方案", fullName: "分货方案编制",           description: "计算备货率/优先级与多约束分配方案（P0）" }
+  - { id: "P3", order: 3, name: "补货单",   fullName: "补货单生成与下发",       description: "生成/校验标准补货单并对外下发" }
+  - { id: "P4", order: 4, name: "执行跟踪", fullName: "执行跟踪与入库同步",     description: "在途监控、入库验收与库存同步" }
+  - { id: "P5", order: 5, name: "库存复盘", fullName: "库存监控与效果复盘",     description: "安全水位/大日期监控与效果复盘调参" }
+
+lanes:
+  - { id: "plan", order: 1, name: "物流计划岗", group: "计划层",   description: "分货方案确认/微调/下发/复盘审批" }
+  - { id: "data", order: 2, name: "调度组",     group: "数据层",   description: "分货数据底表准备与口径复核" }
+  - { id: "wh",   order: 3, name: "仓储/物流岗", group: "仓储执行层", description: "执行跟踪、入库验收与大日期巡检" }
+  - { id: "sys",  order: 4, name: "Agent·系统", group: "系统/自动化", description: "Agent 自动拉数/计算/生成/校验/监控" }
+
+tasks:
+  - { id: "t01", order: 1, phaseId: "P1", laneId: "sys",
+      name: "汇总全国可分配库存与在途", actor: "agent",
+      inputs: ["现货库存", "在途库存", "待检/合格库存", "未发订单"], outputs: ["全国供需视图"],
+      ruleType: "关键信息提取要点·分货数据关键字段识别",
+      valueAnchors: ["分货效率"], hitlFocus: "low",
+      exception: "数据缺失/口径异常 → 拉人（调度组复核）",
+      description: "Agent 拉取全仓库存与在途，按 product_code/site_code 关联形成全国供需视图" }
+  - { id: "t02", order: 2, phaseId: "P1", laneId: "sys",
+      name: "计算各仓库存天数并判定缺口等级", actor: "agent",
+      inputs: ["各仓库存", "在途", "未来14天分仓销售计划", "促销计划"], outputs: ["缺口告警清单(红/黄/蓝)"],
+      ruleType: "决策模型类·缺口分级规则(DOS分级)",
+      valueAnchors: ["分仓有货率"], hitlFocus: "low",
+      exception: "DOS 阈值边界冲突 → 拉人",
+      description: "按 DOS=(库存+在途+分配)/日均计划 计算并判定红<7/黄7-14/蓝>60 且无促销" }
+  - { id: "t03", order: 3, phaseId: "P1", laneId: "data",
+      name: "汇总分货数据底表", actor: "hybrid",
+      inputs: ["待检/合格/在途/库存原始数据", "生产备货率", "大日期库存"], outputs: ["分货数据底表"],
+      ruleType: "模版范例类·分货数据底表模板",
+      valueAnchors: ["分货效率"], hitlFocus: "medium",
+      exception: "字段缺失/口径不一致 → 标红并拉调度组复核",
+      description: "Agent 按口径汇总底表，调度组复核确认" }
+  - { id: "t04", order: 4, phaseId: "P1", laneId: "sys",
+      name: "校验底表字段口径完整性", actor: "agent",
+      inputs: ["分货数据底表", "字段口径定义"], outputs: ["口径校验结果"],
+      ruleType: "术语字典类·待检/合格/可发量/DOS口径",
+      valueAnchors: ["分货效率", "分仓有货率"], hitlFocus: "low",
+      exception: "关键字段缺失/口径冲突 → 标红待人工复核",
+      description: "Agent 校验可发量/待检/合格/在途/生产备货率/大日期 6 项口径" }
+
+  - { id: "t05", order: 5, phaseId: "P2", laneId: "sys",
+      name: "计算生产备货率与订单完成率", actor: "agent",
+      inputs: ["现货/在途/本月已出库", "销售计划", "未发订单"], outputs: ["生产备货率", "订单完成率"],
+      ruleType: "决策模型类·备货率计算规则",
+      valueAnchors: ["分仓有货率"], hitlFocus: "low",
+      exception: "计划缺失/口径异常 → 拉人",
+      description: "Agent 按公式计算生产备货率与订单完成率" }
+  - { id: "t06", order: 6, phaseId: "P2", laneId: "sys",
+      name: "计算各仓目标备货率与补货优先级", actor: "agent",
+      inputs: ["订单完成率", "旬度标准进度", "运输时效", "区域类型"], outputs: ["各仓目标备货率", "补货优先级"],
+      ruleType: "决策模型类·备货率分配规则",
+      valueAnchors: ["分仓有货率", "分货效率"], hitlFocus: "low",
+      exception: "目标备货率>100% 封顶；进度超限 → 拉人",
+      description: "按目标备货率=订单进度+20%封顶100% 计算并排序补货优先级" }
+  - { id: "t07", order: 7, phaseId: "P2", laneId: "sys",
+      name: "计算建议补货量", actor: "agent",
+      inputs: ["目标备货率", "目标库存口径", "当前口径库存", "京慧建议量"], outputs: ["建议补货量清单"],
+      ruleType: "决策模型类·分配量调整经验",
+      valueAnchors: ["分仓有货率", "库存周转率"], hitlFocus: "low",
+      exception: "建议量偏离京慧建议量 → 写入前必停(HITL)",
+      description: "Agent 计算建议补货量，偏离京慧建议量时触发 HITL" }
+  - { id: "t08", order: 8, phaseId: "P2", laneId: "sys",
+      name: "选择发货仓并拆分多仓补足", actor: "agent",
+      inputs: ["可发量", "运输时效", "区域类型", "仓网距离"], outputs: ["发货仓推荐", "多仓拆分方案"],
+      ruleType: "决策模型类·多约束分配优化规则",
+      valueAnchors: ["物流时效", "分仓有货率"], hitlFocus: "low",
+      exception: "时效最优仓可发量不足 → 拆分多仓补足；仍不足 → 拉人",
+      description: "按可发量覆盖且时效最快就近优先选仓，不足则拆分多仓" }
+  - { id: "t09", order: 9, phaseId: "P2", laneId: "sys",
+      name: "生成多版分配方案", actor: "agent",
+      inputs: ["建议补货量", "发货仓", "可发量", "库存/在途/效期/促销约束"], outputs: ["多版分配方案(A/B)"],
+      ruleType: "模版范例类·分货方案模板",
+      valueAnchors: ["分仓有货率", "库存周转率", "新鲜度"], hitlFocus: "low",
+      exception: "约束冲突无法求解 → 输出备选并拉人",
+      description: "Agent 生成均衡版/优先版多版分配方案" }
+  - { id: "t10", order: 10, phaseId: "P2", laneId: "plan",
+      name: "人工确认与微调分配量", actor: "hybrid",
+      inputs: ["多版分配方案", "京慧建议量偏离项", "凑车要求"], outputs: ["确认后的分配方案"],
+      ruleType: "决策模型类·分配量调整经验",
+      valueAnchors: ["分仓有货率", "分货效率"], hitlFocus: "high",
+      exception: "修改超约束 → 退回重算；修改原因必填留痕",
+      description: "物流计划岗确认/微调分配量，Agent 重新校验多约束" }
+  - { id: "t11", order: 11, phaseId: "P2", laneId: "sys",
+      name: "诊断异常并生成备选方案", actor: "agent",
+      inputs: ["缺口清单", "仓网距离", "物流预警", "安全水位"], outputs: ["备选方案(≥3套)"],
+      ruleType: "决策模型类·积兆逻辑(异常诊断)[待二轮验证]",
+      valueAnchors: ["分仓有货率", "物流时效"], hitlFocus: "medium",
+      exception: "物流预警数据缺失 → 按历史时效估算并降级提示",
+      description: "Agent 诊断缺货/物流受阻并生成成本/时效/库存均衡备选" }
+  - { id: "t12", order: 12, phaseId: "P2", laneId: "plan",
+      name: "人工选定备选方案", actor: "human",
+      inputs: ["备选方案对比"], outputs: ["选定方案"],
+      ruleType: "决策模型类·积兆逻辑(异常诊断)[待二轮验证]",
+      valueAnchors: ["分仓有货率"], hitlFocus: "high",
+      exception: "备选均不可行 → 升级人工复核并调整周期",
+      description: "物流计划岗在异常时人工裁决选定备选方案" }
+
+  - { id: "t13", order: 13, phaseId: "P3", laneId: "sys",
+      name: "生成标准化补货单", actor: "agent",
+      inputs: ["确认后的分配方案", "SKU/收发仓主数据"], outputs: ["补货单"],
+      ruleType: "模版范例类·补货单模板",
+      valueAnchors: ["分货效率"], hitlFocus: "low",
+      exception: "字段缺失 → 拉人补正",
+      description: "Agent 按确认方案生成标准化补货单" }
+  - { id: "t14", order: 14, phaseId: "P3", laneId: "sys",
+      name: "校验收发仓/SKU/数量/时效", actor: "agent",
+      inputs: ["补货单", "可发量", "时效规则"], outputs: ["校验结果"],
+      ruleType: "决策模型类·补货单校验规则",
+      valueAnchors: ["分货效率", "分仓有货率"], hitlFocus: "low",
+      exception: "库存不足/时效超期/字段缺失 → 退回调整并拉人",
+      description: "Agent 校验 4 项，通过后才可下发" }
+  - { id: "t15", order: 15, phaseId: "P3", laneId: "plan",
+      name: "确认并下发补货单", actor: "hybrid",
+      inputs: ["校验通过的补货单"], outputs: ["已下发补货单(物流调度/财务)"],
+      ruleType: "决策模型类·提交放行确认",
+      valueAnchors: ["分货效率"], hitlFocus: "gate",
+      exception: "对外下发必停确认；10 秒撤销窗口兜底",
+      description: "物流计划岗确认下发，Agent 推送物流调度与财务，保留撤销窗口" }
+
+  - { id: "t16", order: 16, phaseId: "P4", laneId: "wh",
+      name: "抓取在途定位并判定预警", actor: "agent",
+      inputs: ["TMS 车辆定位/状态/里程"], outputs: ["在途台账", "延误/破损预警"],
+      ruleType: "关联关系类·基地仓-销售仓-产品-SKU-渠道关联",
+      valueAnchors: ["物流时效"], hitlFocus: "low",
+      exception: "延误>24h/48h、破损率>1% → 预警拉人",
+      description: "Agent 抓取 TMS 定位生成在途台账并阈值预警" }
+  - { id: "t17", order: 17, phaseId: "P4", laneId: "wh",
+      name: "核对入库实收与差异", actor: "agent",
+      inputs: ["WMS 入库验收(运单/实收/差异率)"], outputs: ["差异记录", "差异处理单"],
+      ruleType: "决策模型类·入库差异判定规则",
+      valueAnchors: ["分仓有货率", "分货效率"], hitlFocus: "medium",
+      exception: "差异率>0.5% → 生成差异单并拉人追责",
+      description: "Agent 核对实收与调拨数量，≤0.5% 记正常损耗，>0.5% 生成差异单" }
+  - { id: "t18", order: 18, phaseId: "P4", laneId: "wh",
+      name: "同步库存指标并关闭调拨单", actor: "agent",
+      inputs: ["实收数量"], outputs: ["更新后可发量/DOS", "已关闭调拨单"],
+      ruleType: "术语字典类·待检/合格/可发量/DOS口径",
+      valueAnchors: ["分仓有货率", "库存周转率"], hitlFocus: "low",
+      exception: "同步失败 → 自动重试/拉人",
+      description: "Agent 按实收同步可发量与 DOS 并关闭调拨单" }
+
+  - { id: "t19", order: 19, phaseId: "P5", laneId: "plan",
+      name: "计算库存天数并设置安全水位", actor: "hybrid",
+      inputs: ["各仓库存天数", "渠道差异", "区域类型"], outputs: ["差异化安全水位建议"],
+      ruleType: "决策模型类·安全水位设置经验",
+      valueAnchors: ["库存周转率", "分仓有货率"], hitlFocus: "medium",
+      exception: "服务水平与周转冲突 → 人工审批",
+      description: "Agent 按区域+渠道计算安全水位建议，计划岗审批后生效" }
+  - { id: "t20", order: 20, phaseId: "P5", laneId: "wh",
+      name: "巡检大日期库存", actor: "agent",
+      inputs: ["分仓大日期库存", "效期"], outputs: ["临期预警"],
+      ruleType: "决策模型类·大日期判定经验[待二轮验证]",
+      valueAnchors: ["新鲜度"], hitlFocus: "low",
+      exception: "大日期判定口径待二轮验证 → 标注概念级",
+      description: "Agent 巡检各仓大日期库存并预警临期风险" }
+  - { id: "t21", order: 21, phaseId: "P5", laneId: "plan",
+      name: "统计复盘指标并生成调参建议", actor: "hybrid",
+      inputs: ["时效达成率", "缺货缓解率", "周转率", "入库差异率"], outputs: ["月度复盘报告", "调参建议"],
+      ruleType: "模版范例类·复盘报告模板",
+      valueAnchors: ["分货效率", "分仓有货率", "库存周转率", "新鲜度"], hitlFocus: "high",
+      exception: "指标异常恶化 → 拉人审批；多项指标矛盾以时效达成优先",
+      description: "Agent 统计复盘指标并生成调参建议，计划岗审批后生效" }
+
+flowNotes:
+  - "主链路 P1→P2→P3→P4→P5；『基地仓→销售仓分配方案编制』为全场景唯一 P0（HITL 核心确认点）"
+  - "价值锚定：分货效率 / 分仓有货率 / 库存周转率 / 新鲜度 / 物流时效，对应商机『四个提高』"
+  - "对外下发补货单为 gate（必停确认 + 10 秒撤销窗口）"
+  - "『积兆逻辑』『大日期判定』为待业务专家二轮验证经验，已在规则依据处标注"
+returnNodes:
+  - "缺口/积压预警 → 物流计划岗确认分货周期参数"
+  - "入库差异>0.5% → 差异处理单 → 财务/仓管"
+  - "复盘指标恶化 → 调参审批 → 下一周期参数回灌"

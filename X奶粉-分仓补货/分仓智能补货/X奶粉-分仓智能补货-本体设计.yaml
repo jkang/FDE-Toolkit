@@ -1,0 +1,704 @@
+title: X奶粉-分仓智能补货-Agent本体设计
+domain: 供应链分仓补货
+scenario_description: "X奶粉事业部从基地仓到销售分仓的智能分货补货执行场景：Agent 拉取全仓库存与需求、识别缺口、多约束求解分配方案、生成校验并下发补货单、跟踪在途与入库、生成复盘调参建议，人工只在关键确认点介入。"
+target_agent_role: 分货方案助理（Replenishment Allocation Assistant）
+
+entities:
+  - id: allocation_plan
+    name: 分货方案（Allocation Plan）
+    type: core
+    description: "Agent 在多种约束下求解出的基地仓到销售仓分配方案，核心字段为分配量，不等于京慧建议量，也不等于实际发货量"
+    attributes:
+      - name: plan_version
+        type: enum
+        values: [A_balanced, B_priority]
+        description: 方案版本（均衡版/优先版）
+      - name: alloc_qty
+        type: number
+        description: 分配量（罐）
+      - name: stock_days_after
+        type: number
+        description: 分配后库存天数 DOS
+      - name: status
+        type: enum
+        values: [draft, pending_confirm, confirmed, dispatched]
+        description: 方案状态
+    key_distinctions:
+      - "分配量 ≠ 京慧建议量：分配量是多约束求解结果，偏离建议量必须人工确认"
+      - "分配量 ≤ 可发量：超可发量的方案不允许下发"
+      - "方案已确认 ≠ 补货单已下发：确认与对外下发是两个门禁"
+
+  - id: replenishment_order
+    name: 补货单（Replenishment Order）
+    type: core
+    description: "由确认后的分货方案生成的标准调拨单，用于下发物流调度与财务核算，是执行与结算的凭证"
+    attributes:
+      - name: order_no
+        type: string
+        description: 补货单号（全链路主键锚点）
+      - name: from_site
+        type: string
+        description: 发货基地仓编码
+      - name: to_site
+        type: string
+        description: 收货销售仓编码
+      - name: qty
+        type: number
+        description: 调拨数量
+      - name: status
+        type: enum
+        values: [pending_check, pending_dispatch, dispatched, in_transit, received, closed, cancelled]
+        description: 补货单状态
+    key_distinctions:
+      - "补货单下发 ≠ 实际发货：下发只代表指令写入物流调度/财务"
+      - "补货单数量 ≠ 实际入库数量：可能有正常损耗或差异"
+      - "下发后 10 秒内可撤销，撤销后回到待下发状态"
+
+  - id: dos
+    name: 库存天数（DOS）
+    type: core
+    description: "衡量各仓库存可支撑天数的核心指标，Agent 据其判定缺口等级与分配后库存健康度"
+    attributes:
+      - name: dos_value
+        type: number
+        description: "DOS=(库存+在途+分配)/日均销售计划"
+      - name: level
+        type: enum
+        values: [red, yellow, blue, normal]
+        description: 缺口等级
+    key_distinctions:
+      - "DOS 分子含在途与已分配，不等于现货/日均"
+      - "DOS>60 且无促销才是积压预警，促销期不判积压"
+      - "阈值边界（7/14/60 天）冲突需人工确认"
+
+  - id: jinghui_suggestion
+    name: 京慧建议量（Jinghui Suggestion）
+    type: reference
+    description: "京慧一盘货给出的初始建议补货量，仅作为分配参考基线，不构成约束"
+    attributes:
+      - name: suggest_qty
+        type: number
+        description: 建议补货量（罐）
+    key_distinctions:
+      - "建议量是参考不是约束：最终以多约束求解的分配量为准"
+      - "分配量偏离建议量必须触发 HITL，不得静默覆盖"
+
+  - id: sales_plan
+    name: 分仓销售计划（Sales Plan）
+    type: reference
+    description: "分仓×SKU 的月度/日均销售计划，是需求基准与 DOS/备货率计算的输入"
+    attributes:
+      - name: plan_qty
+        type: number
+        description: 月度销售计划量
+      - name: avg_plan_num
+        type: number
+        description: 日均销售计划量
+    key_distinctions:
+      - "销售计划 ≠ 实际销量：计划是需求基准，实际销量用于备货率"
+      - "计划口径缺失/异常会导致缺口与备货率全链路失真"
+
+  - id: promo_plan
+    name: 促销计划（Promotion Plan）
+    type: reference
+    description: "140+ 广促品指标构成的促销放量计划，影响备货率上浮、积压抑制与分配量"
+    attributes:
+      - name: promo_sku
+        type: string
+        description: 促销 SKU 列表
+      - name: uplift_ratio
+        type: number
+        description: 放量系数
+    key_distinctions:
+      - "促销在途 ≠ 常规需求：促销放量须在分配中上浮"
+      - "促销期 DOS 高不触发蓝色积压预警"
+
+  - id: warehouse
+    name: 仓库（Warehouse）
+    type: reference
+    description: "仓网节点，分基地仓（供货方）与销售仓（收货方），编码 site_code 是库存与分配的分析粒度"
+    attributes:
+      - name: site_code
+        type: string
+        description: 仓编码
+      - name: site_type
+        type: enum
+        values: [base, sales]
+        description: 基地仓/销售仓
+      - name: region_type
+        type: enum
+        values: [core, remote]
+        description: 区域类型（核心/偏远）
+    key_distinctions:
+      - "基地仓是发货方，销售仓是收货方，方向不可颠倒"
+      - "偏远仓安全水位需上调，与核心仓口径不同"
+
+  - id: sku_product
+    name: 产品/SKU（Product）
+    type: reference
+    description: "近 700 个 SKU，涉及段位/配方/包装多维度，product_code 是分货对象标识"
+    attributes:
+      - name: product_code
+        type: string
+        description: 产品编码
+      - name: brand
+        type: string
+        description: 品牌/事业部
+    key_distinctions:
+      - "同一 SKU 在不同渠道的分货口径不同（新鲜度/缓冲）"
+      - "促销品与礼盒有独立分货逻辑"
+
+  - id: safety_stock
+    name: 安全水位（Safety Stock）
+    type: reference
+    description: "各仓差异化安全库存水位，是分配优化的约束与复盘调参的对象"
+    attributes:
+      - name: safety_days
+        type: number
+        description: 安全库存天数
+      - name: channel_type
+        type: enum
+        values: [online, offline]
+        description: 渠道类型（电商/线下）
+    key_distinctions:
+      - "安全水位是约束不是目标：服务水平优先于周转"
+      - "水位调整必须经人工审批后方可生效"
+
+  - id: big_date_inventory
+    name: 大日期库存（Big-date Inventory）
+    type: reference
+    description: "临期/大日期库存（big_date_num），影响新鲜度约束与临期预警"
+    attributes:
+      - name: big_date_num
+        type: number
+        description: 大日期库存数量
+      - name: expire_date
+        type: date
+        description: 效期
+    key_distinctions:
+      - "大日期判定口径待业务专家二轮验证，当前标注概念级"
+      - "大日期库存不应再向该仓增配同效期商品"
+
+  - id: shortage_alert
+    name: 缺口告警（Shortage Alert）
+    type: event
+    description: "Agent 按 DOS 分级生成的缺口/积压告警事件，驱动分配优先级"
+    attributes:
+      - name: level
+        type: enum
+        values: [red, yellow, blue]
+        description: 告警等级
+      - name: trigger_dos
+        type: number
+        description: 触发时的 DOS
+    key_distinctions:
+      - "红色告警是补货优先级，不等于必须足额满足（受可发量约束）"
+      - "蓝色积压预警在促销期被抑制"
+
+  - id: in_transit_ledger
+    name: 在途台账（In-transit Ledger）
+    type: event
+    description: "Agent 抓取 TMS 定位生成的在途监控记录，含位置、状态、预计到货与延误判定"
+    attributes:
+      - name: order_no
+        type: string
+        description: 关联补货单号
+      - name: delay_hours
+        type: number
+        description: 延误小时数
+      - name: position
+        type: string
+        description: 当前定位
+    key_distinctions:
+      - "在途台账 ≠ 已入库：货物未验收前不计入可发量"
+      - "延误>24h/48h 才触发预警拉人"
+
+  - id: receiving_record
+    name: 入库验收记录（Receiving Record）
+    type: event
+    description: "WMS 入库验收结果，含运单、实收数量与差异率，触发库存同步与差异处理"
+    attributes:
+      - name: waybill_no
+        type: string
+        description: 运单号
+      - name: received_qty
+        type: number
+        description: 实收数量
+      - name: diff_rate
+        type: number
+        description: 差异率
+    key_distinctions:
+      - "实收数量才是可发量同步的依据，调拨数量不是"
+      - "差异未关闭前差异数量不得计入可发量"
+
+  - id: review_report
+    name: 复盘报告（Review Report）
+    type: event
+    description: "月度复盘事件，含时效达成率/缺货缓解率/周转率/差异率与调参建议"
+    attributes:
+      - name: period
+        type: string
+        description: 复盘周期
+      - name: metrics
+        type: string
+        description: 指标集合
+    key_distinctions:
+      - "复盘结论 ≠ 参数已生效：调参须审批后下一周期生效"
+      - "多项指标矛盾时以时效达成率优先"
+
+relationships:
+  - from: sales_plan
+    to: allocation_plan
+    label: 驱动
+    cardinality: "1:N"
+    description: "分仓销售计划决定需求基准，驱动分配方案的分配量求解"
+  - from: promo_plan
+    to: allocation_plan
+    label: 约束
+    cardinality: "N:N"
+    description: "促销放量上浮分配量并抑制积压预警"
+  - from: jinghui_suggestion
+    to: allocation_plan
+    label: 参考
+    cardinality: "1:N"
+    description: "京慧建议量作为分配参考基线，偏离须人工确认"
+  - from: shortage_alert
+    to: allocation_plan
+    label: 触发
+    cardinality: "1:N"
+    description: "缺口告警按红/黄/蓝驱动分配优先级"
+  - from: big_date_inventory
+    to: allocation_plan
+    label: 约束
+    cardinality: "N:N"
+    description: "大日期/临期库存作为新鲜度约束限制分配方向"
+  - from: warehouse
+    to: warehouse
+    label: 供给
+    cardinality: "1:N"
+    description: "一个基地仓可向多个销售仓供给，方向为基地仓→销售仓"
+  - from: sku_product
+    to: warehouse
+    label: 归属
+    cardinality: "N:N"
+    description: "SKU 库存归属于具体仓库，site_code×product_code 为分析粒度"
+  - from: allocation_plan
+    to: replenishment_order
+    label: 生成
+    cardinality: "1:N"
+    description: "确认后的分货方案生成标准化补货单"
+  - from: replenishment_order
+    to: in_transit_ledger
+    label: 触发
+    cardinality: "1:N"
+    description: "补货单下发后触发在途台账跟踪"
+  - from: in_transit_ledger
+    to: receiving_record
+    label: 触发
+    cardinality: "1:N"
+    description: "在途货物到仓后触发 WMS 入库验收"
+  - from: receiving_record
+    to: dos
+    label: 更新
+    cardinality: "N:1"
+    description: "按实收同步可发量并更新 DOS"
+  - from: receiving_record
+    to: review_report
+    label: 回馈
+    cardinality: "N:N"
+    description: "入库差异与时效数据回馈月度复盘"
+  - from: review_report
+    to: safety_stock
+    label: 约束
+    cardinality: "N:1"
+    description: "复盘调参建议经审批后更新安全水位"
+
+action_boundaries:
+  - id: ab_allocation_confirm
+    situation: 分配方案生成后需人工确认或微调
+    situation_description: "Agent 已求解出多版分配方案，但分配量涉及业务责任与促销经验，需物流计划岗确认/微调后才可进入补货单生成"
+    required_evidence:
+      - source: 分货方案（allocation_plan）
+        checks: 方案含建议量/可发量/分配量/分配后库存天数与约束校验结果
+      - source: 缺口告警（shortage_alert）
+        checks: 红/黄/蓝分级与促销抑制已标注
+      - source: 京慧建议量（jinghui_suggestion）
+        checks: 偏离项已列出并进入待确认清单
+    valid_actions:
+      - "展示多版分配方案与各版本差异供人工选择"
+      - "接受人工微调并重新执行多约束校验"
+      - "记录人工修改原因并留痕"
+      - "确认后将方案状态置为已确认"
+    invalid_actions:
+      - action: "未经人工确认直接将分配方案下发"
+        reason: "分配量涉及业务责任，静默下发会产生错误承诺与责任缺失"
+      - action: "人工修改后跳过约束重校验"
+        reason: "修改可能超出可发量/安全水位约束，必须重新校验"
+      - action: "修改分配量不留修改原因"
+        reason: "缺少留痕无法复盘与追责"
+    exception_triggers:
+      - condition: "约束冲突导致无法求解可行方案"
+        action: 输出备选方案并升级人工复核
+      - condition: "人工修改超出可发量/安全水位约束"
+        action: 退回重算并提示冲突项
+
+  - id: ab_jinghui_deviation
+    situation: 分配量偏离京慧建议量
+    situation_description: "多约束求解结果与京慧建议量存在明显偏离（如促销放量上调 12%），写入前必须人工确认"
+    required_evidence:
+      - source: 京慧建议量（jinghui_suggestion）
+        checks: 建议量数值与来源时点
+      - source: 分货方案（allocation_plan）
+        checks: 分配量及偏离比例
+      - source: 促销计划（promo_plan）
+        checks: 偏离是否由促销放量等业务原因解释
+    valid_actions:
+      - "列出偏离项、偏离比例与可能原因"
+      - "提示人工确认偏离后再写入"
+      - "确认后记录偏离原因与确认人"
+    invalid_actions:
+      - action: "静默用分配量覆盖京慧建议量"
+        reason: "偏离未被业务确认，可能掩盖促销或数据异常"
+      - action: "把京慧建议量当作硬约束强行对齐"
+        reason: "建议量只是参考，强行对齐会牺牲全局优化与服务水平"
+    exception_triggers:
+      - condition: "偏离比例超出经验阈值且无业务原因可解释"
+        action: 标记异常并拉人核查数据口径
+
+  - id: ab_dispatch_gate
+    situation: 补货单对外下发
+    situation_description: "补货单已校验通过，即将下发物流调度与财务核算，属对外动作，必须人工放行"
+    required_evidence:
+      - source: 补货单（replenishment_order）
+        checks: 收发仓/SKU/数量/时效 4 项校验全部通过
+      - source: 分货方案（allocation_plan）
+        checks: 方案状态为已确认
+    valid_actions:
+      - "展示补货单与校验结果供人工确认"
+      - "人工确认后下发并保留 10 秒撤销窗口"
+      - "撤销时回滚物流调度与财务侧写入"
+    invalid_actions:
+      - action: "校验未通过即下发"
+        reason: "库存不足/时效超期/字段缺失会造成下游履约失败"
+      - action: "跳过人工确认自动下发"
+        reason: "对外下发为合规红线，必须人工放行"
+    exception_triggers:
+      - condition: "下发后 10 秒内人工撤销"
+        action: 回滚下发，补货单回到待下发状态
+      - condition: "下游系统写入失败"
+        action: 自动重试，超限则拉人并保留上下文
+
+  - id: ab_exception_fallback
+    situation: 基地仓可发量不足或物流预警缺失
+    situation_description: "分货求解时基地仓可发量无法覆盖缺口，或 TMS 物流预警数据未接通，需生成备选或降级处理"
+    required_evidence:
+      - source: 缺口告警（shortage_alert）
+        checks: 缺口数量与受影响仓×SKU
+      - source: 仓库（warehouse）
+        checks: 周边基地仓可发量、仓网距离与运输时效
+      - source: 在途台账（in_transit_ledger）
+        checks: 物流预警/运输状态是否可用
+    valid_actions:
+      - "按可发量约束优先拆分多仓补足"
+      - "生成成本/时效/库存均衡的多套备选方案"
+      - "物流预警缺失时按历史时效估算并显式标注降级"
+      - "备选均不可行时升级人工并建议调整周期"
+    invalid_actions:
+      - action: "可发量不足时仍按原目标足额分配"
+        reason: "超出可发量约束会导致下发失败或超发现象"
+      - action: "物流预警缺失时静默按正常时效处理"
+        reason: "未标注降级会误导人工决策，掩盖数据缺口"
+    exception_triggers:
+      - condition: "所有周边基地仓均无法补足缺口"
+        action: 升级人工，评估拆分批次或调整补货周期
+      - condition: "TMS 物流预警数据未接通"
+        action: 按历史运输时效估算，显式标注降级并建议人工复核
+
+  - id: ab_receiving_discrepancy
+    situation: 入库实收与调拨数量存在差异
+    situation_description: "WMS 入库验收显示实收数量与调拨数量不一致，需按差异率阈值判定正常损耗或生成差异单"
+    required_evidence:
+      - source: 入库验收记录（receiving_record）
+        checks: 运单号、实收数量、差异率
+      - source: 补货单（replenishment_order）
+        checks: 应发/调拨数量
+    valid_actions:
+      - "按实收数量同步可发量与 DOS"
+      - "差异率≤0.5% 标记为正常损耗"
+      - "差异率>0.5% 生成差异处理单并推送财务与仓管"
+      - "破损率>1% 生成独立异常工单"
+    invalid_actions:
+      - action: "按调拨数量而非实收数量同步库存"
+        reason: "会造成账面库存虚高，影响后续分配与履约"
+      - action: "差异未关闭即将差异数量计入可发量"
+        reason: "差异原因未查清，计入可发量会放大错误"
+    exception_triggers:
+      - condition: "差异率>0.5%"
+        action: 生成差异单并拉人追责
+      - condition: "破损率>1%"
+        action: 生成独立异常工单并拉人
+
+  - id: ab_safety_stock_change
+    situation: 安全水位调整审批
+    situation_description: "复盘发现指标不达标需调整安全水位，但水位调整影响服务水平与周转，须人工审批"
+    required_evidence:
+      - source: 复盘报告（review_report）
+        checks: 时效达成率/缺货缓解率/周转率/差异率与短板分析
+      - source: 安全水位（safety_stock）
+        checks: 当前各仓安全水位与渠道/区域差异
+    valid_actions:
+      - "按区域+渠道计算差异化水位调整建议"
+      - "列出调整对服务水平与周转的预估影响"
+      - "审批通过后参数下一周期生效"
+    invalid_actions:
+      - action: "未审批直接调整安全水位"
+        reason: "水位影响服务水平，越过审批会造成不可控的缺货风险"
+      - action: "仅凭单一指标调整水位"
+        reason: "多项指标矛盾时须以时效达成率优先，单指标调整可能顾此失彼"
+    exception_triggers:
+      - condition: "指标异常恶化或多指标冲突"
+        action: 拉人审批，由物流计划岗裁决调整方向
+
+workstreams:
+  - id: ws_data_prep
+    name: 货源评估与数据准备
+    description: "从拉取全仓库存与需求到形成口径校验通过的分货数据底表的执行流"
+    anchor_objects:
+      - sales_plan
+      - dos
+      - shortage_alert
+    states:
+      - id: dp_pending
+        name: 待汇总
+        description: "分货周期启动，库存/在途/需求数据尚未拉齐，仅可见零散来源"
+        transitions:
+          - to_state: dp_view_ready
+            trigger_action: 拉取全仓库存与在途并形成供需视图
+            required_evidence: "现货/在途/待检/合格库存与销售计划均已拉取成功"
+            type: normal
+          - to_state: dp_data_issue
+            trigger_action: 检查数据完整性
+            required_evidence: "存在数据缺失或口径异常"
+            type: exception
+      - id: dp_view_ready
+        name: 供需视图就绪
+        description: "全国供需视图已生成，DOS 已计算，缺口分级待完成"
+        transitions:
+          - to_state: dp_gap_graded
+            trigger_action: 计算 DOS 并判定缺口等级
+            required_evidence: "DOS 与红/黄/蓝分级结果已生成"
+            type: normal
+          - to_state: dp_data_issue
+            trigger_action: 检查 DOS 阈值边界
+            required_evidence: "DOS 落在 7/14/60 天边界且无法自动判定"
+            type: exception
+      - id: dp_gap_graded
+        name: 缺口分级完成
+        description: "缺口/积压分级完成，分货数据底表口径校验通过，可进入方案编制"
+        transitions:
+          - to_state: dp_table_ready
+            trigger_action: 汇总并校验分货数据底表口径
+            required_evidence: "可发量/待检/合格/在途/生产备货率/大日期 6 项口径校验通过"
+            type: normal
+      - id: dp_table_ready
+        name: 底表就绪
+        description: "分货数据底表准备完毕，可供多约束分配求解"
+        transitions: []
+      - id: dp_data_issue
+        name: 数据异常待处理
+        description: "数据缺失或口径冲突，需调度组复核"
+        transitions:
+          - to_state: dp_pending
+            trigger_action: 调度组修正口径后重试
+            required_evidence: "口径冲突已解决，数据重新拉取成功"
+            type: recovery
+    guardrails:
+      - "待检与合格库存必须分开取值，不得混用"
+      - "在途必须取「在途总量」，不得取「已下发未发货」"
+      - "底表口径未校验通过前不得进入分配求解"
+    dependency_mapping:
+      - workstream: ws_allocation
+        condition: "底表就绪状态 dp_table_ready"
+        impact: "分配方案编制解除等待，可开始备货率与分配量求解"
+
+  - id: ws_allocation
+    name: 分货方案编制
+    description: "从备货率计算到多约束分配方案确认的执行流（全场景 P0）"
+    anchor_objects:
+      - allocation_plan
+      - jinghui_suggestion
+      - promo_plan
+      - safety_stock
+    states:
+      - id: al_ready
+        name: 待求解
+        description: "底表就绪，备货率与优先级待计算"
+        transitions:
+          - to_state: al_draft
+            trigger_action: 计算备货率与多约束分配量
+            required_evidence: "生产备货率/订单完成率/目标备货率与分配量已生成"
+            type: normal
+      - id: al_draft
+        name: 方案草稿
+        description: "多版分配方案已生成，含京慧偏离项与约束校验结果，待人工确认"
+        transitions:
+          - to_state: al_confirmed
+            trigger_action: 人工确认或微调并重新校验
+            required_evidence: "物流计划岗确认，修改原因留痕，约束重校验通过"
+            type: normal
+          - to_state: al_conflict
+            trigger_action: 检查约束求解结果
+            required_evidence: "约束冲突无法求解，或人工修改超出可发量/安全水位"
+            type: exception
+      - id: al_confirmed
+        name: 方案已确认
+        description: "分配方案经人工确认，可生成补货单并移交执行跟踪流程（下发门禁在 ws_execution）"
+        transitions: []
+      - id: al_conflict
+        name: 约束冲突
+        description: "多约束无可行解或人工修改越约束，需生成备选或退回重算"
+        transitions:
+          - to_state: al_draft
+            trigger_action: 生成备选方案或退回重算
+            required_evidence: "备选方案生成或约束调整完成"
+            type: recovery
+    guardrails:
+      - "分配量不得超过可发量"
+      - "目标备货率封顶 100%"
+      - "分配量偏离京慧建议量必须人工确认后方可写入"
+      - "人工修改分配量后必须重新校验多约束"
+    dependency_mapping:
+      - workstream: ws_data_prep
+        condition: "底表未就绪或口径未校验"
+        impact: "分配方案编制被阻塞，不能开始求解"
+      - workstream: ws_execution
+        condition: "方案确认并生成补货单"
+        impact: "执行跟踪流程可开始，等待补货单下发"
+
+  - id: ws_execution
+    name: 执行跟踪与入库同步
+    description: "从补货单下发的在途跟踪到入库验收、库存同步与差异处理的执行流"
+    anchor_objects:
+      - replenishment_order
+      - in_transit_ledger
+      - receiving_record
+      - dos
+    states:
+      - id: ex_dispatched
+        name: 已下发待发货
+        description: "补货单已下发物流调度/财务，等待实际发货"
+        transitions:
+          - to_state: ex_in_transit
+            trigger_action: 抓取 TMS 在途定位
+            required_evidence: "在途台账已生成，含车辆/位置/状态"
+            type: normal
+          - to_state: ex_delayed
+            trigger_action: 检查运输状态
+            required_evidence: "延误超过 24h/48h 或运输异常"
+            type: exception
+      - id: ex_in_transit
+        name: 在途运输中
+        description: "货物在途，Agent 持续跟踪定位并预警延误/破损"
+        transitions:
+          - to_state: ex_receiving
+            trigger_action: 到仓并触发入库验收
+            required_evidence: "WMS 入库验收记录生成"
+            type: normal
+          - to_state: ex_delayed
+            trigger_action: 检查延误与破损
+            required_evidence: "延误>24h/48h 或破损率>1%"
+            type: exception
+      - id: ex_receiving
+        name: 入库验收中
+        description: "WMS 验收中，核对实收与调拨数量，判定差异"
+        transitions:
+          - to_state: ex_complete
+            trigger_action: 同步库存指标并关闭调拨单
+            required_evidence: "差异率≤0.5%，可发量/DOS 已按实收同步"
+            type: normal
+          - to_state: ex_discrepancy
+            trigger_action: 记录差异并生成差异单
+            required_evidence: "差异率>0.5%"
+            type: exception
+      - id: ex_discrepancy
+        name: 差异处理中
+        description: "差异单已生成并推送财务/仓管，受影响数量暂不计入可发量"
+        transitions:
+          - to_state: ex_complete
+            trigger_action: 跟进并关闭差异单
+            required_evidence: "差异单已关闭或经授权处理"
+            type: recovery
+      - id: ex_delayed
+        name: 延误/破损待处理
+        description: "运输延误或破损，已预警并拉人处理"
+        transitions:
+          - to_state: ex_in_transit
+            trigger_action: 异常解除后继续跟踪
+            required_evidence: "延误/破损异常已处理"
+            type: recovery
+      - id: ex_complete
+        name: 收货完成
+        description: "库存指标已同步，调拨单已关闭，可进入复盘"
+        transitions: []
+    guardrails:
+      - "未完成入库验收前不得按调拨数量计入可发量"
+      - "差异未关闭前差异数量不得计入可发量"
+      - "延误/破损不得通过修改状态跳过，必须有实际处理证据"
+    dependency_mapping:
+      - workstream: ws_allocation
+        condition: "补货单尚未下发"
+        impact: "执行跟踪流程等待，无在途台账"
+      - workstream: ws_review
+        condition: "收货完成且差异关闭"
+        impact: "复盘流程可获得完整时效与差异数据"
+
+  - id: ws_review
+    name: 复盘与参数迭代
+    description: "从月度指标统计到调参建议审批生效的执行流"
+    anchor_objects:
+      - review_report
+      - safety_stock
+    states:
+      - id: rv_pending
+        name: 待复盘
+        description: "月度周期结束，复盘指标尚未统计"
+        transitions:
+          - to_state: rv_reported
+            trigger_action: 统计复盘指标并生成报告
+            required_evidence: "时效达成率/缺货缓解率/周转率/差异率已统计"
+            type: normal
+      - id: rv_reported
+        name: 复盘完成
+        description: "复盘报告与调参建议已生成，待人工审批"
+        transitions:
+          - to_state: rv_approved
+            trigger_action: 人工审批调参建议
+            required_evidence: "物流计划岗审批通过"
+            type: normal
+          - to_state: rv_risk
+            trigger_action: 检查指标恶化
+            required_evidence: "指标异常恶化或多指标冲突"
+            type: exception
+      - id: rv_approved
+        name: 参数已生效
+        description: "调参建议审批通过，安全水位等参数下一周期生效"
+        transitions: []
+      - id: rv_risk
+        name: 指标恶化待决策
+        description: "指标异常恶化，需人工裁决调整方向"
+        transitions:
+          - to_state: rv_reported
+            trigger_action: 人工裁决后重出调参建议
+            required_evidence: "调整方向已明确"
+            type: recovery
+    guardrails:
+      - "复盘结论不等于参数已生效，调参必须经审批后下一周期生效"
+      - "多项指标矛盾时以时效达成率优先于周转优化"
+      - "安全水位调整不得绕过审批直接生效"
+    dependency_mapping:
+      - workstream: ws_execution
+        condition: "执行跟踪数据不完整"
+        impact: "复盘指标失真，需等待数据补齐后再复盘"
+      - workstream: ws_allocation
+        condition: "调参审批通过"
+        impact: "下一周期分配方案使用更新后的安全水位与参数"

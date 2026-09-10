@@ -1,0 +1,275 @@
+title: "张雪机车海外经销商渠道 AI 机会场景地图"
+stages:
+  - name: "市场调研与经销商招募"
+    steps:
+      - activity: "目标市场评估"
+        role: "海外市场经理"
+        touchpoint: "市场调研工具 / Google Trends"
+        repetitive_tasks:
+          - "人工收集各国摩托车市场数据"
+          - "手动整理竞品市场分布报告"
+          - "定期更新法规要求清单"
+        cognitive_tasks:
+          - "分析欧洲/东南亚/拉美市场规模与增长率"
+          - "评估目标市场准入门槛与竞争格局"
+          - "判断市场优先级与资源分配"
+        ai_opportunities:
+          - type: "repetitive"
+            name: "AI全球摩托市场情报站"
+            description: "「海外市场经理」在「目标市场评估」下提供[多源数据自动采集与结构化]能力，以「替代人工收集各国市场数据，实时生成市场情报报告」。"
+          - type: "cognitive"
+            name: "AI市场进入决策助手"
+            description: "「海外市场经理」在「市场优先级排序」下提供[多维度市场吸引力评分模型]能力，以「基于数据而非直觉科学决策，减少市场选择偏差」。"
+      
+      - activity: "经销商筛选与谈判"
+        role: "渠道总监"
+        touchpoint: "CRM / 合同管理系统"
+        repetitive_tasks:
+          - "人工搜索并整理经销商候选名单"
+          - "手动评估经销商资质（资金/场地/售后能力）"
+          - "逐条比对合作条款"
+        cognitive_tasks:
+          - "判断经销商真实实力与合作意愿"
+          - "评估经销商网络覆盖质量"
+          - "谈判最优合作条款"
+        ai_opportunities:
+          - type: "cognitive"
+            name: "AI经销商智能雷达"
+            description: "「渠道总监」在「经销商筛选」下提供[全球经销商数据库+多维度评分模型]能力，以「精准识别高潜力合作伙伴，解决优质经销商稀缺难题」。"
+          - type: "innovation"
+            name: "AI经销商谈判助手"
+            description: "「渠道总监」在「合作谈判」下提供[历史条款分析+最优方案推荐]能力，以「提升谈判效率，缩短签约周期」。"
+      
+      - activity: "合规准入准备"
+        role: "合规专员"
+        touchpoint: "合规管理系统"
+        repetitive_tasks:
+          - "手动填写认证申请表格"
+          - "人工跟踪认证进度"
+          - "整理技术参数文档"
+        cognitive_tasks:
+          - "理解各国ECE/e-mark/EPA等认证要求差异"
+          - "判断产品技术参数是否满足目标市场标准"
+          - "规划最优认证路径（时间/成本平衡）"
+        ai_opportunities:
+          - type: "repetitive"
+            name: "AI合规文档工厂"
+            description: "「合规专员」在「认证申请」下提供[自动生成认证文档+多语言翻译]能力，以「将6-12个月认证准备周期缩短50%以上」。"
+          - type: "cognitive"
+            name: "AI认证路径规划师"
+            description: "「合规专员」在「准入策略制定」下提供[全球法规知识图谱+最优路径推荐]能力，以「降低认证费用，快速进入核心市场」。"
+
+  - name: "产品出口与物流"
+    steps:
+      - activity: "出口报关"
+        role: "外贸专员"
+        touchpoint: "ERP / 报关系统"
+        repetitive_tasks:
+          - "手工准备报关单证"
+          - "核对车辆出口许可证"
+          - "整理原产地证明文件"
+        cognitive_tasks:
+          - "判断摩托车出口特殊监管要求"
+          - "选择最优HS编码"
+          - "规避出口合规风险"
+        ai_opportunities:
+          - type: "repetitive"
+            name: "AI报关单证助手"
+            description: "「外贸专员」在「出口报关」下提供[单证自动生成+合规检查]能力，以「减少单证错误，缩短报关周期」。"
+          - type: "cognitive"
+            name: "AI出口合规顾问"
+            description: "「外贸专员」在「出口准备」下提供[法规智能解读+风险预警]能力，以「规避特殊监管风险，确保顺利出口」。"
+      
+      - activity: "国际运输"
+        role: "物流经理"
+        touchpoint: "TMS / 货代系统"
+        repetitive_tasks:
+          - "人工询价多家货代"
+          - "手动跟踪在途货物状态"
+          - "整理运输单据"
+        cognitive_tasks:
+          - "选择最优运输方式（海运/铁路/空运）"
+          - "评估货代可靠性与成本平衡"
+          - "制定摩托车专业运输方案"
+        ai_opportunities:
+          - type: "cognitive"
+            name: "AI物流方案优化引擎"
+            description: "「物流经理」在「运输安排」下提供[多式联运优化+承运商智能匹配]能力，以「降低10-15%物流成本，减少货损风险」。"
+          - type: "longtail"
+            name: "AI危险品运输专家"
+            description: "「物流经理」在「摩托车运输」下提供[危险品包装标准+运输路线风险分析]能力，以「解决摩托车作为大件危险品的特殊运输难题」。"
+      
+      - activity: "进口清关与缴税"
+        role: "本地代理/经销商"
+        touchpoint: "本地海关系统"
+        repetitive_tasks:
+          - "手工准备清关文件"
+          - "计算关税与增值税"
+          - "缴纳进口税费"
+        cognitive_tasks:
+          - "理解各国关税政策差异"
+          - "寻找合法减税/免税路径"
+          - "优化进口成本结构"
+        ai_opportunities:
+          - type: "cognitive"
+            name: "AI关税优化顾问"
+            description: "「本地代理」在「进口清关」下提供[全球关税数据库+合规减税方案]能力，以「降低关税成本，保持性价比优势」。"
+          - type: "repetitive"
+            name: "AI清关自动化"
+            description: "「本地代理」在「清关操作」下提供[清关文件自动生成+电子申报]能力，以「加速清关流程，减少人工错误」。"
+      
+      - activity: "本地仓储与分拨"
+        role: "经销商"
+        touchpoint: "WMS"
+        repetitive_tasks:
+          - "手工记录库存台账"
+          - "手动执行PDI检测"
+          - "人工盘点库存"
+        cognitive_tasks:
+          - "预测各车型销售需求"
+          - "优化库存结构（畅销/滞销平衡）"
+          - "规划补货时机与数量"
+        ai_opportunities:
+          - type: "cognitive"
+            name: "AI智能补货大脑"
+            description: "「经销商」在「库存管理」下提供[需求预测+自动补货建议]能力，以「解决畅销车型断货、滞销车型积压问题」。"
+          - type: "innovation"
+            name: "AI数字化PDI检测"
+            description: "「经销商」在「车辆入库」下提供[视觉检测+自动报告生成]能力，以「标准化PDI流程，提升检测效率与准确性」。"
+
+  - name: "本地营销与销售转化"
+    steps:
+      - activity: "本地市场推广"
+        role: "经销商市场专员"
+        touchpoint: "本地广告平台 / Google / Facebook"
+        repetitive_tasks:
+          - "人工制作多语言广告素材"
+          - "手动管理广告投放账户"
+          - "定期导出广告效果报表"
+        cognitive_tasks:
+          - "判断本地市场最有效的推广渠道"
+          - "优化广告创意与受众定向"
+          - "评估推广ROI并调整预算"
+        ai_opportunities:
+          - type: "repetitive"
+            name: "AI本地化内容工厂"
+            description: "「经销商市场专员」在「广告素材制作」下提供[多语言内容自动生成+本地化适配]能力，以「降低$500-1000单车获客成本」。"
+          - type: "cognitive"
+            name: "AI投放优化引擎"
+            description: "「经销商市场专员」在「广告投放」下提供[实时ROI分析+自动出价优化]能力，以「提升广告转化率，降低无效曝光」。"
+      
+      - activity: "试驾体验"
+        role: "销售顾问"
+        touchpoint: "试驾预约系统"
+        repetitive_tasks:
+          - "人工安排试驾时间"
+          - "手动准备试驾车辆"
+          - "记录试驾反馈"
+        cognitive_tasks:
+          - "根据客户需求推荐试驾车型"
+          - "设计最佳试驾路线"
+          - "判断客户购买意向"
+        ai_opportunities:
+          - type: "innovation"
+            name: "AI虚实融合试驾"
+            description: "「销售顾问」在「试驾安排」下提供[AR虚拟试驾+实体试驾数字化]能力，以「解决试驾车辆配置不全问题，提升试驾转化率」。"
+          - type: "cognitive"
+            name: "AI试驾顾问"
+            description: "「销售顾问」在「试驾讲解」下提供[个性化路线推荐+实时性能解读]能力，以「增强客户体验，缩短决策周期」。"
+      
+      - activity: "订单签约与金融"
+        role: "销售顾问"
+        touchpoint: "DMS / 金融系统"
+        repetitive_tasks:
+          - "手工填写销售合同"
+          - "人工计算分期方案"
+          - "整理客户资料"
+        cognitive_tasks:
+          - "设计最优金融分期方案"
+          - "评估客户信用风险"
+          - "匹配适合的金融产品"
+        ai_opportunities:
+          - type: "cognitive"
+            name: "AI金融方案匹配引擎"
+            description: "「销售顾问」在「金融服务」下提供[客户信用评估+最优分期方案推荐]能力，以「解决无法提供分期付款问题，降低客户流失」。"
+          - type: "repetitive"
+            name: "AI合同自动生成"
+            description: "「销售顾问」在「订单签约」下提供[合同模板智能填充+合规检查]能力，以「缩短签约时间，减少合同纠纷」。"
+      
+      - activity: "车辆交付"
+        role: "交付专员"
+        touchpoint: "DMS"
+        repetitive_tasks:
+          - "手动准备交付文件"
+          - "人工办理上牌手续"
+          - "整理保险购买材料"
+        cognitive_tasks:
+          - "设计最佳交付体验流程"
+          - "协调上牌/保险/税费各环节"
+          - "处理交付异常问题"
+        ai_opportunities:
+          - type: "repetitive"
+            name: "AI交付流程自动化"
+            description: "「交付专员」在「车辆交付」下提供[交付文件自动生成+流程自动推进]能力，以「解决交付流程繁琐问题，提升首印象」。"
+          - type: "innovation"
+            name: "AI个性化交付仪式"
+            description: "「交付专员」在「客户交付」下提供[个性化欢迎内容+首骑路线规划]能力，以「创造难忘的交付体验，增强品牌忠诚度」。"
+
+  - name: "售后服务与客户维系"
+    steps:
+      - activity: "保修服务"
+        role: "售后技师"
+        touchpoint: "售后管理系统"
+        repetitive_tasks:
+          - "人工登记保修申请"
+          - "手动查询维修手册"
+          - "整理维修记录"
+        cognitive_tasks:
+          - "远程诊断车辆故障"
+          - "判断保修范围与责任"
+          - "评估维修方案与成本"
+        ai_opportunities:
+          - type: "cognitive"
+            name: "AI远程诊断专家"
+            description: "「售后技师」在「故障处理」下提供[IoT数据异常检测+远程故障诊断]能力，以「解决海外无直属售后网点问题，提升服务响应速度」。"
+          - type: "longtail"
+            name: "AI维修知识库"
+            description: "「售后技师」在「维修作业」下提供[智能维修手册+故障案例匹配]能力，以「赋能本地技师，统一服务质量标准」。"
+      
+      - activity: "配件供应"
+        role: "配件专员"
+        touchpoint: "配件管理系统"
+        repetitive_tasks:
+          - "人工处理配件订单"
+          - "手动跟踪库存状态"
+          - "整理配件发货单据"
+        cognitive_tasks:
+          - "预测各市场配件需求"
+          - "优化跨境配件物流方案"
+          - "规划海外前置仓布局"
+        ai_opportunities:
+          - type: "cognitive"
+            name: "AI配件需求预测"
+            description: "「配件专员」在「库存规划」下提供[基于车辆销量+故障率的配件需求预测]能力，以「解决配件跨境供应周期长问题，实现就近快速供货」。"
+          - type: "innovation"
+            name: "AI智能前置仓"
+            description: "「配件专员」在「仓储布局」下提供[动态库存优化+自动补货触发]能力，以「将配件供应周期从2-4周缩短至3-5天」。"
+      
+      - activity: "客户关怀与回访"
+        role: "客服"
+        touchpoint: "CRM"
+        repetitive_tasks:
+          - "人工拨打回访电话"
+          - "手动记录客户反馈"
+          - "整理客户满意度数据"
+        cognitive_tasks:
+          - "判断客户满意度与流失风险"
+          - "识别高价值客户与推荐潜力"
+          - "设计个性化客户关怀方案"
+        ai_opportunities:
+          - type: "repetitive"
+            name: "AI智能客户关怀"
+            description: "「客服」在「客户回访」下提供[自动回访+多语言交互+反馈自动归类]能力，以「解决无海外CRM系统问题，建立统一的客户数据平台」。"
+          - type: "cognitive"
+            name: "AI客户流失预警"
+            description: "「客服」在「客户维系」下提供[满意度预测+流失风险评分+主动干预建议]能力，以「提前识别流失风险，提升客户留存率」。"

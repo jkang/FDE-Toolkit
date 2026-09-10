@@ -1,0 +1,256 @@
+meta:
+  title: "X奶粉 · 分仓智能补货业务规则挖掘清单"
+  subtitle: "来自挖知识 阶段2 · P2 任务处理规则挖掘"
+  version: "v1.0"
+  date: "2026-09-10"
+  scenarioName: "分仓智能补货"
+  businessStage: "挖知识 阶段2 任务处理规则挖掘 · P2"
+  methodology: "阶段2方法（五类任务处理规则：决策/模板/术语/提取点/关联）"
+  inputs:
+    - "《X奶粉-分仓智能补货-任务流程拆解》（P1：21 个使用点 + 输入输出 + 规则依据类型占位）"
+    - "《X奶粉-分仓智能补货-AI画布》（dataKnowledge / workflow 识别的规则类型）"
+    - "SRP《11-分仓智能补货_数据与知识资产盘点》（14 条知识资产）"
+    - "客户素材《奶粉分仓补货数据库表字段》《OSL 场景信息采集表（含示例）》"
+  sourceRef: "X奶粉-分仓智能补货-任务流程拆解.yaml 使用点 + _cache-使用点清单.yaml + 知识资产清单"
+  kpi:
+    - "分货效率"
+    - "分仓有货率"
+    - "库存周转率"
+    - "新鲜度"
+    - "物流时效"
+
+overview:
+  ruleCount: 11
+  decisionCount: 6
+  templateCount: 2
+  dictionaryCount: 1
+  extractionCount: 1
+  relationCount: 1
+
+legend:
+  bindingNote: "每条规则/样本均绑定到 P1 使用点（深度任务名）；内容可验证、来源可追溯。"
+  conflictNote: "『积兆逻辑』『大日期判定』为待业务专家二轮验证经验，已如实标注，不由 Skill 猜测补齐；任务级量化基线缺失处标注 [待客户确认]。"
+  ruleTypes:
+    - { type: "decision",   label: "决策模型类",      icon: "⚖️", desc: "怎么算、怎么判、走哪条路径" }
+    - { type: "template",   label: "模版范例类",      icon: "📝", desc: "照什么结构和范例生成" }
+    - { type: "dictionary", label: "术语字典类",      icon: "📖", desc: "词、缩写、业务口径" }
+    - { type: "extraction", label: "关键信息提取要点", icon: "🔍", desc: "专家看资料重点看什么" }
+    - { type: "relation",   label: "关联关系类",      icon: "🔗", desc: "对象之间怎么关联" }
+
+categories:
+  decision:
+    - id: "rd_01"
+      name: "缺口分级规则（DOS 分级）"
+      usagePoints: ["计算各仓库存天数并判定缺口等级", "计算各仓目标备货率与补货优先级"]
+      factors:
+        - { name: "库存天数 DOS", def: "DOS=(库存+在途+分配)/日均销售计划", source: "现货库存/在途库存/销售计划", deterministic: true }
+        - { name: "未来14天需求", def: "分仓×SKU 未来 14 天销售计划合计", source: "销售计划表", deterministic: true }
+        - { name: "促销计划", def: "该 SKU 是否处于促销放量期（140+ 广促品指标）", source: "促销管理系统", deterministic: false }
+      branches:
+        - { cond: "DOS < 7 天（且可发量+在途 < 未来7天需求）", action: "→ 判定红色·紧急补货，优先进入分配", priority: 1 }
+        - { cond: "7 ≤ DOS < 14 天", action: "→ 判定黄色·常规补货", priority: 2 }
+        - { cond: "DOS > 60 天 且 无促销", action: "→ 判定蓝色·积压预警，建议控量", priority: 3 }
+        - { cond: "DOS 落在 7/14/60 天边界", action: "→ 标记边界冲突，转人工确认", priority: 4 }
+      arbitration: "可发量约束 > 时效优先 > 补货优先级；促销期抑制蓝色积压预警（DOS 高但促销在途不判积压）。"
+      exception: "DOS 阈值边界冲突、计划/库存口径异常 → 拉人（物流计划岗确认）"
+      summary: "按 DOS 与促销口径把全仓网分为红（紧急补货）/黄（常规补货）/蓝（积压预警）三级，驱动分配优先级。"
+    - id: "rd_02"
+      name: "备货率与目标备货率计算规则"
+      usagePoints: ["计算生产备货率与订单完成率", "计算各仓目标备货率与补货优先级"]
+      factors:
+        - { name: "生产备货率", def: "(现货+在途+本月已出库)/销售计划", source: "库存系统+实际销量+销售计划", deterministic: true }
+        - { name: "订单完成率", def: "(当月未发+本月累出)/销售计划", source: "未发订单+实际销量+销售计划", deterministic: true }
+        - { name: "旬度标准进度", def: "分旬标准销售进度（中旬标准 50%）", source: "业务 SOP", deterministic: true }
+        - { name: "区域类型", def: "核心/偏远区域，影响备货率上浮", source: "仓主数据", deterministic: true }
+      branches:
+        - { cond: "订单进度 ≤ 旬度标准进度", action: "→ 目标备货率=订单进度+20%", priority: 1 }
+        - { cond: "订单进度 > 旬度标准进度", action: "→ 目标备货率上浮并触发人工确认", priority: 2 }
+        - { cond: "目标备货率 > 100%", action: "→ 封顶 100%", priority: 3 }
+        - { cond: "偏远区域仓", action: "→ 在目标备货率基础上上调缓冲", priority: 4 }
+      arbitration: "目标备货率封顶 100%；服务水平（不断货）优先于周转优化。"
+      exception: "订单进度超限或目标备货率>100% → HITL 人工确认"
+      summary: "按「目标备货率=订单进度+20% 封顶100%」计算各仓目标备货率，并据此排序补货优先级。"
+    - id: "rd_03"
+      name: "多约束分配量优化规则"
+      usagePoints: ["计算建议补货量", "选择发货仓并拆分多仓补足", "生成多版分配方案", "人工确认与微调分配量"]
+      factors:
+        - { name: "京慧建议量", def: "京慧一盘货给出的初始建议补货量（参考基线）", source: "京慧一盘货", deterministic: true }
+        - { name: "可发量", def: "发货仓库存-已分配量（典型位置：现货库存「可发量」列）", source: "现货库存表", deterministic: true }
+        - { name: "运输时效", def: "基地仓→销售仓的运输时效/仓网距离", source: "仓网主数据", deterministic: true }
+        - { name: "多约束集合", def: "库存/在途/待检/合格/新鲜度/促销约束", source: "库存/大日期/促销", deterministic: false }
+      branches:
+        - { cond: "可发量覆盖缺口 且 存在时效最优仓", action: "→ 就近优先选仓", priority: 1 }
+        - { cond: "时效最优仓可发量不足", action: "→ 拆分多仓补足", priority: 2 }
+        - { cond: "急缺仓（红）", action: "→ 急缺优先，分配量向红色仓倾斜", priority: 3 }
+        - { cond: "积压仓（蓝）", action: "→ 积压控量，不再增配", priority: 4 }
+        - { cond: "促销放量仓", action: "→ 分配量按促销上浮（偏离京慧建议量）", priority: 5 }
+      arbitration: "可发量约束 > 时效优先 > 京慧建议量；分配后须满足库存天数/安全水位约束；凑车微调允许 ±200 件。"
+      exception: "建议量偏离京慧建议量 → 写入前必停（HITL）；约束冲突无法求解 → 输出备选并拉人；修改超约束 → 退回重算"
+      summary: "以京慧建议量为基线，在多约束下全局求解分配量与发货仓，生成均衡版/优先版多版方案，偏离京慧建议量必停确认。"
+    - id: "rd_04"
+      name: "补货单校验规则"
+      usagePoints: ["校验收发仓/SKU/数量/时效"]
+      factors:
+        - { name: "收发仓合法性", def: "发货仓为基地仓、收货仓为销售仓且在册", source: "仓主数据", deterministic: true }
+        - { name: "SKU 在册", def: "SKU 编码存在于产品主数据", source: "产品主数据", deterministic: true }
+        - { name: "数量约束", def: "补货数量 ≤ 发货仓可发量", source: "现货库存", deterministic: true }
+        - { name: "时效约束", def: "运输时效满足调入仓 ETA 要求", source: "仓网主数据", deterministic: true }
+      branches:
+        - { cond: "4 项全部通过", action: "→ 允许进入下发（gate）", priority: 1 }
+        - { cond: "库存不足（数量>可发量）", action: "→ 退回调整并拉人", priority: 2 }
+        - { cond: "时效超期", action: "→ 退回调整并拉人", priority: 3 }
+        - { cond: "收发仓/SKU 字段缺失或非法", action: "→ 退回补正并拉人", priority: 4 }
+      arbitration: "库存不足/时效超期/字段缺失三项不得漏判；全部通过后才可进入人工下发门禁。"
+      exception: "校验不过 → 退回调整并拉人（物流计划岗）"
+      summary: "对补货单做收发仓/SKU/数量/时效 4 项确定性校验，校验通过率与漏判率为验收门槛。"
+    - id: "rd_05"
+      name: "入库差异判定规则"
+      usagePoints: ["核对入库实收与差异"]
+      factors:
+        - { name: "调拨数量", def: "补货单/调拨单上的应发数量", source: "补货单", deterministic: true }
+        - { name: "实收数量", def: "WMS 入库验收的实际收货数量", source: "WMS", deterministic: true }
+        - { name: "差异率", def: "(调拨数量-实收数量)/调拨数量", source: "计算字段", deterministic: true }
+        - { name: "破损率", def: "破损数量/调拨数量", source: "WMS/异常工单", deterministic: true }
+      branches:
+        - { cond: "差异率 ≤ 0.5%", action: "→ 按实收同步并标记正常损耗", priority: 1 }
+        - { cond: "差异率 > 0.5%", action: "→ 生成差异处理单，推送财务与仓管追责", priority: 2 }
+        - { cond: "破损率 > 1%", action: "→ 生成独立异常工单", priority: 3 }
+      arbitration: "差异未关闭前，差异数量不得计入可发量；正常损耗按实收直接同步。"
+      exception: "差异率>0.5% / 破损率>1% → 拉人（仓储/物流岗处理）"
+      summary: "以 0.5% 差异率、1% 破损率为阈值判定正常损耗或生成差异单追责。"
+    - id: "rd_06"
+      name: "复盘调参规则"
+      usagePoints: ["统计复盘指标并生成调参建议"]
+      factors:
+        - { name: "时效达成率", def: "按期到达批次/总批次", source: "TMS 台账", deterministic: true }
+        - { name: "缺货缓解率", def: "缺货缓解仓次/缺货总仓次", source: "库存监控报表", deterministic: true }
+        - { name: "周转率", def: "库存周转天数同比变化", source: "库存监控报表", deterministic: true }
+        - { name: "入库差异率", def: "差异数量/调拨数量", source: "WMS", deterministic: true }
+      branches:
+        - { cond: "时效达成率 < 90%", action: "→ 优化物流/上调安全水位", priority: 1 }
+        - { cond: "缺货缓解率 < 85%", action: "→ 优化需求预测/促销上浮", priority: 2 }
+        - { cond: "周转率同比降幅 > 10%", action: "→ 下调安全水位/加强促销联动", priority: 3 }
+        - { cond: "全部达标", action: "→ 维持参数并记录基线", priority: 4 }
+      arbitration: "多项指标矛盾时：时效达成率（服务水平）优先于周转优化。"
+      exception: "指标异常恶化或调参冲突 → 拉人审批（物流计划岗），参数下一周期生效"
+      summary: "以时效≥90%、缺货缓解≥85%、周转同比降幅≤10%、差异率≤0.5% 为阈值，自动生成调参建议并审批生效。"
+
+  template:
+    - id: "rt_01"
+      name: "分货方案模板"
+      usagePoints: ["生成多版分配方案", "人工确认与微调分配量"]
+      skeleton:
+        - { part: "① 方案头", fixed: "固定栏（分货周期/仓网范围/方案版本 A/B/生成时间）", variable: "随周期与版本动态填充" }
+        - { part: "② 分配明细表", fixed: "固定列（收货仓/SKU/京慧建议量/可发量/分配量/分配后库存天数/优先级）", variable: "随多约束求解结果动态填充" }
+        - { part: "③ 效果预估", fixed: "固定栏（分配后 DOS/备货率/周转/新鲜度预估）", variable: "随分配结果动态计算" }
+        - { part: "④ 待确认项（HITL）", fixed: "固定栏（京慧建议量偏离项/约束冲突项/人工修改项）", variable: "随偏离与修改动态生成" }
+      dynamicFields:
+        - { field: "分配量", source: "来自多约束分配优化规则（可发量/时效/促销约束求解）" }
+        - { field: "分配后库存天数", source: "来自 DOS 计算口径" }
+        - { field: "待确认项", source: "来自京慧建议量偏离/约束冲突/人工修改留痕" }
+      generationRules: "标准分货周期自动生成均衡版/优先版多版方案；人工修改分配量后自动重新校验多约束。"
+      complianceRules: "分配量不得超过可发量；目标备货率封顶 100%；人工修改必须填写修改原因并留痕；偏离京慧建议量必须经 HITL 确认。"
+      samples:
+        - { label: "典型 · 均衡版方案", note: "多仓多 SKU 一次算完，红色急缺优先、蓝色积压控量，分配后库存天数达标" }
+        - { label: "反面 · 分配量超可发量/缺 HITL 确认", note: "禁止分配量超过可发量下发；禁止未确认京慧偏离项即写入" }
+      fieldSource: "依据 OSL 场景信息采集表的分货方案样例与 To-be 旅程方案工作台结构拆出固定栏与动态字段。"
+    - id: "rt_02"
+      name: "月度复盘报告模板"
+      usagePoints: ["统计复盘指标并生成调参建议"]
+      skeleton:
+        - { part: "① 指标总览", fixed: "固定栏（时效达成率/缺货缓解率/周转率/入库差异率 及目标值）", variable: "随复盘指标动态填充" }
+        - { part: "② 短板分析", fixed: "固定栏（未达标指标 + 根因定位）", variable: "随阈值触发动态生成" }
+        - { part: "③ 调参建议", fixed: "固定栏（安全水位/促销联动/预测优化建议）", variable: "随调参规则动态生成" }
+        - { part: "④ 审批", fixed: "固定栏（审批人/生效周期）", variable: "随审批流填充" }
+      dynamicFields:
+        - { field: "复盘指标值", source: "来自复盘指标（TMS 台账/库存监控报表/WMS）" }
+        - { field: "短板项", source: "来自复盘调参规则的阈值触发" }
+        - { field: "调参建议", source: "来自复盘调参规则" }
+      generationRules: "月末自动统计并生成复盘报告；指标异常恶化自动标注并进入审批。"
+      complianceRules: "多项指标矛盾时以时效达成率优先；调参建议必须经人工审批后方可下一周期生效。"
+      samples:
+        - { label: "典型 · 达标复盘", note: "时效达成率 92%、缺货缓解率 88%、周转 24 天（同比 -8%），建议华北安全水位 14→12 天" }
+        - { label: "反面 · 只给结论不给依据", note: "禁止无指标明细与根因直接给调参结论" }
+      fieldSource: "依据 To-be 旅程复盘报告结构（指标总览→短板分析→调参建议→审批）拆出固定骨架与动态字段。"
+
+  dictionary:
+    - id: "rdict_01"
+      name: "分仓补货业务口径词典"
+      aliases: ["可发量", "待检", "合格", "在途总量", "已下发未发货", "DOS", "生产备货率", "目标备货率", "大日期"]
+      definition: "分仓智能补货环节统一业务口径词表，供缺口识别、底表校验、补货单校验、库存同步共同引用，避免待检/合格混用与在途口径混淆。"
+      entries:
+        - { term: "可发量", def: "发货仓库存-已分配量（典型位置：现货库存「可发量」列；变体：抵扣后库存）", context: "缺口识别 / 分配 / 补货单校验" }
+        - { term: "待检", def: "生产下线待检验库存（现货库存 status 列）", context: "底表准备 / 口径校验" }
+        - { term: "合格", def: "检验合格可分配库存（现货库存 status 列）", context: "底表准备 / 口径校验" }
+        - { term: "在途总量", def: "已下发+在途库存（在途库存 store_transit 列；易错：与「已下发未发货」混淆）", context: "缺口识别 / 底表准备" }
+        - { term: "DOS（库存天数）", def: "(库存+在途+分配)/日均销售计划", context: "缺口分级 / 库存监控" }
+        - { term: "生产备货率", def: "(现货+在途+本月已出库)/销售计划", context: "备货率计算" }
+        - { term: "目标备货率", def: "订单进度+20%，封顶 100%", context: "备货率计算 / 优先级" }
+        - { term: "大日期", def: "临期/效期风险库存（分仓大日期库存 big_date_num 列）", context: "底表准备 / 大日期监控" }
+      maintainer: "物流计划岗 / 调度组，随口径变化更新"
+      referenced: ["缺口分级规则", "备货率与目标备货率计算规则", "多约束分配量优化规则", "补货单校验规则", "入库差异判定规则"]
+      usagePoints: ["计算各仓库存天数并判定缺口等级", "校验底表字段口径完整性", "校验收发仓/SKU/数量/时效", "同步库存指标并关闭调拨单"]
+
+  extraction:
+    - id: "rext_01"
+      name: "分货数据底表字段提取要点"
+      usagePoints: ["汇总分货数据底表", "校验底表字段口径完整性"]
+      fields:
+        - { fieldName: "可发量", definition: "发货仓可分配库存", typicalLocations: ["现货库存『可发量』列"], variants: ["抵扣后库存"], pitfalls: ["未扣减已分配量"] }
+        - { fieldName: "待检/合格", definition: "待检验与检验合格库存", typicalLocations: ["现货库存 status 列"], variants: ["待检+合格合并为一列"], pitfalls: ["待检与合格混用，可发量口径算错"] }
+        - { fieldName: "在途总量", definition: "已下发+在途库存", typicalLocations: ["在途库存 store_transit 列"], variants: ["已下发未发货"], pitfalls: ["误取「已下发未发货」导致低估货源"] }
+        - { fieldName: "生产备货率", definition: "生产侧备货率指标", typicalLocations: ["库存监控报表"], variants: ["派生计算值"], pitfalls: ["口径不一致"] }
+        - { fieldName: "大日期库存", definition: "临期/大日期库存数量", typicalLocations: ["分仓大日期库存 big_date_num 列"], variants: ["临期库存"], pitfalls: ["漏取大日期字段"] }
+      acceptance: "关键字段识别准确率 ≥98%；待检/合格混用漏标率 0；口径不一致标红率 100%；字段置信度低 → 标黄待人工复核。"
+      samples: ["待检/合格分开取值；在途取『在途总量』；可发量取抵扣已分配后的库存；大日期取 big_date_num 列"]
+  relation:
+    - id: "rrel_01"
+      name: "基地仓—销售仓—产品—SKU—渠道关联"
+      fromObject: "基地仓"
+      toObject: "销售仓 / 产品/SKU / 渠道 / 库存·在途"
+      objectType: "基地仓 ↔ 销售仓 ↔ 产品/SKU ↔ 渠道 ↔ 调拨单"
+      meaning: "用 site_code 贯通收发仓与库存/在途；用 product_code 贯通产品与分货对象；用渠道区分促销/新鲜度口径；用调拨单号贯通下发→在途→入库。"
+      rules:
+        establish: "site_code 关联仓主数据（基地仓0/销售仓1）；product_code 关联产品主数据；调拨单号关联补货单→在途台账→入库验收；大日期库存以 site_code×product_code 关联"
+        special: "一个基地仓可发多个销售仓；一个销售仓可由多基地仓拆分补足；同 SKU 多渠道分货口径不同（电商求 28 天新鲜、线下需安全缓冲）"
+      scenarios: ["缺口识别", "分配方案", "执行跟踪", "入库同步"]
+      usagePoints: ["汇总全国可分配库存与在途", "计算建议补货量", "抓取在途定位并判定预警", "同步库存指标并关闭调拨单"]
+      extra: "调拨单号是补货单→在途→入库全链路的主键锚点；site_code×product_code 是库存/缺口/分配的最小分析粒度。"
+
+reconciliation:
+  - task: "计算各仓库存天数并判定缺口等级"
+    rule: "缺口分级规则（DOS 分级）"
+    factor: "DOS、未来14天需求、促销计划"
+    arbitration: "可发量约束>时效优先>优先级；促销抑制蓝色积压"
+    exception: "阈值边界冲突→拉人"
+    checks: { ruleFound: true, usageFound: true, nameMatch: true, exceptionMatch: true }
+  - task: "计算各仓目标备货率与补货优先级"
+    rule: "备货率与目标备货率计算规则"
+    factor: "生产备货率、订单完成率、旬度标准进度、区域类型"
+    arbitration: "目标备货率封顶100%；服务水平优先"
+    exception: "进度超限/封顶→HITL"
+    checks: { ruleFound: true, usageFound: true, nameMatch: true, exceptionMatch: true }
+  - task: "计算建议补货量"
+    rule: "多约束分配量优化规则"
+    factor: "京慧建议量、可发量、运输时效、多约束集合"
+    arbitration: "可发量约束>时效优先>京慧建议量"
+    exception: "偏离京慧建议量→写入前必停"
+    checks: { ruleFound: true, usageFound: true, nameMatch: true, exceptionMatch: true }
+  - task: "校验收发仓/SKU/数量/时效"
+    rule: "补货单校验规则"
+    factor: "收发仓合法性、SKU在册、数量≤可发量、时效满足ETA"
+    arbitration: "库存不足/时效超期/字段缺失不得漏判"
+    exception: "校验不过→退回调整并拉人"
+    checks: { ruleFound: true, usageFound: true, nameMatch: true, exceptionMatch: true }
+  - task: "核对入库实收与差异"
+    rule: "入库差异判定规则"
+    factor: "调拨数量、实收数量、差异率、破损率"
+    arbitration: "差异未关闭前不计入可发量"
+    exception: "差异率>0.5%→生成差异单并拉人"
+    checks: { ruleFound: true, usageFound: true, nameMatch: true, exceptionMatch: true }
+  - task: "统计复盘指标并生成调参建议"
+    rule: "复盘调参规则"
+    factor: "时效达成率、缺货缓解率、周转率、入库差异率"
+    arbitration: "时效达成率优先于周转优化"
+    exception: "指标异常恶化→拉人审批"
+    checks: { ruleFound: true, usageFound: true, nameMatch: true, exceptionMatch: true }

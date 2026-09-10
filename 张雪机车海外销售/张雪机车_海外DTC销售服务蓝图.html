@@ -1,0 +1,3238 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>张雪机车海外DTC销售服务蓝图</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --zx-bg: #FFFFFF; --zx-bg-secondary: #F7F8F9; --zx-fg: #0F141D; --zx-fg-secondary: #45546C; --zx-fg-muted: #5C6B82;
+      --zx-primary: #1A6BC4; --zx-primary-hover: #1558A5; --zx-primary-fg: #FFFFFF; --zx-primary-muted: #EBF4FD;
+      --zx-secondary: #EBEEF2; --zx-secondary-hover: #D5DAE2; --zx-secondary-fg: #1E2634;
+      --zx-accent: #E63946; --zx-accent-hover: #CF212F;
+      --zx-border: #D5DAE2; --zx-border-light: #EBEEF2; --zx-divider: #EBEEF2;
+      --zx-success: #16A34A; --zx-warning: #F59E0B; --zx-danger: #DC2626;
+      --zx-blue-400: #3B99E0; --zx-blue-100: #D0E7FA; --zx-blue-700: #104586;
+      --zx-black-500: #5C6B82; --zx-black-700: #313D53; --zx-black-800: #1E2634;
+      --zx-card-bg: #FFFFFF;
+      --zx-font-sans: 'Inter', 'Noto Sans SC', -apple-system, BlinkMacSystemFont, 'PingFang SC', sans-serif;
+      --zx-radius-sm: 2px; --zx-radius-md: 8px; --zx-radius-lg: 12px;
+      --zx-shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05); --zx-shadow-default: 0 1px 3px 0 rgb(0 0 0 / 0.1); --zx-shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--zx-font-sans);
+      background: var(--zx-bg-secondary);
+      padding: 24px;
+      color: var(--zx-fg);
+    }
+
+    /* ── Page wrapper ── */
+    .page-wrap {
+      background: var(--zx-card-bg);
+      border-radius: var(--zx-radius-lg);
+      box-shadow: var(--zx-shadow-default);
+      padding: 24px;
+      overflow-x: auto;
+    }
+    .page-title {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--zx-fg);
+      margin-bottom: 20px;
+      padding-left: 14px;
+      border-left: 4px solid var(--zx-primary);
+    }
+
+    /* ── Blueprint canvas ── */
+    .bp-canvas {
+      min-width: 2678px;
+      border: 1px solid var(--zx-border);
+      border-radius: var(--zx-radius-md);
+      overflow: hidden;
+      background: var(--zx-card-bg);
+    }
+
+    /* ── Phase header row ── */
+    .phase-header-row {
+      display: flex;
+      background: var(--zx-bg-secondary);
+      border-bottom: 2px solid var(--zx-border);
+    }
+    .corner-cell {
+      width: 128px;
+      min-width: 128px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-right: 1px solid var(--zx-border);
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--zx-fg-muted);
+      letter-spacing: .04em;
+      padding: 8px 4px;
+    }
+    .phase-headers { display: flex; }
+    .phase-header-cell {
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 12px;
+      height: 44px;
+      background: var(--zx-black-700);
+      color: var(--zx-primary-fg);
+      font-size: 0.8rem;
+      font-weight: 600;
+      position: relative;
+      transition: background .15s;
+    }
+    /* arrow chevron shape */
+    .phase-header-cell.first-phase {
+      clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 50%, calc(100% - 14px) 100%, 0 100%);
+    }
+    .phase-header-cell.mid-phase {
+      clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 50%, calc(100% - 14px) 100%, 0 100%, 14px 50%);
+    }
+
+    /* ── Swimlane row ── */
+    .swimlane-row {
+      display: flex;
+      border-bottom: 1px solid var(--zx-border);
+      min-height: 44px;
+    }
+    .swimlane-row:last-child { border-bottom: none; }
+
+    .lane-label {
+      width: 128px;
+      min-width: 128px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 8px 4px;
+      font-size: 0.68rem;
+      font-weight: 600;
+      color: var(--zx-fg-secondary);
+      text-align: center;
+      border-right: 1px solid var(--zx-border);
+      line-height: 1.4;
+      background: var(--zx-bg-secondary);
+    }
+
+    .lane-cells { display: flex; flex: 1; }
+
+    /* ── Phase cell ── */
+    .phase-cell {
+      flex-shrink: 0;
+      border-right: 1px solid var(--zx-border);
+      padding: 8px 10px;
+    }
+    .phase-cell:last-child { border-right: none; }
+
+    /* ── Layer divider (dashed) ── */
+    .layer-divider {
+      border-top: 1.5px dashed var(--zx-border);
+      margin: 2px 0;
+    }
+
+    /* ── Action / Activity card ── */
+    .cards-row { display: flex; flex-wrap: nowrap; gap: 6px; }
+    
+    .card-container {
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+    
+    .card {
+      width: 100px;
+      border-radius: 4px;
+      padding: 4px 8px;
+      font-size: 0.68rem;
+      color: var(--zx-black-700);
+      line-height: 1.4;
+      text-align: center;
+    }
+    .card.front-card { background: var(--zx-blue-100); }
+    .card.back-card  { background: var(--zx-blue-100); } /* bg-sky-50 used universally in react cards */
+
+    .card-name { font-weight: 500; color: var(--zx-black-700); }
+
+    .card-role {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.6rem;
+      color: var(--zx-fg-muted);
+    }
+    .role-avatar {
+      width: 20px; height: 20px;
+      border-radius: 50%;
+      background: var(--zx-border);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .role-avatar svg { width: 12px; height: 12px; color: var(--zx-fg-secondary); }
+
+    /* Touchpoint and System Chip container */
+    .chip-container {
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Touchpoint badge */
+    .touchpoint-badge {
+      display: inline-block;
+      font-size: 0.6rem;
+      background: var(--zx-bg-secondary);
+      color: var(--zx-fg-secondary);
+      border-radius: 4px;
+      padding: 2px 6px;
+      text-align: center;
+    }
+
+    /* System touchpoint chip */
+    .sys-chip {
+      display: inline-block;
+      font-size: 0.6rem;
+      background: var(--zx-bg-secondary);
+      color: var(--zx-fg-secondary);
+      border-radius: 4px;
+      padding: 2px 6px;
+      text-align: center;
+    }
+
+    /* Cognitive load badge */
+    .load-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.6rem;
+      border-radius: 999px;
+      padding: 2px 6px;
+      border-width: 1px;
+      border-style: solid;
+      margin-top: 2px;
+    }
+    .load-low      { background: #dcfce7; border-color: #86efac; color: #166534; }
+    .load-medium   { background: #fef9c3; border-color: #fde047; color: #713f12; }
+    .load-high     { background: #ffedd5; border-color: #fdba74; color: #9a3412; }
+    .load-critical { background: #fee2e2; border-color: #fca5a5; color: #991b1b; }
+
+    /* Pain point & expectation tags */
+    .pain-item {
+      display: flex; align-items: flex-start; gap: 4px;
+      font-size: 0.62rem; color: var(--zx-primary); line-height: 1.45;
+    }
+    .pain-bullet { flex-shrink: 0; color: var(--zx-blue-400); }
+    .expect-item {
+      display: flex; align-items: flex-start; gap: 4px;
+      font-size: 0.62rem; color: var(--zx-success); line-height: 1.45;
+    }
+    .expect-bullet { flex-shrink: 0; }
+
+    /* Footer */
+    .bp-footer {
+      font-size: 0.62rem;
+      color: var(--zx-fg-muted);
+      margin-top: 14px;
+      text-align: right;
+    }
+  </style>
+</head>
+<body>
+  
+
+  <div class="page-wrap">
+    <h1 class="page-title">张雪机车海外DTC销售服务蓝图</h1>
+
+    <div class="bp-canvas">
+
+      
+      <div class="phase-header-row">
+        <div class="corner-cell">阶段<br>Phase</div>
+        <div class="phase-headers">
+          
+          <div class="phase-header-cell first-phase"
+               style="width: 226px;">
+            品牌发现
+          </div>
+          
+          <div class="phase-header-cell mid-phase"
+               style="width: 332px;">
+            兴趣激发
+          </div>
+          
+          <div class="phase-header-cell mid-phase"
+               style="width: 332px;">
+            深度了解
+          </div>
+          
+          <div class="phase-header-cell mid-phase"
+               style="width: 332px;">
+            购买决策
+          </div>
+          
+          <div class="phase-header-cell mid-phase"
+               style="width: 332px;">
+            等待交付
+          </div>
+          
+          <div class="phase-header-cell mid-phase"
+               style="width: 332px;">
+            交付体验
+          </div>
+          
+          <div class="phase-header-cell mid-phase"
+               style="width: 332px;">
+            骑行使用
+          </div>
+          
+          <div class="phase-header-cell mid-phase"
+               style="width: 332px;">
+            社区参与
+          </div>
+          
+        </div>
+      </div>
+
+      
+      
+      <div class="swimlane-row layer-customer">
+        <div class="lane-label">客户行为</div>
+        <div class="lane-cells">
+          
+          <div class="phase-cell" style="width: 226px; min-height: 50px;">
+            <div class="cards-row">
+              
+              <div class="card-container" style="width: 100px;">
+                <div class="card front-card">
+                  <div class="card-name">刷到WSBK夺冠视频</div>
+                </div>
+              </div>
+              
+              <div class="card-container" style="width: 100px;">
+                <div class="card front-card">
+                  <div class="card-name">搜索品牌信息</div>
+                </div>
+              </div>
+              
+            </div>
+          </div>
+          
+          <div class="phase-cell" style="width: 332px; min-height: 50px;">
+            <div class="cards-row">
+              
+              <div class="card-container" style="width: 100px;">
+                <div class="card front-card">
+                  <div class="card-name">浏览多语言官网</div>
+                </div>
+              </div>
+              
+              <div class="card-container" style="width: 100px;">
+                <div class="card front-card">
+                  <div class="card-name">对比竞品参数</div>
+                </div>
+              </div>
+              
+              <div class="card-container" style="width: 100px;">
+                <div class="card front-card">
+                  <div class="card-name">观看评测视频</div>
+                </div>
+              </div>
+              
+            </div>
+          </div>
+          
+          <div class="phase-cell" style="width: 332px; min-height: 50px;">
+            <div class="cards-row">
+              
+              <div class="card-container" style="width: 100px;">
+                <div class="card front-card">
+                  <div class="card-name">在线配置车型</div>
+                </div>
+              </div>
+              
+              <div class="card-container" style="width: 100px;">
+                <div class="card front-card">
+                  <div class="card-name">咨询AI客服</div>
+                </div>
+              </div>
+              
+              <div class="card-container" style="width: 100px;">
+                <div class="card front-card">
+                  <div class="card-name">申请预约试驾</div>
+                </div>
+              </div>
+              
+            </div>
+          </div>
+          
+          <div class="phase-cell" style="width: 332px; min-height: 50px;">
+            <div class="cards-row">
+              
+              <div class="card-container" style="width: 100px;">
+                <div class="card front-card">
+                  <div class="card-name">比较金融方案</div>
+                </div>
+              </div>
+              
+              <div class="card-container" style="width: 100px;">
+                <div class="card front-card">
+                  <div class="card-name">在线下单支付</div>
+                </div>
+              </div>
+              
+              <div class="card-container" style="width: 100px;">
+                <div class="card front-card">
+                  <div class="card-name">确认订单细节</div>
+                </div>
+              </div>
+              
+            </div>
+          </div>
+          
+          <div class="phase-cell" style="width: 332px; min-height: 50px;">
+            <div class="cards-row">
+              
+              <div class="card-container" style="width: 100px;">
+                <div class="card front-card">
+                  <div class="card-name">查看生产进度</div>
+                </div>
+              </div>
+              
+              <div class="card-container" style="width: 100px;">
+                <div class="card front-card">
+                  <div class="card-name">跟踪物流信息</div>
+                </div>
+              </div>
+              
+              <div class="card-container" style="width: 100px;">
+                <div class="card front-card">
+                  <div class="card-name">参与车主社区</div>
+                </div>
+              </div>
+              
+            </div>
+          </div>
+          
+          <div class="phase-cell" style="width: 332px; min-height: 50px;">
+            <div class="cards-row">
+              
+              <div class="card-container" style="width: 100px;">
+                <div class="card front-card">
+                  <div class="card-name">接收车辆验收</div>
+                </div>
+              </div>
+              
+              <div class="card-container" style="width: 100px;">
+                <div class="card front-card">
+                  <div class="card-name">办理上牌保险</div>
+                </div>
+              </div>
+              
+              <div class="card-container" style="width: 100px;">
+                <div class="card front-card">
+                  <div class="card-name">学习车辆功能</div>
+                </div>
+              </div>
+              
+            </div>
+          </div>
+          
+          <div class="phase-cell" style="width: 332px; min-height: 50px;">
+            <div class="cards-row">
+              
+              <div class="card-container" style="width: 100px;">
+                <div class="card front-card">
+                  <div class="card-name">日常骑行记录</div>
+                </div>
+              </div>
+              
+              <div class="card-container" style="width: 100px;">
+                <div class="card front-card">
+                  <div class="card-name">获取骑行建议</div>
+                </div>
+              </div>
+              
+              <div class="card-container" style="width: 100px;">
+                <div class="card front-card">
+                  <div class="card-name">预约保养维修</div>
+                </div>
+              </div>
+              
+            </div>
+          </div>
+          
+          <div class="phase-cell" style="width: 332px; min-height: 50px;">
+            <div class="cards-row">
+              
+              <div class="card-container" style="width: 100px;">
+                <div class="card front-card">
+                  <div class="card-name">分享骑行故事</div>
+                </div>
+              </div>
+              
+              <div class="card-container" style="width: 100px;">
+                <div class="card front-card">
+                  <div class="card-name">推荐朋友购买</div>
+                </div>
+              </div>
+              
+              <div class="card-container" style="width: 100px;">
+                <div class="card front-card">
+                  <div class="card-name">购买配件周边</div>
+                </div>
+              </div>
+              
+            </div>
+          </div>
+          
+        </div>
+      </div>
+
+      
+      <div class="swimlane-row layer-customer">
+        <div class="lane-label">触点</div>
+        <div class="lane-cells">
+          
+          <div class="phase-cell" style="width: 226px; min-height: 40px;">
+            <div class="cards-row">
+              
+              <div class="chip-container" style="width: 100px;">
+                
+                <span class="touchpoint-badge">YouTube/TikTok/Instagram</span>
+                
+              </div>
+              
+              <div class="chip-container" style="width: 100px;">
+                
+                <span class="touchpoint-badge">Google/百度/社交媒体</span>
+                
+              </div>
+              
+            </div>
+          </div>
+          
+          <div class="phase-cell" style="width: 332px; min-height: 40px;">
+            <div class="cards-row">
+              
+              <div class="chip-container" style="width: 100px;">
+                
+                <span class="touchpoint-badge">品牌官网</span>
+                
+              </div>
+              
+              <div class="chip-container" style="width: 100px;">
+                
+                <span class="touchpoint-badge">官网/评测网站</span>
+                
+              </div>
+              
+              <div class="chip-container" style="width: 100px;">
+                
+                <span class="touchpoint-badge">YouTube/评测网站</span>
+                
+              </div>
+              
+            </div>
+          </div>
+          
+          <div class="phase-cell" style="width: 332px; min-height: 40px;">
+            <div class="cards-row">
+              
+              <div class="chip-container" style="width: 100px;">
+                
+                <span class="touchpoint-badge">官网配置器</span>
+                
+              </div>
+              
+              <div class="chip-container" style="width: 100px;">
+                
+                <span class="touchpoint-badge">官网聊天窗口</span>
+                
+              </div>
+              
+              <div class="chip-container" style="width: 100px;">
+                
+                <span class="touchpoint-badge">官网/邮件</span>
+                
+              </div>
+              
+            </div>
+          </div>
+          
+          <div class="phase-cell" style="width: 332px; min-height: 40px;">
+            <div class="cards-row">
+              
+              <div class="chip-container" style="width: 100px;">
+                
+                <span class="touchpoint-badge">官网金融页面</span>
+                
+              </div>
+              
+              <div class="chip-container" style="width: 100px;">
+                
+                <span class="touchpoint-badge">官网结算页</span>
+                
+              </div>
+              
+              <div class="chip-container" style="width: 100px;">
+                
+                <span class="touchpoint-badge">邮件/官网账户</span>
+                
+              </div>
+              
+            </div>
+          </div>
+          
+          <div class="phase-cell" style="width: 332px; min-height: 40px;">
+            <div class="cards-row">
+              
+              <div class="chip-container" style="width: 100px;">
+                
+                <span class="touchpoint-badge">官网账户/APP</span>
+                
+              </div>
+              
+              <div class="chip-container" style="width: 100px;">
+                
+                <span class="touchpoint-badge">物流跟踪页</span>
+                
+              </div>
+              
+              <div class="chip-container" style="width: 100px;">
+                
+                <span class="touchpoint-badge">Discord/论坛</span>
+                
+              </div>
+              
+            </div>
+          </div>
+          
+          <div class="phase-cell" style="width: 332px; min-height: 40px;">
+            <div class="cards-row">
+              
+              <div class="chip-container" style="width: 100px;">
+                
+                <span class="touchpoint-badge">配送地点</span>
+                
+              </div>
+              
+              <div class="chip-container" style="width: 100px;">
+                
+                <span class="touchpoint-badge">车管所/保险公司</span>
+                
+              </div>
+              
+              <div class="chip-container" style="width: 100px;">
+                
+                <span class="touchpoint-badge">用户手册/APP</span>
+                
+              </div>
+              
+            </div>
+          </div>
+          
+          <div class="phase-cell" style="width: 332px; min-height: 40px;">
+            <div class="cards-row">
+              
+              <div class="chip-container" style="width: 100px;">
+                
+                <span class="touchpoint-badge">车联网APP</span>
+                
+              </div>
+              
+              <div class="chip-container" style="width: 100px;">
+                
+                <span class="touchpoint-badge">APP/社区</span>
+                
+              </div>
+              
+              <div class="chip-container" style="width: 100px;">
+                
+                <span class="touchpoint-badge">APP/官网</span>
+                
+              </div>
+              
+            </div>
+          </div>
+          
+          <div class="phase-cell" style="width: 332px; min-height: 40px;">
+            <div class="cards-row">
+              
+              <div class="chip-container" style="width: 100px;">
+                
+                <span class="touchpoint-badge">社交媒体/社区</span>
+                
+              </div>
+              
+              <div class="chip-container" style="width: 100px;">
+                
+                <span class="touchpoint-badge">推荐计划页面</span>
+                
+              </div>
+              
+              <div class="chip-container" style="width: 100px;">
+                
+                <span class="touchpoint-badge">官网商城</span>
+                
+              </div>
+              
+            </div>
+          </div>
+          
+        </div>
+      </div>
+
+      
+      <div class="swimlane-row layer-customer">
+        <div class="lane-label">痛点<br>期待</div>
+        <div class="lane-cells">
+          
+          <div class="phase-cell" style="width: 226px; min-height: 50px;">
+            <div style="display: flex; flex-direction: column; gap: 4px;">
+            
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>对中国摩托车品牌不了解</span></div>
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>怀疑视频真实性</span></div>
+              
+              
+              <div class="expect-item"><span class="expect-bullet">○</span><span>看到真实的赛事记录</span></div>
+              
+              <div class="expect-item"><span class="expect-bullet">○</span><span>了解品牌背景故事</span></div>
+              
+            
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>英文信息太少</span></div>
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>官网找不到或打不开</span></div>
+              
+              
+              <div class="expect-item"><span class="expect-bullet">○</span><span>快速了解品牌实力</span></div>
+              
+              <div class="expect-item"><span class="expect-bullet">○</span><span>看到专业评测和用户评价</span></div>
+              
+            
+            </div>
+          </div>
+          
+          <div class="phase-cell" style="width: 332px; min-height: 50px;">
+            <div style="display: flex; flex-direction: column; gap: 4px;">
+            
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>官网只有中文版</span></div>
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>产品参数不够详细</span></div>
+              
+              
+              <div class="expect-item"><span class="expect-bullet">○</span><span>流畅的多语言体验</span></div>
+              
+              <div class="expect-item"><span class="expect-bullet">○</span><span>丰富的产品展示</span></div>
+              
+            
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>参数对比不方便</span></div>
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>第三方评测太少</span></div>
+              
+              
+              <div class="expect-item"><span class="expect-bullet">○</span><span>直观的对比工具</span></div>
+              
+              <div class="expect-item"><span class="expect-bullet">○</span><span>权威的评测背书</span></div>
+              
+            
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>英文评测几乎没有</span></div>
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>无法试驾体验</span></div>
+              
+              
+              <div class="expect-item"><span class="expect-bullet">○</span><span>看到真实骑行体验</span></div>
+              
+              <div class="expect-item"><span class="expect-bullet">○</span><span>了解长期使用感受</span></div>
+              
+            
+            </div>
+          </div>
+          
+          <div class="phase-cell" style="width: 332px; min-height: 50px;">
+            <div style="display: flex; flex-direction: column; gap: 4px;">
+            
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>配置选项有限</span></div>
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>价格计算不透明</span></div>
+              
+              
+              <div class="expect-item"><span class="expect-bullet">○</span><span>灵活的配置选择</span></div>
+              
+              <div class="expect-item"><span class="expect-bullet">○</span><span>实时价格显示</span></div>
+              
+            
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>担心AI理解错误</span></div>
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>复杂问题无法解答</span></div>
+              
+              
+              <div class="expect-item"><span class="expect-bullet">○</span><span>快速准确的回答</span></div>
+              
+              <div class="expect-item"><span class="expect-bullet">○</span><span>7x24小时在线</span></div>
+              
+            
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>海外无试驾点</span></div>
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>试驾流程不明确</span></div>
+              
+              
+              <div class="expect-item"><span class="expect-bullet">○</span><span>附近有试驾体验点</span></div>
+              
+              <div class="expect-item"><span class="expect-bullet">○</span><span>便捷的预约流程</span></div>
+              
+            
+            </div>
+          </div>
+          
+          <div class="phase-cell" style="width: 332px; min-height: 50px;">
+            <div style="display: flex; flex-direction: column; gap: 4px;">
+            
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>无分期付款选项</span></div>
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>汇率波动风险</span></div>
+              
+              
+              <div class="expect-item"><span class="expect-bullet">○</span><span>灵活的分期方案</span></div>
+              
+              <div class="expect-item"><span class="expect-bullet">○</span><span>汇率锁定服务</span></div>
+              
+            
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>支付方式有限</span></div>
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>跨境支付手续费高</span></div>
+              
+              
+              <div class="expect-item"><span class="expect-bullet">○</span><span>多种支付方式</span></div>
+              
+              <div class="expect-item"><span class="expect-bullet">○</span><span>安全的支付体验</span></div>
+              
+            
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>交付时间不明确</span></div>
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>订单变更困难</span></div>
+              
+              
+              <div class="expect-item"><span class="expect-bullet">○</span><span>清晰的交付时间表</span></div>
+              
+              <div class="expect-item"><span class="expect-bullet">○</span><span>便捷的订单管理</span></div>
+              
+            
+            </div>
+          </div>
+          
+          <div class="phase-cell" style="width: 332px; min-height: 50px;">
+            <div style="display: flex; flex-direction: column; gap: 4px;">
+            
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>进度更新不及时</span></div>
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>无法联系到人询问</span></div>
+              
+              
+              <div class="expect-item"><span class="expect-bullet">○</span><span>实时生产进度</span></div>
+              
+              <div class="expect-item"><span class="expect-bullet">○</span><span>主动推送更新</span></div>
+              
+            
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>物流信息更新慢</span></div>
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>清关进度不透明</span></div>
+              
+              
+              <div class="expect-item"><span class="expect-bullet">○</span><span>实时物流追踪</span></div>
+              
+              <div class="expect-item"><span class="expect-bullet">○</span><span>预计到达时间</span></div>
+              
+            
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>社区刚建立人不多</span></div>
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>语言障碍</span></div>
+              
+              
+              <div class="expect-item"><span class="expect-bullet">○</span><span>活跃的骑手社区</span></div>
+              
+              <div class="expect-item"><span class="expect-bullet">○</span><span>multilingual 交流</span></div>
+              
+            
+            </div>
+          </div>
+          
+          <div class="phase-cell" style="width: 332px; min-height: 50px;">
+            <div style="display: flex; flex-direction: column; gap: 4px;">
+            
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>车辆运输可能有损伤</span></div>
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>验收标准不明确</span></div>
+              
+              
+              <div class="expect-item"><span class="expect-bullet">○</span><span>车辆完好无损</span></div>
+              
+              <div class="expect-item"><span class="expect-bullet">○</span><span>专业的交付服务</span></div>
+              
+            
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>流程复杂语言不通</span></div>
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>品牌认知低保险贵</span></div>
+              
+              
+              <div class="expect-item"><span class="expect-bullet">○</span><span>品牌协助上牌</span></div>
+              
+              <div class="expect-item"><span class="expect-bullet">○</span><span>优惠保险方案</span></div>
+              
+            
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>说明书只有中文</span></div>
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>功能介绍不详细</span></div>
+              
+              
+              <div class="expect-item"><span class="expect-bullet">○</span><span>多语言视频教程</span></div>
+              
+              <div class="expect-item"><span class="expect-bullet">○</span><span>互动式学习体验</span></div>
+              
+            
+            </div>
+          </div>
+          
+          <div class="phase-cell" style="width: 332px; min-height: 50px;">
+            <div style="display: flex; flex-direction: column; gap: 4px;">
+            
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>APP功能简陋</span></div>
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>连接不稳定</span></div>
+              
+              
+              <div class="expect-item"><span class="expect-bullet">○</span><span>精准的骑行数据</span></div>
+              
+              <div class="expect-item"><span class="expect-bullet">○</span><span>流畅的APP体验</span></div>
+              
+            
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>个性化建议少</span></div>
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>路线推荐不准确</span></div>
+              
+              
+              <div class="expect-item"><span class="expect-bullet">○</span><span>AI个性化推荐</span></div>
+              
+              <div class="expect-item"><span class="expect-bullet">○</span><span>优质路线分享</span></div>
+              
+            
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>海外服务网点少</span></div>
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>预约不方便</span></div>
+              
+              
+              <div class="expect-item"><span class="expect-bullet">○</span><span>附近的服务网点</span></div>
+              
+              <div class="expect-item"><span class="expect-bullet">○</span><span>便捷的在线预约</span></div>
+              
+            
+            </div>
+          </div>
+          
+          <div class="phase-cell" style="width: 332px; min-height: 50px;">
+            <div style="display: flex; flex-direction: column; gap: 4px;">
+            
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>社区活跃度不高</span></div>
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>官方互动少</span></div>
+              
+              
+              <div class="expect-item"><span class="expect-bullet">○</span><span>被品牌官方关注</span></div>
+              
+              <div class="expect-item"><span class="expect-bullet">○</span><span>获得骑手认可</span></div>
+              
+            
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>推荐奖励不吸引人</span></div>
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>推荐流程复杂</span></div>
+              
+              
+              <div class="expect-item"><span class="expect-bullet">○</span><span>丰厚的推荐奖励</span></div>
+              
+              <div class="expect-item"><span class="expect-bullet">○</span><span>简单的推荐流程</span></div>
+              
+            
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>配件选择少</span></div>
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>跨境配送慢</span></div>
+              
+              
+              <div class="expect-item"><span class="expect-bullet">○</span><span>丰富的官方配件</span></div>
+              
+              <div class="expect-item"><span class="expect-bullet">○</span><span>快速的本地配送</span></div>
+              
+            
+            </div>
+          </div>
+          
+        </div>
+      </div>
+
+      
+      <div class="layer-divider" style="margin: 0;"></div>
+
+      
+      
+      <div class="swimlane-row layer-front">
+        <div class="lane-label">前台活动</div>
+        <div class="lane-cells">
+          
+          <div class="phase-cell" style="width: 226px; min-height: 70px;">
+            <div class="cards-row">
+              
+              <div class="card-container" style="width: 100px;">
+                
+                <div class="card-role">
+                  <div class="role-avatar">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                      <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                  </div>
+                  社媒运营
+                </div>
+                
+                <div class="card front-card">
+                  <div class="card-name">发布赛事内容</div>
+                </div>
+              </div>
+              
+              <div class="card-container" style="width: 100px;">
+                
+                <div class="card-role">
+                  <div class="role-avatar">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                      <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                  </div>
+                  SEO专员
+                </div>
+                
+                <div class="card front-card">
+                  <div class="card-name">管理搜索可见性</div>
+                </div>
+              </div>
+              
+            </div>
+          </div>
+          
+          <div class="phase-cell" style="width: 332px; min-height: 70px;">
+            <div class="cards-row">
+              
+              <div class="card-container" style="width: 100px;">
+                
+                <div class="card-role">
+                  <div class="role-avatar">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                      <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                  </div>
+                  官网系统
+                </div>
+                
+                <div class="card front-card">
+                  <div class="card-name">展示产品信息</div>
+                </div>
+              </div>
+              
+              <div class="card-container" style="width: 100px;">
+                
+                <div class="card-role">
+                  <div class="role-avatar">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                      <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                  </div>
+                  产品经理
+                </div>
+                
+                <div class="card front-card">
+                  <div class="card-name">提供对比工具</div>
+                </div>
+              </div>
+              
+              <div class="card-container" style="width: 100px;">
+                
+                <div class="card-role">
+                  <div class="role-avatar">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                      <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                  </div>
+                  社媒运营
+                </div>
+                
+                <div class="card front-card">
+                  <div class="card-name">管理用户互动</div>
+                </div>
+              </div>
+              
+            </div>
+          </div>
+          
+          <div class="phase-cell" style="width: 332px; min-height: 70px;">
+            <div class="cards-row">
+              
+              <div class="card-container" style="width: 100px;">
+                
+                <div class="card-role">
+                  <div class="role-avatar">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                      <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                  </div>
+                  AI客服系统
+                </div>
+                
+                <div class="card front-card">
+                  <div class="card-name">AI客服对话</div>
+                </div>
+              </div>
+              
+              <div class="card-container" style="width: 100px;">
+                
+                <div class="card-role">
+                  <div class="role-avatar">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                      <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                  </div>
+                  销售协调员
+                </div>
+                
+                <div class="card front-card">
+                  <div class="card-name">处理试驾预约</div>
+                </div>
+              </div>
+              
+              <div class="card-container" style="width: 100px;">
+                
+                <div class="card-role">
+                  <div class="role-avatar">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                      <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                  </div>
+                  金融专员
+                </div>
+                
+                <div class="card front-card">
+                  <div class="card-name">提供金融方案</div>
+                </div>
+              </div>
+              
+            </div>
+          </div>
+          
+          <div class="phase-cell" style="width: 332px; min-height: 70px;">
+            <div class="cards-row">
+              
+              <div class="card-container" style="width: 100px;">
+                
+                <div class="card-role">
+                  <div class="role-avatar">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                      <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                  </div>
+                  电商系统
+                </div>
+                
+                <div class="card front-card">
+                  <div class="card-name">处理在线订单</div>
+                </div>
+              </div>
+              
+              <div class="card-container" style="width: 100px;">
+                
+                <div class="card-role">
+                  <div class="role-avatar">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                      <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                  </div>
+                  财务专员
+                </div>
+                
+                <div class="card front-card">
+                  <div class="card-name">确认订单与收款</div>
+                </div>
+              </div>
+              
+              <div class="card-container" style="width: 100px;">
+                
+                <div class="card-role">
+                  <div class="role-avatar">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                      <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                  </div>
+                  客服系统
+                </div>
+                
+                <div class="card front-card">
+                  <div class="card-name">发送订单确认</div>
+                </div>
+              </div>
+              
+            </div>
+          </div>
+          
+          <div class="phase-cell" style="width: 332px; min-height: 70px;">
+            <div class="cards-row">
+              
+              <div class="card-container" style="width: 100px;">
+                
+                <div class="card-role">
+                  <div class="role-avatar">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                      <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                  </div>
+                  运营专员
+                </div>
+                
+                <div class="card front-card">
+                  <div class="card-name">更新生产状态</div>
+                </div>
+              </div>
+              
+              <div class="card-container" style="width: 100px;">
+                
+                <div class="card-role">
+                  <div class="role-avatar">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                      <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                  </div>
+                  客服系统
+                </div>
+                
+                <div class="card front-card">
+                  <div class="card-name">推送物流通知</div>
+                </div>
+              </div>
+              
+              <div class="card-container" style="width: 100px;">
+                
+                <div class="card-role">
+                  <div class="role-avatar">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                      <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                  </div>
+                  社区运营
+                </div>
+                
+                <div class="card front-card">
+                  <div class="card-name">运营车主社区</div>
+                </div>
+              </div>
+              
+            </div>
+          </div>
+          
+          <div class="phase-cell" style="width: 332px; min-height: 70px;">
+            <div class="cards-row">
+              
+              <div class="card-container" style="width: 100px;">
+                
+                <div class="card-role">
+                  <div class="role-avatar">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                      <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                  </div>
+                  交付专员
+                </div>
+                
+                <div class="card front-card">
+                  <div class="card-name">安排本地交付</div>
+                </div>
+              </div>
+              
+              <div class="card-container" style="width: 100px;">
+                
+                <div class="card-role">
+                  <div class="role-avatar">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                      <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                  </div>
+                  本地代理
+                </div>
+                
+                <div class="card front-card">
+                  <div class="card-name">协助上牌服务</div>
+                </div>
+              </div>
+              
+              <div class="card-container" style="width: 100px;">
+                
+                <div class="card-role">
+                  <div class="role-avatar">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                      <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                  </div>
+                  客户成功
+                </div>
+                
+                <div class="card front-card">
+                  <div class="card-name">提供培训内容</div>
+                </div>
+              </div>
+              
+            </div>
+          </div>
+          
+          <div class="phase-cell" style="width: 332px; min-height: 70px;">
+            <div class="cards-row">
+              
+              <div class="card-container" style="width: 100px;">
+                
+                <div class="card-role">
+                  <div class="role-avatar">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                      <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                  </div>
+                  车联网系统
+                </div>
+                
+                <div class="card front-card">
+                  <div class="card-name">提供骑行数据</div>
+                </div>
+              </div>
+              
+              <div class="card-container" style="width: 100px;">
+                
+                <div class="card-role">
+                  <div class="role-avatar">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                      <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                  </div>
+                  推荐引擎
+                </div>
+                
+                <div class="card front-card">
+                  <div class="card-name">AI个性化推荐</div>
+                </div>
+              </div>
+              
+              <div class="card-container" style="width: 100px;">
+                
+                <div class="card-role">
+                  <div class="role-avatar">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                      <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                  </div>
+                  售后专员
+                </div>
+                
+                <div class="card front-card">
+                  <div class="card-name">管理维修预约</div>
+                </div>
+              </div>
+              
+            </div>
+          </div>
+          
+          <div class="phase-cell" style="width: 332px; min-height: 70px;">
+            <div class="cards-row">
+              
+              <div class="card-container" style="width: 100px;">
+                
+                <div class="card-role">
+                  <div class="role-avatar">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                      <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                  </div>
+                  社区运营
+                </div>
+                
+                <div class="card front-card">
+                  <div class="card-name">管理社区内容</div>
+                </div>
+              </div>
+              
+              <div class="card-container" style="width: 100px;">
+                
+                <div class="card-role">
+                  <div class="role-avatar">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                      <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                  </div>
+                  增长经理
+                </div>
+                
+                <div class="card front-card">
+                  <div class="card-name">运营推荐计划</div>
+                </div>
+              </div>
+              
+              <div class="card-container" style="width: 100px;">
+                
+                <div class="card-role">
+                  <div class="role-avatar">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                      <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                  </div>
+                  电商运营
+                </div>
+                
+                <div class="card front-card">
+                  <div class="card-name">管理配件商城</div>
+                </div>
+              </div>
+              
+            </div>
+          </div>
+          
+        </div>
+      </div>
+
+      
+      <div class="swimlane-row layer-front">
+        <div class="lane-label">系统触点</div>
+        <div class="lane-cells">
+          
+          <div class="phase-cell" style="width: 226px; min-height: 40px;">
+            <div class="cards-row">
+              
+              <div class="chip-container" style="width: 100px;">
+                
+                <span class="sys-chip">YouTube/TikTok/IG</span>
+                
+              </div>
+              
+              <div class="chip-container" style="width: 100px;">
+                
+                <span class="sys-chip">Google Search Console</span>
+                
+              </div>
+              
+            </div>
+          </div>
+          
+          <div class="phase-cell" style="width: 332px; min-height: 40px;">
+            <div class="cards-row">
+              
+              <div class="chip-container" style="width: 100px;">
+                
+                <span class="sys-chip">CMS/电商平台</span>
+                
+              </div>
+              
+              <div class="chip-container" style="width: 100px;">
+                
+                <span class="sys-chip">产品配置器</span>
+                
+              </div>
+              
+              <div class="chip-container" style="width: 100px;">
+                
+                <span class="sys-chip">社交媒体平台</span>
+                
+              </div>
+              
+            </div>
+          </div>
+          
+          <div class="phase-cell" style="width: 332px; min-height: 40px;">
+            <div class="cards-row">
+              
+              <div class="chip-container" style="width: 100px;">
+                
+                <span class="sys-chip">NLP引擎/知识库</span>
+                
+              </div>
+              
+              <div class="chip-container" style="width: 100px;">
+                
+                <span class="sys-chip">CRM/日历系统</span>
+                
+              </div>
+              
+              <div class="chip-container" style="width: 100px;">
+                
+                <span class="sys-chip">金融系统</span>
+                
+              </div>
+              
+            </div>
+          </div>
+          
+          <div class="phase-cell" style="width: 332px; min-height: 40px;">
+            <div class="cards-row">
+              
+              <div class="chip-container" style="width: 100px;">
+                
+                <span class="sys-chip">OMS/支付网关</span>
+                
+              </div>
+              
+              <div class="chip-container" style="width: 100px;">
+                
+                <span class="sys-chip">财务系统</span>
+                
+              </div>
+              
+              <div class="chip-container" style="width: 100px;">
+                
+                <span class="sys-chip">CRM/邮件系统</span>
+                
+              </div>
+              
+            </div>
+          </div>
+          
+          <div class="phase-cell" style="width: 332px; min-height: 40px;">
+            <div class="cards-row">
+              
+              <div class="chip-container" style="width: 100px;">
+                
+                <span class="sys-chip">ERP/OMS</span>
+                
+              </div>
+              
+              <div class="chip-container" style="width: 100px;">
+                
+                <span class="sys-chip">邮件/SMS系统</span>
+                
+              </div>
+              
+              <div class="chip-container" style="width: 100px;">
+                
+                <span class="sys-chip">Discord/论坛</span>
+                
+              </div>
+              
+            </div>
+          </div>
+          
+          <div class="phase-cell" style="width: 332px; min-height: 40px;">
+            <div class="cards-row">
+              
+              <div class="chip-container" style="width: 100px;">
+                
+                <span class="sys-chip">TMS/DMS</span>
+                
+              </div>
+              
+              <div class="chip-container" style="width: 100px;">
+                
+                <span class="sys-chip">本地政务系统</span>
+                
+              </div>
+              
+              <div class="chip-container" style="width: 100px;">
+                
+                <span class="sys-chip">学习管理系统</span>
+                
+              </div>
+              
+            </div>
+          </div>
+          
+          <div class="phase-cell" style="width: 332px; min-height: 40px;">
+            <div class="cards-row">
+              
+              <div class="chip-container" style="width: 100px;">
+                
+                <span class="sys-chip">IoT平台/APP</span>
+                
+              </div>
+              
+              <div class="chip-container" style="width: 100px;">
+                
+                <span class="sys-chip">ML平台/APP</span>
+                
+              </div>
+              
+              <div class="chip-container" style="width: 100px;">
+                
+                <span class="sys-chip">售后系统</span>
+                
+              </div>
+              
+            </div>
+          </div>
+          
+          <div class="phase-cell" style="width: 332px; min-height: 40px;">
+            <div class="cards-row">
+              
+              <div class="chip-container" style="width: 100px;">
+                
+                <span class="sys-chip">社区平台</span>
+                
+              </div>
+              
+              <div class="chip-container" style="width: 100px;">
+                
+                <span class="sys-chip">营销自动化</span>
+                
+              </div>
+              
+              <div class="chip-container" style="width: 100px;">
+                
+                <span class="sys-chip">电商平台</span>
+                
+              </div>
+              
+            </div>
+          </div>
+          
+        </div>
+      </div>
+
+      
+      <div class="swimlane-row layer-front">
+        <div class="lane-label">痛点<br>负荷</div>
+        <div class="lane-cells">
+          
+          <div class="phase-cell" style="width: 226px; min-height: 40px;">
+            <div style="display: flex; flex-direction: column; gap: 4px;">
+            
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>多语言内容生产慢</span></div>
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>平台算法推荐不确定</span></div>
+              
+              
+              <div>
+  
+  <span class="load-badge load-high">
+    
+    <svg style="width:12px; height:12px; flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    
+    high
+  </span>
+  
+  </div>
+              
+            
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>新域名无权重</span></div>
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>外链建设困难</span></div>
+              
+              
+              <div>
+  
+  <span class="load-badge load-high">
+    
+    <svg style="width:12px; height:12px; flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    
+    high
+  </span>
+  
+  </div>
+              
+            
+            </div>
+          </div>
+          
+          <div class="phase-cell" style="width: 332px; min-height: 40px;">
+            <div style="display: flex; flex-direction: column; gap: 4px;">
+            
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>内容更新不及时</span></div>
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>多语言同步困难</span></div>
+              
+              
+              <div>
+  
+  <span class="load-badge load-medium">
+    
+    <svg style="width:12px; height:12px; flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+    
+    medium
+  </span>
+  
+  </div>
+              
+            
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>竞品数据收集困难</span></div>
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>配置器开发成本高</span></div>
+              
+              
+              <div>
+  
+  <span class="load-badge load-medium">
+    
+    <svg style="width:12px; height:12px; flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+    
+    medium
+  </span>
+  
+  </div>
+              
+            
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>时区差异导致响应慢</span></div>
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>多语言回复困难</span></div>
+              
+              
+              <div>
+  
+  <span class="load-badge load-high">
+    
+    <svg style="width:12px; height:12px; flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    
+    high
+  </span>
+  
+  </div>
+              
+            
+            </div>
+          </div>
+          
+          <div class="phase-cell" style="width: 332px; min-height: 40px;">
+            <div style="display: flex; flex-direction: column; gap: 4px;">
+            
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>摩托车专业问题理解困难</span></div>
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>多语言NLP准确度低</span></div>
+              
+              
+              <div>
+  
+  <span class="load-badge load-critical">
+    
+    <svg style="width:12px; height:12px; flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+    
+    critical
+  </span>
+  
+  </div>
+              
+            
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>海外无试驾车辆</span></div>
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>协调困难</span></div>
+              
+              
+              <div>
+  
+  <span class="load-badge load-high">
+    
+    <svg style="width:12px; height:12px; flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    
+    high
+  </span>
+  
+  </div>
+              
+            
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>无海外金融合作</span></div>
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>跨境信用评估困难</span></div>
+              
+              
+              <div>
+  
+  <span class="load-badge load-high">
+    
+    <svg style="width:12px; height:12px; flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    
+    high
+  </span>
+  
+  </div>
+              
+            
+            </div>
+          </div>
+          
+          <div class="phase-cell" style="width: 332px; min-height: 40px;">
+            <div style="display: flex; flex-direction: column; gap: 4px;">
+            
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>跨境支付集成复杂</span></div>
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>欺诈风险检测困难</span></div>
+              
+              
+              <div>
+  
+  <span class="load-badge load-high">
+    
+    <svg style="width:12px; height:12px; flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    
+    high
+  </span>
+  
+  </div>
+              
+            
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>跨境资金结算慢</span></div>
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>汇率波动影响</span></div>
+              
+              
+              <div>
+  
+  <span class="load-badge load-high">
+    
+    <svg style="width:12px; height:12px; flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    
+    high
+  </span>
+  
+  </div>
+              
+            
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>多语言邮件模板缺失</span></div>
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>时区差异影响响应</span></div>
+              
+              
+              <div>
+  
+  <span class="load-badge load-medium">
+    
+    <svg style="width:12px; height:12px; flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+    
+    medium
+  </span>
+  
+  </div>
+              
+            
+            </div>
+          </div>
+          
+          <div class="phase-cell" style="width: 332px; min-height: 40px;">
+            <div style="display: flex; flex-direction: column; gap: 4px;">
+            
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>生产进度信息同步慢</span></div>
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>系统间数据不一致</span></div>
+              
+              
+              <div>
+  
+  <span class="load-badge load-medium">
+    
+    <svg style="width:12px; height:12px; flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+    
+    medium
+  </span>
+  
+  </div>
+              
+            
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>多渠道推送配置复杂</span></div>
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>多语言模板管理困难</span></div>
+              
+              
+              <div>
+  
+  <span class="load-badge load-medium">
+    
+    <svg style="width:12px; height:12px; flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+    
+    medium
+  </span>
+  
+  </div>
+              
+            
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>时区差异难实时互动</span></div>
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>多语言内容运营成本高</span></div>
+              
+              
+              <div>
+  
+  <span class="load-badge load-high">
+    
+    <svg style="width:12px; height:12px; flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    
+    high
+  </span>
+  
+  </div>
+              
+            
+            </div>
+          </div>
+          
+          <div class="phase-cell" style="width: 332px; min-height: 40px;">
+            <div style="display: flex; flex-direction: column; gap: 4px;">
+            
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>本地配送资源有限</span></div>
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>专业摩托车配送少</span></div>
+              
+              
+              <div>
+  
+  <span class="load-badge load-high">
+    
+    <svg style="width:12px; height:12px; flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    
+    high
+  </span>
+  
+  </div>
+              
+            
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>各国法规差异大</span></div>
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>代理资源不稳定</span></div>
+              
+              
+              <div>
+  
+  <span class="load-badge load-high">
+    
+    <svg style="width:12px; height:12px; flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    
+    high
+  </span>
+  
+  </div>
+              
+            
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>多语言培训内容缺失</span></div>
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>视频制作成本高</span></div>
+              
+              
+              <div>
+  
+  <span class="load-badge load-medium">
+    
+    <svg style="width:12px; height:12px; flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+    
+    medium
+  </span>
+  
+  </div>
+              
+            
+            </div>
+          </div>
+          
+          <div class="phase-cell" style="width: 332px; min-height: 40px;">
+            <div style="display: flex; flex-direction: column; gap: 4px;">
+            
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>海外服务器延迟高</span></div>
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>数据同步不稳定</span></div>
+              
+              
+              <div>
+  
+  <span class="load-badge load-high">
+    
+    <svg style="width:12px; height:12px; flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    
+    high
+  </span>
+  
+  </div>
+              
+            
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>用户数据积累不足</span></div>
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>推荐算法不成熟</span></div>
+              
+              
+              <div>
+  
+  <span class="load-badge load-high">
+    
+    <svg style="width:12px; height:12px; flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    
+    high
+  </span>
+  
+  </div>
+              
+            
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>海外服务商网络空白</span></div>
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>配件供应周期长</span></div>
+              
+              
+              <div>
+  
+  <span class="load-badge load-critical">
+    
+    <svg style="width:12px; height:12px; flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+    
+    critical
+  </span>
+  
+  </div>
+              
+            
+            </div>
+          </div>
+          
+          <div class="phase-cell" style="width: 332px; min-height: 40px;">
+            <div style="display: flex; flex-direction: column; gap: 4px;">
+            
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>多语言社区管理难</span></div>
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>UGC内容审核量大</span></div>
+              
+              
+              <div>
+  
+  <span class="load-badge load-high">
+    
+    <svg style="width:12px; height:12px; flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    
+    high
+  </span>
+  
+  </div>
+              
+            
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>跨境奖励发放复杂</span></div>
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>推荐归因困难</span></div>
+              
+              
+              <div>
+  
+  <span class="load-badge load-medium">
+    
+    <svg style="width:12px; height:12px; flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+    
+    medium
+  </span>
+  
+  </div>
+              
+            
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>配件库存管理难</span></div>
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>跨境物流成本高</span></div>
+              
+              
+              <div>
+  
+  <span class="load-badge load-high">
+    
+    <svg style="width:12px; height:12px; flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    
+    high
+  </span>
+  
+  </div>
+              
+            
+            </div>
+          </div>
+          
+        </div>
+      </div>
+
+      
+      <div class="layer-divider" style="margin: 0;"></div>
+
+      
+      
+      <div class="swimlane-row layer-back">
+        <div class="lane-label">支撑流程</div>
+        <div class="lane-cells">
+          
+          <div class="phase-cell" style="width: 226px; min-height: 60px;">
+            <div class="cards-row">
+              
+              <div class="card-container" style="width: 100px;">
+                
+                <div class="card-role">
+                  <div class="role-avatar">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                      <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                  </div>
+                  内容团队
+                </div>
+                
+                <div class="card back-card">
+                  <div class="card-name">赛事素材剪辑</div>
+                </div>
+              </div>
+              
+              <div class="card-container" style="width: 100px;">
+                
+                <div class="card-role">
+                  <div class="role-avatar">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                      <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                  </div>
+                  本地化团队
+                </div>
+                
+                <div class="card back-card">
+                  <div class="card-name">多语言翻译</div>
+                </div>
+              </div>
+              
+            </div>
+          </div>
+          
+          <div class="phase-cell" style="width: 332px; min-height: 60px;">
+            <div class="cards-row">
+              
+              <div class="card-container" style="width: 100px;">
+                
+                <div class="card-role">
+                  <div class="role-avatar">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                      <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                  </div>
+                  技术团队
+                </div>
+                
+                <div class="card back-card">
+                  <div class="card-name">官网内容管理</div>
+                </div>
+              </div>
+              
+              <div class="card-container" style="width: 100px;">
+                
+                <div class="card-role">
+                  <div class="role-avatar">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                      <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                  </div>
+                  品牌合作经理
+                </div>
+                
+                <div class="card back-card">
+                  <div class="card-name">评测合作对接</div>
+                </div>
+              </div>
+              
+              <div class="card-container" style="width: 100px;">
+                
+                <div class="card-role">
+                  <div class="role-avatar">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                      <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                  </div>
+                  产品经理
+                </div>
+                
+                <div class="card back-card">
+                  <div class="card-name">产品数据管理</div>
+                </div>
+              </div>
+              
+            </div>
+          </div>
+          
+          <div class="phase-cell" style="width: 332px; min-height: 60px;">
+            <div class="cards-row">
+              
+              <div class="card-container" style="width: 100px;">
+                
+                <div class="card-role">
+                  <div class="role-avatar">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                      <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                  </div>
+                  AI团队
+                </div>
+                
+                <div class="card back-card">
+                  <div class="card-name">AI模型训练</div>
+                </div>
+              </div>
+              
+              <div class="card-container" style="width: 100px;">
+                
+                <div class="card-role">
+                  <div class="role-avatar">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                      <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                  </div>
+                  产品团队
+                </div>
+                
+                <div class="card back-card">
+                  <div class="card-name">知识库维护</div>
+                </div>
+              </div>
+              
+              <div class="card-container" style="width: 100px;">
+                
+                <div class="card-role">
+                  <div class="role-avatar">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                      <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                  </div>
+                  运营经理
+                </div>
+                
+                <div class="card back-card">
+                  <div class="card-name">试驾资源协调</div>
+                </div>
+              </div>
+              
+            </div>
+          </div>
+          
+          <div class="phase-cell" style="width: 332px; min-height: 60px;">
+            <div class="cards-row">
+              
+              <div class="card-container" style="width: 100px;">
+                
+                <div class="card-role">
+                  <div class="role-avatar">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                      <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                  </div>
+                  支付团队
+                </div>
+                
+                <div class="card back-card">
+                  <div class="card-name">支付通道管理</div>
+                </div>
+              </div>
+              
+              <div class="card-container" style="width: 100px;">
+                
+                <div class="card-role">
+                  <div class="role-avatar">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                      <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                  </div>
+                  风控系统
+                </div>
+                
+                <div class="card back-card">
+                  <div class="card-name">反欺诈检测</div>
+                </div>
+              </div>
+              
+              <div class="card-container" style="width: 100px;">
+                
+                <div class="card-role">
+                  <div class="role-avatar">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                      <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                  </div>
+                  财务团队
+                </div>
+                
+                <div class="card back-card">
+                  <div class="card-name">汇率风险管理</div>
+                </div>
+              </div>
+              
+            </div>
+          </div>
+          
+          <div class="phase-cell" style="width: 332px; min-height: 60px;">
+            <div class="cards-row">
+              
+              <div class="card-container" style="width: 100px;">
+                
+                <div class="card-role">
+                  <div class="role-avatar">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                      <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                  </div>
+                  生产计划员
+                </div>
+                
+                <div class="card back-card">
+                  <div class="card-name">生产排程管理</div>
+                </div>
+              </div>
+              
+              <div class="card-container" style="width: 100px;">
+                
+                <div class="card-role">
+                  <div class="role-avatar">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                      <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                  </div>
+                  外贸专员
+                </div>
+                
+                <div class="card back-card">
+                  <div class="card-name">出口报关操作</div>
+                </div>
+              </div>
+              
+              <div class="card-container" style="width: 100px;">
+                
+                <div class="card-role">
+                  <div class="role-avatar">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                      <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                  </div>
+                  物流经理
+                </div>
+                
+                <div class="card back-card">
+                  <div class="card-name">国际物流跟踪</div>
+                </div>
+              </div>
+              
+            </div>
+          </div>
+          
+          <div class="phase-cell" style="width: 332px; min-height: 60px;">
+            <div class="cards-row">
+              
+              <div class="card-container" style="width: 100px;">
+                
+                <div class="card-role">
+                  <div class="role-avatar">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                      <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                  </div>
+                  物流经理
+                </div>
+                
+                <div class="card back-card">
+                  <div class="card-name">本地物流协调</div>
+                </div>
+              </div>
+              
+              <div class="card-container" style="width: 100px;">
+                
+                <div class="card-role">
+                  <div class="role-avatar">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                      <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                  </div>
+                  合规专员
+                </div>
+                
+                <div class="card back-card">
+                  <div class="card-name">上牌合规准备</div>
+                </div>
+              </div>
+              
+              <div class="card-container" style="width: 100px;">
+                
+                <div class="card-role">
+                  <div class="role-avatar">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                      <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                  </div>
+                  内容团队
+                </div>
+                
+                <div class="card back-card">
+                  <div class="card-name">培训内容制作</div>
+                </div>
+              </div>
+              
+            </div>
+          </div>
+          
+          <div class="phase-cell" style="width: 332px; min-height: 60px;">
+            <div class="cards-row">
+              
+              <div class="card-container" style="width: 100px;">
+                
+                <div class="card-role">
+                  <div class="role-avatar">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                      <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                  </div>
+                  技术团队
+                </div>
+                
+                <div class="card back-card">
+                  <div class="card-name">IoT平台运维</div>
+                </div>
+              </div>
+              
+              <div class="card-container" style="width: 100px;">
+                
+                <div class="card-role">
+                  <div class="role-avatar">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                      <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                  </div>
+                  数据团队
+                </div>
+                
+                <div class="card back-card">
+                  <div class="card-name">骑行数据分析</div>
+                </div>
+              </div>
+              
+              <div class="card-container" style="width: 100px;">
+                
+                <div class="card-role">
+                  <div class="role-avatar">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                      <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                  </div>
+                  售后总监
+                </div>
+                
+                <div class="card back-card">
+                  <div class="card-name">海外服务网络建设</div>
+                </div>
+              </div>
+              
+            </div>
+          </div>
+          
+          <div class="phase-cell" style="width: 332px; min-height: 60px;">
+            <div class="cards-row">
+              
+              <div class="card-container" style="width: 100px;">
+                
+                <div class="card-role">
+                  <div class="role-avatar">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                      <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                  </div>
+                  技术团队
+                </div>
+                
+                <div class="card back-card">
+                  <div class="card-name">社区平台开发</div>
+                </div>
+              </div>
+              
+              <div class="card-container" style="width: 100px;">
+                
+                <div class="card-role">
+                  <div class="role-avatar">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                      <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                  </div>
+                  增长团队
+                </div>
+                
+                <div class="card back-card">
+                  <div class="card-name">推荐系统开发</div>
+                </div>
+              </div>
+              
+              <div class="card-container" style="width: 100px;">
+                
+                <div class="card-role">
+                  <div class="role-avatar">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                      <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                  </div>
+                  供应链经理
+                </div>
+                
+                <div class="card back-card">
+                  <div class="card-name">配件供应链</div>
+                </div>
+              </div>
+              
+            </div>
+          </div>
+          
+        </div>
+      </div>
+
+      
+      <div class="swimlane-row layer-back">
+        <div class="lane-label">后台系统</div>
+        <div class="lane-cells">
+          
+          <div class="phase-cell" style="width: 226px; min-height: 40px;">
+            <div class="cards-row">
+              
+              <div class="chip-container" style="width: 100px;">
+                
+                <span class="sys-chip">剪辑软件/AI生成</span>
+                
+              </div>
+              
+              <div class="chip-container" style="width: 100px;">
+                
+                <span class="sys-chip">翻译管理系统</span>
+                
+              </div>
+              
+            </div>
+          </div>
+          
+          <div class="phase-cell" style="width: 332px; min-height: 40px;">
+            <div class="cards-row">
+              
+              <div class="chip-container" style="width: 100px;">
+                
+                <span class="sys-chip">CMS系统</span>
+                
+              </div>
+              
+              <div class="chip-container" style="width: 100px;">
+                
+                <span class="sys-chip">CRM</span>
+                
+              </div>
+              
+              <div class="chip-container" style="width: 100px;">
+                
+                <span class="sys-chip">PIM系统</span>
+                
+              </div>
+              
+            </div>
+          </div>
+          
+          <div class="phase-cell" style="width: 332px; min-height: 40px;">
+            <div class="cards-row">
+              
+              <div class="chip-container" style="width: 100px;">
+                
+                <span class="sys-chip">ML平台</span>
+                
+              </div>
+              
+              <div class="chip-container" style="width: 100px;">
+                
+                <span class="sys-chip">知识管理系统</span>
+                
+              </div>
+              
+              <div class="chip-container" style="width: 100px;">
+                
+                <span class="sys-chip">资源管理系统</span>
+                
+              </div>
+              
+            </div>
+          </div>
+          
+          <div class="phase-cell" style="width: 332px; min-height: 40px;">
+            <div class="cards-row">
+              
+              <div class="chip-container" style="width: 100px;">
+                
+                <span class="sys-chip">支付网关/PayPal/Stripe</span>
+                
+              </div>
+              
+              <div class="chip-container" style="width: 100px;">
+                
+                <span class="sys-chip">风控引擎</span>
+                
+              </div>
+              
+              <div class="chip-container" style="width: 100px;">
+                
+                <span class="sys-chip">外汇系统</span>
+                
+              </div>
+              
+            </div>
+          </div>
+          
+          <div class="phase-cell" style="width: 332px; min-height: 40px;">
+            <div class="cards-row">
+              
+              <div class="chip-container" style="width: 100px;">
+                
+                <span class="sys-chip">MES/ERP</span>
+                
+              </div>
+              
+              <div class="chip-container" style="width: 100px;">
+                
+                <span class="sys-chip">报关系统</span>
+                
+              </div>
+              
+              <div class="chip-container" style="width: 100px;">
+                
+                <span class="sys-chip">TMS/货代系统</span>
+                
+              </div>
+              
+            </div>
+          </div>
+          
+          <div class="phase-cell" style="width: 332px; min-height: 40px;">
+            <div class="cards-row">
+              
+              <div class="chip-container" style="width: 100px;">
+                
+                <span class="sys-chip">TMS</span>
+                
+              </div>
+              
+              <div class="chip-container" style="width: 100px;">
+                
+                <span class="sys-chip">合规数据库</span>
+                
+              </div>
+              
+              <div class="chip-container" style="width: 100px;">
+                
+                <span class="sys-chip">视频制作工具</span>
+                
+              </div>
+              
+            </div>
+          </div>
+          
+          <div class="phase-cell" style="width: 332px; min-height: 40px;">
+            <div class="cards-row">
+              
+              <div class="chip-container" style="width: 100px;">
+                
+                <span class="sys-chip">云服务器/IoT平台</span>
+                
+              </div>
+              
+              <div class="chip-container" style="width: 100px;">
+                
+                <span class="sys-chip">数据仓库/BI</span>
+                
+              </div>
+              
+              <div class="chip-container" style="width: 100px;">
+                
+                <span class="sys-chip">服务商管理系统</span>
+                
+              </div>
+              
+            </div>
+          </div>
+          
+          <div class="phase-cell" style="width: 332px; min-height: 40px;">
+            <div class="cards-row">
+              
+              <div class="chip-container" style="width: 100px;">
+                
+                <span class="sys-chip">社区系统</span>
+                
+              </div>
+              
+              <div class="chip-container" style="width: 100px;">
+                
+                <span class="sys-chip">营销系统</span>
+                
+              </div>
+              
+              <div class="chip-container" style="width: 100px;">
+                
+                <span class="sys-chip">SCM系统</span>
+                
+              </div>
+              
+            </div>
+          </div>
+          
+        </div>
+      </div>
+
+      
+      <div class="swimlane-row layer-back">
+        <div class="lane-label">痛点<br>负荷</div>
+        <div class="lane-cells">
+          
+          <div class="phase-cell" style="width: 226px; min-height: 40px;">
+            <div style="display: flex; flex-direction: column; gap: 4px;">
+            
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>版权限制</span></div>
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>制作周期长</span></div>
+              
+              
+              <div>
+  
+  <span class="load-badge load-medium">
+    
+    <svg style="width:12px; height:12px; flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+    
+    medium
+  </span>
+  
+  </div>
+              
+            
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>摩托车专业术语翻译不准</span></div>
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>本地化成本高</span></div>
+              
+              
+              <div>
+  
+  <span class="load-badge load-high">
+    
+    <svg style="width:12px; height:12px; flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    
+    high
+  </span>
+  
+  </div>
+              
+            
+            </div>
+          </div>
+          
+          <div class="phase-cell" style="width: 332px; min-height: 40px;">
+            <div style="display: flex; flex-direction: column; gap: 4px;">
+            
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>多语言内容维护量大</span></div>
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>CDN加速不足</span></div>
+              
+              
+              <div>
+  
+  <span class="load-badge load-medium">
+    
+    <svg style="width:12px; height:12px; flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+    
+    medium
+  </span>
+  
+  </div>
+              
+            
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>优质KOL资源难找</span></div>
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>合作成本高</span></div>
+              
+              
+              <div>
+  
+  <span class="load-badge load-medium">
+    
+    <svg style="width:12px; height:12px; flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+    
+    medium
+  </span>
+  
+  </div>
+              
+            
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>产品信息分散</span></div>
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>多语言数据同步难</span></div>
+              
+              
+              <div>
+  
+  <span class="load-badge load-medium">
+    
+    <svg style="width:12px; height:12px; flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+    
+    medium
+  </span>
+  
+  </div>
+              
+            
+            </div>
+          </div>
+          
+          <div class="phase-cell" style="width: 332px; min-height: 40px;">
+            <div style="display: flex; flex-direction: column; gap: 4px;">
+            
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>摩托车领域语料少</span></div>
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>多语言训练数据不足</span></div>
+              
+              
+              <div>
+  
+  <span class="load-badge load-critical">
+    
+    <svg style="width:12px; height:12px; flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+    
+    critical
+  </span>
+  
+  </div>
+              
+            
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>产品信息更新频繁</span></div>
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>多语言知识库维护量大</span></div>
+              
+              
+              <div>
+  
+  <span class="load-badge load-high">
+    
+    <svg style="width:12px; height:12px; flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    
+    high
+  </span>
+  
+  </div>
+              
+            
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>海外试驾车调配困难</span></div>
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>场地合作谈判复杂</span></div>
+              
+              
+              <div>
+  
+  <span class="load-badge load-high">
+    
+    <svg style="width:12px; height:12px; flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    
+    high
+  </span>
+  
+  </div>
+              
+            
+            </div>
+          </div>
+          
+          <div class="phase-cell" style="width: 332px; min-height: 40px;">
+            <div style="display: flex; flex-direction: column; gap: 4px;">
+            
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>多国支付方式对接复杂</span></div>
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>支付失败率高</span></div>
+              
+              
+              <div>
+  
+  <span class="load-badge load-high">
+    
+    <svg style="width:12px; height:12px; flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    
+    high
+  </span>
+  
+  </div>
+              
+            
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>跨境交易欺诈模型不成熟</span></div>
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>误判率影响正常订单</span></div>
+              
+              
+              <div>
+  
+  <span class="load-badge load-high">
+    
+    <svg style="width:12px; height:12px; flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    
+    high
+  </span>
+  
+  </div>
+              
+            
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>汇率波动不可控</span></div>
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>对冲成本高</span></div>
+              
+              
+              <div>
+  
+  <span class="load-badge load-medium">
+    
+    <svg style="width:12px; height:12px; flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+    
+    medium
+  </span>
+  
+  </div>
+              
+            
+            </div>
+          </div>
+          
+          <div class="phase-cell" style="width: 332px; min-height: 40px;">
+            <div style="display: flex; flex-direction: column; gap: 4px;">
+            
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>产能不足订单积压</span></div>
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>排程优化困难</span></div>
+              
+              
+              <div>
+  
+  <span class="load-badge load-critical">
+    
+    <svg style="width:12px; height:12px; flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+    
+    critical
+  </span>
+  
+  </div>
+              
+            
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>摩托车出口手续复杂</span></div>
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>单证准备周期长</span></div>
+              
+              
+              <div>
+  
+  <span class="load-badge load-high">
+    
+    <svg style="width:12px; height:12px; flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    
+    high
+  </span>
+  
+  </div>
+              
+            
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>多段运输信息整合难</span></div>
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>异常处理响应慢</span></div>
+              
+              
+              <div>
+  
+  <span class="load-badge load-high">
+    
+    <svg style="width:12px; height:12px; flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    
+    high
+  </span>
+  
+  </div>
+              
+            
+            </div>
+          </div>
+          
+          <div class="phase-cell" style="width: 332px; min-height: 40px;">
+            <div style="display: flex; flex-direction: column; gap: 4px;">
+            
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>大件配送资源稀缺</span></div>
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>最后一公里成本高</span></div>
+              
+              
+              <div>
+  
+  <span class="load-badge load-high">
+    
+    <svg style="width:12px; height:12px; flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    
+    high
+  </span>
+  
+  </div>
+              
+            
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>各国法规更新频繁</span></div>
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>合规文档翻译量大</span></div>
+              
+              
+              <div>
+  
+  <span class="load-badge load-high">
+    
+    <svg style="width:12px; height:12px; flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    
+    high
+  </span>
+  
+  </div>
+              
+            
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>专业骑行培训内容制作难</span></div>
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>多语言配音成本高</span></div>
+              
+              
+              <div>
+  
+  <span class="load-badge load-medium">
+    
+    <svg style="width:12px; height:12px; flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+    
+    medium
+  </span>
+  
+  </div>
+              
+            
+            </div>
+          </div>
+          
+          <div class="phase-cell" style="width: 332px; min-height: 40px;">
+            <div style="display: flex; flex-direction: column; gap: 4px;">
+            
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>海外CDN覆盖不足</span></div>
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>数据合规要求高</span></div>
+              
+              
+              <div>
+  
+  <span class="load-badge load-high">
+    
+    <svg style="width:12px; height:12px; flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    
+    high
+  </span>
+  
+  </div>
+              
+            
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>数据量不足</span></div>
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>分析模型待优化</span></div>
+              
+              
+              <div>
+  
+  <span class="load-badge load-medium">
+    
+    <svg style="width:12px; height:12px; flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+    
+    medium
+  </span>
+  
+  </div>
+              
+            
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>服务商招募困难</span></div>
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>培训体系待建立</span></div>
+              
+              
+              <div>
+  
+  <span class="load-badge load-critical">
+    
+    <svg style="width:12px; height:12px; flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+    
+    critical
+  </span>
+  
+  </div>
+              
+            
+            </div>
+          </div>
+          
+          <div class="phase-cell" style="width: 332px; min-height: 40px;">
+            <div style="display: flex; flex-direction: column; gap: 4px;">
+            
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>多语言功能开发复杂</span></div>
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>实时互动技术要求高</span></div>
+              
+              
+              <div>
+  
+  <span class="load-badge load-high">
+    
+    <svg style="width:12px; height:12px; flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    
+    high
+  </span>
+  
+  </div>
+              
+            
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>推荐追踪技术复杂</span></div>
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>反作弊机制待完善</span></div>
+              
+              
+              <div>
+  
+  <span class="load-badge load-medium">
+    
+    <svg style="width:12px; height:12px; flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+    
+    medium
+  </span>
+  
+  </div>
+              
+            
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>海外配件前置仓缺失</span></div>
+              
+              <div class="pain-item"><span class="pain-bullet">•</span><span>库存规划困难</span></div>
+              
+              
+              <div>
+  
+  <span class="load-badge load-critical">
+    
+    <svg style="width:12px; height:12px; flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+    
+    critical
+  </span>
+  
+  </div>
+              
+            
+            </div>
+          </div>
+          
+        </div>
+      </div>
+
+    </div>
+
+    <p class="bp-footer">Generated by blueprint-map-generator · 2026-04-29 21:28</p>
+  </div>
+</body>
+</html>

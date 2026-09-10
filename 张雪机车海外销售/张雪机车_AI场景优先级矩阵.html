@@ -1,0 +1,1566 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>张雪机车海外销售AI场景优先级矩阵报告</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --zx-bg: #FFFFFF; --zx-bg-secondary: #F7F8F9; --zx-fg: #0F141D; --zx-fg-secondary: #45546C; --zx-fg-muted: #5C6B82;
+            --zx-primary: #1A6BC4; --zx-primary-hover: #1558A5; --zx-primary-fg: #FFFFFF; --zx-primary-muted: #EBF4FD;
+            --zx-secondary: #EBEEF2; --zx-secondary-hover: #D5DAE2; --zx-secondary-fg: #1E2634;
+            --zx-accent: #E63946; --zx-accent-hover: #CF212F;
+            --zx-border: #D5DAE2; --zx-border-light: #EBEEF2; --zx-divider: #F3F4F6;
+            --zx-success: #16A34A; --zx-warning: #F59E0B; --zx-danger: #DC2626;
+            --zx-card-bg: #FFFFFF;
+            --zx-font-sans: 'Inter', 'Noto Sans SC', -apple-system, BlinkMacSystemFont, 'PingFang SC', sans-serif;
+            --zx-radius-sm: 2px; --zx-radius-md: 8px; --zx-radius-lg: 12px;
+            --zx-shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05); --zx-shadow-default: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+            --zx-shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1); --zx-shadow-lg: 0 10px 25px -5px rgb(0 0 0 / 0.15);
+            
+            --font: var(--zx-font-sans);
+            --bg-page: var(--zx-bg-secondary);
+            --bg-card: var(--zx-card-bg);
+            --text-primary: var(--zx-fg);
+            --text-sub: var(--zx-fg-secondary);
+            --border: var(--zx-border);
+            --radius: var(--zx-radius-lg);
+            --shadow: var(--zx-shadow-md);
+            
+            --benefit-bg: #fff1f2;
+            --cost-bg: var(--zx-primary-muted);
+            --priority-bg: #fefce8;
+            --primary: var(--zx-primary);
+        }
+
+        body {
+            font-family: var(--zx-font-sans);
+            background: var(--bg-page);
+            color: var(--text-primary);
+            margin: 0; padding: 40px 20px;
+            line-height: 1.6;
+        }
+
+        .container { max-width: 1300px; margin: 0 auto; }
+
+        header {
+            display: flex; align-items: center; gap: 12px;
+            margin-bottom: 32px; padding-bottom: 16px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .header-icon {
+            width: 36px; height: 36px;
+            background: var(--zx-primary); color: var(--zx-card-bg);
+            border-radius: 8px; display: flex;
+            align-items: center; justify-content: center;
+            font-weight: 800; font-size: 18px;
+        }
+
+        h1 { font-size: 24px; font-weight: 700; margin: 0; }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 24px; margin-bottom: 32px;
+        }
+
+        .section-title {
+            font-size: 18px; font-weight: 700; margin-bottom: 24px;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+
+        /* Formula Box */
+        .formula-box {
+            background: var(--zx-bg-secondary);
+            border: 1px solid var(--zx-border);
+            border-radius: 8px;
+            padding: 16px 20px;
+            margin-bottom: 24px;
+        }
+        .formula-title { font-weight: 700; font-size: 14px; margin-bottom: 8px; color: var(--zx-fg); }
+        .formula-content { font-size: 13px;             color: var(--zx-fg-secondary); font-family: monospace; }
+
+        /* Scoring Standards Grid */
+        .standards-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 32px;
+        }
+        .dimension-group { margin-bottom: 24px; }
+        .dimension-title { font-weight: 700; font-size: 15px; margin-bottom: 12px; color: var(--zx-fg); border-left: 4px solid var(--zx-primary); padding-left: 10px; }
+        .score-list { list-style: none; padding: 0; margin: 0; }
+        .score-item { font-size: 13px; margin-bottom: 6px; color: #4b5563; display: flex; gap: 8px; }
+        .score-num { font-weight: 700; color: var(--zx-fg); min-width: 18px; }
+
+        /* Table Styles */
+        .table-wrap { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        th {
+            padding: 16px 12px; text-align: left; background: var(--zx-card-bg);
+            border-bottom: 1px solid var(--border); font-weight: 600; color: var(--zx-fg-secondary);
+        }
+        td { padding: 16px 12px; border-bottom: 1px solid var(--zx-border-light); vertical-align: middle; }
+        
+        .col-id { width: 40px; text-align: center; }
+        .col-name { width: 300px; font-weight: 500; }
+        .col-score { text-align: center; width: 100px; }
+        .col-priority { text-align: center; width: 110px; font-weight: 700; font-size: 16px; background-color: var(--priority-bg) !important; }
+        .col-action { width: 80px; text-align: center; color: var(--zx-fg-muted); }
+
+        .bg-benefit { background-color: var(--benefit-bg); }
+        .bg-cost { background-color: var(--cost-bg); }
+        
+        .id-badge {
+            width: 24px; height: 24px; border-radius: 50%;
+            display: inline-flex; align-items: center; justify-content: center;
+            color: var(--zx-card-bg); font-size: 11px; font-weight: 700;
+        }
+        
+        .qual-label { font-size: 11px; color: var(--zx-fg-secondary); margin-left: 2px; }
+
+        /* Toggle Button */
+        .btn-toggle {
+            background: var(--zx-border-light); border: 1px solid var(--zx-border);
+            padding: 6px 12px; border-radius: 6px; font-size: 12px;
+            font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 4px;
+        }
+
+        /* Matrix Styles */
+        .matrix-wrap { position: relative; margin: 40px 0; }
+        .matrix-grid {
+            display: grid;
+            grid-template-columns: 100px repeat(5, 1fr);
+            gap: 4px;
+        }
+        .y-label {
+            display: flex; align-items: center; justify-content: flex-end;
+            padding-right: 15px; font-size: 12px; font-weight: 500;
+            color: var(--text-sub); text-align: right; min-height: 100px;
+        }
+        .grid-cell {
+            position: relative; min-height: 120px;
+            border: 1px solid rgba(255,255,255,0.8);
+            border-radius: 4px;
+        }
+        .cell-items {
+            position: absolute; inset: 0;
+            display: flex; flex-direction: column; padding: 10px;
+            gap: 8px; align-items: center; justify-content: center;
+            overflow-y: auto;
+        }
+        .cell-card {
+            background: var(--zx-card-bg);
+            border-radius: 8px;
+            padding: 12px 8px 8px;
+            width: 90%;
+            position: relative;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+            display: flex; flex-direction: column; align-items: center;
+            text-align: center;
+        }
+        .cell-id-badge {
+            position: absolute;
+            top: -12px; left: 50%;
+            transform: translateX(-50%);
+            width: 24px; height: 24px;
+            border-radius: 50%;
+            color: var(--zx-card-bg); font-size: 11px; font-weight: 800;
+            display: flex; align-items: center; justify-content: center;
+            border: 2px solid var(--zx-card-bg);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .cell-name-text {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--zx-fg);
+            line-height: 1.3;
+            word-break: break-word;
+            margin-top: 4px;
+        }
+
+        .corner { grid-column: 1; }
+        .x-label {
+            padding-top: 12px; text-align: center;
+            font-size: 12px; font-weight: 500; color: var(--text-sub);
+        }
+
+        .matrix-axis-title {
+            text-align: center; font-size: 14px; font-weight: 600;
+            color: var(--text-sub); margin-top: 12px;
+        }
+        .matrix-axis-y {
+            position: absolute; left: -40px; top: 50%;
+            transform: rotate(-90deg) translate(50%, 0);
+            font-size: 14px; font-weight: 600; color: var(--text-sub);
+        }
+
+        .legend {
+            display: flex; justify-content: center; gap: 24px;
+            margin-top: 32px; font-size: 12px; color: var(--text-sub);
+        }
+        .legend-item { display: flex; align-items: center; gap: 8px; }
+        .legend-box { width: 16px; height: 16px; border-radius: 3px; border: 1px solid var(--border); }
+
+        /* Insights Styles */
+        .insight-section { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; margin-top: 32px; }
+        .full-width { grid-column: span 2; }
+        
+        .top-10-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        .top-10-table th { padding: 10px; text-align: left; background: var(--zx-bg-secondary); border-bottom: 2px solid var(--zx-border); color: var(--zx-fg-secondary); font-weight: 700; }
+        .top-10-table td { padding: 10px; border-bottom: 1px solid var(--zx-border-light); }
+        .rank-badge { 
+            font-weight: 800; color: var(--primary); width: 24px; display: inline-block;
+        }
+
+        .roadmap-container { padding: 8px 0; }
+        .phase-item { margin-bottom: 20px; }
+        .phase-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; font-size: 13px; font-weight: 600; }
+        .phase-label { display: flex; align-items: center; gap: 8px; }
+        .phase-bar-bg { height: 10px; background: var(--zx-bg-secondary); border-radius: 5px; overflow: hidden; position: relative; }
+        .phase-bar-fill { height: 100%; background: var(--primary); border-radius: 5px; }
+        .phase-tag { font-size: 11px; background: var(--zx-primary-muted); color: var(--primary); padding: 2px 8px; border-radius: 10px; border: 1px solid var(--zx-primary-muted); }
+
+        .insight-list { list-style: none; padding: 0; margin: 0; }
+        .insight-item { 
+            position: relative; padding-left: 28px; margin-bottom: 16px; font-size: 14px; color: var(--zx-fg-secondary); line-height: 1.6;
+        }
+        .insight-item::before {
+            content: '🔑'; position: absolute; left: 0; top: 2px; font-size: 16px;
+        }
+        .insight-item strong { color: var(--zx-fg); display: block; margin-bottom: 2px; }
+
+        @media (max-width: 1024px) {
+            .insight-section { grid-template-columns: 1fr; }
+            .full-width { grid-column: span 1; }
+        }
+
+        .hidden { display: none !important; }
+
+        @media print {
+            body { padding: 0; background: var(--zx-card-bg); }
+            .card { box-shadow: none; border: 1px solid #ddd; }
+            #standards-panel { display: block !important; }
+            .insight-section { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-icon">AI</div>
+            <h1>张雪机车海外销售AI场景优先级矩阵报告</h1>
+        </header>
+
+        <!-- Scoring Standards -->
+        <div class="card">
+            <div class="section-title">
+                <span>评分说明</span>
+                <button class="btn-toggle" onclick="toggleStandards()">
+                    <span id="standards-toggle-icon">▲</span> <span id="standards-toggle-text">隐藏说明</span>
+                </button>
+            </div>
+            
+            <div id="standards-panel">
+                <div class="formula-box">
+                    <div class="formula-title">优先级计算</div>
+                    <div class="formula-content">优先级 = (用户数量 × 使用频度 × 业务收益) ÷ (数据复杂性 + AI设计复杂性 + 集成复杂性 + 知识复杂性)</div>
+                </div>
+
+                <div class="standards-grid">
+                    <div class="dimension-col">
+                        <div class="dimension-group">
+                            <div class="dimension-title">用户数量</div>
+                            <ul class="score-list">
+                                <li class="score-item"><span class="score-num">1:</span> 极少用户 (&lt;10)</li>
+                                <li class="score-item"><span class="score-num">2:</span> 小用户群体 (10-50)</li>
+                                <li class="score-item"><span class="score-num">3:</span> 中等用户群体 (50-200)</li>
+                                <li class="score-item"><span class="score-num">4:</span> 大用户群体 (200-1000)</li>
+                                <li class="score-item"><span class="score-num">5:</span> 极大用户群体 (&gt;1000)</li>
+                            </ul>
+                        </div>
+                        <div class="dimension-group">
+                            <div class="dimension-title">业务收益</div>
+                            <ul class="score-list">
+                                <li class="score-item"><span class="score-num">1:</span> 最小影响 (单次使用成本节省/收益创造大致为 ¥0-10)</li>
+                                <li class="score-item"><span class="score-num">2:</span> 低影响 (单次使用成本节省/收益创造大致为 ¥10-20)</li>
+                                <li class="score-item"><span class="score-num">3:</span> 中等影响 (单次使用成本节省/收益创造大致为 ¥20-50)</li>
+                                <li class="score-item"><span class="score-num">4:</span> 高影响 (单次使用成本节省/收益创造大致为 ¥50-100)</li>
+                                <li class="score-item"><span class="score-num">5:</span> 关键影响 (单次使用成本节省/收益创造大致为 ¥100以上)</li>
+                            </ul>
+                        </div>
+                        <div class="dimension-group">
+                            <div class="dimension-title">AI 设计复杂性</div>
+                            <ul class="score-list">
+                                <li class="score-item"><span class="score-num">1:</span> 简单模型，现成解决方案</li>
+                                <li class="score-item"><span class="score-num">2:</span> 标准模型，少量定制</li>
+                                <li class="score-item"><span class="score-num">3:</span> 现有模型的中等定制</li>
+                                <li class="score-item"><span class="score-num">4:</span> 需要大量模型定制</li>
+                                <li class="score-item"><span class="score-num">5:</span> 新型AI方法，需要广泛研发</li>
+                            </ul>
+                        </div>
+                        <div class="dimension-group">
+                            <div class="dimension-title">知识复杂性</div>
+                            <ul class="score-list">
+                                <li class="score-item"><span class="score-num">1:</span> 通用知识，最少领域专业知识</li>
+                                <li class="score-item"><span class="score-num">2:</span> 需要基本领域知识</li>
+                                <li class="score-item"><span class="score-num">3:</span> 需要中等领域专业知识</li>
+                                <li class="score-item"><span class="score-num">4:</span> 需要深度领域专业知识</li>
+                                <li class="score-item"><span class="score-num">5:</span> 跨多个领域的高度专业知识</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="dimension-col">
+                        <div class="dimension-group">
+                            <div class="dimension-title">使用频度</div>
+                            <ul class="score-list">
+                                <li class="score-item"><span class="score-num">1:</span> 极少使用 (每年几次)</li>
+                                <li class="score-item"><span class="score-num">2:</span> 偶尔使用 (每月)</li>
+                                <li class="score-item"><span class="score-num">3:</span> 定期使用 (每周)</li>
+                                <li class="score-item"><span class="score-num">4:</span> 频繁使用 (每天)</li>
+                                <li class="score-item"><span class="score-num">5:</span> 持续使用 (每天多次)</li>
+                            </ul>
+                        </div>
+                        <div class="dimension-group">
+                            <div class="dimension-title">数据复杂性</div>
+                            <ul class="score-list">
+                                <li class="score-item"><span class="score-num">1:</span> 简单的结构化数据，随时可用</li>
+                                <li class="score-item"><span class="score-num">2:</span> 大部分结构化数据，需要少量预处理</li>
+                                <li class="score-item"><span class="score-num">3:</span> 结构化/非结构化数据混合，需要中等预处理</li>
+                                <li class="score-item"><span class="score-num">4:</span> 大部分非结构化数据，需要大量预处理</li>
+                                <li class="score-item"><span class="score-num">5:</span> 复杂的高度非结构化数据，需要广泛预处理</li>
+                            </ul>
+                        </div>
+                        <div class="dimension-group">
+                            <div class="dimension-title">集成复杂性</div>
+                            <ul class="score-list">
+                                <li class="score-item"><span class="score-num">1:</span> 独立系统，最少集成</li>
+                                <li class="score-item"><span class="score-num">2:</span> 与1-2个现有系统的简单集成</li>
+                                <li class="score-item"><span class="score-num">3:</span> 与多个系统的中等集成</li>
+                                <li class="score-item"><span class="score-num">4:</span> 与许多系统的复杂集成</li>
+                                <li class="score-item"><span class="score-num">5:</span> 跨企业的高度复杂集成</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Use Case Table -->
+        <div class="card">
+            <div class="section-title">使用场景评估报告</div>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th class="col-id">#</th>
+                            <th class="col-name">使用场景名称</th>
+                            <th class="col-score bg-benefit">用户数量</th>
+                            <th class="col-score bg-benefit">使用频度</th>
+                            <th class="col-score bg-benefit">业务收益</th>
+                            <th class="col-score bg-cost">数据复杂性</th>
+                            <th class="col-score bg-cost">AI 设计复杂性</th>
+                            <th class="col-score bg-cost">集成复杂性</th>
+                            <th class="col-score bg-cost">知识复杂性</th>
+                            <th class="col-priority">优先级得分</th>
+                            <th class="col-action">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        
+                        
+                        <tr>
+                            <td class="col-id"><span class="id-badge" style="--badge-bg: #f97316; background-color: var(--badge-bg);">A01</span></td>
+                            <td class="col-name">AI多语言内容工厂</td>
+                            <td class="col-score bg-benefit">5<span class="qual-label">(非常高)</span></td>
+                            <td class="col-score bg-benefit">5<span class="qual-label">(非常高)</span></td>
+                            <td class="col-score bg-benefit">5<span class="qual-label">(非常高)</span></td>
+                            <td class="col-score bg-cost">3<span class="qual-label">(中等)</span></td>
+                            <td class="col-score bg-cost">3<span class="qual-label">(中等)</span></td>
+                            <td class="col-score bg-cost">3<span class="qual-label">(中等)</span></td>
+                            <td class="col-score bg-cost">2<span class="qual-label">(低)</span></td>
+                            <td class="col-priority">11.36</td>
+                            <td class="col-action">✎ 🗑</td>
+                        </tr>
+                        
+                        <tr>
+                            <td class="col-id"><span class="id-badge" style="--badge-bg: #f97316; background-color: var(--badge-bg);">B01</span></td>
+                            <td class="col-name">AI多语言客服机器人</td>
+                            <td class="col-score bg-benefit">5<span class="qual-label">(非常高)</span></td>
+                            <td class="col-score bg-benefit">5<span class="qual-label">(非常高)</span></td>
+                            <td class="col-score bg-benefit">5<span class="qual-label">(非常高)</span></td>
+                            <td class="col-score bg-cost">3<span class="qual-label">(中等)</span></td>
+                            <td class="col-score bg-cost">3<span class="qual-label">(中等)</span></td>
+                            <td class="col-score bg-cost">4<span class="qual-label">(高)</span></td>
+                            <td class="col-score bg-cost">3<span class="qual-label">(中等)</span></td>
+                            <td class="col-priority">9.62</td>
+                            <td class="col-action">✎ 🗑</td>
+                        </tr>
+                        
+                        <tr>
+                            <td class="col-id"><span class="id-badge" style="--badge-bg: #f59e0b; background-color: var(--badge-bg);">B02</span></td>
+                            <td class="col-name">智能购车顾问</td>
+                            <td class="col-score bg-benefit">5<span class="qual-label">(非常高)</span></td>
+                            <td class="col-score bg-benefit">5<span class="qual-label">(非常高)</span></td>
+                            <td class="col-score bg-benefit">5<span class="qual-label">(非常高)</span></td>
+                            <td class="col-score bg-cost">3<span class="qual-label">(中等)</span></td>
+                            <td class="col-score bg-cost">4<span class="qual-label">(高)</span></td>
+                            <td class="col-score bg-cost">4<span class="qual-label">(高)</span></td>
+                            <td class="col-score bg-cost">4<span class="qual-label">(高)</span></td>
+                            <td class="col-priority">8.33</td>
+                            <td class="col-action">✎ 🗑</td>
+                        </tr>
+                        
+                        <tr>
+                            <td class="col-id"><span class="id-badge" style="--badge-bg: #f59e0b; background-color: var(--badge-bg);">D02</span></td>
+                            <td class="col-name">自动化进度同步</td>
+                            <td class="col-score bg-benefit">5<span class="qual-label">(非常高)</span></td>
+                            <td class="col-score bg-benefit">5<span class="qual-label">(非常高)</span></td>
+                            <td class="col-score bg-benefit">3<span class="qual-label">(中等)</span></td>
+                            <td class="col-score bg-cost">2<span class="qual-label">(低)</span></td>
+                            <td class="col-score bg-cost">2<span class="qual-label">(低)</span></td>
+                            <td class="col-score bg-cost">3<span class="qual-label">(中等)</span></td>
+                            <td class="col-score bg-cost">2<span class="qual-label">(低)</span></td>
+                            <td class="col-priority">8.33</td>
+                            <td class="col-action">✎ 🗑</td>
+                        </tr>
+                        
+                        <tr>
+                            <td class="col-id"><span class="id-badge" style="--badge-bg: #f97316; background-color: var(--badge-bg);">C01</span></td>
+                            <td class="col-name">动态定价引擎</td>
+                            <td class="col-score bg-benefit">5<span class="qual-label">(非常高)</span></td>
+                            <td class="col-score bg-benefit">5<span class="qual-label">(非常高)</span></td>
+                            <td class="col-score bg-benefit">5<span class="qual-label">(非常高)</span></td>
+                            <td class="col-score bg-cost">4<span class="qual-label">(高)</span></td>
+                            <td class="col-score bg-cost">4<span class="qual-label">(高)</span></td>
+                            <td class="col-score bg-cost">4<span class="qual-label">(高)</span></td>
+                            <td class="col-score bg-cost">4<span class="qual-label">(高)</span></td>
+                            <td class="col-priority">7.81</td>
+                            <td class="col-action">✎ 🗑</td>
+                        </tr>
+                        
+                        <tr>
+                            <td class="col-id"><span class="id-badge" style="--badge-bg: #84cc16; background-color: var(--badge-bg);">A04</span></td>
+                            <td class="col-name">自动化SEO优化</td>
+                            <td class="col-score bg-benefit">4<span class="qual-label">(高)</span></td>
+                            <td class="col-score bg-benefit">4<span class="qual-label">(高)</span></td>
+                            <td class="col-score bg-benefit">4<span class="qual-label">(高)</span></td>
+                            <td class="col-score bg-cost">2<span class="qual-label">(低)</span></td>
+                            <td class="col-score bg-cost">2<span class="qual-label">(低)</span></td>
+                            <td class="col-score bg-cost">3<span class="qual-label">(中等)</span></td>
+                            <td class="col-score bg-cost">2<span class="qual-label">(低)</span></td>
+                            <td class="col-priority">7.11</td>
+                            <td class="col-action">✎ 🗑</td>
+                        </tr>
+                        
+                        <tr>
+                            <td class="col-id"><span class="id-badge" style="--badge-bg: #84cc16; background-color: var(--badge-bg);">B04</span></td>
+                            <td class="col-name">自动化试驾预约</td>
+                            <td class="col-score bg-benefit">4<span class="qual-label">(高)</span></td>
+                            <td class="col-score bg-benefit">4<span class="qual-label">(高)</span></td>
+                            <td class="col-score bg-benefit">4<span class="qual-label">(高)</span></td>
+                            <td class="col-score bg-cost">2<span class="qual-label">(低)</span></td>
+                            <td class="col-score bg-cost">2<span class="qual-label">(低)</span></td>
+                            <td class="col-score bg-cost">3<span class="qual-label">(中等)</span></td>
+                            <td class="col-score bg-cost">2<span class="qual-label">(低)</span></td>
+                            <td class="col-priority">7.11</td>
+                            <td class="col-action">✎ 🗑</td>
+                        </tr>
+                        
+                        <tr>
+                            <td class="col-id"><span class="id-badge" style="--badge-bg: #eab308; background-color: var(--badge-bg);">B03</span></td>
+                            <td class="col-name">客户意向智能分级</td>
+                            <td class="col-score bg-benefit">4<span class="qual-label">(高)</span></td>
+                            <td class="col-score bg-benefit">5<span class="qual-label">(非常高)</span></td>
+                            <td class="col-score bg-benefit">4<span class="qual-label">(高)</span></td>
+                            <td class="col-score bg-cost">3<span class="qual-label">(中等)</span></td>
+                            <td class="col-score bg-cost">3<span class="qual-label">(中等)</span></td>
+                            <td class="col-score bg-cost">4<span class="qual-label">(高)</span></td>
+                            <td class="col-score bg-cost">2<span class="qual-label">(低)</span></td>
+                            <td class="col-priority">6.67</td>
+                            <td class="col-action">✎ 🗑</td>
+                        </tr>
+                        
+                        <tr>
+                            <td class="col-id"><span class="id-badge" style="--badge-bg: #f59e0b; background-color: var(--badge-bg);">C02</span></td>
+                            <td class="col-name">自动化汇率管理</td>
+                            <td class="col-score bg-benefit">4<span class="qual-label">(高)</span></td>
+                            <td class="col-score bg-benefit">5<span class="qual-label">(非常高)</span></td>
+                            <td class="col-score bg-benefit">4<span class="qual-label">(高)</span></td>
+                            <td class="col-score bg-cost">3<span class="qual-label">(中等)</span></td>
+                            <td class="col-score bg-cost">2<span class="qual-label">(低)</span></td>
+                            <td class="col-score bg-cost">4<span class="qual-label">(高)</span></td>
+                            <td class="col-score bg-cost">3<span class="qual-label">(中等)</span></td>
+                            <td class="col-priority">6.67</td>
+                            <td class="col-action">✎ 🗑</td>
+                        </tr>
+                        
+                        <tr>
+                            <td class="col-id"><span class="id-badge" style="--badge-bg: #eab308; background-color: var(--badge-bg);">D03</span></td>
+                            <td class="col-name">自动化物流跟踪</td>
+                            <td class="col-score bg-benefit">4<span class="qual-label">(高)</span></td>
+                            <td class="col-score bg-benefit">5<span class="qual-label">(非常高)</span></td>
+                            <td class="col-score bg-benefit">3<span class="qual-label">(中等)</span></td>
+                            <td class="col-score bg-cost">3<span class="qual-label">(中等)</span></td>
+                            <td class="col-score bg-cost">2<span class="qual-label">(低)</span></td>
+                            <td class="col-score bg-cost">4<span class="qual-label">(高)</span></td>
+                            <td class="col-score bg-cost">2<span class="qual-label">(低)</span></td>
+                            <td class="col-priority">5.45</td>
+                            <td class="col-action">✎ 🗑</td>
+                        </tr>
+                        
+                        <tr>
+                            <td class="col-id"><span class="id-badge" style="--badge-bg: #f97316; background-color: var(--badge-bg);">F01</span></td>
+                            <td class="col-name">AI社区内容管理</td>
+                            <td class="col-score bg-benefit">4<span class="qual-label">(高)</span></td>
+                            <td class="col-score bg-benefit">5<span class="qual-label">(非常高)</span></td>
+                            <td class="col-score bg-benefit">3<span class="qual-label">(中等)</span></td>
+                            <td class="col-score bg-cost">3<span class="qual-label">(中等)</span></td>
+                            <td class="col-score bg-cost">3<span class="qual-label">(中等)</span></td>
+                            <td class="col-score bg-cost">3<span class="qual-label">(中等)</span></td>
+                            <td class="col-score bg-cost">2<span class="qual-label">(低)</span></td>
+                            <td class="col-priority">5.45</td>
+                            <td class="col-action">✎ 🗑</td>
+                        </tr>
+                        
+                        <tr>
+                            <td class="col-id"><span class="id-badge" style="--badge-bg: #f97316; background-color: var(--badge-bg);">D01</span></td>
+                            <td class="col-name">智能生产排程优化</td>
+                            <td class="col-score bg-benefit">4<span class="qual-label">(高)</span></td>
+                            <td class="col-score bg-benefit">5<span class="qual-label">(非常高)</span></td>
+                            <td class="col-score bg-benefit">4<span class="qual-label">(高)</span></td>
+                            <td class="col-score bg-cost">4<span class="qual-label">(高)</span></td>
+                            <td class="col-score bg-cost">4<span class="qual-label">(高)</span></td>
+                            <td class="col-score bg-cost">4<span class="qual-label">(高)</span></td>
+                            <td class="col-score bg-cost">4<span class="qual-label">(高)</span></td>
+                            <td class="col-priority">5.0</td>
+                            <td class="col-action">✎ 🗑</td>
+                        </tr>
+                        
+                        <tr>
+                            <td class="col-id"><span class="id-badge" style="--badge-bg: #eab308; background-color: var(--badge-bg);">F03</span></td>
+                            <td class="col-name">AI骑行教练</td>
+                            <td class="col-score bg-benefit">4<span class="qual-label">(高)</span></td>
+                            <td class="col-score bg-benefit">5<span class="qual-label">(非常高)</span></td>
+                            <td class="col-score bg-benefit">4<span class="qual-label">(高)</span></td>
+                            <td class="col-score bg-cost">4<span class="qual-label">(高)</span></td>
+                            <td class="col-score bg-cost">4<span class="qual-label">(高)</span></td>
+                            <td class="col-score bg-cost">4<span class="qual-label">(高)</span></td>
+                            <td class="col-score bg-cost">4<span class="qual-label">(高)</span></td>
+                            <td class="col-priority">5.0</td>
+                            <td class="col-action">✎ 🗑</td>
+                        </tr>
+                        
+                        <tr>
+                            <td class="col-id"><span class="id-badge" style="--badge-bg: #84cc16; background-color: var(--badge-bg);">F04</span></td>
+                            <td class="col-name">预测性维护提醒</td>
+                            <td class="col-score bg-benefit">4<span class="qual-label">(高)</span></td>
+                            <td class="col-score bg-benefit">5<span class="qual-label">(非常高)</span></td>
+                            <td class="col-score bg-benefit">4<span class="qual-label">(高)</span></td>
+                            <td class="col-score bg-cost">4<span class="qual-label">(高)</span></td>
+                            <td class="col-score bg-cost">4<span class="qual-label">(高)</span></td>
+                            <td class="col-score bg-cost">4<span class="qual-label">(高)</span></td>
+                            <td class="col-score bg-cost">4<span class="qual-label">(高)</span></td>
+                            <td class="col-priority">5.0</td>
+                            <td class="col-action">✎ 🗑</td>
+                        </tr>
+                        
+                        <tr>
+                            <td class="col-id"><span class="id-badge" style="--badge-bg: #10b981; background-color: var(--badge-bg);">D06</span></td>
+                            <td class="col-name">AR车辆功能导览</td>
+                            <td class="col-score bg-benefit">4<span class="qual-label">(高)</span></td>
+                            <td class="col-score bg-benefit">4<span class="qual-label">(高)</span></td>
+                            <td class="col-score bg-benefit">4<span class="qual-label">(高)</span></td>
+                            <td class="col-score bg-cost">3<span class="qual-label">(中等)</span></td>
+                            <td class="col-score bg-cost">4<span class="qual-label">(高)</span></td>
+                            <td class="col-score bg-cost">3<span class="qual-label">(中等)</span></td>
+                            <td class="col-score bg-cost">3<span class="qual-label">(中等)</span></td>
+                            <td class="col-priority">4.92</td>
+                            <td class="col-action">✎ 🗑</td>
+                        </tr>
+                        
+                        <tr>
+                            <td class="col-id"><span class="id-badge" style="--badge-bg: #f97316; background-color: var(--badge-bg);">E01</span></td>
+                            <td class="col-name">AI远程诊断助手</td>
+                            <td class="col-score bg-benefit">4<span class="qual-label">(高)</span></td>
+                            <td class="col-score bg-benefit">5<span class="qual-label">(非常高)</span></td>
+                            <td class="col-score bg-benefit">4<span class="qual-label">(高)</span></td>
+                            <td class="col-score bg-cost">4<span class="qual-label">(高)</span></td>
+                            <td class="col-score bg-cost">5<span class="qual-label">(非常高)</span></td>
+                            <td class="col-score bg-cost">4<span class="qual-label">(高)</span></td>
+                            <td class="col-score bg-cost">5<span class="qual-label">(非常高)</span></td>
+                            <td class="col-priority">4.44</td>
+                            <td class="col-action">✎ 🗑</td>
+                        </tr>
+                        
+                        <tr>
+                            <td class="col-id"><span class="id-badge" style="--badge-bg: #eab308; background-color: var(--badge-bg);">A03</span></td>
+                            <td class="col-name">AI虚拟赛事解说</td>
+                            <td class="col-score bg-benefit">4<span class="qual-label">(高)</span></td>
+                            <td class="col-score bg-benefit">3<span class="qual-label">(中等)</span></td>
+                            <td class="col-score bg-benefit">4<span class="qual-label">(高)</span></td>
+                            <td class="col-score bg-cost">3<span class="qual-label">(中等)</span></td>
+                            <td class="col-score bg-cost">4<span class="qual-label">(高)</span></td>
+                            <td class="col-score bg-cost">2<span class="qual-label">(低)</span></td>
+                            <td class="col-score bg-cost">2<span class="qual-label">(低)</span></td>
+                            <td class="col-priority">4.36</td>
+                            <td class="col-action">✎ 🗑</td>
+                        </tr>
+                        
+                        <tr>
+                            <td class="col-id"><span class="id-badge" style="--badge-bg: #22c55e; background-color: var(--badge-bg);">D05</span></td>
+                            <td class="col-name">AI交付验收助手</td>
+                            <td class="col-score bg-benefit">4<span class="qual-label">(高)</span></td>
+                            <td class="col-score bg-benefit">4<span class="qual-label">(高)</span></td>
+                            <td class="col-score bg-benefit">3<span class="qual-label">(中等)</span></td>
+                            <td class="col-score bg-cost">3<span class="qual-label">(中等)</span></td>
+                            <td class="col-score bg-cost">3<span class="qual-label">(中等)</span></td>
+                            <td class="col-score bg-cost">3<span class="qual-label">(中等)</span></td>
+                            <td class="col-score bg-cost">2<span class="qual-label">(低)</span></td>
+                            <td class="col-priority">4.36</td>
+                            <td class="col-action">✎ 🗑</td>
+                        </tr>
+                        
+                        <tr>
+                            <td class="col-id"><span class="id-badge" style="--badge-bg: #06b6d4; background-color: var(--badge-bg);">F07</span></td>
+                            <td class="col-name">自动化口碑内容生产</td>
+                            <td class="col-score bg-benefit">4<span class="qual-label">(高)</span></td>
+                            <td class="col-score bg-benefit">4<span class="qual-label">(高)</span></td>
+                            <td class="col-score bg-benefit">3<span class="qual-label">(中等)</span></td>
+                            <td class="col-score bg-cost">3<span class="qual-label">(中等)</span></td>
+                            <td class="col-score bg-cost">3<span class="qual-label">(中等)</span></td>
+                            <td class="col-score bg-cost">3<span class="qual-label">(中等)</span></td>
+                            <td class="col-score bg-cost">2<span class="qual-label">(低)</span></td>
+                            <td class="col-priority">4.36</td>
+                            <td class="col-action">✎ 🗑</td>
+                        </tr>
+                        
+                        <tr>
+                            <td class="col-id"><span class="id-badge" style="--badge-bg: #eab308; background-color: var(--badge-bg);">C03</span></td>
+                            <td class="col-name">智能跨境信用评估</td>
+                            <td class="col-score bg-benefit">4<span class="qual-label">(高)</span></td>
+                            <td class="col-score bg-benefit">4<span class="qual-label">(高)</span></td>
+                            <td class="col-score bg-benefit">4<span class="qual-label">(高)</span></td>
+                            <td class="col-score bg-cost">4<span class="qual-label">(高)</span></td>
+                            <td class="col-score bg-cost">4<span class="qual-label">(高)</span></td>
+                            <td class="col-score bg-cost">5<span class="qual-label">(非常高)</span></td>
+                            <td class="col-score bg-cost">4<span class="qual-label">(高)</span></td>
+                            <td class="col-priority">3.76</td>
+                            <td class="col-action">✎ 🗑</td>
+                        </tr>
+                        
+                        <tr>
+                            <td class="col-id"><span class="id-badge" style="--badge-bg: #eab308; background-color: var(--badge-bg);">E03</span></td>
+                            <td class="col-name">智能配件需求预测</td>
+                            <td class="col-score bg-benefit">3<span class="qual-label">(中等)</span></td>
+                            <td class="col-score bg-benefit">5<span class="qual-label">(非常高)</span></td>
+                            <td class="col-score bg-benefit">4<span class="qual-label">(高)</span></td>
+                            <td class="col-score bg-cost">4<span class="qual-label">(高)</span></td>
+                            <td class="col-score bg-cost">4<span class="qual-label">(高)</span></td>
+                            <td class="col-score bg-cost">4<span class="qual-label">(高)</span></td>
+                            <td class="col-score bg-cost">4<span class="qual-label">(高)</span></td>
+                            <td class="col-priority">3.75</td>
+                            <td class="col-action">✎ 🗑</td>
+                        </tr>
+                        
+                        <tr>
+                            <td class="col-id"><span class="id-badge" style="--badge-bg: #f59e0b; background-color: var(--badge-bg);">F02</span></td>
+                            <td class="col-name">智能社区活动推荐</td>
+                            <td class="col-score bg-benefit">3<span class="qual-label">(中等)</span></td>
+                            <td class="col-score bg-benefit">4<span class="qual-label">(高)</span></td>
+                            <td class="col-score bg-benefit">3<span class="qual-label">(中等)</span></td>
+                            <td class="col-score bg-cost">3<span class="qual-label">(中等)</span></td>
+                            <td class="col-score bg-cost">3<span class="qual-label">(中等)</span></td>
+                            <td class="col-score bg-cost">3<span class="qual-label">(中等)</span></td>
+                            <td class="col-score bg-cost">2<span class="qual-label">(低)</span></td>
+                            <td class="col-priority">3.27</td>
+                            <td class="col-action">✎ 🗑</td>
+                        </tr>
+                        
+                        <tr>
+                            <td class="col-id"><span class="id-badge" style="--badge-bg: #84cc16; background-color: var(--badge-bg);">E04</span></td>
+                            <td class="col-name">自动化配件调拨</td>
+                            <td class="col-score bg-benefit">3<span class="qual-label">(中等)</span></td>
+                            <td class="col-score bg-benefit">4<span class="qual-label">(高)</span></td>
+                            <td class="col-score bg-benefit">3<span class="qual-label">(中等)</span></td>
+                            <td class="col-score bg-cost">3<span class="qual-label">(中等)</span></td>
+                            <td class="col-score bg-cost">3<span class="qual-label">(中等)</span></td>
+                            <td class="col-score bg-cost">4<span class="qual-label">(高)</span></td>
+                            <td class="col-score bg-cost">3<span class="qual-label">(中等)</span></td>
+                            <td class="col-priority">2.77</td>
+                            <td class="col-action">✎ 🗑</td>
+                        </tr>
+                        
+                        <tr>
+                            <td class="col-id"><span class="id-badge" style="--badge-bg: #22c55e; background-color: var(--badge-bg);">A05</span></td>
+                            <td class="col-name">智能关键词策略</td>
+                            <td class="col-score bg-benefit">3<span class="qual-label">(中等)</span></td>
+                            <td class="col-score bg-benefit">3<span class="qual-label">(中等)</span></td>
+                            <td class="col-score bg-benefit">3<span class="qual-label">(中等)</span></td>
+                            <td class="col-score bg-cost">3<span class="qual-label">(中等)</span></td>
+                            <td class="col-score bg-cost">3<span class="qual-label">(中等)</span></td>
+                            <td class="col-score bg-cost">2<span class="qual-label">(低)</span></td>
+                            <td class="col-score bg-cost">2<span class="qual-label">(低)</span></td>
+                            <td class="col-priority">2.7</td>
+                            <td class="col-action">✎ 🗑</td>
+                        </tr>
+                        
+                        <tr>
+                            <td class="col-id"><span class="id-badge" style="--badge-bg: #f59e0b; background-color: var(--badge-bg);">E02</span></td>
+                            <td class="col-name">自动化维修记录</td>
+                            <td class="col-score bg-benefit">3<span class="qual-label">(中等)</span></td>
+                            <td class="col-score bg-benefit">4<span class="qual-label">(高)</span></td>
+                            <td class="col-score bg-benefit">2<span class="qual-label">(低)</span></td>
+                            <td class="col-score bg-cost">2<span class="qual-label">(低)</span></td>
+                            <td class="col-score bg-cost">2<span class="qual-label">(低)</span></td>
+                            <td class="col-score bg-cost">3<span class="qual-label">(中等)</span></td>
+                            <td class="col-score bg-cost">2<span class="qual-label">(低)</span></td>
+                            <td class="col-priority">2.67</td>
+                            <td class="col-action">✎ 🗑</td>
+                        </tr>
+                        
+                        <tr>
+                            <td class="col-id"><span class="id-badge" style="--badge-bg: #f59e0b; background-color: var(--badge-bg);">A02</span></td>
+                            <td class="col-name">智能内容策略推荐</td>
+                            <td class="col-score bg-benefit">3<span class="qual-label">(中等)</span></td>
+                            <td class="col-score bg-benefit">4<span class="qual-label">(高)</span></td>
+                            <td class="col-score bg-benefit">3<span class="qual-label">(中等)</span></td>
+                            <td class="col-score bg-cost">4<span class="qual-label">(高)</span></td>
+                            <td class="col-score bg-cost">4<span class="qual-label">(高)</span></td>
+                            <td class="col-score bg-cost">3<span class="qual-label">(中等)</span></td>
+                            <td class="col-score bg-cost">3<span class="qual-label">(中等)</span></td>
+                            <td class="col-priority">2.57</td>
+                            <td class="col-action">✎ 🗑</td>
+                        </tr>
+                        
+                        <tr>
+                            <td class="col-id"><span class="id-badge" style="--badge-bg: #22c55e; background-color: var(--badge-bg);">E05</span></td>
+                            <td class="col-name">自动化服务商审核</td>
+                            <td class="col-score bg-benefit">3<span class="qual-label">(中等)</span></td>
+                            <td class="col-score bg-benefit">3<span class="qual-label">(中等)</span></td>
+                            <td class="col-score bg-benefit">3<span class="qual-label">(中等)</span></td>
+                            <td class="col-score bg-cost">3<span class="qual-label">(中等)</span></td>
+                            <td class="col-score bg-cost">3<span class="qual-label">(中等)</span></td>
+                            <td class="col-score bg-cost">3<span class="qual-label">(中等)</span></td>
+                            <td class="col-score bg-cost">2<span class="qual-label">(低)</span></td>
+                            <td class="col-priority">2.45</td>
+                            <td class="col-action">✎ 🗑</td>
+                        </tr>
+                        
+                        <tr>
+                            <td class="col-id"><span class="id-badge" style="--badge-bg: #10b981; background-color: var(--badge-bg);">F06</span></td>
+                            <td class="col-name">智能推荐大使识别</td>
+                            <td class="col-score bg-benefit">3<span class="qual-label">(中等)</span></td>
+                            <td class="col-score bg-benefit">3<span class="qual-label">(中等)</span></td>
+                            <td class="col-score bg-benefit">3<span class="qual-label">(中等)</span></td>
+                            <td class="col-score bg-cost">3<span class="qual-label">(中等)</span></td>
+                            <td class="col-score bg-cost">3<span class="qual-label">(中等)</span></td>
+                            <td class="col-score bg-cost">3<span class="qual-label">(中等)</span></td>
+                            <td class="col-score bg-cost">2<span class="qual-label">(低)</span></td>
+                            <td class="col-priority">2.45</td>
+                            <td class="col-action">✎ 🗑</td>
+                        </tr>
+                        
+                        <tr>
+                            <td class="col-id"><span class="id-badge" style="--badge-bg: #84cc16; background-color: var(--badge-bg);">D04</span></td>
+                            <td class="col-name">智能清关辅助</td>
+                            <td class="col-score bg-benefit">3<span class="qual-label">(中等)</span></td>
+                            <td class="col-score bg-benefit">4<span class="qual-label">(高)</span></td>
+                            <td class="col-score bg-benefit">3<span class="qual-label">(中等)</span></td>
+                            <td class="col-score bg-cost">4<span class="qual-label">(高)</span></td>
+                            <td class="col-score bg-cost">3<span class="qual-label">(中等)</span></td>
+                            <td class="col-score bg-cost">4<span class="qual-label">(高)</span></td>
+                            <td class="col-score bg-cost">4<span class="qual-label">(高)</span></td>
+                            <td class="col-priority">2.4</td>
+                            <td class="col-action">✎ 🗑</td>
+                        </tr>
+                        
+                        <tr>
+                            <td class="col-id"><span class="id-badge" style="--badge-bg: #22c55e; background-color: var(--badge-bg);">B05</span></td>
+                            <td class="col-name">智能试驾路线规划</td>
+                            <td class="col-score bg-benefit">3<span class="qual-label">(中等)</span></td>
+                            <td class="col-score bg-benefit">3<span class="qual-label">(中等)</span></td>
+                            <td class="col-score bg-benefit">3<span class="qual-label">(中等)</span></td>
+                            <td class="col-score bg-cost">3<span class="qual-label">(中等)</span></td>
+                            <td class="col-score bg-cost">3<span class="qual-label">(中等)</span></td>
+                            <td class="col-score bg-cost">3<span class="qual-label">(中等)</span></td>
+                            <td class="col-score bg-cost">3<span class="qual-label">(中等)</span></td>
+                            <td class="col-priority">2.25</td>
+                            <td class="col-action">✎ 🗑</td>
+                        </tr>
+                        
+                        <tr>
+                            <td class="col-id"><span class="id-badge" style="--badge-bg: #10b981; background-color: var(--badge-bg);">E06</span></td>
+                            <td class="col-name">服务商风险预警</td>
+                            <td class="col-score bg-benefit">3<span class="qual-label">(中等)</span></td>
+                            <td class="col-score bg-benefit">3<span class="qual-label">(中等)</span></td>
+                            <td class="col-score bg-benefit">3<span class="qual-label">(中等)</span></td>
+                            <td class="col-score bg-cost">3<span class="qual-label">(中等)</span></td>
+                            <td class="col-score bg-cost">3<span class="qual-label">(中等)</span></td>
+                            <td class="col-score bg-cost">3<span class="qual-label">(中等)</span></td>
+                            <td class="col-score bg-cost">3<span class="qual-label">(中等)</span></td>
+                            <td class="col-priority">2.25</td>
+                            <td class="col-action">✎ 🗑</td>
+                        </tr>
+                        
+                        <tr>
+                            <td class="col-id"><span class="id-badge" style="--badge-bg: #22c55e; background-color: var(--badge-bg);">F05</span></td>
+                            <td class="col-name">AI虚拟骑行伙伴</td>
+                            <td class="col-score bg-benefit">3<span class="qual-label">(中等)</span></td>
+                            <td class="col-score bg-benefit">3<span class="qual-label">(中等)</span></td>
+                            <td class="col-score bg-benefit">3<span class="qual-label">(中等)</span></td>
+                            <td class="col-score bg-cost">3<span class="qual-label">(中等)</span></td>
+                            <td class="col-score bg-cost">5<span class="qual-label">(非常高)</span></td>
+                            <td class="col-score bg-cost">4<span class="qual-label">(高)</span></td>
+                            <td class="col-score bg-cost">3<span class="qual-label">(中等)</span></td>
+                            <td class="col-priority">1.8</td>
+                            <td class="col-action">✎ 🗑</td>
+                        </tr>
+                        
+                        <tr>
+                            <td class="col-id"><span class="id-badge" style="--badge-bg: #84cc16; background-color: var(--badge-bg);">C04</span></td>
+                            <td class="col-name">本地化金融方案生成</td>
+                            <td class="col-score bg-benefit">3<span class="qual-label">(中等)</span></td>
+                            <td class="col-score bg-benefit">3<span class="qual-label">(中等)</span></td>
+                            <td class="col-score bg-benefit">3<span class="qual-label">(中等)</span></td>
+                            <td class="col-score bg-cost">4<span class="qual-label">(高)</span></td>
+                            <td class="col-score bg-cost">4<span class="qual-label">(高)</span></td>
+                            <td class="col-score bg-cost">4<span class="qual-label">(高)</span></td>
+                            <td class="col-score bg-cost">5<span class="qual-label">(非常高)</span></td>
+                            <td class="col-priority">1.59</td>
+                            <td class="col-action">✎ 🗑</td>
+                        </tr>
+                        
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Priority Matrix -->
+        <div class="card">
+            <div class="section-title">优先级矩阵 (5×5)</div>
+            
+            <div class="matrix-wrap">
+                <div class="matrix-axis-y">业务价值 (Benefit)</div>
+                <div class="matrix-grid">
+                    
+                    
+                    <div class="y-label">5: 非常高收益</div>
+                    
+                    <div class="grid-cell" style="--cell-bg: #f0fdf4; background-color: var(--cell-bg);">
+                        <div class="cell-items">
+                            
+                        </div>
+                    </div>
+                    
+                    <div class="grid-cell" style="--cell-bg: #f0fdf4; background-color: var(--cell-bg);">
+                        <div class="cell-items">
+                            
+                        </div>
+                    </div>
+                    
+                    <div class="grid-cell" style="--cell-bg: #fffcf0; background-color: var(--cell-bg);">
+                        <div class="cell-items">
+                            
+                            <div class="cell-card">
+                                <div class="cell-id-badge" style="--badge-bg: #f97316; background-color: var(--badge-bg);">
+                                    A01
+                                </div>
+                                <div class="cell-name-text">
+                                    AI多语言内容工厂
+                                </div>
+                            </div>
+                            
+                            <div class="cell-card">
+                                <div class="cell-id-badge" style="--badge-bg: #f97316; background-color: var(--badge-bg);">
+                                    B01
+                                </div>
+                                <div class="cell-name-text">
+                                    AI多语言客服机器人
+                                </div>
+                            </div>
+                            
+                        </div>
+                    </div>
+                    
+                    <div class="grid-cell" style="--cell-bg: #fffbeb; background-color: var(--cell-bg);">
+                        <div class="cell-items">
+                            
+                            <div class="cell-card">
+                                <div class="cell-id-badge" style="--badge-bg: #f59e0b; background-color: var(--badge-bg);">
+                                    B02
+                                </div>
+                                <div class="cell-name-text">
+                                    智能购车顾问
+                                </div>
+                            </div>
+                            
+                            <div class="cell-card">
+                                <div class="cell-id-badge" style="--badge-bg: #f97316; background-color: var(--badge-bg);">
+                                    C01
+                                </div>
+                                <div class="cell-name-text">
+                                    动态定价引擎
+                                </div>
+                            </div>
+                            
+                        </div>
+                    </div>
+                    
+                    <div class="grid-cell" style="--cell-bg: #fffbeb; background-color: var(--cell-bg);">
+                        <div class="cell-items">
+                            
+                        </div>
+                    </div>
+                    
+                    
+                    <div class="y-label">4: 高收益</div>
+                    
+                    <div class="grid-cell" style="--cell-bg: #f0fdf4; background-color: var(--cell-bg);">
+                        <div class="cell-items">
+                            
+                        </div>
+                    </div>
+                    
+                    <div class="grid-cell" style="--cell-bg: #f0fdf4; background-color: var(--cell-bg);">
+                        <div class="cell-items">
+                            
+                            <div class="cell-card">
+                                <div class="cell-id-badge" style="--badge-bg: #f59e0b; background-color: var(--badge-bg);">
+                                    D02
+                                </div>
+                                <div class="cell-name-text">
+                                    自动化进度同步
+                                </div>
+                            </div>
+                            
+                            <div class="cell-card">
+                                <div class="cell-id-badge" style="--badge-bg: #84cc16; background-color: var(--badge-bg);">
+                                    A04
+                                </div>
+                                <div class="cell-name-text">
+                                    自动化SEO优化
+                                </div>
+                            </div>
+                            
+                            <div class="cell-card">
+                                <div class="cell-id-badge" style="--badge-bg: #84cc16; background-color: var(--badge-bg);">
+                                    B04
+                                </div>
+                                <div class="cell-name-text">
+                                    自动化试驾预约
+                                </div>
+                            </div>
+                            
+                        </div>
+                    </div>
+                    
+                    <div class="grid-cell" style="--cell-bg: #fffcf0; background-color: var(--cell-bg);">
+                        <div class="cell-items">
+                            
+                            <div class="cell-card">
+                                <div class="cell-id-badge" style="--badge-bg: #eab308; background-color: var(--badge-bg);">
+                                    B03
+                                </div>
+                                <div class="cell-name-text">
+                                    客户意向智能分级
+                                </div>
+                            </div>
+                            
+                            <div class="cell-card">
+                                <div class="cell-id-badge" style="--badge-bg: #f59e0b; background-color: var(--badge-bg);">
+                                    C02
+                                </div>
+                                <div class="cell-name-text">
+                                    自动化汇率管理
+                                </div>
+                            </div>
+                            
+                            <div class="cell-card">
+                                <div class="cell-id-badge" style="--badge-bg: #eab308; background-color: var(--badge-bg);">
+                                    D03
+                                </div>
+                                <div class="cell-name-text">
+                                    自动化物流跟踪
+                                </div>
+                            </div>
+                            
+                            <div class="cell-card">
+                                <div class="cell-id-badge" style="--badge-bg: #f97316; background-color: var(--badge-bg);">
+                                    F01
+                                </div>
+                                <div class="cell-name-text">
+                                    AI社区内容管理
+                                </div>
+                            </div>
+                            
+                            <div class="cell-card">
+                                <div class="cell-id-badge" style="--badge-bg: #10b981; background-color: var(--badge-bg);">
+                                    D06
+                                </div>
+                                <div class="cell-name-text">
+                                    AR车辆功能导览
+                                </div>
+                            </div>
+                            
+                            <div class="cell-card">
+                                <div class="cell-id-badge" style="--badge-bg: #eab308; background-color: var(--badge-bg);">
+                                    A03
+                                </div>
+                                <div class="cell-name-text">
+                                    AI虚拟赛事解说
+                                </div>
+                            </div>
+                            
+                            <div class="cell-card">
+                                <div class="cell-id-badge" style="--badge-bg: #22c55e; background-color: var(--badge-bg);">
+                                    D05
+                                </div>
+                                <div class="cell-name-text">
+                                    AI交付验收助手
+                                </div>
+                            </div>
+                            
+                            <div class="cell-card">
+                                <div class="cell-id-badge" style="--badge-bg: #06b6d4; background-color: var(--badge-bg);">
+                                    F07
+                                </div>
+                                <div class="cell-name-text">
+                                    自动化口碑内容生产
+                                </div>
+                            </div>
+                            
+                        </div>
+                    </div>
+                    
+                    <div class="grid-cell" style="--cell-bg: #fffbeb; background-color: var(--cell-bg);">
+                        <div class="cell-items">
+                            
+                            <div class="cell-card">
+                                <div class="cell-id-badge" style="--badge-bg: #f97316; background-color: var(--badge-bg);">
+                                    D01
+                                </div>
+                                <div class="cell-name-text">
+                                    智能生产排程优化
+                                </div>
+                            </div>
+                            
+                            <div class="cell-card">
+                                <div class="cell-id-badge" style="--badge-bg: #eab308; background-color: var(--badge-bg);">
+                                    F03
+                                </div>
+                                <div class="cell-name-text">
+                                    AI骑行教练
+                                </div>
+                            </div>
+                            
+                            <div class="cell-card">
+                                <div class="cell-id-badge" style="--badge-bg: #84cc16; background-color: var(--badge-bg);">
+                                    F04
+                                </div>
+                                <div class="cell-name-text">
+                                    预测性维护提醒
+                                </div>
+                            </div>
+                            
+                            <div class="cell-card">
+                                <div class="cell-id-badge" style="--badge-bg: #f97316; background-color: var(--badge-bg);">
+                                    E01
+                                </div>
+                                <div class="cell-name-text">
+                                    AI远程诊断助手
+                                </div>
+                            </div>
+                            
+                            <div class="cell-card">
+                                <div class="cell-id-badge" style="--badge-bg: #eab308; background-color: var(--badge-bg);">
+                                    C03
+                                </div>
+                                <div class="cell-name-text">
+                                    智能跨境信用评估
+                                </div>
+                            </div>
+                            
+                            <div class="cell-card">
+                                <div class="cell-id-badge" style="--badge-bg: #eab308; background-color: var(--badge-bg);">
+                                    E03
+                                </div>
+                                <div class="cell-name-text">
+                                    智能配件需求预测
+                                </div>
+                            </div>
+                            
+                        </div>
+                    </div>
+                    
+                    <div class="grid-cell" style="--cell-bg: #fffbeb; background-color: var(--cell-bg);">
+                        <div class="cell-items">
+                            
+                        </div>
+                    </div>
+                    
+                    
+                    <div class="y-label">3: 中等收益</div>
+                    
+                    <div class="grid-cell" style="--cell-bg: #fffcf0; background-color: var(--cell-bg);">
+                        <div class="cell-items">
+                            
+                        </div>
+                    </div>
+                    
+                    <div class="grid-cell" style="--cell-bg: #fffcf0; background-color: var(--cell-bg);">
+                        <div class="cell-items">
+                            
+                            <div class="cell-card">
+                                <div class="cell-id-badge" style="--badge-bg: #22c55e; background-color: var(--badge-bg);">
+                                    A05
+                                </div>
+                                <div class="cell-name-text">
+                                    智能关键词策略
+                                </div>
+                            </div>
+                            
+                            <div class="cell-card">
+                                <div class="cell-id-badge" style="--badge-bg: #f59e0b; background-color: var(--badge-bg);">
+                                    E02
+                                </div>
+                                <div class="cell-name-text">
+                                    自动化维修记录
+                                </div>
+                            </div>
+                            
+                        </div>
+                    </div>
+                    
+                    <div class="grid-cell" style="--cell-bg: #fffcf0; background-color: var(--cell-bg);">
+                        <div class="cell-items">
+                            
+                            <div class="cell-card">
+                                <div class="cell-id-badge" style="--badge-bg: #f59e0b; background-color: var(--badge-bg);">
+                                    F02
+                                </div>
+                                <div class="cell-name-text">
+                                    智能社区活动推荐
+                                </div>
+                            </div>
+                            
+                            <div class="cell-card">
+                                <div class="cell-id-badge" style="--badge-bg: #84cc16; background-color: var(--badge-bg);">
+                                    E04
+                                </div>
+                                <div class="cell-name-text">
+                                    自动化配件调拨
+                                </div>
+                            </div>
+                            
+                            <div class="cell-card">
+                                <div class="cell-id-badge" style="--badge-bg: #22c55e; background-color: var(--badge-bg);">
+                                    E05
+                                </div>
+                                <div class="cell-name-text">
+                                    自动化服务商审核
+                                </div>
+                            </div>
+                            
+                            <div class="cell-card">
+                                <div class="cell-id-badge" style="--badge-bg: #10b981; background-color: var(--badge-bg);">
+                                    F06
+                                </div>
+                                <div class="cell-name-text">
+                                    智能推荐大使识别
+                                </div>
+                            </div>
+                            
+                            <div class="cell-card">
+                                <div class="cell-id-badge" style="--badge-bg: #22c55e; background-color: var(--badge-bg);">
+                                    B05
+                                </div>
+                                <div class="cell-name-text">
+                                    智能试驾路线规划
+                                </div>
+                            </div>
+                            
+                            <div class="cell-card">
+                                <div class="cell-id-badge" style="--badge-bg: #10b981; background-color: var(--badge-bg);">
+                                    E06
+                                </div>
+                                <div class="cell-name-text">
+                                    服务商风险预警
+                                </div>
+                            </div>
+                            
+                        </div>
+                    </div>
+                    
+                    <div class="grid-cell" style="--cell-bg: #fffcf0; background-color: var(--cell-bg);">
+                        <div class="cell-items">
+                            
+                            <div class="cell-card">
+                                <div class="cell-id-badge" style="--badge-bg: #f59e0b; background-color: var(--badge-bg);">
+                                    A02
+                                </div>
+                                <div class="cell-name-text">
+                                    智能内容策略推荐
+                                </div>
+                            </div>
+                            
+                            <div class="cell-card">
+                                <div class="cell-id-badge" style="--badge-bg: #84cc16; background-color: var(--badge-bg);">
+                                    D04
+                                </div>
+                                <div class="cell-name-text">
+                                    智能清关辅助
+                                </div>
+                            </div>
+                            
+                            <div class="cell-card">
+                                <div class="cell-id-badge" style="--badge-bg: #22c55e; background-color: var(--badge-bg);">
+                                    F05
+                                </div>
+                                <div class="cell-name-text">
+                                    AI虚拟骑行伙伴
+                                </div>
+                            </div>
+                            
+                            <div class="cell-card">
+                                <div class="cell-id-badge" style="--badge-bg: #84cc16; background-color: var(--badge-bg);">
+                                    C04
+                                </div>
+                                <div class="cell-name-text">
+                                    本地化金融方案生成
+                                </div>
+                            </div>
+                            
+                        </div>
+                    </div>
+                    
+                    <div class="grid-cell" style="--cell-bg: #fffcf0; background-color: var(--cell-bg);">
+                        <div class="cell-items">
+                            
+                        </div>
+                    </div>
+                    
+                    
+                    <div class="y-label">2: 低收益</div>
+                    
+                    <div class="grid-cell" style="--cell-bg: #f8fafc; background-color: var(--cell-bg);">
+                        <div class="cell-items">
+                            
+                        </div>
+                    </div>
+                    
+                    <div class="grid-cell" style="--cell-bg: #f8fafc; background-color: var(--cell-bg);">
+                        <div class="cell-items">
+                            
+                        </div>
+                    </div>
+                    
+                    <div class="grid-cell" style="--cell-bg: #fffcf0; background-color: var(--cell-bg);">
+                        <div class="cell-items">
+                            
+                        </div>
+                    </div>
+                    
+                    <div class="grid-cell" style="--cell-bg: #fef2f2; background-color: var(--cell-bg);">
+                        <div class="cell-items">
+                            
+                        </div>
+                    </div>
+                    
+                    <div class="grid-cell" style="--cell-bg: #fef2f2; background-color: var(--cell-bg);">
+                        <div class="cell-items">
+                            
+                        </div>
+                    </div>
+                    
+                    
+                    <div class="y-label">1: 非常低收益</div>
+                    
+                    <div class="grid-cell" style="--cell-bg: #f8fafc; background-color: var(--cell-bg);">
+                        <div class="cell-items">
+                            
+                        </div>
+                    </div>
+                    
+                    <div class="grid-cell" style="--cell-bg: #f8fafc; background-color: var(--cell-bg);">
+                        <div class="cell-items">
+                            
+                        </div>
+                    </div>
+                    
+                    <div class="grid-cell" style="--cell-bg: #fffcf0; background-color: var(--cell-bg);">
+                        <div class="cell-items">
+                            
+                        </div>
+                    </div>
+                    
+                    <div class="grid-cell" style="--cell-bg: #fef2f2; background-color: var(--cell-bg);">
+                        <div class="cell-items">
+                            
+                        </div>
+                    </div>
+                    
+                    <div class="grid-cell" style="--cell-bg: #fef2f2; background-color: var(--cell-bg);">
+                        <div class="cell-items">
+                            
+                        </div>
+                    </div>
+                    
+                    
+
+                    <div class="corner"></div>
+                    
+                    
+                    <div class="x-label">1: 非常低成本</div>
+                    
+                    <div class="x-label">2: 低成本</div>
+                    
+                    <div class="x-label">3: 中等成本</div>
+                    
+                    <div class="x-label">4: 高成本</div>
+                    
+                    <div class="x-label">5: 非常高成本</div>
+                    
+                </div>
+                <div class="matrix-axis-title">实施复杂度 (Cost)</div>
+            </div>
+
+            <div class="legend">
+                <div class="legend-item"><div class="legend-box" style="background: #f0fdf4"></div> Quick Wins</div>
+                <div class="legend-item"><div class="legend-box" style="background: #fffbeb"></div> Big Bets</div>
+                <div class="legend-item"><div class="legend-box" style="background: var(--zx-bg-secondary)"></div> Fill-ins</div>
+                <div class="legend-item"><div class="legend-box" style="background: #fef2f2"></div> Avoid</div>
+            </div>
+        </div>
+
+        <!-- Strategic Insights -->
+        <div class="section-title" style="margin-top: 48px;">💡 战略洞察与建议</div>
+        
+        <div class="insight-section">
+            <!-- Top 10 Scenarios -->
+            <div class="card">
+                <div class="section-title" style="font-size: 16px; border-bottom: 1px solid #f1f5f9; padding-bottom: 12px;">Top 10 优先级（应立即启动）</div>
+                <table class="top-10-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 40px">排名</th>
+                            <th style="width: 50px">分数</th>
+                            <th>场景</th>
+                            <th>类型</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        
+                        <tr>
+                            <td><span class="rank-badge">#1</span></td>
+                            <td style="font-weight: 700; color: var(--zx-fg);">11.36</td>
+                            <td style="font-weight: 500;">AI多语言内容工厂</td>
+                            <td><span class="phase-tag">营销获客</span></td>
+                        </tr>
+                        
+                        <tr>
+                            <td><span class="rank-badge">#2</span></td>
+                            <td style="font-weight: 700; color: var(--zx-fg);">9.62</td>
+                            <td style="font-weight: 500;">AI多语言客服机器人</td>
+                            <td><span class="phase-tag">客户服务</span></td>
+                        </tr>
+                        
+                        <tr>
+                            <td><span class="rank-badge">#3</span></td>
+                            <td style="font-weight: 700; color: var(--zx-fg);">8.33</td>
+                            <td style="font-weight: 500;">智能购车顾问</td>
+                            <td><span class="phase-tag">客户服务</span></td>
+                        </tr>
+                        
+                        <tr>
+                            <td><span class="rank-badge">#4</span></td>
+                            <td style="font-weight: 700; color: var(--zx-fg);">8.33</td>
+                            <td style="font-weight: 500;">自动化进度同步</td>
+                            <td><span class="phase-tag">订单履约</span></td>
+                        </tr>
+                        
+                        <tr>
+                            <td><span class="rank-badge">#5</span></td>
+                            <td style="font-weight: 700; color: var(--zx-fg);">7.81</td>
+                            <td style="font-weight: 500;">动态定价引擎</td>
+                            <td><span class="phase-tag">销售转化</span></td>
+                        </tr>
+                        
+                        <tr>
+                            <td><span class="rank-badge">#6</span></td>
+                            <td style="font-weight: 700; color: var(--zx-fg);">7.11</td>
+                            <td style="font-weight: 500;">自动化SEO优化</td>
+                            <td><span class="phase-tag">营销获客</span></td>
+                        </tr>
+                        
+                        <tr>
+                            <td><span class="rank-badge">#7</span></td>
+                            <td style="font-weight: 700; color: var(--zx-fg);">7.11</td>
+                            <td style="font-weight: 500;">自动化试驾预约</td>
+                            <td><span class="phase-tag">客户服务</span></td>
+                        </tr>
+                        
+                        <tr>
+                            <td><span class="rank-badge">#8</span></td>
+                            <td style="font-weight: 700; color: var(--zx-fg);">6.67</td>
+                            <td style="font-weight: 500;">客户意向智能分级</td>
+                            <td><span class="phase-tag">客户服务</span></td>
+                        </tr>
+                        
+                        <tr>
+                            <td><span class="rank-badge">#9</span></td>
+                            <td style="font-weight: 700; color: var(--zx-fg);">6.67</td>
+                            <td style="font-weight: 500;">自动化汇率管理</td>
+                            <td><span class="phase-tag">销售转化</span></td>
+                        </tr>
+                        
+                        <tr>
+                            <td><span class="rank-badge">#10</span></td>
+                            <td style="font-weight: 700; color: var(--zx-fg);">5.45</td>
+                            <td style="font-weight: 500;">自动化物流跟踪</td>
+                            <td><span class="phase-tag">订单履约</span></td>
+                        </tr>
+                        
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Roadmap and Insights -->
+            <div style="display: flex; flex-direction: column; gap: 24px;">
+                <div class="card">
+                    <div class="section-title" style="font-size: 16px; border-bottom: 1px solid #f1f5f9; padding-bottom: 12px;">📈 按场景类型的实施路线图</div>
+                    <div class="roadmap-container">
+                        
+                        <div class="phase-item">
+                            <div class="phase-header">
+                                <div class="phase-label">
+                                    <span style="color: var(--zx-fg-secondary);">Phase 1</span>
+                                    <span>客户服务 (avg=6.8)</span>
+                                </div>
+                                <div style="color: var(--primary); font-weight: 700;">5 个场景</div>
+                            </div>
+                            <div class="phase-bar-bg">
+                                <div class="phase-bar-fill" style="--width-percent: 100.0; width: calc(var(--width-percent) * 1%);"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="phase-item">
+                            <div class="phase-header">
+                                <div class="phase-label">
+                                    <span style="color: var(--zx-fg-secondary);">Phase 2</span>
+                                    <span>营销获客 (avg=5.62)</span>
+                                </div>
+                                <div style="color: var(--primary); font-weight: 700;">5 个场景</div>
+                            </div>
+                            <div class="phase-bar-bg">
+                                <div class="phase-bar-fill" style="--width-percent: 82.64705882352942; width: calc(var(--width-percent) * 1%);"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="phase-item">
+                            <div class="phase-header">
+                                <div class="phase-label">
+                                    <span style="color: var(--zx-fg-secondary);">Phase 3</span>
+                                    <span>订单履约 (avg=5.08)</span>
+                                </div>
+                                <div style="color: var(--primary); font-weight: 700;">6 个场景</div>
+                            </div>
+                            <div class="phase-bar-bg">
+                                <div class="phase-bar-fill" style="--width-percent: 74.70588235294117; width: calc(var(--width-percent) * 1%);"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="phase-item">
+                            <div class="phase-header">
+                                <div class="phase-label">
+                                    <span style="color: var(--zx-fg-secondary);">Phase 4</span>
+                                    <span>销售转化 (avg=4.96)</span>
+                                </div>
+                                <div style="color: var(--primary); font-weight: 700;">4 个场景</div>
+                            </div>
+                            <div class="phase-bar-bg">
+                                <div class="phase-bar-fill" style="--width-percent: 72.94117647058823; width: calc(var(--width-percent) * 1%);"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="phase-item">
+                            <div class="phase-header">
+                                <div class="phase-label">
+                                    <span style="color: var(--zx-fg-secondary);">Phase 5</span>
+                                    <span>用户运营 (avg=3.9)</span>
+                                </div>
+                                <div style="color: var(--primary); font-weight: 700;">7 个场景</div>
+                            </div>
+                            <div class="phase-bar-bg">
+                                <div class="phase-bar-fill" style="--width-percent: 57.35294117647059; width: calc(var(--width-percent) * 1%);"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="phase-item">
+                            <div class="phase-header">
+                                <div class="phase-label">
+                                    <span style="color: var(--zx-fg-secondary);">Phase 6</span>
+                                    <span>售后服务 (avg=3.06)</span>
+                                </div>
+                                <div style="color: var(--primary); font-weight: 700;">6 个场景</div>
+                            </div>
+                            <div class="phase-bar-bg">
+                                <div class="phase-bar-fill" style="--width-percent: 45.0; width: calc(var(--width-percent) * 1%);"></div>
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="section-title" style="font-size: 16px; border-bottom: 1px solid #f1f5f9; padding-bottom: 12px;">🔑 核心洞察</div>
+                    <div class="insight-list">
+                        
+                        <div class="insight-item">
+                            Quick Wins（高收益/低成本）区域集中了AI多语言客服、AI内容工厂、自动化试驾预约等场景，建议立即启动
+                        </div>
+                        
+                        <div class="insight-item">
+                            Big Bets（高收益/高成本）区域包含动态定价引擎和AI远程诊断助手，需分阶段投入
+                        </div>
+                        
+                        <div class="insight-item">
+                            客户服务类场景整体优先级最高（平均Priority Score最高），应优先建设
+                        </div>
+                        
+                        <div class="insight-item">
+                            售后服务类场景知识复杂度最高（平均4.2分），需要与专业技师深度合作
+                        </div>
+                        
+                        <div class="insight-item">
+                            营销获客类场景用户覆盖最广，是品牌出海初期最重要的流量入口
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleStandards() {
+            const panel = document.getElementById('standards-panel');
+            const icon = document.getElementById('standards-toggle-icon');
+            const text = document.getElementById('standards-toggle-text');
+            
+            if (panel.classList.contains('hidden')) {
+                panel.classList.remove('hidden');
+                icon.textContent = '▲';
+                text.textContent = '隐藏说明';
+            } else {
+                panel.classList.add('hidden');
+                icon.textContent = '▼';
+                text.textContent = '显示说明';
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,191 @@
+meta:
+  title: "铁路订票服务 · 退改签智能助手 To-be 流程"
+  version: "v1.0"
+  date: "2026-09-10"
+  scenarioName: "退改签智能助手"
+  businessStage: "挖知识 阶段1 任务流程挖掘 · 步骤1.1"
+  methodology: "挖知识 阶段1方法（业务环节 L3 → 主要活动 L4 → 深度任务 L5）"
+  inputs:
+    - "定场景《铁路订票服务-退改签智能助手-AI画布》（用户痛点 / 输入输出 / 人机流程 / 业务收益）"
+    - "定场景《铁路订票服务-退改签智能助手-机会点定义》（4 个机会点 + 价值收益拆解）"
+    - "客户素材《铁路订票服务-核心票务AI机会地图》《服务蓝图分析》"
+  sourceRef: "退改签智能助手 AI 画布"
+  kpi:
+    - "退改签自助率"
+    - "决策耗时"
+    - "高峰期改签成功率"
+    - "客服进线量"
+    - "关联服务遗漏损失"
+
+legend:
+  execution:
+    - { type: "agent",  label: "Agent=AI 自动执行", icon: "🤖" }
+    - { type: "human",  label: "人工=人工执行",     icon: "👤" }
+    - { type: "hybrid", label: "混合=人机协同",     icon: "🤝" }
+  hitlFocus:
+    - { level: "low",    label: "低 · 人机介入",      desc: "全自动，无人工介入" }
+    - { level: "medium", label: "中 · 人机交错/审核", desc: "AI 产出，人工抽检/确认" }
+    - { level: "high",   label: "高 · 人机终审",      desc: "人类担任最终裁决" }
+    - { level: "gate",   label: "必停确认",           desc: "对外动作，强制人工放行" }
+  flowConventions:
+    - "角色泳道 任务泳道内转"
+    - "流程走向 任务正常后回填 AI"
+  valueAnchors:
+    - "退改签自助率"
+    - "决策耗时"
+    - "高峰期改签成功率"
+    - "客服进线量"
+    - "关联服务遗漏损失"
+
+phases:
+  - { id: "P1", order: 1, name: "场景识别", fullName: "场景识别与拉起", description: "监听运行变更/用户操作事件，识别退改签场景并拉取原订单" }
+  - { id: "P2", order: 2, name: "规则转译", fullName: "规则转译与费用试算", description: "计算阶梯费率并转译为大白话，输出可视化费用对比" }
+  - { id: "P3", order: 3, name: "方案推荐", fullName: "方案计算与推荐", description: "并发检索直达/候补/换乘方案，结合偏好排序并评估风险" }
+  - { id: "P4", order: 4, name: "一体化处置", fullName: "一体化处置", description: "发起主票退改交易并同步处置关联延伸服务" }
+  - { id: "P5", order: 5, name: "确认与后续", fullName: "处置确认与后续", description: "输出处置结果与确认清单，异常建单转客服，通知推送" }
+
+lanes:
+  - { id: "system",    order: 1, name: "系统/事件",   group: "平台自动", description: "事件监听、订单拉取、通知推送" }
+  - { id: "ai",        order: 2, name: "退改签智能助手", group: "AI",   description: "规则转译、方案寻优、一体化处置" }
+  - { id: "passenger", order: 3, name: "旅客",       group: "旅客",     description: "确认费用、选择方案" }
+  - { id: "cs",        order: 4, name: "一线客服",   group: "客服",     description: "承接复杂异常" }
+  - { id: "external",  order: 5, name: "外部系统",   group: "外部",     description: "12306 票务核心 / 运行监控 / 关联业务" }
+
+tasks:
+  - { id: "t01", order: 1, phaseId: "P1", laneId: "system",
+      name: "监听运行变更与用户操作事件", actor: "agent",
+      inputs: ["列车实时运行状态", "用户操作事件"], outputs: ["待处理事件"],
+      ruleType: "关联关系类·事件-订单关联",
+      valueAnchors: ["退改签自助率"], hitlFocus: "low",
+      exception: "事件缺失 → 兜底用户主动发起",
+      description: "监听晚点/停运事件与用户主动操作，触发服务助手" }
+  - { id: "t02", order: 2, phaseId: "P1", laneId: "ai",
+      name: "识别退改签场景类型", actor: "agent",
+      inputs: ["待处理事件", "用户诉求"], outputs: ["场景类型（退票/改签/运行变更）"],
+      ruleType: "决策模型类·场景识别规则",
+      valueAnchors: ["退改签自助率"], hitlFocus: "low",
+      exception: "意图不明 → 追问澄清",
+      description: "识别退票/改签/运行变更场景并确定处置路径" }
+  - { id: "t03", order: 3, phaseId: "P1", laneId: "ai",
+      name: "拉取原订单与乘车人信息", actor: "agent",
+      inputs: ["订单号", "乘车人"], outputs: ["原订单详情（车次/座席/票价/乘车人）"],
+      ruleType: "关键信息提取要点·订单关键字段",
+      valueAnchors: ["退改签自助率"], hitlFocus: "low",
+      exception: "订单不存在/已失效 → 提示并终止",
+      description: "从票务核心拉取原订单、座席、票价与乘车人信息" }
+
+  - { id: "t04", order: 4, phaseId: "P2", laneId: "ai",
+      name: "计算退改签阶梯费率", actor: "agent",
+      inputs: ["订单", "当前时间", "发车时间", "票种/席别"], outputs: ["退票损失/改签成本"],
+      ruleType: "决策模型类·阶梯费率规则",
+      valueAnchors: ["退改签自助率"], hitlFocus: "low",
+      exception: "特殊票种 → 转规则兜底/人工",
+      description: "规则引擎按时间差与票种确定性计算阶梯费率（不靠 LLM 算钱）" }
+  - { id: "t05", order: 5, phaseId: "P2", laneId: "ai",
+      name: "规则转译为大白话说明", actor: "agent",
+      inputs: ["费率计算结果", "规则条款"], outputs: ["大白话规则说明"],
+      ruleType: "模版范例类·规则转译话术",
+      valueAnchors: ["退改签自助率"], hitlFocus: "low",
+      exception: "规则盲区 → 标注待确认",
+      description: "LLM 将生涩条款转译为当前订单下的易懂说明" }
+  - { id: "t06", order: 6, phaseId: "P2", laneId: "ai",
+      name: "输出可视化费用对比表", actor: "agent",
+      inputs: ["退票损失", "改签成本"], outputs: ["费用对比表"],
+      ruleType: "模版范例类·费用对比模板",
+      valueAnchors: ["退改签自助率"], hitlFocus: "medium",
+      exception: "数据缺失 → 标注并提示",
+      description: "输出「退票损失 vs 改签成本」可视化对比" }
+  - { id: "t07", order: 7, phaseId: "P2", laneId: "passenger",
+      name: "确认费用理解", actor: "hybrid",
+      inputs: ["费用对比表"], outputs: ["确认继续/放弃"],
+      ruleType: "决策模型类·用户确认",
+      valueAnchors: ["退改签自助率"], hitlFocus: "medium",
+      exception: "有疑问 → 追问解释",
+      description: "旅客确认对退改损失的预期，继续或放弃" }
+
+  - { id: "t08", order: 8, phaseId: "P3", laneId: "ai",
+      name: "并发检索改签方案", actor: "agent",
+      inputs: ["原订单", "实时余票", "运行图"], outputs: ["直达/候补/换乘候选方案"],
+      ruleType: "关联关系类·余票-车次关联",
+      valueAnchors: ["高峰期改签成功率"], hitlFocus: "low",
+      exception: "无候选方案 → 兜底建议",
+      description: "并发检索直达、候补、换乘等改签策略" }
+  - { id: "t09", order: 9, phaseId: "P3", laneId: "ai",
+      name: "结合偏好与成功率排序", actor: "agent",
+      inputs: ["候选方案", "旅客偏好", "历史改签成功率"], outputs: ["Top 3 方案"],
+      ruleType: "决策模型类·方案寻优排序规则",
+      valueAnchors: ["决策耗时", "高峰期改签成功率"], hitlFocus: "medium",
+      exception: "偏好冲突 → 给出权衡说明",
+      description: "按偏好与历史同场景成功率综合排序，输出 Top 3" }
+  - { id: "t10", order: 10, phaseId: "P3", laneId: "ai",
+      name: "生成风险评估与损失评估", actor: "agent",
+      inputs: ["Top 3 方案"], outputs: ["方案卡片（含风险/损失）"],
+      ruleType: "模版范例类·方案卡片模板",
+      valueAnchors: ["高峰期改签成功率"], hitlFocus: "medium",
+      exception: "风险无法评估 → 标注",
+      description: "为每个方案生成风险与损失评估" }
+  - { id: "t11", order: 11, phaseId: "P3", laneId: "passenger",
+      name: "选择改签方案", actor: "human",
+      inputs: ["Top 3 方案卡片"], outputs: ["选定方案"],
+      ruleType: "决策模型类·方案选择放行",
+      valueAnchors: ["高峰期改签成功率"], hitlFocus: "gate",
+      exception: "均不满意 → 放宽条件重算",
+      description: "旅客选定方案（对外承诺前强制人工放行）" }
+
+  - { id: "t12", order: 12, phaseId: "P4", laneId: "ai",
+      name: "发起主票退/改交易", actor: "agent",
+      inputs: ["选定方案", "原订单"], outputs: ["主票退改结果"],
+      ruleType: "决策模型类·退改交易前置规则",
+      valueAnchors: ["退改签自助率"], hitlFocus: "gate",
+      exception: "交易失败 → 记录并重试/转人工",
+      description: "调用票务核心交易接口发起退票/改签" }
+  - { id: "t13", order: 13, phaseId: "P4", laneId: "ai",
+      name: "识别关联延伸服务", actor: "agent",
+      inputs: ["主票订单", "跨业务关联协议"], outputs: ["关联服务清单（餐饮/约车/行程单）"],
+      ruleType: "关联关系类·跨业务订单关联",
+      valueAnchors: ["关联服务遗漏损失"], hitlFocus: "medium",
+      exception: "关联不明 → 提示人工核实",
+      description: "依据跨业务订单关联协议识别需处置的延伸服务" }
+  - { id: "t14", order: 14, phaseId: "P4", laneId: "ai",
+      name: "同步注销/更新关联服务", actor: "agent",
+      inputs: ["关联服务清单", "主票退改结果"], outputs: ["关联处置结果"],
+      ruleType: "决策模型类·关联服务处置规则",
+      valueAnchors: ["关联服务遗漏损失"], hitlFocus: "medium",
+      exception: "处置失败 → 转客服人工处理",
+      description: "自动发起关联延伸服务的同步注销或更新" }
+  - { id: "t15", order: 15, phaseId: "P4", laneId: "ai",
+      name: "跨业务一致性校验", actor: "agent",
+      inputs: ["主票结果", "关联处置结果"], outputs: ["一致性校验结论"],
+      ruleType: "决策模型类·一致性校验规则",
+      valueAnchors: ["关联服务遗漏损失"], hitlFocus: "medium",
+      exception: "不一致 → 回滚/转人工",
+      description: "校验主票与关联服务处置的一致性，避免遗漏" }
+
+  - { id: "t16", order: 16, phaseId: "P5", laneId: "ai",
+      name: "输出处置结果与确认清单", actor: "agent",
+      inputs: ["主票结果", "关联处置结果"], outputs: ["一体化服务同步清单"],
+      ruleType: "模版范例类·处置确认清单模板",
+      valueAnchors: ["退改签自助率"], hitlFocus: "low",
+      exception: "缺项 → 标注待补",
+      description: "输出处置结果与一体化服务同步确认清单" }
+  - { id: "t17", order: 17, phaseId: "P5", laneId: "cs",
+      name: "承接复杂异常", actor: "human",
+      inputs: ["异常建单", "上下文摘要"], outputs: ["人工处置结果"],
+      ruleType: "操作流程类·异常升级路径",
+      valueAnchors: ["客服进线量"], hitlFocus: "high",
+      exception: "无法处置 → 升级",
+      description: "复杂异常自动建单并附上下文摘要转客服" }
+  - { id: "t18", order: 18, phaseId: "P5", laneId: "system",
+      name: "通知推送与行程更新", actor: "agent",
+      inputs: ["处置结果"], outputs: ["Push 通知/行程更新"],
+      ruleType: "关联关系类·通知-订单关联",
+      valueAnchors: ["退改签自助率"], hitlFocus: "low",
+      exception: "推送失败 → 重试",
+      description: "推送处置结果并更新旅客行程信息" }
+
+flowNotes:
+  - "主链路 P1→P2→P3→P4→P5；P3 的「选择改签方案」与 P4 的「发起主票退/改交易」为对外承诺/交易动作（HITL 强制闸门）"
+  - "计费走确定性规则引擎，LLM 只做规则转译与说明，不算钱"
+  - "关联服务未一致性校验通过前不得标记处置完成"
+returnNodes:
+  - "无候选方案/偏好冲突/交易失败/关联处置失败 → 分别回方案计算、旅客、客服、关联处置处理"

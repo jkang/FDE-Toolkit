@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>X电商订舱 · 机会点定义</title>
+<style>
+  :root{
+    --bg:#f6f8fa; --card:#ffffff; --line:#e5e7eb; --ink:#1f2937; --sub:#6b7280;
+    --accent:#0e7490; --chip:#f1f5f9; --chipb:#cbd5e1;
+    --t-repetitive:#0e7490; --t-cognitive:#b45309; --t-longtail:#7c3aed; --t-innovation:#be185d;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+    background:var(--bg);color:var(--ink);line-height:1.65}
+  .wrap{max-width:1000px;margin:0 auto;padding:28px 20px 64px}
+  header{margin-bottom:16px}
+  .crumb{font-size:12px;color:var(--sub)}
+  h1{font-size:23px;margin:6px 0 4px}
+  .meta-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+  .chip{font-size:12px;color:var(--sub);background:var(--chip);border:1px solid var(--chipb);padding:3px 9px;border-radius:999px}
+  .tools{display:flex;gap:8px;justify-content:flex-end;margin-bottom:6px}
+  .btn{font-size:13px;border:1px solid var(--chipb);background:#fff;color:var(--ink);padding:6px 12px;border-radius:8px;cursor:pointer}
+  .btn:hover{background:var(--chip)}
+  .op-card{border:1px solid var(--line);border-radius:14px;background:var(--card);margin:18px 0;overflow:hidden}
+  .op-head{padding:14px 18px;border-bottom:1px solid var(--line);background:#fafbfc;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+  .op-name{font-size:17px;font-weight:700;margin-right:auto}
+  .badge{font-size:12px;color:#fff;padding:2px 9px;border-radius:999px;font-weight:600}
+  .op-body{padding:4px 18px 16px}
+  .elem{display:flex;gap:12px;padding:12px 0;border-bottom:1px dashed #eef0f2}
+  .elem:last-child{border-bottom:none}
+  .elem .no{flex:0 0 26px;height:26px;border-radius:7px;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px}
+  .elem .k{font-weight:700;font-size:14px;margin-bottom:4px}
+  .elem .v{white-space:pre-line;font-size:14px;color:#374151}
+  .vd{margin-top:12px;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+  .vd .h{font-size:13px;font-weight:700;color:var(--accent);padding:9px 14px;background:#f0f9ff;border-bottom:1px solid var(--line)}
+  table{width:100%;border-collapse:collapse}
+  th,td{text-align:left;font-size:13px;padding:8px 14px;border-bottom:1px solid var(--line)}
+  th{background:#fafbfc;color:var(--sub);font-weight:600}
+  td:first-child{font-weight:600}
+  tr:last-child td{border-bottom:none}
+  footer{color:var(--sub);font-size:12px;margin-top:26px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="crumb">3.1 · 机会点定义</div>
+    <h1>X电商订舱 · 机会点定义</h1>
+    <div class="tools"><button class="btn" onclick="copyYaml()">📋 复制 YAML</button></div>
+    <div class="meta-chips">
+      <span class="chip">🎯 智能订舱 Agent</span>
+      <span class="chip">来源：AI 机会场景地图 · 下单订舱与舱位确认（智能订舱 Agent，P0）</span>
+      <span class="chip">X 电商订舱平台</span>
+      <span class="chip">2026-09-10</span>
+    </div>
+  </header>
+
+  
+  <div class="op-head" style="border:none;background:#eff9ff;border-radius:10px;margin:0 0 4px">
+    <div class="op-name" style="font-size:13px;font-weight:600">🧩 承接问题：AI 客服对复杂多单 / 多单证场景处理有限、需频繁转人工；SME 货主对「询价 → 订舱 → 跟单」全流程信息不对称、依赖人工；新客首单无历史数据、Smart Push 预填不可用</div>
+  </div>
+  
+
+  
+  <div class="op-card">
+    <div class="op-head">
+      <div class="op-name">1. 对话式可执行订舱（问答升级为执行）</div>
+      <span class="badge" style="background:var(--t-innovation)">流程创新</span>
+      <span class="chip">根因：AI 问答对复杂多单、多单证处理有限，需频繁转人工，一次性解决率低</span>
+      <span class="chip">能力：Agent / 多轮任务执行 / 工具调用</span>
+    </div>
+    <div class="op-body">
+      
+      
+      <div class="elem">
+        <div class="no">1</div>
+        <div>
+          <div class="k">① 机会点一句话描述</div>
+          <div class="v">为 SME 货主与货代操作员构建「对话式可执行订舱」，把 AI 客服从「问答机器人」升级为「可执行订舱 Agent」，在对话中直接完成订舱、单证查询与异常处置。</div>
+        </div>
+      </div>
+      
+      <div class="elem">
+        <div class="no">2</div>
+        <div>
+          <div class="k">② 业务角色及场景</div>
+          <div class="v">角色：SME 货主直客（主）、货代 / NVOCC 操作员、人工客服 CSR。
+场景：货主在聊天窗口 / 微信小程序用自然语言咨询或发起订舱，Agent 识别意图、融合上下文、检索知识并执行订舱动作，复杂问题附摘要转人工。</div>
+        </div>
+      </div>
+      
+      <div class="elem">
+        <div class="no">3</div>
+        <div>
+          <div class="k">③ 问题痛点</div>
+          <div class="v">AI 问答只能回答，无法执行；复杂问题转人工时需重复提供上下文，一次性解决率低，SME 全流程依赖人工。</div>
+        </div>
+      </div>
+      
+      <div class="elem">
+        <div class="no">4</div>
+        <div>
+          <div class="k">④ 方案假设</div>
+          <div class="v">用 Agent 编排：意图识别与路由 → 上下文融合 → 知识检索（RAG）→ 订舱执行（预填/校验/提交）→ 状态查询与异常处置 → 智能升级（附摘要）→ 闭环回写 CRM/OMS；对外放行动作保留人工闸门 → 把 AI 分流率推向 30%+。</div>
+        </div>
+      </div>
+      
+      <div class="elem">
+        <div class="no">5</div>
+        <div>
+          <div class="k">⑤ 价值收益</div>
+          <div class="v">AI 客服从问答走向可执行；AI 分流率 30%+；SME 全流程自助率提升。</div>
+        </div>
+      </div>
+      
+
+      
+      <div class="vd">
+        <div class="h">价值收益拆解（对齐上游问题定义的 8 要素）</div>
+        <table>
+          <thead><tr><th>拆解维度</th><th>对应问题定义要素</th><th>量化口径</th></tr></thead>
+          <tbody>
+            
+            <tr><td>覆盖范围</td><td>⑥ 影响范围</td><td>覆盖 2025 年 150 万+ 次 AI 互动场景；受益角色：SME 货主 + 货代操作员 + CSR</td></tr>
+            
+            <tr><td>发生频度</td><td>⑤ 发生频度</td><td>高频（每会话多次互动）</td></tr>
+            
+            <tr><td>单次收益</td><td>⑦ 每次发生对业务的影响</td><td>问答 + 转人工 → 对话内直接执行；单次处理时长下降</td></tr>
+            
+            <tr><td>累计影响</td><td>⑧ 累计对业务影响</td><td>AI 分流率 30%+；人工客服成本下降；电商订舱渗透率向 40% 演进</td></tr>
+            
+          </tbody>
+        </table>
+      </div>
+      
+    </div>
+  </div>
+  
+  <div class="op-card">
+    <div class="op-head">
+      <div class="op-name">2. 报价逐项解读与舱位综合排序推荐</div>
+      <span class="badge" style="background:var(--t-cognitive)">高认知辅助</span>
+      <span class="chip">根因：货主看不懂复合报价构成，舱位选择需权衡价格/交期/履约率，依赖人工解释</span>
+      <span class="chip">能力：确定性服务 / 排序模型 / LLM 解释</span>
+    </div>
+    <div class="op-body">
+      
+      
+      <div class="elem">
+        <div class="no">1</div>
+        <div>
+          <div class="k">① 机会点一句话描述</div>
+          <div class="v">为 SME 货主构建「报价逐项解读与舱位综合排序推荐」，把「人工解释复合报价、凭经验选舱」升级为「报价逐项解读 + 舱位综合排序 + 推荐理由可复核」。</div>
+        </div>
+      </div>
+      
+      <div class="elem">
+        <div class="no">2</div>
+        <div>
+          <div class="k">② 业务角色及场景</div>
+          <div class="v">角色：SME 货主直客（比价选舱）、货代操作员（批量比价）。
+场景：货主输入询价需求，Agent 调报价引擎获取复合报价，逐项解读费用构成，并按价格/交期/履约率综合排序推荐 Top 舱位，展示打分依据。</div>
+        </div>
+      </div>
+      
+      <div class="elem">
+        <div class="no">3</div>
+        <div>
+          <div class="k">③ 问题痛点</div>
+          <div class="v">复合报价构成复杂、货主难以判断；舱位选择需在价格与交期间权衡，靠人工解释与经验，信息不对称。</div>
+        </div>
+      </div>
+      
+      <div class="elem">
+        <div class="no">4</div>
+        <div>
+          <div class="k">④ 方案假设</div>
+          <div class="v">报价与评分走确定性服务（LLM 不计算价格）→ 逐项解读费用构成 → 按加权因子综合排序 → 展示子分与推荐理由 → 货主确认（对外必停）→ 把询价到选舱的时长压缩。</div>
+        </div>
+      </div>
+      
+      <div class="elem">
+        <div class="no">5</div>
+        <div>
+          <div class="k">⑤ 价值收益</div>
+          <div class="v">报价解读与选舱从人工解释走向自动解读 + 综合排序；货主决策效率提升。</div>
+        </div>
+      </div>
+      
+
+      
+      <div class="vd">
+        <div class="h">价值收益拆解（对齐上游问题定义的 8 要素）</div>
+        <table>
+          <thead><tr><th>拆解维度</th><th>对应问题定义要素</th><th>量化口径</th></tr></thead>
+          <tbody>
+            
+            <tr><td>覆盖范围</td><td>⑥ 影响范围</td><td>全部询价与选舱互动；受益角色：SME 货主 + 货代操作员</td></tr>
+            
+            <tr><td>发生频度</td><td>⑤ 发生频度</td><td>高频（每次询价）</td></tr>
+            
+            <tr><td>单次收益</td><td>⑦ 每次发生对业务的影响</td><td>人工解释报价 → 自动逐项解读；比价选舱时长下降</td></tr>
+            
+            <tr><td>累计影响</td><td>⑧ 累计对业务影响</td><td>询价到选舱时效缩短；货主自助率提升</td></tr>
+            
+          </tbody>
+        </table>
+      </div>
+      
+    </div>
+  </div>
+  
+  <div class="op-card">
+    <div class="op-head">
+      <div class="op-name">3. 订舱表单智能预填与规则校验</div>
+      <span class="badge" style="background:var(--t-repetitive)">重复性替代</span>
+      <span class="chip">根因：3 步订舱表单字段多、校验规则 200+ 条，新客首单无历史数据预填不可用</span>
+      <span class="chip">能力：规则引擎 / 智能预填 / 确定性校验</span>
+    </div>
+    <div class="op-body">
+      
+      
+      <div class="elem">
+        <div class="no">1</div>
+        <div>
+          <div class="k">① 机会点一句话描述</div>
+          <div class="v">为 SME 货主与货代操作员构建「订舱表单智能预填与规则校验」，把「人工逐字段填写并核对校验规则」升级为「AI 智能预填 + 200+ 规则自动校验 + 缺项提示」。</div>
+        </div>
+      </div>
+      
+      <div class="elem">
+        <div class="no">2</div>
+        <div>
+          <div class="k">② 业务角色及场景</div>
+          <div class="v">角色：SME 货主直客（首单预填）、货代操作员（批量订舱）。
+场景：Agent 依据会话上下文与主数据预填 3 步表单字段，运行订舱校验规则引擎（200+ 条）校验必填项与合规要求，缺项提示补录。</div>
+        </div>
+      </div>
+      
+      <div class="elem">
+        <div class="no">3</div>
+        <div>
+          <div class="k">③ 问题痛点</div>
+          <div class="v">订舱表单字段多、校验规则 200+ 条，新客首单无历史数据、Smart Push 预填不可用，人工填写慢且易错。</div>
+        </div>
+      </div>
+      
+      <div class="elem">
+        <div class="no">4</div>
+        <div>
+          <div class="k">④ 方案假设</div>
+          <div class="v">智能预填（主数据 + 会话上下文 + OCR 兜底）→ 订舱校验规则引擎（200+ 条）自动校验 → 缺项/冲突提示补正 → 表单确认后提交订舱请求 → 把订舱确认时效推向 ≤2h。</div>
+        </div>
+      </div>
+      
+      <div class="elem">
+        <div class="no">5</div>
+        <div>
+          <div class="k">⑤ 价值收益</div>
+          <div class="v">订舱表单从人工填写走向智能预填 + 规则校验；订舱确认时效 ≤2h；表单一次提交通过率提升。</div>
+        </div>
+      </div>
+      
+
+      
+      <div class="vd">
+        <div class="h">价值收益拆解（对齐上游问题定义的 8 要素）</div>
+        <table>
+          <thead><tr><th>拆解维度</th><th>对应问题定义要素</th><th>量化口径</th></tr></thead>
+          <tbody>
+            
+            <tr><td>覆盖范围</td><td>⑥ 影响范围</td><td>全部在线订舱；受益角色：SME 货主 + 货代操作员</td></tr>
+            
+            <tr><td>发生频度</td><td>⑤ 发生频度</td><td>每单一次</td></tr>
+            
+            <tr><td>单次收益</td><td>⑦ 每次发生对业务的影响</td><td>逐字段人工填写 → 智能预填 + 校验；单票订舱耗时下降</td></tr>
+            
+            <tr><td>累计影响</td><td>⑧ 累计对业务影响</td><td>在线订舱确认时效 ≤2h；表单错误返工减少</td></tr>
+            
+          </tbody>
+        </table>
+      </div>
+      
+    </div>
+  </div>
+  
+  <div class="op-card">
+    <div class="op-head">
+      <div class="op-name">4. 单证抽取预填与 SI 校验</div>
+      <span class="badge" style="background:var(--t-repetitive)">重复性替代</span>
+      <span class="chip">根因：SI 等单证字段靠人工录入，单证规则库 300+ 条靠人工核对，缺件需往返补件</span>
+      <span class="chip">能力：OCR / 规则引擎 / 关联校验</span>
+    </div>
+    <div class="op-body">
+      
+      
+      <div class="elem">
+        <div class="no">1</div>
+        <div>
+          <div class="k">① 机会点一句话描述</div>
+          <div class="v">为货代操作员构建「单证抽取预填与 SI 校验」，把「人工录入 SI 字段、逐条核对单证规则」升级为「单证 OCR 抽取预填 + 300+ 规则校验 + 缺件检查」。</div>
+        </div>
+      </div>
+      
+      <div class="elem">
+        <div class="no">2</div>
+        <div>
+          <div class="k">② 业务角色及场景</div>
+          <div class="v">角色：货代 / NVOCC 操作员（SI 预填）、SME 货主（补件）。
+场景：Agent 从贸易单据（PI/装箱单/发票）抽取字段预填 SI，运行单证规则库（300+ 条）校验，缺件禁止推送并提示补件。</div>
+        </div>
+      </div>
+      
+      <div class="elem">
+        <div class="no">3</div>
+        <div>
+          <div class="k">③ 问题痛点</div>
+          <div class="v">SI 字段人工录入慢，单证规则库 300+ 条靠人工核对，缺件导致往返补件（2~3 轮），单证一次提交通过率低。</div>
+        </div>
+      </div>
+      
+      <div class="elem">
+        <div class="no">4</div>
+        <div>
+          <div class="k">④ 方案假设</div>
+          <div class="v">单证 OCR 抽取 → 字段预填 SI → 单证规则库（300+ 条）自动校验 → 缺件检查（缺件禁止推送）→ 推送入库 → 把单证一次提交通过率提升、往返补件压缩。</div>
+        </div>
+      </div>
+      
+      <div class="elem">
+        <div class="no">5</div>
+        <div>
+          <div class="k">⑤ 价值收益</div>
+          <div class="v">单证预填从人工录入走向自动抽取 + 校验；单证一次提交通过率提升；往返补件 2~3 轮 → 1 轮。</div>
+        </div>
+      </div>
+      
+
+      
+      <div class="vd">
+        <div class="h">价值收益拆解（对齐上游问题定义的 8 要素）</div>
+        <table>
+          <thead><tr><th>拆解维度</th><th>对应问题定义要素</th><th>量化口径</th></tr></thead>
+          <tbody>
+            
+            <tr><td>覆盖范围</td><td>⑥ 影响范围</td><td>全部 SI 预填；受益角色：货代操作员 + SME 货主</td></tr>
+            
+            <tr><td>发生频度</td><td>⑤ 发生频度</td><td>每单一次</td></tr>
+            
+            <tr><td>单次收益</td><td>⑦ 每次发生对业务的影响</td><td>人工录入 + 核对 → 自动抽取 + 校验；SI 处理时长下降</td></tr>
+            
+            <tr><td>累计影响</td><td>⑧ 累计对业务影响</td><td>单证一次提交通过率提升；往返补件轮次下降</td></tr>
+            
+          </tbody>
+        </table>
+      </div>
+      
+    </div>
+  </div>
+  
+  <div class="op-card">
+    <div class="op-head">
+      <div class="op-name">5. 出运跟踪、延误预警与异常处置建议</div>
+      <span class="badge" style="background:var(--t-cognitive)">高认知辅助</span>
+      <span class="chip">根因：出运状态多源分散，延误靠人工发现，异常处置依赖经验</span>
+      <span class="chip">能力：多源融合 / 预测模型 / LLM 建议</span>
+    </div>
+    <div class="op-body">
+      
+      
+      <div class="elem">
+        <div class="no">1</div>
+        <div>
+          <div class="k">① 机会点一句话描述</div>
+          <div class="v">为 SME 货主与 CSR 构建「出运跟踪、延误预警与异常处置建议」，把「人工多系统查轨迹、被动发现延误」升级为「多源轨迹融合 + 延误预测预警 + 改配/赔付建议」。</div>
+        </div>
+      </div>
+      
+      <div class="elem">
+        <div class="no">2</div>
+        <div>
+          <div class="k">② 业务角色及场景</div>
+          <div class="v">角色：SME 货主直客（跟踪）、CSR（异常处置）。
+场景：Agent 融合控制塔 / Cargo Tracking+ 多源轨迹，预测 ETA 延误并预警，生成改配建议或赔付预判，对外动作转人工确认。</div>
+        </div>
+      </div>
+      
+      <div class="elem">
+        <div class="no">3</div>
+        <div>
+          <div class="k">③ 问题痛点</div>
+          <div class="v">出运状态分散在多个系统，延误靠人工发现，异常处置依赖经验，货主信息不对称。</div>
+        </div>
+      </div>
+      
+      <div class="elem">
+        <div class="no">4</div>
+        <div>
+          <div class="k">④ 方案假设</div>
+          <div class="v">多源轨迹融合 → ETA 延误预测（专用模型）→ 延误预警生成 → 风险高时生成改配/赔付预判（对外必停）→ 低风险降级为事后通知 → 把复杂问题一次性解决率与 CSAT 提升。</div>
+        </div>
+      </div>
+      
+      <div class="elem">
+        <div class="no">5</div>
+        <div>
+          <div class="k">⑤ 价值收益</div>
+          <div class="v">出运跟踪从人工查询走向多源融合 + 主动预警；异常处置有建议可循；CSAT 提升。</div>
+        </div>
+      </div>
+      
+
+      
+      <div class="vd">
+        <div class="h">价值收益拆解（对齐上游问题定义的 8 要素）</div>
+        <table>
+          <thead><tr><th>拆解维度</th><th>对应问题定义要素</th><th>量化口径</th></tr></thead>
+          <tbody>
+            
+            <tr><td>覆盖范围</td><td>⑥ 影响范围</td><td>全部出运跟踪与异常处置；受益角色：SME 货主 + CSR</td></tr>
+            
+            <tr><td>发生频度</td><td>⑤ 发生频度</td><td>事件驱动（状态变更 / 异常）</td></tr>
+            
+            <tr><td>单次收益</td><td>⑦ 每次发生对业务的影响</td><td>人工查轨迹 → 自动融合预警；异常发现时效提升</td></tr>
+            
+            <tr><td>累计影响</td><td>⑧ 累计对业务影响</td><td>复杂问题一次性解决率与 CSAT 提升；舱位保证兑现率 95%+</td></tr>
+            
+          </tbody>
+        </table>
+      </div>
+      
+    </div>
+  </div>
+  
+
+  <footer>场景：智能订舱 Agent · 承接：承接问题：AI 客服对复杂多单 / 多单证场景处理有限、需频繁转人工；SME 货主对「询价 → 订舱 → 跟单」全流程信息不对称、依赖人工；新客首单无历史数据、Smart Push 预填不可用 · 生成于 2026-09-10</footer>
+</div>
+
+<textarea id="yamlSrc" style="display:none">meta:
+  title: &quot;X电商订舱 · 机会点定义&quot;
+  sectionNo: &quot;3.1&quot;
+  version: &quot;v1.0&quot;
+  date: &quot;2026-09-10&quot;
+  business: &quot;X 电商订舱平台&quot;
+  domain: &quot;电商订舱（在线订舱与舱位确认）&quot;
+  scenario: &quot;智能订舱 Agent&quot;
+  problemRef: &quot;承接问题：AI 客服对复杂多单 / 多单证场景处理有限、需频繁转人工；SME 货主对「询价 → 订舱 → 跟单」全流程信息不对称、依赖人工；新客首单无历史数据、Smart Push 预填不可用&quot;
+  opportunitySource: &quot;AI 机会场景地图 · 下单订舱与舱位确认（智能订舱 Agent，P0）&quot;
+
+opportunities:
+  - id: &quot;OP1&quot;
+    order: 1
+    name: &quot;对话式可执行订舱（问答升级为执行）&quot;
+    type: &quot;innovation&quot;
+    rootCauseType: &quot;AI 问答对复杂多单、多单证处理有限，需频繁转人工，一次性解决率低&quot;
+    capabilityMatch: &quot;Agent / 多轮任务执行 / 工具调用&quot;
+    e1: &quot;为 SME 货主与货代操作员构建「对话式可执行订舱」，把 AI 客服从「问答机器人」升级为「可执行订舱 Agent」，在对话中直接完成订舱、单证查询与异常处置。&quot;
+    e2: &quot;角色：SME 货主直客（主）、货代 / NVOCC 操作员、人工客服 CSR。\n场景：货主在聊天窗口 / 微信小程序用自然语言咨询或发起订舱，Agent 识别意图、融合上下文、检索知识并执行订舱动作，复杂问题附摘要转人工。&quot;
+    e3: &quot;AI 问答只能回答，无法执行；复杂问题转人工时需重复提供上下文，一次性解决率低，SME 全流程依赖人工。&quot;
+    e4: &quot;用 Agent 编排：意图识别与路由 → 上下文融合 → 知识检索（RAG）→ 订舱执行（预填/校验/提交）→ 状态查询与异常处置 → 智能升级（附摘要）→ 闭环回写 CRM/OMS；对外放行动作保留人工闸门 → 把 AI 分流率推向 30%+。&quot;
+    e5: &quot;AI 客服从问答走向可执行；AI 分流率 30%+；SME 全流程自助率提升。&quot;
+    valueBreakdown:
+      - dimension: &quot;覆盖范围&quot;
+        aligns: &quot;⑥ 影响范围&quot;
+        metric: &quot;覆盖 2025 年 150 万+ 次 AI 互动场景；受益角色：SME 货主 + 货代操作员 + CSR&quot;
+      - dimension: &quot;发生频度&quot;
+        aligns: &quot;⑤ 发生频度&quot;
+        metric: &quot;高频（每会话多次互动）&quot;
+      - dimension: &quot;单次收益&quot;
+        aligns: &quot;⑦ 每次发生对业务的影响&quot;
+        metric: &quot;问答 + 转人工 → 对话内直接执行；单次处理时长下降&quot;
+      - dimension: &quot;累计影响&quot;
+        aligns: &quot;⑧ 累计对业务影响&quot;
+        metric: &quot;AI 分流率 30%+；人工客服成本下降；电商订舱渗透率向 40% 演进&quot;
+
+  - id: &quot;OP2&quot;
+    order: 2
+    name: &quot;报价逐项解读与舱位综合排序推荐&quot;
+    type: &quot;cognitive&quot;
+    rootCauseType: &quot;货主看不懂复合报价构成，舱位选择需权衡价格/交期/履约率，依赖人工解释&quot;
+    capabilityMatch: &quot;确定性服务 / 排序模型 / LLM 解释&quot;
+    e1: &quot;为 SME 货主构建「报价逐项解读与舱位综合排序推荐」，把「人工解释复合报价、凭经验选舱」升级为「报价逐项解读 + 舱位综合排序 + 推荐理由可复核」。&quot;
+    e2: &quot;角色：SME 货主直客（比价选舱）、货代操作员（批量比价）。\n场景：货主输入询价需求，Agent 调报价引擎获取复合报价，逐项解读费用构成，并按价格/交期/履约率综合排序推荐 Top 舱位，展示打分依据。&quot;
+    e3: &quot;复合报价构成复杂、货主难以判断；舱位选择需在价格与交期间权衡，靠人工解释与经验，信息不对称。&quot;
+    e4: &quot;报价与评分走确定性服务（LLM 不计算价格）→ 逐项解读费用构成 → 按加权因子综合排序 → 展示子分与推荐理由 → 货主确认（对外必停）→ 把询价到选舱的时长压缩。&quot;
+    e5: &quot;报价解读与选舱从人工解释走向自动解读 + 综合排序；货主决策效率提升。&quot;
+    valueBreakdown:
+      - dimension: &quot;覆盖范围&quot;
+        aligns: &quot;⑥ 影响范围&quot;
+        metric: &quot;全部询价与选舱互动；受益角色：SME 货主 + 货代操作员&quot;
+      - dimension: &quot;发生频度&quot;
+        aligns: &quot;⑤ 发生频度&quot;
+        metric: &quot;高频（每次询价）&quot;
+      - dimension: &quot;单次收益&quot;
+        aligns: &quot;⑦ 每次发生对业务的影响&quot;
+        metric: &quot;人工解释报价 → 自动逐项解读；比价选舱时长下降&quot;
+      - dimension: &quot;累计影响&quot;
+        aligns: &quot;⑧ 累计对业务影响&quot;
+        metric: &quot;询价到选舱时效缩短；货主自助率提升&quot;
+
+  - id: &quot;OP3&quot;
+    order: 3
+    name: &quot;订舱表单智能预填与规则校验&quot;
+    type: &quot;repetitive&quot;
+    rootCauseType: &quot;3 步订舱表单字段多、校验规则 200+ 条，新客首单无历史数据预填不可用&quot;
+    capabilityMatch: &quot;规则引擎 / 智能预填 / 确定性校验&quot;
+    e1: &quot;为 SME 货主与货代操作员构建「订舱表单智能预填与规则校验」，把「人工逐字段填写并核对校验规则」升级为「AI 智能预填 + 200+ 规则自动校验 + 缺项提示」。&quot;
+    e2: &quot;角色：SME 货主直客（首单预填）、货代操作员（批量订舱）。\n场景：Agent 依据会话上下文与主数据预填 3 步表单字段，运行订舱校验规则引擎（200+ 条）校验必填项与合规要求，缺项提示补录。&quot;
+    e3: &quot;订舱表单字段多、校验规则 200+ 条，新客首单无历史数据、Smart Push 预填不可用，人工填写慢且易错。&quot;
+    e4: &quot;智能预填（主数据 + 会话上下文 + OCR 兜底）→ 订舱校验规则引擎（200+ 条）自动校验 → 缺项/冲突提示补正 → 表单确认后提交订舱请求 → 把订舱确认时效推向 ≤2h。&quot;
+    e5: &quot;订舱表单从人工填写走向智能预填 + 规则校验；订舱确认时效 ≤2h；表单一次提交通过率提升。&quot;
+    valueBreakdown:
+      - dimension: &quot;覆盖范围&quot;
+        aligns: &quot;⑥ 影响范围&quot;
+        metric: &quot;全部在线订舱；受益角色：SME 货主 + 货代操作员&quot;
+      - dimension: &quot;发生频度&quot;
+        aligns: &quot;⑤ 发生频度&quot;
+        metric: &quot;每单一次&quot;
+      - dimension: &quot;单次收益&quot;
+        aligns: &quot;⑦ 每次发生对业务的影响&quot;
+        metric: &quot;逐字段人工填写 → 智能预填 + 校验；单票订舱耗时下降&quot;
+      - dimension: &quot;累计影响&quot;
+        aligns: &quot;⑧ 累计对业务影响&quot;
+        metric: &quot;在线订舱确认时效 ≤2h；表单错误返工减少&quot;
+
+  - id: &quot;OP4&quot;
+    order: 4
+    name: &quot;单证抽取预填与 SI 校验&quot;
+    type: &quot;repetitive&quot;
+    rootCauseType: &quot;SI 等单证字段靠人工录入，单证规则库 300+ 条靠人工核对，缺件需往返补件&quot;
+    capabilityMatch: &quot;OCR / 规则引擎 / 关联校验&quot;
+    e1: &quot;为货代操作员构建「单证抽取预填与 SI 校验」，把「人工录入 SI 字段、逐条核对单证规则」升级为「单证 OCR 抽取预填 + 300+ 规则校验 + 缺件检查」。&quot;
+    e2: &quot;角色：货代 / NVOCC 操作员（SI 预填）、SME 货主（补件）。\n场景：Agent 从贸易单据（PI/装箱单/发票）抽取字段预填 SI，运行单证规则库（300+ 条）校验，缺件禁止推送并提示补件。&quot;
+    e3: &quot;SI 字段人工录入慢，单证规则库 300+ 条靠人工核对，缺件导致往返补件（2~3 轮），单证一次提交通过率低。&quot;
+    e4: &quot;单证 OCR 抽取 → 字段预填 SI → 单证规则库（300+ 条）自动校验 → 缺件检查（缺件禁止推送）→ 推送入库 → 把单证一次提交通过率提升、往返补件压缩。&quot;
+    e5: &quot;单证预填从人工录入走向自动抽取 + 校验；单证一次提交通过率提升；往返补件 2~3 轮 → 1 轮。&quot;
+    valueBreakdown:
+      - dimension: &quot;覆盖范围&quot;
+        aligns: &quot;⑥ 影响范围&quot;
+        metric: &quot;全部 SI 预填；受益角色：货代操作员 + SME 货主&quot;
+      - dimension: &quot;发生频度&quot;
+        aligns: &quot;⑤ 发生频度&quot;
+        metric: &quot;每单一次&quot;
+      - dimension: &quot;单次收益&quot;
+        aligns: &quot;⑦ 每次发生对业务的影响&quot;
+        metric: &quot;人工录入 + 核对 → 自动抽取 + 校验；SI 处理时长下降&quot;
+      - dimension: &quot;累计影响&quot;
+        aligns: &quot;⑧ 累计对业务影响&quot;
+        metric: &quot;单证一次提交通过率提升；往返补件轮次下降&quot;
+
+  - id: &quot;OP5&quot;
+    order: 5
+    name: &quot;出运跟踪、延误预警与异常处置建议&quot;
+    type: &quot;cognitive&quot;
+    rootCauseType: &quot;出运状态多源分散，延误靠人工发现，异常处置依赖经验&quot;
+    capabilityMatch: &quot;多源融合 / 预测模型 / LLM 建议&quot;
+    e1: &quot;为 SME 货主与 CSR 构建「出运跟踪、延误预警与异常处置建议」，把「人工多系统查轨迹、被动发现延误」升级为「多源轨迹融合 + 延误预测预警 + 改配/赔付建议」。&quot;
+    e2: &quot;角色：SME 货主直客（跟踪）、CSR（异常处置）。\n场景：Agent 融合控制塔 / Cargo Tracking+ 多源轨迹，预测 ETA 延误并预警，生成改配建议或赔付预判，对外动作转人工确认。&quot;
+    e3: &quot;出运状态分散在多个系统，延误靠人工发现，异常处置依赖经验，货主信息不对称。&quot;
+    e4: &quot;多源轨迹融合 → ETA 延误预测（专用模型）→ 延误预警生成 → 风险高时生成改配/赔付预判（对外必停）→ 低风险降级为事后通知 → 把复杂问题一次性解决率与 CSAT 提升。&quot;
+    e5: &quot;出运跟踪从人工查询走向多源融合 + 主动预警；异常处置有建议可循；CSAT 提升。&quot;
+    valueBreakdown:
+      - dimension: &quot;覆盖范围&quot;
+        aligns: &quot;⑥ 影响范围&quot;
+        metric: &quot;全部出运跟踪与异常处置；受益角色：SME 货主 + CSR&quot;
+      - dimension: &quot;发生频度&quot;
+        aligns: &quot;⑤ 发生频度&quot;
+        metric: &quot;事件驱动（状态变更 / 异常）&quot;
+      - dimension: &quot;单次收益&quot;
+        aligns: &quot;⑦ 每次发生对业务的影响&quot;
+        metric: &quot;人工查轨迹 → 自动融合预警；异常发现时效提升&quot;
+      - dimension: &quot;累计影响&quot;
+        aligns: &quot;⑧ 累计对业务影响&quot;
+        metric: &quot;复杂问题一次性解决率与 CSAT 提升；舱位保证兑现率 95%+&quot;
+</textarea>
+<script>
+function copyYaml(){
+  var src = document.getElementById('yamlSrc').value;
+  navigator.clipboard.writeText(src).then(function(){ alert('✅ YAML 已复制'); })
+    .catch(function(){ window.prompt('复制失败，请手动复制：', src); });
+}
+</script>
+</body>
+</html>

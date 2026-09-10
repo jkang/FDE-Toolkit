@@ -1,0 +1,404 @@
+title: 铁路订票服务-退改签智能助手-Agent本体设计
+domain: 铁路票务 / 售后
+scenario_description: "针对铁路出行「退票、改签、运行变更」高焦虑售后场景，从场景识别、规则转译、方案推荐到主票与关联服务一体化处置的端到端退改签场景"
+target_agent_role: 退改签智能助手（Railway Refund/Change Assistant）
+
+entities:
+  - id: ticket_order
+    name: 票务订单（Ticket Order）
+    type: core
+    description: "铁路票务订单，是退改签处置的业务主线与主键锚点"
+    attributes:
+      - name: order_no
+        type: string
+        description: 订单号
+      - name: train_no
+        type: string
+        description: 车次
+      - name: seat_class
+        type: string
+        description: 席别
+      - name: fare
+        type: number
+        description: 票价
+      - name: depart_time
+        type: datetime
+        description: 发车时间
+      - name: order_status
+        type: enum
+        values: [valid, changed, refunded, expired]
+        description: 订单状态
+    key_distinctions:
+      - "订单有效 ≠ 可退改（受时间与状态约束）"
+      - "改签后订单状态变为 changed，票价多退少补"
+
+  - id: run_change_event
+    name: 运行变更事件（Run Change Event）
+    type: event
+    description: "列车晚点/停运等铁路责任事件，是自动拉起服务的外部触发"
+    attributes:
+      - name: train_no
+        type: string
+        description: 车次
+      - name: event_type
+        type: enum
+        values: [delay, cancellation]
+        description: 事件类型
+      - name: delay_minutes
+        type: number
+        description: 晚点时长
+    key_distinctions:
+      - "运行变更属铁路责任 → 全额退票/免费改签"
+      - "运行变更优先于用户主动操作触发"
+
+  - id: fee_rule
+    name: 退改签费率规则（Fee Rule）
+    type: reference
+    description: "12306 退改签阶梯费率与特殊票种规则"
+    attributes:
+      - name: tier
+        type: string
+        description: 时间差档位（8天/48h/24h/24h内）
+      - name: rate
+        type: number
+        description: 费率
+      - name: min_fee
+        type: number
+        description: 最低收费（2 元）
+    key_distinctions:
+      - "计费走确定性规则引擎，LLM 不算钱"
+      - "因铁路责任不收费"
+
+  - id: change_plan
+    name: 改签方案（Change Plan）
+    type: event
+    description: "候选改签方案（直达/候补/换乘），含排序与风险评估"
+    attributes:
+      - name: plan_id
+        type: string
+        description: 方案标识
+      - name: plan_type
+        type: enum
+        values: [direct, waitlist, transfer]
+        description: 方案类型
+      - name: match_score
+        type: number
+        description: 偏好匹配度
+      - name: risk_level
+        type: enum
+        values: [low, medium, high]
+        description: 风险等级
+      - name: price_diff
+        type: number
+        description: 票价差
+    key_distinctions:
+      - "候选方案 ≠ 可执行方案（需旅客选定并放行）"
+      - "风险等级必须有依据，不得无依据乐观标注"
+
+  - id: refund_change_record
+    name: 退改记录（Refund/Change Record）
+    type: event
+    description: "主票退票/改签的执行记录"
+    attributes:
+      - name: record_no
+        type: string
+        description: 退改记录号
+      - name: action_type
+        type: enum
+        values: [refund, change]
+        description: 退票或改签
+      - name: fee_charged
+        type: number
+        description: 收取费用
+      - name: execute_status
+        type: enum
+        values: [pending, success, failed]
+        description: 执行状态
+    key_distinctions:
+      - "退改交易是对外承诺，必须人工放行"
+      - "交易失败不得无限制自动重试"
+
+  - id: related_service_order
+    name: 延伸服务订单（Related Service Order）
+    type: reference
+    description: "与票务订单关联的餐饮/约车/接送站/行程单订单"
+    attributes:
+      - name: service_no
+        type: string
+        description: 关联服务单号
+      - name: service_type
+        type: enum
+        values: [catering, ride, pickup, itinerary]
+        description: 服务类型
+      - name: dispose_status
+        type: enum
+        values: [not_applicable, pending, disposed, failed]
+        description: 处置状态
+    key_distinctions:
+      - "主票退改 ≠ 关联服务已处置"
+      - "关联服务未一致性校验通过前不得标记完成"
+
+  - id: passenger
+    name: 乘车人（Passenger）
+    type: reference
+    description: "订单乘车人信息与偏好"
+    attributes:
+      - name: name
+        type: string
+        description: 姓名
+      - name: id_no
+        type: string
+        description: 证件号（脱敏）
+      - name: preferences
+        type: string
+        description: 出行偏好（尽早出发/不接受换乘/席别一致）
+    key_distinctions:
+      - "多人订单需按人拆分处置"
+
+  - id: notification
+    name: 通知（Notification）
+    type: event
+    description: "运行变更 Push 卡片与处置结果通知"
+    attributes:
+      - name: notice_id
+        type: string
+        description: 通知标识
+      - name: notice_type
+        type: enum
+        values: [run_change_push, dispose_result]
+        description: 通知类型
+      - name: push_status
+        type: enum
+        values: [pending, sent, failed]
+        description: 推送状态
+    key_distinctions:
+      - "通知失败不得影响处置结果记录"
+
+relationships:
+  - from: ticket_order
+    to: run_change_event
+    label: 受影响
+    cardinality: "N:1"
+    description: "车次受运行变更事件影响"
+  - from: ticket_order
+    to: change_plan
+    label: 生成
+    cardinality: "1:N"
+    description: "一个订单生成多个候选改签方案"
+  - from: change_plan
+    to: refund_change_record
+    label: 执行
+    cardinality: "1:1"
+    description: "选定方案后生成退改记录"
+  - from: ticket_order
+    to: refund_change_record
+    label: 产生
+    cardinality: "1:N"
+    description: "订单可多次退改"
+  - from: ticket_order
+    to: related_service_order
+    label: 关联
+    cardinality: "1:N"
+    description: "主票订单关联多个延伸服务"
+  - from: fee_rule
+    to: ticket_order
+    label: 适用
+    cardinality: "N:1"
+    description: "费率规则适用于订单退改"
+  - from: ticket_order
+    to: passenger
+    label: 包含
+    cardinality: "1:N"
+    description: "订单含一名或多名乘车人"
+  - from: refund_change_record
+    to: notification
+    label: 触发
+    cardinality: "1:N"
+    description: "处置结果触发通知"
+
+action_boundaries:
+  - id: ab_refund_change_execute
+    situation: 退改交易执行前放行
+    situation_description: "旅客选定方案后，准备发起主票退票/改签交易"
+    required_evidence:
+      - source: "票务订单"
+        checks: "订单有效且可退改"
+      - source: "改签方案"
+        checks: "旅客已选定方案"
+      - source: "费率规则"
+        checks: "费用已确定性计算并经旅客确认"
+    valid_actions:
+      - "发起主票退票/改签交易"
+      - "交易失败记录并转人工重试"
+    invalid_actions:
+      - action: "未经旅客确认即发起退改交易"
+        reason: "退改是对外承诺与资金动作，必须人工放行"
+      - action: "对交易失败无限制自动重试"
+        reason: "高风险资金动作需人工确认，避免重复退改"
+    exception_triggers:
+      - condition: "交易失败"
+        action: "记录原因 → 转人工确认后重试"
+
+  - id: ab_fee_translate
+    situation: 规则转译与费用说明
+    situation_description: "AI 将阶梯费率规则转译为当前订单下的大白话说明"
+    required_evidence:
+      - source: "费率规则"
+        checks: "确定性计费结果"
+      - source: "票务订单"
+        checks: "时间差与票种"
+    valid_actions:
+      - "按结论-依据-建议结构转译"
+      - "输出可视化费用对比"
+    invalid_actions:
+      - action: "由 LLM 估算或修改金额"
+        reason: "计费必须走确定性规则引擎，说明与结果必须一致"
+    exception_triggers:
+      - condition: "特殊票种/规则盲区"
+        action: "转规则兜底/人工，标注待确认"
+
+  - id: ab_related_dispose
+    situation: 关联延伸服务一体化处置
+    situation_description: "主票退改后同步处置关联的餐饮/约车/接送站/行程单服务"
+    required_evidence:
+      - source: "跨业务关联协议"
+        checks: "识别出关联服务清单"
+      - source: "主票处置结果"
+        checks: "主票退改已完成"
+    valid_actions:
+      - "按协议同步注销/更新关联服务"
+      - "一致性校验并输出处置清单"
+    invalid_actions:
+      - action: "未校验一致性即标记处置完成"
+        reason: "遗漏关联服务会造成旅客损失"
+    exception_triggers:
+      - condition: "关联不明/处置失败"
+        action: "转客服人工处理并留痕"
+
+workstreams:
+  - id: ws_identify
+    name: 识别流
+    description: "从运行变更事件/用户操作到场景与订单识别的执行流"
+    anchor_objects: [run_change_event, ticket_order]
+    states:
+      - id: i_event
+        name: 事件到达
+        description: "运行变更事件或用户操作到达"
+        transitions:
+          - to_state: i_identified
+            trigger_action: 识别场景并拉取订单
+            required_evidence: "场景类型明确且订单有效"
+            type: normal
+      - id: i_identified
+        name: 场景已识别
+        description: "场景与订单已识别，进入规则转译"
+        transitions: []
+    guardrails:
+      - "运行变更优先于用户主动操作"
+      - "订单不可退改时直接提示并终止"
+    dependency_mapping:
+      - workstream: ws_translate
+        condition: "场景已识别"
+        impact: "规则转译流程可开始"
+
+  - id: ws_translate
+    name: 转译流
+    description: "从计费到规则转译与费用对比的执行流"
+    anchor_objects: [fee_rule, ticket_order]
+    states:
+      - id: tr_compute
+        name: 费用已计算
+        description: "阶梯费率已确定性计算"
+        transitions:
+          - to_state: tr_translated
+            trigger_action: 规则转译与费用对比
+            required_evidence: "大白话说明与对比表生成，金额与规则引擎一致"
+            type: normal
+      - id: tr_translated
+        name: 已转译
+        description: "规则已转译并输出费用对比"
+        transitions: []
+    guardrails:
+      - "计费走确定性规则引擎，LLM 不算钱"
+    dependency_mapping:
+      - workstream: ws_recommend
+        condition: "费用已明确"
+        impact: "方案推荐可结合成本"
+
+  - id: ws_recommend
+    name: 推荐流
+    description: "从候选检索到方案选定与放行的执行流"
+    anchor_objects: [change_plan, ticket_order]
+    states:
+      - id: r_candidates
+        name: 候选已检索
+        description: "直达/候补/换乘候选方案已检索"
+        transitions:
+          - to_state: r_ranked
+            trigger_action: 结合偏好与成功率排序
+            required_evidence: "Top 3 方案与排序依据生成"
+            type: normal
+      - id: r_ranked
+        name: 已排序
+        description: "Top 3 方案已排序并评估风险"
+        transitions:
+          - to_state: r_selected
+            trigger_action: 旅客选择方案
+            required_evidence: "旅客选定方案（人工放行）"
+            type: normal
+      - id: r_selected
+        name: 已选定
+        description: "旅客已选定方案，进入一体化处置"
+        transitions: []
+    guardrails:
+      - "对外承诺前必须旅客放行"
+      - "硬约束（席别一致）不可突破"
+    dependency_mapping:
+      - workstream: ws_dispose
+        condition: "方案已选定"
+        impact: "主票退改与关联处置可开始"
+
+  - id: ws_dispose
+    name: 处置流
+    description: "从主票退改到关联服务处置与确认的执行流"
+    anchor_objects: [refund_change_record, related_service_order, notification]
+    states:
+      - id: d_main
+        name: 主票已处置
+        description: "主票退改交易完成"
+        transitions:
+          - to_state: d_related
+            trigger_action: 识别并同步处置关联服务
+            required_evidence: "关联服务清单处置完成"
+            type: normal
+          - to_state: d_failed
+            trigger_action: 交易失败
+            required_evidence: "票务核心返回失败"
+            type: exception
+      - id: d_related
+        name: 关联已处置
+        description: "关联服务已处置并一致性校验通过"
+        transitions:
+          - to_state: d_confirmed
+            trigger_action: 输出确认清单并通知
+            required_evidence: "一致性校验通过"
+            type: normal
+      - id: d_failed
+        name: 处置失败
+        description: "交易/关联处置失败，转人工"
+        transitions:
+          - to_state: d_main
+            trigger_action: 人工确认后重试
+            required_evidence: "人工确认并重试成功"
+            type: recovery
+      - id: d_confirmed
+        name: 已确认
+        description: "处置结果已确认并通知，退改签闭环"
+        transitions: []
+    guardrails:
+      - "退改交易对外承诺必须人工放行"
+      - "关联服务未一致性校验通过前不得标记完成"
+    dependency_mapping:
+      - workstream: ws_recommend
+        condition: "处置完成"
+        impact: "行程更新，闭环"

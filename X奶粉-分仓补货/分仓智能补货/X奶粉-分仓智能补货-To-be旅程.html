@@ -1,0 +1,1865 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>X奶粉事业部 · 分仓智能补货 To-be 旅程设计（SKP 精化版）</title>
+  <style>
+    /* ============ 基础重置 ============ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: #f3f5f9;
+      padding: 28px 24px;
+      color: #1e293b;
+    }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+    .container { max-width: 100%; background: #fff; border-radius: 16px; box-shadow: 0 4px 24px rgba(15, 23, 42, 0.08); padding: 28px 32px 20px; }
+
+    /* ============ 头部 ============ */
+    .page-header {
+      display: flex; justify-content: space-between; align-items: flex-start; gap: 16px;
+      flex-wrap: wrap; padding-bottom: 20px; border-bottom: 2px solid #eef2f7;
+    }
+    .title-row { display: flex; align-items: center; gap: 14px; }
+    .title-icon {
+      width: 52px; height: 52px; border-radius: 14px; display: flex; align-items: center; justify-content: center;
+      font-size: 26px; background: linear-gradient(135deg, #6366f1, #8b5cf6); color: #fff; flex-shrink: 0;
+    }
+    .page-title { font-size: 24px; font-weight: 700; color: #0f172a; line-height: 1.3; }
+    .page-subtitle { font-size: 13px; color: #64748b; margin-top: 4px; }
+    .meta-badges { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
+    .badge {
+      font-size: 12px; padding: 5px 12px; border-radius: 999px; background: #f1f5f9;
+      color: #475569; border: 1px solid #e2e8f0; white-space: nowrap;
+    }
+    .badge.mode-badge { background: linear-gradient(135deg, #4f46e5, #7c3aed); color: #fff; border: none; font-weight: 600; }
+
+    /* ============ Section ============ */
+    .section { margin-top: 32px; }
+    .section-title {
+      display: flex; align-items: center; gap: 10px; font-size: 17px; font-weight: 700; color: #0f172a;
+      margin-bottom: 16px;
+    }
+    .section-num {
+      width: 28px; height: 28px; border-radius: 8px; background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      color: #fff; font-size: 13px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center;
+    }
+    .section-en { font-size: 11px; color: #94a3b8; font-weight: 500; letter-spacing: 0.5px; }
+
+    /* ============ Persona 卡片 ============ */
+    .persona-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; }
+    .persona-card {
+      background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 18px;
+      box-shadow: 0 1px 3px rgba(15,23,42,0.04); transition: all 0.2s;
+    }
+    .persona-card:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(99,102,241,0.10); border-color: #c7d2fe; }
+    .persona-head { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+    .avatar {
+      width: 46px; height: 46px; border-radius: 50%; background: linear-gradient(135deg, #6366f1, #a855f7);
+      color: #fff; font-size: 19px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .persona-name { font-size: 16px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+    .role-badge { font-size: 11px; font-weight: 600; color: #4f46e5; background: #eef2ff; border: 1px solid #c7d2fe; border-radius: 999px; padding: 2px 10px; }
+    .persona-dept { font-size: 12px; color: #94a3b8; margin-top: 2px; }
+    .persona-bg { font-size: 13px; color: #475569; line-height: 1.6; background: #f8fafc; border-radius: 8px; padding: 10px 12px; margin-bottom: 12px; }
+    .p-block { margin-bottom: 10px; }
+    .p-label { font-size: 12px; font-weight: 600; margin-bottom: 4px; }
+    .p-label.goals-label { color: #059669; }
+    .p-label.pains-label { color: #e11d48; }
+    .p-label.data-label { color: #b45309; }
+    .p-label.errors-label { color: #9333ea; margin-top: 8px; }
+    .p-block ul { list-style: none; }
+    .p-block ul li { font-size: 12.5px; color: #334155; line-height: 1.55; padding-left: 14px; position: relative; margin-bottom: 2px; }
+    .goals-label + ul li::before { content: "✓"; position: absolute; left: 0; color: #10b981; font-weight: 700; }
+    .pains-label + ul li::before { content: "✕"; position: absolute; left: 0; color: #f43f5e; font-weight: 700; }
+    .data-label + ul li::before, .errors-label + ul li::before { content: "•"; position: absolute; left: 2px; color: #94a3b8; }
+    .freq-badge {
+      display: inline-block; font-size: 11px; color: #7c3aed; background: #f5f3ff; border: 1px solid #ddd6fe;
+      border-radius: 999px; padding: 2px 10px; margin-bottom: 6px;
+    }
+
+    /* ============ Scenario 卡片 ============ */
+    .scenario-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+    .scenario-card {
+      background: #fff; border: 1px solid #e2e8f0; border-left: 4px solid #6366f1; border-radius: 14px; padding: 18px;
+      box-shadow: 0 1px 3px rgba(15,23,42,0.04); transition: all 0.2s;
+    }
+    .scenario-card:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(99,102,241,0.10); }
+    .scenario-head { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
+    .scenario-id { font-size: 11px; font-weight: 700; color: #6366f1; background: #eef2ff; border-radius: 6px; padding: 3px 8px; }
+    .scenario-name { font-size: 16px; font-weight: 700; }
+    .persona-link { margin-left: auto; font-size: 11px; color: #64748b; background: #f1f5f9; border-radius: 999px; padding: 3px 10px; }
+    .sc-trigger { font-size: 13px; color: #475569; background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 8px 12px; margin-bottom: 10px; line-height: 1.5; }
+    .sc-biz { list-style: none; margin-bottom: 10px; }
+    .sc-biz li { font-size: 12.5px; color: #334155; line-height: 1.55; padding-left: 14px; position: relative; }
+    .sc-biz li::before { content: "📊"; position: absolute; left: 0; top: 1px; font-size: 10px; }
+    .sc-goal { font-size: 13px; font-weight: 600; color: #047857; background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 8px; padding: 8px 12px; }
+
+    /* ============ 旅程泳道图 ============ */
+    .journey-map-canvas { display: flex; position: relative; min-width: 2824px; border: 1px solid #e2e8f0; border-radius: 12px; background: #fff; overflow: hidden; }
+    .labels-column { display: flex; flex-direction: column; flex-shrink: 0; position: sticky; left: 0; z-index: 30; background: #f8fafc; }
+    .lane-label {
+      width: 132px; min-width: 132px; display: flex; align-items: center; justify-content: flex-start;
+      padding: 0 12px; font-size: 12.5px; font-weight: 600; color: #475569;
+      background: #f8fafc; border-right: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0;
+    }
+    .content-column { display: flex; flex-direction: column; flex-grow: 1; position: relative; min-width: 0; }
+    .lane-row { position: relative; border-bottom: 1px solid #e2e8f0; background: #fff; }
+    .h-stage { height: 46px; }
+    .h-behavior { height: 92px; }
+    .h-touchpoint { height: 78px; }
+    .h-thoughts { height: 120px; }
+    .h-inputs { height: 190px; }
+    .h-ai { height: 210px; }
+    .h-visible { height: 170px; }
+    .h-design { height: 140px; }
+
+    /* 阶段块 */
+    .stage-block {
+      position: absolute; top: 0; height: 100%; border-right: 2px solid #fff;
+      display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; color: #1e293b;
+      background: linear-gradient(180deg, #eef2ff, #e0e7ff);
+    }
+
+    /* 行为卡片 + 流程箭头 */
+    .action-wrapper { position: absolute; transform: translateX(-50%); }
+    .behavior-card {
+      width: 170px; height: 74px; margin-top: 8px;
+      display: flex; align-items: center; justify-content: center; text-align: center; padding: 10px;
+      background: #fff; border: 2px solid #10b981; border-radius: 10px; box-shadow: 0 2px 6px rgba(16,185,129,0.08);
+      font-size: 12.5px; font-weight: 600; color: #065f46; transition: all 0.2s;
+    }
+    .behavior-card:hover { transform: translateY(-2px); box-shadow: 0 6px 14px rgba(16,185,129,0.16); }
+    .flow-arrow {
+      position: absolute; top: 36px; right: -14px; color: #10b981; font-size: 14px; font-weight: 700; z-index: 2;
+    }
+    .flow-arrow-dash { color: #94a3b8; }
+
+    /* 触点 */
+    .touchpoint-card {
+      width: 170px; height: 62px; margin-top: 8px;
+      background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 6px;
+    }
+    .tp-badge { font-size: 11.5px; font-weight: 600; color: #2563eb; background: #eff6ff; padding: 2px 10px; border-radius: 999px; }
+    .tp-device { font-size: 11px; color: #64748b; text-align: center; line-height: 1.3; }
+
+    /* 想法 */
+    .thoughts-container { width: 170px; margin-top: 8px; max-height: 108px; overflow-y: auto; padding-right: 2px; display: flex; flex-direction: column; gap: 4px; }
+    .thought-bubble {
+      font-size: 11.5px; color: #475569; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; border-top-left-radius: 2px;
+      padding: 6px 10px; line-height: 1.45; box-shadow: 0 1px 2px rgba(0,0,0,0.04); word-break: break-all;
+    }
+
+    /* 用户输入数据 */
+    .inputs-container { width: 170px; margin-top: 8px; max-height: 178px; overflow-y: auto; padding-right: 2px; display: flex; flex-direction: column; gap: 6px; }
+    .input-card { background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 8px 10px; transition: all 0.2s; }
+    .input-card:hover { border-color: #f59e0b; box-shadow: 0 2px 6px rgba(245,158,11,0.12); }
+    .input-head { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-bottom: 4px; }
+    .input-type { font-size: 10px; font-weight: 700; color: #92400e; background: #fef3c7; border-radius: 4px; padding: 1px 6px; }
+    .input-name { font-size: 12px; font-weight: 700; color: #78350f; }
+    .input-format { font-size: 10px; color: #b45309; border: 1px dashed #fcd34d; border-radius: 4px; padding: 0 5px; }
+    .input-example { font-size: 11px; color: #92400e; background: #fff7ed; border-radius: 5px; padding: 3px 6px; margin-bottom: 3px; word-break: break-all; }
+    .input-content { font-size: 10.5px; color: #a16207; line-height: 1.4; word-break: break-all; }
+
+    /* AI 交互与推荐指令 */
+    .ai-container { width: 170px; margin-top: 8px; max-height: 198px; overflow-y: auto; padding-right: 2px; display: flex; flex-direction: column; gap: 6px; }
+    .ai-action { font-size: 11.5px; color: #312e81; background: #eef2ff; border: 1px solid #c7d2fe; border-radius: 8px; padding: 7px 9px; line-height: 1.45; }
+    .sugg-label { font-size: 10.5px; font-weight: 700; color: #6d28d9; margin-top: 2px; }
+    .sugg-chips { display: flex; flex-direction: column; gap: 4px; }
+    .sugg-chip {
+      font-size: 11px; color: #5b21b6; background: #f5f3ff; border: 1px solid #ddd6fe; border-radius: 8px;
+      padding: 4px 9px; display: flex; align-items: center; gap: 5px; line-height: 1.35; transition: all 0.15s;
+    }
+    .sugg-chip:hover { background: #ede9fe; border-color: #a78bfa; }
+    .sugg-chip::before { content: "⚡"; font-size: 10px; flex-shrink: 0; }
+
+    /* 可见数据 */
+    .visible-container { width: 170px; margin-top: 8px; max-height: 158px; overflow-y: auto; padding-right: 2px; display: flex; flex-direction: column; gap: 5px; }
+    .visible-item {
+      font-size: 11px; color: #064e3b; background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 7px;
+      padding: 5px 9px; line-height: 1.45; word-break: break-all;
+    }
+    .visible-item::before { content: "📊"; font-size: 10px; margin-right: 4px; }
+
+    /* 设计意图与改善 */
+    .design-container { width: 170px; margin-top: 8px; max-height: 128px; overflow-y: auto; padding-right: 2px; display: flex; flex-direction: column; gap: 5px; }
+    .design-item {
+      font-size: 11px; color: #7c2d12; background: #fff7ed; border: 1px solid #fed7aa; border-radius: 7px;
+      padding: 5px 9px; line-height: 1.45; word-break: break-all;
+    }
+    .design-item::before { content: "🎨"; font-size: 10px; margin-right: 4px; }
+
+    /* ============ 原型衔接区 ============ */
+    .handoff-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; }
+    .handoff-block {
+      background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px;
+    }
+    .handoff-block.wide { grid-column: 1 / -1; }
+    .ho-title { font-size: 13.5px; font-weight: 700; color: #0f172a; margin-bottom: 10px; }
+    .chip-wrap { display: flex; flex-wrap: wrap; gap: 6px; }
+    .chip { font-size: 11.5px; border-radius: 8px; padding: 5px 10px; line-height: 1.4; }
+    .chip-blue { color: #1e40af; background: #eff6ff; border: 1px solid #bfdbfe; }
+    .chip-amber { color: #92400e; background: #fffbeb; border: 1px solid #fde68a; }
+    .chip-violet { color: #5b21b6; background: #f5f3ff; border: 1px solid #ddd6fe; }
+    .path-list { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+    .path-list li {
+      font-size: 12.5px; color: #334155; background: #fff; border: 1px solid #e2e8f0; border-radius: 8px;
+      padding: 8px 12px; line-height: 1.5;
+    }
+    .path-list li::before { content: "🔀 "; }
+
+    .footer-mark { margin-top: 24px; font-size: 12px; color: #94a3b8; text-align: right; }
+
+    @media (max-width: 640px) {
+      body { padding: 14px 10px; }
+      .container { padding: 18px 14px; }
+      .page-title { font-size: 19px; }
+      .persona-grid, .scenario-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+
+    <!-- ===== Unified Report Shell: 撑满容器 + 精简 Header + 溢出滚动 ===== -->
+    <style>
+      *, *::before, *::after { box-sizing: border-box !important; }
+      html, body { margin: 0 !important; padding: 0 !important; background: #F5F5F6 !important; overflow-x: auto !important; }
+      .container {
+        width: 100% !important;
+        max-width: none !important;
+        margin: 0 auto !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        border: none !important;
+        padding: 24px 28px 48px !important;
+        overflow-x: auto !important;
+      }
+      .page-header { margin-bottom: 20px !important; align-items: center !important; }
+      .page-header h1 { font-size: 22px !important; line-height: 1.3 !important; margin: 0 !important; }
+    
+      /* ===== Unified Header (v2) ===== */
+      .page-header {
+        background: #FFFFFF !important;
+        border-bottom: 1px solid #E2E8F0 !important;
+        border-radius: 0 !important;
+        padding: 12px 0 !important;
+        margin-bottom: 20px !important;
+        min-height: auto !important;
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        gap: 16px !important;
+        flex-wrap: wrap !important;
+      }
+      .page-header h1 {
+        font-size: 22px !important;
+        font-weight: 700 !important;
+        color: #10213E !important;
+        line-height: 1.3 !important;
+        margin: 0 !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 10px !important;
+      }
+
+      .page-title, .page-header .title-row > div > div:first-child:not(.page-subtitle) {
+        font-size: 22px !important;
+        font-weight: 700 !important;
+        color: #10213E !important;
+        line-height: 1.3 !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 10px !important;
+      }
+      .page-title::before, .title-row .page-title::before {
+        content: "" !important;
+        display: inline-block !important;
+        width: 4px !important;
+        height: 22px !important;
+        background: #5DB2E2 !important;
+        border-radius: 2px !important;
+        flex-shrink: 0 !important;
+      }
+      .title-icon { font-size: 18px !important; }
+      .page-header h1::before {
+        content: "" !important;
+        display: inline-block !important;
+        width: 4px !important;
+        height: 22px !important;
+        background: #5DB2E2 !important;
+        border-radius: 2px !important;
+        flex-shrink: 0 !important;
+      }
+      .page-header h1 svg, .page-header h1 .icon, .page-header h1 img {
+        width: 20px !important;
+        height: 20px !important;
+        flex-shrink: 0 !important;
+      }
+      .page-subtitle, .header-meta, .meta-scenario, .header-left p, .header-content p {
+        font-size: 13px !important;
+        color: #64748B !important;
+        margin: 4px 0 0 !important;
+        padding-left: 14px !important;
+      }
+      .meta-badge, .badge, .brand-tag {
+        font-size: 12px !important;
+        color: #64748B !important;
+        background: #F5F5F6 !important;
+        border-radius: 10px !important;
+        padding: 2px 10px !important;
+      }
+      .page-header .btn-group, .header-right, .header-right > div {
+        display: flex !important;
+        align-items: center !important;
+        gap: 8px !important;
+      }
+      .btn-secondary, .btn-primary, .btn-copy-yaml {
+        font-size: 12px !important;
+        padding: 6px 12px !important;
+        border-radius: 6px !important;
+        font-weight: 600 !important;
+      }
+      .btn-secondary {
+        background: #FFFFFF !important;
+        color: #10213E !important;
+        border: 1px solid #E2E8F0 !important;
+      }
+      .btn-primary {
+        background: #10213E !important;
+        color: #FFFFFF !important;
+        border: 1px solid #10213E !important;
+      }
+</style>
+
+
+</head>
+<body>
+
+<div class="container">
+
+  <!-- ================= 头部 ================= -->
+  <header class="page-header">
+    <div class="title-row">
+      <div class="title-icon">🧭</div>
+      <div>
+        <div class="page-title">X奶粉事业部 · 分仓智能补货 To-be 旅程设计（SKP 精化版）</div>
+        <div class="page-subtitle">AI 产品设计 · To-be User Journey Design</div>
+      </div>
+    </div>
+    <div class="meta-badges">
+      <span class="badge mode-badge">TO-BE 设计态</span>
+      <span class="badge">🎯 场景：分仓智能补货</span>
+      <span class="badge">📎 来源：SDP v1.1《Agent产品方案》+ SKP《任务流程挖掘清单》(21 L5) + SKP《任务处理规则挖掘清单》(5 类规则)</span>
+      <span class="badge">📦 形态：分货工作台（Agent 对话流 + 分货方案工作台 Artifact）· B2B 自用 · 嵌入物流计划岗工作流</span>
+    </div>
+  </header>
+
+  <!-- ================= 01 用户角色细化 ================= -->
+  <section class="section">
+    <div class="section-title">
+      <span class="section-num">01</span> 用户角色细化 <span class="section-en">PERSONAS</span>
+    </div>
+    <div class="persona-grid">
+      
+      <div class="persona-card">
+        <div class="persona-head">
+          <div class="avatar">王</div>
+          <div>
+            <div class="persona-name">王立群 <span class="role-badge">物流计划岗</span></div>
+            <div class="persona-dept">计划部</div>
+          </div>
+        </div>
+        <p class="persona-bg">负责X奶粉事业部每轮分货周期：把分仓销售计划+各仓库存/在途/待检/合格数据+促销计划，变成一份可直接下发的分货方案；当前靠人工 Excel 推式分货，分配量在京慧建议量上逐仓逐 SKU 人工调整。</p>
+        <div class="p-block">
+          <div class="p-label goals-label">🎯 核心目标</div>
+          <ul>
+            
+            <li>一屏识别全国仓网缺口（DOS 分级：红<7 / 黄7-14 / 蓝>60 且无促销）</li>
+            
+            <li>多约束下一次算完分配方案（目标备货率=订单进度+20% 封顶100%），只需确认与微调</li>
+            
+            <li>补货单合规下发（对外下发必停确认）并跟踪执行到入库、月末自动出复盘</li>
+            
+          </ul>
+        </div>
+        <div class="p-block">
+          <div class="p-label pains-label">⚠️ 当前痛点</div>
+          <ul>
+            
+            <li>分货数据准备经 Excel 汇总（待检/合格/在途/库存），约 1 天/轮</li>
+            
+            <li>分配量依赖老计划员隐性经验（备货率分配/分配量调整/积兆逻辑），未固化难传承</li>
+            
+            <li>多仓×多SKU×多约束下人工无法全局最优，易多补或缺补</li>
+            
+            <li>分货与促销计划未实时联动，大促放量击穿补货节奏</li>
+            
+          </ul>
+        </div>
+        <div class="p-block">
+          <div class="p-label data-label">🗃️ 典型业务数据</div>
+          <div class="freq-badge">使用频率：高频（每分货周期 1 轮，含异常分支）</div>
+          <ul>
+            
+            <li>分货周期数据：4 基地仓×11 销售分仓×近 700 SKU；单仓备货率 80%~95%（如北京顺义 80%、天津武清 95%）</li>
+            
+            <li>决策阈值：DOS<7 红 / 7-14 黄 / >60 蓝；目标备货率=订单进度+20% 封顶100%（中旬标准 50%）</li>
+            
+            <li>复盘阈值：时效达成率≥90%、缺货缓解率≥85%、周转率同比降幅≤10%、入库差异率≤0.5%</li>
+            
+          </ul>
+          
+          <div class="p-label errors-label">常见失误</div>
+          <ul>
+            
+            <li>待检与合格库存混用，可发量口径算错</li>
+            
+            <li>在途误取「已下发未发货」导致低估货源</li>
+            
+            <li>分配量超可发量约束，触发返工</li>
+            
+          </ul>
+          
+        </div>
+      </div>
+      
+      <div class="persona-card">
+        <div class="persona-head">
+          <div class="avatar">李</div>
+          <div>
+            <div class="persona-name">李梅 <span class="role-badge">调度组</span></div>
+            <div class="persona-dept">数据调度</div>
+          </div>
+        </div>
+        <p class="persona-bg">负责分货数据底表准备与口径校验：把各仓待检/合格/在途/库存数据汇总成一张底表，确保字段口径一致后交物流计划岗使用。</p>
+        <div class="p-block">
+          <div class="p-label goals-label">🎯 核心目标</div>
+          <ul>
+            
+            <li>底表口径校验通过（待检/合格分开取值、在途取在途总量）</li>
+            
+            <li>字段缺失/口径不一致自动标红进入 HITL 复核</li>
+            
+          </ul>
+        </div>
+        <div class="p-block">
+          <div class="p-label pains-label">⚠️ 当前痛点</div>
+          <ul>
+            
+            <li>Excel 汇总数据易错，待检/合格混用、在途口径混淆</li>
+            
+            <li>关键字段识别依赖人工核对，准确率无保障</li>
+            
+          </ul>
+        </div>
+        <div class="p-block">
+          <div class="p-label data-label">🗃️ 典型业务数据</div>
+          <div class="freq-badge">使用频率：每分货周期 1 次</div>
+          <ul>
+            
+            <li>底表字段：可发量/待检/合格/在途总量/生产备货率/大日期库存（big_date_num）</li>
+            
+          </ul>
+          
+          <div class="p-label errors-label">常见失误</div>
+          <ul>
+            
+            <li>待检与合格混用</li>
+            
+            <li>在途总量与已下发未发货混淆</li>
+            
+          </ul>
+          
+        </div>
+      </div>
+      
+      <div class="persona-card">
+        <div class="persona-head">
+          <div class="avatar">张</div>
+          <div>
+            <div class="persona-name">张伟 <span class="role-badge">仓储物流岗</span></div>
+            <div class="persona-dept">仓储物流</div>
+          </div>
+        </div>
+        <p class="persona-bg">负责执行跟踪与入库验收：TMS 在途监控、WMS 入库实收核对与差异处理、大日期库存巡检。</p>
+        <div class="p-block">
+          <div class="p-label goals-label">🎯 核心目标</div>
+          <ul>
+            
+            <li>延误>24h/48h、破损率>1% 自动预警，不再人工 4h 刷新台账</li>
+            
+            <li>入库差异率>0.5% 自动生成差异处理单推送财务与仓管</li>
+            
+          </ul>
+        </div>
+        <div class="p-block">
+          <div class="p-label pains-label">⚠️ 当前痛点</div>
+          <ul>
+            
+            <li>执行跟踪靠人工 4 小时刷新一次 TMS 台账</li>
+            
+            <li>入库差异人工核对，返工耗时</li>
+            
+          </ul>
+        </div>
+        <div class="p-block">
+          <div class="p-label data-label">🗃️ 典型业务数据</div>
+          <div class="freq-badge">使用频率：持续（4h 自动刷新）</div>
+          <ul>
+            
+            <li>在途台账：车辆定位/运输状态/预计到货；WMS 运单实收/差异率</li>
+            
+          </ul>
+          
+          <div class="p-label errors-label">常见失误</div>
+          <ul>
+            
+            <li>延误预警滞后，差异单生成不及时</li>
+            
+          </ul>
+          
+        </div>
+      </div>
+      
+    </div>
+  </section>
+
+  <!-- ================= 02 典型使用场景 ================= -->
+  <section class="section">
+    <div class="section-title">
+      <span class="section-num">02</span> 典型使用场景 <span class="section-en">SCENARIOS</span>
+    </div>
+    <div class="scenario-grid">
+      
+      <div class="scenario-card">
+        <div class="scenario-head">
+          <span class="scenario-id">s1</span>
+          <span class="scenario-name">常规分货周期：缺口识别 → 多约束方案 → HITL 确认 → 下发</span>
+          <span class="persona-link">👤 planner_wang</span>
+        </div>
+        <div class="sc-trigger">⚡ 触发：物流计划岗在每个分货周期拿到「分仓销售计划 + 各仓现货/在途/待检/合格库存 + 促销计划」后启动</div>
+        <div class="p-label data-label">📊 涉及业务数据</div>
+        <ul class="sc-biz">
+          
+          <li>4 基地仓现货/在途/待检/合格库存（准实时）</li>
+          
+          <li>11 销售分仓未来 14 天销售计划 + 京慧建议量 + 促销计划（140+ 广促品）</li>
+          
+          <li>决策规则：DOS 分级、目标备货率=订单进度+20% 封顶100%、可发量约束</li>
+          
+        </ul>
+        <div class="sc-goal">🎯 分货方案编制由约 1.5 天/轮压缩至小时级：一次算出满足约束的分配方案，人工只需确认 HITL 项与微调</div>
+      </div>
+      
+      <div class="scenario-card">
+        <div class="scenario-head">
+          <span class="scenario-id">s2</span>
+          <span class="scenario-name">异常分货：基地仓可发量不足 → 备选方案拆分补足</span>
+          <span class="persona-link">👤 planner_wang</span>
+        </div>
+        <div class="sc-trigger">⚡ 触发：分货方案求解时基地仓可发量不足覆盖缺口，或物流预警数据缺失</div>
+        <div class="p-label data-label">📊 涉及业务数据</div>
+        <ul class="sc-biz">
+          
+          <li>仓网距离/运输时效/各仓可发量（仓网主数据）</li>
+          
+          <li>物流预警（TMS，评级 C 需开发，可能降级）</li>
+          
+        </ul>
+        <div class="sc-goal">🎯 按「可发量约束 > 时效优先」仲裁规则自动拆分多仓补足，输出备选方案；数据缺失时降级提示并升级人工</div>
+      </div>
+      
+      <div class="scenario-card">
+        <div class="scenario-head">
+          <span class="scenario-id">s3</span>
+          <span class="scenario-name">月度执行复盘与参数迭代审批</span>
+          <span class="persona-link">👤 planner_wang</span>
+        </div>
+        <div class="sc-trigger">⚡ 触发：每月月末，基于补货时效达成率/缺货缓解率/周转率自动生成复盘报告</div>
+        <div class="p-label data-label">📊 涉及业务数据</div>
+        <ul class="sc-biz">
+          
+          <li>复盘指标：时效达成率（≥90%）、缺货缓解率（≥85%）、周转率（同比降幅≤10%）、入库差异率（≤0.5%）</li>
+          
+        </ul>
+        <div class="sc-goal">🎯 复盘报告自动生成 + 短板分析 + 调参建议，计划员审批后参数下一周期生效</div>
+      </div>
+      
+    </div>
+  </section>
+
+  <!-- ================= 03 To-be 旅程泳道图 ================= -->
+  <section class="section">
+    <div class="section-title">
+      <span class="section-num">03</span> To-be 旅程泳道图 <span class="section-en">USER JOURNEY</span>
+    </div>
+
+    <div class="journey-map-canvas">
+      <!-- 左侧标签列 -->
+      <div class="labels-column">
+        <div class="lane-label h-stage">阶段</div>
+        <div class="lane-label h-behavior">用户行为</div>
+        <div class="lane-label h-touchpoint">触点</div>
+        <div class="lane-label h-thoughts">用户想法</div>
+        <div class="lane-label h-inputs">📎 用户输入数据</div>
+        <div class="lane-label h-ai">🤖 AI 交互与推荐指令</div>
+        <div class="lane-label h-visible">📊 可见数据</div>
+        <div class="lane-label h-design">🎨 设计意图与改善</div>
+      </div>
+
+      <!-- 右侧内容列 -->
+      <div class="content-column">
+
+        <!-- ===== 阶段 ===== -->
+        <div class="lane-row h-stage">
+          
+          <div class="stage-block" style="left: 0.0%; width: 21.428571428571427%;">① 货源评估与分货数据准备</div>
+          
+          <div class="stage-block" style="left: 21.428571428571427%; width: 21.428571428571427%;">② 分货方案编制（P0）</div>
+          
+          <div class="stage-block" style="left: 42.857142857142854%; width: 14.285714285714285%;">③ 补货单生成与下发</div>
+          
+          <div class="stage-block" style="left: 57.14285714285714%; width: 21.428571428571427%;">④ 执行跟踪与入库同步</div>
+          
+          <div class="stage-block" style="left: 78.57142857142857%; width: 21.428571428571427%;">⑤ 库存监控与效果复盘</div>
+          
+        </div>
+
+        <!-- ===== 用户行为 ===== -->
+        <div class="lane-row h-behavior">
+          
+            
+            <div class="action-wrapper" style="left: 3.2642089093701996%;">
+              <div class="behavior-card">汇总全国可分配库存与在途</div>
+              
+              <div class="flow-arrow ">➜</div>
+              
+            </div>
+            
+            <div class="action-wrapper" style="left: 10.407066052227343%;">
+              <div class="behavior-card">计算各仓库存天数并判定缺口等级</div>
+              
+              <div class="flow-arrow ">➜</div>
+              
+            </div>
+            
+            <div class="action-wrapper" style="left: 17.549923195084485%;">
+              <div class="behavior-card">汇总分货数据底表并校验口径完整性</div>
+              
+              <div class="flow-arrow flow-arrow-dash">➜</div>
+              
+            </div>
+            
+          
+            
+            <div class="action-wrapper" style="left: 24.692780337941628%;">
+              <div class="behavior-card">计算各仓备货率与目标备货率</div>
+              
+              <div class="flow-arrow ">➜</div>
+              
+            </div>
+            
+            <div class="action-wrapper" style="left: 31.835637480798773%;">
+              <div class="behavior-card">计算建议补货量并选择发货仓</div>
+              
+              <div class="flow-arrow ">➜</div>
+              
+            </div>
+            
+            <div class="action-wrapper" style="left: 38.97849462365591%;">
+              <div class="behavior-card">生成多版分配方案并人工确认（HITL）</div>
+              
+              <div class="flow-arrow flow-arrow-dash">➜</div>
+              
+            </div>
+            
+          
+            
+            <div class="action-wrapper" style="left: 46.12135176651306%;">
+              <div class="behavior-card">生成标准化补货单并校验字段</div>
+              
+              <div class="flow-arrow ">➜</div>
+              
+            </div>
+            
+            <div class="action-wrapper" style="left: 53.264208909370204%;">
+              <div class="behavior-card">下发补货单（必停确认 + 撤销窗口）</div>
+              
+              <div class="flow-arrow flow-arrow-dash">➜</div>
+              
+            </div>
+            
+          
+            
+            <div class="action-wrapper" style="left: 60.40706605222734%;">
+              <div class="behavior-card">抓取在途定位并判定预警</div>
+              
+              <div class="flow-arrow ">➜</div>
+              
+            </div>
+            
+            <div class="action-wrapper" style="left: 67.54992319508449%;">
+              <div class="behavior-card">核对入库实收与差异</div>
+              
+              <div class="flow-arrow ">➜</div>
+              
+            </div>
+            
+            <div class="action-wrapper" style="left: 74.69278033794163%;">
+              <div class="behavior-card">同步库存指标并关闭调拨单</div>
+              
+              <div class="flow-arrow flow-arrow-dash">➜</div>
+              
+            </div>
+            
+          
+            
+            <div class="action-wrapper" style="left: 81.83563748079877%;">
+              <div class="behavior-card">计算库存天数并设置安全水位</div>
+              
+              <div class="flow-arrow ">➜</div>
+              
+            </div>
+            
+            <div class="action-wrapper" style="left: 88.97849462365592%;">
+              <div class="behavior-card">巡检大日期库存</div>
+              
+              <div class="flow-arrow ">➜</div>
+              
+            </div>
+            
+            <div class="action-wrapper" style="left: 96.12135176651306%;">
+              <div class="behavior-card">统计复盘指标并生成调参建议</div>
+              
+            </div>
+            
+          
+        </div>
+
+        <!-- ===== 触点 ===== -->
+        <div class="lane-row h-touchpoint">
+          
+            
+            <div class="action-wrapper" style="left: 3.2642089093701996%;">
+              <div class="touchpoint-card">
+                <span class="tp-badge">Agent</span>
+                <span class="tp-device">分货工作台 · 对话流 + 供需全景 Artifact</span>
+              </div>
+            </div>
+            
+            <div class="action-wrapper" style="left: 10.407066052227343%;">
+              <div class="touchpoint-card">
+                <span class="tp-badge">Agent</span>
+                <span class="tp-device">供需全景看板 · 缺口告警清单（红/黄/蓝）</span>
+              </div>
+            </div>
+            
+            <div class="action-wrapper" style="left: 17.549923195084485%;">
+              <div class="touchpoint-card">
+                <span class="tp-badge">混合（Agent 汇总 · 调度组复核）</span>
+                <span class="tp-device">底表准备视图 · 口径校验结果</span>
+              </div>
+            </div>
+            
+          
+            
+            <div class="action-wrapper" style="left: 24.692780337941628%;">
+              <div class="touchpoint-card">
+                <span class="tp-badge">Agent</span>
+                <span class="tp-device">分货方案工作台 · 备货率计算明细</span>
+              </div>
+            </div>
+            
+            <div class="action-wrapper" style="left: 31.835637480798773%;">
+              <div class="touchpoint-card">
+                <span class="tp-badge">Agent</span>
+                <span class="tp-device">分货方案工作台 · 建议补货量 + 发货仓推荐</span>
+              </div>
+            </div>
+            
+            <div class="action-wrapper" style="left: 38.97849462365591%;">
+              <div class="touchpoint-card">
+                <span class="tp-badge">混合（Agent 生成 · 计划员确认/微调）</span>
+                <span class="tp-device">分货方案工作台 · 方案 A/B 对比 + HITL 拦截横幅</span>
+              </div>
+            </div>
+            
+          
+            
+            <div class="action-wrapper" style="left: 46.12135176651306%;">
+              <div class="touchpoint-card">
+                <span class="tp-badge">Agent</span>
+                <span class="tp-device">补货单 Artifact · 校验结果</span>
+              </div>
+            </div>
+            
+            <div class="action-wrapper" style="left: 53.264208909370204%;">
+              <div class="touchpoint-card">
+                <span class="tp-badge">混合（Agent 下发 · 计划员确认）</span>
+                <span class="tp-device">补货单 Artifact · 撤销 Toast</span>
+              </div>
+            </div>
+            
+          
+            
+            <div class="action-wrapper" style="left: 60.40706605222734%;">
+              <div class="touchpoint-card">
+                <span class="tp-badge">Agent</span>
+                <span class="tp-device">执行跟踪看板 · 延误预警</span>
+              </div>
+            </div>
+            
+            <div class="action-wrapper" style="left: 67.54992319508449%;">
+              <div class="touchpoint-card">
+                <span class="tp-badge">Agent</span>
+                <span class="tp-device">执行跟踪看板 · 差异记录</span>
+              </div>
+            </div>
+            
+            <div class="action-wrapper" style="left: 74.69278033794163%;">
+              <div class="touchpoint-card">
+                <span class="tp-badge">Agent</span>
+                <span class="tp-device">库存指标更新 · 调拨单状态</span>
+              </div>
+            </div>
+            
+          
+            
+            <div class="action-wrapper" style="left: 81.83563748079877%;">
+              <div class="touchpoint-card">
+                <span class="tp-badge">混合（Agent 计算 · 计划员审批）</span>
+                <span class="tp-device">库存计划视图 · 安全水位调整审批</span>
+              </div>
+            </div>
+            
+            <div class="action-wrapper" style="left: 88.97849462365592%;">
+              <div class="touchpoint-card">
+                <span class="tp-badge">Agent</span>
+                <span class="tp-device">临期预警 · 大日期监控</span>
+              </div>
+            </div>
+            
+            <div class="action-wrapper" style="left: 96.12135176651306%;">
+              <div class="touchpoint-card">
+                <span class="tp-badge">Agent</span>
+                <span class="tp-device">月度复盘报告 · 调参建议审批</span>
+              </div>
+            </div>
+            
+          
+        </div>
+
+        <!-- ===== 用户想法 ===== -->
+        <div class="lane-row h-thoughts">
+          
+            
+            <div class="action-wrapper" style="left: 3.2642089093701996%;">
+              <div class="thoughts-container">
+                
+                <div class="thought-bubble">希望 AI 直接拉齐 4 基地仓可发量+在途，别再让我比对多张 Excel</div>
+                
+              </div>
+            </div>
+            
+            <div class="action-wrapper" style="left: 10.407066052227343%;">
+              <div class="thoughts-container">
+                
+                <div class="thought-bubble">DOS 分级口径（红<7 / 黄7-14 / 蓝>60 且无促销）要帮我自动算好</div>
+                
+              </div>
+            </div>
+            
+            <div class="action-wrapper" style="left: 17.549923195084485%;">
+              <div class="thoughts-container">
+                
+                <div class="thought-bubble">待检/合格混用、在途口径错是最常见的坑，希望 AI 帮我兜住</div>
+                
+              </div>
+            </div>
+            
+          
+            
+            <div class="action-wrapper" style="left: 24.692780337941628%;">
+              <div class="thoughts-container">
+                
+                <div class="thought-bubble">目标备货率=订单进度+20% 封顶 100% 的公式要自动算，别让我心算</div>
+                
+              </div>
+            </div>
+            
+            <div class="action-wrapper" style="left: 31.835637480798773%;">
+              <div class="thoughts-container">
+                
+                <div class="thought-bubble">就近优先选仓（可发量覆盖且时效最快）希望 AI 直接推荐，可发量不足要提示我</div>
+                
+              </div>
+            </div>
+            
+            <div class="action-wrapper" style="left: 38.97849462365591%;">
+              <div class="thoughts-container">
+                
+                <div class="thought-bubble">多版方案对比 + 分配量可编辑 + 修改留痕，确认后重新校验约束</div>
+                
+              </div>
+            </div>
+            
+          
+            
+            <div class="action-wrapper" style="left: 46.12135176651306%;">
+              <div class="thoughts-container">
+                
+                <div class="thought-bubble">4 项校验（收发仓/SKU/数量/时效）要自动做，别等人工逐单核对</div>
+                
+              </div>
+            </div>
+            
+            <div class="action-wrapper" style="left: 53.264208909370204%;">
+              <div class="thoughts-container">
+                
+                <div class="thought-bubble">对外下发是合规红线，Agent 必须停下来让我确认；下发后 10 秒内可撤销兜底</div>
+                
+              </div>
+            </div>
+            
+          
+            
+            <div class="action-wrapper" style="left: 60.40706605222734%;">
+              <div class="thoughts-container">
+                
+                <div class="thought-bubble">延误>24h/48h、破损率>1% 自动预警，别等我 4 小时刷一次台账</div>
+                
+              </div>
+            </div>
+            
+            <div class="action-wrapper" style="left: 67.54992319508449%;">
+              <div class="thoughts-container">
+                
+                <div class="thought-bubble">差异率≤0.5% 正常损耗自动同步；>0.5% 自动生成差异单追责</div>
+                
+              </div>
+            </div>
+            
+            <div class="action-wrapper" style="left: 74.69278033794163%;">
+              <div class="thoughts-container">
+                
+                <div class="thought-bubble">入库后可发量/DOS 要自动同步，别让我手动维护</div>
+                
+              </div>
+            </div>
+            
+          
+            
+            <div class="action-wrapper" style="left: 81.83563748079877%;">
+              <div class="thoughts-container">
+                
+                <div class="thought-bubble">安全水位按区域+渠道差异化（电商低水位、线下高水位、偏远上调），调整需审批</div>
+                
+              </div>
+            </div>
+            
+            <div class="action-wrapper" style="left: 88.97849462365592%;">
+              <div class="thoughts-container">
+                
+                <div class="thought-bubble">临期风险自动巡检，别靠人工盯效期</div>
+                
+              </div>
+            </div>
+            
+            <div class="action-wrapper" style="left: 96.12135176651306%;">
+              <div class="thoughts-container">
+                
+                <div class="thought-bubble">复盘报告要按「指标总览→短板分析→调参建议→审批」结构自动出，别让我手工拉数</div>
+                
+              </div>
+            </div>
+            
+          
+        </div>
+
+        <!-- ===== 用户输入数据 ===== -->
+        <div class="lane-row h-inputs">
+          
+            
+            <div class="action-wrapper" style="left: 3.2642089093701996%;">
+              <div class="inputs-container">
+                
+                <div class="input-card">
+                  <div class="input-head">
+                    <span class="input-type">系统自动拉取</span>
+                    <span class="input-name">现货库存 / 在途库存 / 销售计划 / 未发订单</span>
+                    <span class="input-format">库存系统 + 奶粉分仓补调系统 API</span>
+                  </div>
+                  <div class="input-example">📄 天津基地仓：可发量 62000 / 在途 18000 / 待检 5200</div>
+                  <div class="input-content">4 基地仓可发量/待检/合格/在途/已下发未发货；未来 14 天分仓销售计划</div>
+                </div>
+                
+              </div>
+            </div>
+            
+            <div class="action-wrapper" style="left: 10.407066052227343%;">
+              <div class="inputs-container">
+                
+                <div class="input-card">
+                  <div class="input-head">
+                    <span class="input-type">系统自动带入</span>
+                    <span class="input-name">各仓库存天数 + 未来14天需求 + 促销计划</span>
+                    <span class="input-format">计算字段 + 销售计划 + 促销管理</span>
+                  </div>
+                  <div class="input-example">📄 北京顺义仓：DOS 5 天 < 7 → 红色紧急补货</div>
+                  <div class="input-content">DOS=(库存+在途+分配)/日均销售计划；促销抑制蓝积压预警</div>
+                </div>
+                
+              </div>
+            </div>
+            
+            <div class="action-wrapper" style="left: 17.549923195084485%;">
+              <div class="inputs-container">
+                
+                <div class="input-card">
+                  <div class="input-head">
+                    <span class="input-type">文件/系统导入</span>
+                    <span class="input-name">待检/合格/在途/库存原始数据</span>
+                    <span class="input-format">Excel 或系统导出</span>
+                  </div>
+                  <div class="input-example">📄 现货库存 status 列（待检/合格）、在途 store_transit 列</div>
+                  <div class="input-content">可发量（典型位置：现货库存「可发量」列，变体：抵扣后库存）；待检/合格（status 列）；在途总量（store_transit 列）；生产备货率；大日期库存（big_date_num 列）</div>
+                </div>
+                
+              </div>
+            </div>
+            
+          
+            
+            <div class="action-wrapper" style="left: 24.692780337941628%;">
+              <div class="inputs-container">
+                
+                <div class="input-card">
+                  <div class="input-head">
+                    <span class="input-type">系统自动带入</span>
+                    <span class="input-name">现货/在途/本月已出库/销售计划/未发订单</span>
+                    <span class="input-format">库存系统 + 实际销量 + 销售计划</span>
+                  </div>
+                  <div class="input-example">📄 中旬标准进度 50%；订单完成率 65% → 目标备货率 = 65%+20% = 85%</div>
+                  <div class="input-content">生产备货率=(现货+在途+本月已出库)/销售计划；订单完成率=(当月未发+本月累出)/销售计划；旬度标准进度（中旬 50%）</div>
+                </div>
+                
+              </div>
+            </div>
+            
+            <div class="action-wrapper" style="left: 31.835637480798773%;">
+              <div class="inputs-container">
+                
+                <div class="input-card">
+                  <div class="input-head">
+                    <span class="input-type">系统自动带入</span>
+                    <span class="input-name">京慧建议量 / 可发量 / 运输时效 / 区域类型</span>
+                    <span class="input-format">京慧一盘货 + 现货库存 + 仓网主数据</span>
+                  </div>
+                  <div class="input-example">📄 北京顺义：京慧建议 1200，可发量 1650，天津基地仓时效 1 天（最近）</div>
+                  <div class="input-content">建议补货量=目标库存口径-当前口径库存；可发量=发货仓库存-已分配量；就近优先=可发量覆盖 且 时效最快</div>
+                </div>
+                
+              </div>
+            </div>
+            
+            <div class="action-wrapper" style="left: 38.97849462365591%;">
+              <div class="inputs-container">
+                
+                <div class="input-card">
+                  <div class="input-head">
+                    <span class="input-type">页面内编辑</span>
+                    <span class="input-name">分配量人工微调 + 修改原因</span>
+                    <span class="input-format">方案工作台可编辑表格</span>
+                  </div>
+                  <div class="input-example">📄 确认顺义 1344 罐；把天津武清仓改到 800 罐</div>
+                  <div class="input-content">分配量（≤可发量）；凑车微调 ±200 件；修改原因留痕（促销放量/周转快压量/在途延误补充等）</div>
+                </div>
+                
+              </div>
+            </div>
+            
+          
+            
+            <div class="action-wrapper" style="left: 46.12135176651306%;">
+              <div class="inputs-container">
+                
+                <div class="input-card">
+                  <div class="input-head">
+                    <span class="input-type">系统自动带入</span>
+                    <span class="input-name">确认后的分配方案 + SKU/收发仓主数据</span>
+                    <span class="input-format">分货方案工作台 → 补货单</span>
+                  </div>
+                  <div class="input-example">📄 PR-2026-0821-016：天津基地仓 → 北京顺义仓，金领冠珍护1段 1344 罐，时效 2 天</div>
+                  <div class="input-content">补货单字段：调拨单号/发货仓/收货仓/SKU/数量/时效</div>
+                </div>
+                
+              </div>
+            </div>
+            
+            <div class="action-wrapper" style="left: 53.264208909370204%;">
+              <div class="inputs-container">
+                
+                <div class="input-card">
+                  <div class="input-head">
+                    <span class="input-type">确认操作</span>
+                    <span class="input-name">下发确认</span>
+                    <span class="input-format">按钮确认</span>
+                  </div>
+                  <div class="input-example">📄 「方案确认，生成补货单并下发」→ 确认下发</div>
+                  <div class="input-content">对外下发 → 必停确认（SKP 深度任务·下发补货单）；撤销窗口 10 秒</div>
+                </div>
+                
+              </div>
+            </div>
+            
+          
+            
+            <div class="action-wrapper" style="left: 60.40706605222734%;">
+              <div class="inputs-container">
+                
+                <div class="input-card">
+                  <div class="input-head">
+                    <span class="input-type">系统自动拉取</span>
+                    <span class="input-name">车辆定位 / 运输状态 / 预计到货</span>
+                    <span class="input-format">TMS GPS（4h 自动刷新）</span>
+                  </div>
+                  <div class="input-example">📄 TB-20260823-001：津A·8K32F 京津高速·王庆坨出口 运输中 62%</div>
+                  <div class="input-content">定位/速度/里程/状态/天气；延误>24h/48h 触发拉人</div>
+                </div>
+                
+              </div>
+            </div>
+            
+            <div class="action-wrapper" style="left: 67.54992319508449%;">
+              <div class="inputs-container">
+                
+                <div class="input-card">
+                  <div class="input-head">
+                    <span class="input-type">系统自动拉取</span>
+                    <span class="input-name">WMS 入库验收（运单实收/差异率）</span>
+                    <span class="input-format">WMS API（准实时）</span>
+                  </div>
+                  <div class="input-example">📄 TB-20260823-004：调拨 900，实收 897，差异率 0.33% ≤ 0.5% 正常损耗</div>
+                  <div class="input-content">差异率=(调拨数量-实收数量)/调拨数量；破损率>1% 单独异常工单</div>
+                </div>
+                
+              </div>
+            </div>
+            
+            <div class="action-wrapper" style="left: 74.69278033794163%;">
+              <div class="inputs-container">
+                
+                <div class="input-card">
+                  <div class="input-head">
+                    <span class="input-type">系统自动执行</span>
+                    <span class="input-name">实收数量</span>
+                    <span class="input-format">WMS → 库存系统</span>
+                  </div>
+                  <div class="input-example">📄 北京顺义仓可发量 +897 罐，DOS 更新</div>
+                  <div class="input-content">同步可发量/库存天数（DOS），关闭调拨单</div>
+                </div>
+                
+              </div>
+            </div>
+            
+          
+            
+            <div class="action-wrapper" style="left: 81.83563748079877%;">
+              <div class="inputs-container">
+                
+                <div class="input-card">
+                  <div class="input-head">
+                    <span class="input-type">系统自动带入</span>
+                    <span class="input-name">各仓库存天数 / 渠道差异 / 区域类型</span>
+                    <span class="input-format">库存系统 + 渠道管理 + 仓主数据</span>
+                  </div>
+                  <div class="input-example">📄 华北电商渠道 12 天、线下 16 天；偏远仓上调 3 天</div>
+                  <div class="input-content">库存天数=各仓库存/日均需求；渠道差异：电商求 28 天新鲜（低水位）、线下需安全缓冲（高水位）；区域：偏远上调</div>
+                </div>
+                
+              </div>
+            </div>
+            
+            <div class="action-wrapper" style="left: 88.97849462365592%;">
+              <div class="inputs-container">
+                
+                <div class="input-card">
+                  <div class="input-head">
+                    <span class="input-type">系统自动拉取</span>
+                    <span class="input-name">分仓大日期库存 / 效期</span>
+                    <span class="input-format">分仓大日期库存表（big_date_num 列）</span>
+                  </div>
+                  <div class="input-example">📄 广州白云仓大日期占比 6.8%，建议促销联动消化</div>
+                  <div class="input-content">大日期判定（待业务专家二轮验证），临期风险 → 拉人</div>
+                </div>
+                
+              </div>
+            </div>
+            
+            <div class="action-wrapper" style="left: 96.12135176651306%;">
+              <div class="inputs-container">
+                
+                <div class="input-card">
+                  <div class="input-head">
+                    <span class="input-type">系统自动带入</span>
+                    <span class="input-name">时效达成率 / 缺货缓解率 / 周转率</span>
+                    <span class="input-format">复盘指标（TMS 台账 + 库存监控报表）</span>
+                  </div>
+                  <div class="input-example">📄 时效达成率 92%（≥90% 达标）、缺货缓解率 88%（≥85% 达标）、周转天数 24 天（同比 -8% ≤10%）</div>
+                  <div class="input-content">复盘阈值：时效达成率<90% 优化物流/上调水位；缺货缓解率<85% 优化预测/促销上浮；周转率同比降>10% 下调水位</div>
+                </div>
+                
+              </div>
+            </div>
+            
+          
+        </div>
+
+        <!-- ===== AI 交互与推荐指令 ===== -->
+        <div class="lane-row h-ai">
+          
+            
+            <div class="action-wrapper" style="left: 3.2642089093701996%;">
+              <div class="ai-container">
+                
+                <div class="ai-action">🤖 拉取全仓数据，按产品编码 product_code、仓库编码 site_code 关联，汇总全国供需视图</div>
+                
+                
+                <div class="sugg-label">⚡ 对话推荐操作指令</div>
+                <div class="sugg-chips">
+                  
+                  <span class="sugg-chip">帮我看看全国仓网现在的货源情况</span>
+                  
+                  <span class="sugg-chip">识别全仓网缺口</span>
+                  
+                </div>
+                
+              </div>
+            </div>
+            
+            <div class="action-wrapper" style="left: 10.407066052227343%;">
+              <div class="ai-container">
+                
+                <div class="ai-action">🤖 判定缺口等级：红=可发量+在途<未来7天需求 且 DOS<7；黄=7≤DOS<14；蓝=DOS>60 且无促销</div>
+                
+                
+                <div class="sugg-label">⚡ 对话推荐操作指令</div>
+                <div class="sugg-chips">
+                  
+                  <span class="sugg-chip">查看缺口告警清单</span>
+                  
+                  <span class="sugg-chip">钻取到仓×SKU 明细</span>
+                  
+                </div>
+                
+              </div>
+            </div>
+            
+            <div class="action-wrapper" style="left: 17.549923195084485%;">
+              <div class="ai-container">
+                
+                <div class="ai-action">🤖 按字段注释口径汇总底表并校验完整性；字段缺失/口径不一致标红</div>
+                
+                
+                <div class="sugg-label">⚡ 对话推荐操作指令</div>
+                <div class="sugg-chips">
+                  
+                  <span class="sugg-chip">校验底表口径完整性</span>
+                  
+                  <span class="sugg-chip">标注关键字段易错点</span>
+                  
+                </div>
+                
+              </div>
+            </div>
+            
+          
+            
+            <div class="action-wrapper" style="left: 24.692780337941628%;">
+              <div class="ai-container">
+                
+                <div class="ai-action">🤖 计算生产备货率与订单完成率，按「目标备货率=订单进度+20% 封顶100%」公式计算各仓目标备货率</div>
+                
+                
+                <div class="sugg-label">⚡ 对话推荐操作指令</div>
+                <div class="sugg-chips">
+                  
+                  <span class="sugg-chip">按本周销售计划帮我出分货方案</span>
+                  
+                  <span class="sugg-chip">查看备货率计算明细</span>
+                  
+                </div>
+                
+              </div>
+            </div>
+            
+            <div class="action-wrapper" style="left: 31.835637480798773%;">
+              <div class="ai-container">
+                
+                <div class="ai-action">🤖 计算建议补货量，按「可发量覆盖 且 时效最快」就近优先选择发货仓；建议量偏离京慧或可发量不足时 HITL</div>
+                
+                
+                <div class="sugg-label">⚡ 对话推荐操作指令</div>
+                <div class="sugg-chips">
+                  
+                  <span class="sugg-chip">计算建议补货量</span>
+                  
+                  <span class="sugg-chip">推荐发货仓</span>
+                  
+                </div>
+                
+              </div>
+            </div>
+            
+            <div class="action-wrapper" style="left: 38.97849462365591%;">
+              <div class="ai-container">
+                
+                <div class="ai-action">🤖 生成多版分配方案（A 均衡版/B 优先版），HITL 拦截待确认项，人工修改后重新校验约束</div>
+                
+                
+                <div class="sugg-label">⚡ 对话推荐操作指令</div>
+                <div class="sugg-chips">
+                  
+                  <span class="sugg-chip">确认并写入分配量</span>
+                  
+                  <span class="sugg-chip">改用方案B（优先版）</span>
+                  
+                  <span class="sugg-chip">修改后重新校验</span>
+                  
+                </div>
+                
+              </div>
+            </div>
+            
+          
+            
+            <div class="action-wrapper" style="left: 46.12135176651306%;">
+              <div class="ai-container">
+                
+                <div class="ai-action">🤖 按确认方案生成标准化补货单，校验收发仓合法性/SKU 编码在册/数量≤可发量/时效满足 ETA</div>
+                
+                
+                <div class="sugg-label">⚡ 对话推荐操作指令</div>
+                <div class="sugg-chips">
+                  
+                  <span class="sugg-chip">生成补货单</span>
+                  
+                  <span class="sugg-chip">查看校验结果</span>
+                  
+                </div>
+                
+              </div>
+            </div>
+            
+            <div class="action-wrapper" style="left: 53.264208909370204%;">
+              <div class="ai-container">
+                
+                <div class="ai-action">🤖 校验通过后写入物流调度 + 财务核算，保留 10 秒撤销窗口（可回滚）</div>
+                
+                
+                <div class="sugg-label">⚡ 对话推荐操作指令</div>
+                <div class="sugg-chips">
+                  
+                  <span class="sugg-chip">方案确认，生成补货单并下发</span>
+                  
+                  <span class="sugg-chip">撤销下发（10 秒内）</span>
+                  
+                </div>
+                
+              </div>
+            </div>
+            
+          
+            
+            <div class="action-wrapper" style="left: 60.40706605222734%;">
+              <div class="ai-container">
+                
+                <div class="ai-action">🤖 抓取 TMS 定位生成在途台账，延误>24h/48h 自动预警并拉人；破损率>1% 生成异常工单</div>
+                
+                
+                <div class="sugg-label">⚡ 对话推荐操作指令</div>
+                <div class="sugg-chips">
+                  
+                  <span class="sugg-chip">刷新执行跟踪</span>
+                  
+                  <span class="sugg-chip">查看延误预警明细</span>
+                  
+                </div>
+                
+              </div>
+            </div>
+            
+            <div class="action-wrapper" style="left: 67.54992319508449%;">
+              <div class="ai-container">
+                
+                <div class="ai-action">🤖 核对实收与调拨数量：差异率≤0.5% 按实收同步并标记正常损耗；>0.5% 生成差异处理单推送财务与仓管</div>
+                
+                
+                <div class="sugg-label">⚡ 对话推荐操作指令</div>
+                <div class="sugg-chips">
+                  
+                  <span class="sugg-chip">查看入库差异记录</span>
+                  
+                </div>
+                
+              </div>
+            </div>
+            
+            <div class="action-wrapper" style="left: 74.69278033794163%;">
+              <div class="ai-container">
+                
+                <div class="ai-action">🤖 按实收同步可发量与 DOS，关闭调拨单；同步失败自动重试或拉人</div>
+                
+                
+                <div class="sugg-label">⚡ 对话推荐操作指令</div>
+                <div class="sugg-chips">
+                  
+                  <span class="sugg-chip">查看库存指标同步结果</span>
+                  
+                </div>
+                
+              </div>
+            </div>
+            
+          
+            
+            <div class="action-wrapper" style="left: 81.83563748079877%;">
+              <div class="ai-container">
+                
+                <div class="ai-action">🤖 按区域+渠道计算差异化安全水位，输出调整建议，审批后生效</div>
+                
+                
+                <div class="sugg-label">⚡ 对话推荐操作指令</div>
+                <div class="sugg-chips">
+                  
+                  <span class="sugg-chip">查看安全水位建议</span>
+                  
+                </div>
+                
+              </div>
+            </div>
+            
+            <div class="action-wrapper" style="left: 88.97849462365592%;">
+              <div class="ai-container">
+                
+                <div class="ai-action">🤖 巡检各仓大日期库存，临期风险自动预警并建议促销联动消化</div>
+                
+                
+                <div class="sugg-label">⚡ 对话推荐操作指令</div>
+                <div class="sugg-chips">
+                  
+                  <span class="sugg-chip">查看临期预警</span>
+                  
+                </div>
+                
+              </div>
+            </div>
+            
+            <div class="action-wrapper" style="left: 96.12135176651306%;">
+              <div class="ai-container">
+                
+                <div class="ai-action">🤖 统计复盘指标，按阈值触发调参建议（指标异常恶化 → 拉人审批）；生成复盘报告（模版范例类：指标总览→短板分析→调参建议→审批）</div>
+                
+                
+                <div class="sugg-label">⚡ 对话推荐操作指令</div>
+                <div class="sugg-chips">
+                  
+                  <span class="sugg-chip">生成月度复盘报告</span>
+                  
+                  <span class="sugg-chip">审批调参建议（参数下一周期生效）</span>
+                  
+                </div>
+                
+              </div>
+            </div>
+            
+          
+        </div>
+
+        <!-- ===== 可见数据 ===== -->
+        <div class="lane-row h-visible">
+          
+            
+            <div class="action-wrapper" style="left: 3.2642089093701996%;">
+              <div class="visible-container">
+                
+                <div class="visible-item">全国供需视图：4 基地仓可发量/在途/DOS；11 销售分仓供需匹配</div>
+                
+                <div class="visible-item">关键字段识别：待检/合格分开取值、在途取「在途总量」（易错点已标）</div>
+                
+              </div>
+            </div>
+            
+            <div class="action-wrapper" style="left: 10.407066052227343%;">
+              <div class="visible-container">
+                
+                <div class="visible-item">缺口告警清单：红色 2 项（北京顺义仓 DOS 5/6 天）、黄色 5 项、蓝色积压 3 项（柳州/济南 安儿宝）</div>
+                
+                <div class="visible-item">促销抑制提示：促销期 DOS 高不触发蓝色积压预警</div>
+                
+              </div>
+            </div>
+            
+            <div class="action-wrapper" style="left: 17.549923195084485%;">
+              <div class="visible-container">
+                
+                <div class="visible-item">校验结果：可发量/待检/合格/在途/生产备货率/大日期 6 项口径核对</div>
+                
+                <div class="visible-item">异常项：0 项（示例）；关键字段识别准确率 ≥98%</div>
+                
+              </div>
+            </div>
+            
+          
+            
+            <div class="action-wrapper" style="left: 24.692780337941628%;">
+              <div class="visible-container">
+                
+                <div class="visible-item">各仓目标备货率：北京顺义 100%（封顶）、天津武清 95%、广州 88%</div>
+                
+                <div class="visible-item">订单完成率与旬度进度对照（超标准 → 目标备货率上浮）</div>
+                
+              </div>
+            </div>
+            
+            <div class="action-wrapper" style="left: 31.835637480798773%;">
+              <div class="visible-container">
+                
+                <div class="visible-item">建议补货量清单 + 推荐发货仓（天津基地仓·时效 1 天）</div>
+                
+                <div class="visible-item">HITL 提示：北京顺义分配量较京慧建议上调 12%（促销放量，待确认）</div>
+                
+              </div>
+            </div>
+            
+            <div class="action-wrapper" style="left: 38.97849462365591%;">
+              <div class="visible-container">
+                
+                <div class="visible-item">方案对比表：建议量/分配量/分配后库存天数/优先级</div>
+                
+                <div class="visible-item">HITL 拦截：北京顺义仓 +12%（促销放量）待确认；天津武清 800 罐（人工修改）</div>
+                
+                <div class="visible-item">约束校验：可发量不超 · 安全水位达标 · 凑车 ±200 件 · 分配后库存天数</div>
+                
+              </div>
+            </div>
+            
+          
+            
+            <div class="action-wrapper" style="left: 46.12135176651306%;">
+              <div class="visible-container">
+                
+                <div class="visible-item">补货单：4 张，校验 4/4 全部通过（库存不足/时效超期/字段缺失无遗漏）</div>
+                
+              </div>
+            </div>
+            
+            <div class="action-wrapper" style="left: 53.264208909370204%;">
+              <div class="visible-container">
+                
+                <div class="visible-item">下发结果：4 张补货单已下发物流调度+财务，批次 TB-20260823</div>
+                
+                <div class="visible-item">撤销 Toast：10 秒倒计时，可回滚物流调度与财务侧</div>
+                
+              </div>
+            </div>
+            
+          
+            
+            <div class="action-wrapper" style="left: 60.40706605222734%;">
+              <div class="visible-container">
+                
+                <div class="visible-item">在途台账：车辆/位置/状态/进度（4h 自动刷新）</div>
+                
+                <div class="visible-item">延误预警：TB-20260823-003 拥堵预计延误 2h（未超 24h 阈值，仅提示）</div>
+                
+              </div>
+            </div>
+            
+            <div class="action-wrapper" style="left: 67.54992319508449%;">
+              <div class="visible-container">
+                
+                <div class="visible-item">差异记录：0.33% 正常损耗（已同步）；差异率阈值 0.5%</div>
+                
+              </div>
+            </div>
+            
+            <div class="action-wrapper" style="left: 74.69278033794163%;">
+              <div class="visible-container">
+                
+                <div class="visible-item">更新后库存指标：可发量/DOS 已同步，调拨单已关闭</div>
+                
+              </div>
+            </div>
+            
+          
+            
+            <div class="action-wrapper" style="left: 81.83563748079877%;">
+              <div class="visible-container">
+                
+                <div class="visible-item">各仓安全水位：电商 12 天 / 线下 16 天 / 偏远 +3 天（待审批）</div>
+                
+              </div>
+            </div>
+            
+            <div class="action-wrapper" style="left: 88.97849462365592%;">
+              <div class="visible-container">
+                
+                <div class="visible-item">临期预警：广州白云仓大日期占比 6.8%（建议促销联动消化）</div>
+                
+              </div>
+            </div>
+            
+            <div class="action-wrapper" style="left: 96.12135176651306%;">
+              <div class="visible-container">
+                
+                <div class="visible-item">复盘报告：时效达成率 92%、缺货缓解率 88%、周转 24 天、新鲜度 94%</div>
+                
+                <div class="visible-item">短板分析：华南广州白云仓大日期占比偏高（6.8%）</div>
+                
+                <div class="visible-item">调参建议：华北安全水位 14→12 天（预计释放 1.1 万罐）；华南维持水位加强促销联动</div>
+                
+              </div>
+            </div>
+            
+          
+        </div>
+
+        <!-- ===== 设计意图与改善 ===== -->
+        <div class="lane-row h-design">
+          
+            
+            <div class="action-wrapper" style="left: 3.2642089093701996%;">
+              <div class="design-container">
+                
+                <div class="design-item">数据准备由约 0.5~1 天/轮压缩至分钟级</div>
+                
+                <div class="design-item">字段口径异常自动标红进入 HITL 复核（验收：漏标率 100% 兜底）</div>
+                
+              </div>
+            </div>
+            
+            <div class="action-wrapper" style="left: 10.407066052227343%;">
+              <div class="design-container">
+                
+                <div class="design-item">老计划员半天比对 → AI 一屏红黄蓝分级图</div>
+                
+                <div class="design-item">阈值边界冲突（如 DOS 恰在 7 天边界）触发 HITL 拉人</div>
+                
+              </div>
+            </div>
+            
+            <div class="action-wrapper" style="left: 17.549923195084485%;">
+              <div class="design-container">
+                
+                <div class="design-item">口径校验由人工逐列核对 → 系统自动校验 + 标红 HITL</div>
+                
+              </div>
+            </div>
+            
+          
+            
+            <div class="action-wrapper" style="left: 24.692780337941628%;">
+              <div class="design-container">
+                
+                <div class="design-item">备货率计算从约 0.5 天/轮压缩至分钟级</div>
+                
+                <div class="design-item">目标备货率>100% 封顶（SOP），订单进度超限触发 HITL</div>
+                
+              </div>
+            </div>
+            
+            <div class="action-wrapper" style="left: 31.835637480798773%;">
+              <div class="design-container">
+                
+                <div class="design-item">冲突仲裁：可发量约束 > 时效优先；时效最优仓可发量不足时拆分多仓补足</div>
+                
+                <div class="design-item">建议量偏离京慧 → 写入前必停（HITL）</div>
+                
+              </div>
+            </div>
+            
+            <div class="action-wrapper" style="left: 38.97849462365591%;">
+              <div class="design-container">
+                
+                <div class="design-item">方案编制由约 1 天/轮压缩至分钟级（全场景 P0）</div>
+                
+                <div class="design-item">人工修改自动留痕（模版范例类·分货方案模版：方案头/明细/效果预估/待确认项）</div>
+                
+              </div>
+            </div>
+            
+          
+            
+            <div class="action-wrapper" style="left: 46.12135176651306%;">
+              <div class="design-container">
+                
+                <div class="design-item">补货单生成由约 0.5 天/批压缩至秒级</div>
+                
+                <div class="design-item">校验不过 → 退回调整并拉人（HITL）</div>
+                
+              </div>
+            </div>
+            
+            <div class="action-wrapper" style="left: 53.264208909370204%;">
+              <div class="design-container">
+                
+                <div class="design-item">对外下发必停（合规要求），撤销窗口兜底人工误操作</div>
+                
+                <div class="design-item">撤销后补货单回到「待下发」状态，可重新下发</div>
+                
+              </div>
+            </div>
+            
+          
+            
+            <div class="action-wrapper" style="left: 60.40706605222734%;">
+              <div class="design-container">
+                
+                <div class="design-item">人工 4h 刷新 → Agent 自动刷新 + 阈值预警</div>
+                
+                <div class="design-item">关联关系类：基地仓-销售仓-产品-SKU-渠道关联网络</div>
+                
+              </div>
+            </div>
+            
+            <div class="action-wrapper" style="left: 67.54992319508449%;">
+              <div class="design-container">
+                
+                <div class="design-item">差异判定从人工核对 → 自动判定 + 追责单自动推送</div>
+                
+                <div class="design-item">差异率>0.5% → 拉人（HITL）</div>
+                
+              </div>
+            </div>
+            
+            <div class="action-wrapper" style="left: 74.69278033794163%;">
+              <div class="design-container">
+                
+                <div class="design-item">入库差异核对与库存同步人工约 0.5 天/批 → 自动秒级同步</div>
+                
+              </div>
+            </div>
+            
+          
+            
+            <div class="action-wrapper" style="left: 81.83563748079877%;">
+              <div class="design-container">
+                
+                <div class="design-item">服务水平和不断货优先于周转（冲突仲裁 → HITL 复核）</div>
+                
+              </div>
+            </div>
+            
+            <div class="action-wrapper" style="left: 88.97849462365592%;">
+              <div class="design-container">
+                
+                <div class="design-item">「大日期判定」经验待二轮验证，原型标注概念级</div>
+                
+                <div class="design-item">对应 KPI：提高新鲜度</div>
+                
+              </div>
+            </div>
+            
+            <div class="action-wrapper" style="left: 96.12135176651306%;">
+              <div class="design-container">
+                
+                <div class="design-item">复盘由约 1 天/月压缩至分钟级</div>
+                
+                <div class="design-item">多项指标矛盾时：时效达成率优先于周转优化（专家确认仲裁）</div>
+                
+              </div>
+            </div>
+            
+          
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 04 原型衔接要点 ================= -->
+  <section class="section">
+    <div class="section-title">
+      <span class="section-num">04</span> 原型衔接要点 <span class="section-en">PROTOTYPE HANDOFF</span>
+    </div>
+    <div class="handoff-grid">
+      <div class="handoff-block">
+        <div class="ho-title">🖥️ 页面 / 触点清单</div>
+        <div class="chip-wrap">
+          
+          <span class="chip chip-blue">分货工作台 /workbench（Agent 对话流 · 状态徽章 · 4 条故事线入口）</span>
+          
+          <span class="chip chip-blue">全仓网供需全景 /supply（供需视图 + 缺口告警红/黄/蓝）</span>
+          
+          <span class="chip chip-blue">分货方案工作台 /allocation（方案 A/B 对比 · HITL · 目标备货率 · 修改留痕）</span>
+          
+          <span class="chip chip-blue">异常诊断与备选方案 /exception（备选方案对比 · 可发量约束优先 · 错误态降级）</span>
+          
+          <span class="chip chip-blue">补货单与执行跟踪 /replenish（补货单 · 撤销 Toast · 在途监控 · 入库差异）</span>
+          
+          <span class="chip chip-blue">月度复盘报告 /review（指标总览 · 短板分析 · 调参审批）</span>
+          
+        </div>
+      </div>
+      <div class="handoff-block">
+        <div class="ho-title">🗃️ 核心 Mock 数据实体</div>
+        <div class="chip-wrap">
+          
+          <span class="chip chip-amber">现货库存（准实时 · 可发量/待检/合格）</span>
+          
+          <span class="chip chip-amber">在途库存（准实时 · 在途总量/已下发未发货）</span>
+          
+          <span class="chip chip-amber">销售计划（批量 · 分仓×SKU×14天）</span>
+          
+          <span class="chip chip-amber">京慧建议量（京慧一盘货）</span>
+          
+          <span class="chip chip-amber">生产备货率 / 订单完成率（计算字段）</span>
+          
+          <span class="chip chip-amber">WMS 入库验收（准实时 · 运单实收/差异率）</span>
+          
+          <span class="chip chip-amber">TMS 定位（4h · 车辆/状态/延误）</span>
+          
+        </div>
+      </div>
+      <div class="handoff-block">
+        <div class="ho-title">⚡ 推荐操作指令库</div>
+        <div class="chip-wrap">
+          
+          <span class="chip chip-violet">“帮我看看全国仓网现在的货源情况”</span>
+          
+          <span class="chip chip-violet">“按这周销售计划帮我出分货方案”</span>
+          
+          <span class="chip chip-violet">“华北基地仓可发量不足，怎么办”</span>
+          
+          <span class="chip chip-violet">“方案确认，生成补货单并下发”</span>
+          
+        </div>
+      </div>
+      <div class="handoff-block wide">
+        <div class="ho-title">🔀 交互路径 / 分支 / 异常（供原型路径控制器使用）</div>
+        <ul class="path-list">
+          
+          <li>主路径：① 缺口识别 → ② 方案编制（HITL 确认/微调） → ③ 补货单校验下发（必停+撤销窗口） → ④ 执行跟踪与入库同步 → ⑤ 复盘调参审批</li>
+          
+          <li>分支：基地仓可发量不足 → 按「可发量约束>时效优先」拆分多仓补足，输出备选方案</li>
+          
+          <li>异常：物流预警数据缺失 → 按历史运输时效估算 + 降级提示，升级人工复核</li>
+          
+          <li>边界：目标备货率>100% 封顶；差异率>0.5% 生成差异单拉人；延误>24h/48h 预警拉人</li>
+          
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <div class="footer-mark">Generated by ai-product-journey-generator · 2026-08-23 17:04:12</div>
+
+</div>
+
+</body>
+</html>

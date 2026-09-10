@@ -1,0 +1,1351 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>张雪机车 · 赛事内容工厂 CKD 映射报告 - Agentic AI Asset Architecture</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root {
+            --bg-main: #fcfcfd;
+            --glass-bg: rgba(255, 255, 255, 0.75);
+            --border-soft: rgba(226, 232, 240, 0.6);
+            --accent-blue: #2563eb;
+            --text-slate: #475569;
+        }
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background-color: var(--bg-main);
+            color: #0f172a;
+            padding: 60px 40px;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(37, 99, 235, 0.03) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(139, 92, 246, 0.03) 0px, transparent 50%),
+                url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%239C92AC' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2v-4h4v-2h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2v-4h4v-2H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+        h1, h2, h3 { font-family: 'Outfit', sans-serif; }
+        
+        /* Stats Section */
+        .stat-card {
+            background: white;
+            border: 1px solid var(--border-soft);
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
+            transition: all 0.3s ease;
+        }
+        .stat-card:hover { transform: translateY(-2px); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05); }
+
+        /* Matrix Styles */
+        .matrix-wrapper {
+            position: relative;
+            border-radius: 32px;
+            overflow: hidden;
+            border: 1px solid var(--border-soft);
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.04);
+            margin-top: 48px;
+        }
+        
+        .scroll-container {
+            overflow-x: auto;
+            max-width: 100%;
+        }
+
+        table {
+            border-collapse: separate;
+            border-spacing: 0;
+            min-width: 100%;
+        }
+
+        th, td {
+            padding: 28px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-soft);
+            border-right: 1px solid var(--border-soft);
+            min-width: 320px;
+        }
+
+        /* Dimension Label Column (Sticky) */
+        .dim-label {
+            position: sticky;
+            left: 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(12px);
+            z-index: 20;
+            font-weight: 800;
+            color: #64748b;
+            text-transform: uppercase;
+            font-size: 0.7rem;
+            letter-spacing: 0.15em;
+            width: 180px;
+            min-width: 180px;
+            border-right: 3px solid var(--accent-blue);
+        }
+
+        /* Step Header (Sticky Top) */
+        .step-header {
+            position: sticky;
+            top: 0;
+            background: #0f172a;
+            color: white;
+            z-index: 30;
+            padding: 24px 32px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            letter-spacing: -0.02em;
+        }
+        
+        .step-header-corner {
+            position: sticky;
+            left: 0;
+            top: 0;
+            background: #1e293b;
+            z-index: 40;
+        }
+
+        /* Cell Content Styling */
+        .asset-group { display: flex; flex-direction: column; gap: 20px; }
+        .asset-item { position: relative; }
+        .asset-item:not(:last-child)::after {
+            content: "";
+            display: block;
+            height: 1px;
+            background: var(--border-soft);
+            margin: 20px 0;
+        }
+
+        .context-name {
+            font-weight: 800;
+            color: #1e293b;
+            font-size: 1.1rem;
+            margin-bottom: 4px;
+            display: block;
+            letter-spacing: -0.01em;
+        }
+
+        .type-pill {
+            display: inline-flex;
+            padding: 3px 10px;
+            border-radius: 6px;
+            background: #f1f5f9;
+            color: #475569;
+            font-size: 0.65rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .ai-init-sparkle {
+            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 800;
+            font-size: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 700;
+            font-size: 0.75rem;
+        }
+        .dot { width: 8px; height: 8px; border-radius: 50%; }
+        .dot-ready { background: #10b981; box-shadow: 0 0 10px rgba(16, 185, 129, 0.4); }
+        .dot-progress { background: #f59e0b; box-shadow: 0 0 10px rgba(245, 158, 11, 0.4); }
+        .dot-todo { background: #94a3b8; }
+
+        tr:last-child td { border-bottom: none; }
+        td:last-child { border-right: none; }
+
+        /* Animations */
+        @keyframes slideUpFade {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @media print {
+            .dim-label, .step-header { position: static; background: #f8fafc; color: black; border: 1px solid #e2e8f0; }
+        }
+        
+        .btn-copy-yaml {
+          background: #0f172a; color: #fff;
+          padding: 8px 16px; border-radius: 12px;
+          font-size: 13px; font-weight: 600;
+          border: none; cursor: pointer;
+          transition: all 0.2s;
+        }
+        .btn-copy-yaml:hover { background: #334155; }
+        
+        .toast {
+          position: fixed; bottom: 24px; right: 24px;
+          background: #10b981; color: #fff;
+          padding: 10px 20px; border-radius: 8px;
+          font-size: 13px; font-weight: 600;
+          display: none; z-index: 1000;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+    </style>
+
+    <!-- ===== Unified Report Shell: 撑满容器 + 精简 Header + 溢出滚动 ===== -->
+    <style>
+      *, *::before, *::after { box-sizing: border-box !important; }
+      html, body { margin: 0 !important; padding: 0 !important; background: #F5F5F6 !important; overflow-x: auto !important; }
+      .max-w-\[2000px\] {
+        width: 100% !important;
+        max-width: none !important;
+        margin: 0 auto !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        border: none !important;
+        padding: 24px 28px 48px !important;
+        overflow-x: auto !important;
+      }
+      header.animate-in { margin-bottom: 20px !important; align-items: center !important; }
+      header.animate-in h1 { font-size: 22px !important; line-height: 1.3 !important; margin: 0 !important; }
+    
+      /* ===== Unified Header (v2) ===== */
+      header.animate-in {
+        background: #FFFFFF !important;
+        border-bottom: 1px solid #E2E8F0 !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        padding: 12px 0 !important;
+        margin-bottom: 20px !important;
+        min-height: auto !important;
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        gap: 16px !important;
+        flex-wrap: wrap !important;
+      }
+      header.animate-in h1 {
+        font-size: 22px !important;
+        font-weight: 700 !important;
+        color: #10213E !important;
+        line-height: 1.3 !important;
+        margin: 0 !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 10px !important;
+      }
+      header.animate-in h1::before {
+        content: "" !important;
+        display: inline-block !important;
+        width: 4px !important;
+        height: 22px !important;
+        background: #5DB2E2 !important;
+        border-radius: 2px !important;
+        flex-shrink: 0 !important;
+      }
+      header.animate-in h1 svg, header.animate-in h1 .icon, header.animate-in h1 img, header.animate-in .text-2xl {
+        width: 20px !important;
+        height: 20px !important;
+        flex-shrink: 0 !important;
+        font-size: 18px !important;
+      }
+      header.animate-in .space-y-4, header.animate-in > div {
+        font-size: 13px !important;
+        color: #64748B !important;
+      }
+      header.animate-in .inline-flex, header.animate-in [class*="rounded-full"] {
+        font-size: 12px !important;
+        color: #64748B !important;
+        background: #F5F5F6 !important;
+        border: none !important;
+        box-shadow: none !important;
+        padding: 2px 10px !important;
+        border-radius: 10px !important;
+      }
+      header.animate-in button {
+        font-size: 12px !important;
+        padding: 6px 12px !important;
+        border-radius: 6px !important;
+        font-weight: 600 !important;
+        background: #10213E !important;
+        color: #FFFFFF !important;
+        border: 1px solid #10213E !important;
+      }
+
+      /* ===== Unified Header: 结构样式 ===== */
+      .unified-hdr {
+        background: #FFFFFF !important;
+        border-bottom: 1px solid #E2E8F0 !important;
+        padding: 14px 0 !important;
+        margin-bottom: 20px !important;
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        gap: 16px !important;
+        flex-wrap: wrap !important;
+        text-align: left !important;
+        flex-direction: row !important;
+      }
+      .unified-hdr-left { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+
+      .unified-hdr .unified-hdr-left {
+        flex-direction: row !important;
+        flex-wrap: wrap !important;
+        align-items: baseline !important;
+        gap: 12px !important;
+      }
+      .unified-hdr .unified-hdr-pill { margin-bottom: 0 !important; align-self: center !important; }
+      .unified-hdr .unified-hdr-left p {
+        width: 100% !important;
+        margin-top: 2px !important;
+      }
+
+      .unified-hdr-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+      .unified-hdr h1 {
+        font-size: 22px !important;
+        font-weight: 700 !important;
+        color: #10213E !important;
+        line-height: 1.3 !important;
+        margin: 0 !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 10px !important;
+      }
+      .unified-hdr h1::before {
+        content: "" !important;
+        display: inline-block !important;
+        width: 4px !important;
+        height: 22px !important;
+        background: #5DB2E2 !important;
+        border-radius: 2px !important;
+        flex-shrink: 0 !important;
+      }
+      .unified-hdr p {
+        font-size: 13px !important;
+        color: #64748B !important;
+        margin: 4px 0 0 !important;
+        padding-left: 14px !important;
+        line-height: 1.5 !important;
+      }
+      .unified-hdr-pill {
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 6px !important;
+        font-size: 12px !important;
+        font-weight: 600 !important;
+        color: #64748B !important;
+        background: #F5F5F6 !important;
+        border: none !important;
+        border-radius: 10px !important;
+        padding: 2px 10px !important;
+        width: fit-content !important;
+        text-transform: none !important;
+        letter-spacing: normal !important;
+        margin-bottom: 4px !important;
+      }
+      .unified-hdr-pill i, .unified-hdr-pill svg { width: 14px; height: 14px; }
+      .unified-hdr .btn-copy-yaml, .unified-hdr button {
+        font-size: 12px !important;
+        padding: 6px 12px !important;
+        border-radius: 6px !important;
+        font-weight: 600 !important;
+        background: #10213E !important;
+        color: #FFFFFF !important;
+        border: 1px solid #10213E !important;
+        margin: 0 !important;
+      }
+      .hdr-status-dot { display: inline-block; width: 8px; height: 8px; background: #22C55E; border-radius: 50%; }
+</style>
+
+
+</head>
+<body>
+    <div class="max-w-[2000px] mx-auto">
+        <!-- Header -->
+        <header class="animate-in unified-hdr">
+            <div class="unified-hdr-left">
+                <h1>张雪机车 · 赛事内容工厂 CKD 映射报告</h1>
+                <p>梳理 WSBK 赛事内容从素材接入、多模态理解、高光识别、多语言脚本、自动剪辑配音、平台适配到审核发布与效果回流全链路所需的上下文（Context）、知识（Knowledge）与数据（Data）资产，为 RAG、提示词工程与 Agent 编排提供可落地资产清单。</p>
+            </div>
+            <div class="unified-hdr-right">
+                <button class="btn-copy-yaml" onclick="copyYAML()">复制原始 YAML</button>
+            </div>
+        </header>
+
+        <!-- Matrix Board -->
+        <div class="matrix-wrapper animate-in" style="animation-delay: 0.2s;">
+            <div class="scroll-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th class="step-header-corner dim-label">流程节点 \ 维度</th>
+                            
+                            <th class="step-header">1. 素材接入与多模态理解</th>
+                            
+                            <th class="step-header">2. 高光识别与多语言脚本生成</th>
+                            
+                            <th class="step-header">3. 智能剪辑、配音与品牌包装</th>
+                            
+                            <th class="step-header">4. 多平台格式适配与内容包</th>
+                            
+                            <th class="step-header">5. 品牌审核与发布编排</th>
+                            
+                            <th class="step-header">6. 效果追踪与内容策略反馈</th>
+                            
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- 上下文名称/描述 -->
+                        <tr>
+                            <td class="dim-label">核心资产与定义</td>
+                            
+                            <td>
+                                <div class="asset-group">
+                                    
+                                    <div class="asset-item">
+                                        <span class="context-name">本次赛事任务上下文</span>
+                                        <p class="text-sm text-slate-500 leading-relaxed">本次生成的入口参数：目标市场、目标语言（默认 6 语言）、目标平台、品牌调性、内容红线，作为全流程约束。</p>
+                                    </div>
+                                    
+                                    <div class="asset-item">
+                                        <span class="context-name">WSBK 原始赛事素材</span>
+                                        <p class="text-sm text-slate-500 leading-relaxed">赛事运营负责人上传的原始视频/音频/赛事数据，是多模态理解与高光识别的唯一素材来源。</p>
+                                    </div>
+                                    
+                                    <div class="asset-item">
+                                        <span class="context-name">WSBK 赛事数据库</span>
+                                        <p class="text-sm text-slate-500 leading-relaxed">车手信息、分站成绩、历史对战等结构化数据，用于把画面事件关联到可叙述的赛事事实。</p>
+                                    </div>
+                                    
+                                </div>
+                            </td>
+                            
+                            <td>
+                                <div class="asset-group">
+                                    
+                                    <div class="asset-item">
+                                        <span class="context-name">历史高互动内容素材库</span>
+                                        <p class="text-sm text-slate-500 leading-relaxed">过往高互动的赛事切片与文案，用于高光偏好学习与策略优化，让 AI 把握真正能引爆的镜头。</p>
+                                    </div>
+                                    
+                                    <div class="asset-item">
+                                        <span class="context-name">高光判定规则（决策模型类）</span>
+                                        <p class="text-sm text-slate-500 leading-relaxed">专家定义的高光打分逻辑：精彩度、叙事价值、品牌相关度的因子与阈值，引导 AI 打分而非盲目截取。</p>
+                                    </div>
+                                    
+                                    <div class="asset-item">
+                                        <span class="context-name">多语言解说脚本模板</span>
+                                        <p class="text-sm text-slate-500 leading-relaxed">固定叙事骨架（钩子/高潮/结果/CTA）+ 动态字段来源，支撑 6 语言脚本稳定生成。</p>
+                                    </div>
+                                    
+                                    <div class="asset-item">
+                                        <span class="context-name">目标市场文化偏好与禁忌库</span>
+                                        <p class="text-sm text-slate-500 leading-relaxed">各目标市场的文化偏好、宗教/政治/习俗禁忌与本地表达习惯，作为多语言本地化改写的红线知识。</p>
+                                    </div>
+                                    
+                                </div>
+                            </td>
+                            
+                            <td>
+                                <div class="asset-group">
+                                    
+                                    <div class="asset-item">
+                                        <span class="context-name">品牌 VI 规范与视觉标准手册</span>
+                                        <p class="text-sm text-slate-500 leading-relaxed">Logo、配色、字体、角标、片尾等品牌视觉标准，约束剪辑包装与封面生成的一致性。</p>
+                                    </div>
+                                    
+                                    <div class="asset-item">
+                                        <span class="context-name">剪辑节奏与镜头选择规则</span>
+                                        <p class="text-sm text-slate-500 leading-relaxed">把脚本节奏映射到镜头选择与转场的规则，决定成片节奏与观感。</p>
+                                    </div>
+                                    
+                                    <div class="asset-item">
+                                        <span class="context-name">多语言配音与字幕合成能力</span>
+                                        <p class="text-sm text-slate-500 leading-relaxed">TTS 音色库与字幕合成参数，支撑 6 语言配音与同步字幕生成。</p>
+                                    </div>
+                                    
+                                </div>
+                            </td>
+                            
+                            <td>
+                                <div class="asset-group">
+                                    
+                                    <div class="asset-item">
+                                        <span class="context-name">各平台内容规范</span>
+                                        <p class="text-sm text-slate-500 leading-relaxed">YouTube/TikTok/Instagram/Reels 的时长、比例、分辨率、编码、标签与文案规范，是适配与合规的硬约束。</p>
+                                    </div>
+                                    
+                                    <div class="asset-item">
+                                        <span class="context-name">SEO 关键词与标签库</span>
+                                        <p class="text-sm text-slate-500 leading-relaxed">赛事/品牌相关高价值关键词与标签，用于图文 SEO 与平台标签生成。</p>
+                                    </div>
+                                    
+                                </div>
+                            </td>
+                            
+                            <td>
+                                <div class="asset-group">
+                                    
+                                    <div class="asset-item">
+                                        <span class="context-name">品牌调性与内容红线</span>
+                                        <p class="text-sm text-slate-500 leading-relaxed">品牌内容经理设定的调性要求与不可触碰的内容红线，作为对外发布的强制放行依据。</p>
+                                    </div>
+                                    
+                                    <div class="asset-item">
+                                        <span class="context-name">历史发布时间与互动数据</span>
+                                        <p class="text-sm text-slate-500 leading-relaxed">各市场历史发布时段与对应互动表现，用于最佳发布时间预测与排期。</p>
+                                    </div>
+                                    
+                                    <div class="asset-item">
+                                        <span class="context-name">社媒平台发布接口</span>
+                                        <p class="text-sm text-slate-500 leading-relaxed">社媒管理平台（Hootsuite/Sprinklr）开放接口，用于按排期自动发布并回收发布状态。</p>
+                                    </div>
+                                    
+                                </div>
+                            </td>
+                            
+                            <td>
+                                <div class="asset-group">
+                                    
+                                    <div class="asset-item">
+                                        <span class="context-name">互动与转化效果数据</span>
+                                        <p class="text-sm text-slate-500 leading-relaxed">各平台播放、互动、涨粉与转化数据，是效果归因与策略优化的依据，回流至北极星增长 KPI。</p>
+                                    </div>
+                                    
+                                    <div class="asset-item">
+                                        <span class="context-name">效果归因与策略优化规则</span>
+                                        <p class="text-sm text-slate-500 leading-relaxed">把互动数据归因到高光选择、脚本风格、平台与时段，输出可执行的内容策略优化建议。</p>
+                                    </div>
+                                    
+                                </div>
+                            </td>
+                            
+                        </tr>
+
+                        <!-- 类型 -->
+                        <tr>
+                            <td class="dim-label">资产类型</td>
+                            
+                            <td>
+                                <div class="asset-group">
+                                    
+                                    <div class="asset-item"><span class="type-pill">会话上下文</span></div>
+                                    
+                                    <div class="asset-item"><span class="type-pill">非结构化多媒体</span></div>
+                                    
+                                    <div class="asset-item"><span class="type-pill">结构化数据</span></div>
+                                    
+                                </div>
+                            </td>
+                            
+                            <td>
+                                <div class="asset-group">
+                                    
+                                    <div class="asset-item"><span class="type-pill">向量嵌入 / 多媒体索引</span></div>
+                                    
+                                    <div class="asset-item"><span class="type-pill">规则 / 决策模型</span></div>
+                                    
+                                    <div class="asset-item"><span class="type-pill">结构化文档 / Prompt 模板</span></div>
+                                    
+                                    <div class="asset-item"><span class="type-pill">知识语料 / 词表</span></div>
+                                    
+                                </div>
+                            </td>
+                            
+                            <td>
+                                <div class="asset-group">
+                                    
+                                    <div class="asset-item"><span class="type-pill">结构化文档 / 设计规范</span></div>
+                                    
+                                    <div class="asset-item"><span class="type-pill">规则 / 决策模型</span></div>
+                                    
+                                    <div class="asset-item"><span class="type-pill">API 能力 / 音色配置</span></div>
+                                    
+                                </div>
+                            </td>
+                            
+                            <td>
+                                <div class="asset-group">
+                                    
+                                    <div class="asset-item"><span class="type-pill">结构化字典</span></div>
+                                    
+                                    <div class="asset-item"><span class="type-pill">词表 / 关键词数据</span></div>
+                                    
+                                </div>
+                            </td>
+                            
+                            <td>
+                                <div class="asset-group">
+                                    
+                                    <div class="asset-item"><span class="type-pill">规则 / 审核清单</span></div>
+                                    
+                                    <div class="asset-item"><span class="type-pill">时序数据</span></div>
+                                    
+                                    <div class="asset-item"><span class="type-pill">API 数据</span></div>
+                                    
+                                </div>
+                            </td>
+                            
+                            <td>
+                                <div class="asset-group">
+                                    
+                                    <div class="asset-item"><span class="type-pill">时序数据 / API 数据</span></div>
+                                    
+                                    <div class="asset-item"><span class="type-pill">规则 / 决策模型</span></div>
+                                    
+                                </div>
+                            </td>
+                            
+                        </tr>
+
+                        <!-- 存储与检索 -->
+                        <tr>
+                            <td class="dim-label">存储方式 / 检索</td>
+                            
+                            <td>
+                                <div class="asset-group">
+                                    
+                                    <div class="asset-item">
+                                        <div class="text-sm font-bold text-slate-800">应用会话内存 / 任务队列</div>
+                                        <div class="text-xs text-slate-400 mt-1 uppercase font-bold">任务 ID 精确读取</div>
+                                    </div>
+                                    
+                                    <div class="asset-item">
+                                        <div class="text-sm font-bold text-slate-800">对象存储 / CDN 源站</div>
+                                        <div class="text-xs text-slate-400 mt-1 uppercase font-bold">对象存储 Key 检索</div>
+                                    </div>
+                                    
+                                    <div class="asset-item">
+                                        <div class="text-sm font-bold text-slate-800">关系型数据库 / 赛事数据 API</div>
+                                        <div class="text-xs text-slate-400 mt-1 uppercase font-bold">赛事 ID / 车手 ID 精确查询</div>
+                                    </div>
+                                    
+                                </div>
+                            </td>
+                            
+                            <td>
+                                <div class="asset-group">
+                                    
+                                    <div class="asset-item">
+                                        <div class="text-sm font-bold text-slate-800">向量数据库 + 对象存储</div>
+                                        <div class="text-xs text-slate-400 mt-1 uppercase font-bold">语义相似度检索 + 标签匹配</div>
+                                    </div>
+                                    
+                                    <div class="asset-item">
+                                        <div class="text-sm font-bold text-slate-800">配置中心 / 规则库</div>
+                                        <div class="text-xs text-slate-400 mt-1 uppercase font-bold">规则引擎匹配</div>
+                                    </div>
+                                    
+                                    <div class="asset-item">
+                                        <div class="text-sm font-bold text-slate-800">模板库 / Git 版本管理</div>
+                                        <div class="text-xs text-slate-400 mt-1 uppercase font-bold">模板 ID / 场景标签匹配</div>
+                                    </div>
+                                    
+                                    <div class="asset-item">
+                                        <div class="text-sm font-bold text-slate-800">文档库 + 向量库</div>
+                                        <div class="text-xs text-slate-400 mt-1 uppercase font-bold">语义检索 + 关键词命中</div>
+                                    </div>
+                                    
+                                </div>
+                            </td>
+                            
+                            <td>
+                                <div class="asset-group">
+                                    
+                                    <div class="asset-item">
+                                        <div class="text-sm font-bold text-slate-800">文档库 / 设计资产库</div>
+                                        <div class="text-xs text-slate-400 mt-1 uppercase font-bold">规范标签精确匹配</div>
+                                    </div>
+                                    
+                                    <div class="asset-item">
+                                        <div class="text-sm font-bold text-slate-800">配置中心 / 规则库</div>
+                                        <div class="text-xs text-slate-400 mt-1 uppercase font-bold">规则引擎匹配</div>
+                                    </div>
+                                    
+                                    <div class="asset-item">
+                                        <div class="text-sm font-bold text-slate-800">TTS 服务 API + 配置</div>
+                                        <div class="text-xs text-slate-400 mt-1 uppercase font-bold">API 调用（语言/音色参数）</div>
+                                    </div>
+                                    
+                                </div>
+                            </td>
+                            
+                            <td>
+                                <div class="asset-group">
+                                    
+                                    <div class="asset-item">
+                                        <div class="text-sm font-bold text-slate-800">配置中心 / 字典表</div>
+                                        <div class="text-xs text-slate-400 mt-1 uppercase font-bold">平台 ID 精确查询</div>
+                                    </div>
+                                    
+                                    <div class="asset-item">
+                                        <div class="text-sm font-bold text-slate-800">搜索引擎 / 关键词工具导出</div>
+                                        <div class="text-xs text-slate-400 mt-1 uppercase font-bold">关键词匹配 / 向量检索</div>
+                                    </div>
+                                    
+                                </div>
+                            </td>
+                            
+                            <td>
+                                <div class="asset-group">
+                                    
+                                    <div class="asset-item">
+                                        <div class="text-sm font-bold text-slate-800">配置中心 / 审核规则库</div>
+                                        <div class="text-xs text-slate-400 mt-1 uppercase font-bold">规则命中 + 人工核对</div>
+                                    </div>
+                                    
+                                    <div class="asset-item">
+                                        <div class="text-sm font-bold text-slate-800">分析数仓 / 时序库</div>
+                                        <div class="text-xs text-slate-400 mt-1 uppercase font-bold">时间窗口 + 市场维度查询</div>
+                                    </div>
+                                    
+                                    <div class="asset-item">
+                                        <div class="text-sm font-bold text-slate-800">API 网关</div>
+                                        <div class="text-xs text-slate-400 mt-1 uppercase font-bold">API 调用</div>
+                                    </div>
+                                    
+                                </div>
+                            </td>
+                            
+                            <td>
+                                <div class="asset-group">
+                                    
+                                    <div class="asset-item">
+                                        <div class="text-sm font-bold text-slate-800">分析数仓 + Google Analytics</div>
+                                        <div class="text-xs text-slate-400 mt-1 uppercase font-bold">内容 ID / 时间窗口查询</div>
+                                    </div>
+                                    
+                                    <div class="asset-item">
+                                        <div class="text-sm font-bold text-slate-800">配置中心 / 分析脚本</div>
+                                        <div class="text-xs text-slate-400 mt-1 uppercase font-bold">规则引擎匹配</div>
+                                    </div>
+                                    
+                                </div>
+                            </td>
+                            
+                        </tr>
+
+                        <!-- 数据量与频度 -->
+                        <tr>
+                            <td class="dim-label">规模 / 更新频度</td>
+                            
+                            <td>
+                                <div class="asset-group">
+                                    
+                                    <div class="asset-item">
+                                        <div class="text-sm font-black">单任务 KB 级</div>
+                                        <div class="text-[10px] text-blue-500 font-bold mt-1 uppercase tracking-tighter">随任务创建</div>
+                                    </div>
+                                    
+                                    <div class="asset-item">
+                                        <div class="text-sm font-black">单站数十 GB 级 [待确认]</div>
+                                        <div class="text-[10px] text-blue-500 font-bold mt-1 uppercase tracking-tighter">随分站赛程（高频）</div>
+                                    </div>
+                                    
+                                    <div class="asset-item">
+                                        <div class="text-sm font-black">车手/成绩记录 [待确认]</div>
+                                        <div class="text-[10px] text-blue-500 font-bold mt-1 uppercase tracking-tighter">随赛程更新（站级/日级）</div>
+                                    </div>
+                                    
+                                </div>
+                            </td>
+                            
+                            <td>
+                                <div class="asset-group">
+                                    
+                                    <div class="asset-item">
+                                        <div class="text-sm font-black">历史内容条数 [待确认]</div>
+                                        <div class="text-[10px] text-blue-500 font-bold mt-1 uppercase tracking-tighter">月度沉淀</div>
+                                    </div>
+                                    
+                                    <div class="asset-item">
+                                        <div class="text-sm font-black">< 100 条核心规则</div>
+                                        <div class="text-[10px] text-blue-500 font-bold mt-1 uppercase tracking-tighter">季度更新</div>
+                                    </div>
+                                    
+                                    <div class="asset-item">
+                                        <div class="text-sm font-black">< 50 套模板</div>
+                                        <div class="text-[10px] text-blue-500 font-bold mt-1 uppercase tracking-tighter">随发版</div>
+                                    </div>
+                                    
+                                    <div class="asset-item">
+                                        <div class="text-sm font-black">按 6 语言市场维护 [待确认]</div>
+                                        <div class="text-[10px] text-blue-500 font-bold mt-1 uppercase tracking-tighter">季度更新</div>
+                                    </div>
+                                    
+                                </div>
+                            </td>
+                            
+                            <td>
+                                <div class="asset-group">
+                                    
+                                    <div class="asset-item">
+                                        <div class="text-sm font-black">< 200 条规范条目</div>
+                                        <div class="text-[10px] text-blue-500 font-bold mt-1 uppercase tracking-tighter">随品牌更新（低频）</div>
+                                    </div>
+                                    
+                                    <div class="asset-item">
+                                        <div class="text-sm font-black">< 100 条规则</div>
+                                        <div class="text-[10px] text-blue-500 font-bold mt-1 uppercase tracking-tighter">季度更新</div>
+                                    </div>
+                                    
+                                    <div class="asset-item">
+                                        <div class="text-sm font-black">按语言/音色配置</div>
+                                        <div class="text-[10px] text-blue-500 font-bold mt-1 uppercase tracking-tighter">随服务更新</div>
+                                    </div>
+                                    
+                                </div>
+                            </td>
+                            
+                            <td>
+                                <div class="asset-group">
+                                    
+                                    <div class="asset-item">
+                                        <div class="text-sm font-black">主流平台 < 20 套规范</div>
+                                        <div class="text-[10px] text-blue-500 font-bold mt-1 uppercase tracking-tighter">随平台政策更新（月级）</div>
+                                    </div>
+                                    
+                                    <div class="asset-item">
+                                        <div class="text-sm font-black">关键词条数 [待确认]</div>
+                                        <div class="text-[10px] text-blue-500 font-bold mt-1 uppercase tracking-tighter">月度更新</div>
+                                    </div>
+                                    
+                                </div>
+                            </td>
+                            
+                            <td>
+                                <div class="asset-group">
+                                    
+                                    <div class="asset-item">
+                                        <div class="text-sm font-black">< 100 条红线条款</div>
+                                        <div class="text-[10px] text-blue-500 font-bold mt-1 uppercase tracking-tighter">随品牌策略更新（季度）</div>
+                                    </div>
+                                    
+                                    <div class="asset-item">
+                                        <div class="text-sm font-black">按平台×市场累积 [待确认]</div>
+                                        <div class="text-[10px] text-blue-500 font-bold mt-1 uppercase tracking-tighter">日级更新</div>
+                                    </div>
+                                    
+                                    <div class="asset-item">
+                                        <div class="text-sm font-black">按发布任务调用</div>
+                                        <div class="text-[10px] text-blue-500 font-bold mt-1 uppercase tracking-tighter">实时</div>
+                                    </div>
+                                    
+                                </div>
+                            </td>
+                            
+                            <td>
+                                <div class="asset-group">
+                                    
+                                    <div class="asset-item">
+                                        <div class="text-sm font-black">按内容×平台累积 [待确认]</div>
+                                        <div class="text-[10px] text-blue-500 font-bold mt-1 uppercase tracking-tighter">日级 / 近实时</div>
+                                    </div>
+                                    
+                                    <div class="asset-item">
+                                        <div class="text-sm font-black">< 50 条策略规则</div>
+                                        <div class="text-[10px] text-blue-500 font-bold mt-1 uppercase tracking-tighter">月度迭代</div>
+                                    </div>
+                                    
+                                </div>
+                            </td>
+                            
+                        </tr>
+
+                        <!-- AI 辅助 & 状态 -->
+                        <tr>
+                            <td class="dim-label">AI 初始化 / 支持状态</td>
+                            
+                            <td>
+                                <div class="asset-group">
+                                    
+                                    <div class="asset-item flex items-center justify-between">
+                                        <div>
+                                            
+                                            <span class="text-slate-300 text-[10px] font-bold">—</span>
+                                            
+                                        </div>
+                                        <div class="status-indicator">
+                                            
+                                            <div class="dot dot-todo"></div>
+                                            <span class="text-[10px] font-black uppercase text-slate-400">待规划</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="asset-item flex items-center justify-between">
+                                        <div>
+                                            
+                                            <span class="text-slate-300 text-[10px] font-bold">—</span>
+                                            
+                                        </div>
+                                        <div class="status-indicator">
+                                            
+                                            <div class="dot dot-todo"></div>
+                                            <span class="text-[10px] font-black uppercase text-slate-400">待规划</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="asset-item flex items-center justify-between">
+                                        <div>
+                                            
+                                            <span class="text-slate-300 text-[10px] font-bold">—</span>
+                                            
+                                        </div>
+                                        <div class="status-indicator">
+                                            
+                                            <div class="dot dot-todo"></div>
+                                            <span class="text-[10px] font-black uppercase text-slate-400">待规划</span>
+                                        </div>
+                                    </div>
+                                    
+                                </div>
+                            </td>
+                            
+                            <td>
+                                <div class="asset-group">
+                                    
+                                    <div class="asset-item flex items-center justify-between">
+                                        <div>
+                                            
+                                            <div class="ai-init-sparkle">
+                                                <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+                                                <span>AI READY</span>
+                                            </div>
+                                            
+                                        </div>
+                                        <div class="status-indicator">
+                                            
+                                            <div class="dot dot-todo"></div>
+                                            <span class="text-[10px] font-black uppercase text-slate-400">待规划</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="asset-item flex items-center justify-between">
+                                        <div>
+                                            
+                                            <div class="ai-init-sparkle">
+                                                <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+                                                <span>AI READY</span>
+                                            </div>
+                                            
+                                        </div>
+                                        <div class="status-indicator">
+                                            
+                                            <div class="dot dot-todo"></div>
+                                            <span class="text-[10px] font-black uppercase text-slate-400">待规划</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="asset-item flex items-center justify-between">
+                                        <div>
+                                            
+                                            <div class="ai-init-sparkle">
+                                                <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+                                                <span>AI READY</span>
+                                            </div>
+                                            
+                                        </div>
+                                        <div class="status-indicator">
+                                            
+                                            <div class="dot dot-todo"></div>
+                                            <span class="text-[10px] font-black uppercase text-slate-400">待规划</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="asset-item flex items-center justify-between">
+                                        <div>
+                                            
+                                            <div class="ai-init-sparkle">
+                                                <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+                                                <span>AI READY</span>
+                                            </div>
+                                            
+                                        </div>
+                                        <div class="status-indicator">
+                                            
+                                            <div class="dot dot-todo"></div>
+                                            <span class="text-[10px] font-black uppercase text-slate-400">待规划</span>
+                                        </div>
+                                    </div>
+                                    
+                                </div>
+                            </td>
+                            
+                            <td>
+                                <div class="asset-group">
+                                    
+                                    <div class="asset-item flex items-center justify-between">
+                                        <div>
+                                            
+                                            <span class="text-slate-300 text-[10px] font-bold">—</span>
+                                            
+                                        </div>
+                                        <div class="status-indicator">
+                                            
+                                            <div class="dot dot-todo"></div>
+                                            <span class="text-[10px] font-black uppercase text-slate-400">待规划</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="asset-item flex items-center justify-between">
+                                        <div>
+                                            
+                                            <div class="ai-init-sparkle">
+                                                <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+                                                <span>AI READY</span>
+                                            </div>
+                                            
+                                        </div>
+                                        <div class="status-indicator">
+                                            
+                                            <div class="dot dot-todo"></div>
+                                            <span class="text-[10px] font-black uppercase text-slate-400">待规划</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="asset-item flex items-center justify-between">
+                                        <div>
+                                            
+                                            <span class="text-slate-300 text-[10px] font-bold">—</span>
+                                            
+                                        </div>
+                                        <div class="status-indicator">
+                                            
+                                            <div class="dot dot-todo"></div>
+                                            <span class="text-[10px] font-black uppercase text-slate-400">待规划</span>
+                                        </div>
+                                    </div>
+                                    
+                                </div>
+                            </td>
+                            
+                            <td>
+                                <div class="asset-group">
+                                    
+                                    <div class="asset-item flex items-center justify-between">
+                                        <div>
+                                            
+                                            <div class="ai-init-sparkle">
+                                                <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+                                                <span>AI READY</span>
+                                            </div>
+                                            
+                                        </div>
+                                        <div class="status-indicator">
+                                            
+                                            <div class="dot dot-todo"></div>
+                                            <span class="text-[10px] font-black uppercase text-slate-400">待规划</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="asset-item flex items-center justify-between">
+                                        <div>
+                                            
+                                            <div class="ai-init-sparkle">
+                                                <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+                                                <span>AI READY</span>
+                                            </div>
+                                            
+                                        </div>
+                                        <div class="status-indicator">
+                                            
+                                            <div class="dot dot-todo"></div>
+                                            <span class="text-[10px] font-black uppercase text-slate-400">待规划</span>
+                                        </div>
+                                    </div>
+                                    
+                                </div>
+                            </td>
+                            
+                            <td>
+                                <div class="asset-group">
+                                    
+                                    <div class="asset-item flex items-center justify-between">
+                                        <div>
+                                            
+                                            <span class="text-slate-300 text-[10px] font-bold">—</span>
+                                            
+                                        </div>
+                                        <div class="status-indicator">
+                                            
+                                            <div class="dot dot-todo"></div>
+                                            <span class="text-[10px] font-black uppercase text-slate-400">待规划</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="asset-item flex items-center justify-between">
+                                        <div>
+                                            
+                                            <div class="ai-init-sparkle">
+                                                <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+                                                <span>AI READY</span>
+                                            </div>
+                                            
+                                        </div>
+                                        <div class="status-indicator">
+                                            
+                                            <div class="dot dot-todo"></div>
+                                            <span class="text-[10px] font-black uppercase text-slate-400">待规划</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="asset-item flex items-center justify-between">
+                                        <div>
+                                            
+                                            <span class="text-slate-300 text-[10px] font-bold">—</span>
+                                            
+                                        </div>
+                                        <div class="status-indicator">
+                                            
+                                            <div class="dot dot-todo"></div>
+                                            <span class="text-[10px] font-black uppercase text-slate-400">待规划</span>
+                                        </div>
+                                    </div>
+                                    
+                                </div>
+                            </td>
+                            
+                            <td>
+                                <div class="asset-group">
+                                    
+                                    <div class="asset-item flex items-center justify-between">
+                                        <div>
+                                            
+                                            <div class="ai-init-sparkle">
+                                                <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+                                                <span>AI READY</span>
+                                            </div>
+                                            
+                                        </div>
+                                        <div class="status-indicator">
+                                            
+                                            <div class="dot dot-todo"></div>
+                                            <span class="text-[10px] font-black uppercase text-slate-400">待规划</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="asset-item flex items-center justify-between">
+                                        <div>
+                                            
+                                            <div class="ai-init-sparkle">
+                                                <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+                                                <span>AI READY</span>
+                                            </div>
+                                            
+                                        </div>
+                                        <div class="status-indicator">
+                                            
+                                            <div class="dot dot-todo"></div>
+                                            <span class="text-[10px] font-black uppercase text-slate-400">待规划</span>
+                                        </div>
+                                    </div>
+                                    
+                                </div>
+                            </td>
+                            
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <footer class="mt-24 pb-12 flex justify-between items-center animate-in" style="animation-delay: 0.4s;">
+            <div class="text-xs font-black text-slate-300 uppercase tracking-[0.3em]">
+                赛事内容工厂（AI 内容生产工作台 / Web 端 + 发布自动化插件） &bull; Asset Mapping
+            </div>
+            <div class="text-xs text-slate-400 font-medium">
+                Generated by <span class="font-bold text-slate-900">AI Workshop Skill</span> &copy; 2026
+            </div>
+        </footer>
+    </div>
+    <div class="toast" id="toast">已成功复制 YAML 数据</div>
+    
+    <script type="application/yaml" id="raw-yaml">
+title: "张雪机车 · 赛事内容工厂 CKD 映射报告"
+product: "赛事内容工厂（AI 内容生产工作台 / Web 端 + 发布自动化插件）"
+description: "梳理 WSBK 赛事内容从素材接入、多模态理解、高光识别、多语言脚本、自动剪辑配音、平台适配到审核发布与效果回流全链路所需的上下文（Context）、知识（Knowledge）与数据（Data）资产，为 RAG、提示词工程与 Agent 编排提供可落地资产清单。"
+steps:
+  - step_name: "1. 素材接入与多模态理解"
+    ckd_items:
+      - context_name: "本次赛事任务上下文"
+        description: "本次生成的入口参数：目标市场、目标语言（默认 6 语言）、目标平台、品牌调性、内容红线，作为全流程约束。"
+        type: "会话上下文"
+        storage: "应用会话内存 / 任务队列"
+        volume: "单任务 KB 级"
+        ai_init: false
+        frequency: "随任务创建"
+        retrieval: "任务 ID 精确读取"
+        status: "待规划"
+      - context_name: "WSBK 原始赛事素材"
+        description: "赛事运营负责人上传的原始视频/音频/赛事数据，是多模态理解与高光识别的唯一素材来源。"
+        type: "非结构化多媒体"
+        storage: "对象存储 / CDN 源站"
+        volume: "单站数十 GB 级 [待确认]"
+        ai_init: false
+        frequency: "随分站赛程（高频）"
+        retrieval: "对象存储 Key 检索"
+        status: "待规划"
+      - context_name: "WSBK 赛事数据库"
+        description: "车手信息、分站成绩、历史对战等结构化数据，用于把画面事件关联到可叙述的赛事事实。"
+        type: "结构化数据"
+        storage: "关系型数据库 / 赛事数据 API"
+        volume: "车手/成绩记录 [待确认]"
+        ai_init: false
+        frequency: "随赛程更新（站级/日级）"
+        retrieval: "赛事 ID / 车手 ID 精确查询"
+        status: "待规划"
+  - step_name: "2. 高光识别与多语言脚本生成"
+    ckd_items:
+      - context_name: "历史高互动内容素材库"
+        description: "过往高互动的赛事切片与文案，用于高光偏好学习与策略优化，让 AI 把握真正能引爆的镜头。"
+        type: "向量嵌入 / 多媒体索引"
+        storage: "向量数据库 + 对象存储"
+        volume: "历史内容条数 [待确认]"
+        ai_init: true
+        frequency: "月度沉淀"
+        retrieval: "语义相似度检索 + 标签匹配"
+        status: "待规划"
+      - context_name: "高光判定规则（决策模型类）"
+        description: "专家定义的高光打分逻辑：精彩度、叙事价值、品牌相关度的因子与阈值，引导 AI 打分而非盲目截取。"
+        type: "规则 / 决策模型"
+        storage: "配置中心 / 规则库"
+        volume: "< 100 条核心规则"
+        ai_init: true
+        frequency: "季度更新"
+        retrieval: "规则引擎匹配"
+        status: "待规划"
+      - context_name: "多语言解说脚本模板"
+        description: "固定叙事骨架（钩子/高潮/结果/CTA）+ 动态字段来源，支撑 6 语言脚本稳定生成。"
+        type: "结构化文档 / Prompt 模板"
+        storage: "模板库 / Git 版本管理"
+        volume: "< 50 套模板"
+        ai_init: true
+        frequency: "随发版"
+        retrieval: "模板 ID / 场景标签匹配"
+        status: "待规划"
+      - context_name: "目标市场文化偏好与禁忌库"
+        description: "各目标市场的文化偏好、宗教/政治/习俗禁忌与本地表达习惯，作为多语言本地化改写的红线知识。"
+        type: "知识语料 / 词表"
+        storage: "文档库 + 向量库"
+        volume: "按 6 语言市场维护 [待确认]"
+        ai_init: true
+        frequency: "季度更新"
+        retrieval: "语义检索 + 关键词命中"
+        status: "待规划"
+  - step_name: "3. 智能剪辑、配音与品牌包装"
+    ckd_items:
+      - context_name: "品牌 VI 规范与视觉标准手册"
+        description: "Logo、配色、字体、角标、片尾等品牌视觉标准，约束剪辑包装与封面生成的一致性。"
+        type: "结构化文档 / 设计规范"
+        storage: "文档库 / 设计资产库"
+        volume: "< 200 条规范条目"
+        ai_init: false
+        frequency: "随品牌更新（低频）"
+        retrieval: "规范标签精确匹配"
+        status: "待规划"
+      - context_name: "剪辑节奏与镜头选择规则"
+        description: "把脚本节奏映射到镜头选择与转场的规则，决定成片节奏与观感。"
+        type: "规则 / 决策模型"
+        storage: "配置中心 / 规则库"
+        volume: "< 100 条规则"
+        ai_init: true
+        frequency: "季度更新"
+        retrieval: "规则引擎匹配"
+        status: "待规划"
+      - context_name: "多语言配音与字幕合成能力"
+        description: "TTS 音色库与字幕合成参数，支撑 6 语言配音与同步字幕生成。"
+        type: "API 能力 / 音色配置"
+        storage: "TTS 服务 API + 配置"
+        volume: "按语言/音色配置"
+        ai_init: false
+        frequency: "随服务更新"
+        retrieval: "API 调用（语言/音色参数）"
+        status: "待规划"
+  - step_name: "4. 多平台格式适配与内容包"
+    ckd_items:
+      - context_name: "各平台内容规范"
+        description: "YouTube/TikTok/Instagram/Reels 的时长、比例、分辨率、编码、标签与文案规范，是适配与合规的硬约束。"
+        type: "结构化字典"
+        storage: "配置中心 / 字典表"
+        volume: "主流平台 < 20 套规范"
+        ai_init: true
+        frequency: "随平台政策更新（月级）"
+        retrieval: "平台 ID 精确查询"
+        status: "待规划"
+      - context_name: "SEO 关键词与标签库"
+        description: "赛事/品牌相关高价值关键词与标签，用于图文 SEO 与平台标签生成。"
+        type: "词表 / 关键词数据"
+        storage: "搜索引擎 / 关键词工具导出"
+        volume: "关键词条数 [待确认]"
+        ai_init: true
+        frequency: "月度更新"
+        retrieval: "关键词匹配 / 向量检索"
+        status: "待规划"
+  - step_name: "5. 品牌审核与发布编排"
+    ckd_items:
+      - context_name: "品牌调性与内容红线"
+        description: "品牌内容经理设定的调性要求与不可触碰的内容红线，作为对外发布的强制放行依据。"
+        type: "规则 / 审核清单"
+        storage: "配置中心 / 审核规则库"
+        volume: "< 100 条红线条款"
+        ai_init: false
+        frequency: "随品牌策略更新（季度）"
+        retrieval: "规则命中 + 人工核对"
+        status: "待规划"
+      - context_name: "历史发布时间与互动数据"
+        description: "各市场历史发布时段与对应互动表现，用于最佳发布时间预测与排期。"
+        type: "时序数据"
+        storage: "分析数仓 / 时序库"
+        volume: "按平台×市场累积 [待确认]"
+        ai_init: true
+        frequency: "日级更新"
+        retrieval: "时间窗口 + 市场维度查询"
+        status: "待规划"
+      - context_name: "社媒平台发布接口"
+        description: "社媒管理平台（Hootsuite/Sprinklr）开放接口，用于按排期自动发布并回收发布状态。"
+        type: "API 数据"
+        storage: "API 网关"
+        volume: "按发布任务调用"
+        ai_init: false
+        frequency: "实时"
+        retrieval: "API 调用"
+        status: "待规划"
+  - step_name: "6. 效果追踪与内容策略反馈"
+    ckd_items:
+      - context_name: "互动与转化效果数据"
+        description: "各平台播放、互动、涨粉与转化数据，是效果归因与策略优化的依据，回流至北极星增长 KPI。"
+        type: "时序数据 / API 数据"
+        storage: "分析数仓 + Google Analytics"
+        volume: "按内容×平台累积 [待确认]"
+        ai_init: true
+        frequency: "日级 / 近实时"
+        retrieval: "内容 ID / 时间窗口查询"
+        status: "待规划"
+      - context_name: "效果归因与策略优化规则"
+        description: "把互动数据归因到高光选择、脚本风格、平台与时段，输出可执行的内容策略优化建议。"
+        type: "规则 / 决策模型"
+        storage: "配置中心 / 分析脚本"
+        volume: "< 50 条策略规则"
+        ai_init: true
+        frequency: "月度迭代"
+        retrieval: "规则引擎匹配"
+        status: "待规划"
+
+    </script>
+
+    <script>
+        lucide.createIcons();
+
+        function copyYAML() {
+            const yaml = document.getElementById('raw-yaml').textContent.trim();
+            navigator.clipboard.writeText(yaml).then(() => {
+                const toast = document.getElementById('toast');
+                toast.style.display = 'block';
+                setTimeout(() => { toast.style.display = 'none'; }, 2500);
+            });
+        }
+    </script>
+</body>
+</html>

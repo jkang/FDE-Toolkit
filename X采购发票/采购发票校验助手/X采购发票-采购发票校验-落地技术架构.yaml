@@ -1,0 +1,206 @@
+meta:
+  title: "采购发票校验助手 · 落地技术架构方案"
+  scenario: "采购发票校验助手"
+  company: "X采购发票"
+  route: "Autonomous Planner"
+  routeReason: "用户入口开放（工作台 / 待办唤起 / 定时批量），路径需按发票批次与差异状态运行时规划；5 个 Skill 职责稳定但调用路径由上下文与单据状态决定。"
+  patternSummary: "1 编排 Agent + 5 Skill + 1 本体"
+  date: "2026-09-10"
+
+agent:
+  name: "编排 Agent · Autonomous Planner"
+  role: "意图识别 · 规划 · 调度 Skill · 发起 HITL · 异常兜底"
+  loop: "Plan → Act → Observe"
+  memory: ["任务级上下文", "发票批次全链路状态", "角色 / PO 数据范围"]
+  note: "不直接算数，只做规划与调度"
+
+routing:
+  - { intent: "归集 / 识别", skill: "skill_collect" }
+  - { intent: "匹配 / 差异", skill: "skill_match" }
+  - { intent: "异常 / 建议", skill: "skill_exception" }
+  - { intent: "预制 / 过账", skill: "skill_posting" }
+  - { intent: "台账 / 归档 / 状态", skill: "skill_ledger" }
+
+skills:
+  - id: "skill_collect"
+    name: "Skill ① 多源归集与票面识别"
+    type: "skill"
+    trigger: "定时 / 手工归集（发票批次驱动）"
+    pattern: "pipeline + human-in-the-loop"
+    whyNotSubagent: "步骤固定、共享上下文、无独立规划，I/O 清晰可独立测试 → 判 Skill"
+    handoff: "→ 识别校验完成进入 Skill ② 三单匹配"
+    nodes:
+      - { id: "a0", label: "归集触发（渠道 / 范围）", type: "op" }
+      - { id: "a1", label: "拉取乐企 / 供应商 / 补录发票", note: "MCP · 乐企 IF001 · 写本体 W", type: "mcp" }
+      - { id: "a2", label: "发票查重与完整性校验", note: "规则引擎", type: "det" }
+      - { id: "a3", label: "重复 / 漏票判定", note: "Evaluator", type: "eval" }
+      - { id: "a4", label: "票面识别（关键字段 + 行）", note: "多模态 · OCR IF010", type: "small" }
+      - { id: "a5", label: "识别置信度判定", note: "阈值 95%", type: "eval" }
+      - { id: "a6", label: "低置信人工复核", note: "HITL", type: "hitl" }
+      - { id: "a7", label: "真伪 / 抬头校验", note: "读字典 IF014", type: "onto" }
+      - { id: "a8", label: "归集识别完成", type: "out" }
+    edges:
+      - { from: "a0", to: "a1", style: "solid" }
+      - { from: "a1", to: "a2", style: "solid" }
+      - { from: "a2", to: "a3", style: "solid" }
+      - { from: "a3", to: "a4", label: "无重复", style: "solid" }
+      - { from: "a3", to: "a0", label: "重复 / 漏票补录", style: "dashed" }
+      - { from: "a4", to: "a5", style: "solid" }
+      - { from: "a5", to: "a7", label: "高", style: "solid" }
+      - { from: "a5", to: "a6", label: "低 <95%", style: "dashed" }
+      - { from: "a6", to: "a7", label: "补录后", style: "solid" }
+      - { from: "a7", to: "a8", style: "solid" }
+      - { from: "a4", to: "a4", label: "识别重试 ×1", style: "dashed" }
+
+  - id: "skill_match"
+    name: "Skill ② 三单匹配与差异识别"
+    type: "skill"
+    trigger: "识别校验完成 / 选择发票批次"
+    pattern: "pipeline"
+    whyNotSubagent: "三层匹配为预定义规则、无独立规划，可独立验收 → 判 Skill"
+    handoff: "→ 差异进入 Skill ③ 异常判定；通过票进入 Skill ④ 预制过账"
+    nodes:
+      - { id: "b0", label: "获取 PO / 入库 / 送货", note: "MCP · SAP IF003/IF004 · 网盘 IF008", type: "mcp" }
+      - { id: "b1", label: "以发票行为主线汇入三单行", note: "读本体 R", type: "onto" }
+      - { id: "b2", label: "三层匹配 + 数量扣减", note: "规则引擎", type: "det" }
+      - { id: "b3", label: "金额比对", note: "MCP · ERP 模拟校验", type: "mcp" }
+      - { id: "b4", label: "匹配结果判定", note: "Evaluator", type: "eval" }
+      - { id: "b5", label: "匹配通过", type: "out" }
+      - { id: "b6", label: "差异清单（转异常）", type: "out" }
+      - { id: "b7", label: "异常池", note: "送货单缺失 / 口径冲突", type: "exception" }
+    edges:
+      - { from: "b0", to: "b1", style: "solid" }
+      - { from: "b1", to: "b2", style: "solid" }
+      - { from: "b2", to: "b3", style: "solid" }
+      - { from: "b3", to: "b4", style: "solid" }
+      - { from: "b4", to: "b5", label: "通过", style: "solid" }
+      - { from: "b4", to: "b6", label: "差异", style: "solid" }
+      - { from: "b1", to: "b7", label: "送货单缺失", style: "dashed" }
+      - { from: "b3", to: "b3", label: "接口重试 ×1", style: "dashed" }
+
+  - id: "skill_exception"
+    name: "Skill ③ 异常判定与处理建议"
+    type: "skill"
+    trigger: "差异清单 / 异常票"
+    pattern: "orchestrator-worker + human-in-the-loop"
+    whyNotSubagent: "分支为预定义（容忍内放行 / 超容忍拉人），I/O 清晰 → 判 Skill"
+    handoff: "→ 异常确认后返回 Skill ② 重跑，或挂起补单/换票"
+    nodes:
+      - { id: "c0", label: "差异清单 / 异常票", type: "op" }
+      - { id: "c1", label: "差异容忍判定", note: "规则引擎 · 假设值", type: "det" }
+      - { id: "c2", label: "可容忍判定", note: "Evaluator", type: "eval" }
+      - { id: "c3", label: "容忍内自动放行", type: "out" }
+      - { id: "c4", label: "异常类型归因", note: "LLM", type: "llm" }
+      - { id: "c5", label: "处理建议 + 沟通对象 / 升级路径", note: "LLM", type: "llm" }
+      - { id: "c6", label: "人工确认异常凭证", note: "HITL", type: "hitl" }
+      - { id: "c7", label: "沟通登记 + 挂起重跑", type: "op" }
+      - { id: "c8", label: "异常池", note: "补单 / 换票 / 升级", type: "exception" }
+    edges:
+      - { from: "c0", to: "c1", style: "solid" }
+      - { from: "c1", to: "c2", style: "solid" }
+      - { from: "c2", to: "c3", label: "容忍内", style: "solid" }
+      - { from: "c2", to: "c4", label: "超容忍", style: "dashed" }
+      - { from: "c4", to: "c5", style: "solid" }
+      - { from: "c5", to: "c6", style: "solid" }
+      - { from: "c6", to: "c7", label: "采纳", style: "solid" }
+      - { from: "c7", to: "c8", label: "挂起 / 升级", style: "dashed" }
+      - { from: "c6", to: "c1", label: "人工修正后重判", style: "dashed" }
+
+  - id: "skill_posting"
+    name: "Skill ④ 预制与过账"
+    type: "skill"
+    trigger: "匹配通过票 / 财务待过账"
+    pattern: "pipeline + human-in-the-loop"
+    whyNotSubagent: "涉钱高风险但路径固定、需人工确认，非独立规划 → 判 Skill"
+    handoff: "→ 过账完成进入 Skill ⑤ 台账归档与乐企回写"
+    nodes:
+      - { id: "d0", label: "匹配通过票", type: "op" }
+      - { id: "d1", label: "预制硬门禁校验", note: "规则引擎", type: "det" }
+      - { id: "d2", label: "门禁判定", note: "Evaluator", type: "eval" }
+      - { id: "d3", label: "待补队列", note: "缺成本中心 / 信息", type: "exception" }
+      - { id: "d4", label: "批量预制", note: "MCP · SAP IF005 · 写本体 W", type: "mcp" }
+      - { id: "d5", label: "过账前财务确认", note: "HITL · 对外必停", type: "hitl" }
+      - { id: "d6", label: "批量过账", note: "MCP · SAP IF006 · 写本体 W", type: "mcp" }
+      - { id: "d7", label: "过账结果判定", note: "Evaluator", type: "eval" }
+      - { id: "d8", label: "失败记录 + 人工重试", note: "HITL · 高风险", type: "hitl" }
+      - { id: "d9", label: "过账完成", type: "out" }
+    edges:
+      - { from: "d0", to: "d1", style: "solid" }
+      - { from: "d1", to: "d2", style: "solid" }
+      - { from: "d2", to: "d4", label: "全绿", style: "solid" }
+      - { from: "d2", to: "d3", label: "缺项", style: "dashed" }
+      - { from: "d4", to: "d5", style: "solid" }
+      - { from: "d5", to: "d6", label: "放行", style: "solid" }
+      - { from: "d6", to: "d7", style: "solid" }
+      - { from: "d7", to: "d9", label: "成功", style: "solid" }
+      - { from: "d7", to: "d8", label: "失败", style: "dashed" }
+      - { from: "d8", to: "d6", label: "人工确认后重试", style: "dashed" }
+
+  - id: "skill_ledger"
+    name: "Skill ⑤ 台账归档与乐企回写"
+    type: "skill"
+    trigger: "过账完成 / 状态变更"
+    pattern: "event-driven"
+    whyNotSubagent: "分支为预定义（前置满足→回写、缺件→待办），无独立规划 → 判 Skill"
+    nodes:
+      - { id: "e0", label: "过账凭证 / 台账输入", type: "op" }
+      - { id: "e1", label: "乐企前置校验", note: "规则引擎", type: "det" }
+      - { id: "e2", label: "回写乐企入账状态", note: "MCP · 乐企 IF002", type: "mcp" }
+      - { id: "e3", label: "更新台账 / 归档索引", note: "写本体 W", type: "onto" }
+      - { id: "e4", label: "归档与打印", note: "MCP · 文件 IF012 / 打印 IF016", type: "mcp" }
+      - { id: "e5", label: "待办与通知", note: "MCP · IM IF017", type: "mcp" }
+      - { id: "e6", label: "台账归档完成", type: "out" }
+    edges:
+      - { from: "e0", to: "e1", style: "solid" }
+      - { from: "e1", to: "e2", style: "solid" }
+      - { from: "e2", to: "e3", style: "solid" }
+      - { from: "e3", to: "e4", style: "solid" }
+      - { from: "e3", to: "e5", style: "solid" }
+      - { from: "e4", to: "e6", style: "solid" }
+      - { from: "e5", to: "e6", style: "solid" }
+
+sharedBase:
+  ontology:
+    title: "本体（确定性底座）"
+    read: ["发票 / 发票行（匹配主线）", "PO / 入库单 / 送货单（三单匹配基准）", "匹配关系表（不覆盖原始单据）", "预制发票 / 会计凭证 / 台账（入账归档）"]
+    write: ["结构化识别字段（识别回写）", "匹配关系表（匹配回写）", "预制发票 / 会计凭证（预制过账回写）", "乐企入账状态 / 台账 / 归档索引（状态回写）"]
+    note: "对象 / 关系 / 状态迁移 + 业务事实；三单匹配、数量扣减与硬门禁走本体与规则引擎，不靠 LLM 猜事实。"
+  mcp:
+    title: "MCP / 外部系统"
+    calls: ["乐企平台（IF001 发票拉取 / IF002 入账状态）", "SAP ERP（IF003 PO / IF004 入库单 / IF005 预制 / IF006 过账 / IF007 凭证）", "公共网盘（IF008 送货单）", "文件服务（IF009）", "OCR/AI 识别（IF010）", "主数据（IF011/IF014）", "权限 AD（IF015）", "打印服务（IF016）", "消息/IM（IF017）"]
+    note: "仅需要外部读写的步骤才走 MCP；送货单无 API，依赖公共网盘人工读取（⚠️系统孤岛）。"
+  kb:
+    title: "知识库 / RAG"
+    calls: ["差异容忍与异常判定经验", "异常沟通与升级路径", "供应商/税号/科目映射字典", "发票票面关键字段提取要点"]
+    note: "三单匹配/数量扣减/硬门禁走规则引擎而非向量检索；容忍经验、异常路径、字典、提取要点走 RAG。"
+
+exceptionPool: "重复/漏票 / 低置信识别 / 送货单缺失 / 差异超容忍 / 预制缺项 / 过账失败 / Loop 超限 → 升级人工，附上下文摘要。"
+
+failureTable:
+  - { trigger: "乐企 IF001 / ERP IF003–IF007 接口失败或超时", action: "重试 1 次 → 标记同步异常并通知 IT", type: "retry / escalate" }
+  - { trigger: "票面识别置信度 <95% / 模糊票 / 新版式", action: "标红转人工复核补录，不阻塞其余字段", type: "fallback" }
+  - { trigger: "送货单无 API、公共网盘读取失败", action: "标记系统孤岛缺口，转人工读取并留痕", type: "escalate" }
+  - { trigger: "三单匹配差异超容忍（数量/金额尾差）", action: "必拉人确认，附四数量对照与判定依据", type: "escalate" }
+  - { trigger: "预制硬门禁缺项（如成本中心缺失）", action: "入待补队列 + 降级建议（补项后重试 / 转人工）", type: "fallback" }
+  - { trigger: "过账失败", action: "记录 ERP 返回 → 财务确认后手工重试，禁止无限制自动重试", type: "retry / escalate" }
+  - { trigger: "跨 PO 权限操作", action: "不展示非权限数据，提示权限边界", type: "fallback" }
+
+kpi:
+  - { name: "发票票面识别准确率", link: "① 多源归集与票面识别　≥95%" }
+  - { name: "采集归集覆盖率", link: "① 多源归集　全渠道 100%" }
+  - { name: "三单匹配自动化覆盖率 / 匹配错误率", link: "② 三单匹配　自动匹配 + 超容忍必拉人" }
+  - { name: "入账自动化覆盖率", link: "④ 预制过账 + ⑤ 台账归档回写　100%" }
+  - { name: "单票校验耗时 / 异常处理周期", link: "② 匹配 + ③ 异常　逐票人工 → 秒级 + 异常分流" }
+
+guardrails:
+  - { rule: "三单匹配与数量扣减为确定性规则", detail: "以发票行为主线、三层匹配、发票数量扣减入库/送货数量；不校验入库单与送货单一致性，走规则引擎" }
+  - { rule: "金额比对由 ERP 模拟校验接口承载", detail: "本平台仅感知通过/差异结果，不落地金额比对规则" }
+  - { rule: "过账为对外财务动作的强制人工闸门", detail: "财务负责人确认后才过账，禁止静默通过" }
+  - { rule: "三类硬门禁前置", detail: "预制/过账/乐企前置未满足一律阻断" }
+  - { rule: "差异容忍阈值为领域专家假设值", detail: "数量无容忍区间、金额尾差 ≤1 元且 ≤0.5%（待访谈回填），不写成确定值" }
+  - { rule: "识别低置信不静默", detail: "置信度 <95% 标红转人工复核" }
+
+notes:
+  - { title: "⚠️ 口径待确认：", text: "差异容忍阈值与异常类型清单为领域专家假设值；6 条匹配规则边界（行/总金额一致性、含税口径）、税额/单价/尾差规则清单待客户二轮访谈回填。" }
+  - { title: "⚠️ 基线待回填：", text: "采购发票月度量级、单票校验耗时、三单匹配错误率（X/Y/Z）三项基线影响验收标定。" }
+  - { title: "⚠️ MCP 边界：", text: "本方案把乐企/SAP/网盘/文件/OCR/主数据/打印/IM 画成 MCP 外部调用；若确认「MCP=0，数据全部来自绑定本体」，则归入本体/内部服务并标 N/A。" }

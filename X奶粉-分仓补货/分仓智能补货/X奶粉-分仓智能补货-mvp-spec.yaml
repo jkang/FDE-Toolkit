@@ -1,0 +1,401 @@
+meta:
+  projectName: "x-replenishment-agent"
+  productName: "分仓智能补货 Agent"
+  businessDomain: "供应链"
+  frontend: "react"
+  designSystem: "antd"
+  theme:
+    source: "auto"
+    primary: "#2563eb"
+    accent: "#f97316"
+    layout: "side"
+  ports:
+    dev: 5173
+    api: 8080
+
+# ---- 角色（承接 SRP 场景定义画布：物流计划 / 调度组） ----
+personas:
+  - id: "wang"
+    name: "王立群"
+    role: "物流计划岗"
+    department: "计划部"
+    goals:
+      - "一屏识别全国仓网缺口（DOS 分级）"
+      - "多约束下算全局较优的分货方案，只需确认与微调"
+      - "补货单合规下发并跟踪执行到入库"
+  - id: "li"
+    name: "李梅"
+    role: "调度组"
+    department: "数据调度"
+    goals:
+      - "高效汇总待检/合格/在途/库存分货底表"
+      - "及时发现临期与大日期库存风险"
+
+# ---- 典型场景（对应 13-产品方案 的 4 条演示故事线） ----
+scenarios:
+  - id: "s1"
+    name: "全仓网缺口识别与分级告警"
+    personaId: "wang"
+    trigger: "用户问「帮我看看全国仓网现在的货源情况」"
+    goal: "一屏输出供需全景 + 红/黄/蓝缺口告警（DOS<7 红、7-14 黄、>60 蓝积压）"
+  - id: "s2"
+    name: "多约束分货方案生成与人工确认（含 HITL）"
+    personaId: "wang"
+    trigger: "用户说「按这周销售计划帮我出分货方案」"
+    goal: "多约束求解分配方案，HITL 拦截人工确认/微调后重新校验"
+  - id: "s3"
+    name: "异常诊断与备选方案（含错误态）"
+    personaId: "wang"
+    trigger: "用户说「华北基地仓可发量不足，怎么办？」"
+    goal: "自动检索周边资源给出 3 套备选；TMS 未接通时错误态降级提示"
+  - id: "s4"
+    name: "补货单下发与执行复盘（含撤销）"
+    personaId: "wang"
+    trigger: "用户说「方案确认，生成补货单并下发」"
+    goal: "一键生成校验补货单并下发，10 秒撤销窗口，跟踪到入库，出月度复盘"
+
+# ---- 核心数据模型 + 脱敏 Mock 数据（承接 SRP 数据实体） ----
+dataModels:
+  - name: "SupplyGap"
+    description: "缺口告警清单（DOS 分级）"
+    fields:
+      - { key: "warehouse", title: "销售分仓", type: "string" }
+      - { key: "dos", title: "库存可销天数 DOS", type: "number" }
+      - { key: "fillRate", title: "备货率", type: "string" }
+      - { key: "level", title: "缺口等级", type: "string" }
+    mockData:
+      - { warehouse: "广州销售仓", dos: 5, fillRate: "76%", level: "紧急补货" }
+      - { warehouse: "柳州销售仓", dos: 4, fillRate: "74%", level: "紧急补货" }
+      - { warehouse: "北京顺义仓", dos: 6, fillRate: "80%", level: "紧急补货" }
+      - { warehouse: "郑州销售仓", dos: 9, fillRate: "83%", level: "常规补货" }
+      - { warehouse: "成都销售仓", dos: 7, fillRate: "79%", level: "常规补货" }
+      - { warehouse: "合肥销售仓", dos: 12, fillRate: "88%", level: "常规补货" }
+      - { warehouse: "武汉销售仓", dos: 11, fillRate: "85%", level: "常规补货" }
+      - { warehouse: "天津武清仓", dos: 18, fillRate: "95%", level: "库存充足" }
+      - { warehouse: "呼市销售仓", dos: 22, fillRate: "81%", level: "库存充足" }
+      - { warehouse: "济南销售仓", dos: 62, fillRate: "42%", level: "积压预警" }
+
+  - name: "AllocationPlan"
+    description: "多约束分货分配方案（京慧建议量/可发量/分配量）"
+    fields:
+      - { key: "warehouse", title: "收货仓", type: "string" }
+      - { key: "sku", title: "SKU", type: "string" }
+      - { key: "suggest", title: "京慧建议量(罐)", type: "number" }
+      - { key: "available", title: "可发量(罐)", type: "number" }
+      - { key: "alloc", title: "分配量(罐)", type: "number" }
+      - { key: "stockDays", title: "分配后库存天数", type: "number" }
+      - { key: "note", title: "备注", type: "string" }
+    mockData:
+      - { warehouse: "北京顺义仓", sku: "金领冠珍护3段800g", suggest: 1200, available: 1650, alloc: 1344, stockDays: 8, note: "促销放量 +12%" }
+      - { warehouse: "天津武清仓", sku: "金领冠珍护3段800g", suggest: 720, available: 900, alloc: 800, stockDays: 12, note: "人工微调" }
+      - { warehouse: "广州销售仓", sku: "金领冠珍护3段800g", suggest: 980, available: 1100, alloc: 980, stockDays: 9, note: "" }
+      - { warehouse: "柳州销售仓", sku: "金领冠珍护3段800g", suggest: 620, available: 700, alloc: 620, stockDays: 6, note: "急缺优先" }
+      - { warehouse: "济南销售仓", sku: "金领冠珍护3段800g", suggest: 300, available: 260, alloc: 260, stockDays: 55, note: "积压仓控量" }
+      - { warehouse: "合肥销售仓", sku: "金领冠珍护3段800g", suggest: 850, available: 900, alloc: 850, stockDays: 10, note: "" }
+      - { warehouse: "成都销售仓", sku: "金领冠珍护3段800g", suggest: 760, available: 820, alloc: 760, stockDays: 9, note: "" }
+
+  - name: "AlternativePlan"
+    description: "异常诊断备选方案（成本/时效/库存均衡三维度）"
+    fields:
+      - { key: "plan", title: "备选方案", type: "string" }
+      - { key: "source", title: "货源仓", type: "string" }
+      - { key: "distance", title: "距离(km)", type: "number" }
+      - { key: "eta", title: "时效(天)", type: "number" }
+      - { key: "fillRate", title: "备货率", type: "string" }
+      - { key: "warning", title: "物流预警", type: "string" }
+    mockData:
+      - { plan: "备选A·华东大仓直发", source: "合肥大仓", distance: 900, eta: 2.5, fillRate: "92%", warning: "正常" }
+      - { plan: "备选B·华中大仓直发", source: "武汉大仓", distance: 1150, eta: 3, fillRate: "88%", warning: "需关注" }
+      - { plan: "备选C·京慧跨仓调拨", source: "南京中转仓", distance: 1200, eta: 4, fillRate: "85%", warning: "未接通" }
+
+  - name: "ReplenishmentOrder"
+    description: "补货单与执行跟踪"
+    fields:
+      - { key: "orderNo", title: "补货单号", type: "string" }
+      - { key: "from", title: "发货仓", type: "string" }
+      - { key: "to", title: "收货仓", type: "string" }
+      - { key: "sku", title: "SKU", type: "string" }
+      - { key: "qty", title: "数量(罐)", type: "number" }
+      - { key: "eta", title: "时效(天)", type: "number" }
+      - { key: "status", title: "状态", type: "string" }
+    mockData:
+      - { orderNo: "PR-2026-0821-016", from: "天津基地仓", to: "北京顺义仓", sku: "金领冠珍护3段800g", qty: 1344, eta: 2, status: "在途" }
+      - { orderNo: "PR-2026-0821-017", from: "天津基地仓", to: "天津武清仓", sku: "金领冠珍护3段800g", qty: 800, eta: 1, status: "在途" }
+      - { orderNo: "PR-2026-0815-009", from: "武汉基地仓", to: "广州销售仓", sku: "金领冠珍护3段800g", qty: 980, eta: 2, status: "已入库" }
+
+# ---- 页面设计（覆盖 To-Be 旅程 P1~P5；工作台为主页面） ----
+pages:
+  - id: "workbench"
+    title: "分货智能工作台"
+    route: "/workbench"
+    icon: "DashboardOutlined"
+    description: "Agent 对话驱动：缺口识别 → 方案编制(HITL) → 异常备选 → 下发复盘"
+    actions:
+      - { name: "storyGap", button: "帮我看看全国仓网现在的货源情况" }
+      - { name: "storyPlan", button: "按这周销售计划帮我出分货方案" }
+      - { name: "storyException", button: "华北基地仓可发量不足，怎么办？" }
+      - { name: "storyDispatch", button: "方案确认，生成补货单并下发" }
+    sections:
+      - type: "tagRow"
+        tags:
+          - { text: "故事线1 · 缺口识别", color: "blue" }
+          - { text: "故事线2 · HITL 方案确认", color: "orange" }
+          - { text: "故事线3 · 异常备选", color: "magenta" }
+          - { text: "故事线4 · 下发复盘", color: "green" }
+      - type: "chatPanel"
+        title: "Agent 会话（概念原型演示）"
+        action: "storyGap"
+        placeholder: "输入指令，或点击下方推荐指令…"
+        suggestions:
+          - { text: "帮我看看全国仓网现在的货源情况" }
+          - { text: "按这周销售计划帮我出分货方案" }
+          - { text: "华北基地仓可发量不足，怎么办？" }
+          - { text: "方案确认，生成补货单并下发" }
+      - type: "buttonRow"
+        buttons:
+          - { text: "故事线1 · 缺口识别", type: "primary", action: "storyGap" }
+          - { text: "故事线2 · HITL 方案确认", type: "default", action: "storyPlan" }
+          - { text: "故事线3 · 异常备选", type: "default", action: "storyException" }
+          - { text: "故事线4 · 下发复盘", type: "default", action: "storyDispatch" }
+
+  - id: "supply"
+    title: "全仓供需全景"
+    route: "/supply"
+    icon: "AppstoreOutlined"
+    description: "一屏看清全国仓网谁缺货、谁积压（故事线1 产物）"
+    actions:
+      - { name: "storyGap", button: "识别全仓网缺口" }
+    sections:
+      - type: "statRow"
+        stats:
+          - { label: "基地仓", value: 4, suffix: "个" }
+          - { label: "销售分仓", value: 9, suffix: "个" }
+          - { label: "紧急缺口", value: 3, suffix: "仓" }
+          - { label: "积压预警", value: 1, suffix: "仓" }
+      - type: "aiResultCard"
+        title: "缺口告警清单（DOS 分级）"
+        bind: "storyGap"
+        render: "table"
+        columns:
+          - { key: "warehouse", title: "销售分仓" }
+          - { key: "dos", title: "库存可销天数 DOS" }
+          - { key: "fillRate", title: "备货率" }
+          - { key: "level", title: "缺口等级", tag: { "紧急补货": "error", "常规补货": "warning", "库存充足": "success", "积压预警": "processing" } }
+      - type: "table"
+        title: "基地仓可发库存与在途（引数据实体：现货库存/在途库存/销售计划）"
+        data: "mock:SupplyGap"
+        columns:
+          - { key: "warehouse", title: "仓" }
+          - { key: "dos", title: "DOS" }
+          - { key: "fillRate", title: "备货率" }
+          - { key: "level", title: "等级", tag: { "紧急补货": "error", "常规补货": "warning", "库存充足": "success", "积压预警": "processing" } }
+
+  - id: "plan"
+    title: "分货方案工作台"
+    route: "/plan"
+    icon: "ShopOutlined"
+    description: "多约束分配方案生成 + HITL 人工确认/微调（故事线2 产物）"
+    actions:
+      - { name: "storyPlan", button: "生成多约束分配方案" }
+      - { name: "storyPlanConfirm", button: "确认方案并重新校验约束" }
+    sections:
+      - type: "alert"
+        level: "warning"
+        message: "HITL 拦截：北京顺义仓分配量较京慧建议量上调 12%（因促销放量），请确认。"
+        description: "修改分配量将触发约束重校验（库存/在途/效期/促销多约束）"
+      - type: "aiResultCard"
+        title: "主方案（分配量/分配后库存天数）"
+        bind: "storyPlan"
+        render: "table"
+        columns:
+          - { key: "warehouse", title: "收货仓" }
+          - { key: "sku", title: "SKU" }
+          - { key: "suggest", title: "京慧建议量" }
+          - { key: "available", title: "可发量" }
+          - { key: "alloc", title: "分配量" }
+          - { key: "stockDays", title: "分配后库存天数" }
+          - { key: "note", title: "备注" }
+      - type: "aiResultCard"
+        title: "确认后方案（天津武清仓人工改为 800 罐）"
+        bind: "storyPlanConfirm"
+        render: "table"
+        columns:
+          - { key: "warehouse", title: "收货仓" }
+          - { key: "alloc", title: "分配量" }
+          - { key: "stockDays", title: "分配后库存天数" }
+          - { key: "check", title: "约束校验", tag: { "通过": "success", "冲突": "error" } }
+      - type: "buttonRow"
+        buttons:
+          - { text: "重新生成", type: "primary", action: "storyPlan" }
+          - { text: "确认方案", type: "default", action: "storyPlanConfirm" }
+          - { text: "下发补货单 →", type: "default", action: "navigate:/execute" }
+
+  - id: "exception"
+    title: "异常诊断与备选方案"
+    route: "/exception"
+    icon: "FileSearchOutlined"
+    description: "基地仓缺货时自动检索周边资源，给出 3 套备选（故事线3 产物）"
+    actions:
+      - { name: "storyException", button: "诊断华北基地仓缺口" }
+    sections:
+      - type: "alert"
+        level: "error"
+        message: "错误态降级：TMS 物流预警数据暂未接通，已按历史时效估算，建议人工复核后下发。"
+        description: "备选C 的物流预警字段为降级估算值（SRP 数据实体·TMS 评级C，需开发）"
+      - type: "timeline"
+        items:
+          - { title: "识别缺口：华北基地仓（天津）可发量不足 1200 罐", color: "red" }
+          - { title: "检索周边资源：合肥大仓 / 武汉大仓 / 南京中转仓", color: "blue" }
+          - { title: "计算成本/时效/库存均衡三维度评分", color: "blue" }
+          - { title: "输出 3 套备选方案（备选C 数据降级估算）", color: "orange" }
+      - type: "aiResultCard"
+        title: "备选方案对比（距离/时效/备货率/物流预警）"
+        bind: "storyException"
+        render: "table"
+        columns:
+          - { key: "plan", title: "备选方案" }
+          - { key: "source", title: "货源仓" }
+          - { key: "distance", title: "距离(km)" }
+          - { key: "eta", title: "时效(天)" }
+          - { key: "fillRate", title: "备货率" }
+          - { key: "warning", title: "物流预警", tag: { "正常": "success", "需关注": "warning", "未接通": "error" } }
+
+  - id: "execute"
+    title: "补货执行与复盘"
+    route: "/execute"
+    icon: "SendOutlined"
+    description: "补货单生成下发（10 秒撤销窗口）+ 执行跟踪 + 月度复盘（故事线4 产物）"
+    actions:
+      - { name: "storyDispatch", button: "生成补货单并下发" }
+      - { name: "storyReview", button: "生成月度复盘报告" }
+    sections:
+      - type: "aiResultCard"
+        title: "补货单（校验结果 + 下发状态）"
+        bind: "storyDispatch"
+        render: "kv"
+      - type: "table"
+        title: "执行跟踪看板（在途定位/延误预警/入库差异）"
+        data: "mock:ReplenishmentOrder"
+        columns:
+          - { key: "orderNo", title: "补货单号" }
+          - { key: "from", title: "发货仓" }
+          - { key: "to", title: "收货仓" }
+          - { key: "sku", title: "SKU" }
+          - { key: "qty", title: "数量(罐)" }
+          - { key: "eta", title: "时效(天)" }
+          - { key: "status", title: "状态", tag: { "在途": "processing", "已入库": "success" } }
+      - type: "aiResultCard"
+        title: "月度复盘报告（时效达成率/缺货缓解率/周转率 + 调参建议）"
+        bind: "storyReview"
+        render: "table"
+        columns:
+          - { key: "metric", title: "复盘指标" }
+          - { key: "value", title: "本月值" }
+          - { key: "target", title: "目标" }
+          - { key: "result", title: "达成", tag: { "达标": "success", "未达标": "error" } }
+
+# ---- Mock AI 服务（模拟 Agent 行为：思考→工具→输出，含 HITL/错误态/撤销） ----
+aiMocks:
+  - name: "storyGap"
+    latency: 1200
+    response:
+      summary: "已拉取 4 基地仓可分配库存+在途，匹配未来 14 天销售计划：紧急缺口 3 仓（DOS<7 红），常规补货 4 仓（7-14 黄），济南仓积压预警（DOS 62 蓝，建议控量）。"
+      items:
+        - { warehouse: "广州销售仓", dos: 5, fillRate: "76%", level: "紧急补货" }
+        - { warehouse: "柳州销售仓", dos: 4, fillRate: "74%", level: "紧急补货" }
+        - { warehouse: "北京顺义仓", dos: 6, fillRate: "80%", level: "紧急补货" }
+        - { warehouse: "郑州销售仓", dos: 9, fillRate: "83%", level: "常规补货" }
+        - { warehouse: "成都销售仓", dos: 7, fillRate: "79%", level: "常规补货" }
+        - { warehouse: "合肥销售仓", dos: 12, fillRate: "88%", level: "常规补货" }
+        - { warehouse: "武汉销售仓", dos: 11, fillRate: "85%", level: "常规补货" }
+        - { warehouse: "天津武清仓", dos: 18, fillRate: "95%", level: "库存充足" }
+        - { warehouse: "呼市销售仓", dos: 22, fillRate: "81%", level: "库存充足" }
+        - { warehouse: "济南销售仓", dos: 62, fillRate: "42%", level: "积压预警" }
+
+  - name: "storyPlan"
+    latency: 1800
+    response:
+      summary: "已读京慧建议量/可发量/备货率，按 促销放量→急缺优先→积压控量 优先级完成多约束求解。北京顺义仓分配量上调 12% 触发 HITL，请确认后生效。"
+      items:
+        - { warehouse: "北京顺义仓", sku: "金领冠珍护3段800g", suggest: 1200, available: 1650, alloc: 1344, stockDays: 8, note: "促销放量 +12%" }
+        - { warehouse: "天津武清仓", sku: "金领冠珍护3段800g", suggest: 720, available: 900, alloc: 720, stockDays: 13, note: "" }
+        - { warehouse: "广州销售仓", sku: "金领冠珍护3段800g", suggest: 980, available: 1100, alloc: 980, stockDays: 9, note: "" }
+        - { warehouse: "柳州销售仓", sku: "金领冠珍护3段800g", suggest: 620, available: 700, alloc: 620, stockDays: 6, note: "急缺优先" }
+        - { warehouse: "济南销售仓", sku: "金领冠珍护3段800g", suggest: 300, available: 260, alloc: 260, stockDays: 55, note: "积压仓控量" }
+        - { warehouse: "合肥销售仓", sku: "金领冠珍护3段800g", suggest: 850, available: 900, alloc: 850, stockDays: 10, note: "" }
+        - { warehouse: "成都销售仓", sku: "金领冠珍护3段800g", suggest: 760, available: 820, alloc: 760, stockDays: 9, note: "" }
+
+  - name: "storyPlanConfirm"
+    latency: 900
+    response:
+      summary: "已确认：北京顺义仓 1344 罐（+12%），天津武清仓人工改为 800 罐。重新执行多约束校验：全部通过，可进入下发。"
+      items:
+        - { warehouse: "北京顺义仓", alloc: 1344, stockDays: 8, check: "通过" }
+        - { warehouse: "天津武清仓", alloc: 800, stockDays: 12, check: "通过" }
+        - { warehouse: "广州销售仓", alloc: 980, stockDays: 9, check: "通过" }
+        - { warehouse: "柳州销售仓", alloc: 620, stockDays: 6, check: "通过" }
+        - { warehouse: "济南销售仓", alloc: 260, stockDays: 55, check: "通过" }
+        - { warehouse: "合肥销售仓", alloc: 850, stockDays: 10, check: "通过" }
+        - { warehouse: "成都销售仓", alloc: 760, stockDays: 9, check: "通过" }
+
+  - name: "storyException"
+    latency: 1500
+    response:
+      summary: "华北基地仓（天津）可发量缺口 1200 罐。已按「积兆逻辑」检索周边资源，输出 3 套备选；TMS 物流预警数据未接通，备选C 按历史时效估算（降级），建议人工复核后下发。"
+      items:
+        - { plan: "备选A·华东大仓直发", source: "合肥大仓", distance: 900, eta: 2.5, fillRate: "92%", warning: "正常" }
+        - { plan: "备选B·华中大仓直发", source: "武汉大仓", distance: 1150, eta: 3, fillRate: "88%", warning: "需关注" }
+        - { plan: "备选C·京慧跨仓调拨", source: "南京中转仓", distance: 1200, eta: 4, fillRate: "85%", warning: "未接通" }
+
+  - name: "storyDispatch"
+    latency: 1000
+    response:
+      orderNo: "PR-2026-0821-016"
+      from: "天津基地仓"
+      to: "北京顺义仓"
+      sku: "金领冠珍护3段800g"
+      qty: "1344 罐"
+      check: "收发仓/SKU/数量/时效 校验全部通过"
+      status: "已下发（物流调度 + 财务核算）"
+      undo: "已下发，10 秒内可撤销"
+
+  - name: "storyReview"
+    latency: 1200
+    response:
+      summary: "本月复盘：时效达成率 92%、缺货缓解率 88%、周转天数 24 天（同比 -8%）。建议：华北安全水位 14 天 → 12 天。"
+      items:
+        - { metric: "时效达成率", value: "92%", target: "≥ 90%", result: "达标" }
+        - { metric: "缺货缓解率", value: "88%", target: "≥ 85%", result: "达标" }
+        - { metric: "库存周转天数", value: "24 天", target: "同比降幅 ≤ 10%", result: "达标" }
+        - { metric: "入库差异率", value: "0.33%", target: "≤ 0.5%", result: "达标" }
+
+# ---- Mock 业务系统（ERP/奶粉分仓补调系统/TMS/WMS） ----
+businessMocks:
+  - name: "getInventorySummary"
+    system: "erp"
+    latency: 300
+    response:
+      items:
+        - { code: "TJ", name: "天津基地仓", available: 15600, transit: 3200, dos: 9 }
+        - { code: "HS", name: "呼市基地仓", available: 9800, transit: 1500, dos: 14 }
+        - { code: "DM", name: "杜蒙基地仓", available: 8200, transit: 900, dos: 12 }
+        - { code: "WH", name: "武汉基地仓", available: 12400, transit: 2100, dos: 11 }
+  - name: "getTrackBoard"
+    system: "tms"
+    latency: 400
+    response:
+      items:
+        - { orderNo: "PR-2026-0821-016", carrier: "顺丰供应链", position: "京津高速·廊坊段", status: "在途", delay: "无延误", receiptDiff: "—" }
+        - { orderNo: "PR-2026-0821-017", carrier: "京东物流", position: "天津武清·分拨中心", status: "在途", delay: "无延误", receiptDiff: "—" }
+        - { orderNo: "PR-2026-0815-009", carrier: "中通快运", position: "已签收", status: "已入库", delay: "延误 6h", receiptDiff: "0.33% 正常损耗" }
+
+# ---- API 网关路由 ----
+apiRoutes:
+  - { name: "storyGap", method: "POST", path: "/api/agent/gap", target: "ai:storyGap" }
+  - { name: "storyPlan", method: "POST", path: "/api/agent/plan", target: "ai:storyPlan" }
+  - { name: "storyPlanConfirm", method: "POST", path: "/api/agent/plan/confirm", target: "ai:storyPlanConfirm" }
+  - { name: "storyException", method: "POST", path: "/api/agent/exception", target: "ai:storyException" }
+  - { name: "storyDispatch", method: "POST", path: "/api/agent/dispatch", target: "ai:storyDispatch" }
+  - { name: "storyReview", method: "POST", path: "/api/agent/review", target: "ai:storyReview" }
+  - { name: "getInventorySummary", method: "GET", path: "/api/inventory/summary", target: "business:getInventorySummary" }
+  - { name: "getTrackBoard", method: "GET", path: "/api/track/board", target: "business:getTrackBoard" }

@@ -1,0 +1,1172 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>X奶粉 · 分仓智能补货端到端深度任务流程地图</title>
+
+    <!-- ===== Design System: Inspire (Enterprise Tech) ===== -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+        :root {
+            --color-primary: #10213E;       /* Starry Blues */
+            --color-accent: #5DB2E2;        /* Creative Blue */
+            --color-secondary: #625D9C;     /* Amethyst */
+            --color-success: #00524C;       /* Myrtle Deep Green */
+            --color-info: #6FB1C8;          /* Cerulean Frost */
+            --color-warning: #F59E0B;       /* Warning */
+            --color-destructive: #EF4444;   /* Danger */
+            --color-background: #FFFFFF;    /* Pure White */
+            --color-bg-alt: #F5F5F6;        /* Tech Gray */
+            --color-foreground: #10213E;    /* Primary Text */
+            --color-text-muted: #64748B;    /* Text Secondary */
+            --color-border: #E2E8F0;        /* Border/Line */
+            --shadow-inspire: 0 2px 8px rgba(16, 33, 62, 0.08);
+        }
+
+        *, *::before, *::after { box-sizing: border-box !important; }
+        html, body {
+            margin: 0 !important; padding: 0 !important;
+            background: var(--color-bg-alt) !important;
+            color: var(--color-foreground) !important;
+            font-family: "MiSans", "Inter", "Microsoft YaHei", sans-serif !important;
+            line-height: 1.6 !important;
+            overflow-x: auto !important;
+        }
+
+        ::-webkit-scrollbar { width: 9px; height: 9px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: 5px; }
+        ::-webkit-scrollbar-thumb:hover { background: #CBD5E1; }
+
+        /* ===== Unified Header ===== */
+        .unified-hdr {
+            width: 100% !important; background: var(--color-background) !important;
+            border-bottom: 1px solid var(--color-border) !important; border-radius: 0 !important;
+            box-shadow: none !important; padding: 14px 28px !important; margin-bottom: 18px !important;
+            display: flex !important; justify-content: space-between !important; align-items: center !important;
+            gap: 16px !important; flex-wrap: wrap !important;
+        }
+        .unified-hdr-left { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+        .unified-hdr-left h1 {
+            font-size: 22px !important; font-weight: 700 !important; color: var(--color-primary) !important;
+            line-height: 1.3 !important; margin: 0 !important; display: flex !important; align-items: center !important; gap: 10px !important;
+        }
+        .unified-hdr-left h1::before {
+            content: "" !important; display: inline-block !important; width: 4px !important; height: 22px !important;
+            background: var(--color-accent) !important; border-radius: 2px !important; flex-shrink: 0 !important;
+        }
+        .unified-hdr-left p {
+            font-size: 13px !important; color: var(--color-text-muted) !important;
+            margin: 4px 0 0 !important; padding-left: 14px !important; line-height: 1.5 !important;
+        }
+        .unified-hdr-right { display: flex; align-items: center; gap: 12px; flex-shrink: 0; flex-wrap: wrap; }
+        .unified-hdr-stats {
+            display: flex !important; align-items: center !important; gap: 8px !important;
+            background: var(--color-bg-alt) !important; border: 1px solid var(--color-border) !important;
+            border-radius: 20px !important; padding: 4px 14px !important;
+            font-size: 12px !important; color: var(--color-text-muted) !important;
+        }
+        .unified-hdr-stats b { color: var(--color-primary); font-weight: 700; margin-right: 3px; }
+        .hdr-stat-sep { width: 1px; height: 12px; background: var(--color-border); }
+        .btn-copy-yaml {
+            background: var(--color-primary) !important; color: #FFFFFF !important;
+            border: 1px solid var(--color-primary) !important; font-size: 12px !important;
+            padding: 6px 12px !important; border-radius: 6px !important; font-weight: 600 !important;
+            cursor: pointer !important; transition: all 0.15s ease-out !important;
+        }
+        .btn-copy-yaml:hover { opacity: 0.85 !important; }
+
+        main { width: 100% !important; max-width: none !important; margin: 0 auto !important; padding: 4px 28px 48px !important; display: block !important; }
+
+        /* ===== Panel helpers ===== */
+        .panel {
+            background: var(--color-background) !important; border: 1px solid var(--color-border) !important;
+            border-radius: 8px !important; box-shadow: var(--shadow-inspire) !important;
+            padding: 16px 18px !important; margin-bottom: 18px !important;
+        }
+        .panel-head { display: flex !important; justify-content: space-between !important; align-items: center !important; gap: 12px !important; margin-bottom: 12px !important; flex-wrap: wrap !important; }
+        .panel-title { display: flex !important; align-items: center !important; gap: 8px !important; font-size: 14px !important; font-weight: 700 !important; color: var(--color-primary) !important; }
+        .panel-title .emoji { font-size: 16px !important; }
+        .panel-badge { font-size: 11px !important; font-weight: 600 !important; color: var(--color-text-muted) !important; background: var(--color-bg-alt) !important; border-radius: 10px !important; padding: 2px 10px !important; }
+
+        /* ===== Legend ===== */
+        .legend-panel {
+            background: var(--color-background) !important; border: 1px solid var(--color-border) !important;
+            border-radius: 8px !important; box-shadow: var(--shadow-inspire) !important;
+            padding: 12px 18px !important; margin-bottom: 18px !important;
+            display: flex !important; flex-wrap: wrap !important; gap: 8px 28px !important; align-items: center !important;
+        }
+        .legend-item { display: flex !important; align-items: center !important; gap: 6px !important; font-size: 12px !important; color: var(--color-text-muted) !important; white-space: nowrap !important; }
+        .legend-item .lbl { font-weight: 700 !important; color: var(--color-primary) !important; margin-right: 2px !important; }
+        .legend-pill {
+            display: inline-flex !important; align-items: center !important; gap: 4px !important;
+            padding: 2px 9px !important; border-radius: 10px !important; font-size: 11px !important; font-weight: 600 !important;
+            border: 1px solid var(--color-border) !important;
+        }
+        .legend-pill.p0 { background: rgba(245,158,11,0.10) !important; color: #B45309 !important; border-color: #FCD34D !important; }
+        .legend-convention { display: flex !important; align-items: center !important; gap: 5px !important; font-size: 12px !important; color: var(--color-secondary) !important; font-weight: 600 !important; }
+        .legend-convention i { font-style: normal !important; color: var(--color-accent) !important; }
+
+        /* ===== Overview strip (5 L3 · 11 L4 · 21 L5) ===== */
+        .overview-strip {
+            background: var(--color-primary) !important; border-radius: 8px !important;
+            color: #FFFFFF !important; padding: 14px 20px !important; margin-bottom: 18px !important;
+            display: flex !important; align-items: center !important; flex-wrap: wrap !important; gap: 14px 28px !important;
+        }
+        .overview-stat { display: flex !important; align-items: baseline !important; gap: 8px !important; }
+        .overview-stat .num { font-size: 26px !important; font-weight: 800 !important; line-height: 1 !important; }
+        .overview-stat .lbl { font-size: 12px !important; color: rgba(255,255,255,0.8) !important; }
+        .overview-stat .lbl b { color: var(--color-accent) !important; }
+        .overview-sep { width: 1px !important; height: 30px !important; background: rgba(255,255,255,0.2) !important; }
+        .overview-focus { margin-left: auto !important; display: flex !important; align-items: center !important; gap: 8px !important; font-size: 12px !important; color: rgba(255,255,255,0.85) !important; }
+        .overview-focus .badge { background: var(--color-warning) !important; color: #FFFFFF !important; font-weight: 700 !important; border-radius: 6px !important; padding: 2px 9px !important; font-size: 12px !important; }
+
+        /* ===== Stage chain (端到端流程全景) ===== */
+        .stage-chain { display: flex !important; gap: 12px !important; align-items: stretch !important; flex-wrap: nowrap !important; overflow-x: auto !important; padding-bottom: 8px !important; }
+        .stage-card {
+            flex: 0 0 235px !important; background: var(--color-background) !important;
+            border: 1px solid var(--color-border) !important; border-radius: 8px !important;
+            box-shadow: var(--shadow-inspire) !important; display: flex !important; flex-direction: column !important;
+            overflow: hidden !important;
+        }
+        .stage-card.focus { border: 2px solid var(--color-warning) !important; box-shadow: 0 0 0 3px rgba(245,158,11,0.10) !important; }
+        .stage-hd {
+            display: flex !important; align-items: center !important; gap: 8px !important;
+            padding: 12px 14px !important; background: var(--color-bg-alt) !important;
+            border-bottom: 1px solid var(--color-border) !important;
+        }
+        .stage-hd.focus { background: rgba(245,158,11,0.08) !important; }
+        .stage-num {
+            width: 22px !important; height: 22px !important; flex-shrink: 0 !important; border-radius: 6px !important;
+            display: flex !important; align-items: center !important; justify-content: center !important;
+            font-size: 12px !important; font-weight: 700 !important; background: var(--color-primary) !important; color: #FFFFFF !important;
+        }
+        .stage-card.focus .stage-num { background: var(--color-warning) !important; }
+        .stage-name { flex: 1 1 auto !important; font-size: 13px !important; font-weight: 700 !important; color: var(--color-primary) !important; line-height: 1.3 !important; }
+        .stage-count { font-size: 11px !important; font-weight: 600 !important; color: var(--color-accent) !important; }
+        .stage-body { padding: 12px 14px !important; display: flex !important; flex-direction: column !important; gap: 12px !important; }
+        .group-hd { display: flex !important; align-items: center !important; gap: 6px !important; margin-bottom: 6px !important; }
+        .group-hd .g-dot { width: 6px !important; height: 6px !important; border-radius: 50% !important; background: var(--color-secondary) !important; flex-shrink: 0 !important; }
+        .group-hd .g-name { font-size: 12px !important; font-weight: 700 !important; color: var(--color-secondary) !important; }
+        .group-hd .p0-flag { font-size: 10px !important; font-weight: 700 !important; color: #B45309 !important; background: rgba(245,158,11,0.12) !important; border-radius: 6px !important; padding: 1px 6px !important; }
+        .task-item { display: flex !important; align-items: center !important; gap: 6px !important; padding: 5px 6px !important; border-radius: 6px !important; font-size: 12px !important; color: var(--color-foreground) !important; line-height: 1.4 !important; transition: background 0.15s ease-out !important; }
+        .task-item:hover { background: var(--color-bg-alt) !important; }
+        .task-item .dot { width: 8px !important; height: 8px !important; border-radius: 50% !important; flex-shrink: 0 !important; }
+        .task-item .t-name { flex: 1 1 auto !important; }
+        .stage-arrow { display: flex !important; align-items: center !important; color: var(--color-text-muted) !important; font-size: 16px !important; flex-shrink: 0 !important; }
+        .reading-strip {
+            display: flex !important; align-items: center !important; flex-wrap: wrap !important; gap: 8px 10px !important;
+            background: var(--color-bg-alt) !important; border-radius: 8px !important; padding: 12px 16px !important; margin-top: 14px !important;
+            font-size: 12px !important; color: var(--color-text-muted) !important;
+        }
+        .reading-strip span { display: flex !important; align-items: center !important; gap: 6px !important; }
+        .reading-strip .rs-b { font-weight: 700 !important; color: var(--color-primary) !important; }
+        .reading-strip .arr { color: var(--color-accent) !important; font-weight: 700 !important; }
+
+        /* ===== Focus drill (before/after) ===== */
+        .drill-wrap { display: grid !important; grid-template-columns: 1fr 90px 1.2fr !important; gap: 12px !important; align-items: stretch !important; }
+        .drill-col { background: var(--color-bg-alt) !important; border-radius: 8px !important; padding: 14px 16px !important; display: flex !important; flex-direction: column !important; gap: 8px !important; }
+        .drill-col.evidence { background: rgba(98,93,156,0.06) !important; }
+        .drill-label { font-size: 11px !important; font-weight: 700 !important; color: var(--color-text-muted) !important; text-transform: uppercase !important; letter-spacing: 0.04em !important; }
+        .drill-col h4 { font-size: 14px !important; font-weight: 700 !important; color: var(--color-primary) !important; margin: 0 !important; }
+        .drill-col p { font-size: 12.5px !important; color: var(--color-foreground) !important; line-height: 1.6 !important; margin: 0 !important; }
+        .drill-evidence-li { display: flex !important; align-items: flex-start !important; gap: 6px !important; font-size: 12.5px !important; color: var(--color-foreground) !important; line-height: 1.55 !important; }
+        .drill-evidence-li::before { content: "•" !important; color: var(--color-secondary) !important; font-weight: 700 !important; }
+        .drill-arrow { display: flex !important; align-items: center !important; justify-content: center !important; flex-direction: column !important; gap: 6px !important; color: var(--color-text-muted) !important; font-size: 12px !important; text-align: center !important; }
+        .drill-arrow .a { font-size: 26px !important; color: var(--color-accent) !important; }
+
+        /* ===== L5 sequence cards ===== */
+        .l5-seq { display: flex !important; gap: 12px !important; align-items: stretch !important; flex-wrap: wrap !important; }
+        .l5-seq-card {
+            flex: 1 1 30% !important; min-width: 200px !important; background: var(--color-background) !important;
+            border: 1px solid var(--color-border) !important; border-radius: 8px !important;
+            box-shadow: var(--shadow-inspire) !important; padding: 14px 16px !important;
+            display: flex !important; flex-direction: column !important; gap: 6px !important; border-top: 3px solid var(--color-accent) !important;
+        }
+        .l5-seq-card .l5-id { font-size: 11px !important; font-weight: 700 !important; color: var(--color-secondary) !important; }
+        .l5-seq-card .l5-name { font-size: 14px !important; font-weight: 700 !important; color: var(--color-primary) !important; line-height: 1.35 !important; }
+        .l5-seq-card .l5-q { font-size: 12px !important; color: var(--color-text-muted) !important; }
+        .l5-seq-card .l5-q b { color: var(--color-accent) !important; font-weight: 700 !important; }
+        .l5-seq-arrow { display: flex !important; align-items: center !important; color: var(--color-text-muted) !important; font-size: 16px !important; flex-shrink: 0 !important; }
+
+        /* ===== Task table ===== */
+        .task-table { width: 100% !important; border-collapse: collapse !important; font-size: 12px !important; }
+        .task-table thead th { text-align: left !important; background: var(--color-primary) !important; color: #FFFFFF !important; font-weight: 600 !important; padding: 9px 12px !important; white-space: nowrap !important; }
+        .task-table thead th:first-child { border-radius: 8px 0 0 0 !important; }
+        .task-table thead th:last-child { border-radius: 0 8px 0 0 !important; }
+        .task-table tbody td { padding: 10px 12px !important; border-bottom: 1px solid var(--color-border) !important; vertical-align: top !important; line-height: 1.5 !important; color: var(--color-foreground) !important; }
+        .task-table tbody tr:last-child td { border-bottom: none !important; }
+        .task-table tbody tr:nth-child(even) td { background: var(--color-bg-alt) !important; }
+        .task-table .td-l5 { font-weight: 700 !important; color: var(--color-primary) !important; white-space: nowrap !important; }
+        .task-table .actor-chip { display: inline-flex !important; align-items: center !important; gap: 3px !important; font-size: 10px !important; font-weight: 600 !important; border-radius: 10px !important; padding: 1px 7px !important; margin-top: 4px !important; border: 1px solid var(--color-border) !important; }
+        .task-table .exception { color: #B91C1C !important; font-weight: 600 !important; }
+
+        /* ===== IO chain ===== */
+        .io-chain { display: flex !important; align-items: center !important; flex-wrap: wrap !important; gap: 8px !important; }
+        .io-node {
+            background: var(--color-bg-alt) !important; border: 1px solid var(--color-border) !important; border-radius: 8px !important;
+            padding: 7px 12px !important; font-size: 12px !important; font-weight: 600 !important; color: var(--color-primary) !important; white-space: nowrap !important;
+        }
+        .io-node.downstream { background: rgba(0,82,76,0.08) !important; border-color: #7FB6B0 !important; color: var(--color-success) !important; }
+        .io-arrow { color: var(--color-accent) !important; font-size: 15px !important; font-weight: 700 !important; flex-shrink: 0 !important; }
+
+        /* ===== Learning ===== */
+        .learning-grid { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 12px !important; }
+        .learning-card { background: var(--color-bg-alt) !important; border-radius: 8px !important; padding: 14px 16px !important; border-left: 3px solid var(--color-secondary) !important; }
+        .learning-card.green { border-left-color: var(--color-success) !important; }
+        .learning-card h4 { font-size: 13px !important; font-weight: 700 !important; color: var(--color-primary) !important; margin: 0 0 6px !important; }
+        .learning-card p { font-size: 12.5px !important; color: var(--color-foreground) !important; line-height: 1.6 !important; margin: 0 !important; }
+
+        /* Responsive (375/768/1024) */
+        @media (max-width: 768px) {
+            main { padding: 4px 12px 32px !important; }
+            .unified-hdr { padding: 12px 14px !important; }
+            .drill-wrap { grid-template-columns: 1fr !important; }
+            .learning-grid { grid-template-columns: 1fr !important; }
+            .stage-arrow, .l5-seq-arrow { display: none !important; }
+            .stage-chain { flex-wrap: wrap !important; }
+            .stage-card { flex: 1 1 100% !important; }
+            .l5-seq-card { flex: 1 1 100% !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== Unified Header ===== -->
+    <header class="unified-hdr">
+        <div class="unified-hdr-left">
+            <h1>X奶粉 · 分仓智能补货端到端深度任务流程地图</h1>
+            <p>来自《任务流程挖掘清单》主表（P1） · 阶段1方法（业务环节 L3 → 主要活动 L4 → 深度任务 L5）</p>
+        </div>
+        <div class="unified-hdr-right">
+            <div class="unified-hdr-stats">
+                <span class="hdr-stat"><b>L3</b> 5</span>
+                <span class="hdr-stat-sep"></span>
+                <span class="hdr-stat"><b>L4</b> 12</span>
+                <span class="hdr-stat-sep"></span>
+                <span class="hdr-stat"><b>L5</b> 21</span>
+            </div>
+            <button id="copyYamlBtn" class="btn-copy-yaml" onclick="copyYAML()">复制原始 YAML</button>
+        </div>
+    </header>
+
+    <main>
+        <!-- ===== Overview Strip ===== -->
+        <div class="overview-strip">
+            <div class="overview-stat"><span class="num">5</span><span class="lbl">个 <b>L3</b> 业务阶段</span></div>
+            <div class="overview-sep"></div>
+            <div class="overview-stat"><span class="num">12</span><span class="lbl">个 <b>L4</b> 活动分组</span></div>
+            <div class="overview-sep"></div>
+            <div class="overview-stat"><span class="num">21</span><span class="lbl">个 <b>L5</b> 可执行动作</span></div>
+            <div class="overview-focus">焦点 L4 ≡ <span class="badge">基地仓→销售仓分配方案编制</span></div>
+        </div>
+
+        <!-- ===== Legend ===== -->
+        <div class="legend-panel">
+            <div class="legend-item"><span class="lbl">执行主体</span>
+                
+                <span class="legend-pill" style=&#34;color:#1B6EA8; background:rgba(93,178,226,0.10); border-color:#9BD0EC;&#34;>🤖 Agent</span>
+                
+                <span class="legend-pill" style=&#34;color:#4C4680; background:rgba(98,93,156,0.10); border-color:#B6B2DE;&#34;>🤝 混合执行</span>
+                
+                <span class="legend-pill" style=&#34;color:#B45309; background:rgba(245,158,11,0.10); border-color:#FCD34D;&#34;>👤 人工</span>
+                
+            </div>
+            
+            <div class="legend-item"><span class="lbl">重点</span>
+                <span class="legend-pill p0">P0 焦点 L4</span>
+            </div>
+            
+            
+            <div class="legend-convention">
+                L3 业务阶段 → L4 活动分组 → L5 可执行动作
+            </div>
+            
+        </div>
+
+        <!-- ===== End-to-end stage chain ===== -->
+        <div class="panel">
+            <div class="panel-head">
+                <span class="panel-title"><span class="emoji">🗺️</span>端到端深度任务流程地图</span>
+                <span class="panel-badge">全景 → 聚焦下钻</span>
+            </div>
+            <div class="stage-chain">
+                
+                
+                <div class="stage-card ">
+                    <div class="stage-hd ">
+                        <span class="stage-num">01</span>
+                        <span class="stage-name">货源评估与分货数据准备</span>
+                        <span class="stage-count">4 L5</span>
+                    </div>
+                    <div class="stage-body">
+                        
+                        <div>
+                            <div class="group-hd">
+                                <span class="g-dot"></span>
+                                <span class="g-name">全国货源与需求缺口识别</span>
+                                
+                            </div>
+                            
+                            <div class="task-item">
+                                <span class="dot" style=&#34;background:#5DB2E2;&#34;></span>
+                                <span class="t-name">汇总全国可分配库存与在途</span>
+                            </div>
+                            
+                            <div class="task-item">
+                                <span class="dot" style=&#34;background:#5DB2E2;&#34;></span>
+                                <span class="t-name">计算各仓库存天数并判定缺口等级</span>
+                            </div>
+                            
+                        </div>
+                        
+                        <div>
+                            <div class="group-hd">
+                                <span class="g-dot"></span>
+                                <span class="g-name">分货数据底表准备</span>
+                                
+                            </div>
+                            
+                            <div class="task-item">
+                                <span class="dot" style=&#34;background:#625D9C;&#34;></span>
+                                <span class="t-name">汇总分货数据底表</span>
+                            </div>
+                            
+                            <div class="task-item">
+                                <span class="dot" style=&#34;background:#5DB2E2;&#34;></span>
+                                <span class="t-name">校验底表字段口径完整性</span>
+                            </div>
+                            
+                        </div>
+                        
+                    </div>
+                </div>
+                
+                <div class="stage-arrow">→</div>
+                <div class="stage-card focus">
+                    <div class="stage-hd focus">
+                        <span class="stage-num">02</span>
+                        <span class="stage-name">分货方案编制</span>
+                        <span class="stage-count">8 L5</span>
+                    </div>
+                    <div class="stage-body">
+                        
+                        <div>
+                            <div class="group-hd">
+                                <span class="g-dot"></span>
+                                <span class="g-name">分仓优先级与备货率计算</span>
+                                
+                            </div>
+                            
+                            <div class="task-item">
+                                <span class="dot" style=&#34;background:#5DB2E2;&#34;></span>
+                                <span class="t-name">计算生产备货率与订单完成率</span>
+                            </div>
+                            
+                            <div class="task-item">
+                                <span class="dot" style=&#34;background:#5DB2E2;&#34;></span>
+                                <span class="t-name">计算各仓目标备货率与补货优先级</span>
+                            </div>
+                            
+                        </div>
+                        
+                        <div>
+                            <div class="group-hd">
+                                <span class="g-dot"></span>
+                                <span class="g-name">基地仓→销售仓分配方案编制</span>
+                                <span class="p0-flag">★ P0</span>
+                            </div>
+                            
+                            <div class="task-item">
+                                <span class="dot" style=&#34;background:#5DB2E2;&#34;></span>
+                                <span class="t-name">计算建议补货量</span>
+                            </div>
+                            
+                            <div class="task-item">
+                                <span class="dot" style=&#34;background:#5DB2E2;&#34;></span>
+                                <span class="t-name">选择发货仓并拆分多仓补足</span>
+                            </div>
+                            
+                            <div class="task-item">
+                                <span class="dot" style=&#34;background:#5DB2E2;&#34;></span>
+                                <span class="t-name">生成多版分配方案</span>
+                            </div>
+                            
+                            <div class="task-item">
+                                <span class="dot" style=&#34;background:#625D9C;&#34;></span>
+                                <span class="t-name">人工确认与微调分配量</span>
+                            </div>
+                            
+                        </div>
+                        
+                        <div>
+                            <div class="group-hd">
+                                <span class="g-dot"></span>
+                                <span class="g-name">异常诊断与备选方案生成</span>
+                                
+                            </div>
+                            
+                            <div class="task-item">
+                                <span class="dot" style=&#34;background:#5DB2E2;&#34;></span>
+                                <span class="t-name">诊断异常并生成备选方案</span>
+                            </div>
+                            
+                            <div class="task-item">
+                                <span class="dot" style=&#34;background:#F59E0B;&#34;></span>
+                                <span class="t-name">人工选定备选方案</span>
+                            </div>
+                            
+                        </div>
+                        
+                    </div>
+                </div>
+                
+                <div class="stage-arrow">→</div>
+                <div class="stage-card ">
+                    <div class="stage-hd ">
+                        <span class="stage-num">03</span>
+                        <span class="stage-name">补货单生成与下发</span>
+                        <span class="stage-count">3 L5</span>
+                    </div>
+                    <div class="stage-body">
+                        
+                        <div>
+                            <div class="group-hd">
+                                <span class="g-dot"></span>
+                                <span class="g-name">补货单生成与初审校验</span>
+                                
+                            </div>
+                            
+                            <div class="task-item">
+                                <span class="dot" style=&#34;background:#5DB2E2;&#34;></span>
+                                <span class="t-name">生成标准化补货单</span>
+                            </div>
+                            
+                            <div class="task-item">
+                                <span class="dot" style=&#34;background:#5DB2E2;&#34;></span>
+                                <span class="t-name">校验收发仓/SKU/数量/时效</span>
+                            </div>
+                            
+                        </div>
+                        
+                        <div>
+                            <div class="group-hd">
+                                <span class="g-dot"></span>
+                                <span class="g-name">分货结果下发</span>
+                                
+                            </div>
+                            
+                            <div class="task-item">
+                                <span class="dot" style=&#34;background:#625D9C;&#34;></span>
+                                <span class="t-name">确认并下发补货单</span>
+                            </div>
+                            
+                        </div>
+                        
+                    </div>
+                </div>
+                
+                <div class="stage-arrow">→</div>
+                <div class="stage-card ">
+                    <div class="stage-hd ">
+                        <span class="stage-num">04</span>
+                        <span class="stage-name">执行跟踪与入库同步</span>
+                        <span class="stage-count">3 L5</span>
+                    </div>
+                    <div class="stage-body">
+                        
+                        <div>
+                            <div class="group-hd">
+                                <span class="g-dot"></span>
+                                <span class="g-name">调拨执行跟踪与在途监控</span>
+                                
+                            </div>
+                            
+                            <div class="task-item">
+                                <span class="dot" style=&#34;background:#5DB2E2;&#34;></span>
+                                <span class="t-name">抓取在途定位并判定预警</span>
+                            </div>
+                            
+                        </div>
+                        
+                        <div>
+                            <div class="group-hd">
+                                <span class="g-dot"></span>
+                                <span class="g-name">入库验收与库存同步</span>
+                                
+                            </div>
+                            
+                            <div class="task-item">
+                                <span class="dot" style=&#34;background:#5DB2E2;&#34;></span>
+                                <span class="t-name">核对入库实收与差异</span>
+                            </div>
+                            
+                            <div class="task-item">
+                                <span class="dot" style=&#34;background:#5DB2E2;&#34;></span>
+                                <span class="t-name">同步库存指标并关闭调拨单</span>
+                            </div>
+                            
+                        </div>
+                        
+                    </div>
+                </div>
+                
+                <div class="stage-arrow">→</div>
+                <div class="stage-card ">
+                    <div class="stage-hd ">
+                        <span class="stage-num">05</span>
+                        <span class="stage-name">库存监控与效果复盘</span>
+                        <span class="stage-count">3 L5</span>
+                    </div>
+                    <div class="stage-body">
+                        
+                        <div>
+                            <div class="group-hd">
+                                <span class="g-dot"></span>
+                                <span class="g-name">库存天数与安全库存设置</span>
+                                
+                            </div>
+                            
+                            <div class="task-item">
+                                <span class="dot" style=&#34;background:#625D9C;&#34;></span>
+                                <span class="t-name">计算库存天数并设置安全水位</span>
+                            </div>
+                            
+                        </div>
+                        
+                        <div>
+                            <div class="group-hd">
+                                <span class="g-dot"></span>
+                                <span class="g-name">大日期库存监控</span>
+                                
+                            </div>
+                            
+                            <div class="task-item">
+                                <span class="dot" style=&#34;background:#5DB2E2;&#34;></span>
+                                <span class="t-name">巡检大日期库存</span>
+                            </div>
+                            
+                        </div>
+                        
+                        <div>
+                            <div class="group-hd">
+                                <span class="g-dot"></span>
+                                <span class="g-name">补货效果复盘</span>
+                                
+                            </div>
+                            
+                            <div class="task-item">
+                                <span class="dot" style=&#34;background:#625D9C;&#34;></span>
+                                <span class="t-name">统计复盘指标并生成调参建议</span>
+                            </div>
+                            
+                        </div>
+                        
+                    </div>
+                </div>
+                
+            </div>
+            
+            <div class="reading-strip">
+                
+                <span>先看全链路：从货源评估到补货单下发、执行入库、复盘调参，形成端到端闭环</span>
+                <span class="arr">→</span>
+                
+                <span>再找高价值 L4：『基地仓→销售仓分配方案编制』承载最密集的多约束求解与人工确认</span>
+                <span class="arr">→</span>
+                
+                <span>最后下钻 L5：拆成『算量 / 选仓 / 出版本 / 人工确认』四个可独立挂规则的动作</span>
+                
+                
+            </div>
+            
+        </div>
+
+        <!-- ===== Focus drill ===== -->
+        <div class="panel">
+            <div class="panel-head">
+                <span class="panel-title"><span class="emoji">⛏️</span>聚焦下钻 · 把「基地仓→销售仓分配方案编制」拆到不可再分</span>
+                <span class="panel-badge">分货方案编制 / P0</span>
+            </div>
+            <div class="drill-wrap">
+                <div class="drill-col">
+                    <span class="drill-label">拆解前 · L4</span>
+                    <h4>「基地仓→销售仓分配方案编制」仍然太粗</h4>
+                    <p>它同时包含建议补货量测算、发货仓选择与多仓拆分、多版方案生成、人工确认微调等不同动作，输入输出与异常各不相同，不能直接作为最小执行单元或单独挂规则。</p>
+                </div>
+                <div class="drill-arrow"><span class="a">→</span><span>现状走查 + 客户采集表还原 + To-be 旅程核对 →</span></div>
+                <div class="drill-col evidence">
+                    <span class="drill-label">专家实际怎么做</span>
+                    <h4>证据 · 访谈走查</h4>
+                    <div class="drill-evidence-li">计划员先看京慧建议量，再逐仓逐 SKU 结合可发量、时效与促销经验人工调整分配量，约 1 天/轮</div><div class="drill-evidence-li">基地仓可发量不足时，参考『积兆逻辑』检索周边资源，按可发量约束&gt;时效优先拆分多仓补足</div><div class="drill-evidence-li">分配量偏离京慧建议量（如促销放量 +12%）需人工确认，修改后重新校验库存/在途/促销约束</div>
+                    <p style="margin-top:6px;color:var(--color-secondary);font-weight:600;">下钻为 4 个能独立挂规则的动作，各自回答『算多少 / 从哪发 / 出几版 / 是否确认』。</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== L5 depth task sequence ===== -->
+        <div class="panel">
+            <div class="panel-head">
+                <span class="panel-title"><span class="emoji">🧩</span>L5 深度任务序列（下钻 P0）</span>
+                <span class="panel-badge">单一动词 · 明确 I/O · 可观测</span>
+            </div>
+            <div class="l5-seq">
+                
+                
+                <div class="l5-seq-card">
+                    <span class="l5-id">L5-1</span>
+                    <span class="l5-name">计算建议补货量</span>
+                    <span class="l5-q">回答「<b>算多少</b>」</span>
+                </div>
+                
+                <div class="l5-seq-arrow">→</div>
+                <div class="l5-seq-card">
+                    <span class="l5-id">L5-2</span>
+                    <span class="l5-name">选择发货仓并拆分多仓补足</span>
+                    <span class="l5-q">回答「<b>从哪个基地仓发 / 是否拆分</b>」</span>
+                </div>
+                
+                <div class="l5-seq-arrow">→</div>
+                <div class="l5-seq-card">
+                    <span class="l5-id">L5-3</span>
+                    <span class="l5-name">生成多版分配方案</span>
+                    <span class="l5-q">回答「<b>出几版 / 各版本差异</b>」</span>
+                </div>
+                
+                <div class="l5-seq-arrow">→</div>
+                <div class="l5-seq-card">
+                    <span class="l5-id">L5-4</span>
+                    <span class="l5-name">人工确认与微调分配量</span>
+                    <span class="l5-q">回答「<b>是否确认 / 微调是否越约束</b>」</span>
+                </div>
+                
+            </div>
+        </div>
+
+        <!-- ===== L5 task table ===== -->
+        <div class="panel">
+            <div class="panel-head">
+                <span class="panel-title"><span class="emoji">📋</span>深度任务结构化表</span>
+                <span class="panel-badge">输入 / 输出 / 规则依据 / 异常·HITL</span>
+            </div>
+            <table class="task-table">
+                <thead>
+                    <tr>
+                        <th>L5 深度任务</th><th>输入</th><th>输出</th><th>规则依据</th><th>异常 / HITL</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    
+                    <tr>
+                        <td class="td-l5">汇总全国可分配库存与在途
+                            <br><span class="actor-chip" style=&#34;color:#1B6EA8; background:rgba(93,178,226,0.10); border-color:#9BD0EC;&#34;>🤖 Agent</span>
+                        </td>
+                        <td>现货/在途/待检/合格库存、未发订单</td>
+                        <td>全国供需视图</td>
+                        <td>关键信息提取要点·分货数据关键字段识别</td>
+                        <td class="exception">数据缺失/口径异常 → 拉人（调度组复核）</td>
+                    </tr>
+                    
+                    <tr>
+                        <td class="td-l5">计算各仓库存天数并判定缺口等级
+                            <br><span class="actor-chip" style=&#34;color:#1B6EA8; background:rgba(93,178,226,0.10); border-color:#9BD0EC;&#34;>🤖 Agent</span>
+                        </td>
+                        <td>各仓库存、在途、未来14天分仓销售计划、促销计划</td>
+                        <td>缺口告警清单(红/黄/蓝)</td>
+                        <td>决策模型类·缺口分级规则(DOS分级)</td>
+                        <td class="exception">DOS 阈值边界冲突 → 拉人</td>
+                    </tr>
+                    
+                    <tr>
+                        <td class="td-l5">汇总分货数据底表
+                            <br><span class="actor-chip" style=&#34;color:#4C4680; background:rgba(98,93,156,0.10); border-color:#B6B2DE;&#34;>🤝 混合执行</span>
+                        </td>
+                        <td>待检/合格/在途/库存原始数据、生产备货率、大日期库存</td>
+                        <td>分货数据底表</td>
+                        <td>模版范例类·分货数据底表模板</td>
+                        <td class="exception">字段缺失/口径不一致 → 标红并拉调度组复核</td>
+                    </tr>
+                    
+                    <tr>
+                        <td class="td-l5">校验底表字段口径完整性
+                            <br><span class="actor-chip" style=&#34;color:#1B6EA8; background:rgba(93,178,226,0.10); border-color:#9BD0EC;&#34;>🤖 Agent</span>
+                        </td>
+                        <td>分货数据底表、字段口径定义</td>
+                        <td>口径校验结果</td>
+                        <td>术语字典类·待检/合格/可发量/DOS口径</td>
+                        <td class="exception">关键字段缺失/口径冲突 → 标红待人工复核</td>
+                    </tr>
+                    
+                    <tr>
+                        <td class="td-l5">计算生产备货率与订单完成率
+                            <br><span class="actor-chip" style=&#34;color:#1B6EA8; background:rgba(93,178,226,0.10); border-color:#9BD0EC;&#34;>🤖 Agent</span>
+                        </td>
+                        <td>现货/在途/本月已出库、销售计划、未发订单</td>
+                        <td>生产备货率、订单完成率</td>
+                        <td>决策模型类·备货率计算规则</td>
+                        <td class="exception">计划缺失/口径异常 → 拉人</td>
+                    </tr>
+                    
+                    <tr>
+                        <td class="td-l5">计算各仓目标备货率与补货优先级
+                            <br><span class="actor-chip" style=&#34;color:#1B6EA8; background:rgba(93,178,226,0.10); border-color:#9BD0EC;&#34;>🤖 Agent</span>
+                        </td>
+                        <td>订单完成率、旬度标准进度、运输时效、区域类型</td>
+                        <td>各仓目标备货率、补货优先级</td>
+                        <td>决策模型类·备货率分配规则</td>
+                        <td class="exception">目标备货率&gt;100% 封顶；进度超限 → 拉人</td>
+                    </tr>
+                    
+                    <tr>
+                        <td class="td-l5">计算建议补货量
+                            <br><span class="actor-chip" style=&#34;color:#1B6EA8; background:rgba(93,178,226,0.10); border-color:#9BD0EC;&#34;>🤖 Agent</span>
+                        </td>
+                        <td>目标备货率、目标库存口径、当前口径库存、京慧建议量</td>
+                        <td>建议补货量清单</td>
+                        <td>决策模型类·分配量调整经验</td>
+                        <td class="exception">建议量偏离京慧建议量 → 写入前必停(HITL)</td>
+                    </tr>
+                    
+                    <tr>
+                        <td class="td-l5">选择发货仓并拆分多仓补足
+                            <br><span class="actor-chip" style=&#34;color:#1B6EA8; background:rgba(93,178,226,0.10); border-color:#9BD0EC;&#34;>🤖 Agent</span>
+                        </td>
+                        <td>可发量、运输时效、区域类型、仓网距离</td>
+                        <td>发货仓推荐、多仓拆分方案</td>
+                        <td>决策模型类·多约束分配优化规则</td>
+                        <td class="exception">时效最优仓可发量不足 → 拆分多仓补足；仍不足 → 拉人</td>
+                    </tr>
+                    
+                    <tr>
+                        <td class="td-l5">生成多版分配方案
+                            <br><span class="actor-chip" style=&#34;color:#1B6EA8; background:rgba(93,178,226,0.10); border-color:#9BD0EC;&#34;>🤖 Agent</span>
+                        </td>
+                        <td>建议补货量、发货仓、可发量、库存/在途/效期/促销约束</td>
+                        <td>多版分配方案(A/B)</td>
+                        <td>模版范例类·分货方案模板</td>
+                        <td class="exception">约束冲突无法求解 → 输出备选并拉人</td>
+                    </tr>
+                    
+                    <tr>
+                        <td class="td-l5">人工确认与微调分配量
+                            <br><span class="actor-chip" style=&#34;color:#4C4680; background:rgba(98,93,156,0.10); border-color:#B6B2DE;&#34;>🤝 混合执行</span>
+                        </td>
+                        <td>多版分配方案、京慧建议量偏离项、凑车要求</td>
+                        <td>确认后的分配方案</td>
+                        <td>决策模型类·分配量调整经验</td>
+                        <td class="exception">修改超约束 → 退回重算；修改原因必填留痕</td>
+                    </tr>
+                    
+                    <tr>
+                        <td class="td-l5">诊断异常并生成备选方案
+                            <br><span class="actor-chip" style=&#34;color:#1B6EA8; background:rgba(93,178,226,0.10); border-color:#9BD0EC;&#34;>🤖 Agent</span>
+                        </td>
+                        <td>缺口清单、仓网距离、物流预警、安全水位</td>
+                        <td>备选方案(≥3套)</td>
+                        <td>决策模型类·积兆逻辑(异常诊断)[待二轮验证]</td>
+                        <td class="exception">物流预警数据缺失 → 按历史时效估算并降级提示</td>
+                    </tr>
+                    
+                    <tr>
+                        <td class="td-l5">人工选定备选方案
+                            <br><span class="actor-chip" style=&#34;color:#B45309; background:rgba(245,158,11,0.10); border-color:#FCD34D;&#34;>👤 人工</span>
+                        </td>
+                        <td>备选方案对比</td>
+                        <td>选定方案</td>
+                        <td>决策模型类·积兆逻辑(异常诊断)[待二轮验证]</td>
+                        <td class="exception">备选均不可行 → 升级人工复核并调整周期</td>
+                    </tr>
+                    
+                    <tr>
+                        <td class="td-l5">生成标准化补货单
+                            <br><span class="actor-chip" style=&#34;color:#1B6EA8; background:rgba(93,178,226,0.10); border-color:#9BD0EC;&#34;>🤖 Agent</span>
+                        </td>
+                        <td>确认后的分配方案、SKU/收发仓主数据</td>
+                        <td>补货单</td>
+                        <td>模版范例类·补货单模板</td>
+                        <td class="exception">字段缺失 → 拉人补正</td>
+                    </tr>
+                    
+                    <tr>
+                        <td class="td-l5">校验收发仓/SKU/数量/时效
+                            <br><span class="actor-chip" style=&#34;color:#1B6EA8; background:rgba(93,178,226,0.10); border-color:#9BD0EC;&#34;>🤖 Agent</span>
+                        </td>
+                        <td>补货单、可发量、时效规则</td>
+                        <td>校验结果</td>
+                        <td>决策模型类·补货单校验规则</td>
+                        <td class="exception">库存不足/时效超期/字段缺失 → 退回调整并拉人</td>
+                    </tr>
+                    
+                    <tr>
+                        <td class="td-l5">确认并下发补货单
+                            <br><span class="actor-chip" style=&#34;color:#4C4680; background:rgba(98,93,156,0.10); border-color:#B6B2DE;&#34;>🤝 混合执行</span>
+                        </td>
+                        <td>校验通过的补货单</td>
+                        <td>已下发补货单(物流调度/财务)</td>
+                        <td>决策模型类·提交放行确认</td>
+                        <td class="exception">对外下发必停确认；10 秒撤销窗口兜底</td>
+                    </tr>
+                    
+                    <tr>
+                        <td class="td-l5">抓取在途定位并判定预警
+                            <br><span class="actor-chip" style=&#34;color:#1B6EA8; background:rgba(93,178,226,0.10); border-color:#9BD0EC;&#34;>🤖 Agent</span>
+                        </td>
+                        <td>TMS 车辆定位/状态/里程</td>
+                        <td>在途台账、延误/破损预警</td>
+                        <td>关联关系类·基地仓-销售仓-产品-SKU-渠道关联</td>
+                        <td class="exception">延误&gt;24h/48h、破损率&gt;1% → 预警拉人</td>
+                    </tr>
+                    
+                    <tr>
+                        <td class="td-l5">核对入库实收与差异
+                            <br><span class="actor-chip" style=&#34;color:#1B6EA8; background:rgba(93,178,226,0.10); border-color:#9BD0EC;&#34;>🤖 Agent</span>
+                        </td>
+                        <td>WMS 入库验收(运单/实收/差异率)</td>
+                        <td>差异记录、差异处理单</td>
+                        <td>决策模型类·入库差异判定规则</td>
+                        <td class="exception">差异率&gt;0.5% → 生成差异单并拉人追责</td>
+                    </tr>
+                    
+                    <tr>
+                        <td class="td-l5">同步库存指标并关闭调拨单
+                            <br><span class="actor-chip" style=&#34;color:#1B6EA8; background:rgba(93,178,226,0.10); border-color:#9BD0EC;&#34;>🤖 Agent</span>
+                        </td>
+                        <td>实收数量</td>
+                        <td>更新后可发量/DOS、已关闭调拨单</td>
+                        <td>术语字典类·待检/合格/可发量/DOS口径</td>
+                        <td class="exception">同步失败 → 自动重试/拉人</td>
+                    </tr>
+                    
+                    <tr>
+                        <td class="td-l5">计算库存天数并设置安全水位
+                            <br><span class="actor-chip" style=&#34;color:#4C4680; background:rgba(98,93,156,0.10); border-color:#B6B2DE;&#34;>🤝 混合执行</span>
+                        </td>
+                        <td>各仓库存天数、渠道差异、区域类型</td>
+                        <td>差异化安全水位建议</td>
+                        <td>决策模型类·安全水位设置经验</td>
+                        <td class="exception">服务水平与周转冲突 → 人工审批</td>
+                    </tr>
+                    
+                    <tr>
+                        <td class="td-l5">巡检大日期库存
+                            <br><span class="actor-chip" style=&#34;color:#1B6EA8; background:rgba(93,178,226,0.10); border-color:#9BD0EC;&#34;>🤖 Agent</span>
+                        </td>
+                        <td>分仓大日期库存、效期</td>
+                        <td>临期预警</td>
+                        <td>决策模型类·大日期判定经验[待二轮验证]</td>
+                        <td class="exception">大日期判定口径待二轮验证 → 标注概念级</td>
+                    </tr>
+                    
+                    <tr>
+                        <td class="td-l5">统计复盘指标并生成调参建议
+                            <br><span class="actor-chip" style=&#34;color:#4C4680; background:rgba(98,93,156,0.10); border-color:#B6B2DE;&#34;>🤝 混合执行</span>
+                        </td>
+                        <td>时效达成率、缺货缓解率、周转率、入库差异率</td>
+                        <td>月度复盘报告、调参建议</td>
+                        <td>模版范例类·复盘报告模板</td>
+                        <td class="exception">指标异常恶化 → 拉人审批；多项指标矛盾以时效达成优先</td>
+                    </tr>
+                    
+                </tbody>
+            </table>
+        </div>
+
+        <!-- ===== IO chain ===== -->
+        <div class="panel">
+            <div class="panel-head">
+                <span class="panel-title"><span class="emoji">🔁</span>输入输出如何闭环</span>
+                <span class="panel-badge">下游衔接</span>
+            </div>
+            <div class="io-chain">
+                
+                
+                <span class="io-node ">现货/在途/待检/合格库存 + 未来14天销售计划</span>
+                
+                <span class="io-arrow">→</span>
+                <span class="io-node ">全国供需视图 + 缺口告警清单（红/黄/蓝）</span>
+                
+                <span class="io-arrow">→</span>
+                <span class="io-node ">分货数据底表（口径校验通过）</span>
+                
+                <span class="io-arrow">→</span>
+                <span class="io-node ">生产备货率/订单完成率 → 目标备货率/补货优先级</span>
+                
+                <span class="io-arrow">→</span>
+                <span class="io-node ">多版分配方案（建议补货量/发货仓/分配量）→ 人工确认后方案</span>
+                
+                <span class="io-arrow">→</span>
+                <span class="io-node ">标准化补货单（校验通过）→ 下发物流调度/财务</span>
+                
+                <span class="io-arrow">→</span>
+                <span class="io-node ">在途台账 → 入库差异 → 可发量/DOS 同步</span>
+                
+                <span class="io-arrow">→</span>
+                <span class="io-node downstream">月度复盘报告 + 调参建议 → 下一周期参数回灌</span>
+                
+            </div>
+        </div>
+
+        <!-- ===== Learning ===== -->
+        <div class="panel">
+            <div class="panel-head">
+                <span class="panel-title"><span class="emoji">💡</span>挖掘的关键</span>
+            </div>
+            <div class="learning-grid">
+                <div class="learning-card">
+                    <h4>为什么这样拆？</h4>
+                    <p>每个 L5 各自只有一个核心动词，产出可观察，并可独立挂接一类业务规则；焦点 L4 下钻后，多约束分配从『一个笼统的分配』变成『算量→选仓→出版本→确认』四个可分别校验与追溯的动作。</p>
+                </div>
+                <div class="learning-card green">
+                    <h4>挖掘的关键不是改写名称</h4>
+                    <p>挖掘的关键不是改写名称，而是把专家真实执行的动作顺序、输入输出、判断依据和异常链路结构化——尤其是把『京慧建议量→人工微调→重新校验』这条隐性决策链显性化。</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Raw YAML Data (Hidden) -->
+    <script type="application/yaml" id="raw-yaml">
+meta:
+  title: "X奶粉 · 分仓智能补货端到端深度任务流程地图"
+  subtitle: "来自《任务流程挖掘清单》主表（P1）"
+  version: "v1.0"
+  date: "2026-09-10"
+  scenarioName: "分仓智能补货"
+  businessStage: "挖知识 阶段1 任务流程挖掘 · P1"
+  methodology: "阶段1方法（业务环节 L3 → 主要活动 L4 → 深度任务 L5）"
+  inputs:
+    - "《X奶粉-分仓智能补货-AI画布》"
+    - "《X奶粉-分仓智能补货-To-be流程》（泳道图）"
+    - "《X奶粉-分仓智能补货-To-be旅程》（SKP 精化版）"
+    - "SRP《12-分仓智能补货_场景定义画布》（12 个 L4 任务）"
+  sourceRef: "X奶粉-分仓智能补货-To-be流程.yaml 任务手账 + 奶粉分仓补货数据库表字段"
+  kpi:
+    - "分货效率"
+    - "分仓有货率"
+    - "库存周转率"
+    - "新鲜度"
+    - "物流时效"
+
+overview:
+  l3Count: 5
+  l4Count: 12
+  l5Count: 21
+  focusL3: "分货方案编制"
+  focusL4: "基地仓→销售仓分配方案编制"
+
+legend:
+  focusType: "p0"
+  focusLabel: "P0 焦点 L4"
+  execution:
+    - { type: "agent", label: "Agent",   icon: "🤖" }
+    - { type: "mixed", label: "混合执行", icon: "🤝" }
+    - { type: "human", label: "人工",     icon: "👤" }
+  convention: "L3 业务阶段 → L4 活动分组 → L5 可执行动作"
+
+stages:
+  - id: "S1"
+    num: "01"
+    name: "货源评估与分货数据准备"
+    l5Count: 4
+    isFocus: false
+    groups:
+      - id: "G1_1"
+        name: "全国货源与需求缺口识别"
+        isP0: false
+        tasks:
+          - { id: "t01", name: "汇总全国可分配库存与在途", actor: "agent" }
+          - { id: "t02", name: "计算各仓库存天数并判定缺口等级", actor: "agent" }
+      - id: "G1_2"
+        name: "分货数据底表准备"
+        isP0: false
+        tasks:
+          - { id: "t03", name: "汇总分货数据底表", actor: "mixed" }
+          - { id: "t04", name: "校验底表字段口径完整性", actor: "agent" }
+
+  - id: "S2"
+    num: "02"
+    name: "分货方案编制"
+    l5Count: 8
+    isFocus: true
+    groups:
+      - id: "G2_1"
+        name: "分仓优先级与备货率计算"
+        isP0: false
+        tasks:
+          - { id: "t05", name: "计算生产备货率与订单完成率", actor: "agent" }
+          - { id: "t06", name: "计算各仓目标备货率与补货优先级", actor: "agent" }
+      - id: "G2_2"
+        name: "基地仓→销售仓分配方案编制"
+        isP0: true
+        tasks:
+          - { id: "t07", name: "计算建议补货量", actor: "agent" }
+          - { id: "t08", name: "选择发货仓并拆分多仓补足", actor: "agent" }
+          - { id: "t09", name: "生成多版分配方案", actor: "agent" }
+          - { id: "t10", name: "人工确认与微调分配量", actor: "mixed" }
+      - id: "G2_3"
+        name: "异常诊断与备选方案生成"
+        isP0: false
+        tasks:
+          - { id: "t11", name: "诊断异常并生成备选方案", actor: "agent" }
+          - { id: "t12", name: "人工选定备选方案", actor: "human" }
+
+  - id: "S3"
+    num: "03"
+    name: "补货单生成与下发"
+    l5Count: 3
+    isFocus: false
+    groups:
+      - id: "G3_1"
+        name: "补货单生成与初审校验"
+        isP0: false
+        tasks:
+          - { id: "t13", name: "生成标准化补货单", actor: "agent" }
+          - { id: "t14", name: "校验收发仓/SKU/数量/时效", actor: "agent" }
+      - id: "G3_2"
+        name: "分货结果下发"
+        isP0: false
+        tasks:
+          - { id: "t15", name: "确认并下发补货单", actor: "mixed" }
+
+  - id: "S4"
+    num: "04"
+    name: "执行跟踪与入库同步"
+    l5Count: 3
+    isFocus: false
+    groups:
+      - id: "G4_1"
+        name: "调拨执行跟踪与在途监控"
+        isP0: false
+        tasks:
+          - { id: "t16", name: "抓取在途定位并判定预警", actor: "agent" }
+      - id: "G4_2"
+        name: "入库验收与库存同步"
+        isP0: false
+        tasks:
+          - { id: "t17", name: "核对入库实收与差异", actor: "agent" }
+          - { id: "t18", name: "同步库存指标并关闭调拨单", actor: "agent" }
+
+  - id: "S5"
+    num: "05"
+    name: "库存监控与效果复盘"
+    l5Count: 3
+    isFocus: false
+    groups:
+      - id: "G5_1"
+        name: "库存天数与安全库存设置"
+        isP0: false
+        tasks:
+          - { id: "t19", name: "计算库存天数并设置安全水位", actor: "mixed" }
+      - id: "G5_2"
+        name: "大日期库存监控"
+        isP0: false
+        tasks:
+          - { id: "t20", name: "巡检大日期库存", actor: "agent" }
+      - id: "G5_3"
+        name: "补货效果复盘"
+        isP0: false
+        tasks:
+          - { id: "t21", name: "统计复盘指标并生成调参建议", actor: "mixed" }
+
+readingFlow:
+  - "先看全链路：从货源评估到补货单下发、执行入库、复盘调参，形成端到端闭环"
+  - "再找高价值 L4：『基地仓→销售仓分配方案编制』承载最密集的多约束求解与人工确认"
+  - "最后下钻 L5：拆成『算量 / 选仓 / 出版本 / 人工确认』四个可独立挂规则的动作"
+
+focusDrill:
+  before:
+    l4Name: "基地仓→销售仓分配方案编制"
+    whyTooCoarse: "它同时包含建议补货量测算、发货仓选择与多仓拆分、多版方案生成、人工确认微调等不同动作，输入输出与异常各不相同，不能直接作为最小执行单元或单独挂规则。"
+  approach: "现状走查 + 客户采集表还原 + To-be 旅程核对 →"
+  evidence:
+    - "计划员先看京慧建议量，再逐仓逐 SKU 结合可发量、时效与促销经验人工调整分配量，约 1 天/轮"
+    - "基地仓可发量不足时，参考『积兆逻辑』检索周边资源，按可发量约束>时效优先拆分多仓补足"
+    - "分配量偏离京慧建议量（如促销放量 +12%）需人工确认，修改后重新校验库存/在途/促销约束"
+  after: "下钻为 4 个能独立挂规则的动作，各自回答『算多少 / 从哪发 / 出几版 / 是否确认』。"
+
+focusSequence:
+  - { id: "L5-1", name: "计算建议补货量",     question: "算多少" }
+  - { id: "L5-2", name: "选择发货仓并拆分多仓补足", question: "从哪个基地仓发 / 是否拆分" }
+  - { id: "L5-3", name: "生成多版分配方案",   question: "出几版 / 各版本差异" }
+  - { id: "L5-4", name: "人工确认与微调分配量", question: "是否确认 / 微调是否越约束" }
+
+taskTable:
+  - { l5: "汇总全国可分配库存与在途", inputs: "现货/在途/待检/合格库存、未发订单", outputs: "全国供需视图", ruleType: "关键信息提取要点·分货数据关键字段识别", exception: "数据缺失/口径异常 → 拉人（调度组复核）", actor: "agent" }
+  - { l5: "计算各仓库存天数并判定缺口等级", inputs: "各仓库存、在途、未来14天分仓销售计划、促销计划", outputs: "缺口告警清单(红/黄/蓝)", ruleType: "决策模型类·缺口分级规则(DOS分级)", exception: "DOS 阈值边界冲突 → 拉人", actor: "agent" }
+  - { l5: "汇总分货数据底表", inputs: "待检/合格/在途/库存原始数据、生产备货率、大日期库存", outputs: "分货数据底表", ruleType: "模版范例类·分货数据底表模板", exception: "字段缺失/口径不一致 → 标红并拉调度组复核", actor: "mixed" }
+  - { l5: "校验底表字段口径完整性", inputs: "分货数据底表、字段口径定义", outputs: "口径校验结果", ruleType: "术语字典类·待检/合格/可发量/DOS口径", exception: "关键字段缺失/口径冲突 → 标红待人工复核", actor: "agent" }
+  - { l5: "计算生产备货率与订单完成率", inputs: "现货/在途/本月已出库、销售计划、未发订单", outputs: "生产备货率、订单完成率", ruleType: "决策模型类·备货率计算规则", exception: "计划缺失/口径异常 → 拉人", actor: "agent" }
+  - { l5: "计算各仓目标备货率与补货优先级", inputs: "订单完成率、旬度标准进度、运输时效、区域类型", outputs: "各仓目标备货率、补货优先级", ruleType: "决策模型类·备货率分配规则", exception: "目标备货率>100% 封顶；进度超限 → 拉人", actor: "agent" }
+  - { l5: "计算建议补货量", inputs: "目标备货率、目标库存口径、当前口径库存、京慧建议量", outputs: "建议补货量清单", ruleType: "决策模型类·分配量调整经验", exception: "建议量偏离京慧建议量 → 写入前必停(HITL)", actor: "agent" }
+  - { l5: "选择发货仓并拆分多仓补足", inputs: "可发量、运输时效、区域类型、仓网距离", outputs: "发货仓推荐、多仓拆分方案", ruleType: "决策模型类·多约束分配优化规则", exception: "时效最优仓可发量不足 → 拆分多仓补足；仍不足 → 拉人", actor: "agent" }
+  - { l5: "生成多版分配方案", inputs: "建议补货量、发货仓、可发量、库存/在途/效期/促销约束", outputs: "多版分配方案(A/B)", ruleType: "模版范例类·分货方案模板", exception: "约束冲突无法求解 → 输出备选并拉人", actor: "agent" }
+  - { l5: "人工确认与微调分配量", inputs: "多版分配方案、京慧建议量偏离项、凑车要求", outputs: "确认后的分配方案", ruleType: "决策模型类·分配量调整经验", exception: "修改超约束 → 退回重算；修改原因必填留痕", actor: "mixed" }
+  - { l5: "诊断异常并生成备选方案", inputs: "缺口清单、仓网距离、物流预警、安全水位", outputs: "备选方案(≥3套)", ruleType: "决策模型类·积兆逻辑(异常诊断)[待二轮验证]", exception: "物流预警数据缺失 → 按历史时效估算并降级提示", actor: "agent" }
+  - { l5: "人工选定备选方案", inputs: "备选方案对比", outputs: "选定方案", ruleType: "决策模型类·积兆逻辑(异常诊断)[待二轮验证]", exception: "备选均不可行 → 升级人工复核并调整周期", actor: "human" }
+  - { l5: "生成标准化补货单", inputs: "确认后的分配方案、SKU/收发仓主数据", outputs: "补货单", ruleType: "模版范例类·补货单模板", exception: "字段缺失 → 拉人补正", actor: "agent" }
+  - { l5: "校验收发仓/SKU/数量/时效", inputs: "补货单、可发量、时效规则", outputs: "校验结果", ruleType: "决策模型类·补货单校验规则", exception: "库存不足/时效超期/字段缺失 → 退回调整并拉人", actor: "agent" }
+  - { l5: "确认并下发补货单", inputs: "校验通过的补货单", outputs: "已下发补货单(物流调度/财务)", ruleType: "决策模型类·提交放行确认", exception: "对外下发必停确认；10 秒撤销窗口兜底", actor: "mixed" }
+  - { l5: "抓取在途定位并判定预警", inputs: "TMS 车辆定位/状态/里程", outputs: "在途台账、延误/破损预警", ruleType: "关联关系类·基地仓-销售仓-产品-SKU-渠道关联", exception: "延误>24h/48h、破损率>1% → 预警拉人", actor: "agent" }
+  - { l5: "核对入库实收与差异", inputs: "WMS 入库验收(运单/实收/差异率)", outputs: "差异记录、差异处理单", ruleType: "决策模型类·入库差异判定规则", exception: "差异率>0.5% → 生成差异单并拉人追责", actor: "agent" }
+  - { l5: "同步库存指标并关闭调拨单", inputs: "实收数量", outputs: "更新后可发量/DOS、已关闭调拨单", ruleType: "术语字典类·待检/合格/可发量/DOS口径", exception: "同步失败 → 自动重试/拉人", actor: "agent" }
+  - { l5: "计算库存天数并设置安全水位", inputs: "各仓库存天数、渠道差异、区域类型", outputs: "差异化安全水位建议", ruleType: "决策模型类·安全水位设置经验", exception: "服务水平与周转冲突 → 人工审批", actor: "mixed" }
+  - { l5: "巡检大日期库存", inputs: "分仓大日期库存、效期", outputs: "临期预警", ruleType: "决策模型类·大日期判定经验[待二轮验证]", exception: "大日期判定口径待二轮验证 → 标注概念级", actor: "agent" }
+  - { l5: "统计复盘指标并生成调参建议", inputs: "时效达成率、缺货缓解率、周转率、入库差异率", outputs: "月度复盘报告、调参建议", ruleType: "模版范例类·复盘报告模板", exception: "指标异常恶化 → 拉人审批；多项指标矛盾以时效达成优先", actor: "mixed" }
+
+ioChain:
+  - "现货/在途/待检/合格库存 + 未来14天销售计划"
+  - "全国供需视图 + 缺口告警清单（红/黄/蓝）"
+  - "分货数据底表（口径校验通过）"
+  - "生产备货率/订单完成率 → 目标备货率/补货优先级"
+  - "多版分配方案（建议补货量/发货仓/分配量）→ 人工确认后方案"
+  - "标准化补货单（校验通过）→ 下发物流调度/财务"
+  - "在途台账 → 入库差异 → 可发量/DOS 同步"
+  - "月度复盘报告 + 调参建议 → 下一周期参数回灌"
+
+learning:
+  why: "每个 L5 各自只有一个核心动词，产出可观察，并可独立挂接一类业务规则；焦点 L4 下钻后，多约束分配从『一个笼统的分配』变成『算量→选仓→出版本→确认』四个可分别校验与追溯的动作。"
+  key: "挖掘的关键不是改写名称，而是把专家真实执行的动作顺序、输入输出、判断依据和异常链路结构化——尤其是把『京慧建议量→人工微调→重新校验』这条隐性决策链显性化。"
+
+usagePoints:
+  - { id: "UP-t01", name: "汇总全国可分配库存与在途",      actor: "agent", focus: false }
+  - { id: "UP-t02", name: "计算各仓库存天数并判定缺口等级", actor: "agent", focus: false }
+  - { id: "UP-t03", name: "汇总分货数据底表",              actor: "mixed", focus: false }
+  - { id: "UP-t04", name: "校验底表字段口径完整性",        actor: "agent", focus: false }
+  - { id: "UP-t05", name: "计算生产备货率与订单完成率",    actor: "agent", focus: false }
+  - { id: "UP-t06", name: "计算各仓目标备货率与补货优先级", actor: "agent", focus: false }
+  - { id: "UP-t07", name: "计算建议补货量",                actor: "agent", focus: true }
+  - { id: "UP-t08", name: "选择发货仓并拆分多仓补足",      actor: "agent", focus: true }
+  - { id: "UP-t09", name: "生成多版分配方案",              actor: "agent", focus: true }
+  - { id: "UP-t10", name: "人工确认与微调分配量",          actor: "mixed", focus: true }
+  - { id: "UP-t11", name: "诊断异常并生成备选方案",        actor: "agent", focus: false }
+  - { id: "UP-t12", name: "人工选定备选方案",              actor: "human", focus: false }
+  - { id: "UP-t13", name: "生成标准化补货单",              actor: "agent", focus: false }
+  - { id: "UP-t14", name: "校验收发仓/SKU/数量/时效",      actor: "agent", focus: false }
+  - { id: "UP-t15", name: "确认并下发补货单",              actor: "mixed", focus: false }
+  - { id: "UP-t16", name: "抓取在途定位并判定预警",        actor: "agent", focus: false }
+  - { id: "UP-t17", name: "核对入库实收与差异",            actor: "agent", focus: false }
+  - { id: "UP-t18", name: "同步库存指标并关闭调拨单",      actor: "agent", focus: false }
+  - { id: "UP-t19", name: "计算库存天数并设置安全水位",    actor: "mixed", focus: false }
+  - { id: "UP-t20", name: "巡检大日期库存",                actor: "agent", focus: false }
+  - { id: "UP-t21", name: "统计复盘指标并生成调参建议",    actor: "mixed", focus: false }
+
+    </script>
+
+    <script>
+        function copyYAML() {
+            const yamlContent = document.getElementById('raw-yaml').textContent.trim();
+            navigator.clipboard.writeText(yamlContent).then(() => {
+                const btn = document.getElementById('copyYamlBtn');
+                const originalHtml = btn.innerHTML;
+                btn.innerHTML = '✓ 已复制';
+                setTimeout(() => { btn.innerHTML = originalHtml; }, 1600);
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+                alert('复制失败，请手动复制。');
+            });
+        }
+    </script>
+</body>
+</html>

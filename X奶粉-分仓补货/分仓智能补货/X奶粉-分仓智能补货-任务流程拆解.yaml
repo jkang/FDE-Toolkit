@@ -1,0 +1,223 @@
+meta:
+  title: "X奶粉 · 分仓智能补货端到端深度任务流程地图"
+  subtitle: "来自《任务流程挖掘清单》主表（P1）"
+  version: "v1.0"
+  date: "2026-09-10"
+  scenarioName: "分仓智能补货"
+  businessStage: "挖知识 阶段1 任务流程挖掘 · P1"
+  methodology: "阶段1方法（业务环节 L3 → 主要活动 L4 → 深度任务 L5）"
+  inputs:
+    - "《X奶粉-分仓智能补货-AI画布》"
+    - "《X奶粉-分仓智能补货-To-be流程》（泳道图）"
+    - "《X奶粉-分仓智能补货-To-be旅程》（SKP 精化版）"
+    - "SRP《12-分仓智能补货_场景定义画布》（12 个 L4 任务）"
+  sourceRef: "X奶粉-分仓智能补货-To-be流程.yaml 任务手账 + 奶粉分仓补货数据库表字段"
+  kpi:
+    - "分货效率"
+    - "分仓有货率"
+    - "库存周转率"
+    - "新鲜度"
+    - "物流时效"
+
+overview:
+  l3Count: 5
+  l4Count: 12
+  l5Count: 21
+  focusL3: "分货方案编制"
+  focusL4: "基地仓→销售仓分配方案编制"
+
+legend:
+  focusType: "p0"
+  focusLabel: "P0 焦点 L4"
+  execution:
+    - { type: "agent", label: "Agent",   icon: "🤖" }
+    - { type: "mixed", label: "混合执行", icon: "🤝" }
+    - { type: "human", label: "人工",     icon: "👤" }
+  convention: "L3 业务阶段 → L4 活动分组 → L5 可执行动作"
+
+stages:
+  - id: "S1"
+    num: "01"
+    name: "货源评估与分货数据准备"
+    l5Count: 4
+    isFocus: false
+    groups:
+      - id: "G1_1"
+        name: "全国货源与需求缺口识别"
+        isP0: false
+        tasks:
+          - { id: "t01", name: "汇总全国可分配库存与在途", actor: "agent" }
+          - { id: "t02", name: "计算各仓库存天数并判定缺口等级", actor: "agent" }
+      - id: "G1_2"
+        name: "分货数据底表准备"
+        isP0: false
+        tasks:
+          - { id: "t03", name: "汇总分货数据底表", actor: "mixed" }
+          - { id: "t04", name: "校验底表字段口径完整性", actor: "agent" }
+
+  - id: "S2"
+    num: "02"
+    name: "分货方案编制"
+    l5Count: 8
+    isFocus: true
+    groups:
+      - id: "G2_1"
+        name: "分仓优先级与备货率计算"
+        isP0: false
+        tasks:
+          - { id: "t05", name: "计算生产备货率与订单完成率", actor: "agent" }
+          - { id: "t06", name: "计算各仓目标备货率与补货优先级", actor: "agent" }
+      - id: "G2_2"
+        name: "基地仓→销售仓分配方案编制"
+        isP0: true
+        tasks:
+          - { id: "t07", name: "计算建议补货量", actor: "agent" }
+          - { id: "t08", name: "选择发货仓并拆分多仓补足", actor: "agent" }
+          - { id: "t09", name: "生成多版分配方案", actor: "agent" }
+          - { id: "t10", name: "人工确认与微调分配量", actor: "mixed" }
+      - id: "G2_3"
+        name: "异常诊断与备选方案生成"
+        isP0: false
+        tasks:
+          - { id: "t11", name: "诊断异常并生成备选方案", actor: "agent" }
+          - { id: "t12", name: "人工选定备选方案", actor: "human" }
+
+  - id: "S3"
+    num: "03"
+    name: "补货单生成与下发"
+    l5Count: 3
+    isFocus: false
+    groups:
+      - id: "G3_1"
+        name: "补货单生成与初审校验"
+        isP0: false
+        tasks:
+          - { id: "t13", name: "生成标准化补货单", actor: "agent" }
+          - { id: "t14", name: "校验收发仓/SKU/数量/时效", actor: "agent" }
+      - id: "G3_2"
+        name: "分货结果下发"
+        isP0: false
+        tasks:
+          - { id: "t15", name: "确认并下发补货单", actor: "mixed" }
+
+  - id: "S4"
+    num: "04"
+    name: "执行跟踪与入库同步"
+    l5Count: 3
+    isFocus: false
+    groups:
+      - id: "G4_1"
+        name: "调拨执行跟踪与在途监控"
+        isP0: false
+        tasks:
+          - { id: "t16", name: "抓取在途定位并判定预警", actor: "agent" }
+      - id: "G4_2"
+        name: "入库验收与库存同步"
+        isP0: false
+        tasks:
+          - { id: "t17", name: "核对入库实收与差异", actor: "agent" }
+          - { id: "t18", name: "同步库存指标并关闭调拨单", actor: "agent" }
+
+  - id: "S5"
+    num: "05"
+    name: "库存监控与效果复盘"
+    l5Count: 3
+    isFocus: false
+    groups:
+      - id: "G5_1"
+        name: "库存天数与安全库存设置"
+        isP0: false
+        tasks:
+          - { id: "t19", name: "计算库存天数并设置安全水位", actor: "mixed" }
+      - id: "G5_2"
+        name: "大日期库存监控"
+        isP0: false
+        tasks:
+          - { id: "t20", name: "巡检大日期库存", actor: "agent" }
+      - id: "G5_3"
+        name: "补货效果复盘"
+        isP0: false
+        tasks:
+          - { id: "t21", name: "统计复盘指标并生成调参建议", actor: "mixed" }
+
+readingFlow:
+  - "先看全链路：从货源评估到补货单下发、执行入库、复盘调参，形成端到端闭环"
+  - "再找高价值 L4：『基地仓→销售仓分配方案编制』承载最密集的多约束求解与人工确认"
+  - "最后下钻 L5：拆成『算量 / 选仓 / 出版本 / 人工确认』四个可独立挂规则的动作"
+
+focusDrill:
+  before:
+    l4Name: "基地仓→销售仓分配方案编制"
+    whyTooCoarse: "它同时包含建议补货量测算、发货仓选择与多仓拆分、多版方案生成、人工确认微调等不同动作，输入输出与异常各不相同，不能直接作为最小执行单元或单独挂规则。"
+  approach: "现状走查 + 客户采集表还原 + To-be 旅程核对 →"
+  evidence:
+    - "计划员先看京慧建议量，再逐仓逐 SKU 结合可发量、时效与促销经验人工调整分配量，约 1 天/轮"
+    - "基地仓可发量不足时，参考『积兆逻辑』检索周边资源，按可发量约束>时效优先拆分多仓补足"
+    - "分配量偏离京慧建议量（如促销放量 +12%）需人工确认，修改后重新校验库存/在途/促销约束"
+  after: "下钻为 4 个能独立挂规则的动作，各自回答『算多少 / 从哪发 / 出几版 / 是否确认』。"
+
+focusSequence:
+  - { id: "L5-1", name: "计算建议补货量",     question: "算多少" }
+  - { id: "L5-2", name: "选择发货仓并拆分多仓补足", question: "从哪个基地仓发 / 是否拆分" }
+  - { id: "L5-3", name: "生成多版分配方案",   question: "出几版 / 各版本差异" }
+  - { id: "L5-4", name: "人工确认与微调分配量", question: "是否确认 / 微调是否越约束" }
+
+taskTable:
+  - { l5: "汇总全国可分配库存与在途", inputs: "现货/在途/待检/合格库存、未发订单", outputs: "全国供需视图", ruleType: "关键信息提取要点·分货数据关键字段识别", exception: "数据缺失/口径异常 → 拉人（调度组复核）", actor: "agent" }
+  - { l5: "计算各仓库存天数并判定缺口等级", inputs: "各仓库存、在途、未来14天分仓销售计划、促销计划", outputs: "缺口告警清单(红/黄/蓝)", ruleType: "决策模型类·缺口分级规则(DOS分级)", exception: "DOS 阈值边界冲突 → 拉人", actor: "agent" }
+  - { l5: "汇总分货数据底表", inputs: "待检/合格/在途/库存原始数据、生产备货率、大日期库存", outputs: "分货数据底表", ruleType: "模版范例类·分货数据底表模板", exception: "字段缺失/口径不一致 → 标红并拉调度组复核", actor: "mixed" }
+  - { l5: "校验底表字段口径完整性", inputs: "分货数据底表、字段口径定义", outputs: "口径校验结果", ruleType: "术语字典类·待检/合格/可发量/DOS口径", exception: "关键字段缺失/口径冲突 → 标红待人工复核", actor: "agent" }
+  - { l5: "计算生产备货率与订单完成率", inputs: "现货/在途/本月已出库、销售计划、未发订单", outputs: "生产备货率、订单完成率", ruleType: "决策模型类·备货率计算规则", exception: "计划缺失/口径异常 → 拉人", actor: "agent" }
+  - { l5: "计算各仓目标备货率与补货优先级", inputs: "订单完成率、旬度标准进度、运输时效、区域类型", outputs: "各仓目标备货率、补货优先级", ruleType: "决策模型类·备货率分配规则", exception: "目标备货率>100% 封顶；进度超限 → 拉人", actor: "agent" }
+  - { l5: "计算建议补货量", inputs: "目标备货率、目标库存口径、当前口径库存、京慧建议量", outputs: "建议补货量清单", ruleType: "决策模型类·分配量调整经验", exception: "建议量偏离京慧建议量 → 写入前必停(HITL)", actor: "agent" }
+  - { l5: "选择发货仓并拆分多仓补足", inputs: "可发量、运输时效、区域类型、仓网距离", outputs: "发货仓推荐、多仓拆分方案", ruleType: "决策模型类·多约束分配优化规则", exception: "时效最优仓可发量不足 → 拆分多仓补足；仍不足 → 拉人", actor: "agent" }
+  - { l5: "生成多版分配方案", inputs: "建议补货量、发货仓、可发量、库存/在途/效期/促销约束", outputs: "多版分配方案(A/B)", ruleType: "模版范例类·分货方案模板", exception: "约束冲突无法求解 → 输出备选并拉人", actor: "agent" }
+  - { l5: "人工确认与微调分配量", inputs: "多版分配方案、京慧建议量偏离项、凑车要求", outputs: "确认后的分配方案", ruleType: "决策模型类·分配量调整经验", exception: "修改超约束 → 退回重算；修改原因必填留痕", actor: "mixed" }
+  - { l5: "诊断异常并生成备选方案", inputs: "缺口清单、仓网距离、物流预警、安全水位", outputs: "备选方案(≥3套)", ruleType: "决策模型类·积兆逻辑(异常诊断)[待二轮验证]", exception: "物流预警数据缺失 → 按历史时效估算并降级提示", actor: "agent" }
+  - { l5: "人工选定备选方案", inputs: "备选方案对比", outputs: "选定方案", ruleType: "决策模型类·积兆逻辑(异常诊断)[待二轮验证]", exception: "备选均不可行 → 升级人工复核并调整周期", actor: "human" }
+  - { l5: "生成标准化补货单", inputs: "确认后的分配方案、SKU/收发仓主数据", outputs: "补货单", ruleType: "模版范例类·补货单模板", exception: "字段缺失 → 拉人补正", actor: "agent" }
+  - { l5: "校验收发仓/SKU/数量/时效", inputs: "补货单、可发量、时效规则", outputs: "校验结果", ruleType: "决策模型类·补货单校验规则", exception: "库存不足/时效超期/字段缺失 → 退回调整并拉人", actor: "agent" }
+  - { l5: "确认并下发补货单", inputs: "校验通过的补货单", outputs: "已下发补货单(物流调度/财务)", ruleType: "决策模型类·提交放行确认", exception: "对外下发必停确认；10 秒撤销窗口兜底", actor: "mixed" }
+  - { l5: "抓取在途定位并判定预警", inputs: "TMS 车辆定位/状态/里程", outputs: "在途台账、延误/破损预警", ruleType: "关联关系类·基地仓-销售仓-产品-SKU-渠道关联", exception: "延误>24h/48h、破损率>1% → 预警拉人", actor: "agent" }
+  - { l5: "核对入库实收与差异", inputs: "WMS 入库验收(运单/实收/差异率)", outputs: "差异记录、差异处理单", ruleType: "决策模型类·入库差异判定规则", exception: "差异率>0.5% → 生成差异单并拉人追责", actor: "agent" }
+  - { l5: "同步库存指标并关闭调拨单", inputs: "实收数量", outputs: "更新后可发量/DOS、已关闭调拨单", ruleType: "术语字典类·待检/合格/可发量/DOS口径", exception: "同步失败 → 自动重试/拉人", actor: "agent" }
+  - { l5: "计算库存天数并设置安全水位", inputs: "各仓库存天数、渠道差异、区域类型", outputs: "差异化安全水位建议", ruleType: "决策模型类·安全水位设置经验", exception: "服务水平与周转冲突 → 人工审批", actor: "mixed" }
+  - { l5: "巡检大日期库存", inputs: "分仓大日期库存、效期", outputs: "临期预警", ruleType: "决策模型类·大日期判定经验[待二轮验证]", exception: "大日期判定口径待二轮验证 → 标注概念级", actor: "agent" }
+  - { l5: "统计复盘指标并生成调参建议", inputs: "时效达成率、缺货缓解率、周转率、入库差异率", outputs: "月度复盘报告、调参建议", ruleType: "模版范例类·复盘报告模板", exception: "指标异常恶化 → 拉人审批；多项指标矛盾以时效达成优先", actor: "mixed" }
+
+ioChain:
+  - "现货/在途/待检/合格库存 + 未来14天销售计划"
+  - "全国供需视图 + 缺口告警清单（红/黄/蓝）"
+  - "分货数据底表（口径校验通过）"
+  - "生产备货率/订单完成率 → 目标备货率/补货优先级"
+  - "多版分配方案（建议补货量/发货仓/分配量）→ 人工确认后方案"
+  - "标准化补货单（校验通过）→ 下发物流调度/财务"
+  - "在途台账 → 入库差异 → 可发量/DOS 同步"
+  - "月度复盘报告 + 调参建议 → 下一周期参数回灌"
+
+learning:
+  why: "每个 L5 各自只有一个核心动词，产出可观察，并可独立挂接一类业务规则；焦点 L4 下钻后，多约束分配从『一个笼统的分配』变成『算量→选仓→出版本→确认』四个可分别校验与追溯的动作。"
+  key: "挖掘的关键不是改写名称，而是把专家真实执行的动作顺序、输入输出、判断依据和异常链路结构化——尤其是把『京慧建议量→人工微调→重新校验』这条隐性决策链显性化。"
+
+usagePoints:
+  - { id: "UP-t01", name: "汇总全国可分配库存与在途",      actor: "agent", focus: false }
+  - { id: "UP-t02", name: "计算各仓库存天数并判定缺口等级", actor: "agent", focus: false }
+  - { id: "UP-t03", name: "汇总分货数据底表",              actor: "mixed", focus: false }
+  - { id: "UP-t04", name: "校验底表字段口径完整性",        actor: "agent", focus: false }
+  - { id: "UP-t05", name: "计算生产备货率与订单完成率",    actor: "agent", focus: false }
+  - { id: "UP-t06", name: "计算各仓目标备货率与补货优先级", actor: "agent", focus: false }
+  - { id: "UP-t07", name: "计算建议补货量",                actor: "agent", focus: true }
+  - { id: "UP-t08", name: "选择发货仓并拆分多仓补足",      actor: "agent", focus: true }
+  - { id: "UP-t09", name: "生成多版分配方案",              actor: "agent", focus: true }
+  - { id: "UP-t10", name: "人工确认与微调分配量",          actor: "mixed", focus: true }
+  - { id: "UP-t11", name: "诊断异常并生成备选方案",        actor: "agent", focus: false }
+  - { id: "UP-t12", name: "人工选定备选方案",              actor: "human", focus: false }
+  - { id: "UP-t13", name: "生成标准化补货单",              actor: "agent", focus: false }
+  - { id: "UP-t14", name: "校验收发仓/SKU/数量/时效",      actor: "agent", focus: false }
+  - { id: "UP-t15", name: "确认并下发补货单",              actor: "mixed", focus: false }
+  - { id: "UP-t16", name: "抓取在途定位并判定预警",        actor: "agent", focus: false }
+  - { id: "UP-t17", name: "核对入库实收与差异",            actor: "agent", focus: false }
+  - { id: "UP-t18", name: "同步库存指标并关闭调拨单",      actor: "agent", focus: false }
+  - { id: "UP-t19", name: "计算库存天数并设置安全水位",    actor: "mixed", focus: false }
+  - { id: "UP-t20", name: "巡检大日期库存",                actor: "agent", focus: false }
+  - { id: "UP-t21", name: "统计复盘指标并生成调参建议",    actor: "mixed", focus: false }

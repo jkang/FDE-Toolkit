@@ -1,0 +1,198 @@
+meta:
+  title: "张雪机车海外销售 · 赛事内容工厂端到端深度任务流程地图"
+  subtitle: "来自《任务流程挖掘清单》主表"
+  version: "v1.0"
+  date: "2026-09-10"
+  scenarioName: "赛事内容工厂"
+  businessStage: "阶段1 任务流程挖掘 · P1"
+  methodology: "阶段1方法（业务环节 L3 → 主要活动 L4 → 深度任务 L5）"
+  inputs:
+    - "《AI赛事内容工厂-AI画布》（场景定义/数据知识/工作流/系统集成/业务收益）"
+    - "《张雪机车-赛事内容工厂-To-be流程》（阶段×角色泳道×深度任务）"
+    - "《张雪机车-赛事内容工厂-CKD矩阵分析》（上下文/知识/数据资产）"
+  sourceRef: "张雪机车-赛事内容工厂-To-be流程.yaml 深度任务 + AI画布 workflow"
+  kpi:
+    - "赛事内容产出时效"
+    - "多语言内容单位成本"
+    - "内容互动率"
+    - "社媒内容日更量"
+    - "内容合规通过率"
+
+overview:
+  l3Count: 6
+  l4Count: 6
+  l5Count: 19
+  focusL3: "高光识别与脚本生成"
+  focusL4: "高光识别与脚本生成"
+
+legend:
+  focusType: "p0"
+  focusLabel: "P0 本节重点"
+  execution:
+    - { type: "agent",  label: "Agent",   icon: "🤖" }
+    - { type: "mixed",  label: "混合执行", icon: "🤝" }
+    - { type: "human",  label: "人工",     icon: "👤" }
+  convention:
+    - "L3 业务阶段"
+    - "L4 活动分组"
+    - "L5 可执行动作"
+
+stages:
+  - id: "S1"
+    num: "01"
+    name: "素材接入与理解"
+    l5Count: 4
+    isFocus: false
+    groups:
+      - id: "G1_1"
+        name: "素材接入与多模态理解"
+        isP0: false
+        tasks:
+          - { id: "t01", name: "上传 WSBK 原始赛事素材", actor: "human" }
+          - { id: "t02", name: "多模态理解赛事素材", actor: "agent" }
+          - { id: "t03", name: "关联赛事数据库上下文", actor: "agent" }
+          - { id: "t04", name: "设定目标市场语言与品牌调性", actor: "human" }
+
+  - id: "S2"
+    num: "02"
+    name: "高光识别与脚本生成"
+    l5Count: 4
+    isFocus: true
+    groups:
+      - id: "G2_1"
+        name: "高光识别与脚本生成"
+        isP0: true
+        tasks:
+          - { id: "t05", name: "高光片段识别与打分", actor: "agent" }
+          - { id: "t06", name: "赛事数据到叙事要素提取", actor: "agent" }
+          - { id: "t07", name: "多语言解说脚本生成", actor: "agent" }
+          - { id: "t08", name: "脚本抽检确认", actor: "mixed" }
+
+  - id: "S3"
+    num: "03"
+    name: "智能剪辑与配音"
+    l5Count: 3
+    isFocus: false
+    groups:
+      - id: "G3_1"
+        name: "智能剪辑与配音包装"
+        isP0: false
+        tasks:
+          - { id: "t09", name: "自动剪辑高光片段", actor: "agent" }
+          - { id: "t10", name: "多语言配音与字幕合成", actor: "agent" }
+          - { id: "t11", name: "品牌元素与封面包装", actor: "agent" }
+
+  - id: "S4"
+    num: "04"
+    name: "平台适配与内容包"
+    l5Count: 2
+    isFocus: false
+    groups:
+      - id: "G4_1"
+        name: "多平台格式适配"
+        isP0: false
+        tasks:
+          - { id: "t12", name: "平台格式适配", actor: "agent" }
+          - { id: "t13", name: "标签与 SEO 图文生成", actor: "agent" }
+
+  - id: "S5"
+    num: "05"
+    name: "品牌审核与发布"
+    l5Count: 3
+    isFocus: false
+    groups:
+      - id: "G5_1"
+        name: "品牌审核与发布编排"
+        isP0: false
+        tasks:
+          - { id: "t14", name: "品牌调性与内容红线终审", actor: "human" }
+          - { id: "t15", name: "发布排期与最佳时间选择", actor: "agent" }
+          - { id: "t16", name: "多平台自动发布", actor: "agent" }
+
+  - id: "S6"
+    num: "06"
+    name: "效果追踪与反馈"
+    l5Count: 3
+    isFocus: false
+    groups:
+      - id: "G6_1"
+        name: "效果追踪与策略反馈"
+        isP0: false
+        tasks:
+          - { id: "t17", name: "互动数据采集", actor: "agent" }
+          - { id: "t18", name: "效果归因与内容策略优化", actor: "agent" }
+          - { id: "t19", name: "策略复盘与下轮调整", actor: "human" }
+
+readingFlow:
+  - "<b>先看全链路</b>：从素材接入到效果回流，形成赛事内容生产闭环"
+  - "<b>再找高价值 L4</b>：「高光识别与脚本生成」承载最密集的专家判断（选什么镜头、讲什么事实、怎么说多语言）"
+  - "<b>最后下钻 L5</b>：拆成「高光打分 / 叙事要素 / 多语言脚本」三个可独立挂规则的动作"
+
+focusDrill:
+  before:
+    l4Name: "高光识别与脚本生成"
+    whyTooCoarse: "它同时包含高光片段筛选打分、赛事事实叙事化、多语言脚本生成与文化本地化改写等不同动作，输入输出和异常各不相同，不能直接作为最小执行单元。"
+  approach: "访谈走查＋材料还原 →"
+  evidence:
+    - "资深剪辑师先看完整站比赛，凭经验挑出超车/事故/夺冠等高光镜头并判断哪段最能引爆传播"
+    - "编导把赛事成绩、车手对战历史翻译成有情绪张力的叙事，而非罗列数据"
+    - "本地化团队按各市场文化偏好重写解说，规避禁忌并保留品牌调性"
+  after: "下钻为 3 个能独立挂规则的动作，各自回答『选哪些镜头 / 讲什么事实 / 怎么说多语言』。"
+focusSequence:
+  - { id: "L5-1", name: "高光片段识别与打分", question: "选哪些镜头 · 高光分怎么定" }
+  - { id: "L5-2", name: "赛事数据到叙事要素提取", question: "讲什么事实 · 哪些内容值得说" }
+  - { id: "L5-3", name: "多语言解说脚本生成", question: "怎么说 · 多语言与文化本地化如何落地" }
+
+taskTable:
+  - l5: "高光片段识别与打分"
+    inputs: "镜头语义标签+事件时间轴、历史高互动内容素材库、高光判定规则"
+    outputs: "高光片段清单（含高光分）"
+    ruleType: "决策模型类·高光片段判定与打分"
+    exception: "高光分低于阈值/候选不足 → 回退候选池或拉人判定"
+    actor: "agent"
+  - l5: "赛事数据到叙事要素提取"
+    inputs: "高光片段清单、WSBK 赛事事件/成绩/历史对战"
+    outputs: "叙事要素（车手/名次/超车/圈速/对战）"
+    ruleType: "关键信息提取要点·叙事要素提取"
+    exception: "数据与画面对不上 → 标注待人工核对"
+    actor: "agent"
+  - l5: "多语言解说脚本生成"
+    inputs: "叙事要素、品牌调性、目标市场文化偏好与禁忌库、多语言脚本模板"
+    outputs: "6 语言解说脚本"
+    ruleType: "模版范例类·多语言解说脚本模板"
+    exception: "命中文化禁忌/敏感表述 → 自动改写或降级，仍冲突则拉人"
+    actor: "agent"
+
+ioChain:
+  - "WSBK 原始素材 + 赛事数据"
+  - "镜头语义标签 + 事件时间轴"
+  - "高光片段清单（含高光分）"
+  - "叙事要素"
+  - "6 语言解说脚本"
+  - "已确认脚本"
+  - "下游：自动剪辑 → 多语言配音字幕 → 品牌包装 → 平台适配 → 审核发布"
+
+learning:
+  why: "三个焦点 L5 各自只有一个核心动词（识别打分 / 提取 / 生成），产出可观察，并可独立挂接决策模型、提取要点与模板三类规则。"
+  key: "挖掘的关键不是改写名称，而是把资深剪辑与编导真实执行的动作顺序、输入输出、判断依据和异常链路结构化。"
+
+usagePoints:
+  - { id: "UP-t01", name: "上传 WSBK 原始赛事素材", actor: "human", focus: false }
+  - { id: "UP-t02", name: "多模态理解赛事素材", actor: "agent", focus: false }
+  - { id: "UP-t03", name: "关联赛事数据库上下文", actor: "agent", focus: false }
+  - { id: "UP-t04", name: "设定目标市场语言与品牌调性", actor: "human", focus: false }
+  - { id: "UP-t05", name: "高光片段识别与打分", actor: "agent", focus: true }
+  - { id: "UP-t06", name: "赛事数据到叙事要素提取", actor: "agent", focus: true }
+  - { id: "UP-t07", name: "多语言解说脚本生成", actor: "agent", focus: true }
+  - { id: "UP-t08", name: "脚本抽检确认", actor: "mixed", focus: false }
+  - { id: "UP-t09", name: "自动剪辑高光片段", actor: "agent", focus: false }
+  - { id: "UP-t10", name: "多语言配音与字幕合成", actor: "agent", focus: false }
+  - { id: "UP-t11", name: "品牌元素与封面包装", actor: "agent", focus: false }
+  - { id: "UP-t12", name: "平台格式适配", actor: "agent", focus: false }
+  - { id: "UP-t13", name: "标签与 SEO 图文生成", actor: "agent", focus: false }
+  - { id: "UP-t14", name: "品牌调性与内容红线终审", actor: "human", focus: false }
+  - { id: "UP-t15", name: "发布排期与最佳时间选择", actor: "agent", focus: false }
+  - { id: "UP-t16", name: "多平台自动发布", actor: "agent", focus: false }
+  - { id: "UP-t17", name: "互动数据采集", actor: "agent", focus: false }
+  - { id: "UP-t18", name: "效果归因与内容策略优化", actor: "agent", focus: false }
+  - { id: "UP-t19", name: "策略复盘与下轮调整", actor: "human", focus: false }

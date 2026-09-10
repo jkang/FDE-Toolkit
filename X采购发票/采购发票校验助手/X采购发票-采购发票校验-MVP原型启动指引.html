@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>采购发票校验助手 · MVP 原型启动指引</title>
+<style>
+  :root{--p:#1E3A8A;--p-dark:#142a63;--accent:#E08A00;--text:#10213E;--text2:#64748B;--border:#E2E8F0;--bg:#fff;--bg-alt:#F5F5F6;--radius:10px;--shadow:0 2px 8px rgba(16,33,62,.08)}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:MiSans,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",Arial,sans-serif;background:var(--bg-alt);color:var(--text);line-height:1.6}
+  .container{max-width:1200px;margin:0 auto;padding:32px 24px}
+  .header{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:28px 32px;position:relative;overflow:hidden}
+  .header::before{content:"";position:absolute;left:0;top:0;bottom:0;width:6px;background:var(--accent)}
+  .header h1{margin:0 0 8px 12px;font-size:24px}
+  .header .sub{color:var(--text2);margin-left:12px;font-size:14px}
+  h2.sec{margin:28px 0 14px;font-size:18px;display:flex;align-items:center;gap:10px}
+  h2.sec::before{content:"";width:4px;height:18px;background:var(--accent);border-radius:2px}
+  .card{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px 20px;margin-bottom:14px}
+  pre{background:#0f172a;color:#e2e8f0;border-radius:8px;padding:14px 16px;overflow:auto;font-size:13px;margin:10px 0 0}
+  code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+  table{width:100%;border-collapse:collapse;font-size:13.5px}
+  th,td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--border)}
+  th{background:var(--bg-alt);font-weight:600}
+  .pill{display:inline-block;font-size:12px;padding:2px 10px;border-radius:999px;background:rgba(30,58,138,.1);color:var(--p);font-weight:600}
+  .warn{background:#fff8e6;border:1px solid #f0d68a;border-radius:8px;padding:12px 14px;font-size:13.5px;color:#7a5b00}
+  .foot{text-align:center;color:var(--text2);font-size:12px;margin:36px 0 16px}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>采购发票校验助手 · MVP 原型</h1>
+    <div class="sub">可运行前后端一体化原型（React + Ant Design + Express + Mock AI/业务服务）</div>
+  </div>
+
+  <div class="warn">本原型为<b>可运行应用</b>，需启动本地服务后访问，无法在此 iframe 内直接预览（直嵌会因缺后端 API 而空白）。请按下方步骤启动。</div>
+
+  <h2 class="sec">快速开始</h2>
+  <div class="card">
+    <p style="margin:0;font-size:13.5px;color:var(--text2)">在 <code>X采购发票/采购发票校验助手/mvp-prototype/</code> 目录下执行：</p>
+    <pre><code>npm install        # 安装全部依赖（一次）
+npm run dev        # 开发模式：API(:47820) + Vite 前端(:47821)</code></pre>
+    <p style="margin:12px 0 0;font-size:13.5px">浏览器打开 <b>http://localhost:47821</b></p>
+    <p style="margin:8px 0 0;font-size:13px;color:var(--text2)">生产模式（单端口一体化）：<code>npm run build &amp;&amp; npm start</code> → http://localhost:47820</p>
+  </div>
+
+  <h2 class="sec">页面与演示分支</h2>
+  <div class="card" style="padding:0">
+    <table>
+      <tr><th>页面</th><th>路由</th><th>演示分支</th></tr>
+      <tr><td>校验工作台总览</td><td>/dashboard</td><td>批次进度 + 待办 + 异常概览</td></tr>
+      <tr><td>发票归集看板</td><td>/collection</td><td>乐企/供应商/补录多源归集 + 查重查漏</td></tr>
+      <tr><td>用途确认与识别校验</td><td>/recognition</td><td>票面识别 + 真伪/抬头校验 + 低置信复核</td></tr>
+      <tr><td>三单匹配工作台</td><td>/matching</td><td>行级三层匹配 + 数量扣减 + 差异高亮 + 四数量报表</td></tr>
+      <tr><td>异常凭证队列</td><td>/exceptions</td><td>异常类型分组 + 处理建议 + 沟通登记</td></tr>
+      <tr><td>入账与归档台账</td><td>/ledger</td><td>硬门禁检查 + 批量预制过账 + 乐企状态 + 归档索引</td></tr>
+    </table>
+  </div>
+
+  <h2 class="sec">验证清单</h2>
+  <div class="card">
+    <ul style="margin:0;padding-left:18px;font-size:13.5px;color:var(--text2);line-height:2">
+      <li><code>curl http://localhost:47820/api/health</code> → <code>{"status":"ok",...}</code></li>
+      <li>AI 端点：<code>/api/invoice/collect</code>、<code>/api/invoice/recognize</code>、<code>/api/match/run</code>、<code>/api/exception/judge</code>、<code>/api/ledger/prebook</code>、<code>/api/ledger/post</code>、<code>/api/ledger/sync-leqi</code>、<code>/api/agent/chat</code></li>
+      <li>浏览器逐页验证：归集 → 识别 → 匹配 → 异常 → 预制过账 → 台账归档</li>
+      <li>已应用 <span class="pill">UX 定制设计系统</span>（深蓝 + 橙强调，无侵入覆盖层）</li>
+    </ul>
+  </div>
+
+  <div class="foot">采购发票校验助手 · MVP 原型启动指引 · 由 prototype-generator + ux-optimizer 生成</div>
+</div>
+</body>
+</html>

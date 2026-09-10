@@ -1,0 +1,1908 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>张雪机车海外AI销售1-2年落地路线图</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --zx-bg: #FFFFFF; --zx-bg-secondary: #F7F8F9; --zx-fg: #0F141D; --zx-fg-secondary: #45546C; --zx-fg-muted: #5C6B82;
+      --zx-primary: #1A6BC4; --zx-primary-hover: #1558A5; --zx-primary-fg: #FFFFFF; --zx-primary-muted: #EBF4FD;
+      --zx-secondary: #EBEEF2; --zx-secondary-hover: #D5DAE2; --zx-secondary-fg: #1E2634;
+      --zx-accent: #E63946; --zx-accent-hover: #CF212F;
+      --zx-border: #D5DAE2; --zx-border-light: #EBEEF2; --zx-divider: #EBEEF2;
+      --zx-success: #16A34A; --zx-warning: #F59E0B; --zx-danger: #DC2626;
+      --zx-blue-400: #3B99E0; --zx-blue-100: #D0E7FA; --zx-blue-700: #104586;
+      --zx-black-500: #5C6B82; --zx-black-700: #313D53; --zx-black-800: #1E2634;
+      --zx-card-bg: #FFFFFF;
+      --zx-font-sans: 'Inter', 'Noto Sans SC', -apple-system, BlinkMacSystemFont, 'PingFang SC', sans-serif;
+      --zx-radius-sm: 2px; --zx-radius-md: 8px; --zx-radius-lg: 12px;
+      --zx-shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05); --zx-shadow-default: 0 1px 3px 0 rgb(0 0 0 / 0.1); --zx-shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+    }
+    /* Reset & Base */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--zx-font-sans);
+      background: linear-gradient(135deg, var(--zx-bg-secondary) 0%, rgba(219, 234, 254, 0.3) 50%, rgba(243, 232, 255, 0.3) 100%);
+      color: var(--zx-fg);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Outer Wrapper */
+    .viewport {
+      padding: 32px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Header */
+    .header { margin-bottom: 24px; padding-left: 24px; }
+    .header h1 { font-size: 1.5rem; font-weight: 700; color: var(--zx-fg); margin-bottom: 4px; }
+    .header p { font-size: 1rem; color: var(--zx-fg-muted); }
+
+    /* Canvas Grid Area */
+    .canvas {
+      background: var(--zx-card-bg);
+      border: 1px solid var(--zx-border);
+      border-radius: var(--zx-radius-lg);
+      box-shadow: var(--zx-shadow-sm);
+      padding: 0 24px 24px 24px; /* pt is large dynamically due to flags */
+      padding-top: 192px; /* 48 * 4 from tailwind */
+      position: relative;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow-x: auto;
+      min-width: 1400px;
+    }
+
+    /* Timeline Row */
+    .timeline-row {
+      display: flex;
+      margin-bottom: 16px;
+      margin-top: 24px;
+      position: relative;
+      z-index: 30;
+      flex-shrink: 0;
+    }
+    .timeline-margin {
+      width: 208px; /* w-52 */
+      flex-shrink: 0;
+      border-bottom: 1px solid var(--zx-border-light);
+    }
+    .timeline-track {
+      flex: 1;
+      display: flex;
+      position: relative;
+      border-bottom: 2px solid var(--zx-border);
+    }
+    .quarter-cell {
+      flex: 1;
+      position: relative;
+      text-align: center;
+      padding: 8px 0;
+    }
+    .quarter-tick {
+      position: absolute;
+      bottom: 0; left: 0;
+      width: 1px; height: 8px;
+      background: var(--zx-border);
+    }
+    .quarter-tick-end {
+      position: absolute;
+      bottom: 0; right: 0;
+      width: 1px; height: 8px;
+      background: var(--zx-border);
+    }
+    .quarter-year {
+      position: absolute;
+      bottom: 100%; left: 0;
+      margin-bottom: 4px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--zx-fg-muted);
+      padding-left: 4px;
+    }
+    .quarter-text { font-size: 0.75rem; font-weight: 500; color: var(--zx-fg-muted); }
+
+    /* Milestones Flags */
+    .ms-flag {
+      position: absolute;
+      top: 0; bottom: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      transform: translateX(-100%);
+      margin-left: 14px;
+      pointer-events: none;
+      z-index: 20;
+    }
+
+    .ms-goal-card {
+      position: absolute;
+      bottom: 100%; right: 0;
+      margin-bottom: 32px;
+      width: 288px; height: 160px;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(4px);
+      border-radius: var(--zx-radius-md);
+      border: 1px solid;
+      box-shadow: var(--zx-shadow-md);
+      padding: 12px;
+      pointer-events: auto;
+      overflow: hidden;
+      transition: box-shadow 0.2s;
+    }
+    .ms-goal-card:hover { box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1); }
+    
+    .ms-goal-title { font-size: 0.75rem; font-weight: 700; padding-bottom: 4px; white-space: nowrap; }
+    .ms-goal-time { font-size: 0.75rem; font-weight: 700; margin-bottom: 8px; padding-bottom: 4px; border-bottom: 1px solid var(--zx-border-light); white-space: nowrap; }
+
+    .ms-goal-item { display: flex; align-items: flex-start; gap: 6px; font-size: 0.625rem; color: var(--zx-black-700); line-height: 1.25; margin-bottom: 8px; }
+    .ms-goal-bullet { flex-shrink: 0; margin-top: 2px; }
+    .ms-goal-hl { font-weight: 700; margin-right: 4px; color: var(--zx-fg); }
+    
+    .ms-flag-pole {
+      display: flex; flex-direction: column; align-items: center; width: 28px; pointer-events: auto;
+    }
+    .ms-flag-icon { width: 28px; height: 28px; drop-shadow: 0 4px 3px rgba(0,0,0,0.07); margin-bottom: 4px; transition: transform 0.2s; }
+    .ms-flag:hover .ms-flag-icon { transform: scale(1.1); }
+    .ms-flag-name {
+      font-size: 0.625rem; font-weight: 700; margin-bottom: 4px; padding: 2px 8px;
+      border-radius: 999px; background: rgba(255,255,255,0.9); box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+      white-space: nowrap;
+    }
+    .ms-flag-line { width: 2px; flex: 1; min-height: 1000px; border-radius: 999px; opacity: 0.25; }
+
+    /* Lanes Area */
+    .lanes-wrapper { flex: 1; display: flex; flex-direction: column; }
+    .lane-row {
+      display: flex;
+      flex: 1;
+      border-top: 1px solid var(--zx-border-light);
+    }
+    .lane-row:first-child { border-top: none; }
+
+    .lane-header {
+      width: 208px;
+      flex-shrink: 0;
+      padding-right: 24px;
+      display: flex;
+      align-items: center;
+      border-right: 1px dashed var(--zx-border-light);
+      padding: 8px;
+    }
+    .lane-header:hover { background: var(--zx-bg-secondary); }
+    .lane-icon { width: 24px; height: 24px; color: var(--zx-fg-muted); margin-right: 12px; }
+    .lane-title { font-size: 0.875rem; font-weight: 700; color: var(--zx-black-700); }
+    .lane-subtitle { font-size: 0.75rem; color: var(--zx-fg-muted); }
+
+    .lane-gantt {
+      flex: 1;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .lane-grid {
+      position: absolute; inset: 0; display: flex; pointer-events: none;
+    }
+    .lane-grid-col { flex: 1; border-left: 1px solid rgba(213, 218, 226, 0.5); }
+    .lane-grid-col:first-child { border-left: none; }
+    .lane-grid-col:nth-child(even) { background-color: transparent; }
+    .lane-grid-col:nth-child(odd) { background-color: rgba(247, 248, 249, 0.5); }
+
+    .lane-content { position: relative; width: 100%; display: flex; flex-direction: column; justify-content: center; }
+    .lane-tasks-container { position: relative; width: 100%; }
+
+    /* Task Card */
+    .task-card {
+      position: absolute;
+      border-radius: var(--zx-radius-md);
+      box-shadow: var(--zx-shadow-sm);
+      border: 1px solid rgba(213, 218, 226, 0.5);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 0 12px;
+      z-index: 10;
+      cursor: default;
+      transition: all 0.2s;
+    }
+    .task-card:hover {
+      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1);
+      z-index: 100;
+    }
+    
+    .task-badge {
+      position: absolute;
+      top: -4px; right: -4px;
+      font-size: 0.5rem;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 999px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+      white-space: nowrap;
+      z-index: 10;
+    }
+    .bdg-正式上线 { background: var(--zx-success); color: var(--zx-primary-fg); }
+    .bdg-灰度上线 { background: #fbbf24; color: var(--zx-fg); }
+    .bdg-实测 { background: #3b82f6; color: var(--zx-primary-fg); }
+    
+    .task-name { font-size: 0.75rem; font-weight: 700; color: var(--zx-fg); line-height: 1.25; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .task-desc { font-size: 0.5625rem; color: rgba(49, 61, 83, 0.8); line-height: 1.25; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    /* Tooltip */
+    .task-tooltip {
+      position: absolute;
+      left: 0; top: 100%;
+      margin-top: 8px;
+      background: var(--zx-card-bg);
+      border: 2px solid;
+      box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+      border-radius: var(--zx-radius-lg);
+      padding: 16px;
+      min-width: 320px; max-width: 420px;
+      z-index: 110;
+      opacity: 0; visibility: hidden;
+      transition: opacity 0.2s, visibility 0.2s;
+      pointer-events: none;
+    }
+    /* Right-half tasks: anchor tooltip to right edge to avoid viewport overflow */
+    .task-tooltip.flip {
+      left: auto;
+      right: 0;
+    }
+    .task-card:hover .task-tooltip { opacity: 1; visibility: visible; }
+    
+    .tt-name { font-size: 1rem; font-weight: 700; color: var(--zx-fg); margin-bottom: 4px; }
+    .tt-desc { font-size: 0.875rem; color: var(--zx-fg-secondary); margin-bottom: 8px; }
+    .tt-meta { display: flex; align-items: center; gap: 12px; font-size: 0.75rem; color: var(--zx-fg-muted); margin-bottom: 12px; }
+    .tt-team { display: flex; align-items: center; gap: 4px; }
+    .tt-dot { width: 8px; height: 8px; border-radius: 50%; }
+    .tt-tag {
+      font-size: 0.75rem; font-weight: 500; padding: 6px 12px; border-radius: 8px; display: inline-block;
+    }
+
+    .footer { text-align: center; font-size: 0.75rem; color: var(--zx-fg-muted); margin-top: 24px; }
+  </style>
+</head>
+<body>
+  <div class="viewport">
+    
+    <div class="header">
+      <h1>张雪机车海外AI销售1-2年落地路线图</h1>
+      <p>2026-Q2 至 2027-Q4 核心里程碑计划</p>
+    </div>
+
+    <div class="canvas">
+      
+      <!-- Timeline Header & Flags -->
+      <div class="timeline-row">
+        <div class="timeline-margin"></div>
+        <div class="timeline-track">
+          
+          
+          
+          <div class="quarter-cell">
+            
+            <div class="quarter-year">2026年</div>
+            
+            <div class="quarter-tick"></div>
+            
+            <div class="quarter-text">Q2</div>
+          </div>
+          
+          
+          
+          <div class="quarter-cell">
+            
+            <div class="quarter-tick"></div>
+            
+            <div class="quarter-text">Q3</div>
+          </div>
+          
+          
+          
+          <div class="quarter-cell">
+            
+            <div class="quarter-tick"></div>
+            
+            <div class="quarter-text">Q4</div>
+          </div>
+          
+          
+          
+          <div class="quarter-cell">
+            
+            <div class="quarter-year">2027年</div>
+            
+            <div class="quarter-tick"></div>
+            
+            <div class="quarter-text">Q1</div>
+          </div>
+          
+          
+          
+          <div class="quarter-cell">
+            
+            <div class="quarter-tick"></div>
+            
+            <div class="quarter-text">Q2</div>
+          </div>
+          
+          
+          
+          <div class="quarter-cell">
+            
+            <div class="quarter-tick"></div>
+            
+            <div class="quarter-text">Q3</div>
+          </div>
+          
+          
+          
+          <div class="quarter-cell">
+            
+            <div class="quarter-tick"></div>
+            <div class="quarter-tick-end"></div>
+            <div class="quarter-text">Q4</div>
+          </div>
+          
+
+          <!-- Milestones Flags -->
+          
+          <div class="ms-flag" style="left: 28.571428571428573%;">
+            
+            <!-- Flag card pointing left -->
+            <div class="ms-goal-card" style="border-color: var(--zx-danger);">
+              <div class="ms-goal-title" style="color: var(--zx-danger);">第一阶段：AI基础能力建设</div>
+              <div class="ms-goal-time" style="color: var(--zx-danger);">2026-Q3</div>
+              <div>
+                
+                <div class="ms-goal-item">
+                  <span class="ms-goal-bullet" style="color: var(--zx-danger);">▸</span>
+                  <div><span class="ms-goal-hl">客服自动化:</span>7x24多语言AI客服上线</div>
+                </div>
+                
+                <div class="ms-goal-item">
+                  <span class="ms-goal-bullet" style="color: var(--zx-danger);">▸</span>
+                  <div><span class="ms-goal-hl">内容规模化:</span>AI内容工厂日更5条多语言内容</div>
+                </div>
+                
+                <div class="ms-goal-item">
+                  <span class="ms-goal-bullet" style="color: var(--zx-danger);">▸</span>
+                  <div><span class="ms-goal-hl">品牌数字化:</span>多语言官网+社媒矩阵搭建完成</div>
+                </div>
+                
+              </div>
+            </div>
+
+            <div class="ms-flag-pole">
+              <svg class="ms-flag-icon" style="color: var(--zx-danger); fill: var(--zx-danger);" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg>
+              <div class="ms-flag-name" style="color: var(--zx-danger);">MVP</div>
+              <div class="ms-flag-line" style="background-color: var(--zx-danger);"></div>
+            </div>
+          </div>
+          
+          <div class="ms-flag" style="left: 42.85714285714286%;">
+            
+            <!-- Flag card pointing left -->
+            <div class="ms-goal-card" style="border-color: var(--zx-warning);">
+              <div class="ms-goal-title" style="color: var(--zx-warning);">第二阶段：销售转化提升</div>
+              <div class="ms-goal-time" style="color: var(--zx-warning);">2026-Q4</div>
+              <div>
+                
+                <div class="ms-goal-item">
+                  <span class="ms-goal-bullet" style="color: var(--zx-warning);">▸</span>
+                  <div><span class="ms-goal-hl">智能导购:</span>AI购车顾问转化率提升30%</div>
+                </div>
+                
+                <div class="ms-goal-item">
+                  <span class="ms-goal-bullet" style="color: var(--zx-warning);">▸</span>
+                  <div><span class="ms-goal-hl">流程优化:</span>试驾预约自动化+意向分级</div>
+                </div>
+                
+                <div class="ms-goal-item">
+                  <span class="ms-goal-bullet" style="color: var(--zx-warning);">▸</span>
+                  <div><span class="ms-goal-hl">欧洲首发:</span>欧洲DTC渠道正式运营</div>
+                </div>
+                
+              </div>
+            </div>
+
+            <div class="ms-flag-pole">
+              <svg class="ms-flag-icon" style="color: var(--zx-warning); fill: var(--zx-warning);" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg>
+              <div class="ms-flag-name" style="color: var(--zx-warning);">增长</div>
+              <div class="ms-flag-line" style="background-color: var(--zx-warning);"></div>
+            </div>
+          </div>
+          
+          <div class="ms-flag" style="left: 71.42857142857143%;">
+            
+            <!-- Flag card pointing left -->
+            <div class="ms-goal-card" style="border-color: var(--zx-success);">
+              <div class="ms-goal-title" style="color: var(--zx-success);">第三阶段：运营效率提升</div>
+              <div class="ms-goal-time" style="color: var(--zx-success);">2027-Q2</div>
+              <div>
+                
+                <div class="ms-goal-item">
+                  <span class="ms-goal-bullet" style="color: var(--zx-success);">▸</span>
+                  <div><span class="ms-goal-hl">动态定价:</span>AI实时定价覆盖全渠道</div>
+                </div>
+                
+                <div class="ms-goal-item">
+                  <span class="ms-goal-bullet" style="color: var(--zx-success);">▸</span>
+                  <div><span class="ms-goal-hl">物流透明:</span>全链路物流可视化上线</div>
+                </div>
+                
+                <div class="ms-goal-item">
+                  <span class="ms-goal-bullet" style="color: var(--zx-success);">▸</span>
+                  <div><span class="ms-goal-hl">产能优化:</span>智能排程缩短交付周期20%</div>
+                </div>
+                
+              </div>
+            </div>
+
+            <div class="ms-flag-pole">
+              <svg class="ms-flag-icon" style="color: var(--zx-success); fill: var(--zx-success);" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg>
+              <div class="ms-flag-name" style="color: var(--zx-success);">深化</div>
+              <div class="ms-flag-line" style="background-color: var(--zx-success);"></div>
+            </div>
+          </div>
+          
+          <div class="ms-flag" style="left: 100.0%;">
+            
+            <!-- Flag card pointing left -->
+            <div class="ms-goal-card" style="border-color: #3b82f6;">
+              <div class="ms-goal-title" style="color: #3b82f6;">第四阶段：用户生态闭环</div>
+              <div class="ms-goal-time" style="color: #3b82f6;">2027-Q4</div>
+              <div>
+                
+                <div class="ms-goal-item">
+                  <span class="ms-goal-bullet" style="color: #3b82f6;">▸</span>
+                  <div><span class="ms-goal-hl">骑行社区:</span>AI骑行教练+社区运营成熟</div>
+                </div>
+                
+                <div class="ms-goal-item">
+                  <span class="ms-goal-bullet" style="color: #3b82f6;">▸</span>
+                  <div><span class="ms-goal-hl">预测维护:</span>预测性维护覆盖80%活跃车辆</div>
+                </div>
+                
+                <div class="ms-goal-item">
+                  <span class="ms-goal-bullet" style="color: #3b82f6;">▸</span>
+                  <div><span class="ms-goal-hl">口碑裂变:</span>推荐计划贡献30%新客</div>
+                </div>
+                
+              </div>
+            </div>
+
+            <div class="ms-flag-pole">
+              <svg class="ms-flag-icon" style="color: #3b82f6; fill: #3b82f6;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg>
+              <div class="ms-flag-name" style="color: #3b82f6;">生态</div>
+              <div class="ms-flag-line" style="background-color: #3b82f6;"></div>
+            </div>
+          </div>
+          
+        </div>
+      </div>
+
+      <!-- Lanes -->
+      <div class="lanes-wrapper">
+        
+        <div class="lane-row">
+          <div class="lane-header">
+            <svg class="lane-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zM2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+            </svg>
+            <div>
+              <div class="lane-title">营销获客团队</div>
+              <div class="lane-subtitle">7 项举措</div>
+            </div>
+          </div>
+
+          <div class="lane-gantt">
+            <!-- Background Grid -->
+            <div class="lane-grid">
+              
+              <div class="lane-grid-col"></div>
+              
+              <div class="lane-grid-col"></div>
+              
+              <div class="lane-grid-col"></div>
+              
+              <div class="lane-grid-col"></div>
+              
+              <div class="lane-grid-col"></div>
+              
+              <div class="lane-grid-col"></div>
+              
+              <div class="lane-grid-col"></div>
+              
+            </div>
+
+            <div class="lane-content" style="height: 162px;">
+              <div class="lane-tasks-container">
+                
+                
+                
+                <div class="task-card" style="left: calc(0.0% + 2px); width: calc(14.285714285714286% - 4px); top: 0px; height: 36px; background-color: #3b82f6;">
+                  
+                  
+                  <div class="task-badge bdg-正式上线">正式上线</div>
+                  
+
+                  <div class="task-name">多语言官网上线</div>
+                  <div class="task-desc">英/法/德/西/意/葡语官网</div>
+
+                  <!-- Hover Tooltip -->
+                  <div class="task-tooltip " style="border-color: #3b82f6">
+                    <div class="tt-name">多语言官网上线</div>
+                    <div class="tt-desc">英/法/德/西/意/葡语官网</div>
+                    <div class="tt-meta">
+                      <span class="tt-team">
+                        <div class="tt-dot" style="background-color: #3b82f6;"></div>
+                        营销获客团队
+                      </span>
+                      <span>•</span>
+                      <span>2026-Q2 &rarr; 2026-Q2</span>
+                    </div>
+                    
+                    <div class="tt-tag" style="background-color: #3b82f61A; color: #3b82f6;">
+                      MVP
+                    </div>
+                    
+                  </div>
+                </div>
+                
+                
+                <div class="task-card" style="left: calc(0.0% + 2px); width: calc(28.571428571428573% - 4px); top: 42px; height: 36px; background-color: #3b82f6;">
+                  
+                  
+                  <div class="task-badge bdg-正式上线">正式上线</div>
+                  
+
+                  <div class="task-name">AI内容工厂V1</div>
+                  <div class="task-desc">日更3条多语言短视频</div>
+
+                  <!-- Hover Tooltip -->
+                  <div class="task-tooltip " style="border-color: #3b82f6">
+                    <div class="tt-name">AI内容工厂V1</div>
+                    <div class="tt-desc">日更3条多语言短视频</div>
+                    <div class="tt-meta">
+                      <span class="tt-team">
+                        <div class="tt-dot" style="background-color: #3b82f6;"></div>
+                        营销获客团队
+                      </span>
+                      <span>•</span>
+                      <span>2026-Q2 &rarr; 2026-Q3</span>
+                    </div>
+                    
+                    <div class="tt-tag" style="background-color: #3b82f61A; color: #3b82f6;">
+                      MVP
+                    </div>
+                    
+                  </div>
+                </div>
+                
+                
+                <div class="task-card" style="left: calc(0.0% + 2px); width: calc(28.571428571428573% - 4px); top: 84px; height: 36px; background-color: #3b82f6;">
+                  
+                  
+                  <div class="task-badge bdg-灰度上线">灰度上线</div>
+                  
+
+                  <div class="task-name">社媒矩阵搭建</div>
+                  <div class="task-desc">6平台多语言账号运营</div>
+
+                  <!-- Hover Tooltip -->
+                  <div class="task-tooltip " style="border-color: #3b82f6">
+                    <div class="tt-name">社媒矩阵搭建</div>
+                    <div class="tt-desc">6平台多语言账号运营</div>
+                    <div class="tt-meta">
+                      <span class="tt-team">
+                        <div class="tt-dot" style="background-color: #3b82f6;"></div>
+                        营销获客团队
+                      </span>
+                      <span>•</span>
+                      <span>2026-Q2 &rarr; 2026-Q3</span>
+                    </div>
+                    
+                    <div class="tt-tag" style="background-color: #3b82f61A; color: #3b82f6;">
+                      MVP
+                    </div>
+                    
+                  </div>
+                </div>
+                
+                
+                <div class="task-card" style="left: calc(14.285714285714286% + 2px); width: calc(28.571428571428573% - 4px); top: 0px; height: 36px; background-color: #3b82f6;">
+                  
+                  
+                  <div class="task-badge bdg-正式上线">正式上线</div>
+                  
+
+                  <div class="task-name">AI虚拟赛事解说</div>
+                  <div class="task-desc">自动生成赛事传播内容</div>
+
+                  <!-- Hover Tooltip -->
+                  <div class="task-tooltip " style="border-color: #3b82f6">
+                    <div class="tt-name">AI虚拟赛事解说</div>
+                    <div class="tt-desc">自动生成赛事传播内容</div>
+                    <div class="tt-meta">
+                      <span class="tt-team">
+                        <div class="tt-dot" style="background-color: #3b82f6;"></div>
+                        营销获客团队
+                      </span>
+                      <span>•</span>
+                      <span>2026-Q3 &rarr; 2026-Q4</span>
+                    </div>
+                    
+                    <div class="tt-tag" style="background-color: #3b82f61A; color: #3b82f6;">
+                      增长
+                    </div>
+                    
+                  </div>
+                </div>
+                
+                
+                <div class="task-card" style="left: calc(14.285714285714286% + 2px); width: calc(28.571428571428573% - 4px); top: 126px; height: 36px; background-color: #3b82f6;">
+                  
+                  
+                  <div class="task-badge bdg-正式上线">正式上线</div>
+                  
+
+                  <div class="task-name">SEO自动化</div>
+                  <div class="task-desc">多语言SEO持续优化</div>
+
+                  <!-- Hover Tooltip -->
+                  <div class="task-tooltip " style="border-color: #3b82f6">
+                    <div class="tt-name">SEO自动化</div>
+                    <div class="tt-desc">多语言SEO持续优化</div>
+                    <div class="tt-meta">
+                      <span class="tt-team">
+                        <div class="tt-dot" style="background-color: #3b82f6;"></div>
+                        营销获客团队
+                      </span>
+                      <span>•</span>
+                      <span>2026-Q3 &rarr; 2026-Q4</span>
+                    </div>
+                    
+                    <div class="tt-tag" style="background-color: #3b82f61A; color: #3b82f6;">
+                      增长
+                    </div>
+                    
+                  </div>
+                </div>
+                
+                
+                <div class="task-card" style="left: calc(28.571428571428573% + 2px); width: calc(28.571428571428573% - 4px); top: 42px; height: 36px; background-color: #3b82f6;">
+                  
+                  
+                  <div class="task-badge bdg-研发">研发</div>
+                  
+
+                  <div class="task-name">KOL合作平台</div>
+                  <div class="task-desc">AI匹配+效果追踪</div>
+
+                  <!-- Hover Tooltip -->
+                  <div class="task-tooltip " style="border-color: #3b82f6">
+                    <div class="tt-name">KOL合作平台</div>
+                    <div class="tt-desc">AI匹配+效果追踪</div>
+                    <div class="tt-meta">
+                      <span class="tt-team">
+                        <div class="tt-dot" style="background-color: #3b82f6;"></div>
+                        营销获客团队
+                      </span>
+                      <span>•</span>
+                      <span>2026-Q4 &rarr; 2027-Q1</span>
+                    </div>
+                    
+                    <div class="tt-tag" style="background-color: #3b82f61A; color: #3b82f6;">
+                      深化
+                    </div>
+                    
+                  </div>
+                </div>
+                
+                
+                <div class="task-card" style="left: calc(57.142857142857146% + 2px); width: calc(42.85714285714286% - 4px); top: 0px; height: 36px; background-color: #3b82f6;">
+                  
+                  
+                  <div class="task-badge bdg-正式上线">正式上线</div>
+                  
+
+                  <div class="task-name">口碑裂变系统</div>
+                  <div class="task-desc">推荐计划+UGC激励</div>
+
+                  <!-- Hover Tooltip -->
+                  <div class="task-tooltip flip" style="border-color: #3b82f6">
+                    <div class="tt-name">口碑裂变系统</div>
+                    <div class="tt-desc">推荐计划+UGC激励</div>
+                    <div class="tt-meta">
+                      <span class="tt-team">
+                        <div class="tt-dot" style="background-color: #3b82f6;"></div>
+                        营销获客团队
+                      </span>
+                      <span>•</span>
+                      <span>2027-Q2 &rarr; 2027-Q4</span>
+                    </div>
+                    
+                    <div class="tt-tag" style="background-color: #3b82f61A; color: #3b82f6;">
+                      生态
+                    </div>
+                    
+                  </div>
+                </div>
+                
+
+              </div>
+            </div>
+
+          </div>
+        </div>
+        
+        <div class="lane-row">
+          <div class="lane-header">
+            <svg class="lane-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 7a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+            <div>
+              <div class="lane-title">客户服务团队</div>
+              <div class="lane-subtitle">6 项举措</div>
+            </div>
+          </div>
+
+          <div class="lane-gantt">
+            <!-- Background Grid -->
+            <div class="lane-grid">
+              
+              <div class="lane-grid-col"></div>
+              
+              <div class="lane-grid-col"></div>
+              
+              <div class="lane-grid-col"></div>
+              
+              <div class="lane-grid-col"></div>
+              
+              <div class="lane-grid-col"></div>
+              
+              <div class="lane-grid-col"></div>
+              
+              <div class="lane-grid-col"></div>
+              
+            </div>
+
+            <div class="lane-content" style="height: 120px;">
+              <div class="lane-tasks-container">
+                
+                
+                
+                <div class="task-card" style="left: calc(0.0% + 2px); width: calc(14.285714285714286% - 4px); top: 0px; height: 36px; background-color: #8b5cf6;">
+                  
+                  
+                  <div class="task-badge bdg-正式上线">正式上线</div>
+                  
+
+                  <div class="task-name">AI客服机器人V1</div>
+                  <div class="task-desc">6语言实时对话+FAQ问答</div>
+
+                  <!-- Hover Tooltip -->
+                  <div class="task-tooltip " style="border-color: #8b5cf6">
+                    <div class="tt-name">AI客服机器人V1</div>
+                    <div class="tt-desc">6语言实时对话+FAQ问答</div>
+                    <div class="tt-meta">
+                      <span class="tt-team">
+                        <div class="tt-dot" style="background-color: #8b5cf6;"></div>
+                        客户服务团队
+                      </span>
+                      <span>•</span>
+                      <span>2026-Q2 &rarr; 2026-Q2</span>
+                    </div>
+                    
+                    <div class="tt-tag" style="background-color: #8b5cf61A; color: #8b5cf6;">
+                      MVP
+                    </div>
+                    
+                  </div>
+                </div>
+                
+                
+                <div class="task-card" style="left: calc(0.0% + 2px); width: calc(28.571428571428573% - 4px); top: 42px; height: 36px; background-color: #8b5cf6;">
+                  
+                  
+                  <div class="task-badge bdg-正式上线">正式上线</div>
+                  
+
+                  <div class="task-name">智能购车顾问</div>
+                  <div class="task-desc">个性化车型推荐+配置</div>
+
+                  <!-- Hover Tooltip -->
+                  <div class="task-tooltip " style="border-color: #8b5cf6">
+                    <div class="tt-name">智能购车顾问</div>
+                    <div class="tt-desc">个性化车型推荐+配置</div>
+                    <div class="tt-meta">
+                      <span class="tt-team">
+                        <div class="tt-dot" style="background-color: #8b5cf6;"></div>
+                        客户服务团队
+                      </span>
+                      <span>•</span>
+                      <span>2026-Q2 &rarr; 2026-Q3</span>
+                    </div>
+                    
+                    <div class="tt-tag" style="background-color: #8b5cf61A; color: #8b5cf6;">
+                      MVP
+                    </div>
+                    
+                  </div>
+                </div>
+                
+                
+                <div class="task-card" style="left: calc(14.285714285714286% + 2px); width: calc(14.285714285714286% - 4px); top: 0px; height: 36px; background-color: #8b5cf6;">
+                  
+                  
+                  <div class="task-badge bdg-正式上线">正式上线</div>
+                  
+
+                  <div class="task-name">客户意向分级</div>
+                  <div class="task-desc">AI自动评分高/中/低意向</div>
+
+                  <!-- Hover Tooltip -->
+                  <div class="task-tooltip " style="border-color: #8b5cf6">
+                    <div class="tt-name">客户意向分级</div>
+                    <div class="tt-desc">AI自动评分高/中/低意向</div>
+                    <div class="tt-meta">
+                      <span class="tt-team">
+                        <div class="tt-dot" style="background-color: #8b5cf6;"></div>
+                        客户服务团队
+                      </span>
+                      <span>•</span>
+                      <span>2026-Q3 &rarr; 2026-Q3</span>
+                    </div>
+                    
+                    <div class="tt-tag" style="background-color: #8b5cf61A; color: #8b5cf6;">
+                      MVP
+                    </div>
+                    
+                  </div>
+                </div>
+                
+                
+                <div class="task-card" style="left: calc(14.285714285714286% + 2px); width: calc(28.571428571428573% - 4px); top: 84px; height: 36px; background-color: #8b5cf6;">
+                  
+                  
+                  <div class="task-badge bdg-正式上线">正式上线</div>
+                  
+
+                  <div class="task-name">自动化试驾预约</div>
+                  <div class="task-desc">智能排期+提醒推送</div>
+
+                  <!-- Hover Tooltip -->
+                  <div class="task-tooltip " style="border-color: #8b5cf6">
+                    <div class="tt-name">自动化试驾预约</div>
+                    <div class="tt-desc">智能排期+提醒推送</div>
+                    <div class="tt-meta">
+                      <span class="tt-team">
+                        <div class="tt-dot" style="background-color: #8b5cf6;"></div>
+                        客户服务团队
+                      </span>
+                      <span>•</span>
+                      <span>2026-Q3 &rarr; 2026-Q4</span>
+                    </div>
+                    
+                    <div class="tt-tag" style="background-color: #8b5cf61A; color: #8b5cf6;">
+                      增长
+                    </div>
+                    
+                  </div>
+                </div>
+                
+                
+                <div class="task-card" style="left: calc(28.571428571428573% + 2px); width: calc(28.571428571428573% - 4px); top: 0px; height: 36px; background-color: #8b5cf6;">
+                  
+                  
+                  <div class="task-badge bdg-灰度上线">灰度上线</div>
+                  
+
+                  <div class="task-name">AI客服V2升级</div>
+                  <div class="task-desc">情感分析+主动关怀</div>
+
+                  <!-- Hover Tooltip -->
+                  <div class="task-tooltip " style="border-color: #8b5cf6">
+                    <div class="tt-name">AI客服V2升级</div>
+                    <div class="tt-desc">情感分析+主动关怀</div>
+                    <div class="tt-meta">
+                      <span class="tt-team">
+                        <div class="tt-dot" style="background-color: #8b5cf6;"></div>
+                        客户服务团队
+                      </span>
+                      <span>•</span>
+                      <span>2026-Q4 &rarr; 2027-Q1</span>
+                    </div>
+                    
+                    <div class="tt-tag" style="background-color: #8b5cf61A; color: #8b5cf6;">
+                      深化
+                    </div>
+                    
+                  </div>
+                </div>
+                
+                
+                <div class="task-card" style="left: calc(42.85714285714286% + 2px); width: calc(28.571428571428573% - 4px); top: 42px; height: 36px; background-color: #8b5cf6;">
+                  
+                  
+                  <div class="task-badge bdg-实测">实测</div>
+                  
+
+                  <div class="task-name">AR车辆导览</div>
+                  <div class="task-desc">扫描车辆显示功能说明</div>
+
+                  <!-- Hover Tooltip -->
+                  <div class="task-tooltip flip" style="border-color: #8b5cf6">
+                    <div class="tt-name">AR车辆导览</div>
+                    <div class="tt-desc">扫描车辆显示功能说明</div>
+                    <div class="tt-meta">
+                      <span class="tt-team">
+                        <div class="tt-dot" style="background-color: #8b5cf6;"></div>
+                        客户服务团队
+                      </span>
+                      <span>•</span>
+                      <span>2027-Q1 &rarr; 2027-Q2</span>
+                    </div>
+                    
+                    <div class="tt-tag" style="background-color: #8b5cf61A; color: #8b5cf6;">
+                      深化
+                    </div>
+                    
+                  </div>
+                </div>
+                
+
+              </div>
+            </div>
+
+          </div>
+        </div>
+        
+        <div class="lane-row">
+          <div class="lane-header">
+            <svg class="lane-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M5 2h14c1.1 0 2 .9 2 2v16c0 1.1-.9 2-2 2H5c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2zM12 18h.01"></path>
+            </svg>
+            <div>
+              <div class="lane-title">销售转化团队</div>
+              <div class="lane-subtitle">5 项举措</div>
+            </div>
+          </div>
+
+          <div class="lane-gantt">
+            <!-- Background Grid -->
+            <div class="lane-grid">
+              
+              <div class="lane-grid-col"></div>
+              
+              <div class="lane-grid-col"></div>
+              
+              <div class="lane-grid-col"></div>
+              
+              <div class="lane-grid-col"></div>
+              
+              <div class="lane-grid-col"></div>
+              
+              <div class="lane-grid-col"></div>
+              
+              <div class="lane-grid-col"></div>
+              
+            </div>
+
+            <div class="lane-content" style="height: 120px;">
+              <div class="lane-tasks-container">
+                
+                
+                
+                <div class="task-card" style="left: calc(0.0% + 2px); width: calc(28.571428571428573% - 4px); top: 0px; height: 36px; background-color: #ec4899;">
+                  
+                  
+                  <div class="task-badge bdg-正式上线">正式上线</div>
+                  
+
+                  <div class="task-name">跨境支付接入</div>
+                  <div class="task-desc">PayPal/Stripe+本地支付</div>
+
+                  <!-- Hover Tooltip -->
+                  <div class="task-tooltip " style="border-color: #ec4899">
+                    <div class="tt-name">跨境支付接入</div>
+                    <div class="tt-desc">PayPal/Stripe+本地支付</div>
+                    <div class="tt-meta">
+                      <span class="tt-team">
+                        <div class="tt-dot" style="background-color: #ec4899;"></div>
+                        销售转化团队
+                      </span>
+                      <span>•</span>
+                      <span>2026-Q2 &rarr; 2026-Q3</span>
+                    </div>
+                    
+                    <div class="tt-tag" style="background-color: #ec48991A; color: #ec4899;">
+                      MVP
+                    </div>
+                    
+                  </div>
+                </div>
+                
+                
+                <div class="task-card" style="left: calc(14.285714285714286% + 2px); width: calc(28.571428571428573% - 4px); top: 42px; height: 36px; background-color: #ec4899;">
+                  
+                  
+                  <div class="task-badge bdg-正式上线">正式上线</div>
+                  
+
+                  <div class="task-name">自动化汇率管理</div>
+                  <div class="task-desc">实时汇率+自动调价</div>
+
+                  <!-- Hover Tooltip -->
+                  <div class="task-tooltip " style="border-color: #ec4899">
+                    <div class="tt-name">自动化汇率管理</div>
+                    <div class="tt-desc">实时汇率+自动调价</div>
+                    <div class="tt-meta">
+                      <span class="tt-team">
+                        <div class="tt-dot" style="background-color: #ec4899;"></div>
+                        销售转化团队
+                      </span>
+                      <span>•</span>
+                      <span>2026-Q3 &rarr; 2026-Q4</span>
+                    </div>
+                    
+                    <div class="tt-tag" style="background-color: #ec48991A; color: #ec4899;">
+                      增长
+                    </div>
+                    
+                  </div>
+                </div>
+                
+                
+                <div class="task-card" style="left: calc(28.571428571428573% + 2px); width: calc(28.571428571428573% - 4px); top: 0px; height: 36px; background-color: #ec4899;">
+                  
+                  
+                  <div class="task-badge bdg-灰度上线">灰度上线</div>
+                  
+
+                  <div class="task-name">动态定价引擎</div>
+                  <div class="task-desc">AI实时定价优化利润</div>
+
+                  <!-- Hover Tooltip -->
+                  <div class="task-tooltip " style="border-color: #ec4899">
+                    <div class="tt-name">动态定价引擎</div>
+                    <div class="tt-desc">AI实时定价优化利润</div>
+                    <div class="tt-meta">
+                      <span class="tt-team">
+                        <div class="tt-dot" style="background-color: #ec4899;"></div>
+                        销售转化团队
+                      </span>
+                      <span>•</span>
+                      <span>2026-Q4 &rarr; 2027-Q1</span>
+                    </div>
+                    
+                    <div class="tt-tag" style="background-color: #ec48991A; color: #ec4899;">
+                      深化
+                    </div>
+                    
+                  </div>
+                </div>
+                
+                
+                <div class="task-card" style="left: calc(28.571428571428573% + 2px); width: calc(42.85714285714286% - 4px); top: 84px; height: 36px; background-color: #ec4899;">
+                  
+                  
+                  <div class="task-badge bdg-正式上线">正式上线</div>
+                  
+
+                  <div class="task-name">欧洲经销商网络</div>
+                  <div class="task-desc">5国核心城市经销商</div>
+
+                  <!-- Hover Tooltip -->
+                  <div class="task-tooltip " style="border-color: #ec4899">
+                    <div class="tt-name">欧洲经销商网络</div>
+                    <div class="tt-desc">5国核心城市经销商</div>
+                    <div class="tt-meta">
+                      <span class="tt-team">
+                        <div class="tt-dot" style="background-color: #ec4899;"></div>
+                        销售转化团队
+                      </span>
+                      <span>•</span>
+                      <span>2026-Q4 &rarr; 2027-Q2</span>
+                    </div>
+                    
+                    <div class="tt-tag" style="background-color: #ec48991A; color: #ec4899;">
+                      深化
+                    </div>
+                    
+                  </div>
+                </div>
+                
+                
+                <div class="task-card" style="left: calc(42.85714285714286% + 2px); width: calc(42.85714285714286% - 4px); top: 42px; height: 36px; background-color: #ec4899;">
+                  
+                  
+                  <div class="task-badge bdg-实测">实测</div>
+                  
+
+                  <div class="task-name">智能金融方案</div>
+                  <div class="task-desc">跨境信用评估+分期</div>
+
+                  <!-- Hover Tooltip -->
+                  <div class="task-tooltip flip" style="border-color: #ec4899">
+                    <div class="tt-name">智能金融方案</div>
+                    <div class="tt-desc">跨境信用评估+分期</div>
+                    <div class="tt-meta">
+                      <span class="tt-team">
+                        <div class="tt-dot" style="background-color: #ec4899;"></div>
+                        销售转化团队
+                      </span>
+                      <span>•</span>
+                      <span>2027-Q1 &rarr; 2027-Q3</span>
+                    </div>
+                    
+                    <div class="tt-tag" style="background-color: #ec48991A; color: #ec4899;">
+                      深化
+                    </div>
+                    
+                  </div>
+                </div>
+                
+
+              </div>
+            </div>
+
+          </div>
+        </div>
+        
+        <div class="lane-row">
+          <div class="lane-header">
+            <svg class="lane-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M2 6a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6zm0 8a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-4zm4-2h.01M6 20h.01"></path>
+            </svg>
+            <div>
+              <div class="lane-title">订单履约团队</div>
+              <div class="lane-subtitle">5 项举措</div>
+            </div>
+          </div>
+
+          <div class="lane-gantt">
+            <!-- Background Grid -->
+            <div class="lane-grid">
+              
+              <div class="lane-grid-col"></div>
+              
+              <div class="lane-grid-col"></div>
+              
+              <div class="lane-grid-col"></div>
+              
+              <div class="lane-grid-col"></div>
+              
+              <div class="lane-grid-col"></div>
+              
+              <div class="lane-grid-col"></div>
+              
+              <div class="lane-grid-col"></div>
+              
+            </div>
+
+            <div class="lane-content" style="height: 80px;">
+              <div class="lane-tasks-container">
+                
+                
+                
+                <div class="task-card" style="left: calc(0.0% + 2px); width: calc(28.571428571428573% - 4px); top: 0px; height: 36px; background-color: var(--zx-success);">
+                  
+                  
+                  <div class="task-badge bdg-正式上线">正式上线</div>
+                  
+
+                  <div class="task-name">OMS系统上线</div>
+                  <div class="task-desc">订单管理+状态同步</div>
+
+                  <!-- Hover Tooltip -->
+                  <div class="task-tooltip " style="border-color: var(--zx-success)">
+                    <div class="tt-name">OMS系统上线</div>
+                    <div class="tt-desc">订单管理+状态同步</div>
+                    <div class="tt-meta">
+                      <span class="tt-team">
+                        <div class="tt-dot" style="background-color: var(--zx-success);"></div>
+                        订单履约团队
+                      </span>
+                      <span>•</span>
+                      <span>2026-Q2 &rarr; 2026-Q3</span>
+                    </div>
+                    
+                    <div class="tt-tag" style="background-color: #10b9811A; color: var(--zx-success);">
+                      MVP
+                    </div>
+                    
+                  </div>
+                </div>
+                
+                
+                <div class="task-card" style="left: calc(14.285714285714286% + 2px); width: calc(28.571428571428573% - 4px); top: 42px; height: 36px; background-color: var(--zx-success);">
+                  
+                  
+                  <div class="task-badge bdg-正式上线">正式上线</div>
+                  
+
+                  <div class="task-name">物流跟踪系统</div>
+                  <div class="task-desc">全链路可视化+ETA预测</div>
+
+                  <!-- Hover Tooltip -->
+                  <div class="task-tooltip " style="border-color: var(--zx-success)">
+                    <div class="tt-name">物流跟踪系统</div>
+                    <div class="tt-desc">全链路可视化+ETA预测</div>
+                    <div class="tt-meta">
+                      <span class="tt-team">
+                        <div class="tt-dot" style="background-color: var(--zx-success);"></div>
+                        订单履约团队
+                      </span>
+                      <span>•</span>
+                      <span>2026-Q3 &rarr; 2026-Q4</span>
+                    </div>
+                    
+                    <div class="tt-tag" style="background-color: #10b9811A; color: var(--zx-success);">
+                      增长
+                    </div>
+                    
+                  </div>
+                </div>
+                
+                
+                <div class="task-card" style="left: calc(28.571428571428573% + 2px); width: calc(28.571428571428573% - 4px); top: 0px; height: 36px; background-color: var(--zx-success);">
+                  
+                  
+                  <div class="task-badge bdg-灰度上线">灰度上线</div>
+                  
+
+                  <div class="task-name">智能生产排程</div>
+                  <div class="task-desc">AI优化排产缩短周期</div>
+
+                  <!-- Hover Tooltip -->
+                  <div class="task-tooltip " style="border-color: var(--zx-success)">
+                    <div class="tt-name">智能生产排程</div>
+                    <div class="tt-desc">AI优化排产缩短周期</div>
+                    <div class="tt-meta">
+                      <span class="tt-team">
+                        <div class="tt-dot" style="background-color: var(--zx-success);"></div>
+                        订单履约团队
+                      </span>
+                      <span>•</span>
+                      <span>2026-Q4 &rarr; 2027-Q1</span>
+                    </div>
+                    
+                    <div class="tt-tag" style="background-color: #10b9811A; color: var(--zx-success);">
+                      深化
+                    </div>
+                    
+                  </div>
+                </div>
+                
+                
+                <div class="task-card" style="left: calc(42.85714285714286% + 2px); width: calc(28.571428571428573% - 4px); top: 42px; height: 36px; background-color: var(--zx-success);">
+                  
+                  
+                  <div class="task-badge bdg-正式上线">正式上线</div>
+                  
+
+                  <div class="task-name">海外前置仓</div>
+                  <div class="task-desc">欧洲配件前置仓</div>
+
+                  <!-- Hover Tooltip -->
+                  <div class="task-tooltip flip" style="border-color: var(--zx-success)">
+                    <div class="tt-name">海外前置仓</div>
+                    <div class="tt-desc">欧洲配件前置仓</div>
+                    <div class="tt-meta">
+                      <span class="tt-team">
+                        <div class="tt-dot" style="background-color: var(--zx-success);"></div>
+                        订单履约团队
+                      </span>
+                      <span>•</span>
+                      <span>2027-Q1 &rarr; 2027-Q2</span>
+                    </div>
+                    
+                    <div class="tt-tag" style="background-color: #10b9811A; color: var(--zx-success);">
+                      深化
+                    </div>
+                    
+                  </div>
+                </div>
+                
+                
+                <div class="task-card" style="left: calc(57.142857142857146% + 2px); width: calc(28.571428571428573% - 4px); top: 0px; height: 36px; background-color: var(--zx-success);">
+                  
+                  
+                  <div class="task-badge bdg-研发">研发</div>
+                  
+
+                  <div class="task-name">智能清关辅助</div>
+                  <div class="task-desc">自动单据+合规扫描</div>
+
+                  <!-- Hover Tooltip -->
+                  <div class="task-tooltip flip" style="border-color: var(--zx-success)">
+                    <div class="tt-name">智能清关辅助</div>
+                    <div class="tt-desc">自动单据+合规扫描</div>
+                    <div class="tt-meta">
+                      <span class="tt-team">
+                        <div class="tt-dot" style="background-color: var(--zx-success);"></div>
+                        订单履约团队
+                      </span>
+                      <span>•</span>
+                      <span>2027-Q2 &rarr; 2027-Q3</span>
+                    </div>
+                    
+                    <div class="tt-tag" style="background-color: #10b9811A; color: var(--zx-success);">
+                      生态
+                    </div>
+                    
+                  </div>
+                </div>
+                
+
+              </div>
+            </div>
+
+          </div>
+        </div>
+        
+        <div class="lane-row">
+          <div class="lane-header">
+            <svg class="lane-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+            </svg>
+            <div>
+              <div class="lane-title">售后服务团队</div>
+              <div class="lane-subtitle">5 项举措</div>
+            </div>
+          </div>
+
+          <div class="lane-gantt">
+            <!-- Background Grid -->
+            <div class="lane-grid">
+              
+              <div class="lane-grid-col"></div>
+              
+              <div class="lane-grid-col"></div>
+              
+              <div class="lane-grid-col"></div>
+              
+              <div class="lane-grid-col"></div>
+              
+              <div class="lane-grid-col"></div>
+              
+              <div class="lane-grid-col"></div>
+              
+              <div class="lane-grid-col"></div>
+              
+            </div>
+
+            <div class="lane-content" style="height: 120px;">
+              <div class="lane-tasks-container">
+                
+                
+                
+                <div class="task-card" style="left: calc(14.285714285714286% + 2px); width: calc(28.571428571428573% - 4px); top: 0px; height: 36px; background-color: #f97316;">
+                  
+                  
+                  <div class="task-badge bdg-正式上线">正式上线</div>
+                  
+
+                  <div class="task-name">海外服务商招募</div>
+                  <div class="task-desc">欧洲首批10家服务商</div>
+
+                  <!-- Hover Tooltip -->
+                  <div class="task-tooltip " style="border-color: #f97316">
+                    <div class="tt-name">海外服务商招募</div>
+                    <div class="tt-desc">欧洲首批10家服务商</div>
+                    <div class="tt-meta">
+                      <span class="tt-team">
+                        <div class="tt-dot" style="background-color: #f97316;"></div>
+                        售后服务团队
+                      </span>
+                      <span>•</span>
+                      <span>2026-Q3 &rarr; 2026-Q4</span>
+                    </div>
+                    
+                    <div class="tt-tag" style="background-color: #f973161A; color: #f97316;">
+                      增长
+                    </div>
+                    
+                  </div>
+                </div>
+                
+                
+                <div class="task-card" style="left: calc(28.571428571428573% + 2px); width: calc(28.571428571428573% - 4px); top: 42px; height: 36px; background-color: #f97316;">
+                  
+                  
+                  <div class="task-badge bdg-灰度上线">灰度上线</div>
+                  
+
+                  <div class="task-name">AI远程诊断</div>
+                  <div class="task-desc">车联网+智能故障诊断</div>
+
+                  <!-- Hover Tooltip -->
+                  <div class="task-tooltip " style="border-color: #f97316">
+                    <div class="tt-name">AI远程诊断</div>
+                    <div class="tt-desc">车联网+智能故障诊断</div>
+                    <div class="tt-meta">
+                      <span class="tt-team">
+                        <div class="tt-dot" style="background-color: #f97316;"></div>
+                        售后服务团队
+                      </span>
+                      <span>•</span>
+                      <span>2026-Q4 &rarr; 2027-Q1</span>
+                    </div>
+                    
+                    <div class="tt-tag" style="background-color: #f973161A; color: #f97316;">
+                      深化
+                    </div>
+                    
+                  </div>
+                </div>
+                
+                
+                <div class="task-card" style="left: calc(42.85714285714286% + 2px); width: calc(28.571428571428573% - 4px); top: 0px; height: 36px; background-color: #f97316;">
+                  
+                  
+                  <div class="task-badge bdg-正式上线">正式上线</div>
+                  
+
+                  <div class="task-name">配件需求预测</div>
+                  <div class="task-desc">AI预测降低缺货率</div>
+
+                  <!-- Hover Tooltip -->
+                  <div class="task-tooltip flip" style="border-color: #f97316">
+                    <div class="tt-name">配件需求预测</div>
+                    <div class="tt-desc">AI预测降低缺货率</div>
+                    <div class="tt-meta">
+                      <span class="tt-team">
+                        <div class="tt-dot" style="background-color: #f97316;"></div>
+                        售后服务团队
+                      </span>
+                      <span>•</span>
+                      <span>2027-Q1 &rarr; 2027-Q2</span>
+                    </div>
+                    
+                    <div class="tt-tag" style="background-color: #f973161A; color: #f97316;">
+                      深化
+                    </div>
+                    
+                  </div>
+                </div>
+                
+                
+                <div class="task-card" style="left: calc(57.142857142857146% + 2px); width: calc(28.571428571428573% - 4px); top: 42px; height: 36px; background-color: #f97316;">
+                  
+                  
+                  <div class="task-badge bdg-灰度上线">灰度上线</div>
+                  
+
+                  <div class="task-name">预测性维护</div>
+                  <div class="task-desc">IoT数据+保养预测</div>
+
+                  <!-- Hover Tooltip -->
+                  <div class="task-tooltip flip" style="border-color: #f97316">
+                    <div class="tt-name">预测性维护</div>
+                    <div class="tt-desc">IoT数据+保养预测</div>
+                    <div class="tt-meta">
+                      <span class="tt-team">
+                        <div class="tt-dot" style="background-color: #f97316;"></div>
+                        售后服务团队
+                      </span>
+                      <span>•</span>
+                      <span>2027-Q2 &rarr; 2027-Q3</span>
+                    </div>
+                    
+                    <div class="tt-tag" style="background-color: #f973161A; color: #f97316;">
+                      生态
+                    </div>
+                    
+                  </div>
+                </div>
+                
+                
+                <div class="task-card" style="left: calc(57.142857142857146% + 2px); width: calc(42.85714285714286% - 4px); top: 84px; height: 36px; background-color: #f97316;">
+                  
+                  
+                  <div class="task-badge bdg-正式上线">正式上线</div>
+                  
+
+                  <div class="task-name">全球服务网络</div>
+                  <div class="task-desc">30国100+服务商</div>
+
+                  <!-- Hover Tooltip -->
+                  <div class="task-tooltip flip" style="border-color: #f97316">
+                    <div class="tt-name">全球服务网络</div>
+                    <div class="tt-desc">30国100+服务商</div>
+                    <div class="tt-meta">
+                      <span class="tt-team">
+                        <div class="tt-dot" style="background-color: #f97316;"></div>
+                        售后服务团队
+                      </span>
+                      <span>•</span>
+                      <span>2027-Q2 &rarr; 2027-Q4</span>
+                    </div>
+                    
+                    <div class="tt-tag" style="background-color: #f973161A; color: #f97316;">
+                      生态
+                    </div>
+                    
+                  </div>
+                </div>
+                
+
+              </div>
+            </div>
+
+          </div>
+        </div>
+        
+        <div class="lane-row">
+          <div class="lane-header">
+            <svg class="lane-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 3a4 4 0 0 1 4 4c0 1.05-.4 2.01-1.07 2.72A3.99 3.99 0 0 1 18 13.5c0 1.83-1.23 3.37-2.92 3.84v.05A2.6 2.6 0 0 1 12.5 20h-1a2.6 2.6 0 0 1-2.58-2.61v-.05A3.98 3.98 0 0 1 6 13.5c0-.85.27-1.64.73-2.28A4 4 0 0 1 8 5h.07C8.75 3.84 10.28 3 12 3z"></path>
+            </svg>
+            <div>
+              <div class="lane-title">用户运营团队</div>
+              <div class="lane-subtitle">4 项举措</div>
+            </div>
+          </div>
+
+          <div class="lane-gantt">
+            <!-- Background Grid -->
+            <div class="lane-grid">
+              
+              <div class="lane-grid-col"></div>
+              
+              <div class="lane-grid-col"></div>
+              
+              <div class="lane-grid-col"></div>
+              
+              <div class="lane-grid-col"></div>
+              
+              <div class="lane-grid-col"></div>
+              
+              <div class="lane-grid-col"></div>
+              
+              <div class="lane-grid-col"></div>
+              
+            </div>
+
+            <div class="lane-content" style="height: 120px;">
+              <div class="lane-tasks-container">
+                
+                
+                
+                <div class="task-card" style="left: calc(14.285714285714286% + 2px); width: calc(28.571428571428573% - 4px); top: 0px; height: 36px; background-color: #06b6d4;">
+                  
+                  
+                  <div class="task-badge bdg-正式上线">正式上线</div>
+                  
+
+                  <div class="task-name">车主社区搭建</div>
+                  <div class="task-desc">Discord+APP社区上线</div>
+
+                  <!-- Hover Tooltip -->
+                  <div class="task-tooltip " style="border-color: #06b6d4">
+                    <div class="tt-name">车主社区搭建</div>
+                    <div class="tt-desc">Discord+APP社区上线</div>
+                    <div class="tt-meta">
+                      <span class="tt-team">
+                        <div class="tt-dot" style="background-color: #06b6d4;"></div>
+                        用户运营团队
+                      </span>
+                      <span>•</span>
+                      <span>2026-Q3 &rarr; 2026-Q4</span>
+                    </div>
+                    
+                    <div class="tt-tag" style="background-color: #06b6d41A; color: #06b6d4;">
+                      增长
+                    </div>
+                    
+                  </div>
+                </div>
+                
+                
+                <div class="task-card" style="left: calc(42.85714285714286% + 2px); width: calc(28.571428571428573% - 4px); top: 0px; height: 36px; background-color: #06b6d4;">
+                  
+                  
+                  <div class="task-badge bdg-灰度上线">灰度上线</div>
+                  
+
+                  <div class="task-name">AI骑行教练</div>
+                  <div class="task-desc">个性化路线+技巧建议</div>
+
+                  <!-- Hover Tooltip -->
+                  <div class="task-tooltip flip" style="border-color: #06b6d4">
+                    <div class="tt-name">AI骑行教练</div>
+                    <div class="tt-desc">个性化路线+技巧建议</div>
+                    <div class="tt-meta">
+                      <span class="tt-team">
+                        <div class="tt-dot" style="background-color: #06b6d4;"></div>
+                        用户运营团队
+                      </span>
+                      <span>•</span>
+                      <span>2027-Q1 &rarr; 2027-Q2</span>
+                    </div>
+                    
+                    <div class="tt-tag" style="background-color: #06b6d41A; color: #06b6d4;">
+                      深化
+                    </div>
+                    
+                  </div>
+                </div>
+                
+                
+                <div class="task-card" style="left: calc(57.142857142857146% + 2px); width: calc(28.571428571428573% - 4px); top: 42px; height: 36px; background-color: #06b6d4;">
+                  
+                  
+                  <div class="task-badge bdg-实测">实测</div>
+                  
+
+                  <div class="task-name">虚拟骑行伙伴</div>
+                  <div class="task-desc">AI语音互动+安全监控</div>
+
+                  <!-- Hover Tooltip -->
+                  <div class="task-tooltip flip" style="border-color: #06b6d4">
+                    <div class="tt-name">虚拟骑行伙伴</div>
+                    <div class="tt-desc">AI语音互动+安全监控</div>
+                    <div class="tt-meta">
+                      <span class="tt-team">
+                        <div class="tt-dot" style="background-color: #06b6d4;"></div>
+                        用户运营团队
+                      </span>
+                      <span>•</span>
+                      <span>2027-Q2 &rarr; 2027-Q3</span>
+                    </div>
+                    
+                    <div class="tt-tag" style="background-color: #06b6d41A; color: #06b6d4;">
+                      生态
+                    </div>
+                    
+                  </div>
+                </div>
+                
+                
+                <div class="task-card" style="left: calc(57.142857142857146% + 2px); width: calc(42.85714285714286% - 4px); top: 84px; height: 36px; background-color: #06b6d4;">
+                  
+                  
+                  <div class="task-badge bdg-正式上线">正式上线</div>
+                  
+
+                  <div class="task-name">社区活动平台</div>
+                  <div class="task-desc">全球骑手活动组织</div>
+
+                  <!-- Hover Tooltip -->
+                  <div class="task-tooltip flip" style="border-color: #06b6d4">
+                    <div class="tt-name">社区活动平台</div>
+                    <div class="tt-desc">全球骑手活动组织</div>
+                    <div class="tt-meta">
+                      <span class="tt-team">
+                        <div class="tt-dot" style="background-color: #06b6d4;"></div>
+                        用户运营团队
+                      </span>
+                      <span>•</span>
+                      <span>2027-Q2 &rarr; 2027-Q4</span>
+                    </div>
+                    
+                    <div class="tt-tag" style="background-color: #06b6d41A; color: #06b6d4;">
+                      生态
+                    </div>
+                    
+                  </div>
+                </div>
+                
+
+              </div>
+            </div>
+
+          </div>
+        </div>
+        
+        <div class="lane-row">
+          <div class="lane-header">
+            <svg class="lane-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"></path>
+            </svg>
+            <div>
+              <div class="lane-title">技术平台团队</div>
+              <div class="lane-subtitle">5 项举措</div>
+            </div>
+          </div>
+
+          <div class="lane-gantt">
+            <!-- Background Grid -->
+            <div class="lane-grid">
+              
+              <div class="lane-grid-col"></div>
+              
+              <div class="lane-grid-col"></div>
+              
+              <div class="lane-grid-col"></div>
+              
+              <div class="lane-grid-col"></div>
+              
+              <div class="lane-grid-col"></div>
+              
+              <div class="lane-grid-col"></div>
+              
+              <div class="lane-grid-col"></div>
+              
+            </div>
+
+            <div class="lane-content" style="height: 120px;">
+              <div class="lane-tasks-container">
+                
+                
+                
+                <div class="task-card" style="left: calc(0.0% + 2px); width: calc(28.571428571428573% - 4px); top: 0px; height: 36px; background-color: var(--zx-black-700);">
+                  
+                  
+                  <div class="task-badge bdg-正式上线">正式上线</div>
+                  
+
+                  <div class="task-name">CDP数据平台</div>
+                  <div class="task-desc">统一客户数据平台</div>
+
+                  <!-- Hover Tooltip -->
+                  <div class="task-tooltip " style="border-color: var(--zx-black-700)">
+                    <div class="tt-name">CDP数据平台</div>
+                    <div class="tt-desc">统一客户数据平台</div>
+                    <div class="tt-meta">
+                      <span class="tt-team">
+                        <div class="tt-dot" style="background-color: var(--zx-black-700);"></div>
+                        技术平台团队
+                      </span>
+                      <span>•</span>
+                      <span>2026-Q2 &rarr; 2026-Q3</span>
+                    </div>
+                    
+                    <div class="tt-tag" style="background-color: #4755691A; color: var(--zx-black-700);">
+                      MVP
+                    </div>
+                    
+                  </div>
+                </div>
+                
+                
+                <div class="task-card" style="left: calc(0.0% + 2px); width: calc(28.571428571428573% - 4px); top: 42px; height: 36px; background-color: var(--zx-black-700);">
+                  
+                  
+                  <div class="task-badge bdg-正式上线">正式上线</div>
+                  
+
+                  <div class="task-name">RAG知识库</div>
+                  <div class="task-desc">产品知识+FAQ向量库</div>
+
+                  <!-- Hover Tooltip -->
+                  <div class="task-tooltip " style="border-color: var(--zx-black-700)">
+                    <div class="tt-name">RAG知识库</div>
+                    <div class="tt-desc">产品知识+FAQ向量库</div>
+                    <div class="tt-meta">
+                      <span class="tt-team">
+                        <div class="tt-dot" style="background-color: var(--zx-black-700);"></div>
+                        技术平台团队
+                      </span>
+                      <span>•</span>
+                      <span>2026-Q2 &rarr; 2026-Q3</span>
+                    </div>
+                    
+                    <div class="tt-tag" style="background-color: #4755691A; color: var(--zx-black-700);">
+                      MVP
+                    </div>
+                    
+                  </div>
+                </div>
+                
+                
+                <div class="task-card" style="left: calc(28.571428571428573% + 2px); width: calc(28.571428571428573% - 4px); top: 0px; height: 36px; background-color: var(--zx-black-700);">
+                  
+                  
+                  <div class="task-badge bdg-灰度上线">灰度上线</div>
+                  
+
+                  <div class="task-name">车联网平台</div>
+                  <div class="task-desc">IoT数据接入+分析</div>
+
+                  <!-- Hover Tooltip -->
+                  <div class="task-tooltip " style="border-color: var(--zx-black-700)">
+                    <div class="tt-name">车联网平台</div>
+                    <div class="tt-desc">IoT数据接入+分析</div>
+                    <div class="tt-meta">
+                      <span class="tt-team">
+                        <div class="tt-dot" style="background-color: var(--zx-black-700);"></div>
+                        技术平台团队
+                      </span>
+                      <span>•</span>
+                      <span>2026-Q4 &rarr; 2027-Q1</span>
+                    </div>
+                    
+                    <div class="tt-tag" style="background-color: #4755691A; color: var(--zx-black-700);">
+                      深化
+                    </div>
+                    
+                  </div>
+                </div>
+                
+                
+                <div class="task-card" style="left: calc(28.571428571428573% + 2px); width: calc(42.85714285714286% - 4px); top: 42px; height: 36px; background-color: var(--zx-black-700);">
+                  
+                  
+                  <div class="task-badge bdg-研发">研发</div>
+                  
+
+                  <div class="task-name">AI模型工厂</div>
+                  <div class="task-desc">模型训练+部署流水线</div>
+
+                  <!-- Hover Tooltip -->
+                  <div class="task-tooltip " style="border-color: var(--zx-black-700)">
+                    <div class="tt-name">AI模型工厂</div>
+                    <div class="tt-desc">模型训练+部署流水线</div>
+                    <div class="tt-meta">
+                      <span class="tt-team">
+                        <div class="tt-dot" style="background-color: var(--zx-black-700);"></div>
+                        技术平台团队
+                      </span>
+                      <span>•</span>
+                      <span>2026-Q4 &rarr; 2027-Q2</span>
+                    </div>
+                    
+                    <div class="tt-tag" style="background-color: #4755691A; color: var(--zx-black-700);">
+                      深化
+                    </div>
+                    
+                  </div>
+                </div>
+                
+                
+                <div class="task-card" style="left: calc(42.85714285714286% + 2px); width: calc(42.85714285714286% - 4px); top: 84px; height: 36px; background-color: var(--zx-black-700);">
+                  
+                  
+                  <div class="task-badge bdg-正式上线">正式上线</div>
+                  
+
+                  <div class="task-name">全球化基础设施</div>
+                  <div class="task-desc">海外CDN+多区域部署</div>
+
+                  <!-- Hover Tooltip -->
+                  <div class="task-tooltip flip" style="border-color: var(--zx-black-700)">
+                    <div class="tt-name">全球化基础设施</div>
+                    <div class="tt-desc">海外CDN+多区域部署</div>
+                    <div class="tt-meta">
+                      <span class="tt-team">
+                        <div class="tt-dot" style="background-color: var(--zx-black-700);"></div>
+                        技术平台团队
+                      </span>
+                      <span>•</span>
+                      <span>2027-Q1 &rarr; 2027-Q3</span>
+                    </div>
+                    
+                    <div class="tt-tag" style="background-color: #4755691A; color: var(--zx-black-700);">
+                      生态
+                    </div>
+                    
+                  </div>
+                </div>
+                
+
+              </div>
+            </div>
+
+          </div>
+        </div>
+        
+      </div>
+
+    </div>
+
+    <div class="footer">Generated by milestone-plan-generator &middot; 2026-04-29 21:50</div>
+  </div>
+</body>
+</html>
