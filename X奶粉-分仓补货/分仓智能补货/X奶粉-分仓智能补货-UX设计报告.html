@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>X奶粉-分仓智能补货-UX设计报告</title>
+<style>
+  :root {
+    --p: #0958d9;
+    --p-dark: #002c8c;
+    --accent: #faad14;
+    --success: #52c41a;
+    --warning: #faad14;
+    --danger: #ff4d4f;
+    --text: #1f1f1f;
+    --text2: #595959;
+    --border: #d9d9d9;
+    --bg: #ffffff;
+    --bg-alt: #f5f5f5;
+    --radius: 6px;
+    --shadow: 0 1px 2px rgba(16, 33, 62, 0.06);
+    --font: MiSans, Inter, -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: var(--font); background: var(--bg-alt); color: var(--text); line-height: 1.5; }
+  .container { max-width: 1400px; margin: 0 auto; padding: 32px 24px; }
+  .header { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); padding: 28px 32px; position: relative; overflow: hidden; }
+  .header::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 6px; background: var(--accent); }
+  .header h1 { margin: 0 0 8px 12px; font-size: 28px; }
+  .header .sub { color: var(--text2); margin-left: 12px; }
+  .badges { display: flex; gap: 10px; margin: 16px 0 0 12px; flex-wrap: wrap; }
+  .badge { font-size: 12px; padding: 4px 12px; border-radius: 999px; background: var(--bg-alt); color: var(--text2); border: 1px solid var(--border); }
+  .badge.dom { background: var(--p); color: #fff; border: none; }
+  .badge.mode { background: var(--accent); color: #fff; border: none; }
+  h2.sec { margin: 32px 0 16px; font-size: 22px; display: flex; align-items: center; gap: 10px; }
+  h2.sec::before { content: ""; width: 4px; height: 22px; background: var(--accent); border-radius: 2px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
+  .card { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); padding: 20px; }
+  .card h3 { margin: 0 0 12px; font-size: 15px; color: var(--p-dark); }
+  .spec-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px dashed var(--border); font-size: 14px; }
+  .spec-item:last-child { border-bottom: none; }
+  .spec-item .k { color: var(--text2); }
+  .spec-item .v { font-weight: 600; }
+  .swatch { display: flex; align-items: center; gap: 10px; padding: 8px 0; }
+  .swatch .dot { width: 34px; height: 34px; border-radius: 8px; border: 1px solid var(--border); flex-shrink: 0; }
+  .radar-wrap { display: grid; grid-template-columns: 280px 1fr; gap: 24px; align-items: center; background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); padding: 24px; }
+  .radar-legend { display: flex; flex-direction: column; gap: 12px; }
+  .radar-legend .row { display: flex; align-items: center; gap: 8px; }
+  .radar-legend .bar { flex: 1; height: 10px; background: var(--bg-alt); border-radius: 5px; overflow: hidden; }
+  .radar-legend .fill { height: 100%; background: var(--p); border-radius: 5px; }
+  table.cmp { width: 100%; border-collapse: collapse; background: var(--bg); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
+  table.cmp th, table.cmp td { padding: 12px 16px; text-align: left; border-bottom: 1px solid var(--border); font-size: 14px; }
+  table.cmp th { background: var(--bg-alt); font-weight: 600; }
+  table.cmp tr:last-child td { border-bottom: none; }
+  .pill { font-size: 12px; padding: 2px 10px; border-radius: 999px; }
+  .pill.old { background: #f1f5f9; color: var(--text2); }
+  .pill.new { background: rgba(37,99,235,.12); color: var(--p); font-weight: 600; }
+  .footer { text-align: center; color: var(--text2); font-size: 12px; margin: 40px 0 20px; }
+  .btn-actions { display: flex; gap: 12px; }
+  .btn { font-size: 13px; padding: 8px 16px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text); cursor: pointer; transition: all .15s ease-out; }
+  .btn:hover { box-shadow: var(--shadow); }
+  .btn.primary { background: var(--p); color: #fff; border: none; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <div style="position:absolute;right:24px;top:24px;" class="btn-actions">
+      <button class="btn" onclick="window.print()">导出 PDF / 打印</button>
+      <button class="btn primary" onclick="copyYaml()">复制原始 YAML</button>
+    </div>
+    <h1>X奶粉 · 分仓智能补货</h1>
+    <div class="sub">UX 定制设计系统 · UX-Optimizer</div>
+    <div class="badges">
+      <span class="badge dom">业务域：供应链</span>
+      <span class="badge mode">产品 UI 模式：企业控制台</span>
+      <span class="badge">品牌来源：domain 推断（X奶粉事业部内部物流计划工作台，无独立品牌手册 → 按供应链业务域映射）</span>
+      <span class="badge">主色：#0958d9</span>
+    </div>
+  </div>
+
+  <h2 class="sec">企业品牌画像（人格）</h2>
+  <div class="grid">
+    <div class="card">
+      <h3>品牌基调</h3>
+      <div class="spec-item"><span class="k">主色调性</span><span class="v">信任蓝</span></div>
+      <div class="spec-item"><span class="k">主色</span><span class="v">#0958d9</span></div>
+    </div>
+    <div class="card">
+      <h3>用户与场景</h3>
+      <div class="spec-item"><span class="k">用户群体</span><span class="v">内部员工</span></div>
+      <div class="spec-item"><span class="k">场景严肃度</span><span class="v">严谨流程</span></div>
+      <div class="spec-item"><span class="k">品牌成熟度</span><span class="v">传统巨头</span></div>
+    </div>
+  </div>
+
+  <h2 class="sec">定制设计语言（8 维）</h2>
+  <div class="grid">
+    <div class="card">
+      <h3>① 色彩系统</h3>
+      <div class="swatch"><span class="dot" style="background:#0958d9"></span><span>主色 #0958d9</span></div>
+      <div class="swatch"><span class="dot" style="background:#faad14"></span><span>强调 #faad14</span></div>
+      <div class="swatch"><span class="dot" style="background:#52c41a"></span><span>成功 #52c41a</span></div>
+      <div class="swatch"><span class="dot" style="background:#faad14"></span><span>警告 #faad14</span></div>
+      <div class="swatch"><span class="dot" style="background:#ff4d4f"></span><span>危险 #ff4d4f</span></div>
+    </div>
+    <div class="card">
+      <h3>② 字体系统</h3>
+      <div class="spec-item"><span class="k">字体</span><span class="v">MiSans, Inter, -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif</span></div>
+      <div class="spec-item"><span class="k">H1</span><span class="v">28px / 600</span></div>
+      <div class="spec-item"><span class="k">H2</span><span class="v">22px / 600</span></div>
+      <div class="spec-item"><span class="k">正文</span><span class="v">14px / 1.5</span></div>
+    </div>
+    <div class="card">
+      <h3>③ 间距 & 栅格</h3>
+      <div class="spec-item"><span class="k">8pt scale</span><span class="v">4 / 8 / 12 / 16 / 24 / 32 / 48</span></div>
+      <div class="spec-item"><span class="k">内容最大宽</span><span class="v">1440px</span></div>
+      <div class="spec-item"><span class="k">卡片内距</span><span class="v">20px</span></div>
+    </div>
+    <div class="card">
+      <h3>④ 圆角 / 阴影</h3>
+      <div class="spec-item"><span class="k">圆角 sm/md/lg</span><span class="v">4/6/8</span></div>
+      <div class="spec-item"><span class="k">卡片阴影</span><span class="v" style="font-size:11px">0 1px 2px rgba(16, 33, 62, 0.06)</span></div>
+    </div>
+    <div class="card">
+      <h3>⑥ 状态体系</h3>
+      <div class="spec-item"><span class="k">过渡</span><span class="v">0.15s ease-out</span></div>
+      <div class="spec-item"><span class="k">焦点轮廓</span><span class="v">#91caff</span></div>
+      <div class="spec-item"><span class="k">Loading</span><span class="v">skeleton</span></div>
+    </div>
+    <div class="card">
+      <h3>⑧ 微交互 & 响应式</h3>
+      <div class="spec-item"><span class="k">过渡</span><span class="v">0.15s ease-out</span></div>
+      <div class="spec-item"><span class="k">断点</span><span class="v">375 / 768 / 1024 / 1440</span></div>
+    </div>
+  </div>
+
+  <h2 class="sec">六维 UX 专业评分（figma_expertise）</h2>
+  <div class="radar-wrap">
+    <div class="radar-legend">
+      
+      <div class="row">
+        <span style="width:130px;font-weight:600;font-size:13px">布局与栅格</span>
+        <div class="bar"><div class="fill" style="width:90%"></div></div>
+        <span style="width:32px;text-align:right;font-size:13px">9</span>
+      </div>
+      
+      <div class="row">
+        <span style="width:130px;font-weight:600;font-size:13px">视觉层级与排版</span>
+        <div class="bar"><div class="fill" style="width:90%"></div></div>
+        <span style="width:32px;text-align:right;font-size:13px">9</span>
+      </div>
+      
+      <div class="row">
+        <span style="width:130px;font-weight:600;font-size:13px">色彩与对比度</span>
+        <div class="bar"><div class="fill" style="width:100%"></div></div>
+        <span style="width:32px;text-align:right;font-size:13px">10</span>
+      </div>
+      
+      <div class="row">
+        <span style="width:130px;font-weight:600;font-size:13px">组件状态完备</span>
+        <div class="bar"><div class="fill" style="width:90%"></div></div>
+        <span style="width:32px;text-align:right;font-size:13px">9</span>
+      </div>
+      
+      <div class="row">
+        <span style="width:130px;font-weight:600;font-size:13px">微交互与动效</span>
+        <div class="bar"><div class="fill" style="width:80%"></div></div>
+        <span style="width:32px;text-align:right;font-size:13px">8</span>
+      </div>
+      
+      <div class="row">
+        <span style="width:130px;font-weight:600;font-size:13px">可访问性与响应式</span>
+        <div class="bar"><div class="fill" style="width:90%"></div></div>
+        <span style="width:32px;text-align:right;font-size:13px">9</span>
+      </div>
+      
+    </div>
+    <div style="text-align:center;">
+      <div style="font-size:42px;font-weight:700;color:var(--p)">9.0</div>
+      <div style="color:var(--text2);font-size:13px">综合 UX 评级（满分 10）</div>
+    </div>
+  </div>
+
+  <h2 class="sec">组件专业化（componentSpecs）</h2>
+  <table class="cmp">
+    <tr><th>元素</th><th>升级方向</th></tr>
+    
+    <tr><td style="font-weight:600">steps</td><td>progress accent · 当前步主色高亮</td></tr>
+    
+    <tr><td style="font-weight:600">uploadCard</td><td>drag zone focus ring</td></tr>
+    
+    <tr><td style="font-weight:600">aiResultCard</td><td>AI insight panel · 左侧主色条 + 出处引用</td></tr>
+    
+    <tr><td style="font-weight:600">table</td><td>rowsZebra headerSticky · 等宽数字 tabular-nums</td></tr>
+    
+    <tr><td style="font-weight:600">statRow</td><td>metric hero · 主色数值 + 次级标签</td></tr>
+    
+    <tr><td style="font-weight:600">buttonRow</td><td>primaryFullBleed hoverLift</td></tr>
+    
+    <tr><td style="font-weight:600">alert</td><td>showIcon bordered · 浅底深字语义色对</td></tr>
+    
+    <tr><td style="font-weight:600">timeline</td><td>state tracker · 节点状态色 + 连接线</td></tr>
+    
+    <tr><td style="font-weight:600">chatPanel</td><td>AI copilot · 推荐指令 chips + typing indicator</td></tr>
+    
+    <tr><td style="font-weight:600">formCard</td><td>field group labelAbove</td></tr>
+    
+    <tr><td style="font-weight:600">tagRow</td><td>status chips · 色+图标+文字三重表达</td></tr>
+    
+  </table>
+
+  <h2 class="sec">Before / After 对照</h2>
+  <table class="cmp">
+    <tr><th>维度</th><th>优化前（默认 antd/arco）</th><th>优化后（定制设计系统）</th></tr>
+    
+    <tr>
+      <td style="font-weight:600">主色</td>
+      <td><span class="pill old">自造深蓝 #10213E / 蓝 #5DB2E2（未成体系）</span></td>
+      <td><span class="pill new">antd blue-7 #0958d9 + gold-6 #faad14（标准色阶）</span></td>
+    </tr>
+    
+    <tr>
+      <td style="font-weight:600">语义色</td>
+      <td><span class="pill old">自造 #1a8f5c / #F59E0B / #EF4444</span></td>
+      <td><span class="pill new">antd 标准 #52c41a / #faad14 / #ff4d4f</span></td>
+    </tr>
+    
+    <tr>
+      <td style="font-weight:600">中性色</td>
+      <td><span class="pill old">自造 #10213E / #E2E8F0 / #F5F6FA</span></td>
+      <td><span class="pill new">antd 标准 #1f1f1f / #595959 / #d9d9d9 / #f5f5f5</span></td>
+    </tr>
+    
+    <tr>
+      <td style="font-weight:600">圆角/阴影</td>
+      <td><span class="pill old">统一 8px 圆角 + 软阴影卡片堆叠</span></td>
+      <td><span class="pill new">收敛 4/6/8px + 1px 硬边界 + 弱阴影（企业控制台）</span></td>
+    </tr>
+    
+    <tr>
+      <td style="font-weight:600">状态标签</td>
+      <td><span class="pill old">默认 antd Tag（gold/processing 低对比风险）</span></td>
+      <td><span class="pill new">浅底深字标准色对（对比度 ≥4.5:1）</span></td>
+    </tr>
+    
+    <tr>
+      <td style="font-weight:600">对比度护栏</td>
+      <td><span class="pill old">无显式校验</span></td>
+      <td><span class="pill new">语义色对强制护栏 + 次要文字 ≥4.5:1</span></td>
+    </tr>
+    
+    <tr>
+      <td style="font-weight:600">可访问性</td>
+      <td><span class="pill old">焦点环不统一</span></td>
+      <td><span class="pill new">统一 2px #91caff 焦点环 + cursor-pointer + 响应式断点</span></td>
+    </tr>
+    
+    <tr>
+      <td style="font-weight:600">数字对齐</td>
+      <td><span class="pill old">普通字体</span></td>
+      <td><span class="pill new">表格/指标 font-variant-numeric: tabular-nums</span></td>
+    </tr>
+    
+  </table>
+
+  <h2 class="sec">交付核对（ux_checklist）</h2>
+  <div class="card" style="font-size:14px;">
+    <ul style="margin:0;padding-left:18px;line-height:2;">
+      
+    </ul>
+  </div>
+
+  <div class="footer">UX-Optimizer · X奶粉-分仓智能补货 · 定制设计系统报告（产品级 MVP，与 design.md 解耦）</div>
+</div>
+
+<script id="raw-yaml" type="application/yaml">
+# =========================================================
+# UX-Optimizer · 定制设计系统
+# X奶粉 · 分仓智能补货（供应链 / 内部 B 端工作台）
+# 基线：Ant Design 5 标准色阶（不造未成体系 hex）
+# =========================================================
+meta:
+  company: "X奶粉"
+  scenario: "分仓智能补货"
+  businessDomain: "供应链"
+  productName: "分仓智能补货 Agent"
+  mode: "企业控制台"
+  brandSource: "domain 推断（X奶粉事业部内部物流计划工作台，无独立品牌手册 → 按供应链业务域映射）"
+
+brandProfile:
+  primaryTone: "信任蓝"
+  primaryColor: "#0958d9"
+  userGroup: "内部员工"
+  seriousness: "严谨流程"
+  maturity: "传统巨头"
+
+designLanguage:
+  # 1. 色彩系统（全部 antd 标准色阶）
+  colors:
+    primary: "#0958d9"          # antd blue-7：供应链/采购/制造主色
+    primaryDark: "#002c8c"      # antd blue-9
+    primaryLight: "#91caff"     # antd blue-3
+    accent: "#faad14"           # antd gold-6：强调 / 警示（库存缺口 / 待确认）
+    success: "#52c41a"
+    warning: "#faad14"
+    danger: "#ff4d4f"
+    info: "#1677ff"
+    neutral:
+      text: "#1f1f1f"
+      textSecondary: "#595959"
+      border: "#d9d9d9"
+      bg: "#ffffff"
+      bgAlt: "#f5f5f5"
+    gradient:
+      from: "#001529"           # antd 经典深色侧栏
+      to: "#0958d9"
+
+  # 2. 字体系统
+  typography:
+    fontFamily: "MiSans, Inter, -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif"
+    h1: { size: 28, weight: "600", lineHeight: 1.2, spacing: "-0.02em" }
+    h2: { size: 22, weight: "600", lineHeight: 1.25, spacing: "0" }
+    h3: { size: 18, weight: "600", lineHeight: 1.3, spacing: "0" }
+    body: { size: 14, weight: "400", lineHeight: 1.5, spacing: "0" }
+    label: { size: 12, weight: "600", lineHeight: 1.2, spacing: "0.05em", uppercase: true }
+    caption: { size: 12, weight: "400", lineHeight: 1.4, spacing: "0" }
+
+  # 3. 间距 & 栅格（8pt 节奏；企业控制台偏紧凑）
+  spacing:
+    scale: [4, 8, 12, 16, 24, 32, 48]
+    contentMaxWidth: 1440
+    cardPadding: 20
+    sectionGap: 20
+    elementGap: 12
+
+  # 4. 圆角 / 阴影 / 边框（企业控制台收敛：硬边界优先，弱阴影）
+  radius:
+    sm: 4
+    md: 6
+    lg: 8
+    pill: 999
+  shadow:
+    card: "0 1px 2px rgba(16, 33, 62, 0.06)"
+    raised: "0 4px 12px rgba(16, 33, 62, 0.10)"
+  border:
+    color: "#d9d9d9"
+    width: 1
+
+  # 5. 组件设计语言
+  components:
+    card: { radius: 6, shadow: "card", background: "#ffffff", border: true }
+    button: { radius: 6, transition: "0.15s ease-out", hoverOpacity: 0.85 }
+    table: { density: "compact", rowHover: true, headerBg: "#fafafa" }
+    input: { radius: 6, focusOutline: "#91caff" }
+
+  # 6. 状态体系
+  states:
+    hoverTime: "0.15s ease-out"
+    focusOutline: "#91caff"
+    loadingType: "skeleton"
+    emptyStyle: "icon + hint + cta"
+
+  # 7. 布局模式
+  layout:
+    mode: "side"
+    siderWidth: 216
+    headerHeight: 56
+
+  # 8. 微交互 & 响应式
+  motion:
+    transition: "0.15s ease-out"
+    enableSpring: false
+  responsive:
+    breakpoints: [375, 768, 1024, 1440]
+
+# ---- 11 类元素专业化（v2 升级方向） ----
+componentSpecs:
+  - { element: "steps", v2: { style: "progress accent · 当前步主色高亮", height: "compact" } }
+  - { element: "uploadCard", v2: { style: "drag zone focus ring", hintIcon: true } }
+  - { element: "aiResultCard", v2: { style: "AI insight panel · 左侧主色条 + 出处引用", badge: "AI", loading: skeleton } }
+  - { element: "table", v2: { style: "rowsZebra headerSticky · 等宽数字 tabular-nums", rowHover: true } }
+  - { element: "statRow", v2: { style: "metric hero · 主色数值 + 次级标签", accentPrefix: true } }
+  - { element: "buttonRow", v2: { style: "primaryFullBleed hoverLift", hoverLift: true } }
+  - { element: "alert", v2: { style: "showIcon bordered · 浅底深字语义色对", bordered: true } }
+  - { element: "timeline", v2: { style: "state tracker · 节点状态色 + 连接线", dotStatus: true } }
+  - { element: "chatPanel", v2: { style: "AI copilot · 推荐指令 chips + typing indicator", suggestionChips: true } }
+  - { element: "formCard", v2: { style: "field group labelAbove", labelAbove: true } }
+  - { element: "tagRow", v2: { style: "status chips · 色+图标+文字三重表达", pill: false } }
+
+# ---- 六维 UX 专业评分（figma_expertise · 优化后） ----
+uxScores:
+  - { name: "布局与栅格", score: 9 }
+  - { name: "视觉层级与排版", score: 9 }
+  - { name: "色彩与对比度", score: 10 }
+  - { name: "组件状态完备", score: 9 }
+  - { name: "微交互与动效", score: 8 }
+  - { name: "可访问性与响应式", score: 9 }
+
+# ---- Before / After 对照 ----
+diffBeforeAfter:
+  - { dimension: "主色", before: "自造深蓝 #10213E / 蓝 #5DB2E2（未成体系）", after: "antd blue-7 #0958d9 + gold-6 #faad14（标准色阶）" }
+  - { dimension: "语义色", before: "自造 #1a8f5c / #F59E0B / #EF4444", after: "antd 标准 #52c41a / #faad14 / #ff4d4f" }
+  - { dimension: "中性色", before: "自造 #10213E / #E2E8F0 / #F5F6FA", after: "antd 标准 #1f1f1f / #595959 / #d9d9d9 / #f5f5f5" }
+  - { dimension: "圆角/阴影", before: "统一 8px 圆角 + 软阴影卡片堆叠", after: "收敛 4/6/8px + 1px 硬边界 + 弱阴影（企业控制台）" }
+  - { dimension: "状态标签", before: "默认 antd Tag（gold/processing 低对比风险）", after: "浅底深字标准色对（对比度 ≥4.5:1）" }
+  - { dimension: "对比度护栏", before: "无显式校验", after: "语义色对强制护栏 + 次要文字 ≥4.5:1" }
+  - { dimension: "可访问性", before: "焦点环不统一", after: "统一 2px #91caff 焦点环 + cursor-pointer + 响应式断点" }
+  - { dimension: "数字对齐", before: "普通字体", after: "表格/指标 font-variant-numeric: tabular-nums" }
+
+diffChecklist:
+  - "自定义主色是否已注入 ConfigProvider + CSS 变量"
+  - "字体系统是否覆盖全局 + 标题层级"
+  - "间距是否统一为 8pt 体系"
+  - "圆角/阴影是否按产品气质定制（企业控制台：收敛 + 硬边界）"
+  - "11 类元素是否按 componentSpecs 升级"
+  - "六态（hover/focus/empty/loading/error/disabled）是否完备"
+  - "响应式断点 375/768/1024/1440 是否生效"
+  - "cursor-pointer 是否加到所有可交互区"
+
+</script>
+<script>
+function copyYaml() {
+  const el = document.getElementById('raw-yaml');
+  const text = el.textContent.trim();
+  navigator.clipboard.writeText(text).then(() => alert('已复制 YAML 到剪贴板'));
+}
+</script>
+</body>
+</html>

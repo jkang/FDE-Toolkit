@@ -153,7 +153,7 @@ pages:
         columns:
           - { key: "clip", title: "镜头" }
           - { key: "eventType", title: "事件类型" }
-          - { key: "brandVisibility", title: "品牌露出", tag: { "高": "success", "中": "processing", "低": "warning" } }
+          - { key: "brandVisibility", title: "品牌露出" }
           - { key: "confidence", title: "置信度" }
       - type: "buttonRow"
         buttons:

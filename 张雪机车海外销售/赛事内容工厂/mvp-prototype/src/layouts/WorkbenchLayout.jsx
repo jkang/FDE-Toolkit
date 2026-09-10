@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Layout, Menu, Typography, Space, Select, Badge, Avatar } from 'antd';
 import {
   BellOutlined,
-  MobileOutlined,LineChartOutlined,SafetyCertificateOutlined,HighlightOutlined,CloudUploadOutlined,DashboardOutlined,
+  CloudUploadOutlined,SafetyCertificateOutlined,LineChartOutlined,DashboardOutlined,MobileOutlined,HighlightOutlined,
 } from '@ant-design/icons';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { brand } from '../theme.js';

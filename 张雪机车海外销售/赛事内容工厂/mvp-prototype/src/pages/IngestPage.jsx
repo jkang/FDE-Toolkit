@@ -39,11 +39,10 @@ export default function IngestPage() {
     }
   };
 
-const tagMap_brandVisibility = {"高": "success", "中": "processing", "低": "warning"};
 const parseFootageCols = [
     { key: 'clip', dataIndex: 'clip', title: '镜头' },
     { key: 'eventType', dataIndex: 'eventType', title: '事件类型' },
-    { key: 'brandVisibility', dataIndex: 'brandVisibility', title: '品牌露出', render: (v) => <Tag color={ tagMap_brandVisibility[v] || 'default' }>{v}</Tag> },
+    { key: 'brandVisibility', dataIndex: 'brandVisibility', title: '品牌露出' },
     { key: 'confidence', dataIndex: 'confidence', title: '置信度' },
 ];
 const tagMap_brandVisibility = {"高": "success", "中": "processing", "低": "warning"};
