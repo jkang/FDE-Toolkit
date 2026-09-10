@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ZXMOTO 赛事内容工厂 Agent · MVP 验证方案 · MVP 指标设计与上线门禁</title>
+<style>
+  :root{
+    --primary:#10213E; --accent:#5DB2E2; --secondary:#625D9C;
+    --success:#16a34a; --warning:#F59E0B; --destructive:#EF4444; --info:#0ea5e9;
+    --bg:#FFFFFF; --bg-alt:#F5F5F6; --fg:#10213E; --muted:#64748B; --border:#E2E8F0;
+    --radius:8px; --shadow:0 1px 3px rgba(16,33,62,.08);
+    --font:"MiSans",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans SC","PingFang SC",Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{font-family:var(--font);background:var(--bg-alt);color:var(--fg);font-size:12.5px;line-height:1.45}
+  .wrap{width:100%;padding:14px 18px 22px}
+  /* header */
+  .hdr{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;
+       background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);
+       padding:10px 14px;margin-bottom:10px}
+  .hdr h1{margin:0;font-size:16px;font-weight:700;display:flex;align-items:center;gap:8px;line-height:1.25}
+  .hdr h1::before{content:"";width:4px;height:16px;background:var(--accent);border-radius:2px;flex-shrink:0}
+  .hdr .sub{font-size:11.5px;color:var(--muted);margin:2px 0 0 12px}
+  .btn{background:var(--primary);color:#fff;border:1px solid var(--primary);border-radius:6px;
+       padding:5px 11px;font-size:11.5px;font-weight:600;cursor:pointer;transition:opacity .2s}
+  .btn:hover{opacity:.85}
+  /* gate */
+  .gate{background:var(--primary);color:#fff;border-radius:var(--radius);padding:10px 14px;margin-bottom:10px;
+        display:flex;align-items:center;gap:14px;flex-wrap:wrap;box-shadow:var(--shadow)}
+  .gate .tag{font-size:9.5px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);
+             border:1px solid rgba(93,178,226,.4);border-radius:4px;padding:2px 7px;white-space:nowrap}
+  .gate .stmt{font-size:13.5px;font-weight:700;line-height:1.4;flex:1;min-width:280px}
+  .gate .legend{display:flex;gap:12px;font-size:11px;color:#cbd5e1;white-space:nowrap}
+  .gate .legend b{font-weight:700}
+  .dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:4px}
+  .dot.ok{background:#22C55E}.dot.no{background:var(--destructive)}
+  /* cards */
+  .card{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:10px;overflow:hidden}
+  .card-h{display:flex;justify-content:space-between;align-items:center;padding:7px 12px;border-bottom:1px solid var(--border);background:#fafbfc}
+  .card-h h3{margin:0;font-size:12.5px;font-weight:700;color:var(--primary);display:flex;align-items:center;gap:7px}
+  .card-h h3::before{content:"";width:3px;height:12px;background:var(--accent);border-radius:2px}
+  .card-h .cnt{font-size:10.5px;color:var(--muted);font-weight:600}
+  table{width:100%;border-collapse:collapse}
+  th{padding:6px 12px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;
+     color:var(--muted);background:#f8fafc;border-bottom:1px solid var(--border);white-space:nowrap}
+  td{padding:6px 12px;border-bottom:1px solid var(--border);vertical-align:middle}
+  tr:last-child td{border-bottom:none}
+  tbody tr:hover{background:#f8fafc}
+  .m-name{font-weight:700;font-size:12.5px;color:#0f172a}
+  .m-logic{font-size:11px;color:var(--muted);line-height:1.35}
+  .m-thr{font-size:14px;font-weight:800;color:#1d4ed8;white-space:nowrap;text-align:right}
+  .src{font-size:9.5px;color:#94a3b8;margin-top:2px}
+  .layer{font-size:9.5px;font-weight:700;background:#eef2f7;color:#475569;padding:1px 6px;border-radius:4px;white-space:nowrap}
+  .warn{font-weight:700;color:var(--destructive);white-space:nowrap}
+  .dim{font-size:9.5px;font-weight:700;padding:1px 7px;border-radius:4px;white-space:nowrap}
+  .dim-business{background:#eff6ff;color:#2563eb}
+  .dim-model{background:#f0fdf4;color:#16a34a}
+  .dim-system{background:#fffbeb;color:#d97706}
+  .dim-experience{background:#faf5ff;color:#9333ea}
+  .dim-cost{background:#fef2f2;color:#dc2626}
+  /* test strategy */
+  .strat{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:9px 12px}
+  .strat .bar{display:flex;height:14px;border-radius:99px;overflow:hidden;flex:1;min-width:220px;background:#eef2f7}
+  .strat .bar i{display:block;height:100%}
+  .strat .lg{display:flex;gap:12px;font-size:11px;color:var(--muted);flex-wrap:wrap}
+  .strat .lg b{color:var(--fg);font-weight:700}
+  .sw{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:5px;vertical-align:middle}
+  .foot{margin-top:8px;display:flex;justify-content:space-between;font-size:9.5px;color:#94a3b8;letter-spacing:.08em}
+  .toast{position:fixed;bottom:18px;right:18px;background:var(--success);color:#fff;padding:8px 16px;border-radius:6px;
+         font-size:12px;font-weight:600;display:none;z-index:1000;box-shadow:var(--shadow)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="hdr">
+    <div>
+      <h1>ZXMOTO 赛事内容工厂 Agent · MVP 验证方案</h1>
+      <p class="sub">为 <b>ZXMOTO 赛事内容工厂 Agent</b> 建立从「原型通过」到「正式发布」的客观量化准则。</p>
+    </div>
+    <button class="btn" onclick="copyYAML()">复制原始 YAML</button>
+  </div>
+
+  <div class="gate">
+    <span class="tag">决策门禁 · Decision Gateway</span>
+    <span class="stmt">“当 赛事内容产出时效 ≤30 分钟 且 多语言单位成本 ↓≥90% 且 高光识别召回率 ≥95% 且 脚本事实一致率 =100% 且 内容合规通过率 ≥95% 时，允许单站赛事实跑灰度上线。”</span>
+    <span class="legend">
+      <span><i class="dot ok"></i>通过门禁：允许发布</span>
+      <span><i class="dot no"></i>未通过：回归优化</span>
+    </span>
+  </div>
+
+  <div class="card">
+    <div class="card-h"><h3>核心成效指标（Success Metrics）</h3><span class="cnt">四维 · 14 项</span></div>
+    <table>
+      <thead>
+        <tr><th style="width:34%">指标 / 维度</th><th>计算口径</th><th style="text-align:right;width:16%">目标阈值</th></tr>
+      </thead>
+      <tbody>
+        
+        <tr>
+          <td>
+            <span class="m-name">赛事内容产出时效</span>
+            <span class="dim dim-business">业务</span>
+          </td>
+          <td>
+            <div class="m-logic">单条内容从素材上传到成品就绪的端到端时长（P95）</div>
+            <div class="src">来源：内容工厂任务日志</div>
+          </td>
+          <td><div class="m-thr">≤30 分钟</div></td>
+        </tr>
+        
+        <tr>
+          <td>
+            <span class="m-name">多语言内容单位成本</span>
+            <span class="dim dim-business">业务</span>
+          </td>
+          <td>
+            <div class="m-logic">单条 6 语言内容制作成本相对原外包基线的下降比例</div>
+            <div class="src">来源：财务 / 外包成本台账</div>
+          </td>
+          <td><div class="m-thr">↓≥90%</div></td>
+        </tr>
+        
+        <tr>
+          <td>
+            <span class="m-name">内容互动率</span>
+            <span class="dim dim-business">业务</span>
+          </td>
+          <td>
+            <div class="m-logic">发布内容互动率相对历史基线的提升幅度</div>
+            <div class="src">来源：各平台开放数据 / Google Analytics</div>
+          </td>
+          <td><div class="m-thr">≥+35%</div></td>
+        </tr>
+        
+        <tr>
+          <td>
+            <span class="m-name">内容合规通过率</span>
+            <span class="dim dim-business">业务</span>
+          </td>
+          <td>
+            <div class="m-logic">品牌终审一次通过的内容数 / 送审内容数</div>
+            <div class="src">来源：品牌审核台账</div>
+          </td>
+          <td><div class="m-thr">≥95%</div></td>
+        </tr>
+        
+        <tr>
+          <td>
+            <span class="m-name">高光识别召回率</span>
+            <span class="dim dim-model">模型</span>
+          </td>
+          <td>
+            <div class="m-logic">正确识别的高光事件数 / 应识别高光事件数（排除慢镜重复）</div>
+            <div class="src">来源：离线高光标注测试集</div>
+          </td>
+          <td><div class="m-thr">≥95%</div></td>
+        </tr>
+        
+        <tr>
+          <td>
+            <span class="m-name">品牌露出漏标率</span>
+            <span class="dim dim-model">模型</span>
+          </td>
+          <td>
+            <div class="m-logic">漏标的品牌露出数 / 品牌露出总数</div>
+            <div class="src">来源：品牌露出标注测试集</div>
+          </td>
+          <td><div class="m-thr">≤1%</div></td>
+        </tr>
+        
+        <tr>
+          <td>
+            <span class="m-name">脚本事实一致率</span>
+            <span class="dim dim-model">模型</span>
+          </td>
+          <td>
+            <div class="m-logic">与 WSBK 赛事数据一致的脚本事实数 / 脚本事实总数</div>
+            <div class="src">来源：脚本事实核对脚本</div>
+          </td>
+          <td><div class="m-thr">=100%</div></td>
+        </tr>
+        
+        <tr>
+          <td>
+            <span class="m-name">文化禁忌命中改写率</span>
+            <span class="dim dim-model">模型</span>
+          </td>
+          <td>
+            <div class="m-logic">命中禁忌且正确改写/降级的脚本数 / 命中禁忌脚本数</div>
+            <div class="src">来源：文化禁忌测试集</div>
+          </td>
+          <td><div class="m-thr">≥98%</div></td>
+        </tr>
+        
+        <tr>
+          <td>
+            <span class="m-name">P95 端到端出片延迟</span>
+            <span class="dim dim-system">系统</span>
+          </td>
+          <td>
+            <div class="m-logic">95% 任务从素材接入到内容包就绪的耗时</div>
+            <div class="src">来源：任务监控 / APM</div>
+          </td>
+          <td><div class="m-thr">≤30 分钟</div></td>
+        </tr>
+        
+        <tr>
+          <td>
+            <span class="m-name">平台适配一次成功率</span>
+            <span class="dim dim-system">系统</span>
+          </td>
+          <td>
+            <div class="m-logic">一次适配通过的内容包数 / 适配任务数</div>
+            <div class="src">来源：适配服务日志</div>
+          </td>
+          <td><div class="m-thr">≥99%</div></td>
+        </tr>
+        
+        <tr>
+          <td>
+            <span class="m-name">服务可用性</span>
+            <span class="dim dim-system">系统</span>
+          </td>
+          <td>
+            <div class="m-logic">内容工厂 API 月度可用率</div>
+            <div class="src">来源：APM 监控</div>
+          </td>
+          <td><div class="m-thr">≥99.5%</div></td>
+        </tr>
+        
+        <tr>
+          <td>
+            <span class="m-name">品牌审核一次通过率</span>
+            <span class="dim dim-experience">体验</span>
+          </td>
+          <td>
+            <div class="m-logic">无需退回的品牌终审通过数 / 送审内容数</div>
+            <div class="src">来源：品牌审核台账</div>
+          </td>
+          <td><div class="m-thr">≥90%</div></td>
+        </tr>
+        
+        <tr>
+          <td>
+            <span class="m-name">脚本抽检确认率</span>
+            <span class="dim dim-experience">体验</span>
+          </td>
+          <td>
+            <div class="m-logic">抽检确认放行的脚本数 / 抽检脚本数</div>
+            <div class="src">来源：脚本抽检记录</div>
+          </td>
+          <td><div class="m-thr">≥95%</div></td>
+        </tr>
+        
+        <tr>
+          <td>
+            <span class="m-name">发布排期采纳率</span>
+            <span class="dim dim-experience">体验</span>
+          </td>
+          <td>
+            <div class="m-logic">采纳 AI 排期建议的次数 / 排期建议总数</div>
+            <div class="src">来源：发布排期看板</div>
+          </td>
+          <td><div class="m-thr">≥85%</div></td>
+        </tr>
+        
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="card-h"><h3>过程监测与预警（Process Health）</h3><span class="cnt">8 项 · 用于异常诊断与快速回滚</span></div>
+    <table>
+      <thead>
+        <tr><th style="width:26%">层级 / 指标</th><th style="width:14%">正常范围</th><th style="width:16%">告警阈值</th><th>诊断意义</th></tr>
+      </thead>
+      <tbody>
+        
+        <tr>
+          <td><span class="layer">模型</span> <span class="m-name">脚本生成平均 Token 消耗</span></td>
+          <td style="color:var(--muted)">1500-3000</td>
+          <td class="warn">>5000</td>
+          <td class="m-logic">上下文注入过多或 Prompt 冗余，成本与延迟上升</td>
+        </tr>
+        
+        <tr>
+          <td><span class="layer">模型</span> <span class="m-name">高光打分置信度中位数</span></td>
+          <td style="color:var(--muted)">≥0.80</td>
+          <td class="warn"><0.60</td>
+          <td class="m-logic">多模态理解质量下降或素材质量异常</td>
+        </tr>
+        
+        <tr>
+          <td><span class="layer">检索</span> <span class="m-name">文化禁忌库命中准确率</span></td>
+          <td style="color:var(--muted)">≥92%</td>
+          <td class="warn"><85%</td>
+          <td class="m-logic">禁忌库覆盖不足或分段策略失效</td>
+        </tr>
+        
+        <tr>
+          <td><span class="layer">检索</span> <span class="m-name">脚本模板匹配命中率</span></td>
+          <td style="color:var(--muted)">≥90%</td>
+          <td class="warn"><80%</td>
+          <td class="m-logic">模板库与场景错配，脚本质量下滑</td>
+        </tr>
+        
+        <tr>
+          <td><span class="layer">系统</span> <span class="m-name">API 错误率</span></td>
+          <td style="color:var(--muted)"><0.1%</td>
+          <td class="warn">>1%</td>
+          <td class="m-logic">后端服务崩溃或第三方模型 API 限流</td>
+        </tr>
+        
+        <tr>
+          <td><span class="layer">系统</span> <span class="m-name">剪辑 / TTS 调用失败率</span></td>
+          <td style="color:var(--muted)"><1%</td>
+          <td class="warn">>5%</td>
+          <td class="m-logic">外部服务不稳定，触发降级或人工补录</td>
+        </tr>
+        
+        <tr>
+          <td><span class="layer">业务</span> <span class="m-name">人工转接分布</span></td>
+          <td style="color:var(--muted)">平衡分布</td>
+          <td class="warn">单一环节转接 >50%</td>
+          <td class="m-logic">特定 Skill 能力缺口或规则覆盖不足</td>
+        </tr>
+        
+        <tr>
+          <td><span class="layer">业务</span> <span class="m-name">热点窗口错过率</span></td>
+          <td style="color:var(--muted)"><5%</td>
+          <td class="warn">>15%</td>
+          <td class="m-logic">审核或排期成为时效瓶颈，损害内容获客</td>
+        </tr>
+        
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="card-h"><h3>测试数据集策略（Test Set Strategy）</h3><span class="cnt">Golden / Hard / Edge · 含中间产物标签以支持归因</span></div>
+    <div class="strat">
+      <div class="bar">
+        <i style="width:50%;background:#3b82f6"></i>
+        <i style="width:30%;background:#F59E0B"></i>
+        <i style="width:20%;background:#94a3b8"></i>
+      </div>
+      <div class="lg">
+        <span><i class="sw" style="background:#3b82f6"></i>Golden Path <b>50%</b></span>
+        <span><i class="sw" style="background:#F59E0B"></i>Hard Cases <b>30%</b></span>
+        <span><i class="sw" style="background:#94a3b8"></i>Edge Cases <b>20%</b></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot">
+    <span>MVP Metrics Generator · 四维一线法</span>
+    <span>AI INCEPTION WORKSHOP</span>
+  </div>
+</div>
+
+<div class="toast" id="toast">已成功复制 YAML 数据</div>
+<script type="application/yaml" id="raw-yaml">
+title: "ZXMOTO 赛事内容工厂 Agent · MVP 验证方案"
+product_name: "ZXMOTO 赛事内容工厂 Agent"
+go_no_go_statement: "当 赛事内容产出时效 ≤30 分钟 且 多语言单位成本 ↓≥90% 且 高光识别召回率 ≥95% 且 脚本事实一致率 =100% 且 内容合规通过率 ≥95% 时，允许单站赛事实跑灰度上线。"
+target_metrics:
+  - name: "赛事内容产出时效"
+    dimension: "业务"
+    logic: "单条内容从素材上传到成品就绪的端到端时长（P95）"
+    threshold: "≤30 分钟"
+    source: "内容工厂任务日志"
+  - name: "多语言内容单位成本"
+    dimension: "业务"
+    logic: "单条 6 语言内容制作成本相对原外包基线的下降比例"
+    threshold: "↓≥90%"
+    source: "财务 / 外包成本台账"
+  - name: "内容互动率"
+    dimension: "业务"
+    logic: "发布内容互动率相对历史基线的提升幅度"
+    threshold: "≥+35%"
+    source: "各平台开放数据 / Google Analytics"
+  - name: "内容合规通过率"
+    dimension: "业务"
+    logic: "品牌终审一次通过的内容数 / 送审内容数"
+    threshold: "≥95%"
+    source: "品牌审核台账"
+  - name: "高光识别召回率"
+    dimension: "模型"
+    logic: "正确识别的高光事件数 / 应识别高光事件数（排除慢镜重复）"
+    threshold: "≥95%"
+    source: "离线高光标注测试集"
+  - name: "品牌露出漏标率"
+    dimension: "模型"
+    logic: "漏标的品牌露出数 / 品牌露出总数"
+    threshold: "≤1%"
+    source: "品牌露出标注测试集"
+  - name: "脚本事实一致率"
+    dimension: "模型"
+    logic: "与 WSBK 赛事数据一致的脚本事实数 / 脚本事实总数"
+    threshold: "=100%"
+    source: "脚本事实核对脚本"
+  - name: "文化禁忌命中改写率"
+    dimension: "模型"
+    logic: "命中禁忌且正确改写/降级的脚本数 / 命中禁忌脚本数"
+    threshold: "≥98%"
+    source: "文化禁忌测试集"
+  - name: "P95 端到端出片延迟"
+    dimension: "系统"
+    logic: "95% 任务从素材接入到内容包就绪的耗时"
+    threshold: "≤30 分钟"
+    source: "任务监控 / APM"
+  - name: "平台适配一次成功率"
+    dimension: "系统"
+    logic: "一次适配通过的内容包数 / 适配任务数"
+    threshold: "≥99%"
+    source: "适配服务日志"
+  - name: "服务可用性"
+    dimension: "系统"
+    logic: "内容工厂 API 月度可用率"
+    threshold: "≥99.5%"
+    source: "APM 监控"
+  - name: "品牌审核一次通过率"
+    dimension: "体验"
+    logic: "无需退回的品牌终审通过数 / 送审内容数"
+    threshold: "≥90%"
+    source: "品牌审核台账"
+  - name: "脚本抽检确认率"
+    dimension: "体验"
+    logic: "抽检确认放行的脚本数 / 抽检脚本数"
+    threshold: "≥95%"
+    source: "脚本抽检记录"
+  - name: "发布排期采纳率"
+    dimension: "体验"
+    logic: "采纳 AI 排期建议的次数 / 排期建议总数"
+    threshold: "≥85%"
+    source: "发布排期看板"
+monitoring_plan:
+  - name: "脚本生成平均 Token 消耗"
+    layer: "模型"
+    logic: "单次 6 语言脚本生成的 Input+Output Token"
+    range: "1500-3000"
+    alert: ">5000"
+    meaning: "上下文注入过多或 Prompt 冗余，成本与延迟上升"
+  - name: "高光打分置信度中位数"
+    layer: "模型"
+    logic: "高光候选置信度分布的中位数"
+    range: "≥0.80"
+    alert: "<0.60"
+    meaning: "多模态理解质量下降或素材质量异常"
+  - name: "文化禁忌库命中准确率"
+    layer: "检索"
+    logic: "禁忌检索命中且判定正确的比例"
+    range: "≥92%"
+    alert: "<85%"
+    meaning: "禁忌库覆盖不足或分段策略失效"
+  - name: "脚本模板匹配命中率"
+    layer: "检索"
+    logic: "脚本骨架模板与场景匹配的比例"
+    range: "≥90%"
+    alert: "<80%"
+    meaning: "模板库与场景错配，脚本质量下滑"
+  - name: "API 错误率"
+    layer: "系统"
+    logic: "HTTP 5xx 错误请求占比"
+    range: "<0.1%"
+    alert: ">1%"
+    meaning: "后端服务崩溃或第三方模型 API 限流"
+  - name: "剪辑 / TTS 调用失败率"
+    layer: "系统"
+    logic: "外部剪辑与语音合成调用失败占比"
+    range: "<1%"
+    alert: ">5%"
+    meaning: "外部服务不稳定，触发降级或人工补录"
+  - name: "人工转接分布"
+    layer: "业务"
+    logic: "各 Skill 环节转人工的比例分布"
+    range: "平衡分布"
+    alert: "单一环节转接 >50%"
+    meaning: "特定 Skill 能力缺口或规则覆盖不足"
+  - name: "热点窗口错过率"
+    layer: "业务"
+    logic: "未在赛后黄金传播窗口内发布的内容占比"
+    range: "<5%"
+    alert: ">15%"
+    meaning: "审核或排期成为时效瓶颈，损害内容获客"
+test_set_strategy:
+  golden_path: 50
+  hard_cases: 30
+  edge_cases: 20
+
+</script>
+<script>
+  function copyYAML(){
+    const yaml = document.getElementById('raw-yaml').textContent.trim();
+    navigator.clipboard.writeText(yaml).then(() => {
+      const t = document.getElementById('toast');
+      t.style.display = 'block';
+      setTimeout(() => { t.style.display = 'none'; }, 2200);
+    });
+  }
+</script>
+</body>
+</html>

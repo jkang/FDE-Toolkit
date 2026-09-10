@@ -147,3 +147,12 @@ input:focus-visible, .ant-select-selector:focus-visible, .arco-select-view:focus
 @media (max-width: 768px) { .ux-app-header .ux-subtitle { display: none; } }
 @media (max-width: 1024px) { .ux-content { max-width: 100%; } }
 @media (min-width: 1440px) { .ux-content { max-width: var(--ux-content-max); } }
+
+/* ---------- 可访问性补丁（UX Step 9 · WCAG AA 4.5:1 修复） ----------
+   经 scripts/contrast_check.py 复核，覆盖层默认的成功/警告文字色对比度不足
+   （#389e0d on #f6ffed = 3.37:1；#d48806 on #fffbe6 = 2.76:1），
+   改为 antd 深一档标准色（green-8 / gold-9），达标后语义不变、色相不变。 */
+.ant-tag-green, .ant-tag-success { color: #237804 !important; }          /* 4.5:1+ */
+.ant-alert-success .ant-alert-message, .ant-alert-success .ant-alert-icon { color: #237804 !important; }
+.ant-tag-gold, .ant-tag-warning { color: #874d00 !important; }           /* 4.5:1+ */
+.ant-alert-warning .ant-alert-message, .ant-alert-warning .ant-alert-icon { color: #874d00 !important; }

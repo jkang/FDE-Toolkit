@@ -1,0 +1,239 @@
+meta:
+  title: "赛事内容工厂 · 落地技术架构方案"
+  scenario: "赛事内容工厂"
+  company: "张雪机车海外销售"
+  route: "Autonomous Planner"
+  routeReason: "用户入口开放（可能只上传素材看高光、只做多语言脚本、只审阅发布或复盘），路径需运行时规划；6 个 Skill 职责稳定但调用路径由上下文决定，且需跨环节动态编排与 HITL 兜底。"
+  patternSummary: "1 编排 Agent + 6 Skill + 1 本体 + 5 MCP + 1 RAG"
+  date: "2026-09-10"
+
+agent:
+  name: "编排 Agent · 赛事内容工厂主编（Autonomous Planner）"
+  role: "意图识别 · 规划 · 调度 Skill · 发起 HITL · 异常兜底"
+  loop: "Plan → Act → Observe"
+  memory: ["任务级上下文（目标市场/语言/调性/红线）", "场景级品牌偏好与高光偏好"]
+  note: "不直接算数、不代替品牌放行，只做规划与调度"
+
+routing:
+  - { intent: "上传素材 / 高光识别", skill: "skill_highlight" }
+  - { intent: "多语言脚本 / 本地化", skill: "skill_script" }
+  - { intent: "剪辑配音 / 品牌包装", skill: "skill_clip" }
+  - { intent: "平台适配 / 内容包", skill: "skill_adapt" }
+  - { intent: "审核 / 发布排期", skill: "skill_publish" }
+  - { intent: "效果回流 / 策略复盘", skill: "skill_feedback" }
+
+skills:
+  - id: "skill_highlight"
+    name: "Skill ① 素材理解与高光识别"
+    type: "skill"
+    trigger: "上传 WSBK 原始素材（开放入口）"
+    pattern: "pipeline + evaluator"
+    whyNotSubagent: "步骤固定、共享任务上下文、无需独立规划 → 判 Skill"
+    handoff: "→ 高光清单就绪后进入 Skill ② 脚本链"
+    nodes:
+      - { id: "a0", label: "素材接入 + 生成指令", note: "目标市场/语言/调性/红线", type: "op" }
+      - { id: "a1", label: "多模态镜头与事件识别", note: "多模态视频理解", type: "small" }
+      - { id: "a2", label: "关联赛事数据库上下文", note: "MCP · WSBK 赛事数据库 · 读本体 R", type: "mcp" }
+      - { id: "a3", label: "品牌露出标注", note: "小模型 · 涂装/角标", type: "small" }
+      - { id: "a4", label: "高光四因子打分", note: "决策模型类 · 确定性", type: "det" }
+      - { id: "a5", label: "高光分 ≥ 阈值？", note: "Evaluator", type: "eval" }
+      - { id: "a6", label: "组装高光候选清单", note: "LLM · 含置信度", type: "llm" }
+      - { id: "a7", label: "拉人判定候选", note: "HITL · 内容团队", type: "hitl" }
+      - { id: "a8", label: "高光清单就绪", type: "out" }
+    edges:
+      - { from: "a0", to: "a1", style: "solid" }
+      - { from: "a1", to: "a2", style: "solid" }
+      - { from: "a1", to: "a3", style: "solid" }
+      - { from: "a2", to: "a4", style: "solid" }
+      - { from: "a3", to: "a4", style: "solid" }
+      - { from: "a4", to: "a5", style: "solid" }
+      - { from: "a5", to: "a6", label: "通过", style: "solid" }
+      - { from: "a5", to: "a7", label: "候选不足 / 存疑", style: "dashed" }
+      - { from: "a7", to: "a4", label: "复核后重新打分", style: "dashed" }
+      - { from: "a6", to: "a8", style: "solid" }
+
+  - id: "skill_script"
+    name: "Skill ② 多语言脚本生成与本地化"
+    type: "skill"
+    trigger: "高光清单就绪（承接 Skill ①）"
+    pattern: "pipeline + human-in-the-loop"
+    whyNotSubagent: "模板骨架 + 校验规则固定，I/O 清晰可独立测试 → 判 Skill"
+    handoff: "→ 脚本确认后进入 Skill ③ 剪辑链"
+    nodes:
+      - { id: "b0", label: "叙事要素提取", note: "车手/名次/超车/圈速 · 读本体 R", type: "onto" }
+      - { id: "b1", label: "套用脚本骨架模板", note: "RAG · 脚本模板库", type: "rag" }
+      - { id: "b2", label: "生成 6 语言解说脚本", note: "LLM · 逐语言本地化", type: "llm" }
+      - { id: "b3", label: "事实与文化禁忌校验", note: "规则引擎 · 禁忌库 · 读本体 R", type: "det" }
+      - { id: "b4", label: "命中禁忌 / 事实不符？", note: "Evaluator", type: "eval" }
+      - { id: "b5", label: "自动改写或降级", note: "LLM", type: "llm" }
+      - { id: "b6", label: "脚本抽检确认", note: "HITL · 社媒运营专员", type: "hitl" }
+      - { id: "b7", label: "6 语言脚本就绪", type: "out" }
+      - { id: "b8", label: "异常池", note: "仍冲突 → 拉品牌内容经理", type: "exception" }
+    edges:
+      - { from: "b0", to: "b2", style: "solid" }
+      - { from: "b1", to: "b2", style: "solid" }
+      - { from: "b2", to: "b3", style: "solid" }
+      - { from: "b3", to: "b4", style: "solid" }
+      - { from: "b4", to: "b6", label: "通过", style: "solid" }
+      - { from: "b4", to: "b5", label: "命中", style: "solid" }
+      - { from: "b5", to: "b3", label: "改写后复检", style: "dashed" }
+      - { from: "b4", to: "b8", label: "仍冲突", style: "dashed" }
+      - { from: "b6", to: "b7", label: "确认", style: "solid" }
+      - { from: "b6", to: "b2", label: "退回重生成", style: "dashed" }
+
+  - id: "skill_clip"
+    name: "Skill ③ 剪辑配音与品牌包装"
+    type: "skill"
+    trigger: "脚本已确认（承接 Skill ②）"
+    pattern: "pipeline + retry/fallback"
+    whyNotSubagent: "固定管道、调用外部剪辑/TTS，分支为预定义重试 → 判 Skill"
+    handoff: "→ 成片就绪后进入 Skill ④ 适配链"
+    nodes:
+      - { id: "c0", label: "已确认脚本 + 高光片段", type: "op" }
+      - { id: "c1", label: "自动剪辑高光片段", note: "MCP · 剪辑 API（Runway/Descript）", type: "mcp" }
+      - { id: "c2", label: "6 语言配音与字幕合成", note: "MCP · TTS（ElevenLabs/Azure）", type: "mcp" }
+      - { id: "c3", label: "品牌元素与封面包装", note: "MCP · VI 资源 · 读本体 R", type: "mcp" }
+      - { id: "c4", label: "VI 规范校验", note: "确定性 · 读本体 R", type: "det" }
+      - { id: "c5", label: "内容成品就绪", type: "out" }
+      - { id: "c6", label: "合成失败", note: "重试 / 降级标准模板", type: "exception" }
+    edges:
+      - { from: "c0", to: "c1", style: "solid" }
+      - { from: "c1", to: "c2", style: "solid" }
+      - { from: "c2", to: "c3", style: "solid" }
+      - { from: "c3", to: "c4", style: "solid" }
+      - { from: "c4", to: "c5", label: "符合 VI", style: "solid" }
+      - { from: "c4", to: "c3", label: "不符 → 回退标准包装", style: "dashed" }
+      - { from: "c1", to: "c6", label: "剪辑失败", style: "dashed" }
+      - { from: "c2", to: "c6", label: "配音失败", style: "dashed" }
+      - { from: "c6", to: "c1", label: "重试 ×2 / 降级", style: "dashed" }
+
+  - id: "skill_adapt"
+    name: "Skill ④ 平台适配与内容包"
+    type: "skill"
+    trigger: "内容成品就绪（承接 Skill ③）"
+    pattern: "pipeline + evaluator"
+    whyNotSubagent: "平台规则确定性、分支预定义（合规/超限）→ 判 Skill"
+    handoff: "→ 内容包就绪后进入 Skill ⑤ 审核发布链"
+    nodes:
+      - { id: "d0", label: "成片 + 平台规范", note: "读本体 R · 各平台硬规范", type: "op" }
+      - { id: "d1", label: "时长/比例/编码适配", note: "决策模型类 · 规则引擎", type: "det" }
+      - { id: "d2", label: "超出平台硬约束？", note: "Evaluator", type: "eval" }
+      - { id: "d3", label: "自动裁切 / 拆条", note: "MCP · 剪辑 API", type: "mcp" }
+      - { id: "d4", label: "标签与 SEO 图文生成", note: "LLM · RAG SEO 词库", type: "llm" }
+      - { id: "d5", label: "多平台内容包就绪", type: "out" }
+      - { id: "d6", label: "编码转换失败", note: "重试 → 降级标准编码", type: "exception" }
+    edges:
+      - { from: "d0", to: "d1", style: "solid" }
+      - { from: "d1", to: "d2", style: "solid" }
+      - { from: "d2", to: "d4", label: "合规", style: "solid" }
+      - { from: "d2", to: "d3", label: "超限", style: "solid" }
+      - { from: "d3", to: "d1", label: "重新适配", style: "dashed" }
+      - { from: "d1", to: "d6", label: "编码失败", style: "dashed" }
+      - { from: "d6", to: "d1", label: "降级重试", style: "dashed" }
+      - { from: "d4", to: "d5", style: "solid" }
+
+  - id: "skill_publish"
+    name: "Skill ⑤ 品牌审核与发布编排"
+    type: "skill"
+    trigger: "内容包就绪（承接 Skill ④）"
+    pattern: "human-in-the-loop + gate"
+    whyNotSubagent: "固定审批门禁 + 发布管道，I/O 清晰 → 判 Skill"
+    handoff: "→ 发布成功后触发 Skill ⑥ 效果链（事件订阅）"
+    nodes:
+      - { id: "e0", label: "多平台内容包", type: "op" }
+      - { id: "e1", label: "品牌调性/红线/事实三级校验", note: "规则引擎 · 读本体 R", type: "det" }
+      - { id: "e2", label: "红线命中 / 事实重大错误？", note: "Evaluator", type: "eval" }
+      - { id: "e3", label: "拦截并升级", note: "HITL · 品牌内容经理 · 一票否决", type: "hitl" }
+      - { id: "e4", label: "品牌调性与内容红线终审", note: "HITL · 对外必停 gate", type: "hitl" }
+      - { id: "e5", label: "退回修改后重新送审", note: "读本体 R", type: "op" }
+      - { id: "e6", label: "发布排期与最佳时间", note: "决策模型类 · 热点窗口 > 活跃时段", type: "det" }
+      - { id: "e7", label: "多平台自动发布", note: "MCP · 社媒管理平台 · 写本体 W", type: "mcp" }
+      - { id: "e8", label: "已发布", type: "out" }
+      - { id: "e9", label: "发布失败 / 账号异常", note: "重试 → 转人工", type: "exception" }
+    edges:
+      - { from: "e0", to: "e1", style: "solid" }
+      - { from: "e1", to: "e2", style: "solid" }
+      - { from: "e2", to: "e3", label: "命中", style: "solid" }
+      - { from: "e2", to: "e4", label: "通过", style: "solid" }
+      - { from: "e3", to: "e5", label: "退回 / 拦截", style: "solid" }
+      - { from: "e4", to: "e6", label: "人工放行", style: "solid" }
+      - { from: "e4", to: "e5", label: "调性偏差退回", style: "dashed" }
+      - { from: "e5", to: "e1", label: "重新送审", style: "dashed" }
+      - { from: "e6", to: "e7", style: "solid" }
+      - { from: "e7", to: "e8", style: "solid" }
+      - { from: "e7", to: "e9", label: "失败", style: "dashed" }
+      - { from: "e9", to: "e7", label: "重试 ×2", style: "dashed" }
+
+  - id: "skill_feedback"
+    name: "Skill ⑥ 效果追踪与策略反馈"
+    type: "skill"
+    trigger: "内容已发布（事件驱动）"
+    pattern: "event-driven + human-in-the-loop"
+    whyNotSubagent: "分支为预定义（样本足/不足、策略冲突），非运行时自由规划 → 判 Skill"
+    nodes:
+      - { id: "f0", label: "已发布内容", type: "op" }
+      - { id: "f1", label: "互动数据采集", note: "MCP · 分析平台 · 写本体 W", type: "mcp" }
+      - { id: "f2", label: "样本量充分？", note: "Evaluator", type: "eval" }
+      - { id: "f3", label: "效果归因分析", note: "确定性 + LLM · 读本体 R", type: "det" }
+      - { id: "f4", label: "更新高光偏好权重", note: "写本体 W", type: "onto" }
+      - { id: "f5", label: "内容策略优化建议", note: "LLM", type: "llm" }
+      - { id: "f6", label: "策略复盘与下轮调整", note: "HITL · 海外市场营销/社媒运营", type: "hitl" }
+      - { id: "f7", label: "策略已优化", type: "out" }
+      - { id: "f8", label: "样本不足", note: "不调整，继续观察", type: "exception" }
+    edges:
+      - { from: "f0", to: "f1", style: "solid" }
+      - { from: "f1", to: "f2", style: "solid" }
+      - { from: "f2", to: "f3", label: "充分", style: "solid" }
+      - { from: "f2", to: "f8", label: "不足 / 波动大", style: "dashed" }
+      - { from: "f3", to: "f4", style: "solid" }
+      - { from: "f4", to: "f5", style: "solid" }
+      - { from: "f5", to: "f6", style: "solid" }
+      - { from: "f6", to: "f7", style: "solid" }
+      - { from: "f8", to: "f1", label: "继续采集", style: "dashed" }
+
+sharedBase:
+  ontology:
+    title: "本体（确定性底座）"
+    read: ["赛事事件/车手/成绩（叙事要素）", "品牌调性与内容红线（约束）", "平台内容规范（适配）", "目标市场文化偏好与禁忌（本地化）"]
+    write: ["高光片段清单", "多语言脚本", "内容成品/内容包", "发布记录", "效果指标/高光偏好权重"]
+    note: "对象 / 关系 / 状态迁移 + 业务事实；Skill 读写本体，不靠 LLM 猜名次、猜平台规范。"
+  mcp:
+    title: "MCP / 外部系统"
+    calls: ["WSBK 赛事数据库（赛事/成绩/对战）", "视频剪辑 API（Runway/Descript）", "语音合成 API（ElevenLabs/Azure TTS）", "社媒管理平台（Hootsuite/Sprinklr）", "数据分析平台（Google Analytics/平台开放数据）"]
+    note: "仅需要外部读写的步骤才走 MCP；未接的标 N/A。"
+  kb:
+    title: "知识库 / RAG"
+    calls: ["多语言解说脚本模板库", "目标市场文化偏好与禁忌库", "品牌 VI 规范与视觉标准手册", "平台标签与 SEO 关键词库", "历史高互动内容素材库"]
+    note: "规则校验走规则引擎而非向量检索；模板/禁忌/VI/SEO 等非结构化知识走 RAG。"
+
+exceptionPool: "高光候选不足 / 文化禁忌无法改写 / 剪辑或 TTS 合成失败 / 平台编码失败 / 发布失败或账号异常 / 数据延迟缺失 / Loop 超限 → 升级人工，附上下文摘要。"
+
+failureTable:
+  - { trigger: "素材损坏 / 授权未 cleared", action: "提示重新上传或补充授权，不阻塞后续分站流程", type: "fallback" }
+  - { trigger: "高光分低于阈值 / 候选不足", action: "回退候选池 → 拉内容团队人工判定", type: "escalate" }
+  - { trigger: "赛事数据缺失导致叙事价值无法判断", action: "降级为仅视频理解并标注待核对", type: "fallback" }
+  - { trigger: "命中文化禁忌且无法在不改变事实前提下改写", action: "自动改写/降级 → 仍冲突拉品牌内容经理裁决", type: "escalate" }
+  - { trigger: "剪辑 API 失败 / 某语种 TTS 合成失败", action: "重试 2 次 → 切换备用 TTS / 降级标准模板", type: "retry / fallback" }
+  - { trigger: "平台编码转换失败 / 超时长上限", action: "重试 2 次 → 降级标准编码；超限自动裁切或拆条", type: "retry / fallback" }
+  - { trigger: "触碰品牌红线 / 事实重大错误", action: "一票否决拦截，禁止发布并升级品牌内容经理", type: "escalate" }
+  - { trigger: "发布失败 / 账号异常 / 档期冲突", action: "重试 2 次 → 转人工发布；热点过期顺延或提示调整", type: "retry / escalate" }
+  - { trigger: "效果样本不足 / 波动大", action: "不调整策略，继续观察并标注", type: "fallback" }
+
+kpi:
+  - { name: "赛事内容产出时效", link: "① 素材理解高光 + ③ 剪辑配音 + ④ 平台适配　3 天 → 30 分钟" }
+  - { name: "多语言内容单位成本", link: "② 多语言脚本 + ③ 配音　外包本地化 → AI 自产，↓90%" }
+  - { name: "内容互动率", link: "① 高光打分 + ② 脚本 + ⑥ 效果回流　↑35%" }
+  - { name: "社媒内容日更量", link: "④ 平台适配 + ⑤ 发布编排　日更 3-5 条多平台" }
+  - { name: "内容合规通过率", link: "⑤ 品牌红线终审　红线一票否决 + 对外必停" }
+
+guardrails:
+  - { rule: "事实性计算（高光分 / 平台适配 / 排期 / 归因）", detail: "走确定性规则引擎 / 本体，LLM 不产出事实与数值" }
+  - { rule: "对外发布（多平台自动发布）", detail: "必须品牌调性与内容红线人工终审放行，禁止静默发布" }
+  - { rule: "品牌红线 / 文化禁忌", detail: "红线命中一票否决；跨市场版本不得直接复用" }
+  - { rule: "素材授权", detail: "授权未 cleared 不得对外发布" }
+  - { rule: "平台硬约束", detail: "超时长/编码硬约束不得强推，须先裁切/拆条再适配" }
+  - { rule: "HITL 闸门", detail: "品牌终审、多平台发布、策略复盘在架构层有落点，不写在提示词里" }
+
+notes:
+  - { title: "⚠️ 口径待确认（MCP vs 本体）：", text: "本方案把「WSBK 赛事数据库 / 剪辑 API / TTS / 社媒平台 / 数据分析平台」画成 MCP 外部调用；若确认「业务数据全部来自绑定本体」，则相应归入本体/内部服务并在底座标 N/A。二者需二选一后再定稿。" }
+  - { title: "⚠️ 阈值待确认：", text: "高光分阈值、文化禁忌改写判定口径、各平台时长上限版本需业务专家坐实；未确认前原型按决策模型类规则默认值演示。" }

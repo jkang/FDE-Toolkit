@@ -1,0 +1,238 @@
+meta:
+  title: "分仓智能补货 · 落地技术架构方案"
+  scenario: "分仓智能补货"
+  company: "X奶粉"
+  route: "Autonomous Planner"
+  routeReason: "用户入口开放（可只问缺口、直接出方案、追问异常、下发补货单或月末复盘），路径需运行时按上下文规划；5 个 Skill 职责稳定、可独立验收，但调用顺序与组合由对话意图决定，故选自主规划。"
+  patternSummary: "1 编排 Agent + 5 Skill + 1 本体"
+  date: "2026-09-10"
+
+agent:
+  name: "编排 Agent · Autonomous Planner"
+  role: "意图识别 · 规划 · 调度 Skill · 发起 HITL · 异常兜底"
+  loop: "Plan → Act → Observe"
+  memory: ["任务级上下文（本轮分货周期参数：促销放量/旬度进度）", "会话级仓网画像（仓—品—渠道关联与历史分配）"]
+  note: "不直接算数：缺口分级/DOS/备货率/分配求解/校验均走确定性服务与本体，LLM 只做解释、组版与调参建议"
+
+routing:
+  - { intent: "缺口 / 货源 / 供需全景", skill: "skill_gap" }
+  - { intent: "分货方案 / 分配量 / 京慧偏离", skill: "skill_plan" }
+  - { intent: "补货单 / 下发 / 撤销", skill: "skill_order" }
+  - { intent: "在途 / 延误 / 入库差异", skill: "skill_track" }
+  - { intent: "复盘 / 调参 / 安全水位 / 大日期", skill: "skill_review" }
+
+skills:
+  - id: "skill_gap"
+    name: "Skill ① 货源评估与缺口识别"
+    type: "skill"
+    trigger: "缺口 / 货源 / 供需全景（开放入口）"
+    pattern: "pipeline + human-in-the-loop"
+    whyNotSubagent: "步骤固定（拉数→校验→分级→解释）、共享上下文、无独立规划 → 判 Skill"
+    handoff: "→ 底表就绪后进入 Skill ② 分货方案编制"
+    nodes:
+      - { id: "g0", label: "分货周期启动 / 对话请求", type: "op" }
+      - { id: "g1", label: "拉取全仓现货/在途/待检/合格", note: "MCP · 库存系统", type: "mcp" }
+      - { id: "g2", label: "底表口径校验（6 项）", note: "确定性 · 提取要点", type: "det" }
+      - { id: "g3", label: "读销售计划 / 促销 / 仓网", note: "读本体 R", type: "onto" }
+      - { id: "g4", label: "计算 DOS 并缺口分级", note: "规则引擎 · rd_01", type: "det" }
+      - { id: "g5", label: "阈值边界冲突？", note: "DOS 7/14/60", type: "eval" }
+      - { id: "g6", label: "调度组复核口径", note: "HITL · 异常拉人", type: "hitl" }
+      - { id: "g7", label: "生成缺口解释与告警清单", note: "LLM", type: "llm" }
+      - { id: "g8", label: "缺口告警清单（红/黄/蓝）", type: "out" }
+    edges:
+      - { from: "g0", to: "g1", style: "solid" }
+      - { from: "g1", to: "g2", style: "solid" }
+      - { from: "g2", to: "g4", style: "solid" }
+      - { from: "g3", to: "g4", style: "solid" }
+      - { from: "g4", to: "g5", style: "solid" }
+      - { from: "g5", to: "g7", label: "正常", style: "solid" }
+      - { from: "g5", to: "g6", label: "边界冲突", style: "dashed" }
+      - { from: "g6", to: "g2", label: "修正口径后重跑", style: "dashed" }
+      - { from: "g7", to: "g8", style: "solid" }
+      - { from: "g1", to: "g1", label: "超时重试 ×1", style: "dashed" }
+
+  - id: "skill_plan"
+    name: "Skill ② 分货方案编制（全场景 P0）"
+    type: "skill"
+    trigger: "分货方案 / 分配量 / 京慧偏离"
+    pattern: "pipeline + human-in-the-loop + loop"
+    whyNotSubagent: "焦点 L4 下钻为算量/选仓/出版本/确认四步固定动作，I/O 清晰可独立测试 → 判 Skill"
+    handoff: "→ 方案确认后进入 Skill ③ 补货单生成下发"
+    nodes:
+      - { id: "p0", label: "底表就绪 / 触发求解", type: "op" }
+      - { id: "p1", label: "计算备货率与目标备货率", note: "确定性 · rd_02", type: "det" }
+      - { id: "p2", label: "读京慧建议量", note: "MCP · 京慧一盘货", type: "mcp" }
+      - { id: "p3", label: "读可发量/在途/促销/安全水位", note: "读本体 R", type: "onto" }
+      - { id: "p4", label: "多约束分配求解 + 选仓拆分", note: "规则引擎 · rd_03", type: "det" }
+      - { id: "p5", label: "偏离京慧建议量？", note: "Evaluator · 写入前必停判据", type: "eval" }
+      - { id: "p6", label: "组装多版方案 + 偏离说明", note: "LLM · rt_01", type: "llm" }
+      - { id: "p7", label: "京慧偏离确认 / 人工微调", note: "HITL · 写入前必停", type: "hitl" }
+      - { id: "p8", label: "修改是否超约束？", note: "可发量/安全水位", type: "eval" }
+      - { id: "p9", label: "写回分货方案（分配量）", note: "写本体 W", type: "mcp" }
+      - { id: "p10", label: "已确认分货方案", type: "out" }
+      - { id: "p11", label: "约束冲突备选方案", note: "异常池 · 拉人", type: "exception" }
+      - { id: "p12", label: "重新校验多约束", note: "Loop ×2", type: "loop" }
+    edges:
+      - { from: "p0", to: "p1", style: "solid" }
+      - { from: "p2", to: "p4", style: "solid" }
+      - { from: "p3", to: "p4", style: "solid" }
+      - { from: "p1", to: "p4", style: "solid" }
+      - { from: "p4", to: "p5", style: "solid" }
+      - { from: "p5", to: "p6", label: "偏离 / 正常", style: "solid" }
+      - { from: "p6", to: "p7", style: "solid" }
+      - { from: "p7", to: "p9", label: "确认", style: "solid" }
+      - { from: "p7", to: "p8", label: "微调", style: "solid" }
+      - { from: "p8", to: "p9", label: "通过", style: "solid" }
+      - { from: "p8", to: "p12", label: "超约束 ×2", style: "dashed" }
+      - { from: "p12", to: "p4", label: "退回重算", style: "dashed" }
+      - { from: "p5", to: "p11", label: "无可行解", style: "dashed" }
+      - { from: "p11", to: "p4", label: "调整约束后重试", style: "dashed" }
+      - { from: "p9", to: "p10", style: "solid" }
+
+  - id: "skill_order"
+    name: "Skill ③ 补货单生成与下发"
+    type: "skill"
+    trigger: "补货单 / 下发 / 撤销（写操作密集）"
+    pattern: "pipeline + human-in-the-loop"
+    whyNotSubagent: "固定管道 + 对外下发门禁，校验规则确定、I/O 清晰 → 判 Skill"
+    handoff: "→ 下发后触发 Skill ④ 执行跟踪（事件订阅）"
+    nodes:
+      - { id: "o0", label: "已确认分货方案", type: "op" }
+      - { id: "o1", label: "生成标准补货单", note: "确定性 · rt_03", type: "det" }
+      - { id: "o2", label: "收发仓/SKU/数量/时效 校验", note: "规则引擎 · rd_04", type: "det" }
+      - { id: "o3", label: "4 项校验通过？", note: "Evaluator", type: "eval" }
+      - { id: "o4", label: "对外下发门禁", note: "HITL · 必停 + 10s 撤销窗", type: "hitl" }
+      - { id: "o5", label: "写物流调度 + 财务核算", note: "MCP · 写本体 W", type: "mcp" }
+      - { id: "o6", label: "补货单已下发", type: "out" }
+      - { id: "o7", label: "撤销回滚（10 秒窗口）", note: "Loop · 回滚下发", type: "loop" }
+      - { id: "o8", label: "退回调整补货单", note: "异常池 · 拉人", type: "exception" }
+    edges:
+      - { from: "o0", to: "o1", style: "solid" }
+      - { from: "o1", to: "o2", style: "solid" }
+      - { from: "o2", to: "o3", style: "solid" }
+      - { from: "o3", to: "o4", label: "通过", style: "solid" }
+      - { from: "o3", to: "o8", label: "不通过", style: "dashed" }
+      - { from: "o8", to: "o1", label: "补正后重生成", style: "dashed" }
+      - { from: "o4", to: "o5", label: "人工放行", style: "solid" }
+      - { from: "o5", to: "o6", style: "solid" }
+      - { from: "o6", to: "o7", label: "10s 内撤销", style: "dashed" }
+      - { from: "o7", to: "o4", label: "回滚后重发", style: "dashed" }
+
+  - id: "skill_track"
+    name: "Skill ④ 执行跟踪与入库同步"
+    type: "skill"
+    trigger: "在途 / 延误 / 入库差异（事件驱动）"
+    pattern: "event-driven + human-in-the-loop"
+    whyNotSubagent: "分支为预定义（延误预警→拉人、差异>0.5%→差异单），非运行时自由规划 → 判 Skill"
+    handoff: "→ 收货完成后回馈 Skill ⑤ 复盘"
+    nodes:
+      - { id: "t0", label: "补货单下发 / 状态变更", type: "op" }
+      - { id: "t1", label: "拉取 TMS 在途定位", note: "MCP · TMS · 4h 刷新", type: "mcp" }
+      - { id: "t2", label: "延误 / 破损预测", note: "专用模型", type: "small" }
+      - { id: "t3", label: "延误>24h/48h 或 破损>1%？", note: "Evaluator", type: "eval" }
+      - { id: "t4", label: "生成在途台账与预警说明", note: "LLM", type: "llm" }
+      - { id: "t5", label: "延误 / 破损处理", note: "HITL · 拉人", type: "hitl" }
+      - { id: "t6", label: "拉取 WMS 入库验收", note: "MCP · WMS", type: "mcp" }
+      - { id: "t7", label: "入库差异判定", note: "规则引擎 · rd_05", type: "det" }
+      - { id: "t8", label: "同步可发量/DOS 并关闭调拨单", note: "写本体 W", type: "mcp" }
+      - { id: "t9", label: "收货完成", type: "out" }
+      - { id: "t10", label: "生成差异处理单", note: "异常池 · 推送财务/仓管", type: "exception" }
+      - { id: "t11", label: "同步失败重试", note: "Loop ×2", type: "loop" }
+    edges:
+      - { from: "t0", to: "t1", style: "solid" }
+      - { from: "t1", to: "t2", style: "solid" }
+      - { from: "t2", to: "t3", style: "solid" }
+      - { from: "t3", to: "t4", label: "正常", style: "solid" }
+      - { from: "t3", to: "t5", label: "异常", style: "dashed" }
+      - { from: "t5", to: "t4", label: "处理后继续", style: "dashed" }
+      - { from: "t4", to: "t6", style: "solid" }
+      - { from: "t6", to: "t7", style: "solid" }
+      - { from: "t7", to: "t8", label: "差异率≤0.5%", style: "solid" }
+      - { from: "t7", to: "t10", label: "差异率>0.5%", style: "dashed" }
+      - { from: "t10", to: "t8", label: "差异关闭后同步", style: "dashed" }
+      - { from: "t8", to: "t9", style: "solid" }
+      - { from: "t8", to: "t11", label: "同步失败", style: "dashed" }
+      - { from: "t11", to: "t8", label: "重试", style: "dashed" }
+
+  - id: "skill_review"
+    name: "Skill ⑤ 库存监控与效果复盘"
+    type: "skill"
+    trigger: "复盘 / 调参 / 安全水位 / 大日期（月度）"
+    pattern: "pipeline + human-in-the-loop"
+    whyNotSubagent: "阈值触发与审批流为预定义分支，无独立规划 → 判 Skill"
+    handoff: "→ 参数审批生效后回灌下一周期 Skill ②"
+    nodes:
+      - { id: "r0", label: "月度周期结束 / 触发复盘", type: "op" }
+      - { id: "r1", label: "拉取复盘指标", note: "MCP · TMS/库存监控/WMS", type: "mcp" }
+      - { id: "r2", label: "统计指标并阈值判定", note: "规则引擎 · rd_06", type: "det" }
+      - { id: "r3", label: "读安全水位 / 大日期库存", note: "读本体 R", type: "onto" }
+      - { id: "r4", label: "大日期巡检 + 安全水位建议", note: "规则引擎 · rd_07/rd_08", type: "det" }
+      - { id: "r5", label: "生成复盘报告与调参建议", note: "LLM · rt_02", type: "llm" }
+      - { id: "r6", label: "指标恶化 / 多指标冲突？", note: "Evaluator · 时效优先", type: "eval" }
+      - { id: "r7", label: "调参审批", note: "HITL · 下一周期生效", type: "hitl" }
+      - { id: "r8", label: "写安全水位 / 参数", note: "写本体 W", type: "mcp" }
+      - { id: "r9", label: "复盘报告 + 参数生效", type: "out" }
+      - { id: "r10", label: "指标异常恶化裁决", note: "异常池 · 拉人", type: "exception" }
+      - { id: "r11", label: "重出调参建议", note: "Loop ×1", type: "loop" }
+    edges:
+      - { from: "r0", to: "r1", style: "solid" }
+      - { from: "r1", to: "r2", style: "solid" }
+      - { from: "r2", to: "r4", style: "solid" }
+      - { from: "r3", to: "r4", style: "solid" }
+      - { from: "r4", to: "r5", style: "solid" }
+      - { from: "r5", to: "r6", style: "solid" }
+      - { from: "r6", to: "r7", label: "正常", style: "solid" }
+      - { from: "r6", to: "r10", label: "恶化", style: "dashed" }
+      - { from: "r10", to: "r11", style: "dashed" }
+      - { from: "r11", to: "r5", label: "重出建议", style: "dashed" }
+      - { from: "r7", to: "r8", label: "审批通过", style: "solid" }
+      - { from: "r8", to: "r9", style: "solid" }
+
+sharedBase:
+  ontology:
+    title: "本体（确定性底座）"
+    read: ["现货/在途/待检/合格库存（缺口识别）", "分仓销售计划 + 促销计划（DOS/备货率）", "京慧建议量（分配参考基线）", "仓网/产品主数据 + 安全水位（选仓与约束）", "大日期库存（新鲜度约束）", "缺口告警（分配优先级）"]
+    write: ["分货方案 allocation_plan（分配量）", "补货单 replenishment_order（下发）", "在途台账 / 入库验收记录（执行）", "可发量 / DOS（库存同步）", "复盘报告 / 安全水位（调参）"]
+    note: "对象 / 关系 / 状态迁移 + 业务事实；Skill 读写本体，不靠 LLM 猜事实。分配量≠京慧建议量、补货单下发≠实际发货、实收≠调拨数量三处口径以本体为准。"
+  mcp:
+    title: "MCP / 外部系统"
+    calls: ["现货/在途库存系统（拉数）", "京慧一盘货（只读建议量）", "奶粉分仓补调系统（读写分配量）", "APS/S&OP（读供应上限）", "TMS（在途定位）", "WMS（入库验收）", "物流调度系统（下发）", "财务核算系统（下发）"]
+    note: "仅需要外部读写的步骤才走 MCP；读走 MCP、写回走本体。"
+  kb:
+    title: "知识库 / RAG"
+    calls: ["分仓补货业务口径词典（rdict_01）", "五类规则库（rd_01~rd_08 / rt_01~rt_03 / rext_01 / rrel_01）", "分货方案 / 补货单 / 复盘报告模板"]
+    note: "规则校验走规则引擎而非向量检索；模板与口径词典作为结构化知识注入。"
+
+exceptionPool: "底表口径异常 / DOS 边界冲突 / 多约束无可行解 / 补货单校验不过 / 延误破损超阈 / 差异率>0.5% / 指标恶化或调参冲突 → 升级人工，附上下文摘要与冲突项。"
+
+failureTable:
+  - { trigger: "库存/销售计划数据缺失或口径冲突", action: "标红缺失字段 → 拉调度组复核，不阻塞其余字段", type: "fallback / escalate" }
+  - { trigger: "DOS 落在 7/14/60 天边界无法自动判定", action: "标注边界冲突并转人工确认（物流计划岗）", type: "escalate" }
+  - { trigger: "多约束无可行解（基地仓可发量不足）", action: "按可发量约束>时效优先拆分多仓 → 仍不足则输出备选并升级人工", type: "fallback / escalate" }
+  - { trigger: "TMS 物流预警数据未接通", action: "按历史运输时效估算，显式标注降级并建议人工复核", type: "fallback" }
+  - { trigger: "补货单 4 项校验不过", action: "退回调整并拉人（库存不足/时效超期/字段缺失）", type: "escalate" }
+  - { trigger: "下发后 10 秒内人工撤销", action: "回滚物流调度与财务侧写入，补货单回到待下发", type: "fallback" }
+  - { trigger: "WMS 入库差异率>0.5% / 破损率>1%", action: "生成差异处理单/异常工单，差异未关闭前不计入可发量", type: "escalate" }
+  - { trigger: "库存同步写入失败", action: "自动重试 2 次 → 标记同步异常并通知 IT", type: "retry / escalate" }
+  - { trigger: "复盘指标恶化或多指标冲突", action: "以时效达成率优先，拉人审批裁决调参方向", type: "escalate" }
+
+kpi:
+  - { name: "分货效率", link: "① 缺口识别 + ② 方案编制：分货数据准备/方案编制由约 2.5 天/轮 → 小时级" }
+  - { name: "分仓有货率", link: "② 多约束分配（rd_03）+ ④ 库存同步：缺货缓解率 ≥85%" }
+  - { name: "库存周转率", link: "② 积压控量 + ⑤ 复盘调参：周转天数同比降幅 ≤10%" }
+  - { name: "新鲜度", link: "⑤ 大日期巡检（rd_08）+ ② 新鲜度约束：临期预警前置" }
+  - { name: "物流时效", link: "④ 在途跟踪预警：时效达成率 ≥90%" }
+  - { name: "入库差异率", link: "④ 入库差异判定（rd_05）：差异率 ≤0.5%、破损率 ≤1%" }
+
+guardrails:
+  - { rule: "事实性计算（DOS/备货率/分配求解/校验）", detail: "走确定性服务 / 本体 / 规则引擎，LLM 不产出数值" }
+  - { rule: "写操作（写回分配量 / 下发补货单 / 调参生效）", detail: "必须人工放行，禁止静默通过；分配量偏离京慧建议量写入前必停" }
+  - { rule: "可发量硬约束", detail: "分配量/补货数量 ≤ 可发量，超约束退回重算" }
+  - { rule: "对外下发为合规红线", detail: "架构层设 HITL 门禁 + 10 秒撤销回滚，不能只写在提示词里" }
+  - { rule: "口径一致性", detail: "待检/合格分开、在途取在途总量、实收才是同步依据——由本体 rdict_01 保证" }
+
+notes:
+  - { title: "⚠️ 路线确认：", text: "本方案按用户拍板选 Autonomous Planner。若后续要求强审计/固定合规路径，可回退 Workflow（固定 5 段管道），届时 5 个 Skill 不变，仅编排层由自由规划改为顺序编排。" }
+  - { title: "⚠️ 伪经验待二轮验证：", text: "『积兆逻辑（异常诊断）』『大日期判定经验』为待业务专家二轮验证经验；当前以规则占位接入，原型与规则清单已标注概念级。" }
+  - { title: "⚠️ MCP 边界待确认：", text: "本方案把库存/京慧/奶粉分仓补调/APS/TMS/WMS/物流调度/财务画成 MCP 外部调用；若确认「MCP=0，业务数据全部来自绑定本体」，则归入本体并标注 N/A。" }
+  - { title: "⚠️ 量化基线待确认：", text: "分货数据准备/方案编制约 2.5 天/轮、补货单 0.5 天/批等 As-Is 基线为 [待客户确认]，影响 KPI 目标值。" }

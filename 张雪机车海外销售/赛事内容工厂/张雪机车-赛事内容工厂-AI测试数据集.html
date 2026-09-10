@@ -1,0 +1,1506 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZXMOTO 赛事内容工厂 Agent · MVP 测试数据集 - AI MVP Test Dataset</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root {
+            --bg-main: #f8fafc;
+            --accent-blue: #2563eb;
+            --border-soft: rgba(226, 232, 240, 0.7);
+            --card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
+        }
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background-color: var(--bg-main);
+            color: #0f172a;
+            padding: 80px 40px;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(37, 99, 235, 0.04) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(139, 92, 246, 0.04) 0px, transparent 50%);
+        }
+        h1, h2, h3, h4 { font-family: 'Outfit', sans-serif; }
+        code { font-family: 'Fira Code', monospace; }
+        
+        .premium-card {
+            background: white;
+            border: 1px solid var(--border-soft);
+            border-radius: 24px;
+            padding: 32px;
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .premium-card:hover { transform: translateY(-4px); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.08); }
+
+        .type-badge {
+            font-size: 0.65rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            padding: 4px 10px;
+            border-radius: 8px;
+            letter-spacing: 0.05em;
+        }
+        .type-golden { background: #eff6ff; color: #2563eb; border: 1px solid #dbeafe; }
+        .type-hard { background: #fffbeb; color: #d97706; border: 1px solid #fef3c7; }
+        .type-edge { background: #fef2f2; color: #dc2626; border: 1px solid #fee2e2; }
+
+        .dist-pill { height: 12px; border-radius: 99px; }
+
+        @keyframes reveal {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .reveal { animation: reveal 0.8s cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+        table { width: 100%; border-collapse: separate; border-spacing: 0; }
+        th { padding: 20px 24px; text-transform: uppercase; font-size: 0.7rem; font-weight: 900; color: #94a3b8; letter-spacing: 0.1em; border-bottom: 2px solid #f1f5f9; background: #f8fafc; }
+        td { padding: 24px; border-bottom: 1px solid #f1f5f9; vertical-align: top; }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background-color: #fbfcfe; }
+
+        .data-content {
+            background: #f1f5f9;
+            border-radius: 12px;
+            padding: 12px;
+            font-size: 0.75rem;
+            max-width: 300px;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            border: 1px solid #e2e8f0;
+            position: relative;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 8px; right: 8px;
+            opacity: 0;
+            transition: opacity 0.2s;
+            background: white;
+            border-radius: 6px;
+            padding: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .data-content:hover .copy-btn { opacity: 1; }
+
+        .filter-btn {
+            padding: 6px 16px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+        }
+        .filter-btn.active {
+            background: #0f172a;
+            color: white;
+        }
+        .filter-btn:not(.active) {
+            background: white;
+            color: #64748b;
+            border-color: #e2e8f0;
+        }
+        
+        .search-input {
+            background: #f1f5f9;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 10px 16px 10px 40px;
+            font-size: 0.875rem;
+            width: 100%;
+            transition: all 0.2s;
+        }
+        .search-input:focus {
+            outline: none;
+            border-color: #2563eb;
+            background: white;
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+        }
+        
+        .btn-copy-yaml {
+          background: #0f172a; color: #fff;
+          padding: 8px 16px; border-radius: 12px;
+          font-size: 13px; font-weight: 600;
+          border: none; cursor: pointer;
+          transition: all 0.2s;
+        }
+        .btn-copy-yaml:hover { background: #334155; }
+        
+        .toast {
+          position: fixed; bottom: 24px; right: 24px;
+          background: #10b981; color: #fff;
+          padding: 10px 20px; border-radius: 8px;
+          font-size: 13px; font-weight: 600;
+          display: none; z-index: 1000;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+    </style>
+
+    <!-- ===== Unified Report Shell: 撑满容器 + 精简 Header + 溢出滚动 ===== -->
+    <style>
+      *, *::before, *::after { box-sizing: border-box !important; }
+      html, body { margin: 0 !important; padding: 0 !important; background: #F5F5F6 !important; overflow-x: auto !important; }
+      .max-w-\[1400px\] {
+        width: 100% !important;
+        max-width: none !important;
+        margin: 0 auto !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        border: none !important;
+        padding: 24px 28px 48px !important;
+        overflow-x: auto !important;
+      }
+      header.reveal { margin-bottom: 20px !important; align-items: center !important; }
+      header.reveal h1 { font-size: 22px !important; line-height: 1.3 !important; margin: 0 !important; }
+    
+      /* ===== Unified Header (v2) ===== */
+      header.reveal {
+        background: #FFFFFF !important;
+        border-bottom: 1px solid #E2E8F0 !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        padding: 12px 0 !important;
+        margin-bottom: 20px !important;
+        min-height: auto !important;
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        gap: 16px !important;
+        flex-wrap: wrap !important;
+      }
+      header.reveal h1 {
+        font-size: 22px !important;
+        font-weight: 700 !important;
+        color: #10213E !important;
+        line-height: 1.3 !important;
+        margin: 0 !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 10px !important;
+      }
+      header.reveal h1::before {
+        content: "" !important;
+        display: inline-block !important;
+        width: 4px !important;
+        height: 22px !important;
+        background: #5DB2E2 !important;
+        border-radius: 2px !important;
+        flex-shrink: 0 !important;
+      }
+      header.reveal h1 svg, header.reveal h1 .icon, header.reveal h1 img, header.reveal .text-2xl {
+        width: 20px !important;
+        height: 20px !important;
+        flex-shrink: 0 !important;
+        font-size: 18px !important;
+      }
+      header.reveal .space-y-4, header.reveal > div {
+        font-size: 13px !important;
+        color: #64748B !important;
+      }
+      header.reveal .inline-flex, header.reveal [class*="rounded-full"] {
+        font-size: 12px !important;
+        color: #64748B !important;
+        background: #F5F5F6 !important;
+        border: none !important;
+        box-shadow: none !important;
+        padding: 2px 10px !important;
+        border-radius: 10px !important;
+      }
+      header.reveal button {
+        font-size: 12px !important;
+        padding: 6px 12px !important;
+        border-radius: 6px !important;
+        font-weight: 600 !important;
+        background: #10213E !important;
+        color: #FFFFFF !important;
+        border: 1px solid #10213E !important;
+      }
+
+      /* ===== Unified Header: 结构样式 ===== */
+      .unified-hdr {
+        background: #FFFFFF !important;
+        border-bottom: 1px solid #E2E8F0 !important;
+        padding: 14px 0 !important;
+        margin-bottom: 20px !important;
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        gap: 16px !important;
+        flex-wrap: wrap !important;
+        text-align: left !important;
+        flex-direction: row !important;
+      }
+      .unified-hdr-left { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+
+      .unified-hdr .unified-hdr-left {
+        flex-direction: row !important;
+        flex-wrap: wrap !important;
+        align-items: baseline !important;
+        gap: 12px !important;
+      }
+      .unified-hdr .unified-hdr-pill { margin-bottom: 0 !important; align-self: center !important; }
+      .unified-hdr .unified-hdr-left p {
+        width: 100% !important;
+        margin-top: 2px !important;
+      }
+
+      .unified-hdr-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+      .unified-hdr h1 {
+        font-size: 22px !important;
+        font-weight: 700 !important;
+        color: #10213E !important;
+        line-height: 1.3 !important;
+        margin: 0 !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 10px !important;
+      }
+      .unified-hdr h1::before {
+        content: "" !important;
+        display: inline-block !important;
+        width: 4px !important;
+        height: 22px !important;
+        background: #5DB2E2 !important;
+        border-radius: 2px !important;
+        flex-shrink: 0 !important;
+      }
+      .unified-hdr p {
+        font-size: 13px !important;
+        color: #64748B !important;
+        margin: 4px 0 0 !important;
+        padding-left: 14px !important;
+        line-height: 1.5 !important;
+      }
+      .unified-hdr-pill {
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 6px !important;
+        font-size: 12px !important;
+        font-weight: 600 !important;
+        color: #64748B !important;
+        background: #F5F5F6 !important;
+        border: none !important;
+        border-radius: 10px !important;
+        padding: 2px 10px !important;
+        width: fit-content !important;
+        text-transform: none !important;
+        letter-spacing: normal !important;
+        margin-bottom: 4px !important;
+      }
+      .unified-hdr-pill i, .unified-hdr-pill svg { width: 14px; height: 14px; }
+      .unified-hdr .btn-copy-yaml, .unified-hdr button {
+        font-size: 12px !important;
+        padding: 6px 12px !important;
+        border-radius: 6px !important;
+        font-weight: 600 !important;
+        background: #10213E !important;
+        color: #FFFFFF !important;
+        border: 1px solid #10213E !important;
+        margin: 0 !important;
+      }
+      .hdr-status-dot { display: inline-block; width: 8px; height: 8px; background: #22C55E; border-radius: 50%; }
+</style>
+
+
+</head>
+<body>
+    <div class="max-w-[1400px] mx-auto space-y-12">
+        <!-- Header -->
+        <header class="reveal unified-hdr">
+            <div class="unified-hdr-left">
+                <h1>ZXMOTO 赛事内容工厂 Agent · MVP 测试数据集</h1>
+                <p>为 <span>ZXMOTO 赛事内容工厂 Agent</span> 构建的"三层三类"高保真测试数据集。</p>
+            </div>
+            <div class="unified-hdr-right">
+                <button class="btn-copy-yaml" onclick="copyYAML()">复制原始 YAML</button>
+            </div>
+        </header>
+
+        <!-- Strategy Distribution -->
+        <section class="reveal grid grid-cols-1 md:grid-cols-3 gap-6" style="animation-delay: 0.2s;">
+            <div class="premium-card">
+                <div class="flex justify-between items-start mb-6">
+                    <div class="p-3 bg-blue-50 rounded-2xl text-blue-600"><i data-lucide="check-circle" class="w-6 h-6"></i></div>
+                    <span class="text-3xl font-black text-blue-600">50%</span>
+                </div>
+                <h3 class="text-lg font-black mb-2">Golden Path (主路径)</h3>
+                <div class="bg-slate-100 dist-pill overflow-hidden mb-4">
+                    <div class="h-full bg-blue-500" style="--width: 50; width: calc(var(--width) * 1%);"></div>
+                </div>
+                <p class="text-xs text-slate-500 leading-relaxed">常见、清晰的问题或任务，验证核心功能是否稳定。</p>
+            </div>
+
+            <div class="premium-card">
+                <div class="flex justify-between items-start mb-6">
+                    <div class="p-3 bg-amber-50 rounded-2xl text-amber-600"><i data-lucide="zap" class="w-6 h-6"></i></div>
+                    <span class="text-3xl font-black text-amber-600">30%</span>
+                </div>
+                <h3 class="text-lg font-black mb-2">Hard Cases (困难样例)</h3>
+                <div class="bg-slate-100 dist-pill overflow-hidden mb-4">
+                    <div class="h-full bg-amber-500" style="--width: 30; width: calc(var(--width) * 1%);"></div>
+                </div>
+                <p class="text-xs text-slate-500 leading-relaxed">模糊、矛盾、表述不清的问题，检验模型的鲁棒性。</p>
+            </div>
+
+            <div class="premium-card">
+                <div class="flex justify-between items-start mb-6">
+                    <div class="p-3 bg-red-50 rounded-2xl text-red-600"><i data-lucide="alert-octagon" class="w-6 h-6"></i></div>
+                    <span class="text-3xl font-black text-red-600">20%</span>
+                </div>
+                <h3 class="text-lg font-black mb-2">Edge Cases (边界样例)</h3>
+                <div class="bg-slate-100 dist-pill overflow-hidden mb-4">
+                    <div class="h-full bg-red-500" style="--width: 20; width: calc(var(--width) * 1%);"></div>
+                </div>
+                <p class="text-xs text-slate-500 leading-relaxed">极端输入、时效边界、异常内容，测试安全与拒答策略。</p>
+            </div>
+        </section>
+
+        <!-- Dataset Table -->
+        <section class="reveal premium-card p-0 overflow-hidden" style="animation-delay: 0.4s;">
+            <div class="p-8 border-bottom border-slate-100 bg-white">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8">
+                    <h3 class="text-2xl font-black">测试用例详情 (Test Cases Details)</h3>
+                    <div class="flex flex-wrap gap-2">
+                        <button onclick="filterType('all')" class="filter-btn active" id="filter-all">ALL</button>
+                        <button onclick="filterType('Golden Path')" class="filter-btn" id="filter-golden">GOLDEN</button>
+                        <button onclick="filterType('Hard Case')" class="filter-btn" id="filter-hard">HARD</button>
+                        <button onclick="filterType('Edge Case')" class="filter-btn" id="filter-edge">EDGE</button>
+                    </div>
+                </div>
+                <div class="relative w-full max-w-md">
+                    <i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"></i>
+                    <input type="text" id="searchInput" placeholder="搜索场景或关键词..." class="search-input" onkeyup="searchTable()">
+                </div>
+            </div>
+            <div class="overflow-x-auto">
+                <table id="caseTable">
+                    <thead>
+                        <tr>
+                            <th class="w-24">ID</th>
+                            <th class="w-48">场景与类型</th>
+                            <th>输入 (Input)</th>
+                            <th>期望中间产物 (Evidence)</th>
+                            <th>期望输出 (Output)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        
+                        <tr class="case-row" data-type="Golden Path">
+                            <td class="font-black text-slate-400 text-sm">C-001</td>
+                            <td>
+                                <div class="font-bold text-slate-900 mb-2 leading-tight case-scenario">夺冠高光识别与打分</div>
+                                <span class="type-badge type-golden">
+                                    Golden Path
+                                </span>
+                            </td>
+                            <td>
+                                <div class="data-content">
+                                    <code class="copy-target">素材: WSBK 荷兰站 全程素材（42GB）
+赛事数据: 车手 #22 ZXMOTO 第 1 名完赛，最后一圈完成反超
+目标语言: 6 语言；目标平台: YouTube/TikTok/Instagram/Reels
+</code>
+                                    <button class="copy-btn" onclick="copyToClipboard(this)">
+                                        <i data-lucide="copy" class="w-3 h-3 text-slate-500"></i>
+                                    </button>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="text-sm text-slate-600 leading-relaxed font-medium">
+                                    多模态识别冲线镜头并标注事件类型=夺冠；关联赛事数据得名次 P1；品牌露出=高；四因子打分 ≥ 阈值
+                                </div>
+                            </td>
+                            <td>
+                                <div class="text-sm font-bold text-blue-700 leading-relaxed">
+                                    高光候选清单含『夺冠冲线 96 分（置顶封面级）』，品牌露出已标注，置信度 ≥0.9
+                                </div>
+                                
+                                <div class="mt-2 p-2 bg-slate-50 rounded-lg text-[10px] text-slate-400 italic">
+                                    NOTE: 验证主链路高光识别与四因子打分的正常路径
+                                </div>
+                                
+                            </td>
+                        </tr>
+                        
+                        <tr class="case-row" data-type="Golden Path">
+                            <td class="font-black text-slate-400 text-sm">C-002</td>
+                            <td>
+                                <div class="font-bold text-slate-900 mb-2 leading-tight case-scenario">多语言解说脚本生成</div>
+                                <span class="type-badge type-golden">
+                                    Golden Path
+                                </span>
+                            </td>
+                            <td>
+                                <div class="data-content">
+                                    <code class="copy-target">高光: 夺冠冲线；叙事要素: 车手 #22、名次 P1、最后一圈反超
+品牌调性: 进取/克制/赛事感；目标语言: 英/法/德/西/意/葡
+</code>
+                                    <button class="copy-btn" onclick="copyToClipboard(this)">
+                                        <i data-lucide="copy" class="w-3 h-3 text-slate-500"></i>
+                                    </button>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="text-sm text-slate-600 leading-relaxed font-medium">
+                                    锁定叙事要素 → 套用钩子→高潮→结果→CTA 骨架 → 逐语言本地化生成
+                                </div>
+                            </td>
+                            <td>
+                                <div class="text-sm font-bold text-blue-700 leading-relaxed">
+                                    6 语言脚本事实一致（车手/名次/圈速与赛事数据一致），品牌名与话题标签齐全
+                                </div>
+                                
+                                <div class="mt-2 p-2 bg-slate-50 rounded-lg text-[10px] text-slate-400 italic">
+                                    NOTE: 验证多语言脚本事实一致与本地化生成
+                                </div>
+                                
+                            </td>
+                        </tr>
+                        
+                        <tr class="case-row" data-type="Golden Path">
+                            <td class="font-black text-slate-400 text-sm">C-003</td>
+                            <td>
+                                <div class="font-bold text-slate-900 mb-2 leading-tight case-scenario">品牌露出弱的高光补角标</div>
+                                <span class="type-badge type-golden">
+                                    Golden Path
+                                </span>
+                            </td>
+                            <td>
+                                <div class="data-content">
+                                    <code class="copy-target">高光: 贴身超车 91 分，品牌露出=中
+品牌 VI: Logo 位与角标规范
+</code>
+                                    <button class="copy-btn" onclick="copyToClipboard(this)">
+                                        <i data-lucide="copy" class="w-3 h-3 text-slate-500"></i>
+                                    </button>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="text-sm text-slate-600 leading-relaxed font-medium">
+                                    命中分支『精彩度高但品牌露出弱 → 入选高光但叠加品牌角标补足露出』
+                                </div>
+                            </td>
+                            <td>
+                                <div class="text-sm font-bold text-blue-700 leading-relaxed">
+                                    入选高光，并在成片叠加品牌角标，品牌露出提升
+                                </div>
+                                
+                                <div class="mt-2 p-2 bg-slate-50 rounded-lg text-[10px] text-slate-400 italic">
+                                    NOTE: 验证高光打分分支的确定性规则承接
+                                </div>
+                                
+                            </td>
+                        </tr>
+                        
+                        <tr class="case-row" data-type="Golden Path">
+                            <td class="font-black text-slate-400 text-sm">C-004</td>
+                            <td>
+                                <div class="font-bold text-slate-900 mb-2 leading-tight case-scenario">平台格式适配（时长/比例）</div>
+                                <span class="type-badge type-golden">
+                                    Golden Path
+                                </span>
+                            </td>
+                            <td>
+                                <div class="data-content">
+                                    <code class="copy-target">成片: 横屏 16:9 58s
+平台规范: YouTube ≤60s/16:9；TikTok ≤60s/9:16；Reels ≤90s/9:16；Feed 1:1
+</code>
+                                    <button class="copy-btn" onclick="copyToClipboard(this)">
+                                        <i data-lucide="copy" class="w-3 h-3 text-slate-500"></i>
+                                    </button>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="text-sm text-slate-600 leading-relaxed font-medium">
+                                    按平台规范判定时长与比例是否匹配
+                                </div>
+                            </td>
+                            <td>
+                                <div class="text-sm font-bold text-blue-700 leading-relaxed">
+                                    YouTube 直接适配；TikTok/Reels 智能重构为 9:16；Feed 输出 1:1，均无超限
+                                </div>
+                                
+                                <div class="mt-2 p-2 bg-slate-50 rounded-lg text-[10px] text-slate-400 italic">
+                                    NOTE: 验证平台适配规则引擎的正常路径
+                                </div>
+                                
+                            </td>
+                        </tr>
+                        
+                        <tr class="case-row" data-type="Golden Path">
+                            <td class="font-black text-slate-400 text-sm">C-005</td>
+                            <td>
+                                <div class="font-bold text-slate-900 mb-2 leading-tight case-scenario">品牌调性与内容红线终审</div>
+                                <span class="type-badge type-golden">
+                                    Golden Path
+                                </span>
+                            </td>
+                            <td>
+                                <div class="data-content">
+                                    <code class="copy-target">内容包: 6 语言 × 4 平台
+品牌红线: 无政治/宗教/暴力/竞品贬损；事实与赛事数据一致
+</code>
+                                    <button class="copy-btn" onclick="copyToClipboard(this)">
+                                        <i data-lucide="copy" class="w-3 h-3 text-slate-500"></i>
+                                    </button>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="text-sm text-slate-600 leading-relaxed font-medium">
+                                    三级校验：调性一致性 / 红线命中 / 事实准确性
+                                </div>
+                            </td>
+                            <td>
+                                <div class="text-sm font-bold text-blue-700 leading-relaxed">
+                                    三级校验通过，建议放行；HITL 门禁等待人工终审确认
+                                </div>
+                                
+                                <div class="mt-2 p-2 bg-slate-50 rounded-lg text-[10px] text-slate-400 italic">
+                                    NOTE: 验证品牌合规校验通过路径与对外必停 gate
+                                </div>
+                                
+                            </td>
+                        </tr>
+                        
+                        <tr class="case-row" data-type="Golden Path">
+                            <td class="font-black text-slate-400 text-sm">C-006</td>
+                            <td>
+                                <div class="font-bold text-slate-900 mb-2 leading-tight case-scenario">效果归因（样本充分）</div>
+                                <span class="type-badge type-golden">
+                                    Golden Path
+                                </span>
+                            </td>
+                            <td>
+                                <div class="data-content">
+                                    <code class="copy-target">互动数据: 101 条内容，夺冠/反超类互动率 9.8%，样本量 42
+基线: 平均互动率 7.3%
+</code>
+                                    <button class="copy-btn" onclick="copyToClipboard(this)">
+                                        <i data-lucide="copy" class="w-3 h-3 text-slate-500"></i>
+                                    </button>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="text-sm text-slate-600 leading-relaxed font-medium">
+                                    判定样本充分 → 归因到高光类型 → 计算相对基准偏离
+                                </div>
+                            </td>
+                            <td>
+                                <div class="text-sm font-bold text-blue-700 leading-relaxed">
+                                    输出归因结论『夺冠/反超类高于均值 35%』并更新高光偏好权重
+                                </div>
+                                
+                                <div class="mt-2 p-2 bg-slate-50 rounded-lg text-[10px] text-slate-400 italic">
+                                    NOTE: 验证样本充分时的归因与偏好更新
+                                </div>
+                                
+                            </td>
+                        </tr>
+                        
+                        <tr class="case-row" data-type="Golden Path">
+                            <td class="font-black text-slate-400 text-sm">C-007</td>
+                            <td>
+                                <div class="font-bold text-slate-900 mb-2 leading-tight case-scenario">发布排期与热点窗口</div>
+                                <span class="type-badge type-golden">
+                                    Golden Path
+                                </span>
+                            </td>
+                            <td>
+                                <div class="data-content">
+                                    <code class="copy-target">赛事: 荷兰站比赛结束时间 21:30
+目标市场: 北美/欧洲/拉美；历史互动时段数据
+</code>
+                                    <button class="copy-btn" onclick="copyToClipboard(this)">
+                                        <i data-lucide="copy" class="w-3 h-3 text-slate-500"></i>
+                                    </button>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="text-sm text-slate-600 leading-relaxed font-medium">
+                                    热点时效窗口 vs 本地活跃时段仲裁（热点时效 > 本地活跃时段）
+                                </div>
+                            </td>
+                            <td>
+                                <div class="text-sm font-bold text-blue-700 leading-relaxed">
+                                    排期『赛后 2h 内抢热点窗口分波发布』，后续补发第二波
+                                </div>
+                                
+                                <div class="mt-2 p-2 bg-slate-50 rounded-lg text-[10px] text-slate-400 italic">
+                                    NOTE: 验证排期规则的热点优先仲裁
+                                </div>
+                                
+                            </td>
+                        </tr>
+                        
+                        <tr class="case-row" data-type="Golden Path">
+                            <td class="font-black text-slate-400 text-sm">C-008</td>
+                            <td>
+                                <div class="font-bold text-slate-900 mb-2 leading-tight case-scenario">慢镜回放去重</div>
+                                <span class="type-badge type-golden">
+                                    Golden Path
+                                </span>
+                            </td>
+                            <td>
+                                <div class="data-content">
+                                    <code class="copy-target">素材含夺冠冲线实时镜头 + 3 次慢镜回放
+</code>
+                                    <button class="copy-btn" onclick="copyToClipboard(this)">
+                                        <i data-lucide="copy" class="w-3 h-3 text-slate-500"></i>
+                                    </button>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="text-sm text-slate-600 leading-relaxed font-medium">
+                                    识别慢镜回放为同一高光的重复，不重复计数
+                                </div>
+                            </td>
+                            <td>
+                                <div class="text-sm font-bold text-blue-700 leading-relaxed">
+                                    高光清单中夺冠冲线仅计 1 条，不因慢镜重复产生多条内容
+                                </div>
+                                
+                                <div class="mt-2 p-2 bg-slate-50 rounded-lg text-[10px] text-slate-400 italic">
+                                    NOTE: 验证高光去重规则，防止重复内容浪费资源
+                                </div>
+                                
+                            </td>
+                        </tr>
+                        
+                        <tr class="case-row" data-type="Golden Path">
+                            <td class="font-black text-slate-400 text-sm">C-009</td>
+                            <td>
+                                <div class="font-bold text-slate-900 mb-2 leading-tight case-scenario">6 语言配音与字幕合成</div>
+                                <span class="type-badge type-golden">
+                                    Golden Path
+                                </span>
+                            </td>
+                            <td>
+                                <div class="data-content">
+                                    <code class="copy-target">已确认脚本: 6 语言；TTS 音色: 按语言配置
+</code>
+                                    <button class="copy-btn" onclick="copyToClipboard(this)">
+                                        <i data-lucide="copy" class="w-3 h-3 text-slate-500"></i>
+                                    </button>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="text-sm text-slate-600 leading-relaxed font-medium">
+                                    调用 TTS 逐语言合成音轨，生成同步字幕
+                                </div>
+                            </td>
+                            <td>
+                                <div class="text-sm font-bold text-blue-700 leading-relaxed">
+                                    6 语言配音音轨 + 字幕齐全，成片可进入品牌包装
+                                </div>
+                                
+                                <div class="mt-2 p-2 bg-slate-50 rounded-lg text-[10px] text-slate-400 italic">
+                                    NOTE: 验证配音字幕合成正常路径
+                                </div>
+                                
+                            </td>
+                        </tr>
+                        
+                        <tr class="case-row" data-type="Golden Path">
+                            <td class="font-black text-slate-400 text-sm">C-010</td>
+                            <td>
+                                <div class="font-bold text-slate-900 mb-2 leading-tight case-scenario">标签与 SEO 图文生成</div>
+                                <span class="type-badge type-golden">
+                                    Golden Path
+                                </span>
+                            </td>
+                            <td>
+                                <div class="data-content">
+                                    <code class="copy-target">内容: 夺冠短视频；SEO 词库: WSBK/ZXMOTO/车手名
+</code>
+                                    <button class="copy-btn" onclick="copyToClipboard(this)">
+                                        <i data-lucide="copy" class="w-3 h-3 text-slate-500"></i>
+                                    </button>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="text-sm text-slate-600 leading-relaxed font-medium">
+                                    标题含赛事+车手+结果；标签按品牌/赛事/品类/热点四类组合
+                                </div>
+                            </td>
+                            <td>
+                                <div class="text-sm font-bold text-blue-700 leading-relaxed">
+                                    标签集四类齐全，SEO 图文无标题党、无无关热词堆砌
+                                </div>
+                                
+                                <div class="mt-2 p-2 bg-slate-50 rounded-lg text-[10px] text-slate-400 italic">
+                                    NOTE: 验证标签 SEO 模板与合规约束
+                                </div>
+                                
+                            </td>
+                        </tr>
+                        
+                        <tr class="case-row" data-type="Golden Path">
+                            <td class="font-black text-slate-400 text-sm">C-011</td>
+                            <td>
+                                <div class="font-bold text-slate-900 mb-2 leading-tight case-scenario">品牌元素与封面包装</div>
+                                <span class="type-badge type-golden">
+                                    Golden Path
+                                </span>
+                            </td>
+                            <td>
+                                <div class="data-content">
+                                    <code class="copy-target">成片 + 品牌 VI（Logo/配色/字体/角标/片尾）
+</code>
+                                    <button class="copy-btn" onclick="copyToClipboard(this)">
+                                        <i data-lucide="copy" class="w-3 h-3 text-slate-500"></i>
+                                    </button>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="text-sm text-slate-600 leading-relaxed font-medium">
+                                    按 VI 规范叠加品牌元素，封面标题取脚本钩子
+                                </div>
+                            </td>
+                            <td>
+                                <div class="text-sm font-bold text-blue-700 leading-relaxed">
+                                    成片符合 VI，Logo 未变形/未遮挡主体，封面与视频内容一致
+                                </div>
+                                
+                                <div class="mt-2 p-2 bg-slate-50 rounded-lg text-[10px] text-slate-400 italic">
+                                    NOTE: 验证品牌包装模板与 VI 校验
+                                </div>
+                                
+                            </td>
+                        </tr>
+                        
+                        <tr class="case-row" data-type="Golden Path">
+                            <td class="font-black text-slate-400 text-sm">C-012</td>
+                            <td>
+                                <div class="font-bold text-slate-900 mb-2 leading-tight case-scenario">赛事数据到叙事要素提取</div>
+                                <span class="type-badge type-golden">
+                                    Golden Path
+                                </span>
+                            </td>
+                            <td>
+                                <div class="data-content">
+                                    <code class="copy-target">赛事事件/成绩: 车手 #22 第 14 圈超车，最终 P1，最快圈 1:36.2
+</code>
+                                    <button class="copy-btn" onclick="copyToClipboard(this)">
+                                        <i data-lucide="copy" class="w-3 h-3 text-slate-500"></i>
+                                    </button>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="text-sm text-slate-600 leading-relaxed font-medium">
+                                    提取叙事要素（车手/名次/超车/圈速），与画面时间轴对齐
+                                </div>
+                            </td>
+                            <td>
+                                <div class="text-sm font-bold text-blue-700 leading-relaxed">
+                                    叙事要素结构化输出，可直接注入脚本骨架动态字段
+                                </div>
+                                
+                                <div class="mt-2 p-2 bg-slate-50 rounded-lg text-[10px] text-slate-400 italic">
+                                    NOTE: 验证叙事要素提取的准确性
+                                </div>
+                                
+                            </td>
+                        </tr>
+                        
+                        <tr class="case-row" data-type="Hard Case">
+                            <td class="font-black text-slate-400 text-sm">C-013</td>
+                            <td>
+                                <div class="font-bold text-slate-900 mb-2 leading-tight case-scenario">文化禁忌命中与改写</div>
+                                <span class="type-badge type-hard">
+                                    Hard Case
+                                </span>
+                            </td>
+                            <td>
+                                <div class="data-content">
+                                    <code class="copy-target">某语言脚本含可能冒犯当地宗教/习俗的比喻表述
+文化偏好与禁忌库: 该市场命中禁忌词
+</code>
+                                    <button class="copy-btn" onclick="copyToClipboard(this)">
+                                        <i data-lucide="copy" class="w-3 h-3 text-slate-500"></i>
+                                    </button>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="text-sm text-slate-600 leading-relaxed font-medium">
+                                    禁忌校验命中 → 自动改写或降级，保持事实一致
+                                </div>
+                            </td>
+                            <td>
+                                <div class="text-sm font-bold text-blue-700 leading-relaxed">
+                                    改写后脚本规避禁忌且事实不变；若仍冲突则拉品牌内容经理裁决
+                                </div>
+                                
+                                <div class="mt-2 p-2 bg-slate-50 rounded-lg text-[10px] text-slate-400 italic">
+                                    NOTE: 测试跨文化本地化的一致性与禁忌改写能力
+                                </div>
+                                
+                            </td>
+                        </tr>
+                        
+                        <tr class="case-row" data-type="Hard Case">
+                            <td class="font-black text-slate-400 text-sm">C-014</td>
+                            <td>
+                                <div class="font-bold text-slate-900 mb-2 leading-tight case-scenario">数据与画面不一致</div>
+                                <span class="type-badge type-hard">
+                                    Hard Case
+                                </span>
+                            </td>
+                            <td>
+                                <div class="data-content">
+                                    <code class="copy-target">画面显示某车手领先，但赛事计时数据与画面名次板不同步
+</code>
+                                    <button class="copy-btn" onclick="copyToClipboard(this)">
+                                        <i data-lucide="copy" class="w-3 h-3 text-slate-500"></i>
+                                    </button>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="text-sm text-slate-600 leading-relaxed font-medium">
+                                    检测到赛事数据与画面冲突，以赛事数据库为准并标注待核对
+                                </div>
+                            </td>
+                            <td>
+                                <div class="text-sm font-bold text-blue-700 leading-relaxed">
+                                    不臆测名次；标注『待人工核对』，暂不作为叙事事实
+                                </div>
+                                
+                                <div class="mt-2 p-2 bg-slate-50 rounded-lg text-[10px] text-slate-400 italic">
+                                    NOTE: 测试事实来源优先级与不确定标注
+                                </div>
+                                
+                            </td>
+                        </tr>
+                        
+                        <tr class="case-row" data-type="Hard Case">
+                            <td class="font-black text-slate-400 text-sm">C-015</td>
+                            <td>
+                                <div class="font-bold text-slate-900 mb-2 leading-tight case-scenario">高光候选不足</div>
+                                <span class="type-badge type-hard">
+                                    Hard Case
+                                </span>
+                            </td>
+                            <td>
+                                <div class="data-content">
+                                    <code class="copy-target">某分站素材平淡，四因子打分均低于阈值，高光候选不足
+</code>
+                                    <button class="copy-btn" onclick="copyToClipboard(this)">
+                                        <i data-lucide="copy" class="w-3 h-3 text-slate-500"></i>
+                                    </button>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="text-sm text-slate-600 leading-relaxed font-medium">
+                                    命中分支『高光分低于阈值或候选不足 → 回退候选池或拉人判定』
+                                </div>
+                            </td>
+                            <td>
+                                <div class="text-sm font-bold text-blue-700 leading-relaxed">
+                                    回退候选池并触发 HITL，由内容团队人工判定是否成片
+                                </div>
+                                
+                                <div class="mt-2 p-2 bg-slate-50 rounded-lg text-[10px] text-slate-400 italic">
+                                    NOTE: 测试低置信度/候选不足的兜底与人工介入
+                                </div>
+                                
+                            </td>
+                        </tr>
+                        
+                        <tr class="case-row" data-type="Hard Case">
+                            <td class="font-black text-slate-400 text-sm">C-016</td>
+                            <td>
+                                <div class="font-bold text-slate-900 mb-2 leading-tight case-scenario">品牌相关度与叙事价值的仲裁</div>
+                                <span class="type-badge type-hard">
+                                    Hard Case
+                                </span>
+                            </td>
+                            <td>
+                                <div class="data-content">
+                                    <code class="copy-target">两个候选：A 精彩度极高但品牌露出弱；B 精彩度中等但为夺冠且品牌露出高
+</code>
+                                    <button class="copy-btn" onclick="copyToClipboard(this)">
+                                        <i data-lucide="copy" class="w-3 h-3 text-slate-500"></i>
+                                    </button>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="text-sm text-slate-600 leading-relaxed font-medium">
+                                    按仲裁『品牌相关度 > 叙事价值 > 精彩度 > 历史偏好』排序
+                                </div>
+                            </td>
+                            <td>
+                                <div class="text-sm font-bold text-blue-700 leading-relaxed">
+                                    B（夺冠+品牌露出高）置顶为封面级，A 入选并补品牌角标
+                                </div>
+                                
+                                <div class="mt-2 p-2 bg-slate-50 rounded-lg text-[10px] text-slate-400 italic">
+                                    NOTE: 测试多因子冲突时的优先级仲裁
+                                </div>
+                                
+                            </td>
+                        </tr>
+                        
+                        <tr class="case-row" data-type="Hard Case">
+                            <td class="font-black text-slate-400 text-sm">C-017</td>
+                            <td>
+                                <div class="font-bold text-slate-900 mb-2 leading-tight case-scenario">成片超平台时长上限</div>
+                                <span class="type-badge type-hard">
+                                    Hard Case
+                                </span>
+                            </td>
+                            <td>
+                                <div class="data-content">
+                                    <code class="copy-target">成片 96s；TikTok 时长上限 60s
+</code>
+                                    <button class="copy-btn" onclick="copyToClipboard(this)">
+                                        <i data-lucide="copy" class="w-3 h-3 text-slate-500"></i>
+                                    </button>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="text-sm text-slate-600 leading-relaxed font-medium">
+                                    判定超限 → 自动裁切高光核心段或拆条为多集
+                                </div>
+                            </td>
+                            <td>
+                                <div class="text-sm font-bold text-blue-700 leading-relaxed">
+                                    输出合规裁切/拆条内容，标注裁切点，不强行发布超限内容
+                                </div>
+                                
+                                <div class="mt-2 p-2 bg-slate-50 rounded-lg text-[10px] text-slate-400 italic">
+                                    NOTE: 测试硬约束优先于画质的适配策略
+                                </div>
+                                
+                            </td>
+                        </tr>
+                        
+                        <tr class="case-row" data-type="Hard Case">
+                            <td class="font-black text-slate-400 text-sm">C-018</td>
+                            <td>
+                                <div class="font-bold text-slate-900 mb-2 leading-tight case-scenario">效果样本不足</div>
+                                <span class="type-badge type-hard">
+                                    Hard Case
+                                </span>
+                            </td>
+                            <td>
+                                <div class="data-content">
+                                    <code class="copy-target">仅 6 条内容发布，互动数据波动大，样本量低于阈值
+</code>
+                                    <button class="copy-btn" onclick="copyToClipboard(this)">
+                                        <i data-lucide="copy" class="w-3 h-3 text-slate-500"></i>
+                                    </button>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="text-sm text-slate-600 leading-relaxed font-medium">
+                                    样本充分性前置门槛判定为不通过
+                                </div>
+                            </td>
+                            <td>
+                                <div class="text-sm font-bold text-blue-700 leading-relaxed">
+                                    不调整高光偏好与内容策略，标注继续观察，避免被噪声带偏
+                                </div>
+                                
+                                <div class="mt-2 p-2 bg-slate-50 rounded-lg text-[10px] text-slate-400 italic">
+                                    NOTE: 测试样本不足时避免过度归因
+                                </div>
+                                
+                            </td>
+                        </tr>
+                        
+                        <tr class="case-row" data-type="Hard Case">
+                            <td class="font-black text-slate-400 text-sm">C-019</td>
+                            <td>
+                                <div class="font-bold text-slate-900 mb-2 leading-tight case-scenario">车手号码相似混淆</div>
+                                <span class="type-badge type-hard">
+                                    Hard Case
+                                </span>
+                            </td>
+                            <td>
+                                <div class="data-content">
+                                    <code class="copy-target">两名车手赛车号码视觉相近（如 #22 与 #2），涂装局部遮挡
+</code>
+                                    <button class="copy-btn" onclick="copyToClipboard(this)">
+                                        <i data-lucide="copy" class="w-3 h-3 text-slate-500"></i>
+                                    </button>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="text-sm text-slate-600 leading-relaxed font-medium">
+                                    结合涂装与赛事数据交叉确认车手身份，置信度低则标注
+                                </div>
+                            </td>
+                            <td>
+                                <div class="text-sm font-bold text-blue-700 leading-relaxed">
+                                    正确归属车手；无法确认时标注待复核，不误标品牌露出
+                                </div>
+                                
+                                <div class="mt-2 p-2 bg-slate-50 rounded-lg text-[10px] text-slate-400 italic">
+                                    NOTE: 测试关键信息提取的易错变体（号码混淆）
+                                </div>
+                                
+                            </td>
+                        </tr>
+                        
+                        <tr class="case-row" data-type="Edge Case">
+                            <td class="font-black text-slate-400 text-sm">C-020</td>
+                            <td>
+                                <div class="font-bold text-slate-900 mb-2 leading-tight case-scenario">素材授权未清除</div>
+                                <span class="type-badge type-edge">
+                                    Edge Case
+                                </span>
+                            </td>
+                            <td>
+                                <div class="data-content">
+                                    <code class="copy-target">WSBK 原始素材 rights_status = pending（授权未 cleared）
+</code>
+                                    <button class="copy-btn" onclick="copyToClipboard(this)">
+                                        <i data-lucide="copy" class="w-3 h-3 text-slate-500"></i>
+                                    </button>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="text-sm text-slate-600 leading-relaxed font-medium">
+                                    素材授权校验拦截，禁止进入对外发布链路
+                                </div>
+                            </td>
+                            <td>
+                                <div class="text-sm font-bold text-blue-700 leading-relaxed">
+                                    提示补充授权或重新上传，不产出可对外发布内容
+                                </div>
+                                
+                                <div class="mt-2 p-2 bg-slate-50 rounded-lg text-[10px] text-slate-400 italic">
+                                    NOTE: 测试授权红线，防止版权合规风险
+                                </div>
+                                
+                            </td>
+                        </tr>
+                        
+                        <tr class="case-row" data-type="Edge Case">
+                            <td class="font-black text-slate-400 text-sm">C-021</td>
+                            <td>
+                                <div class="font-bold text-slate-900 mb-2 leading-tight case-scenario">品牌红线命中（政治敏感）</div>
+                                <span class="type-badge type-edge">
+                                    Edge Case
+                                </span>
+                            </td>
+                            <td>
+                                <div class="data-content">
+                                    <code class="copy-target">内容包中某语言脚本含政治敏感隐喻，命中内容红线
+</code>
+                                    <button class="copy-btn" onclick="copyToClipboard(this)">
+                                        <i data-lucide="copy" class="w-3 h-3 text-slate-500"></i>
+                                    </button>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="text-sm text-slate-600 leading-relaxed font-medium">
+                                    红线命中 → 一票否决，禁止发布并升级品牌内容经理
+                                </div>
+                            </td>
+                            <td>
+                                <div class="text-sm font-bold text-blue-700 leading-relaxed">
+                                    拦截发布，输出红线命中说明与修改建议，人工终审
+                                </div>
+                                
+                                <div class="mt-2 p-2 bg-slate-50 rounded-lg text-[10px] text-slate-400 italic">
+                                    NOTE: 测试红线一票否决与对外必停
+                                </div>
+                                
+                            </td>
+                        </tr>
+                        
+                        <tr class="case-row" data-type="Edge Case">
+                            <td class="font-black text-slate-400 text-sm">C-022</td>
+                            <td>
+                                <div class="font-bold text-slate-900 mb-2 leading-tight case-scenario">剪辑 API 失败降级</div>
+                                <span class="type-badge type-edge">
+                                    Edge Case
+                                </span>
+                            </td>
+                            <td>
+                                <div class="data-content">
+                                    <code class="copy-target">视频剪辑 API 连续两次调用失败
+</code>
+                                    <button class="copy-btn" onclick="copyToClipboard(this)">
+                                        <i data-lucide="copy" class="w-3 h-3 text-slate-500"></i>
+                                    </button>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="text-sm text-slate-600 leading-relaxed font-medium">
+                                    重试 2 次 → 降级标准模板并标注
+                                </div>
+                            </td>
+                            <td>
+                                <div class="text-sm font-bold text-blue-700 leading-relaxed">
+                                    产出降级标准模板成片并标注，不静默失败；仍失败转人工
+                                </div>
+                                
+                                <div class="mt-2 p-2 bg-slate-50 rounded-lg text-[10px] text-slate-400 italic">
+                                    NOTE: 测试外部服务失败的降级兜底
+                                </div>
+                                
+                            </td>
+                        </tr>
+                        
+                        <tr class="case-row" data-type="Edge Case">
+                            <td class="font-black text-slate-400 text-sm">C-023</td>
+                            <td>
+                                <div class="font-bold text-slate-900 mb-2 leading-tight case-scenario">恶意诱导标题党</div>
+                                <span class="type-badge type-edge">
+                                    Edge Case
+                                </span>
+                            </td>
+                            <td>
+                                <div class="data-content">
+                                    <code class="copy-target">用户指令要求生成『震惊！ZXMOTO 完爆所有对手』式标题与无关热词堆砌
+</code>
+                                    <button class="copy-btn" onclick="copyToClipboard(this)">
+                                        <i data-lucide="copy" class="w-3 h-3 text-slate-500"></i>
+                                    </button>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="text-sm text-slate-600 leading-relaxed font-medium">
+                                    识别违反标签 SEO 合规（禁止标题党/无关热词）
+                                </div>
+                            </td>
+                            <td>
+                                <div class="text-sm font-bold text-blue-700 leading-relaxed">
+                                    拒绝标题党，改为事实准确、含品牌词/赛事词/结果钩子的合规标题
+                                </div>
+                                
+                                <div class="mt-2 p-2 bg-slate-50 rounded-lg text-[10px] text-slate-400 italic">
+                                    NOTE: 测试合规护栏与品牌调性守护
+                                </div>
+                                
+                            </td>
+                        </tr>
+                        
+                        <tr class="case-row" data-type="Edge Case">
+                            <td class="font-black text-slate-400 text-sm">C-024</td>
+                            <td>
+                                <div class="font-bold text-slate-900 mb-2 leading-tight case-scenario">赛事数据完全缺失（知识盲区）</div>
+                                <span class="type-badge type-edge">
+                                    Edge Case
+                                </span>
+                            </td>
+                            <td>
+                                <div class="data-content">
+                                    <code class="copy-target">某分站赛事数据库未同步，无车手/成绩/对战数据
+</code>
+                                    <button class="copy-btn" onclick="copyToClipboard(this)">
+                                        <i data-lucide="copy" class="w-3 h-3 text-slate-500"></i>
+                                    </button>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="text-sm text-slate-600 leading-relaxed font-medium">
+                                    降级为仅视频理解，标注赛事数据缺失，不臆测名次
+                                </div>
+                            </td>
+                            <td>
+                                <div class="text-sm font-bold text-blue-700 leading-relaxed">
+                                    高光候选按精彩度入选并标注待补数据；脚本不生成未经核实的事实
+                                </div>
+                                
+                                <div class="mt-2 p-2 bg-slate-50 rounded-lg text-[10px] text-slate-400 italic">
+                                    NOTE: 测试知识盲区下的降级与诚实边界
+                                </div>
+                                
+                            </td>
+                        </tr>
+                        
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <footer class="mt-20 flex justify-between items-center opacity-40 text-[10px] font-black uppercase tracking-[0.4em]">
+            <span>AI Test Dataset Generator v1.1</span>
+            <span>&copy; 2026 AI INCEPTION WORKSHOP</span>
+        </footer>
+    </div>
+
+    <div class="toast" id="toast">已成功复制 YAML 数据</div>
+    
+    <script type="application/yaml" id="raw-yaml">
+title: "ZXMOTO 赛事内容工厂 Agent · MVP 测试数据集"
+product_name: "ZXMOTO 赛事内容工厂 Agent"
+summary:
+  total_cases: 24
+  distribution:
+    golden: 50
+    hard: 30
+    edge: 20
+test_cases:
+  - id: "C-001"
+    scenario: "夺冠高光识别与打分"
+    type: "Golden Path"
+    input: |
+      素材: WSBK 荷兰站 全程素材（42GB）
+      赛事数据: 车手 #22 ZXMOTO 第 1 名完赛，最后一圈完成反超
+      目标语言: 6 语言；目标平台: YouTube/TikTok/Instagram/Reels
+    expected_intermediate: "多模态识别冲线镜头并标注事件类型=夺冠；关联赛事数据得名次 P1；品牌露出=高；四因子打分 ≥ 阈值"
+    expected_output: "高光候选清单含『夺冠冲线 96 分（置顶封面级）』，品牌露出已标注，置信度 ≥0.9"
+    notes: "验证主链路高光识别与四因子打分的正常路径"
+  - id: "C-002"
+    scenario: "多语言解说脚本生成"
+    type: "Golden Path"
+    input: |
+      高光: 夺冠冲线；叙事要素: 车手 #22、名次 P1、最后一圈反超
+      品牌调性: 进取/克制/赛事感；目标语言: 英/法/德/西/意/葡
+    expected_intermediate: "锁定叙事要素 → 套用钩子→高潮→结果→CTA 骨架 → 逐语言本地化生成"
+    expected_output: "6 语言脚本事实一致（车手/名次/圈速与赛事数据一致），品牌名与话题标签齐全"
+    notes: "验证多语言脚本事实一致与本地化生成"
+  - id: "C-003"
+    scenario: "品牌露出弱的高光补角标"
+    type: "Golden Path"
+    input: |
+      高光: 贴身超车 91 分，品牌露出=中
+      品牌 VI: Logo 位与角标规范
+    expected_intermediate: "命中分支『精彩度高但品牌露出弱 → 入选高光但叠加品牌角标补足露出』"
+    expected_output: "入选高光，并在成片叠加品牌角标，品牌露出提升"
+    notes: "验证高光打分分支的确定性规则承接"
+  - id: "C-004"
+    scenario: "平台格式适配（时长/比例）"
+    type: "Golden Path"
+    input: |
+      成片: 横屏 16:9 58s
+      平台规范: YouTube ≤60s/16:9；TikTok ≤60s/9:16；Reels ≤90s/9:16；Feed 1:1
+    expected_intermediate: "按平台规范判定时长与比例是否匹配"
+    expected_output: "YouTube 直接适配；TikTok/Reels 智能重构为 9:16；Feed 输出 1:1，均无超限"
+    notes: "验证平台适配规则引擎的正常路径"
+  - id: "C-005"
+    scenario: "品牌调性与内容红线终审"
+    type: "Golden Path"
+    input: |
+      内容包: 6 语言 × 4 平台
+      品牌红线: 无政治/宗教/暴力/竞品贬损；事实与赛事数据一致
+    expected_intermediate: "三级校验：调性一致性 / 红线命中 / 事实准确性"
+    expected_output: "三级校验通过，建议放行；HITL 门禁等待人工终审确认"
+    notes: "验证品牌合规校验通过路径与对外必停 gate"
+  - id: "C-006"
+    scenario: "效果归因（样本充分）"
+    type: "Golden Path"
+    input: |
+      互动数据: 101 条内容，夺冠/反超类互动率 9.8%，样本量 42
+      基线: 平均互动率 7.3%
+    expected_intermediate: "判定样本充分 → 归因到高光类型 → 计算相对基准偏离"
+    expected_output: "输出归因结论『夺冠/反超类高于均值 35%』并更新高光偏好权重"
+    notes: "验证样本充分时的归因与偏好更新"
+  - id: "C-007"
+    scenario: "发布排期与热点窗口"
+    type: "Golden Path"
+    input: |
+      赛事: 荷兰站比赛结束时间 21:30
+      目标市场: 北美/欧洲/拉美；历史互动时段数据
+    expected_intermediate: "热点时效窗口 vs 本地活跃时段仲裁（热点时效 > 本地活跃时段）"
+    expected_output: "排期『赛后 2h 内抢热点窗口分波发布』，后续补发第二波"
+    notes: "验证排期规则的热点优先仲裁"
+  - id: "C-008"
+    scenario: "慢镜回放去重"
+    type: "Golden Path"
+    input: |
+      素材含夺冠冲线实时镜头 + 3 次慢镜回放
+    expected_intermediate: "识别慢镜回放为同一高光的重复，不重复计数"
+    expected_output: "高光清单中夺冠冲线仅计 1 条，不因慢镜重复产生多条内容"
+    notes: "验证高光去重规则，防止重复内容浪费资源"
+  - id: "C-009"
+    scenario: "6 语言配音与字幕合成"
+    type: "Golden Path"
+    input: |
+      已确认脚本: 6 语言；TTS 音色: 按语言配置
+    expected_intermediate: "调用 TTS 逐语言合成音轨，生成同步字幕"
+    expected_output: "6 语言配音音轨 + 字幕齐全，成片可进入品牌包装"
+    notes: "验证配音字幕合成正常路径"
+  - id: "C-010"
+    scenario: "标签与 SEO 图文生成"
+    type: "Golden Path"
+    input: |
+      内容: 夺冠短视频；SEO 词库: WSBK/ZXMOTO/车手名
+    expected_intermediate: "标题含赛事+车手+结果；标签按品牌/赛事/品类/热点四类组合"
+    expected_output: "标签集四类齐全，SEO 图文无标题党、无无关热词堆砌"
+    notes: "验证标签 SEO 模板与合规约束"
+  - id: "C-011"
+    scenario: "品牌元素与封面包装"
+    type: "Golden Path"
+    input: |
+      成片 + 品牌 VI（Logo/配色/字体/角标/片尾）
+    expected_intermediate: "按 VI 规范叠加品牌元素，封面标题取脚本钩子"
+    expected_output: "成片符合 VI，Logo 未变形/未遮挡主体，封面与视频内容一致"
+    notes: "验证品牌包装模板与 VI 校验"
+  - id: "C-012"
+    scenario: "赛事数据到叙事要素提取"
+    type: "Golden Path"
+    input: |
+      赛事事件/成绩: 车手 #22 第 14 圈超车，最终 P1，最快圈 1:36.2
+    expected_intermediate: "提取叙事要素（车手/名次/超车/圈速），与画面时间轴对齐"
+    expected_output: "叙事要素结构化输出，可直接注入脚本骨架动态字段"
+    notes: "验证叙事要素提取的准确性"
+  - id: "C-013"
+    scenario: "文化禁忌命中与改写"
+    type: "Hard Case"
+    input: |
+      某语言脚本含可能冒犯当地宗教/习俗的比喻表述
+      文化偏好与禁忌库: 该市场命中禁忌词
+    expected_intermediate: "禁忌校验命中 → 自动改写或降级，保持事实一致"
+    expected_output: "改写后脚本规避禁忌且事实不变；若仍冲突则拉品牌内容经理裁决"
+    notes: "测试跨文化本地化的一致性与禁忌改写能力"
+  - id: "C-014"
+    scenario: "数据与画面不一致"
+    type: "Hard Case"
+    input: |
+      画面显示某车手领先，但赛事计时数据与画面名次板不同步
+    expected_intermediate: "检测到赛事数据与画面冲突，以赛事数据库为准并标注待核对"
+    expected_output: "不臆测名次；标注『待人工核对』，暂不作为叙事事实"
+    notes: "测试事实来源优先级与不确定标注"
+  - id: "C-015"
+    scenario: "高光候选不足"
+    type: "Hard Case"
+    input: |
+      某分站素材平淡，四因子打分均低于阈值，高光候选不足
+    expected_intermediate: "命中分支『高光分低于阈值或候选不足 → 回退候选池或拉人判定』"
+    expected_output: "回退候选池并触发 HITL，由内容团队人工判定是否成片"
+    notes: "测试低置信度/候选不足的兜底与人工介入"
+  - id: "C-016"
+    scenario: "品牌相关度与叙事价值的仲裁"
+    type: "Hard Case"
+    input: |
+      两个候选：A 精彩度极高但品牌露出弱；B 精彩度中等但为夺冠且品牌露出高
+    expected_intermediate: "按仲裁『品牌相关度 > 叙事价值 > 精彩度 > 历史偏好』排序"
+    expected_output: "B（夺冠+品牌露出高）置顶为封面级，A 入选并补品牌角标"
+    notes: "测试多因子冲突时的优先级仲裁"
+  - id: "C-017"
+    scenario: "成片超平台时长上限"
+    type: "Hard Case"
+    input: |
+      成片 96s；TikTok 时长上限 60s
+    expected_intermediate: "判定超限 → 自动裁切高光核心段或拆条为多集"
+    expected_output: "输出合规裁切/拆条内容，标注裁切点，不强行发布超限内容"
+    notes: "测试硬约束优先于画质的适配策略"
+  - id: "C-018"
+    scenario: "效果样本不足"
+    type: "Hard Case"
+    input: |
+      仅 6 条内容发布，互动数据波动大，样本量低于阈值
+    expected_intermediate: "样本充分性前置门槛判定为不通过"
+    expected_output: "不调整高光偏好与内容策略，标注继续观察，避免被噪声带偏"
+    notes: "测试样本不足时避免过度归因"
+  - id: "C-019"
+    scenario: "车手号码相似混淆"
+    type: "Hard Case"
+    input: |
+      两名车手赛车号码视觉相近（如 #22 与 #2），涂装局部遮挡
+    expected_intermediate: "结合涂装与赛事数据交叉确认车手身份，置信度低则标注"
+    expected_output: "正确归属车手；无法确认时标注待复核，不误标品牌露出"
+    notes: "测试关键信息提取的易错变体（号码混淆）"
+  - id: "C-020"
+    scenario: "素材授权未清除"
+    type: "Edge Case"
+    input: |
+      WSBK 原始素材 rights_status = pending（授权未 cleared）
+    expected_intermediate: "素材授权校验拦截，禁止进入对外发布链路"
+    expected_output: "提示补充授权或重新上传，不产出可对外发布内容"
+    notes: "测试授权红线，防止版权合规风险"
+  - id: "C-021"
+    scenario: "品牌红线命中（政治敏感）"
+    type: "Edge Case"
+    input: |
+      内容包中某语言脚本含政治敏感隐喻，命中内容红线
+    expected_intermediate: "红线命中 → 一票否决，禁止发布并升级品牌内容经理"
+    expected_output: "拦截发布，输出红线命中说明与修改建议，人工终审"
+    notes: "测试红线一票否决与对外必停"
+  - id: "C-022"
+    scenario: "剪辑 API 失败降级"
+    type: "Edge Case"
+    input: |
+      视频剪辑 API 连续两次调用失败
+    expected_intermediate: "重试 2 次 → 降级标准模板并标注"
+    expected_output: "产出降级标准模板成片并标注，不静默失败；仍失败转人工"
+    notes: "测试外部服务失败的降级兜底"
+  - id: "C-023"
+    scenario: "恶意诱导标题党"
+    type: "Edge Case"
+    input: |
+      用户指令要求生成『震惊！ZXMOTO 完爆所有对手』式标题与无关热词堆砌
+    expected_intermediate: "识别违反标签 SEO 合规（禁止标题党/无关热词）"
+    expected_output: "拒绝标题党，改为事实准确、含品牌词/赛事词/结果钩子的合规标题"
+    notes: "测试合规护栏与品牌调性守护"
+  - id: "C-024"
+    scenario: "赛事数据完全缺失（知识盲区）"
+    type: "Edge Case"
+    input: |
+      某分站赛事数据库未同步，无车手/成绩/对战数据
+    expected_intermediate: "降级为仅视频理解，标注赛事数据缺失，不臆测名次"
+    expected_output: "高光候选按精彩度入选并标注待补数据；脚本不生成未经核实的事实"
+    notes: "测试知识盲区下的降级与诚实边界"
+
+    </script>
+
+    <script>
+        lucide.createIcons();
+
+        function copyYAML() {
+            const yaml = document.getElementById('raw-yaml').textContent.trim();
+            navigator.clipboard.writeText(yaml).then(() => {
+                const toast = document.getElementById('toast');
+                toast.style.display = 'block';
+                setTimeout(() => { toast.style.display = 'none'; }, 2500);
+            });
+        }
+
+        function filterType(type) {
+            const rows = document.querySelectorAll('.case-row');
+            const btns = document.querySelectorAll('.filter-btn');
+            
+            // Update active button
+            btns.forEach(btn => btn.classList.remove('active'));
+            if (type === 'all') document.getElementById('filter-all').classList.add('active');
+            else if (type === 'Golden Path') document.getElementById('filter-golden').classList.add('active');
+            else if (type === 'Hard Case') document.getElementById('filter-hard').classList.add('active');
+            else if (type === 'Edge Case') document.getElementById('filter-edge').classList.add('active');
+
+            rows.forEach(row => {
+                if (type === 'all' || row.dataset.type === type) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
+        function searchTable() {
+            const input = document.getElementById('searchInput');
+            const filter = input.value.toUpperCase();
+            const rows = document.querySelectorAll('.case-row');
+
+            rows.forEach(row => {
+                const text = row.innerText.toUpperCase();
+                if (text.indexOf(filter) > -1) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
+        function copyToClipboard(btn) {
+            const text = btn.parentElement.querySelector('.copy-target').innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                const icon = btn.querySelector('i');
+                const originalIcon = icon.getAttribute('data-lucide');
+                icon.setAttribute('data-lucide', 'check');
+                lucide.createIcons();
+                btn.style.color = '#16a34a';
+                setTimeout(() => {
+                    icon.setAttribute('data-lucide', originalIcon);
+                    lucide.createIcons();
+                    btn.style.color = '';
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>

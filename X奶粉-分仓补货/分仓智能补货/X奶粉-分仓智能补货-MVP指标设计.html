@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>X奶粉 · 分仓智能补货 MVP 验证方案 · MVP 指标设计与上线门禁</title>
+<style>
+  :root{
+    --primary:#10213E; --accent:#5DB2E2; --secondary:#625D9C;
+    --success:#16a34a; --warning:#F59E0B; --destructive:#EF4444; --info:#0ea5e9;
+    --bg:#FFFFFF; --bg-alt:#F5F5F6; --fg:#10213E; --muted:#64748B; --border:#E2E8F0;
+    --radius:8px; --shadow:0 1px 3px rgba(16,33,62,.08);
+    --font:"MiSans",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans SC","PingFang SC",Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{font-family:var(--font);background:var(--bg-alt);color:var(--fg);font-size:12.5px;line-height:1.45}
+  .wrap{width:100%;padding:14px 18px 22px}
+  /* header */
+  .hdr{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;
+       background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);
+       padding:10px 14px;margin-bottom:10px}
+  .hdr h1{margin:0;font-size:16px;font-weight:700;display:flex;align-items:center;gap:8px;line-height:1.25}
+  .hdr h1::before{content:"";width:4px;height:16px;background:var(--accent);border-radius:2px;flex-shrink:0}
+  .hdr .sub{font-size:11.5px;color:var(--muted);margin:2px 0 0 12px}
+  .btn{background:var(--primary);color:#fff;border:1px solid var(--primary);border-radius:6px;
+       padding:5px 11px;font-size:11.5px;font-weight:600;cursor:pointer;transition:opacity .2s}
+  .btn:hover{opacity:.85}
+  /* gate */
+  .gate{background:var(--primary);color:#fff;border-radius:var(--radius);padding:10px 14px;margin-bottom:10px;
+        display:flex;align-items:center;gap:14px;flex-wrap:wrap;box-shadow:var(--shadow)}
+  .gate .tag{font-size:9.5px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);
+             border:1px solid rgba(93,178,226,.4);border-radius:4px;padding:2px 7px;white-space:nowrap}
+  .gate .stmt{font-size:13.5px;font-weight:700;line-height:1.4;flex:1;min-width:280px}
+  .gate .legend{display:flex;gap:12px;font-size:11px;color:#cbd5e1;white-space:nowrap}
+  .gate .legend b{font-weight:700}
+  .dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:4px}
+  .dot.ok{background:#22C55E}.dot.no{background:var(--destructive)}
+  /* cards */
+  .card{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:10px;overflow:hidden}
+  .card-h{display:flex;justify-content:space-between;align-items:center;padding:7px 12px;border-bottom:1px solid var(--border);background:#fafbfc}
+  .card-h h3{margin:0;font-size:12.5px;font-weight:700;color:var(--primary);display:flex;align-items:center;gap:7px}
+  .card-h h3::before{content:"";width:3px;height:12px;background:var(--accent);border-radius:2px}
+  .card-h .cnt{font-size:10.5px;color:var(--muted);font-weight:600}
+  table{width:100%;border-collapse:collapse}
+  th{padding:6px 12px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;
+     color:var(--muted);background:#f8fafc;border-bottom:1px solid var(--border);white-space:nowrap}
+  td{padding:6px 12px;border-bottom:1px solid var(--border);vertical-align:middle}
+  tr:last-child td{border-bottom:none}
+  tbody tr:hover{background:#f8fafc}
+  .m-name{font-weight:700;font-size:12.5px;color:#0f172a}
+  .m-logic{font-size:11px;color:var(--muted);line-height:1.35}
+  .m-thr{font-size:14px;font-weight:800;color:#1d4ed8;white-space:nowrap;text-align:right}
+  .src{font-size:9.5px;color:#94a3b8;margin-top:2px}
+  .layer{font-size:9.5px;font-weight:700;background:#eef2f7;color:#475569;padding:1px 6px;border-radius:4px;white-space:nowrap}
+  .warn{font-weight:700;color:var(--destructive);white-space:nowrap}
+  .dim{font-size:9.5px;font-weight:700;padding:1px 7px;border-radius:4px;white-space:nowrap}
+  .dim-business{background:#eff6ff;color:#2563eb}
+  .dim-model{background:#f0fdf4;color:#16a34a}
+  .dim-system{background:#fffbeb;color:#d97706}
+  .dim-experience{background:#faf5ff;color:#9333ea}
+  .dim-cost{background:#fef2f2;color:#dc2626}
+  /* test strategy */
+  .strat{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:9px 12px}
+  .strat .bar{display:flex;height:14px;border-radius:99px;overflow:hidden;flex:1;min-width:220px;background:#eef2f7}
+  .strat .bar i{display:block;height:100%}
+  .strat .lg{display:flex;gap:12px;font-size:11px;color:var(--muted);flex-wrap:wrap}
+  .strat .lg b{color:var(--fg);font-weight:700}
+  .sw{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:5px;vertical-align:middle}
+  .foot{margin-top:8px;display:flex;justify-content:space-between;font-size:9.5px;color:#94a3b8;letter-spacing:.08em}
+  .toast{position:fixed;bottom:18px;right:18px;background:var(--success);color:#fff;padding:8px 16px;border-radius:6px;
+         font-size:12px;font-weight:600;display:none;z-index:1000;box-shadow:var(--shadow)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="hdr">
+    <div>
+      <h1>X奶粉 · 分仓智能补货 MVP 验证方案</h1>
+      <p class="sub">为 <b>分仓智能补货 Agent</b> 建立从「原型通过」到「正式发布」的客观量化准则。</p>
+    </div>
+    <button class="btn" onclick="copyYAML()">复制原始 YAML</button>
+  </div>
+
+  <div class="gate">
+    <span class="tag">决策门禁 · Decision Gateway</span>
+    <span class="stmt">“当 缺口分级一致率 ≥90% 且 分配量约束满足率 =100% 且 京慧偏离识别召回率 ≥95% 且 缺货缓解率 ≥85% 且 分货方案编制时长 ≤2h 时，允许灰度上线。”</span>
+    <span class="legend">
+      <span><i class="dot ok"></i>通过门禁：允许发布</span>
+      <span><i class="dot no"></i>未通过：回归优化</span>
+    </span>
+  </div>
+
+  <div class="card">
+    <div class="card-h"><h3>核心成效指标（Success Metrics）</h3><span class="cnt">四维 · 18 项</span></div>
+    <table>
+      <thead>
+        <tr><th style="width:34%">指标 / 维度</th><th>计算口径</th><th style="text-align:right;width:16%">目标阈值</th></tr>
+      </thead>
+      <tbody>
+        
+        <tr>
+          <td>
+            <span class="m-name">分货方案人工采纳率</span>
+            <span class="dim dim-business">业务</span>
+          </td>
+          <td>
+            <div class="m-logic">人工确认后未回退重做的方案数 / 生成方案总数</div>
+            <div class="src">来源：分货工作台埋点 + 方案版本记录</div>
+          </td>
+          <td><div class="m-thr">≥85%</div></td>
+        </tr>
+        
+        <tr>
+          <td>
+            <span class="m-name">分配量人工修正率</span>
+            <span class="dim dim-business">业务</span>
+          </td>
+          <td>
+            <div class="m-logic">人工修改过的仓×SKU 行数 / 总分配行数</div>
+            <div class="src">来源：方案工作台编辑留痕</div>
+          </td>
+          <td><div class="m-thr">≤15%</div></td>
+        </tr>
+        
+        <tr>
+          <td>
+            <span class="m-name">分货方案编制时长</span>
+            <span class="dim dim-business">业务</span>
+          </td>
+          <td>
+            <div class="m-logic">单轮从底表就绪到方案确认的端到端时长（P50）</div>
+            <div class="src">来源：工作台操作日志</div>
+          </td>
+          <td><div class="m-thr">≤2h（As-Is 约 1.5 天/轮 [待客户确认]）</div></td>
+        </tr>
+        
+        <tr>
+          <td>
+            <span class="m-name">缺货缓解率</span>
+            <span class="dim dim-business">业务</span>
+          </td>
+          <td>
+            <div class="m-logic">缺货缓解仓次 / 缺货总仓次</div>
+            <div class="src">来源：库存监控报表</div>
+          </td>
+          <td><div class="m-thr">≥85%</div></td>
+        </tr>
+        
+        <tr>
+          <td>
+            <span class="m-name">库存周转天数同比降幅</span>
+            <span class="dim dim-business">业务</span>
+          </td>
+          <td>
+            <div class="m-logic">(本期周转天数 - 去年同期) / 去年同期</div>
+            <div class="src">来源：库存监控报表</div>
+          </td>
+          <td><div class="m-thr">≤10%</div></td>
+        </tr>
+        
+        <tr>
+          <td>
+            <span class="m-name">时效达成率</span>
+            <span class="dim dim-business">业务</span>
+          </td>
+          <td>
+            <div class="m-logic">按期到达批次 / 总批次</div>
+            <div class="src">来源：TMS 台账</div>
+          </td>
+          <td><div class="m-thr">≥90%</div></td>
+        </tr>
+        
+        <tr>
+          <td>
+            <span class="m-name">缺口分级一致率</span>
+            <span class="dim dim-model">模型</span>
+          </td>
+          <td>
+            <div class="m-logic">AI 红/黄/蓝分级与专家盲测一致的行数 / 总行数（DOS 分级 rd_01）</div>
+            <div class="src">来源：离线测试集 + 专家盲测</div>
+          </td>
+          <td><div class="m-thr">≥90%</div></td>
+        </tr>
+        
+        <tr>
+          <td>
+            <span class="m-name">分配量约束满足率</span>
+            <span class="dim dim-model">模型</span>
+          </td>
+          <td>
+            <div class="m-logic">满足可发量/安全水位/封顶 100% 约束的分配行数 / 总分配行数（rd_02/rd_03）</div>
+            <div class="src">来源：约束校验引擎</div>
+          </td>
+          <td><div class="m-thr">=100%（硬约束，不允许突破）</div></td>
+        </tr>
+        
+        <tr>
+          <td>
+            <span class="m-name">京慧偏离识别召回率</span>
+            <span class="dim dim-model">模型</span>
+          </td>
+          <td>
+            <div class="m-logic">被正确标记为偏离京慧建议量的行数 / 实际偏离行数（rd_03 HITL 触发）</div>
+            <div class="src">来源：离线测试集</div>
+          </td>
+          <td><div class="m-thr">≥95%</div></td>
+        </tr>
+        
+        <tr>
+          <td>
+            <span class="m-name">关键字段识别准确率</span>
+            <span class="dim dim-model">模型</span>
+          </td>
+          <td>
+            <div class="m-logic">底表 6 项口径（可发量/待检/合格/在途/生产备货率/大日期）识别正确数 / 总数（rext_01）</div>
+            <div class="src">来源：底表口径校验日志</div>
+          </td>
+          <td><div class="m-thr">≥98%（待检/合格混用漏标率 0）</div></td>
+        </tr>
+        
+        <tr>
+          <td>
+            <span class="m-name">入库差异判定准确率</span>
+            <span class="dim dim-model">模型</span>
+          </td>
+          <td>
+            <div class="m-logic">差异率/破损率阈值判定正确的批次 / 总批次（rd_05）</div>
+            <div class="src">来源：WMS 验收 + 差异单核对</div>
+          </td>
+          <td><div class="m-thr">≥98%</div></td>
+        </tr>
+        
+        <tr>
+          <td>
+            <span class="m-name">API 成功率</span>
+            <span class="dim dim-system">系统</span>
+          </td>
+          <td>
+            <div class="m-logic">非 5xx 成功响应数 / 总请求数</div>
+            <div class="src">来源：APM 监控</div>
+          </td>
+          <td><div class="m-thr">≥99.5%</div></td>
+        </tr>
+        
+        <tr>
+          <td>
+            <span class="m-name">分货方案生成延迟 P95</span>
+            <span class="dim dim-system">系统</span>
+          </td>
+          <td>
+            <div class="m-logic">全仓网×全 SKU 多约束求解的 95 分位响应时间</div>
+            <div class="src">来源：APM / 求解服务日志</div>
+          </td>
+          <td><div class="m-thr">≤60s</div></td>
+        </tr>
+        
+        <tr>
+          <td>
+            <span class="m-name">口径/Schema 合规率</span>
+            <span class="dim dim-system">系统</span>
+          </td>
+          <td>
+            <div class="m-logic">补货单与方案字段符合主数据与口径规范的比例</div>
+            <div class="src">来源：校验引擎</div>
+          </td>
+          <td><div class="m-thr">=100%</div></td>
+        </tr>
+        
+        <tr>
+          <td>
+            <span class="m-name">HITL 待确认项平均处理时长</span>
+            <span class="dim dim-experience">体验</span>
+          </td>
+          <td>
+            <div class="m-logic">从 HITL 拦截到人工确认的平均耗时</div>
+            <div class="src">来源：工作台交互埋点</div>
+          </td>
+          <td><div class="m-thr">≤5min</div></td>
+        </tr>
+        
+        <tr>
+          <td>
+            <span class="m-name">计划员任务自助完成率</span>
+            <span class="dim dim-experience">体验</span>
+          </td>
+          <td>
+            <div class="m-logic">未求助人工/未升级的完成任务数 / 总任务数</div>
+            <div class="src">来源：会话埋点 + 升级记录</div>
+          </td>
+          <td><div class="m-thr">≥95%</div></td>
+        </tr>
+        
+        <tr>
+          <td>
+            <span class="m-name">用户满意度</span>
+            <span class="dim dim-experience">体验</span>
+          </td>
+          <td>
+            <div class="m-logic">试点用户 5 分制评分均值</div>
+            <div class="src">来源：试点问卷</div>
+          </td>
+          <td><div class="m-thr">≥4.2 / 5</div></td>
+        </tr>
+        
+        <tr>
+          <td>
+            <span class="m-name">单轮分货处理成本</span>
+            <span class="dim dim-cost">成本</span>
+          </td>
+          <td>
+            <div class="m-logic">单轮分货（全仓网×核心 SKU）LLM + 求解 + 数据拉取的综合成本</div>
+            <div class="src">来源：成本核算 / Token 计量</div>
+          </td>
+          <td><div class="m-thr">≤¥2.0/轮 [待确认]</div></td>
+        </tr>
+        
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="card-h"><h3>过程监测与预警（Process Health）</h3><span class="cnt">8 项 · 用于异常诊断与快速回滚</span></div>
+    <table>
+      <thead>
+        <tr><th style="width:26%">层级 / 指标</th><th style="width:14%">正常范围</th><th style="width:16%">告警阈值</th><th>诊断意义</th></tr>
+      </thead>
+      <tbody>
+        
+        <tr>
+          <td><span class="layer">模型</span> <span class="m-name">缺口分级边界冲突率</span></td>
+          <td style="color:var(--muted)">≤5%</td>
+          <td class="warn">>15%</td>
+          <td class="m-logic">分级阈值口径不稳或数据波动大，需复核 rd_01 口径</td>
+        </tr>
+        
+        <tr>
+          <td><span class="layer">模型</span> <span class="m-name">约束不可行率</span></td>
+          <td style="color:var(--muted)">≤3%</td>
+          <td class="warn">>10%</td>
+          <td class="m-logic">可发量不足或约束过紧，需评估拆分补足或调整周期</td>
+        </tr>
+        
+        <tr>
+          <td><span class="layer">检索</span> <span class="m-name">关键字段缺失/口径异常率</span></td>
+          <td style="color:var(--muted)">≤1%</td>
+          <td class="warn">>5%</td>
+          <td class="m-logic">上游数据源口径退化，需调度组复核</td>
+        </tr>
+        
+        <tr>
+          <td><span class="layer">模型</span> <span class="m-name">Token 消耗 / 单轮</span></td>
+          <td style="color:var(--muted)">≤120k</td>
+          <td class="warn">>250k</td>
+          <td class="m-logic">上下文注入过多或方案组版冗长，需裁剪 Prompt</td>
+        </tr>
+        
+        <tr>
+          <td><span class="layer">系统</span> <span class="m-name">错误率 (Error Rate)</span></td>
+          <td style="color:var(--muted)"><0.1%</td>
+          <td class="warn">>1%</td>
+          <td class="m-logic">后端服务崩溃或下游库存/京慧接口限流</td>
+        </tr>
+        
+        <tr>
+          <td><span class="layer">系统</span> <span class="m-name">库存同步失败率</span></td>
+          <td style="color:var(--muted)">≤0.5%</td>
+          <td class="warn">>2%</td>
+          <td class="m-logic">WMS/库存系统写入异常，需重试或通知 IT</td>
+        </tr>
+        
+        <tr>
+          <td><span class="layer">业务</span> <span class="m-name">HITL 转人工原因分布</span></td>
+          <td style="color:var(--muted)">以京慧偏离为主</td>
+          <td class="warn">单一原因 >50%</td>
+          <td class="m-logic">特定规则或数据源失效，定位 rd_01/rd_03/数据接口</td>
+        </tr>
+        
+        <tr>
+          <td><span class="layer">业务</span> <span class="m-name">分配量修正原因分布</span></td>
+          <td style="color:var(--muted)">促销放量/凑车为主</td>
+          <td class="warn">修正率 >15%</td>
+          <td class="m-logic">AI 方案与专家经验偏差大，需回灌调参</td>
+        </tr>
+        
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="card-h"><h3>测试数据集策略（Test Set Strategy）</h3><span class="cnt">Golden / Hard / Edge · 含中间产物标签以支持归因</span></div>
+    <div class="strat">
+      <div class="bar">
+        <i style="width:50%;background:#3b82f6"></i>
+        <i style="width:30%;background:#F59E0B"></i>
+        <i style="width:20%;background:#94a3b8"></i>
+      </div>
+      <div class="lg">
+        <span><i class="sw" style="background:#3b82f6"></i>Golden Path <b>50%</b></span>
+        <span><i class="sw" style="background:#F59E0B"></i>Hard Cases <b>30%</b></span>
+        <span><i class="sw" style="background:#94a3b8"></i>Edge Cases <b>20%</b></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot">
+    <span>MVP Metrics Generator · 四维一线法</span>
+    <span>AI INCEPTION WORKSHOP</span>
+  </div>
+</div>
+
+<div class="toast" id="toast">已成功复制 YAML 数据</div>
+<script type="application/yaml" id="raw-yaml">
+title: "X奶粉 · 分仓智能补货 MVP 验证方案"
+product_name: "分仓智能补货 Agent"
+go_no_go_statement: "当 缺口分级一致率 ≥90% 且 分配量约束满足率 =100% 且 京慧偏离识别召回率 ≥95% 且 缺货缓解率 ≥85% 且 分货方案编制时长 ≤2h 时，允许灰度上线。"
+target_metrics:
+  # ---------- 业务维度 ----------
+  - name: "分货方案人工采纳率"
+    dimension: "业务"
+    logic: "人工确认后未回退重做的方案数 / 生成方案总数"
+    threshold: "≥85%"
+    source: "分货工作台埋点 + 方案版本记录"
+  - name: "分配量人工修正率"
+    dimension: "业务"
+    logic: "人工修改过的仓×SKU 行数 / 总分配行数"
+    threshold: "≤15%"
+    source: "方案工作台编辑留痕"
+  - name: "分货方案编制时长"
+    dimension: "业务"
+    logic: "单轮从底表就绪到方案确认的端到端时长（P50）"
+    threshold: "≤2h（As-Is 约 1.5 天/轮 [待客户确认]）"
+    source: "工作台操作日志"
+  - name: "缺货缓解率"
+    dimension: "业务"
+    logic: "缺货缓解仓次 / 缺货总仓次"
+    threshold: "≥85%"
+    source: "库存监控报表"
+  - name: "库存周转天数同比降幅"
+    dimension: "业务"
+    logic: "(本期周转天数 - 去年同期) / 去年同期"
+    threshold: "≤10%"
+    source: "库存监控报表"
+  - name: "时效达成率"
+    dimension: "业务"
+    logic: "按期到达批次 / 总批次"
+    threshold: "≥90%"
+    source: "TMS 台账"
+  # ---------- 模型维度 ----------
+  - name: "缺口分级一致率"
+    dimension: "模型"
+    logic: "AI 红/黄/蓝分级与专家盲测一致的行数 / 总行数（DOS 分级 rd_01）"
+    threshold: "≥90%"
+    source: "离线测试集 + 专家盲测"
+  - name: "分配量约束满足率"
+    dimension: "模型"
+    logic: "满足可发量/安全水位/封顶 100% 约束的分配行数 / 总分配行数（rd_02/rd_03）"
+    threshold: "=100%（硬约束，不允许突破）"
+    source: "约束校验引擎"
+  - name: "京慧偏离识别召回率"
+    dimension: "模型"
+    logic: "被正确标记为偏离京慧建议量的行数 / 实际偏离行数（rd_03 HITL 触发）"
+    threshold: "≥95%"
+    source: "离线测试集"
+  - name: "关键字段识别准确率"
+    dimension: "模型"
+    logic: "底表 6 项口径（可发量/待检/合格/在途/生产备货率/大日期）识别正确数 / 总数（rext_01）"
+    threshold: "≥98%（待检/合格混用漏标率 0）"
+    source: "底表口径校验日志"
+  - name: "入库差异判定准确率"
+    dimension: "模型"
+    logic: "差异率/破损率阈值判定正确的批次 / 总批次（rd_05）"
+    threshold: "≥98%"
+    source: "WMS 验收 + 差异单核对"
+  # ---------- 系统维度 ----------
+  - name: "API 成功率"
+    dimension: "系统"
+    logic: "非 5xx 成功响应数 / 总请求数"
+    threshold: "≥99.5%"
+    source: "APM 监控"
+  - name: "分货方案生成延迟 P95"
+    dimension: "系统"
+    logic: "全仓网×全 SKU 多约束求解的 95 分位响应时间"
+    threshold: "≤60s"
+    source: "APM / 求解服务日志"
+  - name: "口径/Schema 合规率"
+    dimension: "系统"
+    logic: "补货单与方案字段符合主数据与口径规范的比例"
+    threshold: "=100%"
+    source: "校验引擎"
+  # ---------- 体验维度 ----------
+  - name: "HITL 待确认项平均处理时长"
+    dimension: "体验"
+    logic: "从 HITL 拦截到人工确认的平均耗时"
+    threshold: "≤5min"
+    source: "工作台交互埋点"
+  - name: "计划员任务自助完成率"
+    dimension: "体验"
+    logic: "未求助人工/未升级的完成任务数 / 总任务数"
+    threshold: "≥95%"
+    source: "会话埋点 + 升级记录"
+  - name: "用户满意度"
+    dimension: "体验"
+    logic: "试点用户 5 分制评分均值"
+    threshold: "≥4.2 / 5"
+    source: "试点问卷"
+  # ---------- 成本维度（必选） ----------
+  - name: "单轮分货处理成本"
+    dimension: "成本"
+    logic: "单轮分货（全仓网×核心 SKU）LLM + 求解 + 数据拉取的综合成本"
+    threshold: "≤¥2.0/轮 [待确认]"
+    source: "成本核算 / Token 计量"
+monitoring_plan:
+  - name: "缺口分级边界冲突率"
+    layer: "模型"
+    logic: "DOS 落在 7/14/60 边界并触发人工确认的比例"
+    range: "≤5%"
+    alert: ">15%"
+    meaning: "分级阈值口径不稳或数据波动大，需复核 rd_01 口径"
+  - name: "约束不可行率"
+    layer: "模型"
+    logic: "多约束求解无可行解、进入备选/升级的比例"
+    range: "≤3%"
+    alert: ">10%"
+    meaning: "可发量不足或约束过紧，需评估拆分补足或调整周期"
+  - name: "关键字段缺失/口径异常率"
+    layer: "检索"
+    logic: "底表 6 项口径校验标红字段数 / 总字段数"
+    range: "≤1%"
+    alert: ">5%"
+    meaning: "上游数据源口径退化，需调度组复核"
+  - name: "Token 消耗 / 单轮"
+    layer: "模型"
+    logic: "单轮分货 LLM Input+Output Token 合计"
+    range: "≤120k"
+    alert: ">250k"
+    meaning: "上下文注入过多或方案组版冗长，需裁剪 Prompt"
+  - name: "错误率 (Error Rate)"
+    layer: "系统"
+    logic: "API 5xx 错误请求占比"
+    range: "<0.1%"
+    alert: ">1%"
+    meaning: "后端服务崩溃或下游库存/京慧接口限流"
+  - name: "库存同步失败率"
+    layer: "系统"
+    logic: "可发量/DOS 同步失败批次 / 总批次"
+    range: "≤0.5%"
+    alert: ">2%"
+    meaning: "WMS/库存系统写入异常，需重试或通知 IT"
+  - name: "HITL 转人工原因分布"
+    layer: "业务"
+    logic: "京慧偏离/边界冲突/约束不可行/数据降级各占比"
+    range: "以京慧偏离为主"
+    alert: "单一原因 >50%"
+    meaning: "特定规则或数据源失效，定位 rd_01/rd_03/数据接口"
+  - name: "分配量修正原因分布"
+    layer: "业务"
+    logic: "人工修改分配量的原因分类占比"
+    range: "促销放量/凑车为主"
+    alert: "修正率 >15%"
+    meaning: "AI 方案与专家经验偏差大，需回灌调参"
+test_set_strategy:
+  golden_path: 50
+  hard_cases: 30
+  edge_cases: 20
+
+</script>
+<script>
+  function copyYAML(){
+    const yaml = document.getElementById('raw-yaml').textContent.trim();
+    navigator.clipboard.writeText(yaml).then(() => {
+      const t = document.getElementById('toast');
+      t.style.display = 'block';
+      setTimeout(() => { t.style.display = 'none'; }, 2200);
+    });
+  }
+</script>
+</body>
+</html>

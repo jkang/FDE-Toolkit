@@ -1,0 +1,1423 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>X奶粉 · 分仓智能补货 Agent 测试数据集 - AI MVP Test Dataset</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root {
+            --bg-main: #f8fafc;
+            --accent-blue: #2563eb;
+            --border-soft: rgba(226, 232, 240, 0.7);
+            --card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
+        }
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background-color: var(--bg-main);
+            color: #0f172a;
+            padding: 80px 40px;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(37, 99, 235, 0.04) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(139, 92, 246, 0.04) 0px, transparent 50%);
+        }
+        h1, h2, h3, h4 { font-family: 'Outfit', sans-serif; }
+        code { font-family: 'Fira Code', monospace; }
+        
+        .premium-card {
+            background: white;
+            border: 1px solid var(--border-soft);
+            border-radius: 24px;
+            padding: 32px;
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .premium-card:hover { transform: translateY(-4px); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.08); }
+
+        .type-badge {
+            font-size: 0.65rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            padding: 4px 10px;
+            border-radius: 8px;
+            letter-spacing: 0.05em;
+        }
+        .type-golden { background: #eff6ff; color: #2563eb; border: 1px solid #dbeafe; }
+        .type-hard { background: #fffbeb; color: #d97706; border: 1px solid #fef3c7; }
+        .type-edge { background: #fef2f2; color: #dc2626; border: 1px solid #fee2e2; }
+
+        .dist-pill { height: 12px; border-radius: 99px; }
+
+        @keyframes reveal {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .reveal { animation: reveal 0.8s cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+        table { width: 100%; border-collapse: separate; border-spacing: 0; }
+        th { padding: 20px 24px; text-transform: uppercase; font-size: 0.7rem; font-weight: 900; color: #94a3b8; letter-spacing: 0.1em; border-bottom: 2px solid #f1f5f9; background: #f8fafc; }
+        td { padding: 24px; border-bottom: 1px solid #f1f5f9; vertical-align: top; }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background-color: #fbfcfe; }
+
+        .data-content {
+            background: #f1f5f9;
+            border-radius: 12px;
+            padding: 12px;
+            font-size: 0.75rem;
+            max-width: 300px;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            border: 1px solid #e2e8f0;
+            position: relative;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 8px; right: 8px;
+            opacity: 0;
+            transition: opacity 0.2s;
+            background: white;
+            border-radius: 6px;
+            padding: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .data-content:hover .copy-btn { opacity: 1; }
+
+        .filter-btn {
+            padding: 6px 16px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+        }
+        .filter-btn.active {
+            background: #0f172a;
+            color: white;
+        }
+        .filter-btn:not(.active) {
+            background: white;
+            color: #64748b;
+            border-color: #e2e8f0;
+        }
+        
+        .search-input {
+            background: #f1f5f9;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 10px 16px 10px 40px;
+            font-size: 0.875rem;
+            width: 100%;
+            transition: all 0.2s;
+        }
+        .search-input:focus {
+            outline: none;
+            border-color: #2563eb;
+            background: white;
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+        }
+        
+        .btn-copy-yaml {
+          background: #0f172a; color: #fff;
+          padding: 8px 16px; border-radius: 12px;
+          font-size: 13px; font-weight: 600;
+          border: none; cursor: pointer;
+          transition: all 0.2s;
+        }
+        .btn-copy-yaml:hover { background: #334155; }
+        
+        .toast {
+          position: fixed; bottom: 24px; right: 24px;
+          background: #10b981; color: #fff;
+          padding: 10px 20px; border-radius: 8px;
+          font-size: 13px; font-weight: 600;
+          display: none; z-index: 1000;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+    </style>
+
+    <!-- ===== Unified Report Shell: 撑满容器 + 精简 Header + 溢出滚动 ===== -->
+    <style>
+      *, *::before, *::after { box-sizing: border-box !important; }
+      html, body { margin: 0 !important; padding: 0 !important; background: #F5F5F6 !important; overflow-x: auto !important; }
+      .max-w-\[1400px\] {
+        width: 100% !important;
+        max-width: none !important;
+        margin: 0 auto !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        border: none !important;
+        padding: 24px 28px 48px !important;
+        overflow-x: auto !important;
+      }
+      header.reveal { margin-bottom: 20px !important; align-items: center !important; }
+      header.reveal h1 { font-size: 22px !important; line-height: 1.3 !important; margin: 0 !important; }
+    
+      /* ===== Unified Header (v2) ===== */
+      header.reveal {
+        background: #FFFFFF !important;
+        border-bottom: 1px solid #E2E8F0 !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        padding: 12px 0 !important;
+        margin-bottom: 20px !important;
+        min-height: auto !important;
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        gap: 16px !important;
+        flex-wrap: wrap !important;
+      }
+      header.reveal h1 {
+        font-size: 22px !important;
+        font-weight: 700 !important;
+        color: #10213E !important;
+        line-height: 1.3 !important;
+        margin: 0 !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 10px !important;
+      }
+      header.reveal h1::before {
+        content: "" !important;
+        display: inline-block !important;
+        width: 4px !important;
+        height: 22px !important;
+        background: #5DB2E2 !important;
+        border-radius: 2px !important;
+        flex-shrink: 0 !important;
+      }
+      header.reveal h1 svg, header.reveal h1 .icon, header.reveal h1 img, header.reveal .text-2xl {
+        width: 20px !important;
+        height: 20px !important;
+        flex-shrink: 0 !important;
+        font-size: 18px !important;
+      }
+      header.reveal .space-y-4, header.reveal > div {
+        font-size: 13px !important;
+        color: #64748B !important;
+      }
+      header.reveal .inline-flex, header.reveal [class*="rounded-full"] {
+        font-size: 12px !important;
+        color: #64748B !important;
+        background: #F5F5F6 !important;
+        border: none !important;
+        box-shadow: none !important;
+        padding: 2px 10px !important;
+        border-radius: 10px !important;
+      }
+      header.reveal button {
+        font-size: 12px !important;
+        padding: 6px 12px !important;
+        border-radius: 6px !important;
+        font-weight: 600 !important;
+        background: #10213E !important;
+        color: #FFFFFF !important;
+        border: 1px solid #10213E !important;
+      }
+
+      /* ===== Unified Header: 结构样式 ===== */
+      .unified-hdr {
+        background: #FFFFFF !important;
+        border-bottom: 1px solid #E2E8F0 !important;
+        padding: 14px 0 !important;
+        margin-bottom: 20px !important;
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        gap: 16px !important;
+        flex-wrap: wrap !important;
+        text-align: left !important;
+        flex-direction: row !important;
+      }
+      .unified-hdr-left { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+
+      .unified-hdr .unified-hdr-left {
+        flex-direction: row !important;
+        flex-wrap: wrap !important;
+        align-items: baseline !important;
+        gap: 12px !important;
+      }
+      .unified-hdr .unified-hdr-pill { margin-bottom: 0 !important; align-self: center !important; }
+      .unified-hdr .unified-hdr-left p {
+        width: 100% !important;
+        margin-top: 2px !important;
+      }
+
+      .unified-hdr-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+      .unified-hdr h1 {
+        font-size: 22px !important;
+        font-weight: 700 !important;
+        color: #10213E !important;
+        line-height: 1.3 !important;
+        margin: 0 !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 10px !important;
+      }
+      .unified-hdr h1::before {
+        content: "" !important;
+        display: inline-block !important;
+        width: 4px !important;
+        height: 22px !important;
+        background: #5DB2E2 !important;
+        border-radius: 2px !important;
+        flex-shrink: 0 !important;
+      }
+      .unified-hdr p {
+        font-size: 13px !important;
+        color: #64748B !important;
+        margin: 4px 0 0 !important;
+        padding-left: 14px !important;
+        line-height: 1.5 !important;
+      }
+      .unified-hdr-pill {
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 6px !important;
+        font-size: 12px !important;
+        font-weight: 600 !important;
+        color: #64748B !important;
+        background: #F5F5F6 !important;
+        border: none !important;
+        border-radius: 10px !important;
+        padding: 2px 10px !important;
+        width: fit-content !important;
+        text-transform: none !important;
+        letter-spacing: normal !important;
+        margin-bottom: 4px !important;
+      }
+      .unified-hdr-pill i, .unified-hdr-pill svg { width: 14px; height: 14px; }
+      .unified-hdr .btn-copy-yaml, .unified-hdr button {
+        font-size: 12px !important;
+        padding: 6px 12px !important;
+        border-radius: 6px !important;
+        font-weight: 600 !important;
+        background: #10213E !important;
+        color: #FFFFFF !important;
+        border: 1px solid #10213E !important;
+        margin: 0 !important;
+      }
+      .hdr-status-dot { display: inline-block; width: 8px; height: 8px; background: #22C55E; border-radius: 50%; }
+</style>
+
+
+</head>
+<body>
+    <div class="max-w-[1400px] mx-auto space-y-12">
+        <!-- Header -->
+        <header class="reveal unified-hdr">
+            <div class="unified-hdr-left">
+                <h1>X奶粉 · 分仓智能补货 Agent 测试数据集</h1>
+                <p>为 <span>分仓智能补货 Agent</span> 构建的"三层三类"高保真测试数据集。</p>
+            </div>
+            <div class="unified-hdr-right">
+                <button class="btn-copy-yaml" onclick="copyYAML()">复制原始 YAML</button>
+            </div>
+        </header>
+
+        <!-- Strategy Distribution -->
+        <section class="reveal grid grid-cols-1 md:grid-cols-3 gap-6" style="animation-delay: 0.2s;">
+            <div class="premium-card">
+                <div class="flex justify-between items-start mb-6">
+                    <div class="p-3 bg-blue-50 rounded-2xl text-blue-600"><i data-lucide="check-circle" class="w-6 h-6"></i></div>
+                    <span class="text-3xl font-black text-blue-600">50%</span>
+                </div>
+                <h3 class="text-lg font-black mb-2">Golden Path (主路径)</h3>
+                <div class="bg-slate-100 dist-pill overflow-hidden mb-4">
+                    <div class="h-full bg-blue-500" style="--width: 50; width: calc(var(--width) * 1%);"></div>
+                </div>
+                <p class="text-xs text-slate-500 leading-relaxed">常见、清晰的问题或任务，验证核心功能是否稳定。</p>
+            </div>
+
+            <div class="premium-card">
+                <div class="flex justify-between items-start mb-6">
+                    <div class="p-3 bg-amber-50 rounded-2xl text-amber-600"><i data-lucide="zap" class="w-6 h-6"></i></div>
+                    <span class="text-3xl font-black text-amber-600">30%</span>
+                </div>
+                <h3 class="text-lg font-black mb-2">Hard Cases (困难样例)</h3>
+                <div class="bg-slate-100 dist-pill overflow-hidden mb-4">
+                    <div class="h-full bg-amber-500" style="--width: 30; width: calc(var(--width) * 1%);"></div>
+                </div>
+                <p class="text-xs text-slate-500 leading-relaxed">模糊、矛盾、表述不清的问题，检验模型的鲁棒性。</p>
+            </div>
+
+            <div class="premium-card">
+                <div class="flex justify-between items-start mb-6">
+                    <div class="p-3 bg-red-50 rounded-2xl text-red-600"><i data-lucide="alert-octagon" class="w-6 h-6"></i></div>
+                    <span class="text-3xl font-black text-red-600">20%</span>
+                </div>
+                <h3 class="text-lg font-black mb-2">Edge Cases (边界样例)</h3>
+                <div class="bg-slate-100 dist-pill overflow-hidden mb-4">
+                    <div class="h-full bg-red-500" style="--width: 20; width: calc(var(--width) * 1%);"></div>
+                </div>
+                <p class="text-xs text-slate-500 leading-relaxed">极端输入、时效边界、异常内容，测试安全与拒答策略。</p>
+            </div>
+        </section>
+
+        <!-- Dataset Table -->
+        <section class="reveal premium-card p-0 overflow-hidden" style="animation-delay: 0.4s;">
+            <div class="p-8 border-bottom border-slate-100 bg-white">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8">
+                    <h3 class="text-2xl font-black">测试用例详情 (Test Cases Details)</h3>
+                    <div class="flex flex-wrap gap-2">
+                        <button onclick="filterType('all')" class="filter-btn active" id="filter-all">ALL</button>
+                        <button onclick="filterType('Golden Path')" class="filter-btn" id="filter-golden">GOLDEN</button>
+                        <button onclick="filterType('Hard Case')" class="filter-btn" id="filter-hard">HARD</button>
+                        <button onclick="filterType('Edge Case')" class="filter-btn" id="filter-edge">EDGE</button>
+                    </div>
+                </div>
+                <div class="relative w-full max-w-md">
+                    <i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"></i>
+                    <input type="text" id="searchInput" placeholder="搜索场景或关键词..." class="search-input" onkeyup="searchTable()">
+                </div>
+            </div>
+            <div class="overflow-x-auto">
+                <table id="caseTable">
+                    <thead>
+                        <tr>
+                            <th class="w-24">ID</th>
+                            <th class="w-48">场景与类型</th>
+                            <th>输入 (Input)</th>
+                            <th>期望中间产物 (Evidence)</th>
+                            <th>期望输出 (Output)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        
+                        <tr class="case-row" data-type="Golden Path">
+                            <td class="font-black text-slate-400 text-sm">C-001</td>
+                            <td>
+                                <div class="font-bold text-slate-900 mb-2 leading-tight case-scenario">全仓网缺口识别与 DOS 分级</div>
+                                <span class="type-badge type-golden">
+                                    Golden Path
+                                </span>
+                            </td>
+                            <td>
+                                <div class="data-content">
+                                    <code class="copy-target">{
+  "task": "识别全仓网缺口",
+  "warehouses": [
+    {"site_code": "BJ-SY", "type": "sales", "stock": 1800, "transit": 300, "allocated": 0, "avgDailyPlan": 300},
+    {"site_code": "GZ-01", "type": "sales", "stock": 1250, "transit": 100, "allocated": 0, "avgDailyPlan": 250},
+    {"site_code": "JN-01", "type": "sales", "stock": 9300, "transit": 0, "allocated": 0, "avgDailyPlan": 150}
+  ],
+  "promoSkus": []
+}
+</code>
+                                    <button class="copy-btn" onclick="copyToClipboard(this)">
+                                        <i data-lucide="copy" class="w-3 h-3 text-slate-500"></i>
+                                    </button>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="text-sm text-slate-600 leading-relaxed font-medium">
+                                    命中 rd_01 缺口分级规则；计算 DOS=(库存+在途+分配)/日均计划：BJ-SY=7.0、GZ-01=5.4、JN-01=62.0；BJ-SY 落 7 天边界需标注。
+                                </div>
+                            </td>
+                            <td>
+                                <div class="text-sm font-bold text-blue-700 leading-relaxed">
+                                    GZ-01 红色紧急补货（DOS 5.4<7）；JN-01 蓝色积压预警（DOS 62>60 且无促销）；BJ-SY 边界冲突待人工确认。
+                                </div>
+                                
+                                <div class="mt-2 p-2 bg-slate-50 rounded-lg text-[10px] text-slate-400 italic">
+                                    NOTE: 验证 DOS 分级主路径；注意 7 天边界不被静默归入红/黄。
+                                </div>
+                                
+                            </td>
+                        </tr>
+                        
+                        <tr class="case-row" data-type="Golden Path">
+                            <td class="font-black text-slate-400 text-sm">C-002</td>
+                            <td>
+                                <div class="font-bold text-slate-900 mb-2 leading-tight case-scenario">目标备货率计算（订单进度+20% 封顶 100%）</div>
+                                <span class="type-badge type-golden">
+                                    Golden Path
+                                </span>
+                            </td>
+                            <td>
+                                <div class="data-content">
+                                    <code class="copy-target">{
+  "task": "计算各仓目标备货率",
+  "rows": [
+    {"site_code": "BJ-SY", "orderProgress": 0.65, "旬度标准进度": 0.50, "region": "core"},
+    {"site_code": "HS-01", "orderProgress": 0.92, "旬度标准进度": 0.50, "region": "remote"}
+  ]
+}
+</code>
+                                    <button class="copy-btn" onclick="copyToClipboard(this)">
+                                        <i data-lucide="copy" class="w-3 h-3 text-slate-500"></i>
+                                    </button>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="text-sm text-slate-600 leading-relaxed font-medium">
+                                    命中 rd_02；BJ-SY 目标备货率=0.65+0.20=0.85；HS-01=0.92+0.20=1.12→封顶 1.00，偏远区域再上调缓冲。
+                                </div>
+                            </td>
+                            <td>
+                                <div class="text-sm font-bold text-blue-700 leading-relaxed">
+                                    BJ-SY 目标备货率 85%；HS-01 目标备货率 100%（封顶）+ 偏远缓冲，触发 HITL 确认。
+                                </div>
+                                
+                                <div class="mt-2 p-2 bg-slate-50 rounded-lg text-[10px] text-slate-400 italic">
+                                    NOTE: 验证封顶 100% 与偏远上调；订单进度超旬度标准触发确认。
+                                </div>
+                                
+                            </td>
+                        </tr>
+                        
+                        <tr class="case-row" data-type="Golden Path">
+                            <td class="font-black text-slate-400 text-sm">C-003</td>
+                            <td>
+                                <div class="font-bold text-slate-900 mb-2 leading-tight case-scenario">多约束分配求解（可发量约束优先）</div>
+                                <span class="type-badge type-golden">
+                                    Golden Path
+                                </span>
+                            </td>
+                            <td>
+                                <div class="data-content">
+                                    <code class="copy-target">{
+  "task": "生成分货方案",
+  "plan": [{"to": "BJ-SY", "sku": "金领冠珍护3段800g", "suggest": 1200, "targetStock": 2400, "currentStock": 1800}],
+  "source": {"from": "TJ-BASE", "available": 1650, "eta": 1}
+}
+</code>
+                                    <button class="copy-btn" onclick="copyToClipboard(this)">
+                                        <i data-lucide="copy" class="w-3 h-3 text-slate-500"></i>
+                                    </button>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="text-sm text-slate-600 leading-relaxed font-medium">
+                                    命中 rd_03；建议补货量=2400-1800=600；按可发量约束>时效优先>京慧建议量求解，分配量 600 ≤ 可发量 1650。
+                                </div>
+                            </td>
+                            <td>
+                                <div class="text-sm font-bold text-blue-700 leading-relaxed">
+                                    分配量 600 罐（未偏离京慧建议量 1200），分配后库存天数约 8 天，方案A 均衡版生成。
+                                </div>
+                                
+                                <div class="mt-2 p-2 bg-slate-50 rounded-lg text-[10px] text-slate-400 italic">
+                                    NOTE: 验证基础分配求解与硬约束（≤可发量）。
+                                </div>
+                                
+                            </td>
+                        </tr>
+                        
+                        <tr class="case-row" data-type="Golden Path">
+                            <td class="font-black text-slate-400 text-sm">C-004</td>
+                            <td>
+                                <div class="font-bold text-slate-900 mb-2 leading-tight case-scenario">分配量偏离京慧建议量触发 HITL</div>
+                                <span class="type-badge type-golden">
+                                    Golden Path
+                                </span>
+                            </td>
+                            <td>
+                                <div class="data-content">
+                                    <code class="copy-target">{
+  "task": "生成分货方案",
+  "plan": [{"to": "BJ-SY", "sku": "金领冠珍护3段800g", "suggest": 1200, "available": 1650}],
+  "promo": [{"sku": "金领冠珍护3段800g", "upliftRatio": 0.12}]
+}
+</code>
+                                    <button class="copy-btn" onclick="copyToClipboard(this)">
+                                        <i data-lucide="copy" class="w-3 h-3 text-slate-500"></i>
+                                    </button>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="text-sm text-slate-600 leading-relaxed font-medium">
+                                    命中 rd_03；促销放量使求解分配量=1344，偏离京慧建议量 +12%；触发 HITL（写入前必停）。
+                                </div>
+                            </td>
+                            <td>
+                                <div class="text-sm font-bold text-blue-700 leading-relaxed">
+                                    方案标注『北京顺义仓分配量较京慧建议量上调 12%（促销放量），待确认』，未确认前不得写入分配量。
+                                </div>
+                                
+                                <div class="mt-2 p-2 bg-slate-50 rounded-lg text-[10px] text-slate-400 italic">
+                                    NOTE: 验证硬约束：偏离京慧建议量必须人工确认，禁止静默覆盖。
+                                </div>
+                                
+                            </td>
+                        </tr>
+                        
+                        <tr class="case-row" data-type="Golden Path">
+                            <td class="font-black text-slate-400 text-sm">C-005</td>
+                            <td>
+                                <div class="font-bold text-slate-900 mb-2 leading-tight case-scenario">人工微调分配量并重新校验</div>
+                                <span class="type-badge type-golden">
+                                    Golden Path
+                                </span>
+                            </td>
+                            <td>
+                                <div class="data-content">
+                                    <code class="copy-target">{
+  "task": "人工确认与微调",
+  "edits": [{"site_code": "TJ-WQ", "oldAlloc": 720, "newAlloc": 800, "reason": "凑车"}],
+  "available": 900
+}
+</code>
+                                    <button class="copy-btn" onclick="copyToClipboard(this)">
+                                        <i data-lucide="copy" class="w-3 h-3 text-slate-500"></i>
+                                    </button>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="text-sm text-slate-600 leading-relaxed font-medium">
+                                    命中 rd_03 与 rt_01；微调 +80 在凑车 ±200 件内，重新执行可发量/安全水位校验。
+                                </div>
+                            </td>
+                            <td>
+                                <div class="text-sm font-bold text-blue-700 leading-relaxed">
+                                    天津武清仓分配量更新为 800 罐，约束校验全部通过，修改原因『凑车』留痕。
+                                </div>
+                                
+                                <div class="mt-2 p-2 bg-slate-50 rounded-lg text-[10px] text-slate-400 italic">
+                                    NOTE: 验证微调后重校验与留痕；修改原因必填。
+                                </div>
+                                
+                            </td>
+                        </tr>
+                        
+                        <tr class="case-row" data-type="Golden Path">
+                            <td class="font-black text-slate-400 text-sm">C-006</td>
+                            <td>
+                                <div class="font-bold text-slate-900 mb-2 leading-tight case-scenario">补货单生成与 4 项校验通过</div>
+                                <span class="type-badge type-golden">
+                                    Golden Path
+                                </span>
+                            </td>
+                            <td>
+                                <div class="data-content">
+                                    <code class="copy-target">{
+  "task": "生成并校验补货单",
+  "order": {"from": "TJ-BASE", "to": "BJ-SY", "sku": "金领冠珍护3段800g", "qty": 1344, "available": 1650, "eta": 2, "etaRequired": 3}
+}
+</code>
+                                    <button class="copy-btn" onclick="copyToClipboard(this)">
+                                        <i data-lucide="copy" class="w-3 h-3 text-slate-500"></i>
+                                    </button>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="text-sm text-slate-600 leading-relaxed font-medium">
+                                    命中 rt_03 + rd_04；校验收发仓合法性/SKU 在册/数量≤可发量/时效≤ETA 四项。
+                                </div>
+                            </td>
+                            <td>
+                                <div class="text-sm font-bold text-blue-700 leading-relaxed">
+                                    补货单 PR-2026-0821-016 生成，4/4 校验通过，可进入下发门禁。
+                                </div>
+                                
+                                <div class="mt-2 p-2 bg-slate-50 rounded-lg text-[10px] text-slate-400 italic">
+                                    NOTE: 验证补货单模板与 4 项确定性校验。
+                                </div>
+                                
+                            </td>
+                        </tr>
+                        
+                        <tr class="case-row" data-type="Golden Path">
+                            <td class="font-black text-slate-400 text-sm">C-007</td>
+                            <td>
+                                <div class="font-bold text-slate-900 mb-2 leading-tight case-scenario">补货单对外下发 + 10 秒撤销</div>
+                                <span class="type-badge type-golden">
+                                    Golden Path
+                                </span>
+                            </td>
+                            <td>
+                                <div class="data-content">
+                                    <code class="copy-target">{ "task": "下发补货单", "orderNo": "PR-2026-0821-016", "checkPassed": true, "confirm": true }
+</code>
+                                    <button class="copy-btn" onclick="copyToClipboard(this)">
+                                        <i data-lucide="copy" class="w-3 h-3 text-slate-500"></i>
+                                    </button>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="text-sm text-slate-600 leading-relaxed font-medium">
+                                    命中 rd_04 硬约束；对外下发为 gate，人工放行后写物流调度+财务，保留 10 秒撤销窗口。
+                                </div>
+                            </td>
+                            <td>
+                                <div class="text-sm font-bold text-blue-700 leading-relaxed">
+                                    补货单已下发物流调度+财务；提示『已下发，10 秒内可撤销』；撤销则回滚至待下发。
+                                </div>
+                                
+                                <div class="mt-2 p-2 bg-slate-50 rounded-lg text-[10px] text-slate-400 italic">
+                                    NOTE: 验证对外下发必停 + 撤销回滚。
+                                </div>
+                                
+                            </td>
+                        </tr>
+                        
+                        <tr class="case-row" data-type="Golden Path">
+                            <td class="font-black text-slate-400 text-sm">C-008</td>
+                            <td>
+                                <div class="font-bold text-slate-900 mb-2 leading-tight case-scenario">在途定位与延误预警</div>
+                                <span class="type-badge type-golden">
+                                    Golden Path
+                                </span>
+                            </td>
+                            <td>
+                                <div class="data-content">
+                                    <code class="copy-target">{ "task": "执行跟踪", "orders": [{"orderNo": "PR-2026-0821-016", "position": "京津高速·廊坊段", "status": "在途", "delayHours": 2}] }
+</code>
+                                    <button class="copy-btn" onclick="copyToClipboard(this)">
+                                        <i data-lucide="copy" class="w-3 h-3 text-slate-500"></i>
+                                    </button>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="text-sm text-slate-600 leading-relaxed font-medium">
+                                    命中 rrel_01；延误 2h 未达 24h/48h 阈值，仅提示不拉人。
+                                </div>
+                            </td>
+                            <td>
+                                <div class="text-sm font-bold text-blue-700 leading-relaxed">
+                                    在途台账更新；无延误预警（2h<24h）。
+                                </div>
+                                
+                                <div class="mt-2 p-2 bg-slate-50 rounded-lg text-[10px] text-slate-400 italic">
+                                    NOTE: 验证延误阈值（>24h/48h 才预警）。
+                                </div>
+                                
+                            </td>
+                        </tr>
+                        
+                        <tr class="case-row" data-type="Golden Path">
+                            <td class="font-black text-slate-400 text-sm">C-009</td>
+                            <td>
+                                <div class="font-bold text-slate-900 mb-2 leading-tight case-scenario">入库差异 ≤0.5% 记正常损耗</div>
+                                <span class="type-badge type-golden">
+                                    Golden Path
+                                </span>
+                            </td>
+                            <td>
+                                <div class="data-content">
+                                    <code class="copy-target">{ "task": "核对入库实收", "orderNo": "PR-2026-0815-009", "dispatched": 900, "received": 897 }
+</code>
+                                    <button class="copy-btn" onclick="copyToClipboard(this)">
+                                        <i data-lucide="copy" class="w-3 h-3 text-slate-500"></i>
+                                    </button>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="text-sm text-slate-600 leading-relaxed font-medium">
+                                    命中 rd_05；差异率=(900-897)/900=0.33% ≤0.5%。
+                                </div>
+                            </td>
+                            <td>
+                                <div class="text-sm font-bold text-blue-700 leading-relaxed">
+                                    按实收 897 同步可发量/DOS，标记正常损耗，关闭调拨单，不生成差异单。
+                                </div>
+                                
+                                <div class="mt-2 p-2 bg-slate-50 rounded-lg text-[10px] text-slate-400 italic">
+                                    NOTE: 验证差异率阈值与按实收同步。
+                                </div>
+                                
+                            </td>
+                        </tr>
+                        
+                        <tr class="case-row" data-type="Golden Path">
+                            <td class="font-black text-slate-400 text-sm">C-010</td>
+                            <td>
+                                <div class="font-bold text-slate-900 mb-2 leading-tight case-scenario">月度复盘达标并生成调参建议</div>
+                                <span class="type-badge type-golden">
+                                    Golden Path
+                                </span>
+                            </td>
+                            <td>
+                                <div class="data-content">
+                                    <code class="copy-target">{ "task": "生成月度复盘", "metrics": {"时效达成率": 0.92, "缺货缓解率": 0.88, "周转天数同比": -0.08, "入库差异率": 0.0033} }
+</code>
+                                    <button class="copy-btn" onclick="copyToClipboard(this)">
+                                        <i data-lucide="copy" class="w-3 h-3 text-slate-500"></i>
+                                    </button>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="text-sm text-slate-600 leading-relaxed font-medium">
+                                    命中 rd_06 + rt_02；四项指标均达标（≥90%/≥85%/≤10%/≤0.5%）。
+                                </div>
+                            </td>
+                            <td>
+                                <div class="text-sm font-bold text-blue-700 leading-relaxed">
+                                    复盘报告：全部达标；建议华北安全水位 14→12 天，审批后下一周期生效。
+                                </div>
+                                
+                                <div class="mt-2 p-2 bg-slate-50 rounded-lg text-[10px] text-slate-400 italic">
+                                    NOTE: 验证复盘模板与达标分支。
+                                </div>
+                                
+                            </td>
+                        </tr>
+                        
+                        <tr class="case-row" data-type="Hard Case">
+                            <td class="font-black text-slate-400 text-sm">C-011</td>
+                            <td>
+                                <div class="font-bold text-slate-900 mb-2 leading-tight case-scenario">时效最优仓可发量不足 → 拆分多仓补足</div>
+                                <span class="type-badge type-hard">
+                                    Hard Case
+                                </span>
+                            </td>
+                            <td>
+                                <div class="data-content">
+                                    <code class="copy-target">{
+  "task": "生成分货方案",
+  "plan": [{"to": "BJ-SY", "sku": "金领冠珍护3段800g", "need": 1500}],
+  "sources": [
+    {"from": "TJ-BASE", "available": 900, "eta": 1},
+    {"from": "HF-BASE", "available": 700, "eta": 2.5}
+  ]
+}
+</code>
+                                    <button class="copy-btn" onclick="copyToClipboard(this)">
+                                        <i data-lucide="copy" class="w-3 h-3 text-slate-500"></i>
+                                    </button>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="text-sm text-slate-600 leading-relaxed font-medium">
+                                    命中 rd_03；时效最优仓 TJ-BASE 可发量 900 不足 1500，按可发量约束>时效优先拆分 HF-BASE 补足 600。
+                                </div>
+                            </td>
+                            <td>
+                                <div class="text-sm font-bold text-blue-700 leading-relaxed">
+                                    拆分方案：TJ-BASE 900 + HF-BASE 600 = 1500，满足缺口且总时效可接受。
+                                </div>
+                                
+                                <div class="mt-2 p-2 bg-slate-50 rounded-lg text-[10px] text-slate-400 italic">
+                                    NOTE: 验证多仓拆分补足逻辑（多约束求解难点）。
+                                </div>
+                                
+                            </td>
+                        </tr>
+                        
+                        <tr class="case-row" data-type="Hard Case">
+                            <td class="font-black text-slate-400 text-sm">C-012</td>
+                            <td>
+                                <div class="font-bold text-slate-900 mb-2 leading-tight case-scenario">促销期 DOS 高但不判积压</div>
+                                <span class="type-badge type-hard">
+                                    Hard Case
+                                </span>
+                            </td>
+                            <td>
+                                <div class="data-content">
+                                    <code class="copy-target">{
+  "task": "缺口分级",
+  "warehouse": {"site_code": "KM-01", "stock": 12000, "transit": 0, "avgDailyPlan": 180},
+  "promo": [{"site_code": "KM-01", "sku": "金领冠珍护3段800g", "active": true}]
+}
+</code>
+                                    <button class="copy-btn" onclick="copyToClipboard(this)">
+                                        <i data-lucide="copy" class="w-3 h-3 text-slate-500"></i>
+                                    </button>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="text-sm text-slate-600 leading-relaxed font-medium">
+                                    命中 rd_01；DOS=66.7>60，但该仓处于促销放量期，抑制蓝色积压判定。
+                                </div>
+                            </td>
+                            <td>
+                                <div class="text-sm font-bold text-blue-700 leading-relaxed">
+                                    KM-01 不判蓝色积压（促销期抑制），归为正常/关注，避免误控量。
+                                </div>
+                                
+                                <div class="mt-2 p-2 bg-slate-50 rounded-lg text-[10px] text-slate-400 italic">
+                                    NOTE: 验证促销抑制蓝色积压的例外规则。
+                                </div>
+                                
+                            </td>
+                        </tr>
+                        
+                        <tr class="case-row" data-type="Hard Case">
+                            <td class="font-black text-slate-400 text-sm">C-013</td>
+                            <td>
+                                <div class="font-bold text-slate-900 mb-2 leading-tight case-scenario">急缺仓优先 vs 积压仓控量 的仲裁</div>
+                                <span class="type-badge type-hard">
+                                    Hard Case
+                                </span>
+                            </td>
+                            <td>
+                                <div class="data-content">
+                                    <code class="copy-target">{
+  "task": "生成分货方案",
+  "plan": [
+    {"to": "GZ-01", "level": "red", "suggest": 980},
+    {"to": "JN-01", "level": "blue", "suggest": 300}
+  ],
+  "source": {"from": "TJ-BASE", "available": 1000}
+}
+</code>
+                                    <button class="copy-btn" onclick="copyToClipboard(this)">
+                                        <i data-lucide="copy" class="w-3 h-3 text-slate-500"></i>
+                                    </button>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="text-sm text-slate-600 leading-relaxed font-medium">
+                                    命中 rd_03；货源不足以同时满足，按急缺优先→积压控量仲裁：GZ-01 优先分配，JN-01 不再增配。
+                                </div>
+                            </td>
+                            <td>
+                                <div class="text-sm font-bold text-blue-700 leading-relaxed">
+                                    GZ-01 分配 980（急缺优先）；JN-01 分配 0/仅维持（积压控量），并说明仲裁依据。
+                                </div>
+                                
+                                <div class="mt-2 p-2 bg-slate-50 rounded-lg text-[10px] text-slate-400 italic">
+                                    NOTE: 验证多目标冲突下的仲裁优先级。
+                                </div>
+                                
+                            </td>
+                        </tr>
+                        
+                        <tr class="case-row" data-type="Hard Case">
+                            <td class="font-black text-slate-400 text-sm">C-014</td>
+                            <td>
+                                <div class="font-bold text-slate-900 mb-2 leading-tight case-scenario">多项复盘指标矛盾（时效优先于周转）</div>
+                                <span class="type-badge type-hard">
+                                    Hard Case
+                                </span>
+                            </td>
+                            <td>
+                                <div class="data-content">
+                                    <code class="copy-target">{ "task": "生成月度复盘", "metrics": {"时效达成率": 0.86, "周转天数同比": -0.15} }
+</code>
+                                    <button class="copy-btn" onclick="copyToClipboard(this)">
+                                        <i data-lucide="copy" class="w-3 h-3 text-slate-500"></i>
+                                    </button>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="text-sm text-slate-600 leading-relaxed font-medium">
+                                    命中 rd_06；时效<90% 未达标、周转降幅 15%>10% 也未达标，两项矛盾。
+                                </div>
+                            </td>
+                            <td>
+                                <div class="text-sm font-bold text-blue-700 leading-relaxed">
+                                    以时效达成率优先，建议优化物流/上调安全水位；周转改善让位于服务水平，不因周转单指标下调水位。
+                                </div>
+                                
+                                <div class="mt-2 p-2 bg-slate-50 rounded-lg text-[10px] text-slate-400 italic">
+                                    NOTE: 验证多指标矛盾仲裁（时效>周转）。
+                                </div>
+                                
+                            </td>
+                        </tr>
+                        
+                        <tr class="case-row" data-type="Hard Case">
+                            <td class="font-black text-slate-400 text-sm">C-015</td>
+                            <td>
+                                <div class="font-bold text-slate-900 mb-2 leading-tight case-scenario">凑车微调超出 ±200 件边界</div>
+                                <span class="type-badge type-hard">
+                                    Hard Case
+                                </span>
+                            </td>
+                            <td>
+                                <div class="data-content">
+                                    <code class="copy-target">{ "task": "人工微调", "edits": [{"site_code": "BJ-SY", "oldAlloc": 1200, "newAlloc": 1600, "reason": "凑车"}], "available": 1650 }
+</code>
+                                    <button class="copy-btn" onclick="copyToClipboard(this)">
+                                        <i data-lucide="copy" class="w-3 h-3 text-slate-500"></i>
+                                    </button>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="text-sm text-slate-600 leading-relaxed font-medium">
+                                    命中 rd_03；微调 +400 超凑车 ±200 件上限，需退回重算并提示超界。
+                                </div>
+                            </td>
+                            <td>
+                                <div class="text-sm font-bold text-blue-700 leading-relaxed">
+                                    提示『超出凑车微调 ±200 件上限』，要求说明理由或改用整版重算，不直接写入。
+                                </div>
+                                
+                                <div class="mt-2 p-2 bg-slate-50 rounded-lg text-[10px] text-slate-400 italic">
+                                    NOTE: 验证凑车微调边界约束。
+                                </div>
+                                
+                            </td>
+                        </tr>
+                        
+                        <tr class="case-row" data-type="Hard Case">
+                            <td class="font-black text-slate-400 text-sm">C-016</td>
+                            <td>
+                                <div class="font-bold text-slate-900 mb-2 leading-tight case-scenario">在途口径混淆（在途总量 vs 已下发未发货）</div>
+                                <span class="type-badge type-hard">
+                                    Hard Case
+                                </span>
+                            </td>
+                            <td>
+                                <div class="data-content">
+                                    <code class="copy-target">{
+  "task": "汇总底表",
+  "raw": {"store_transit": 3200, "issuedNotShipped": 900, "site_code": "TJ-BASE"}
+}
+</code>
+                                    <button class="copy-btn" onclick="copyToClipboard(this)">
+                                        <i data-lucide="copy" class="w-3 h-3 text-slate-500"></i>
+                                    </button>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="text-sm text-slate-600 leading-relaxed font-medium">
+                                    命中 rext_01 + rdict_01；在途应取『在途总量』store_transit=3200，而非『已下发未发货』900。
+                                </div>
+                            </td>
+                            <td>
+                                <div class="text-sm font-bold text-blue-700 leading-relaxed">
+                                    底表在途字段=3200；标注易错点（勿取已下发未发货），防止低估货源。
+                                </div>
+                                
+                                <div class="mt-2 p-2 bg-slate-50 rounded-lg text-[10px] text-slate-400 italic">
+                                    NOTE: 验证关键字段提取的易错变体识别。
+                                </div>
+                                
+                            </td>
+                        </tr>
+                        
+                        <tr class="case-row" data-type="Edge Case">
+                            <td class="font-black text-slate-400 text-sm">C-017</td>
+                            <td>
+                                <div class="font-bold text-slate-900 mb-2 leading-tight case-scenario">DOS 恰落在 7 天边界</div>
+                                <span class="type-badge type-edge">
+                                    Edge Case
+                                </span>
+                            </td>
+                            <td>
+                                <div class="data-content">
+                                    <code class="copy-target">{ "task": "缺口分级", "warehouse": {"site_code": "BJ-SY", "stock": 2100, "transit": 0, "allocated": 0, "avgDailyPlan": 300} }
+</code>
+                                    <button class="copy-btn" onclick="copyToClipboard(this)">
+                                        <i data-lucide="copy" class="w-3 h-3 text-slate-500"></i>
+                                    </button>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="text-sm text-slate-600 leading-relaxed font-medium">
+                                    命中 rd_01；DOS=7.0 恰在红/黄边界，自动判定不可靠。
+                                </div>
+                            </td>
+                            <td>
+                                <div class="text-sm font-bold text-blue-700 leading-relaxed">
+                                    标记『DOS 边界冲突（7 天）』转人工确认，不静默归入红色或黄色。
+                                </div>
+                                
+                                <div class="mt-2 p-2 bg-slate-50 rounded-lg text-[10px] text-slate-400 italic">
+                                    NOTE: 验证边界冲突必须转人工（HITL）。
+                                </div>
+                                
+                            </td>
+                        </tr>
+                        
+                        <tr class="case-row" data-type="Edge Case">
+                            <td class="font-black text-slate-400 text-sm">C-018</td>
+                            <td>
+                                <div class="font-bold text-slate-900 mb-2 leading-tight case-scenario">TMS 物流预警未接通 → 降级估算</div>
+                                <span class="type-badge type-edge">
+                                    Edge Case
+                                </span>
+                            </td>
+                            <td>
+                                <div class="data-content">
+                                    <code class="copy-target">{ "task": "异常诊断", "source": "HF-BASE", "tmsAvailable": false }
+</code>
+                                    <button class="copy-btn" onclick="copyToClipboard(this)">
+                                        <i data-lucide="copy" class="w-3 h-3 text-slate-500"></i>
+                                    </button>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="text-sm text-slate-600 leading-relaxed font-medium">
+                                    命中 rd_03 降级分支；TMS 预警数据缺失，按历史运输时效估算。
+                                </div>
+                            </td>
+                            <td>
+                                <div class="text-sm font-bold text-blue-700 leading-relaxed">
+                                    输出备选并显式标注『物流预警未接通，按历史时效估算（降级），建议人工复核』，不得静默按正常处理。
+                                </div>
+                                
+                                <div class="mt-2 p-2 bg-slate-50 rounded-lg text-[10px] text-slate-400 italic">
+                                    NOTE: 验证数据缺失时的降级与显式标注。
+                                </div>
+                                
+                            </td>
+                        </tr>
+                        
+                        <tr class="case-row" data-type="Edge Case">
+                            <td class="font-black text-slate-400 text-sm">C-019</td>
+                            <td>
+                                <div class="font-bold text-slate-900 mb-2 leading-tight case-scenario">目标备货率 >100% 封顶</div>
+                                <span class="type-badge type-edge">
+                                    Edge Case
+                                </span>
+                            </td>
+                            <td>
+                                <div class="data-content">
+                                    <code class="copy-target">{ "task": "计算目标备货率", "orderProgress": 0.95, "旬度标准进度": 0.50 }
+</code>
+                                    <button class="copy-btn" onclick="copyToClipboard(this)">
+                                        <i data-lucide="copy" class="w-3 h-3 text-slate-500"></i>
+                                    </button>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="text-sm text-slate-600 leading-relaxed font-medium">
+                                    命中 rd_02；0.95+0.20=1.15>100%。
+                                </div>
+                            </td>
+                            <td>
+                                <div class="text-sm font-bold text-blue-700 leading-relaxed">
+                                    目标备货率封顶 100%，并触发订单进度超限的 HITL 确认。
+                                </div>
+                                
+                                <div class="mt-2 p-2 bg-slate-50 rounded-lg text-[10px] text-slate-400 italic">
+                                    NOTE: 验证封顶规则与超限确认。
+                                </div>
+                                
+                            </td>
+                        </tr>
+                        
+                        <tr class="case-row" data-type="Edge Case">
+                            <td class="font-black text-slate-400 text-sm">C-020</td>
+                            <td>
+                                <div class="font-bold text-slate-900 mb-2 leading-tight case-scenario">分配量超可发量（硬约束红线）</div>
+                                <span class="type-badge type-edge">
+                                    Edge Case
+                                </span>
+                            </td>
+                            <td>
+                                <div class="data-content">
+                                    <code class="copy-target">{ "task": "校验分配方案", "row": {"to": "BJ-SY", "alloc": 1800}, "source": {"from": "TJ-BASE", "available": 1650} }
+</code>
+                                    <button class="copy-btn" onclick="copyToClipboard(this)">
+                                        <i data-lucide="copy" class="w-3 h-3 text-slate-500"></i>
+                                    </button>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="text-sm text-slate-600 leading-relaxed font-medium">
+                                    命中 rd_03/rd_04 硬约束；分配量 1800 > 可发量 1650。
+                                </div>
+                            </td>
+                            <td>
+                                <div class="text-sm font-bold text-blue-700 leading-relaxed">
+                                    拒绝该分配（超可发量），退回重算并标注冲突项；不得生成/下发超发补货单。
+                                </div>
+                                
+                                <div class="mt-2 p-2 bg-slate-50 rounded-lg text-[10px] text-slate-400 italic">
+                                    NOTE: 验证可发量硬约束不可突破（安全红线）。
+                                </div>
+                                
+                            </td>
+                        </tr>
+                        
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <footer class="mt-20 flex justify-between items-center opacity-40 text-[10px] font-black uppercase tracking-[0.4em]">
+            <span>AI Test Dataset Generator v1.1</span>
+            <span>&copy; 2026 AI INCEPTION WORKSHOP</span>
+        </footer>
+    </div>
+
+    <div class="toast" id="toast">已成功复制 YAML 数据</div>
+    
+    <script type="application/yaml" id="raw-yaml">
+title: "X奶粉 · 分仓智能补货 Agent 测试数据集"
+product_name: "分仓智能补货 Agent"
+summary:
+  total_cases: 20
+  distribution:
+    golden: 50
+    hard: 30
+    edge: 20
+test_cases:
+  # ================= Golden Path · 主路径（10 条 · 50%） =================
+  - id: "C-001"
+    scenario: "全仓网缺口识别与 DOS 分级"
+    type: "Golden Path"
+    input: |
+      {
+        "task": "识别全仓网缺口",
+        "warehouses": [
+          {"site_code": "BJ-SY", "type": "sales", "stock": 1800, "transit": 300, "allocated": 0, "avgDailyPlan": 300},
+          {"site_code": "GZ-01", "type": "sales", "stock": 1250, "transit": 100, "allocated": 0, "avgDailyPlan": 250},
+          {"site_code": "JN-01", "type": "sales", "stock": 9300, "transit": 0, "allocated": 0, "avgDailyPlan": 150}
+        ],
+        "promoSkus": []
+      }
+    expected_intermediate: "命中 rd_01 缺口分级规则；计算 DOS=(库存+在途+分配)/日均计划：BJ-SY=7.0、GZ-01=5.4、JN-01=62.0；BJ-SY 落 7 天边界需标注。"
+    expected_output: "GZ-01 红色紧急补货（DOS 5.4<7）；JN-01 蓝色积压预警（DOS 62>60 且无促销）；BJ-SY 边界冲突待人工确认。"
+    notes: "验证 DOS 分级主路径；注意 7 天边界不被静默归入红/黄。"
+  - id: "C-002"
+    scenario: "目标备货率计算（订单进度+20% 封顶 100%）"
+    type: "Golden Path"
+    input: |
+      {
+        "task": "计算各仓目标备货率",
+        "rows": [
+          {"site_code": "BJ-SY", "orderProgress": 0.65, "旬度标准进度": 0.50, "region": "core"},
+          {"site_code": "HS-01", "orderProgress": 0.92, "旬度标准进度": 0.50, "region": "remote"}
+        ]
+      }
+    expected_intermediate: "命中 rd_02；BJ-SY 目标备货率=0.65+0.20=0.85；HS-01=0.92+0.20=1.12→封顶 1.00，偏远区域再上调缓冲。"
+    expected_output: "BJ-SY 目标备货率 85%；HS-01 目标备货率 100%（封顶）+ 偏远缓冲，触发 HITL 确认。"
+    notes: "验证封顶 100% 与偏远上调；订单进度超旬度标准触发确认。"
+  - id: "C-003"
+    scenario: "多约束分配求解（可发量约束优先）"
+    type: "Golden Path"
+    input: |
+      {
+        "task": "生成分货方案",
+        "plan": [{"to": "BJ-SY", "sku": "金领冠珍护3段800g", "suggest": 1200, "targetStock": 2400, "currentStock": 1800}],
+        "source": {"from": "TJ-BASE", "available": 1650, "eta": 1}
+      }
+    expected_intermediate: "命中 rd_03；建议补货量=2400-1800=600；按可发量约束>时效优先>京慧建议量求解，分配量 600 ≤ 可发量 1650。"
+    expected_output: "分配量 600 罐（未偏离京慧建议量 1200），分配后库存天数约 8 天，方案A 均衡版生成。"
+    notes: "验证基础分配求解与硬约束（≤可发量）。"
+  - id: "C-004"
+    scenario: "分配量偏离京慧建议量触发 HITL"
+    type: "Golden Path"
+    input: |
+      {
+        "task": "生成分货方案",
+        "plan": [{"to": "BJ-SY", "sku": "金领冠珍护3段800g", "suggest": 1200, "available": 1650}],
+        "promo": [{"sku": "金领冠珍护3段800g", "upliftRatio": 0.12}]
+      }
+    expected_intermediate: "命中 rd_03；促销放量使求解分配量=1344，偏离京慧建议量 +12%；触发 HITL（写入前必停）。"
+    expected_output: "方案标注『北京顺义仓分配量较京慧建议量上调 12%（促销放量），待确认』，未确认前不得写入分配量。"
+    notes: "验证硬约束：偏离京慧建议量必须人工确认，禁止静默覆盖。"
+  - id: "C-005"
+    scenario: "人工微调分配量并重新校验"
+    type: "Golden Path"
+    input: |
+      {
+        "task": "人工确认与微调",
+        "edits": [{"site_code": "TJ-WQ", "oldAlloc": 720, "newAlloc": 800, "reason": "凑车"}],
+        "available": 900
+      }
+    expected_intermediate: "命中 rd_03 与 rt_01；微调 +80 在凑车 ±200 件内，重新执行可发量/安全水位校验。"
+    expected_output: "天津武清仓分配量更新为 800 罐，约束校验全部通过，修改原因『凑车』留痕。"
+    notes: "验证微调后重校验与留痕；修改原因必填。"
+  - id: "C-006"
+    scenario: "补货单生成与 4 项校验通过"
+    type: "Golden Path"
+    input: |
+      {
+        "task": "生成并校验补货单",
+        "order": {"from": "TJ-BASE", "to": "BJ-SY", "sku": "金领冠珍护3段800g", "qty": 1344, "available": 1650, "eta": 2, "etaRequired": 3}
+      }
+    expected_intermediate: "命中 rt_03 + rd_04；校验收发仓合法性/SKU 在册/数量≤可发量/时效≤ETA 四项。"
+    expected_output: "补货单 PR-2026-0821-016 生成，4/4 校验通过，可进入下发门禁。"
+    notes: "验证补货单模板与 4 项确定性校验。"
+  - id: "C-007"
+    scenario: "补货单对外下发 + 10 秒撤销"
+    type: "Golden Path"
+    input: |
+      { "task": "下发补货单", "orderNo": "PR-2026-0821-016", "checkPassed": true, "confirm": true }
+    expected_intermediate: "命中 rd_04 硬约束；对外下发为 gate，人工放行后写物流调度+财务，保留 10 秒撤销窗口。"
+    expected_output: "补货单已下发物流调度+财务；提示『已下发，10 秒内可撤销』；撤销则回滚至待下发。"
+    notes: "验证对外下发必停 + 撤销回滚。"
+  - id: "C-008"
+    scenario: "在途定位与延误预警"
+    type: "Golden Path"
+    input: |
+      { "task": "执行跟踪", "orders": [{"orderNo": "PR-2026-0821-016", "position": "京津高速·廊坊段", "status": "在途", "delayHours": 2}] }
+    expected_intermediate: "命中 rrel_01；延误 2h 未达 24h/48h 阈值，仅提示不拉人。"
+    expected_output: "在途台账更新；无延误预警（2h<24h）。"
+    notes: "验证延误阈值（>24h/48h 才预警）。"
+  - id: "C-009"
+    scenario: "入库差异 ≤0.5% 记正常损耗"
+    type: "Golden Path"
+    input: |
+      { "task": "核对入库实收", "orderNo": "PR-2026-0815-009", "dispatched": 900, "received": 897 }
+    expected_intermediate: "命中 rd_05；差异率=(900-897)/900=0.33% ≤0.5%。"
+    expected_output: "按实收 897 同步可发量/DOS，标记正常损耗，关闭调拨单，不生成差异单。"
+    notes: "验证差异率阈值与按实收同步。"
+  - id: "C-010"
+    scenario: "月度复盘达标并生成调参建议"
+    type: "Golden Path"
+    input: |
+      { "task": "生成月度复盘", "metrics": {"时效达成率": 0.92, "缺货缓解率": 0.88, "周转天数同比": -0.08, "入库差异率": 0.0033} }
+    expected_intermediate: "命中 rd_06 + rt_02；四项指标均达标（≥90%/≥85%/≤10%/≤0.5%）。"
+    expected_output: "复盘报告：全部达标；建议华北安全水位 14→12 天，审批后下一周期生效。"
+    notes: "验证复盘模板与达标分支。"
+  # ================= Hard Case · 困难样例（6 条 · 30%） =================
+  - id: "C-011"
+    scenario: "时效最优仓可发量不足 → 拆分多仓补足"
+    type: "Hard Case"
+    input: |
+      {
+        "task": "生成分货方案",
+        "plan": [{"to": "BJ-SY", "sku": "金领冠珍护3段800g", "need": 1500}],
+        "sources": [
+          {"from": "TJ-BASE", "available": 900, "eta": 1},
+          {"from": "HF-BASE", "available": 700, "eta": 2.5}
+        ]
+      }
+    expected_intermediate: "命中 rd_03；时效最优仓 TJ-BASE 可发量 900 不足 1500，按可发量约束>时效优先拆分 HF-BASE 补足 600。"
+    expected_output: "拆分方案：TJ-BASE 900 + HF-BASE 600 = 1500，满足缺口且总时效可接受。"
+    notes: "验证多仓拆分补足逻辑（多约束求解难点）。"
+  - id: "C-012"
+    scenario: "促销期 DOS 高但不判积压"
+    type: "Hard Case"
+    input: |
+      {
+        "task": "缺口分级",
+        "warehouse": {"site_code": "KM-01", "stock": 12000, "transit": 0, "avgDailyPlan": 180},
+        "promo": [{"site_code": "KM-01", "sku": "金领冠珍护3段800g", "active": true}]
+      }
+    expected_intermediate: "命中 rd_01；DOS=66.7>60，但该仓处于促销放量期，抑制蓝色积压判定。"
+    expected_output: "KM-01 不判蓝色积压（促销期抑制），归为正常/关注，避免误控量。"
+    notes: "验证促销抑制蓝色积压的例外规则。"
+  - id: "C-013"
+    scenario: "急缺仓优先 vs 积压仓控量 的仲裁"
+    type: "Hard Case"
+    input: |
+      {
+        "task": "生成分货方案",
+        "plan": [
+          {"to": "GZ-01", "level": "red", "suggest": 980},
+          {"to": "JN-01", "level": "blue", "suggest": 300}
+        ],
+        "source": {"from": "TJ-BASE", "available": 1000}
+      }
+    expected_intermediate: "命中 rd_03；货源不足以同时满足，按急缺优先→积压控量仲裁：GZ-01 优先分配，JN-01 不再增配。"
+    expected_output: "GZ-01 分配 980（急缺优先）；JN-01 分配 0/仅维持（积压控量），并说明仲裁依据。"
+    notes: "验证多目标冲突下的仲裁优先级。"
+  - id: "C-014"
+    scenario: "多项复盘指标矛盾（时效优先于周转）"
+    type: "Hard Case"
+    input: |
+      { "task": "生成月度复盘", "metrics": {"时效达成率": 0.86, "周转天数同比": -0.15} }
+    expected_intermediate: "命中 rd_06；时效<90% 未达标、周转降幅 15%>10% 也未达标，两项矛盾。"
+    expected_output: "以时效达成率优先，建议优化物流/上调安全水位；周转改善让位于服务水平，不因周转单指标下调水位。"
+    notes: "验证多指标矛盾仲裁（时效>周转）。"
+  - id: "C-015"
+    scenario: "凑车微调超出 ±200 件边界"
+    type: "Hard Case"
+    input: |
+      { "task": "人工微调", "edits": [{"site_code": "BJ-SY", "oldAlloc": 1200, "newAlloc": 1600, "reason": "凑车"}], "available": 1650 }
+    expected_intermediate: "命中 rd_03；微调 +400 超凑车 ±200 件上限，需退回重算并提示超界。"
+    expected_output: "提示『超出凑车微调 ±200 件上限』，要求说明理由或改用整版重算，不直接写入。"
+    notes: "验证凑车微调边界约束。"
+  - id: "C-016"
+    scenario: "在途口径混淆（在途总量 vs 已下发未发货）"
+    type: "Hard Case"
+    input: |
+      {
+        "task": "汇总底表",
+        "raw": {"store_transit": 3200, "issuedNotShipped": 900, "site_code": "TJ-BASE"}
+      }
+    expected_intermediate: "命中 rext_01 + rdict_01；在途应取『在途总量』store_transit=3200，而非『已下发未发货』900。"
+    expected_output: "底表在途字段=3200；标注易错点（勿取已下发未发货），防止低估货源。"
+    notes: "验证关键字段提取的易错变体识别。"
+  # ================= Edge Case · 边界样例（4 条 · 20%） =================
+  - id: "C-017"
+    scenario: "DOS 恰落在 7 天边界"
+    type: "Edge Case"
+    input: |
+      { "task": "缺口分级", "warehouse": {"site_code": "BJ-SY", "stock": 2100, "transit": 0, "allocated": 0, "avgDailyPlan": 300} }
+    expected_intermediate: "命中 rd_01；DOS=7.0 恰在红/黄边界，自动判定不可靠。"
+    expected_output: "标记『DOS 边界冲突（7 天）』转人工确认，不静默归入红色或黄色。"
+    notes: "验证边界冲突必须转人工（HITL）。"
+  - id: "C-018"
+    scenario: "TMS 物流预警未接通 → 降级估算"
+    type: "Edge Case"
+    input: |
+      { "task": "异常诊断", "source": "HF-BASE", "tmsAvailable": false }
+    expected_intermediate: "命中 rd_03 降级分支；TMS 预警数据缺失，按历史运输时效估算。"
+    expected_output: "输出备选并显式标注『物流预警未接通，按历史时效估算（降级），建议人工复核』，不得静默按正常处理。"
+    notes: "验证数据缺失时的降级与显式标注。"
+  - id: "C-019"
+    scenario: "目标备货率 >100% 封顶"
+    type: "Edge Case"
+    input: |
+      { "task": "计算目标备货率", "orderProgress": 0.95, "旬度标准进度": 0.50 }
+    expected_intermediate: "命中 rd_02；0.95+0.20=1.15>100%。"
+    expected_output: "目标备货率封顶 100%，并触发订单进度超限的 HITL 确认。"
+    notes: "验证封顶规则与超限确认。"
+  - id: "C-020"
+    scenario: "分配量超可发量（硬约束红线）"
+    type: "Edge Case"
+    input: |
+      { "task": "校验分配方案", "row": {"to": "BJ-SY", "alloc": 1800}, "source": {"from": "TJ-BASE", "available": 1650} }
+    expected_intermediate: "命中 rd_03/rd_04 硬约束；分配量 1800 > 可发量 1650。"
+    expected_output: "拒绝该分配（超可发量），退回重算并标注冲突项；不得生成/下发超发补货单。"
+    notes: "验证可发量硬约束不可突破（安全红线）。"
+
+    </script>
+
+    <script>
+        lucide.createIcons();
+
+        function copyYAML() {
+            const yaml = document.getElementById('raw-yaml').textContent.trim();
+            navigator.clipboard.writeText(yaml).then(() => {
+                const toast = document.getElementById('toast');
+                toast.style.display = 'block';
+                setTimeout(() => { toast.style.display = 'none'; }, 2500);
+            });
+        }
+
+        function filterType(type) {
+            const rows = document.querySelectorAll('.case-row');
+            const btns = document.querySelectorAll('.filter-btn');
+            
+            // Update active button
+            btns.forEach(btn => btn.classList.remove('active'));
+            if (type === 'all') document.getElementById('filter-all').classList.add('active');
+            else if (type === 'Golden Path') document.getElementById('filter-golden').classList.add('active');
+            else if (type === 'Hard Case') document.getElementById('filter-hard').classList.add('active');
+            else if (type === 'Edge Case') document.getElementById('filter-edge').classList.add('active');
+
+            rows.forEach(row => {
+                if (type === 'all' || row.dataset.type === type) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
+        function searchTable() {
+            const input = document.getElementById('searchInput');
+            const filter = input.value.toUpperCase();
+            const rows = document.querySelectorAll('.case-row');
+
+            rows.forEach(row => {
+                const text = row.innerText.toUpperCase();
+                if (text.indexOf(filter) > -1) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
+        function copyToClipboard(btn) {
+            const text = btn.parentElement.querySelector('.copy-target').innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                const icon = btn.querySelector('i');
+                const originalIcon = icon.getAttribute('data-lucide');
+                icon.setAttribute('data-lucide', 'check');
+                lucide.createIcons();
+                btn.style.color = '#16a34a';
+                setTimeout(() => {
+                    icon.setAttribute('data-lucide', originalIcon);
+                    lucide.createIcons();
+                    btn.style.color = '';
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>

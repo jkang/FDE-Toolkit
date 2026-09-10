@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>分仓智能补货 · 落地技术架构方案</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<style>
+  :root{
+    --navy:#10213E;--purple:#625D9C;--green:#00524C;--bg:#F5F5F6;--ink:#1f2937;--muted:#4a5568;--line:#dfe4ea;
+    --opb:#607D8B;--det:#E8F5E9;--detb:#2E7D32;--small:#E1F5FE;--smallb:#0288D1;--llm:#EDE7F6;--llmb:#5E35B1;
+    --rag:#FFF3E0;--ragb:#EF6C00;--mcp:#ECEFF1;--mcpb:#546E7A;--onto:#E0F2F1;--ontob:#00695C;
+    --hitl:#FFEBEE;--hitlb:#C62828;--eval:#FFFDE7;--evalb:#F9A825;--loop:#F3E5F5;--loopb:#8E24AA;
+    --exc:#FCE4EC;--excb:#AD1457;--out:#E8EAF6;--outb:#3949AB;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:"Noto Sans SC","Inter",-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased;}
+  .wrap{max-width:1400px;margin:0 auto;padding:26px 22px 60px;}
+  .eyebrow{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--purple);font-weight:700;}
+  h1{font-size:23px;margin:6px 0 4px;color:var(--navy);}
+  .sub{color:var(--muted);font-size:13.5px;line-height:1.6;}
+  .legend{display:flex;flex-wrap:wrap;gap:8px 14px;margin:14px 0 6px;font-size:12px;color:var(--muted);}
+  .lg{display:inline-flex;align-items:center;gap:6px;}
+  .sw{width:13px;height:13px;border-radius:4px;display:inline-block;border:1.5px solid;}
+  .arch{background:#fff;border:1px solid var(--line);border-radius:16px;padding:22px 20px 24px;margin-top:14px;}
+  .center{display:flex;justify-content:center;}
+  .user{display:inline-flex;align-items:center;gap:8px;background:#fff;border:1.5px solid var(--opb);border-radius:999px;padding:7px 16px;font-size:13px;color:#37474F;font-weight:500;}
+  .spine{width:2px;height:18px;background:#c3cad4;margin:0 auto;}
+  .agent{background:linear-gradient(135deg,#DDE7F5,#EAF0FA);border:2px solid var(--navy);border-radius:14px;padding:13px 18px;text-align:center;}
+  .agent .t{font-size:16px;font-weight:700;color:var(--navy);}
+  .agent .s{font-size:12.5px;color:#3b4a63;margin-top:3px;}
+  .agent .loop{display:inline-block;margin-top:8px;font-size:11.5px;color:var(--loopb);background:var(--loop);border:1px dashed var(--loopb);border-radius:999px;padding:3px 12px;font-weight:600;}
+  .agent .mem{display:inline-block;margin:8px 0 0 8px;font-size:11.5px;color:var(--green);background:var(--onto);border:1px solid var(--ontob);border-radius:999px;padding:3px 12px;font-weight:600;}
+  .fork{position:relative;height:38px;}
+  .fork .hbar{position:absolute;top:0;height:2px;background:#c3cad4;}
+  .fork .drop{position:absolute;top:0;bottom:0;width:2px;background:#c3cad4;}
+  .fork .lbl{position:absolute;top:8px;left:50%;transform:translateX(-50%);background:#fff;padding:0 10px;font-size:11.5px;color:#7b8794;white-space:nowrap;}
+  .skills{display:grid;gap:14px;align-items:start;}
+  .skill{border:1px solid var(--line);border-radius:14px;padding:10px 8px 12px;background:#FBFCFD;}
+  .skill.subagent{border:1.5px dashed var(--purple);background:#FBFAFE;}
+  .skill h3{margin:0 0 2px;font-size:13.5px;color:var(--navy);padding:0 4px;}
+  .skill .role{font-size:11px;color:#8a93a1;margin-bottom:4px;padding:0 4px;}
+  .skill .pat{display:inline-block;font-size:10.5px;color:var(--purple);background:#F1EEF9;border:1px solid #D9D2EE;border-radius:999px;padding:2px 9px;margin:0 4px 4px;}
+  .skill .sub-badge{display:inline-block;font-size:10.5px;color:#4A148C;background:var(--loop);border:1px dashed var(--loopb);border-radius:999px;padding:2px 9px;margin:0 0 4px 4px;}
+  .skill .why{font-size:10.5px;color:#8a93a1;padding:0 4px;margin:2px 0 6px;}
+  .graph{overflow-x:auto;}
+  .handoff{margin:8px 4px 0;font-size:11px;color:var(--green);background:#F1FAF8;border:1px dashed var(--ontob);border-radius:8px;padding:5px 9px;}
+  .merge{position:relative;height:30px;}
+  .merge .hbar{position:absolute;bottom:0;height:2px;background:#c3cad4;}
+  .merge .up{position:absolute;top:0;bottom:0;width:2px;background:#c3cad4;}
+  .merge .lbl{position:absolute;bottom:5px;left:50%;transform:translateX(-50%);background:#fff;padding:0 10px;font-size:11.5px;color:#7b8794;white-space:nowrap;}
+  .base{border:1.5px solid var(--ontob);border-radius:14px;padding:12px 14px;background:linear-gradient(135deg,#F1FAF8,#F7FBFA);}
+  .base .bt{font-size:12px;font-weight:700;color:var(--green);letter-spacing:.04em;margin-bottom:10px;}
+  .base .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px;}
+  .base .card{border-radius:11px;padding:10px 12px;border:1px solid;}
+  .base .onto{background:var(--onto);border-color:var(--ontob);}
+  .base .mcp{background:var(--mcp);border-color:var(--mcpb);}
+  .base .kb{background:var(--rag);border-color:var(--ragb);}
+  .base .card b{font-size:13px;color:#1f2937;}
+  .base .card p{margin:5px 0 0;font-size:11.5px;color:var(--muted);line-height:1.55;}
+  .base .card p code{background:#ffffffaa;border-radius:4px;padding:0 4px;font-size:11px;color:#334155;}
+  .exc{margin-top:12px;border:1px solid var(--excb);background:var(--exc);border-radius:12px;padding:10px 14px;font-size:12px;color:#880E4F;}
+  .exc b{font-weight:700;}
+  .tables{display:grid;grid-template-columns:1.35fr 1fr;gap:14px;margin-top:16px;}
+  .tbl{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 16px;}
+  .tbl h3{margin:0 0 10px;font-size:14px;color:var(--navy);}
+  table{width:100%;border-collapse:collapse;font-size:11.5px;}
+  th,td{text-align:left;padding:6px 8px;border-bottom:1px solid #eef1f5;vertical-align:top;color:#37474F;}
+  th{color:#8a93a1;font-weight:600;background:#FAFBFC;}
+  .kpi{display:flex;flex-direction:column;gap:7px;}
+  .kpi .k{display:flex;gap:8px;font-size:11.5px;color:#37474F;}
+  .kpi .k b{color:var(--navy);min-width:118px;}
+  .kpi .k span{color:var(--muted);}
+  .note{margin-top:16px;background:#FFFDF5;border:1px solid #F0E2B6;border-radius:12px;padding:12px 14px;font-size:12px;color:#6b5a1e;line-height:1.6;}
+  .note b{color:#8a6d1a;}
+  .mermaid span.s{font-size:10px;color:#7b8794;font-weight:400;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="eyebrow">Agent 落地技术架构方案 · Autonomous Planner</div>
+  <h1>分仓智能补货 · 落地技术架构方案</h1>
+  <div class="sub">
+    <strong>1 编排 Agent + 5 Skill + 1 本体</strong>：
+    编排 Agent 居中调度，每个 Skill 内部是一条<strong>纵向逻辑流程</strong>（含并行、Evaluator 分支、Loop 回边、HITL、终态）；共享读写本体、按需调用 MCP。
+    路线理由：用户入口开放（可只问缺口、直接出方案、追问异常、下发补货单或月末复盘），路径需运行时按上下文规划；5 个 Skill 职责稳定、可独立验收，但调用顺序与组合由对话意图决定，故选自主规划。
+  </div>
+
+  <div class="legend">
+    <span class="lg"><i class="sw" style="background:#DDE7F5;border-color:#10213E"></i>编排 Agent</span>
+    <span class="lg"><i class="sw" style="background:#FFFFFF;border-color:#607D8B"></i>普通操作</span>
+    <span class="lg"><i class="sw" style="background:#E8F5E9;border-color:#2E7D32"></i>确定性 / 规则</span>
+    <span class="lg"><i class="sw" style="background:#E1F5FE;border-color:#0288D1"></i>小模型 / 感知</span>
+    <span class="lg"><i class="sw" style="background:#EDE7F6;border-color:#5E35B1"></i>大模型 LLM</span>
+    <span class="lg"><i class="sw" style="background:#FFF3E0;border-color:#EF6C00"></i>RAG / 知识库</span>
+    <span class="lg"><i class="sw" style="background:#ECEFF1;border-color:#546E7A"></i>MCP / 外部系统</span>
+    <span class="lg"><i class="sw" style="background:#E0F2F1;border-color:#00695C"></i>本体</span>
+    <span class="lg"><i class="sw" style="background:#FFEBEE;border-color:#C62828"></i>HITL 门禁</span>
+    <span class="lg"><i class="sw" style="background:#FFFDE7;border-color:#F9A825"></i>Evaluator</span>
+    <span class="lg"><i class="sw" style="background:#F3E5F5;border-color:#8E24AA"></i>Loop / 重试</span>
+    <span class="lg"><i class="sw" style="background:#FCE4EC;border-color:#AD1457"></i>异常池</span>
+    <span class="lg"><i class="sw" style="background:#E8EAF6;border-color:#3949AB"></i>终态输出</span>
+  </div>
+
+  
+  
+  <div class="arch">
+    <div class="center"><div class="user">👤 用户</div></div>
+    <div class="spine"></div>
+
+    <div class="agent">
+      <div class="t">🧭 编排 Agent · Autonomous Planner</div>
+      <div class="s">意图识别 · 规划 · 调度 Skill · 发起 HITL · 异常兜底（不直接算数：缺口分级/DOS/备货率/分配求解/校验均走确定性服务与本体，LLM 只做解释、组版与调参建议）</div>
+      <span class="loop">主循环：Plan → Act → Observe</span>
+      <span class="mem">记忆：任务级上下文（本轮分货周期参数：促销放量/旬度进度） + 会话级仓网画像（仓—品—渠道关联与历史分配）</span>
+    </div>
+
+    
+    <div class="fork">
+      <div class="hbar" style="left: 10.0%; right: 10.0%"></div>
+      <span class="drop" style="left: 10.0%"></span><span class="drop" style="left: 30.0%"></span><span class="drop" style="left: 50.0%"></span><span class="drop" style="left: 70.0%"></span><span class="drop" style="left: 90.0%"></span>
+      <div class="lbl">按意图调度 / 路由（缺口 / 货源 / 供需全景 ｜ 分货方案 / 分配量 / 京慧偏离 ｜ 补货单 / 下发 / 撤销 ｜ 在途 / 延误 / 入库差异 ｜ 复盘 / 调参 / 安全水位 / 大日期）</div>
+    </div>
+
+    <div class="skills" style="grid-template-columns: repeat(5, 1fr)">
+      
+      <div class="skill">
+        <h3>Skill ① 货源评估与缺口识别</h3>
+        <div class="role">触发：缺口 / 货源 / 供需全景（开放入口）</div>
+        <span class="pat">pipeline + human-in-the-loop</span>
+        
+        <div class="why">判定：步骤固定（拉数→校验→分级→解释）、共享上下文、无独立规划 → 判 Skill</div>
+        <div class="graph"><pre class="mermaid">
+flowchart TB
+  g0["分货周期启动 / 对话请求"]:::op
+  g1["拉取全仓现货/在途/待检/合格<br/><span class=s>(MCP · 库存系统)</span>"]:::mcp
+  g2["底表口径校验（6 项）<br/><span class=s>(确定性 · 提取要点)</span>"]:::det
+  g3["读销售计划 / 促销 / 仓网<br/><span class=s>(读本体 R)</span>"]:::onto
+  g4["计算 DOS 并缺口分级<br/><span class=s>(规则引擎 · rd_01)</span>"]:::det
+  g5{"阈值边界冲突？<br/><span class=s>(DOS 7/14/60)</span>"}:::eval
+  g6{"调度组复核口径<br/><span class=s>(HITL · 异常拉人)</span>"}:::hitl
+  g7["生成缺口解释与告警清单<br/><span class=s>(LLM)</span>"]:::llm
+  g8(["缺口告警清单（红/黄/蓝）"]):::out
+  g0 --> g1
+  g1 --> g2
+  g2 --> g4
+  g3 --> g4
+  g4 --> g5
+  g5 -->|正常| g7
+  g5 -.->|边界冲突| g6
+  g6 -.->|修正口径后重跑| g2
+  g7 --> g8
+  g1 -.->|超时重试 ×1| g1
+  classDef det fill:#E8F5E9,stroke:#2E7D32,color:#1B5E20
+  classDef eval fill:#FFFDE7,stroke:#F9A825,color:#F57F17
+  classDef hitl fill:#FFEBEE,stroke:#C62828,color:#B71C1C
+  classDef llm fill:#EDE7F6,stroke:#5E35B1,color:#311B92
+  classDef mcp fill:#ECEFF1,stroke:#546E7A,color:#263238
+  classDef onto fill:#E0F2F1,stroke:#00695C,color:#004D40
+  classDef op fill:#FFFFFF,stroke:#607D8B,color:#37474F
+  classDef out fill:#E8EAF6,stroke:#3949AB,color:#1A237E
+        </pre></div>
+        <div class="handoff">→ 底表就绪后进入 Skill ② 分货方案编制</div>
+      </div>
+      
+      <div class="skill">
+        <h3>Skill ② 分货方案编制（全场景 P0）</h3>
+        <div class="role">触发：分货方案 / 分配量 / 京慧偏离</div>
+        <span class="pat">pipeline + human-in-the-loop + loop</span>
+        
+        <div class="why">判定：焦点 L4 下钻为算量/选仓/出版本/确认四步固定动作，I/O 清晰可独立测试 → 判 Skill</div>
+        <div class="graph"><pre class="mermaid">
+flowchart TB
+  p0["底表就绪 / 触发求解"]:::op
+  p1["计算备货率与目标备货率<br/><span class=s>(确定性 · rd_02)</span>"]:::det
+  p2["读京慧建议量<br/><span class=s>(MCP · 京慧一盘货)</span>"]:::mcp
+  p3["读可发量/在途/促销/安全水位<br/><span class=s>(读本体 R)</span>"]:::onto
+  p4["多约束分配求解 + 选仓拆分<br/><span class=s>(规则引擎 · rd_03)</span>"]:::det
+  p5{"偏离京慧建议量？<br/><span class=s>(Evaluator · 写入前必停判据)</span>"}:::eval
+  p6["组装多版方案 + 偏离说明<br/><span class=s>(LLM · rt_01)</span>"]:::llm
+  p7{"京慧偏离确认 / 人工微调<br/><span class=s>(HITL · 写入前必停)</span>"}:::hitl
+  p8{"修改是否超约束？<br/><span class=s>(可发量/安全水位)</span>"}:::eval
+  p9["写回分货方案（分配量）<br/><span class=s>(写本体 W)</span>"]:::mcp
+  p10(["已确认分货方案"]):::out
+  p11["约束冲突备选方案<br/><span class=s>(异常池 · 拉人)</span>"]:::exception
+  p12["重新校验多约束<br/><span class=s>(Loop ×2)</span>"]:::loop
+  p0 --> p1
+  p2 --> p4
+  p3 --> p4
+  p1 --> p4
+  p4 --> p5
+  p5 -->|偏离 / 正常| p6
+  p6 --> p7
+  p7 -->|确认| p9
+  p7 -->|微调| p8
+  p8 -->|通过| p9
+  p8 -.->|超约束 ×2| p12
+  p12 -.->|退回重算| p4
+  p5 -.->|无可行解| p11
+  p11 -.->|调整约束后重试| p4
+  p9 --> p10
+  classDef det fill:#E8F5E9,stroke:#2E7D32,color:#1B5E20
+  classDef eval fill:#FFFDE7,stroke:#F9A825,color:#F57F17
+  classDef exception fill:#FCE4EC,stroke:#AD1457,color:#880E4F
+  classDef hitl fill:#FFEBEE,stroke:#C62828,color:#B71C1C
+  classDef llm fill:#EDE7F6,stroke:#5E35B1,color:#311B92
+  classDef loop fill:#F3E5F5,stroke:#8E24AA,color:#4A148C,stroke-dasharray:5 3
+  classDef mcp fill:#ECEFF1,stroke:#546E7A,color:#263238
+  classDef onto fill:#E0F2F1,stroke:#00695C,color:#004D40
+  classDef op fill:#FFFFFF,stroke:#607D8B,color:#37474F
+  classDef out fill:#E8EAF6,stroke:#3949AB,color:#1A237E
+        </pre></div>
+        <div class="handoff">→ 方案确认后进入 Skill ③ 补货单生成下发</div>
+      </div>
+      
+      <div class="skill">
+        <h3>Skill ③ 补货单生成与下发</h3>
+        <div class="role">触发：补货单 / 下发 / 撤销（写操作密集）</div>
+        <span class="pat">pipeline + human-in-the-loop</span>
+        
+        <div class="why">判定：固定管道 + 对外下发门禁，校验规则确定、I/O 清晰 → 判 Skill</div>
+        <div class="graph"><pre class="mermaid">
+flowchart TB
+  o0["已确认分货方案"]:::op
+  o1["生成标准补货单<br/><span class=s>(确定性 · rt_03)</span>"]:::det
+  o2["收发仓/SKU/数量/时效 校验<br/><span class=s>(规则引擎 · rd_04)</span>"]:::det
+  o3{"4 项校验通过？<br/><span class=s>(Evaluator)</span>"}:::eval
+  o4{"对外下发门禁<br/><span class=s>(HITL · 必停 + 10s 撤销窗)</span>"}:::hitl
+  o5["写物流调度 + 财务核算<br/><span class=s>(MCP · 写本体 W)</span>"]:::mcp
+  o6(["补货单已下发"]):::out
+  o7["撤销回滚（10 秒窗口）<br/><span class=s>(Loop · 回滚下发)</span>"]:::loop
+  o8["退回调整补货单<br/><span class=s>(异常池 · 拉人)</span>"]:::exception
+  o0 --> o1
+  o1 --> o2
+  o2 --> o3
+  o3 -->|通过| o4
+  o3 -.->|不通过| o8
+  o8 -.->|补正后重生成| o1
+  o4 -->|人工放行| o5
+  o5 --> o6
+  o6 -.->|10s 内撤销| o7
+  o7 -.->|回滚后重发| o4
+  classDef det fill:#E8F5E9,stroke:#2E7D32,color:#1B5E20
+  classDef eval fill:#FFFDE7,stroke:#F9A825,color:#F57F17
+  classDef exception fill:#FCE4EC,stroke:#AD1457,color:#880E4F
+  classDef hitl fill:#FFEBEE,stroke:#C62828,color:#B71C1C
+  classDef loop fill:#F3E5F5,stroke:#8E24AA,color:#4A148C,stroke-dasharray:5 3
+  classDef mcp fill:#ECEFF1,stroke:#546E7A,color:#263238
+  classDef op fill:#FFFFFF,stroke:#607D8B,color:#37474F
+  classDef out fill:#E8EAF6,stroke:#3949AB,color:#1A237E
+        </pre></div>
+        <div class="handoff">→ 下发后触发 Skill ④ 执行跟踪（事件订阅）</div>
+      </div>
+      
+      <div class="skill">
+        <h3>Skill ④ 执行跟踪与入库同步</h3>
+        <div class="role">触发：在途 / 延误 / 入库差异（事件驱动）</div>
+        <span class="pat">event-driven + human-in-the-loop</span>
+        
+        <div class="why">判定：分支为预定义（延误预警→拉人、差异>0.5%→差异单），非运行时自由规划 → 判 Skill</div>
+        <div class="graph"><pre class="mermaid">
+flowchart TB
+  t0["补货单下发 / 状态变更"]:::op
+  t1["拉取 TMS 在途定位<br/><span class=s>(MCP · TMS · 4h 刷新)</span>"]:::mcp
+  t2["延误 / 破损预测<br/><span class=s>(专用模型)</span>"]:::small
+  t3{"延误>24h/48h 或 破损>1%？<br/><span class=s>(Evaluator)</span>"}:::eval
+  t4["生成在途台账与预警说明<br/><span class=s>(LLM)</span>"]:::llm
+  t5{"延误 / 破损处理<br/><span class=s>(HITL · 拉人)</span>"}:::hitl
+  t6["拉取 WMS 入库验收<br/><span class=s>(MCP · WMS)</span>"]:::mcp
+  t7["入库差异判定<br/><span class=s>(规则引擎 · rd_05)</span>"]:::det
+  t8["同步可发量/DOS 并关闭调拨单<br/><span class=s>(写本体 W)</span>"]:::mcp
+  t9(["收货完成"]):::out
+  t10["生成差异处理单<br/><span class=s>(异常池 · 推送财务/仓管)</span>"]:::exception
+  t11["同步失败重试<br/><span class=s>(Loop ×2)</span>"]:::loop
+  t0 --> t1
+  t1 --> t2
+  t2 --> t3
+  t3 -->|正常| t4
+  t3 -.->|异常| t5
+  t5 -.->|处理后继续| t4
+  t4 --> t6
+  t6 --> t7
+  t7 -->|差异率≤0.5%| t8
+  t7 -.->|差异率>0.5%| t10
+  t10 -.->|差异关闭后同步| t8
+  t8 --> t9
+  t8 -.->|同步失败| t11
+  t11 -.->|重试| t8
+  classDef det fill:#E8F5E9,stroke:#2E7D32,color:#1B5E20
+  classDef eval fill:#FFFDE7,stroke:#F9A825,color:#F57F17
+  classDef exception fill:#FCE4EC,stroke:#AD1457,color:#880E4F
+  classDef hitl fill:#FFEBEE,stroke:#C62828,color:#B71C1C
+  classDef llm fill:#EDE7F6,stroke:#5E35B1,color:#311B92
+  classDef loop fill:#F3E5F5,stroke:#8E24AA,color:#4A148C,stroke-dasharray:5 3
+  classDef mcp fill:#ECEFF1,stroke:#546E7A,color:#263238
+  classDef op fill:#FFFFFF,stroke:#607D8B,color:#37474F
+  classDef out fill:#E8EAF6,stroke:#3949AB,color:#1A237E
+  classDef small fill:#E1F5FE,stroke:#0288D1,color:#01579B
+        </pre></div>
+        <div class="handoff">→ 收货完成后回馈 Skill ⑤ 复盘</div>
+      </div>
+      
+      <div class="skill">
+        <h3>Skill ⑤ 库存监控与效果复盘</h3>
+        <div class="role">触发：复盘 / 调参 / 安全水位 / 大日期（月度）</div>
+        <span class="pat">pipeline + human-in-the-loop</span>
+        
+        <div class="why">判定：阈值触发与审批流为预定义分支，无独立规划 → 判 Skill</div>
+        <div class="graph"><pre class="mermaid">
+flowchart TB
+  r0["月度周期结束 / 触发复盘"]:::op
+  r1["拉取复盘指标<br/><span class=s>(MCP · TMS/库存监控/WMS)</span>"]:::mcp
+  r2["统计指标并阈值判定<br/><span class=s>(规则引擎 · rd_06)</span>"]:::det
+  r3["读安全水位 / 大日期库存<br/><span class=s>(读本体 R)</span>"]:::onto
+  r4["大日期巡检 + 安全水位建议<br/><span class=s>(规则引擎 · rd_07/rd_08)</span>"]:::det
+  r5["生成复盘报告与调参建议<br/><span class=s>(LLM · rt_02)</span>"]:::llm
+  r6{"指标恶化 / 多指标冲突？<br/><span class=s>(Evaluator · 时效优先)</span>"}:::eval
+  r7{"调参审批<br/><span class=s>(HITL · 下一周期生效)</span>"}:::hitl
+  r8["写安全水位 / 参数<br/><span class=s>(写本体 W)</span>"]:::mcp
+  r9(["复盘报告 + 参数生效"]):::out
+  r10["指标异常恶化裁决<br/><span class=s>(异常池 · 拉人)</span>"]:::exception
+  r11["重出调参建议<br/><span class=s>(Loop ×1)</span>"]:::loop
+  r0 --> r1
+  r1 --> r2
+  r2 --> r4
+  r3 --> r4
+  r4 --> r5
+  r5 --> r6
+  r6 -->|正常| r7
+  r6 -.->|恶化| r10
+  r10 -.-> r11
+  r11 -.->|重出建议| r5
+  r7 -->|审批通过| r8
+  r8 --> r9
+  classDef det fill:#E8F5E9,stroke:#2E7D32,color:#1B5E20
+  classDef eval fill:#FFFDE7,stroke:#F9A825,color:#F57F17
+  classDef exception fill:#FCE4EC,stroke:#AD1457,color:#880E4F
+  classDef hitl fill:#FFEBEE,stroke:#C62828,color:#B71C1C
+  classDef llm fill:#EDE7F6,stroke:#5E35B1,color:#311B92
+  classDef loop fill:#F3E5F5,stroke:#8E24AA,color:#4A148C,stroke-dasharray:5 3
+  classDef mcp fill:#ECEFF1,stroke:#546E7A,color:#263238
+  classDef onto fill:#E0F2F1,stroke:#00695C,color:#004D40
+  classDef op fill:#FFFFFF,stroke:#607D8B,color:#37474F
+  classDef out fill:#E8EAF6,stroke:#3949AB,color:#1A237E
+        </pre></div>
+        <div class="handoff">→ 参数审批生效后回灌下一周期 Skill ②</div>
+      </div>
+      
+    </div>
+
+    <div class="merge">
+      <span class="up" style="left: 10.0%"></span><span class="up" style="left: 30.0%"></span><span class="up" style="left: 50.0%"></span><span class="up" style="left: 70.0%"></span><span class="up" style="left: 90.0%"></span>
+      <div class="hbar" style="left: 10.0%; right: 10.0%"></div>
+      <div class="lbl">5 条链共享读写本体 / 按需调用 MCP</div>
+    </div>
+    
+
+    <div class="base">
+      <div class="bt">共享底座</div>
+      <div class="cards">
+        
+        <div class="card onto"><b>🧱 本体（确定性底座）</b>
+          <p><b>读 R：</b><code>现货/在途/待检/合格库存（缺口识别）</code>、<code>分仓销售计划 + 促销计划（DOS/备货率）</code>、<code>京慧建议量（分配参考基线）</code>、<code>仓网/产品主数据 + 安全水位（选仓与约束）</code>、<code>大日期库存（新鲜度约束）</code>、<code>缺口告警（分配优先级）</code>。<br/>
+          <b>写 W：</b><code>分货方案 allocation_plan（分配量）</code>、<code>补货单 replenishment_order（下发）</code>、<code>在途台账 / 入库验收记录（执行）</code>、<code>可发量 / DOS（库存同步）</code>、<code>复盘报告 / 安全水位（调参）</code>。<br/>
+          对象 / 关系 / 状态迁移 + 业务事实；Skill 读写本体，不靠 LLM 猜事实。分配量≠京慧建议量、补货单下发≠实际发货、实收≠调拨数量三处口径以本体为准。</p></div>
+        
+        
+        <div class="card mcp"><b>🔌 MCP / 外部系统</b>
+          <p><b>调用点：</b><code>现货/在途库存系统（拉数）</code>、<code>京慧一盘货（只读建议量）</code>、<code>奶粉分仓补调系统（读写分配量）</code>、<code>APS/S&OP（读供应上限）</code>、<code>TMS（在途定位）</code>、<code>WMS（入库验收）</code>、<code>物流调度系统（下发）</code>、<code>财务核算系统（下发）</code>。<br/>
+          仅需要外部读写的步骤才走 MCP；读走 MCP、写回走本体。</p></div>
+        
+        
+        <div class="card kb"><b>📚 知识库 / RAG</b>
+          <p><b>检索点：</b><code>分仓补货业务口径词典（rdict_01）</code>、<code>五类规则库（rd_01~rd_08 / rt_01~rt_03 / rext_01 / rrel_01）</code>、<code>分货方案 / 补货单 / 复盘报告模板</code>。<br/>
+          规则校验走规则引擎而非向量检索；模板与口径词典作为结构化知识注入。</p></div>
+        
+      </div>
+    </div>
+
+    <div class="exc"><b>🩷 异常池（人工终审）：</b>底表口径异常 / DOS 边界冲突 / 多约束无可行解 / 补货单校验不过 / 延误破损超阈 / 差异率>0.5% / 指标恶化或调参冲突 → 升级人工，附上下文摘要与冲突项。</div>
+  </div>
+
+  <div class="tables">
+    
+    <div class="tbl">
+      <h3>失败 / 降级 / 兜底</h3>
+      <table>
+        <thead><tr><th>触发</th><th>处理</th><th>类型</th></tr></thead>
+        <tbody>
+          <tr><td>库存/销售计划数据缺失或口径冲突</td><td>标红缺失字段 → 拉调度组复核，不阻塞其余字段</td><td>fallback / escalate</td></tr><tr><td>DOS 落在 7/14/60 天边界无法自动判定</td><td>标注边界冲突并转人工确认（物流计划岗）</td><td>escalate</td></tr><tr><td>多约束无可行解（基地仓可发量不足）</td><td>按可发量约束>时效优先拆分多仓 → 仍不足则输出备选并升级人工</td><td>fallback / escalate</td></tr><tr><td>TMS 物流预警数据未接通</td><td>按历史运输时效估算，显式标注降级并建议人工复核</td><td>fallback</td></tr><tr><td>补货单 4 项校验不过</td><td>退回调整并拉人（库存不足/时效超期/字段缺失）</td><td>escalate</td></tr><tr><td>下发后 10 秒内人工撤销</td><td>回滚物流调度与财务侧写入，补货单回到待下发</td><td>fallback</td></tr><tr><td>WMS 入库差异率>0.5% / 破损率>1%</td><td>生成差异处理单/异常工单，差异未关闭前不计入可发量</td><td>escalate</td></tr><tr><td>库存同步写入失败</td><td>自动重试 2 次 → 标记同步异常并通知 IT</td><td>retry / escalate</td></tr><tr><td>复盘指标恶化或多指标冲突</td><td>以时效达成率优先，拉人审批裁决调参方向</td><td>escalate</td></tr>
+        </tbody>
+      </table>
+    </div>
+    
+    <div class="tbl">
+      
+      <h3>KPI 锚定（链路 → 指标）</h3>
+      <div class="kpi">
+        <div class="k"><b>分货效率</b><span>① 缺口识别 + ② 方案编制：分货数据准备/方案编制由约 2.5 天/轮 → 小时级</span></div><div class="k"><b>分仓有货率</b><span>② 多约束分配（rd_03）+ ④ 库存同步：缺货缓解率 ≥85%</span></div><div class="k"><b>库存周转率</b><span>② 积压控量 + ⑤ 复盘调参：周转天数同比降幅 ≤10%</span></div><div class="k"><b>新鲜度</b><span>⑤ 大日期巡检（rd_08）+ ② 新鲜度约束：临期预警前置</span></div><div class="k"><b>物流时效</b><span>④ 在途跟踪预警：时效达成率 ≥90%</span></div><div class="k"><b>入库差异率</b><span>④ 入库差异判定（rd_05）：差异率 ≤0.5%、破损率 ≤1%</span></div>
+      </div>
+      
+      
+      <h3 style="margin-top:14px">护栏落点</h3>
+      <table><tbody>
+        <tr><td>事实性计算（DOS/备货率/分配求解/校验）</td><td>走确定性服务 / 本体 / 规则引擎，LLM 不产出数值</td></tr><tr><td>写操作（写回分配量 / 下发补货单 / 调参生效）</td><td>必须人工放行，禁止静默通过；分配量偏离京慧建议量写入前必停</td></tr><tr><td>可发量硬约束</td><td>分配量/补货数量 ≤ 可发量，超约束退回重算</td></tr><tr><td>对外下发为合规红线</td><td>架构层设 HITL 门禁 + 10 秒撤销回滚，不能只写在提示词里</td></tr><tr><td>口径一致性</td><td>待检/合格分开、在途取在途总量、实收才是同步依据——由本体 rdict_01 保证</td></tr>
+      </tbody></table>
+      
+    </div>
+  </div>
+
+  
+  <div class="note"><b>⚠️ 路线确认：</b>本方案按用户拍板选 Autonomous Planner。若后续要求强审计/固定合规路径，可回退 Workflow（固定 5 段管道），届时 5 个 Skill 不变，仅编排层由自由规划改为顺序编排。</div>
+  
+  <div class="note"><b>⚠️ 伪经验待二轮验证：</b>『积兆逻辑（异常诊断）』『大日期判定经验』为待业务专家二轮验证经验；当前以规则占位接入，原型与规则清单已标注概念级。</div>
+  
+  <div class="note"><b>⚠️ MCP 边界待确认：</b>本方案把库存/京慧/奶粉分仓补调/APS/TMS/WMS/物流调度/财务画成 MCP 外部调用；若确认「MCP=0，业务数据全部来自绑定本体」，则归入本体并标注 N/A。</div>
+  
+  <div class="note"><b>⚠️ 量化基线待确认：</b>分货数据准备/方案编制约 2.5 天/轮、补货单 0.5 天/批等 As-Is 基线为 [待客户确认]，影响 KPI 目标值。</div>
+  
+</div>
+<script>
+  mermaid.initialize({startOnLoad:true, theme:'base', securityLevel:'loose',
+    themeVariables:{fontSize:'12.5px', fontFamily:'"Noto Sans SC", sans-serif'},
+    flowchart:{curve:'basis', nodeSpacing:16, rankSpacing:26, htmlLabels:true}});
+</script>
+</body>
+</html>
