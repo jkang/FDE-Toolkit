@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>张雪机车-赛事内容工厂-Agent产品方案 · 预览</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--ow-primary:#10213E;--ow-accent:#1A6BC4;--ow-cerulean:#6DB5EE;--ow-bg:#F5F5F6;--ow-card:#ffffff;--ow-text:#10213E;--ow-text-l:#4a5568;--ow-muted:#8b95a5;--ow-border:#dfe4ea;}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--ow-bg);color:var(--ow-text);font-family:"Noto Sans SC","Inter",-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;}
+.ow-toolbar{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:10px;background:linear-gradient(135deg,#0b1a33,#1A6BC4);color:#fff;padding:12px 18px;box-shadow:0 4px 14px rgba(16,33,62,.18);}
+.ow-toolbar .t{font-weight:700;font-size:15px;flex:1;}
+.ow-toolbar a{background:rgba(255,255,255,.14);color:#fff;border:1px solid rgba(255,255,255,.25);border-radius:100px;padding:6px 14px;font-size:12.5px;text-decoration:none;}
+.ow-toolbar a:hover{background:var(--ow-accent);}
+#content{max-width:1040px;margin:0 auto;padding:28px 34px 60px;background:var(--ow-card);min-height:100vh;box-shadow:0 5px 22px rgba(16,33,62,.06);}
+#content h1{font-size:22px;color:var(--ow-primary);border-bottom:2px solid var(--ow-accent);padding-bottom:10px;margin:8px 0 16px;}
+#content h2{font-size:18px;color:var(--ow-primary);margin:26px 0 12px;padding-left:10px;border-left:4px solid var(--ow-accent);line-height:1.3;}
+#content h3{font-size:15px;color:var(--ow-primary);margin:18px 0 10px;}
+#content p{line-height:1.8;color:var(--ow-text-l);margin:10px 0;}
+#content blockquote{margin:12px 0;padding:12px 16px;background:#f6f8fc;border-left:3px solid var(--ow-cerulean);border-radius:8px;color:var(--ow-text-l);font-size:13px;line-height:1.7;}
+#content blockquote p{margin:4px 0;}
+#content ul,#content ol{padding-left:22px;color:var(--ow-text-l);line-height:1.8;}
+#content li{margin:4px 0;}
+#content code{background:#eef1f5;color:var(--ow-accent);border-radius:5px;padding:1px 6px;font-family:"SFMono-Regular",Consolas,monospace;font-size:13px;}
+#content pre{background:#10213E;color:#e6ebf5;border-radius:10px;padding:14px 16px;overflow:auto;font-size:13px;line-height:1.6;}
+#content pre code{background:transparent;color:inherit;padding:0;}
+#content table{width:100%;border-collapse:collapse;margin:14px 0;font-size:13px;}
+#content thead th{background:#10213E;color:#fff;text-align:left;padding:9px 12px;font-weight:600;}
+#content tbody td{padding:9px 12px;border-bottom:1px solid var(--ow-border);color:var(--ow-text-l);}
+#content tbody tr:hover td{background:#f6f8fc;}
+@media (max-width:720px){#content{padding:18px;}}
+</style>
+</head>
+<body>
+<div class="ow-toolbar">
+  <span class="t">张雪机车-赛事内容工厂-Agent产品方案</span>
+  <a href="张雪机车-赛事内容工厂-Agent产品方案.md" target="_blank" rel="noopener">打开 .md 原文</a>
+</div>
+<div id="content">
+<h1 id="agent">张雪机车海外销售 · Agent 产品方案：赛事内容工厂</h1>
+<blockquote>
+<p><strong>版本：</strong> v1.0 | <strong>更新日期：</strong> 2026-09-10</p>
+<p><strong>对应业务阶段：</strong> 设计方案（SDP-Product）· 阶段1 Agent产品方案设计 · 步骤1.1~1.6</p>
+<p><strong>方法论依据：</strong> SDP-Product 阶段1方法（产品定位 → 形态架构 → 故事线 → 功能清单 → Agent行为 → 规则消费门禁）</p>
+<p><strong>输入依据：</strong> 场景定义《张雪机车-赛事内容工厂-AI画布》《张雪机车-赛事内容工厂-机会点定义》《张雪机车-赛事内容工厂-CKD矩阵分析》、挖知识《张雪机车-赛事内容工厂-To-be流程》《张雪机车-赛事内容工厂-任务流程拆解》《张雪机车-赛事内容工厂-业务规则挖掘》、梳理本体《张雪机车-赛事内容工厂-本体设计》</p>
+</blockquote>
+<h2 id="1">1 总览</h2>
+<p><strong>这份方案做了什么：</strong> 在已有 AI 场景画布、机会点定义与 To-be 流程的基础上，用已完成的「任务流程拆解（19 个 L5 深度任务）+ 五类规则挖掘（11 条规则/样本）+ Agent 本体（11 实体 / 13 关系 / 5 行动边界 / 4 工作流状态机）」整体回填精化，把「赛事内容工厂 Agent」翻译成一份原型作者可照单施工的产品方案：产品定位、形态架构图、4 条演示故事线、10 项功能与 UI 组件、Agent 行为设计、五类规则消费门禁。</p>
+<p><strong>重点看什么：</strong> 核心交付载体是「赛事内容生产工作台」——它是内容工厂 Agent 多能力编排的 Artifact，全场景唯一 P0（对应任务流程拆解 S2「高光识别与脚本生成」，L4 最密集、专家判断最重处）。本版关键升级在两点：① 故事线 mock 数据从画布口径对齐到已深挖的决策因子（高光打分四因子、平台适配三因子、排期三因子）；② 「五类规则消费门禁」用业务规则挖掘清单的真实承接——决策模型类经验逐一落到 HITL 拦截与出处引用。</p>
+<p><strong>为什么关注：</strong> 北极星「海外月度新增车主数」的内容获客底盘由本 Agent 决定，直接支撑增长维度 KPI（社媒粉丝 500,000+、官网月访问 100,000+）与画布收益「3 天→30 分钟 / 成本↓90% / 互动↑35% / 5 人→1 人」。本产品的价值主张是把内容生产从「人工剪辑 + 外包本地化 + 手工适配」升级为「Agent 主驱动流水线」，而规则承接是否「挖到位」直接决定高光选择、脚本本地化、平台适配、对外发布是否可解释、可复核、可验收。</p>
+<p><strong>当前洞察：</strong> 规则结构高度统一——决策模型类经验集中在「高光打分 / 平台适配 / 发布时间 / 品牌红线 / 效果归因」五个环节；硬约束（对外发布必停、品牌红线一票否决、平台时长/编码硬限、素材授权未清不得发布）与软优先级（品牌相关度 &gt; 叙事价值 &gt; 精彩度 &gt; 历史互动偏好；热点时效 &gt; 本地活跃时段）分布清晰。这意味着 HITL 只需覆盖两类 gate（品牌红线终审、多平台自动发布）+ 少量软优先级冲突点，不必事无巨细拦截。</p>
+<p><strong>需要 FDE 做什么：</strong> ① 核对故事线 mock 数据与决策阈值一致性（尤其高光分阈值、文化禁忌改写口径、平台时长上限）；② 确认「单站素材体量 / 历史高互动内容条数」等 <code>[待确认]</code> 口径；③ 视觉基底（ZXMOTO 品牌设计系统 vs 社媒内容平台）与相邻系统只读/写边界仍待确认，属阶段2 原型前置项。</p>
+<h2 id="2">2 产品定位</h2>
+<h3 id="21">2.1 迭代范围</h3>
+<p><strong>功能迭代优化（精化）：</strong> 在 v1.0 概念级方案基础上，用已完成的「深度任务序列（19 个 L5）+ 任务处理规则挖掘清单（五类规则）」回填精化。首版 PoC 范围不变：赛事内容主链路「素材接入 → 高光识别 → 多语言脚本 → 剪辑配音 → 平台适配 → 审核发布 → 效果回流」，聚焦 S2 高光识别与脚本生成一步（P0），验证「赛事热点分钟级出片 + 6 语言同步产出」能否在内容时效、单位成本、互动率、合规通过率之间取得平衡。</p>
+<h3 id="22">2.2 产品形态</h3>
+<p><strong>B2B 自用型内容生产工作台（Web 端）+ 发布自动化插件 + 效果追踪仪表盘</strong>：客户 = 张雪机车（ZXMOTO）海外市场部，用户 = 品牌内容经理 / 社媒运营专员为主、海外市场营销 / 赛事运营负责人为辅；交付物为品牌自用的赛事内容生产工作台，内容成品经审核后对外发布到 YouTube/TikTok/Instagram/Reels。</p>
+<h3 id="23">2.3 四件套</h3>
+<table>
+<thead>
+<tr>
+<th>子项</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>产品定位一句话</td>
+<td>为张雪机车海外市场的内容团队，在「WSBK 赛事热点转瞬即逝」场景下，通过 Agent 主驱动的内容工厂，把赛事内容产出时效（3 天→30 分钟）、多语言单位成本（↓90%）、内容互动率（↑35%）、内容合规通过率一起往上拉。</td>
+</tr>
+<tr>
+<td>非目标</td>
+<td>① 不做赛事直播推流与版权转授权（本 Agent 只消费已授权素材）；② 不做付费投放与广告算法优化（属「智能投放与算法优化」画布）；③ 不做 KOL 对接与达人合作管理（属「KOL 网络识别与对接」画布）；④ 不做动态定价 / 众筹 / 生产排程等相邻画布；⑤ 原型阶段不接真实剪辑 API / TTS / 社媒平台，用 Mock 服务。</td>
+</tr>
+<tr>
+<td>主要使用者</td>
+<td>品牌内容经理——设定品牌调性与内容红线，对对外内容做终审放行（gate）；社媒运营专员——选择目标市场与语言、抽检脚本、审核排期；海外市场营销——内容策略与投放协同、复盘裁决；赛事运营负责人——上传 WSBK 原始素材。</td>
+</tr>
+<tr>
+<td>Agent 人格</td>
+<td>身份定位：一名懂赛事叙事、多语言本地化与社媒平台规则的「赛事内容工厂主编」；语气基调：专业、克制、赛事感（用高光分/叙事价值/平台规范说话，不夸大、不标题党）；能力边界：我能做——多模态理解赛事素材、高光识别打分、6 语言脚本生成与本地化改写、自动剪辑配音包装、平台格式适配与排期、效果归因；我不能做——替你放行对外发布（品牌红线必停）、绕过品牌 VI 或内容红线出片、把某市场合规版本跨市场照搬、未经事实核对就成片、触碰红线仍强行发布。</td>
+</tr>
+</tbody>
+</table>
+<h2 id="3">3 产品形态架构图</h2>
+<div class="codehilite"><pre><span></span><code><span class="nt">flowchart</span><span class="w"> </span><span class="nt">TB</span>
+<span class="w">    </span><span class="nt">subgraph</span><span class="w"> </span><span class="nt">相邻产品</span><span class="cp">[</span><span class="s2">&quot;相邻产品（不属于本产品）&quot;</span><span class="cp">]</span>
+<span class="w">        </span><span class="nt">EXT1</span><span class="cp">[</span><span class="s2">&quot;WSBK 赛事数据库 / 赛事数据源&quot;</span><span class="cp">]</span>
+<span class="w">        </span><span class="nt">EXT2</span><span class="cp">[</span><span class="s2">&quot;品牌 VI 与内容红线库&quot;</span><span class="cp">]</span>
+<span class="w">        </span><span class="nt">EXT3</span><span class="cp">[</span><span class="s2">&quot;视频剪辑 API（Runway/Descript）&quot;</span><span class="cp">]</span>
+<span class="w">        </span><span class="nt">EXT4</span><span class="cp">[</span><span class="s2">&quot;语音合成 API（ElevenLabs/Azure TTS）&quot;</span><span class="cp">]</span>
+<span class="w">        </span><span class="nt">EXT5</span><span class="cp">[</span><span class="s2">&quot;社媒管理平台（Hootsuite/Sprinklr）&quot;</span><span class="cp">]</span>
+<span class="w">        </span><span class="nt">EXT6</span><span class="cp">[</span><span class="s2">&quot;数据分析平台（Google Analytics / 平台开放数据）&quot;</span><span class="cp">]</span>
+<span class="w">    </span><span class="nt">end</span>
+<span class="w">    </span><span class="nt">subgraph</span><span class="w"> </span><span class="nt">产品本体</span><span class="cp">[</span><span class="s2">&quot;赛事内容工厂 Agent · 产品&quot;</span><span class="cp">]</span>
+<span class="w">        </span><span class="nt">subgraph</span><span class="w"> </span><span class="nt">入口区</span><span class="cp">[</span><span class="s2">&quot;入口区&quot;</span><span class="cp">]</span>
+<span class="w">            </span><span class="nt">E1</span><span class="cp">[</span><span class="s2">&quot;主入口：上传 WSBK 原始素材&quot;</span><span class="cp">]</span>
+<span class="w">            </span><span class="nt">E2</span><span class="cp">[</span><span class="s2">&quot;自动激活：分站赛程结束 / 热点触发&quot;</span><span class="cp">]</span>
+<span class="w">            </span><span class="nt">E3</span><span class="cp">[</span><span class="s2">&quot;参数入口：目标市场语言与品牌调性&quot;</span><span class="cp">]</span>
+<span class="w">        </span><span class="nt">end</span>
+<span class="w">        </span><span class="nt">subgraph</span><span class="w"> </span><span class="nt">主交互区</span><span class="cp">[</span><span class="s2">&quot;主交互区&quot;</span><span class="cp">]</span>
+<span class="w">            </span><span class="nt">M1</span><span class="cp">[</span><span class="s2">&quot;内容生产工作台（高光候选 · 脚本 · 成片 · 内容包）&quot;</span><span class="cp">]</span>
+<span class="w">            </span><span class="nt">M2</span><span class="cp">[</span><span class="s2">&quot;AI 对话助手（生成指令 / 推荐指令）&quot;</span><span class="cp">]</span>
+<span class="w">        </span><span class="nt">end</span>
+<span class="w">        </span><span class="nt">subgraph</span><span class="w"> </span><span class="nt">周边支撑区</span><span class="cp">[</span><span class="s2">&quot;周边支撑区&quot;</span><span class="cp">]</span>
+<span class="w">            </span><span class="nt">S1</span><span class="cp">[</span><span class="s2">&quot;品牌审核待办（红线终审）&quot;</span><span class="cp">]</span>
+<span class="w">            </span><span class="nt">S2</span><span class="cp">[</span><span class="s2">&quot;发布排期看板&quot;</span><span class="cp">]</span>
+<span class="w">            </span><span class="nt">S3</span><span class="cp">[</span><span class="s2">&quot;效果回流仪表盘&quot;</span><span class="cp">]</span>
+<span class="w">        </span><span class="nt">end</span>
+<span class="w">    </span><span class="nt">end</span>
+<span class="w">    </span><span class="nt">E1</span><span class="w"> </span><span class="nt">--</span><span class="o">&gt;</span><span class="w"> </span><span class="nt">M1</span>
+<span class="w">    </span><span class="nt">E2</span><span class="w"> </span><span class="nt">--</span><span class="o">&gt;</span><span class="w"> </span><span class="nt">M1</span>
+<span class="w">    </span><span class="nt">E3</span><span class="w"> </span><span class="nt">--</span><span class="o">&gt;</span><span class="w"> </span><span class="nt">M1</span>
+<span class="w">    </span><span class="nt">M1</span><span class="w"> </span><span class="o">&lt;</span><span class="nt">--</span><span class="o">&gt;</span><span class="w"> </span><span class="nt">M2</span>
+<span class="w">    </span><span class="nt">M1</span><span class="w"> </span><span class="nt">-</span><span class="p">.</span><span class="nc">触达</span><span class="p">.</span><span class="nc">-</span><span class="o">&gt;</span><span class="w"> </span><span class="nt">S1</span>
+<span class="w">    </span><span class="nt">M1</span><span class="w"> </span><span class="nt">-</span><span class="p">.</span><span class="nc">触达</span><span class="p">.</span><span class="nc">-</span><span class="o">&gt;</span><span class="w"> </span><span class="nt">S2</span>
+<span class="w">    </span><span class="nt">M1</span><span class="w"> </span><span class="nt">-</span><span class="p">.</span><span class="nc">触达</span><span class="p">.</span><span class="nc">-</span><span class="o">&gt;</span><span class="w"> </span><span class="nt">S3</span>
+<span class="w">    </span><span class="nt">M1</span><span class="w"> </span><span class="nt">--</span><span class="w"> </span><span class="nt">读赛事数据</span><span class="o">/</span><span class="nt">成绩</span><span class="w"> </span><span class="nt">--</span><span class="o">&gt;</span><span class="w"> </span><span class="nt">EXT1</span>
+<span class="w">    </span><span class="nt">M1</span><span class="w"> </span><span class="nt">--</span><span class="w"> </span><span class="nt">读品牌调性</span><span class="o">/</span><span class="nt">VI</span><span class="o">/</span><span class="nt">红线</span><span class="w"> </span><span class="nt">--</span><span class="o">&gt;</span><span class="w"> </span><span class="nt">EXT2</span>
+<span class="w">    </span><span class="nt">M1</span><span class="w"> </span><span class="nt">--</span><span class="w"> </span><span class="nt">读写剪辑</span><span class="w"> </span><span class="nt">--</span><span class="o">&gt;</span><span class="w"> </span><span class="nt">EXT3</span>
+<span class="w">    </span><span class="nt">M1</span><span class="w"> </span><span class="nt">--</span><span class="w"> </span><span class="nt">写配音音轨</span><span class="w"> </span><span class="nt">--</span><span class="o">&gt;</span><span class="w"> </span><span class="nt">EXT4</span>
+<span class="w">    </span><span class="nt">S2</span><span class="w"> </span><span class="nt">--</span><span class="w"> </span><span class="nt">写排期</span><span class="o">/</span><span class="nt">发布</span><span class="w"> </span><span class="nt">--</span><span class="o">&gt;</span><span class="w"> </span><span class="nt">EXT5</span>
+<span class="w">    </span><span class="nt">S3</span><span class="w"> </span><span class="nt">--</span><span class="w"> </span><span class="nt">读互动</span><span class="o">/</span><span class="nt">转化数据</span><span class="w"> </span><span class="nt">--</span><span class="o">&gt;</span><span class="w"> </span><span class="nt">EXT6</span>
+<span class="w">    </span><span class="nt">classDef</span><span class="w"> </span><span class="nt">extern</span><span class="w"> </span><span class="nt">fill</span><span class="o">:</span><span class="p">#</span><span class="nn">f5f7fd</span><span class="o">,</span><span class="nt">stroke</span><span class="o">:</span><span class="p">#</span><span class="nn">9aa0b8</span><span class="o">,</span><span class="nt">stroke-width</span><span class="p">:</span><span class="nd">1px</span><span class="o">,</span><span class="nt">color</span><span class="o">:</span><span class="p">#</span><span class="nn">6c7390</span><span class="o">,</span><span class="nt">stroke-dasharray</span><span class="p">:</span><span class="nd">3</span><span class="o">;</span>
+<span class="w">    </span><span class="nt">class</span><span class="w"> </span><span class="nt">EXT1</span><span class="o">,</span><span class="nt">EXT2</span><span class="o">,</span><span class="nt">EXT3</span><span class="o">,</span><span class="nt">EXT4</span><span class="o">,</span><span class="nt">EXT5</span><span class="o">,</span><span class="nt">EXT6</span><span class="w"> </span><span class="nt">extern</span>
+</code></pre></div>
+
+<blockquote>
+<p>三大区齐全；相邻产品 6 个，均只标接触面（读/写），不画协议与字段。核心交付载体为「内容生产工作台」（M1），其中「高光识别与脚本生成」为全场景唯一 P0。</p>
+</blockquote>
+<h2 id="4">4 原型演示故事线</h2>
+<blockquote>
+<p>共 4 条，1:1 对应阶段2 <code>moments/*.html</code>。mock 数据均取自「任务处理规则挖掘清单」的真实决策因子/阈值（脱敏）。</p>
+</blockquote>
+<h3 id="1_1">故事线 1 · 赛事素材接入与高光识别（分站赛后分钟级）</h3>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>业务价值高光</td>
+<td>上传一整站 WSBK 素材，Agent 自动切分镜头、关联赛事数据并按高光分排序，省去逐帧人工看片</td>
+</tr>
+<tr>
+<td>对应阶段</td>
+<td>S1 素材接入与理解 + S2 高光识别与脚本生成（P0）</td>
+</tr>
+<tr>
+<td>演示剧本</td>
+<td>用户：上传「WSBK 荷兰站 全程素材 42GB」并设定英/法/德/西/意/葡 6 语言 → Agent 思考（拉取赛事数据库关联车手/成绩/对战，按精彩度/叙事价值/品牌相关度/历史偏好打分）→ 调工具（多模态视频理解 + WSBK 赛事数据库）→ 输出高光候选清单：夺冠冲线 96 分（品牌相关度 高）/ 贴身超车 91 分 / 极限压弯 84 分；低置信度镜头标注待复核、不进入候选 → <strong>HITL 提示</strong>：「3 条候选高光品牌露出已标注，请确认高光选择」</td>
+</tr>
+<tr>
+<td>UI 组件 + 必备交互</td>
+<td>素材上传卡（Dragger）+ 高光候选表（含高光分/事件类型/品牌露出）+ 出处引用悬浮卡；#1 流式输出 #2 工具调用可视化 #3 思考过程可折叠 #7 出处引用 #8 状态徽章</td>
+</tr>
+<tr>
+<td>业务内容来源</td>
+<td>深度任务·上传 WSBK 原始赛事素材 / 多模态理解赛事素材 / 关联赛事数据库上下文 / 高光片段识别与打分；决策模型类·高光片段判定与打分规则（因子：精彩度、叙事价值、品牌相关度、历史互动偏好；仲裁：品牌相关度 ＞ 叙事价值 ＞ 精彩度 ＞ 历史互动偏好）</td>
+</tr>
+</tbody>
+</table>
+<h3 id="2-hitl">故事线 2 · 多语言解说脚本生成与抽检（含文化禁忌改写 + HITL）</h3>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>业务价值高光</td>
+<td>一次生成 6 语言解说脚本，事实一致、逐语言本地化，命中文化禁忌自动改写</td>
+</tr>
+<tr>
+<td>对应阶段</td>
+<td>S2 高光识别与脚本生成</td>
+</tr>
+<tr>
+<td>演示剧本</td>
+<td>用户：「为夺冠高光生成 6 语言脚本。」→ Agent 思考（先锁定叙事要素：车手/名次/超车/圈速，再逐语言本地化改写）→ 调工具（赛事数据 → 叙事要素提取 + 文化偏好与禁忌库）→ 输出脚本卡：开场钩子 + 高潮叙述 + 结果情绪 + 品牌 CTA；事实一致、表达本地化 → <strong>HITL/错误态</strong>：某语言命中宗教禁忌 → 自动改写或降级，仍冲突则拉人；<strong>HITL 抽检</strong>：「请抽检事实与调性后放行」</td>
+</tr>
+<tr>
+<td>UI 组件 + 必备交互</td>
+<td>多语言脚本卡（分语言 Tab）+ 术语 hover 卡（高光/叙事要素/内容包）+ 出处引用悬浮卡；#4 内联组件 #5 HITL 拦截 #7 出处引用 #8 状态徽章 #9 错误态</td>
+</tr>
+<tr>
+<td>业务内容来源</td>
+<td>深度任务·赛事数据到叙事要素提取 / 多语言解说脚本生成 / 脚本抽检确认；模版范例类·多语言解说脚本模板（骨架：钩子→高潮→结果→CTA）；术语字典类·赛事与品牌业务口径词典；关键信息提取要点·赛事素材与叙事要素抽取要点</td>
+</tr>
+</tbody>
+</table>
+<h3 id="3_1">故事线 3 · 自动剪辑配音与多平台格式适配</h3>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>业务价值高光</td>
+<td>脚本确认后自动剪辑、6 语言配音字幕、品牌包装并按各平台硬规范一键适配内容包</td>
+</tr>
+<tr>
+<td>对应阶段</td>
+<td>S3 智能剪辑与配音 + S4 平台适配与内容包</td>
+</tr>
+<tr>
+<td>演示剧本</td>
+<td>用户：「按已确认脚本出片并适配全平台。」→ 调工具（视频剪辑 API + TTS + 品牌 VI 资源）→ 输出成片：粗剪高光 + 6 语言配音字幕 + 品牌角标/封面 → Agent 思考（按平台时长/比例/编码规则适配）→ 输出多平台内容包：YouTube 16:9 横屏 58s / TikTok 9:16 竖屏 34s / Instagram Reels 9:16 30s + 标签集与 SEO 图文 → <strong>错误态降级</strong>：「编码转换失败，已重试 2 次 → 降级标准编码并标注」</td>
+</tr>
+<tr>
+<td>UI 组件 + 必备交互</td>
+<td>剪辑进度 Timeline + 成片预览卡 + 多平台适配表（平台/比例/时长/状态）+ 标签 SEO 卡；#2 工具调用可视化 #4 内联组件 #7 出处引用 #8 状态徽章 #9 错误态</td>
+</tr>
+<tr>
+<td>业务内容来源</td>
+<td>深度任务·自动剪辑高光片段 / 多语言配音与字幕合成 / 品牌元素与封面包装 / 平台格式适配 / 标签与 SEO 图文生成；决策模型类·平台适配规则（时长/比例/编码/拆条）；模版范例类·短视频品牌包装与封面模板、平台标签与 SEO 图文模板</td>
+</tr>
+</tbody>
+</table>
+<h3 id="4_1">故事线 4 · 品牌红线终审与发布排期 + 效果回流（含对外必停/撤销）</h3>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>业务价值高光</td>
+<td>品牌红线一票否决、对外发布前人工放行、按市场热点窗口排期，效果数据回流优化下轮高光偏好</td>
+</tr>
+<tr>
+<td>对应阶段</td>
+<td>S5 品牌审核与发布 + S6 效果追踪与反馈</td>
+</tr>
+<tr>
+<td>演示剧本</td>
+<td>用户：「内容包已适配，安排发布。」→ Agent 思考（品牌调性一致性 / 内容红线命中 / 事实准确性三级校验）→ <strong>HITL 必停（gate）</strong>：「品牌调性与内容红线终审：调性一致、无红线命中、事实准确 → 请放行；若触碰红线将拦截升级。」→ 用户放行 → Agent 按排期发布（热点时效 ＞ 本地活跃时段，抢黄金窗口）→ <strong>撤销兜底</strong>：「发布失败自动重试 2 次→转人工；排期冲突/热点过期→顺延或提示调整。」→ 效果数据回流：互动率归因 → 更新高光偏好权重</td>
+</tr>
+<tr>
+<td>UI 组件 + 必备交互</td>
+<td>审核待办卡（调性/红线/事实三级校验）+ 发布排期表 + 效果归因卡 + 撤销 Toast；#5 HITL 拦截 #6 撤销回滚 #7 出处引用 #8 状态徽章 #9 错误态 #10 空态</td>
+</tr>
+<tr>
+<td>业务内容来源</td>
+<td>深度任务·品牌调性与内容红线终审 / 发布排期与最佳时间选择 / 多平台自动发布 / 互动数据采集 / 效果归因与内容策略优化 / 策略复盘与下轮调整；决策模型类·品牌红线与合规分级规则、最佳发布时间与排期规则、效果归因与内容策略优化规则；关联关系类·赛事—车手—成绩—高光—内容—平台—效果关联</td>
+</tr>
+</tbody>
+</table>
+<h2 id="5-ui">5 业务功能与 UI 组件清单</h2>
+<table>
+<thead>
+<tr>
+<th>功能名</th>
+<th>一句话价值</th>
+<th>绑定角色</th>
+<th>渲染层</th>
+<th>触发方式</th>
+<th>UI 组件名 + 组件内容</th>
+<th>用户操作</th>
+<th>关联故事线</th>
+<th>上游来源</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>素材接入与多模态理解</td>
+<td>上传即切分镜头、关联赛事数据</td>
+<td>赛事运营负责人</td>
+<td>Artifact Pane</td>
+<td>用户点击召唤</td>
+<td>素材上传卡（Dragger + 市场语言/调性表单）+ 镜头语义标签表</td>
+<td>上传/只读</td>
+<td>故事线1</td>
+<td>深度任务·上传 WSBK 原始赛事素材 / 多模态理解赛事素材 / 关联赛事数据库上下文</td>
+</tr>
+<tr>
+<td>高光识别与打分（P0）</td>
+<td>AI 按四因子打分排序高光候选</td>
+<td>社媒运营专员</td>
+<td>Artifact Pane</td>
+<td>Agent 主动渲染</td>
+<td>高光候选表（高光分/事件类型/品牌露出/置信度）+ 高光分雷达</td>
+<td>只读/可确认</td>
+<td>故事线1</td>
+<td>深度任务·高光片段识别与打分；决策模型类·高光片段判定与打分规则</td>
+</tr>
+<tr>
+<td>多语言解说脚本生成</td>
+<td>一次生成 6 语言、事实一致本地化</td>
+<td>社媒运营专员</td>
+<td>Artifact Pane</td>
+<td>Agent 主动渲染</td>
+<td>多语言脚本卡（分语言 Tab + 钩子/高潮/结果/CTA）</td>
+<td>只读/可编辑</td>
+<td>故事线2</td>
+<td>深度任务·多语言解说脚本生成；模版范例类·多语言解说脚本模板</td>
+</tr>
+<tr>
+<td>自动剪辑与配音字幕</td>
+<td>脚本确认即自动出片配音</td>
+<td>社媒运营专员</td>
+<td>Artifact Pane</td>
+<td>Agent 主动渲染</td>
+<td>剪辑进度 Timeline + 成片预览卡 + 配音字幕轨</td>
+<td>只读</td>
+<td>故事线3</td>
+<td>深度任务·自动剪辑高光片段 / 多语言配音与字幕合成</td>
+</tr>
+<tr>
+<td>品牌元素与封面包装</td>
+<td>按 VI 自动叠加品牌元素与封面</td>
+<td>品牌内容经理</td>
+<td>Artifact Pane</td>
+<td>Agent 主动渲染</td>
+<td>品牌包装预览卡（角标/字幕样式/片尾/封面）</td>
+<td>只读</td>
+<td>故事线3</td>
+<td>深度任务·品牌元素与封面包装；模版范例类·短视频品牌包装与封面模板</td>
+</tr>
+<tr>
+<td>平台格式适配与内容包</td>
+<td>按各平台硬规范一键适配</td>
+<td>社媒运营专员</td>
+<td>Artifact Pane</td>
+<td>Agent 主动渲染</td>
+<td>多平台适配表（平台/比例/时长/编码/状态）+ 内容包清单</td>
+<td>只读/可微调</td>
+<td>故事线3</td>
+<td>深度任务·平台格式适配；决策模型类·平台适配规则（时长/比例/编码/拆条）</td>
+</tr>
+<tr>
+<td>标签与 SEO 图文生成</td>
+<td>自动生成标签集与 SEO 图文</td>
+<td>海外市场营销</td>
+<td>Artifact Pane</td>
+<td>Agent 主动渲染</td>
+<td>标签集卡（品牌/赛事/品类/热点四类）+ SEO 图文卡</td>
+<td>只读/可编辑</td>
+<td>故事线3</td>
+<td>深度任务·标签与 SEO 图文生成；模版范例类·平台标签与 SEO 图文模板</td>
+</tr>
+<tr>
+<td>品牌调性与红线终审</td>
+<td>三级校验、红线一票否决</td>
+<td>品牌内容经理</td>
+<td>Artifact Pane</td>
+<td>Agent 主动渲染</td>
+<td>审核待办卡（调性/红线/事实三级 + 放行/退回/拦截）</td>
+<td>放行/退回/拦截</td>
+<td>故事线4</td>
+<td>深度任务·品牌调性与内容红线终审；决策模型类·品牌红线与合规分级规则</td>
+</tr>
+<tr>
+<td>发布排期与多平台发布</td>
+<td>抢热点窗口、按排期自动发布</td>
+<td>社媒运营专员</td>
+<td>Artifact Pane</td>
+<td>Agent 主动渲染</td>
+<td>发布排期表（市场/时区/热点窗口/状态）+ 发布状态卡</td>
+<td>确认/调整/撤销</td>
+<td>故事线4</td>
+<td>深度任务·发布排期与最佳时间选择 / 多平台自动发布；决策模型类·最佳发布时间与排期规则</td>
+</tr>
+<tr>
+<td>效果回流与策略优化</td>
+<td>互动数据归因、更新高光偏好</td>
+<td>海外市场营销</td>
+<td>Artifact Pane</td>
+<td>Agent 主动渲染</td>
+<td>效果回流仪表盘（互动率/归因结论/偏好权重）+ 策略建议卡</td>
+<td>只读/采纳</td>
+<td>故事线4</td>
+<td>深度任务·互动数据采集 / 效果归因与内容策略优化；决策模型类·效果归因与内容策略优化规则</td>
+</tr>
+<tr>
+<td>术语口径卡</td>
+<td>悬停看懂赛事与品牌口径</td>
+<td>全体</td>
+<td>Conversation Pane</td>
+<td>自动激活</td>
+<td>术语 hover 卡（WSBK/ZXMOTO/高光/叙事要素/内容包/内容红线）</td>
+<td>只读</td>
+<td>故事线1/2/3</td>
+<td>术语字典类·赛事与品牌业务口径词典</td>
+</tr>
+<tr>
+<td>出处引用</td>
+<td>决策依据可追溯</td>
+<td>全体</td>
+<td>Conversation Pane</td>
+<td>Agent 主动渲染</td>
+<td>出处引用悬浮卡（决策因子确定性 + 字段典型位置）</td>
+<td>只读</td>
+<td>故事线1/2/3/4</td>
+<td>关键信息提取要点·赛事素材与叙事要素抽取要点；决策模型类·决策因子确定性</td>
+</tr>
+</tbody>
+</table>
+<p><strong>必备交互 10 项（产品承诺）：</strong> #1 流式输出 / #2 工具调用可视化 / #3 思考过程可折叠 / #4 内联组件 / #5 HITL 拦截 / #6 撤销回滚 / #7 出处引用 / #8 状态徽章 / #9 错误态 / #10 空态。</p>
+<h2 id="6-agent">6 Agent 行为设计</h2>
+<h3 id="61-agent">6.1 Agent 是谁</h3>
+<ul>
+<li><strong>开场话术草稿</strong>：「我是赛事内容工厂主编，能帮你把一整站 WSBK 素材变成高光短视频、6 语言解说与多平台内容包。高光选择和对外发布我会给建议，红线与放行由你拍板。」</li>
+<li><strong>语气基调</strong>：专业但不死板（用高光分/叙事价值/平台规范说话）；克制不夸大（不说「必爆」，说「按历史互动偏好更可能引发传播」）。</li>
+<li><strong>能力边界承诺</strong>：我能——多模态理解赛事素材、高光识别打分、6 语言脚本生成与本地化改写、自动剪辑配音包装、平台格式适配与排期、效果归因；我不能——替你放行对外发布、绕过品牌 VI 或内容红线出片、把某市场合规版本跨市场照搬、未经事实核对就成片、触碰红线仍强行发布。</li>
+</ul>
+<h3 id="62-agent">6.2 Agent 让用户看到什么</h3>
+<table>
+<thead>
+<tr>
+<th>事件类型</th>
+<th>默认行为</th>
+<th>来源 / 落到交互</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Agent 正在做什么（进度）</td>
+<td>实时可见</td>
+<td>#8 状态徽章（idle/thinking/tool_calling/awaiting_human/error）</td>
+</tr>
+<tr>
+<td>使用了哪些数据/知识</td>
+<td>始终标注来源</td>
+<td>术语字典类/关键信息提取要点 → #7 出处引用</td>
+</tr>
+<tr>
+<td>Agent 不确定/置信度低</td>
+<td>显式标注</td>
+<td>决策模型类·决策因子确定性 → #5 HITL + #7</td>
+</tr>
+<tr>
+<td>触发工具/外部行为</td>
+<td>告知 + 可查看</td>
+<td>#2 工具调用卡片</td>
+</tr>
+<tr>
+<td>思考过程</td>
+<td>默认折叠可展开</td>
+<td>#3 思考过程可折叠</td>
+</tr>
+</tbody>
+</table>
+<h3 id="63-agent">6.3 Agent 何时停下等用户</h3>
+<table>
+<thead>
+<tr>
+<th>触发类别</th>
+<th>触发条件</th>
+<th>默认拦截形态</th>
+<th>理由/来源</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>对外发送/下发</td>
+<td>多平台自动发布（内容已获放行后）</td>
+<td>发布前必停（对外必停确认 + 撤销窗口）</td>
+<td>深度任务·多平台自动发布（HITL gate）；本体行动边界·发布对外动作</td>
+</tr>
+<tr>
+<td>修改关键业务数据</td>
+<td>品牌调性/内容红线终审（红线命中/事实重大错误）</td>
+<td>写入（发布）前必停，红线一票否决</td>
+<td>决策模型类·品牌红线与合规分级规则；本体·品牌合规护栏</td>
+</tr>
+<tr>
+<td>Agent 自判不确定</td>
+<td>高光分低于阈值/候选不足、文化禁忌无法改写、事实与画面不一致</td>
+<td>提示用户决策（回退候选/拉人裁决）</td>
+<td>决策模型类·高光打分、多语言本地化禁忌；本体·低置信度待复核</td>
+</tr>
+<tr>
+<td>连续失败/重试超限</td>
+<td>剪辑/TTS/编码转换失败、数据延迟缺失、发布失败</td>
+<td>给降级建议 + 升级人工</td>
+<td>决策模型类·平台适配/配音兜底；#9 错误态</td>
+</tr>
+</tbody>
+</table>
+<h3 id="64">6.4 用户怎么撤销与兜底</h3>
+<table>
+<thead>
+<tr>
+<th>问题</th>
+<th>内容</th>
+<th>落到交互</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>撤销范围</td>
+<td>当前动作（发布前放行可撤回、排期未发布可改期、高光选择可重选）/ 本轮会话</td>
+<td>#6 撤销/回滚</td>
+</tr>
+<tr>
+<td>追问深度</td>
+<td>可追问「为什么选这个高光/这条排期」到一层依据（决策因子 + 来源字段）</td>
+<td>#7 出处引用</td>
+</tr>
+<tr>
+<td>完全失败时怎么办</td>
+<td>给 ≥2 明确选项：转人工处理 / 按历史高互动偏好降级生成 / 放弃并保留上下文</td>
+<td>#9 错误态</td>
+</tr>
+</tbody>
+</table>
+<h2 id="75">75 类规则消费门禁</h2>
+<table>
+<thead>
+<tr>
+<th>规则类型</th>
+<th>是否识别</th>
+<th>产品方案承接点</th>
+<th>承接的业务内容</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>决策模型类</td>
+<td>✅</td>
+<td>第6章·Agent 何时停下等用户；第5章·出处引用悬浮卡</td>
+<td>高光片段判定与打分（精彩度/叙事价值/品牌相关度/历史偏好，仲裁：品牌相关度 ＞ 叙事价值 ＞ 精彩度 ＞ 历史偏好）、平台适配规则（时长/比例/编码/拆条）、最佳发布时间与排期规则（时区/历史互动/热点窗口，仲裁：热点时效 ＞ 本地活跃时段）、品牌红线与合规分级规则（调性/红线/事实三级，红线一票否决）、效果归因与内容策略优化规则（样本充分性为前置门槛）的 HITL 触发与决策因子确定性</td>
+<td>必须承接</td>
+</tr>
+<tr>
+<td>模版范例类</td>
+<td>✅</td>
+<td>第5章·内容生产工作台（Artifact，可变字段可编辑）</td>
+<td>多语言解说脚本模板（钩子→高潮→结果→CTA 固定骨架 + 动态字段）、短视频品牌包装与封面模板（片头/字幕/片尾/封面固定规则 + 动态填充）、平台标签与 SEO 图文模板（标题/描述/标签结构）</td>
+<td>必须承接</td>
+</tr>
+<tr>
+<td>术语字典类</td>
+<td>✅</td>
+<td>第5章·术语 hover 卡</td>
+<td>6 个口径：WSBK、ZXMOTO、高光（Highlight）、叙事要素、内容包、内容红线</td>
+<td>必须承接</td>
+</tr>
+<tr>
+<td>关键信息提取要点</td>
+<td>✅</td>
+<td>第5章·出处引用悬浮卡（字段典型位置 + 易错变体）</td>
+<td>5 个字段：高光事件类型、车手与车队、名次与成绩、品牌露出、对战/历史上下文的典型位置与易错点（如慢镜重复计数、号码混淆、露出过短）</td>
+<td>必须强化承接</td>
+</tr>
+<tr>
+<td>关联关系类</td>
+<td>✅</td>
+<td>第5章·效果回流仪表盘（赛事—车手—成绩—高光—内容—平台—效果关联展示）</td>
+<td>赛事—车手—成绩—高光片段—内容成品—发布平台—效果指标关联网络（赛事ID=素材→高光→叙事主键；内容ID=内容→平台→效果主键）</td>
+<td>必须承接</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>操作流程类（赛事内容生产流程、审核发布流程、补件校验规则等）已由阶段1「深度任务序列」承载（19 个 L5 深度任务），本表不重复；其在第5章功能清单的「上游来源」列通过深度任务业务名引用。</p>
+</blockquote>
+<h2 id="8">8 待确认问题清单</h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>待确认问题</th>
+<th>用途与影响</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>高光打分「高光分阈值」与四因子权重口径是否与资深剪辑/编导一致</td>
+<td>决定高光候选与 HITL 回退是否可信；不确认会导致高光选择不可复核</td>
+</tr>
+<tr>
+<td>2</td>
+<td>目标市场文化偏好与禁忌库的 6 语言覆盖范围与「命中禁忌必须改写」判定口径</td>
+<td>影响多语言脚本本地化承接；不确认会导致跨市场合规边界悬空</td>
+</tr>
+<tr>
+<td>3</td>
+<td>单站 WSBK 素材体量、历史高互动内容条数、各平台内容规范版本</td>
+<td>决定 mock 数据与 CKD 资产规划；<code>[待确认]</code> 项影响原型数据量级与存储设计</td>
+</tr>
+<tr>
+<td>4</td>
+<td>视觉基底（ZXMOTO 品牌设计系统 zxmoto-tokens.css / 社媒内容平台）与相邻系统只读/写范围</td>
+<td>决定阶段2 原型视觉来源与形态架构接触面是否准确；不确认会导致集成路径错误或重复建设</td>
+</tr>
+</tbody>
+</table>
+</div>
+</body>
+</html>

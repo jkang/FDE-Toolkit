@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>X奶粉 · 分仓智能补货 · 本场景总览</title>
+<style>
+  :root{--p:#10213E;--p-dark:#0a1730;--accent:#0958d9;--accent2:#faad14;--text:#10213E;--text2:#64748B;--border:#E2E8F0;--bg:#fff;--bg-alt:#F5F5F6;--radius:10px;--shadow:0 2px 8px rgba(16,33,62,.08)}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:MiSans,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",Arial,sans-serif;background:var(--bg-alt);color:var(--text);line-height:1.6}
+  .container{max-width:1400px;margin:0 auto;padding:32px 24px}
+  .header{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:28px 32px;position:relative;overflow:hidden}
+  .header::before{content:"";position:absolute;left:0;top:0;bottom:0;width:6px;background:var(--accent)}
+  .header h1{margin:0 0 8px 12px;font-size:26px}
+  .header .sub{color:var(--text2);margin-left:12px;font-size:14px}
+  .badges{display:flex;gap:10px;margin:16px 0 0 12px;flex-wrap:wrap}
+  .badge{font-size:12px;padding:4px 12px;border-radius:999px;background:var(--bg-alt);color:var(--text2);border:1px solid var(--border)}
+  .badge.p{background:var(--p);color:#fff;border:none}
+  .badge.a{background:var(--accent);color:#fff;border:none}
+  h2.sec{margin:32px 0 16px;font-size:20px;display:flex;align-items:center;gap:10px}
+  h2.sec::before{content:"";width:4px;height:20px;background:var(--accent);border-radius:2px}
+  .stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px}
+  .stat{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px 20px}
+  .stat .n{font-size:28px;font-weight:700;color:var(--p)}
+  .stat .l{font-size:13px;color:var(--text2);margin-top:4px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+  .card{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px 20px}
+  .card h3{margin:0 0 10px;font-size:15px;color:var(--p-dark)}
+  .card p{margin:0;font-size:13.5px;color:var(--text2)}
+  .list{margin:0;padding-left:18px;font-size:13.5px;color:var(--text2);line-height:2}
+  .chain{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:13.5px;color:var(--text2)}
+  .chain .node{background:var(--bg-alt);border:1px solid var(--border);border-radius:999px;padding:6px 14px;color:var(--p-dark);font-weight:600}
+  .chain .arw{color:var(--accent);font-weight:700}
+  .route{background:linear-gradient(135deg,#10213E,#1d3a5c);color:#fff;border-radius:var(--radius);padding:20px 24px}
+  .route h3{color:#fff;margin:0 0 8px;font-size:16px}
+  .route p{margin:0;color:#c8d3e8;font-size:13.5px}
+  .route .tag{display:inline-block;margin-top:12px;font-size:12px;padding:4px 12px;border-radius:999px;background:rgba(250,173,20,.18);color:#faad14;border:1px solid rgba(250,173,20,.4)}
+  .foot{text-align:center;color:var(--text2);font-size:12px;margin:40px 0 20px}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>X奶粉 · 分仓智能补货</h1>
+    <div class="sub">本场景总览 · 由 <b>ai-solution-designer</b> 端到端生成 / 查漏补缺</div>
+    <div class="badges">
+      <span class="badge p">场景：分仓智能补货（A2 · 供应链需求与供应计划）</span>
+      <span class="badge a">路线：Autonomous Planner</span>
+      <span class="badge">聚焦：价值流② · 分货方案编制（P0）</span>
+      <span class="badge">日期：2026-09-10</span>
+    </div>
+  </div>
+
+  <h2 class="sec">一句话结论</h2>
+  <div class="card">
+    <p>把「半自动化的 Excel 推式分货」升级为「<b>推拉结合 + 多约束全局优化</b>」的智能分仓补货：Agent 拉取全仓网现货/在途/待检/合格库存与未来 14 天需求，按 DOS 分级识别缺口与积压，多约束求解生成多版分配方案，人工只在关键确认点介入，并把「老计划员的隐性经验」固化为可解释、可复核、可验收的规则门禁，让分货效率、分仓有货率、库存周转率、商品新鲜度四个指标一起改善。</p>
+  </div>
+
+  <h2 class="sec">关键数字</h2>
+  <div class="stats">
+    <div class="stat"><div class="n">1</div><div class="l">机会点（OP1）</div></div>
+    <div class="stat"><div class="n">5</div><div class="l">To-be 阶段</div></div>
+    <div class="stat"><div class="n">21</div><div class="l">L5 深度任务</div></div>
+    <div class="stat"><div class="n">14</div><div class="l">业务规则（五类）</div></div>
+    <div class="stat"><div class="n">14</div><div class="l">本体实体</div></div>
+    <div class="stat"><div class="n">5</div><div class="l">编排 Skill</div></div>
+    <div class="stat"><div class="n">6</div><div class="l">原型页面</div></div>
+    <div class="stat"><div class="n">20</div><div class="l">测试用例</div></div>
+  </div>
+
+  <h2 class="sec">业务价值锚点（KPI）</h2>
+  <div class="grid">
+    <div class="card"><h3>分货效率</h3><p>分货数据准备 + 方案编制由约 2.5 天/轮压缩至小时级；补货单生成校验由 0.5 天/批 → 秒级。</p></div>
+    <div class="card"><h3>分仓有货率</h3><p>多约束全局优化减少多补/缺补，缺货缓解率 ≥85%（复盘阈值口径）。</p></div>
+    <div class="card"><h3>库存周转率</h3><p>积压控量与安全水位差异化设置，库存周转天数同比降幅 ≤10%。</p></div>
+    <div class="card"><h3>新鲜度</h3><p>大日期库存预警前置 + 临期巡检，降低大日期占比（目标 [待客户确认]）。</p></div>
+    <div class="card"><h3>物流时效</h3><p>TMS 在途定位/延误预警前置，时效达成率 ≥90%。</p></div>
+    <div class="card"><h3>入库差异率</h3><p>WMS 实收核对 + 差异判定（差异率 ≤0.5% 正常损耗、破损率 &gt;1% 异常工单）。</p></div>
+  </div>
+
+  <h2 class="sec">交付链路（理需求 → 挖知识 → 建本体 → 生智能 → 评测）</h2>
+  <div class="card">
+    <div class="chain">
+      <span class="node">① 理需求</span><span class="arw">→</span>
+      <span class="node">机会点定义</span><span class="arw">→</span>
+      <span class="node">AI 画布</span>
+      <span class="arw" style="margin:0 6px">｜</span>
+      <span class="node">② 挖知识</span><span class="arw">→</span>
+      <span class="node">To-be 流程</span><span class="arw">→</span>
+      <span class="node">CKD 映射</span><span class="arw">→</span>
+      <span class="node">任务流程拆解（21 L5）</span><span class="arw">→</span>
+      <span class="node">业务规则挖掘（14 条）</span>
+      <span class="arw" style="margin:0 6px">｜</span>
+      <span class="node">③ 建本体</span><span class="arw">→</span>
+      <span class="node">Agent 本体设计</span>
+      <span class="arw" style="margin:0 6px">｜</span>
+      <span class="node">④ 生智能</span><span class="arw">→</span>
+      <span class="node">Agent 产品方案</span><span class="arw">→</span>
+      <span class="node">To-be 旅程</span><span class="arw">→</span>
+      <span class="node">MVP 原型</span><span class="arw">→</span>
+      <span class="node">UX 设计报告</span><span class="arw">→</span>
+      <span class="node">落地技术架构</span>
+      <span class="arw" style="margin:0 6px">｜</span>
+      <span class="node">⑤ 评测</span><span class="arw">→</span>
+      <span class="node">MVP 指标设计</span><span class="arw">→</span>
+      <span class="node">AI 测试数据集（20 用例）</span>
+    </div>
+  </div>
+
+  <h2 class="sec">技术路线 · Autonomous Planner</h2>
+  <div class="route">
+    <h3>1 编排 Agent（Plan → Act → Observe）+ 5 Skill + 1 共享本体</h3>
+    <p>用户入口开放（可只问缺口、直接出方案、追问异常、下发补货单或月末复盘），路径需运行时按上下文规划；5 个 Skill 职责稳定、可独立验收，但调用顺序与组合由对话意图决定，故选<b>自主规划（Autonomous Planner）</b>。</p>
+    <span class="tag">Skill ① 货源评估与缺口识别 · Skill ② 分货方案编制（P0）· Skill ③ 补货单生成与下发 · Skill ④ 执行跟踪与入库同步 · Skill ⑤ 库存监控与效果复盘</span>
+  </div>
+
+  <h2 class="sec">待确认事项</h2>
+  <div class="card">
+    <ul class="list">
+      <li>决策阈值（DOS 7/14/60、目标备货率 +20% 封顶 100%、差异率 0.5%、破损率 1%、时效 90% / 缺货缓解 85% / 周转 10%）与业务专家口径是否一致</li>
+      <li>「积兆逻辑（异常诊断）」「大日期判定经验」两处伪经验候选能否经二轮访谈坐实</li>
+      <li>「京慧一盘货」与「奶粉分仓补调系统」的产品边界（只读建议量 / 读写分配量）</li>
+      <li>视觉基底 P0/P1/P2/P3 锚定（客户有无品牌手册 / 设计系统 / 参照产品）</li>
+      <li>As-Is 量化基线（分货数据准备/方案编制约 2.5 天/轮、补货单 0.5 天/批等）待客户确认</li>
+    </ul>
+  </div>
+
+  <div class="foot">X奶粉 · 分仓智能补货 · 本场景总览 · AI4PM / FDE-Toolkit</div>
+</div>
+</body>
+</html>

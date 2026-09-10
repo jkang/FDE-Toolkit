@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>X奶粉 · 分仓智能补货 · Agent 产品方案</title>
+<style>
+  :root{--p:#10213E;--p-dark:#0a1730;--accent:#0958d9;--accent2:#faad14;--text:#10213E;--text2:#4a5568;--muted:#8b95a5;--border:#dfe4ea;--bg:#F5F5F6;--card:#fff}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:"Noto Sans SC",-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",Arial,sans-serif;line-height:1.75}
+  .toolbar{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:10px;background:linear-gradient(135deg,#10213E,#1d3a5c);color:#fff;padding:12px 20px;box-shadow:0 4px 14px rgba(16,33,62,.18)}
+  .toolbar .t{font-weight:700;font-size:15px;flex:1}
+  .toolbar a{background:rgba(255,255,255,.14);color:#fff;border:1px solid rgba(255,255,255,.25);border-radius:100px;padding:6px 14px;font-size:12.5px;text-decoration:none}
+  .toolbar a:hover{background:var(--accent)}
+  #content{max-width:1040px;margin:0 auto;padding:30px 40px 64px;background:var(--card);min-height:100vh;box-shadow:0 5px 22px rgba(16,33,62,.06)}
+  #content h1{font-size:23px;color:var(--p);border-bottom:2px solid var(--accent);padding-bottom:10px;margin:8px 0 18px}
+  #content h2{font-size:18px;color:var(--p);margin:28px 0 12px;padding-left:10px;border-left:4px solid var(--accent);line-height:1.3}
+  #content h3{font-size:15px;color:var(--p);margin:18px 0 10px}
+  #content p{color:var(--text2);margin:10px 0}
+  #content blockquote{margin:12px 0;padding:12px 16px;background:#f6f8fc;border-left:3px solid var(--accent2);border-radius:8px;color:var(--text2);font-size:13.5px}
+  #content ul,#content ol{padding-left:22px;color:var(--text2)}
+  #content li{margin:4px 0}
+  #content code{background:#eef1f5;color:var(--accent);border-radius:5px;padding:1px 6px;font-family:"SFMono-Regular",Consolas,monospace;font-size:13px}
+  #content pre{background:#0f172a;color:#e6ebf5;border-radius:10px;padding:14px 16px;overflow:auto;font-size:12.5px;line-height:1.6}
+  #content pre code{background:transparent;color:inherit;padding:0}
+  #content table{width:100%;border-collapse:collapse;margin:14px 0;font-size:13px}
+  #content thead th{background:#10213E;color:#fff;text-align:left;padding:9px 12px;font-weight:600}
+  #content tbody td{padding:9px 12px;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:top}
+  #content tbody tr:hover td{background:#f6f8fc}
+  .foot{text-align:center;color:var(--muted);font-size:12px;margin:40px 0 10px}
+  @media(max-width:720px){#content{padding:18px}}
+</style>
+</head>
+<body>
+<div class="toolbar">
+  <span class="t">X奶粉 · 分仓智能补货 · Agent 产品方案</span>
+  <a href="X奶粉-分仓智能补货-Agent产品方案.md" target="_blank" rel="noopener">打开 .md 原文</a>
+</div>
+<div id="content">
+<h1 id="x-agent">X奶粉事业部 · Agent 产品方案：分仓智能补货</h1>
+<blockquote>
+<p><strong>版本：</strong> v2.0 | <strong>更新日期：</strong> 2026-09-10</p>
+<p><strong>对应业务阶段：</strong> 设计方案（SDP-Product）· 阶段1 Agent产品方案设计 · 步骤1.1~1.6</p>
+<p><strong>方法论依据：</strong> SDP-Product 阶段1方法（产品定位 → 形态架构 → 故事线 → 功能清单 → Agent行为 → 规则消费门禁）</p>
+<p><strong>输入依据：</strong> 场景定义《X奶粉-分仓智能补货-机会点定义》《X奶粉-分仓智能补货-AI画布》《X奶粉-分仓智能补货-CKD矩阵分析》、挖知识《X奶粉-分仓智能补货-To-be流程》《X奶粉-分仓智能补货-任务流程拆解》（P1，21 个 L5 使用点）《X奶粉-分仓智能补货-业务规则挖掘》（P2，14 条五类规则）、梳理本体《X奶粉-分仓智能补货-本体设计》</p>
+</blockquote>
+<h2 id="1">1 总览</h2>
+<p><strong>这份方案做了什么：</strong> 在 v1.0 概念级方案基础上，用已完成的上游四项产出（任务流程拆解 P1 的 21 个 L5 使用点、业务规则挖掘 P2 的 14 条五类规则、本体设计的三层模型、CKD 数据/知识资产）<strong>回填精化</strong>，把「分仓智能补货」翻译成一份原型作者可照单施工的产品方案——产品定位、形态架构图、4 条演示故事线、13 项功能与 UI 组件、Agent 行为设计、<strong>14 条规则逐条可追溯的消费门禁</strong>。</p>
+<p><strong>重点看什么：</strong> 核心是「分货方案工作台」——它是 Agent 多约束分配优化的交付载体（Artifact），全场景唯一 P0（对应 P1 焦点 L4「基地仓→销售仓分配方案编制」，下钻为 L5-1 算量 / L5-2 选仓 / L5-3 出版本 / L5-4 确认四个可独立挂规则的动作）。4 条故事线分别演示「缺口识别 / 方案编制（含 HITL）/ 异常备选（含错误态）/ 下发与复盘（含撤销）」四个业务价值高光。<strong>本版关键升级：</strong> 第 7 段门禁表从「概念级代理」升级为「14 条真实规则逐条绑定到使用点」。</p>
+<p><strong>为什么关注：</strong> 商机五大经营指标里「四个提高」（分货效率/分仓有货率/周转率/新鲜度）全由分货方案决定；本产品的价值主张是「把老计划员的 Excel 推式分货，升级为 AI 多约束全局优化的推拉结合分货」。规则是否「挖到位、接得住」决定系统是否<strong>可解释 / 可复核 / 可验收</strong>——例如 DOS 阈值（红&lt;7/黄7-14/蓝&gt;60）、目标备货率（订单进度+20% 封顶100%）、可发量硬约束、差异率&gt;0.5%、破损率&gt;1% 等，必须从「专家隐性经验」落成「产品可执行门禁」。</p>
+<p><strong>当前洞察：</strong> 14 条规则中<strong>决策模型类 8 条（占 57%）高度集中</strong>——缺口分级、备货率、分配量优化、补货单校验、入库差异、复盘调参、安全水位、大日期；其中<strong>硬约束 3 条</strong>（可发量不可突破、对外下发必停、目标备货率封顶 100%）应落成「写入前必停 + 撤销窗口」，<strong>软优先级 5 条</strong>（急缺优先/积压控量/促销上浮/时效优先/服务水平优先）落成「提示 + 出处引用」。HITL 需覆盖 4 类：对外下发（gate）、京慧建议量偏离（写入前必停）、阈值边界冲突（DOS 7/14/60、目标备货率&gt;100%）、数据降级（TMS 未接通按历史时效估算）。<strong>『积兆逻辑』『大日期判定』仍为待业务专家二轮验证经验</strong>，产品中如实标注概念级。</p>
+<p><strong>需要 FDE 做什么：</strong> ① 核对故事线 mock 数据与 14 条规则的阈值一致性；② 确认「积兆逻辑 / 大日期判定」二轮验证口径能否坐实；③ 确认「京慧一盘货 + 奶粉分仓补调系统」的实际产品边界（本方案默认它们是相邻系统、只读建议量/读写分配量）；④ 视觉基底 P0~P3 锚定（阶段2 前置项）。</p>
+<h2 id="2">2 产品定位</h2>
+<h3 id="21">2.1 迭代范围</h3>
+<p><strong>功能迭代优化（上游精化）：</strong> v1.0 为概念级（无 SKP）；本版基于 P1 任务流程拆解 + P2 业务规则挖掘，将 4 条故事线的 mock 数据、功能清单的上游来源、HITL 触发条件、规则门禁全部回填为可追溯的真实规则。</p>
+<p><strong>首版 PoC / MVP：</strong> 从 0 到 1，验证「推拉结合 + 多约束优化」的分仓补货能否在分货效率与有货率/周转/新鲜度之间取得全局平衡（对应场景卡 PoC：1 个基地仓 + 2–3 个销售分仓、核心 SKU 试点）。</p>
+<h3 id="22">2.2 产品形态</h3>
+<p><strong>B2B 自用型</strong>：客户 = X奶粉事业部，用户 = 事业部内部物流计划/调度/仓储岗，交付物不外流。与京慧一盘货、奶粉分仓补调系统相邻：<strong>只读建议量、读写分配量</strong>，不替代其库存/调拨能力。</p>
+<h3 id="23">2.3 四件套</h3>
+<table>
+<thead>
+<tr>
+<th>子项</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>产品定位一句话</td>
+<td>为X奶粉事业部的物流计划岗，在「基地仓 → 销售分仓」分货补货场景下，通过 AI 多约束全局优化，把分货效率、分仓有货率、库存周转率、商品新鲜度四个指标一起往上拉。</td>
+</tr>
+<tr>
+<td>非目标</td>
+<td>① 不做销售计划与需求预测（属 A1 销售计划精细化）；② 不做销售仓间横向调拨（属 A3 销售仓横向调拨）；③ 不做订单履约与配送（属价值流④）；④ 不做生产排程（属 APS）；⑤ 原型阶段不接真实后端与模型。</td>
+</tr>
+<tr>
+<td>主要使用者</td>
+<td>物流计划岗——在每轮分货周期，把「分仓销售计划 + 各仓库存/在途/待检/合格数据 + 促销计划」变成一份可直接下发的分货方案；调度组复核分货数据底表口径；仓储/物流岗处理执行跟踪与入库差异。</td>
+</tr>
+<tr>
+<td>Agent 人格</td>
+<td>身份定位：一名懂分货计划的分货方案助理；语气基调：专业、克制、数字驱动（用备货率/DOS/库存天数说话）；能力边界：我能做缺口识别、优先级计算、分配量测算、补货单生成校验、执行跟踪、复盘调参建议，不能替你做最终拍板、不能脱离库存/在途/效期约束乱分货、不能跳过对外下发确认。</td>
+</tr>
+</tbody>
+</table>
+<h2 id="3">3 产品形态架构图</h2>
+<div class="codehilite"><pre><span></span><code><span class="c">%%{init: {&quot;theme&quot;:&quot;base&quot;,&quot;themeVariables&quot;:{&quot;fontFamily&quot;:&quot;-apple-system, PingFang SC, Microsoft YaHei, sans-serif&quot;,&quot;fontSize&quot;:&quot;13px&quot;,&quot;primaryColor&quot;:&quot;#eef2fc&quot;,&quot;primaryBorderColor&quot;:&quot;#6b7eef&quot;,&quot;primaryTextColor&quot;:&quot;#1e2233&quot;,&quot;lineColor&quot;:&quot;#9aa6e8&quot;,&quot;clusterBkg&quot;:&quot;#f5f7fd&quot;,&quot;clusterBorder&quot;:&quot;#dfe5fa&quot;,&quot;tertiaryColor&quot;:&quot;#ffffff&quot;,&quot;edgeLabelBackground&quot;:&quot;#ffffff&quot;}}}%%</span>
+<span class="n">flowchart</span><span class="w"> </span><span class="s">TB</span>
+<span class="w">    </span><span class="nb">subgraph</span><span class="w"> </span>相邻产品<span class="p">[</span><span class="s">&quot;相邻产品（不属于本产品）&quot;</span><span class="p">]</span>
+<span class="w">        </span><span class="n">EXT1</span><span class="p">[</span><span class="s">&quot;京慧一盘货&quot;</span><span class="p">]</span>
+<span class="w">        </span><span class="n">EXT2</span><span class="p">[</span><span class="s">&quot;奶粉分仓补调系统&quot;</span><span class="p">]</span>
+<span class="w">        </span><span class="n">EXT3</span><span class="p">[</span><span class="s">&quot;TMS / WMS&quot;</span><span class="p">]</span>
+<span class="w">        </span><span class="n">EXT4</span><span class="p">[</span><span class="s">&quot;物流调度 / 财务&quot;</span><span class="p">]</span>
+<span class="w">        </span><span class="n">EXT5</span><span class="p">[</span><span class="s">&quot;APS 排产&quot;</span><span class="p">]</span>
+<span class="w">    </span><span class="k">end</span>
+<span class="w">    </span><span class="nb">subgraph</span><span class="w"> </span>产品本体<span class="p">[</span><span class="s">&quot;分仓智能补货 · Agent 产品&quot;</span><span class="p">]</span>
+<span class="w">        </span><span class="nb">subgraph</span><span class="w"> </span>入口区<span class="p">[</span><span class="s">&quot;入口区&quot;</span><span class="p">]</span>
+<span class="w">            </span><span class="n">E1</span><span class="p">[</span><span class="s">&quot;主入口：分货工作台&quot;</span><span class="p">]</span>
+<span class="w">            </span><span class="n">E2</span><span class="p">[</span><span class="s">&quot;自动激活：分货周期 / 缺口告警&quot;</span><span class="p">]</span>
+<span class="w">        </span><span class="k">end</span>
+<span class="w">        </span><span class="nb">subgraph</span><span class="w"> </span>主交互区<span class="p">[</span><span class="s">&quot;主交互区&quot;</span><span class="p">]</span>
+<span class="w">            </span><span class="n">M1</span><span class="p">[</span><span class="s">&quot;对话流（缺口解释 / 调参建议）&quot;</span><span class="p">]</span>
+<span class="w">            </span><span class="n">M2</span><span class="p">[</span><span class="s">&quot;分货方案工作台（核心 Artifact · P0）&quot;</span><span class="p">]</span>
+<span class="w">        </span><span class="k">end</span>
+<span class="w">        </span><span class="nb">subgraph</span><span class="w"> </span>周边支撑区<span class="p">[</span><span class="s">&quot;周边支撑区&quot;</span><span class="p">]</span>
+<span class="w">            </span><span class="n">S1</span><span class="p">[</span><span class="s">&quot;待办与通知（HITL 待确认）&quot;</span><span class="p">]</span>
+<span class="w">            </span><span class="n">S2</span><span class="p">[</span><span class="s">&quot;历史与版本（方案 A/B）&quot;</span><span class="p">]</span>
+<span class="w">            </span><span class="n">S3</span><span class="p">[</span><span class="s">&quot;复盘报告与调参审批&quot;</span><span class="p">]</span>
+<span class="w">        </span><span class="k">end</span>
+<span class="w">    </span><span class="k">end</span>
+<span class="w">    </span><span class="n">E1</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">M1</span>
+<span class="w">    </span><span class="n">E2</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">M1</span>
+<span class="w">    </span><span class="n">M1</span><span class="w"> </span><span class="o">&lt;--&gt;</span><span class="w"> </span><span class="n">M2</span>
+<span class="w">    </span><span class="n">M1</span><span class="w"> </span><span class="o">-</span><span class="p">.</span>触达<span class="p">.</span><span class="o">-&gt;</span><span class="w"> </span><span class="n">S1</span>
+<span class="w">    </span><span class="n">M2</span><span class="w"> </span><span class="o">-</span><span class="p">.</span>调阅历史<span class="p">.</span><span class="o">-&gt;</span><span class="w"> </span><span class="n">S2</span>
+<span class="w">    </span><span class="n">S3</span><span class="w"> </span><span class="o">-</span><span class="p">.</span>调参审批<span class="p">.</span><span class="o">-&gt;</span><span class="w"> </span><span class="n">M1</span>
+<span class="w">    </span><span class="n">M2</span><span class="w"> </span><span class="o">--</span><span class="w"> </span>读建议量<span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">EXT1</span>
+<span class="w">    </span><span class="n">M2</span><span class="w"> </span><span class="o">--</span><span class="w"> </span>读写分配量<span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">EXT2</span>
+<span class="w">    </span><span class="n">M2</span><span class="w"> </span><span class="o">--</span><span class="w"> </span>读定位<span class="w"> </span><span class="o">/</span><span class="w"> </span>入库<span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">EXT3</span>
+<span class="w">    </span><span class="n">M2</span><span class="w"> </span><span class="o">--</span><span class="w"> </span>写补货单下发<span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">EXT4</span>
+<span class="w">    </span><span class="n">M2</span><span class="w"> </span><span class="o">--</span><span class="w"> </span>读生产计划<span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">EXT5</span>
+<span class="w">    </span><span class="n">classDef</span><span class="w"> </span><span class="n">extern</span><span class="w"> </span><span class="nb">fill</span><span class="p">:</span>#<span class="n">f5f7fd</span><span class="p">,</span><span class="n">stroke</span><span class="p">:</span>#9<span class="n">aa0b8</span><span class="p">,</span><span class="n">stroke</span><span class="o">-</span><span class="nb">width</span><span class="p">:</span>1<span class="n">px</span><span class="p">,</span><span class="n">color</span><span class="p">:</span>#6<span class="n">c7390</span><span class="p">,</span><span class="n">stroke</span><span class="o">-</span><span class="n">dasharray</span><span class="p">:</span><span class="mi">3</span><span class="p">;</span>
+<span class="w">    </span><span class="n">class</span><span class="w"> </span><span class="s">EXT1,EXT2,EXT3,EXT4,EXT5</span><span class="w"> </span><span class="s">extern</span>
+</code></pre></div>
+
+<blockquote>
+<p>三大区齐全；相邻产品 5 个，均只标接触面（读/写），不画协议与字段。</p>
+</blockquote>
+<h2 id="4">4 原型演示故事线</h2>
+<blockquote>
+<p>共 4 条，1:1 对应阶段2 <code>moments/*.html</code>。mock 数据均取自「任务处理规则挖掘清单」（P2）的真实决策因子/阈值（脱敏）。</p>
+</blockquote>
+<h3 id="1_1">故事线 1 · 全仓网缺口识别与分级告警</h3>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>业务价值高光</td>
+<td>AI 一屏识别全国仓网谁缺货、谁积压，把老计划员要半天比对的多张 Excel 变成一张红黄蓝分级图</td>
+</tr>
+<tr>
+<td>对应阶段</td>
+<td>L3「货源评估与分货数据准备」· L5 汇总全国可分配库存与在途 / 计算各仓库存天数并判定缺口等级 / 校验底表字段口径完整性</td>
+</tr>
+<tr>
+<td>演示剧本</td>
+<td>用户：「帮我看看全国仓网现在的货源情况。」→ Agent 思考（拉取 4 基地仓可分配库存+在途，匹配未来 14 天销售计划，按 DOS 分级）→ 调工具（读现货库存/在途库存/销售计划）→ 输出供需全景 + 缺口告警（红/黄/蓝），标注 <strong>DOS&lt;7 红、7≤DOS&lt;14 黄、DOS&gt;60 且无促销 蓝积压</strong>；底表口径校验 6 项（可发量/待检/合格/在途/生产备货率/大日期）→ 数据缺失/口径异常时拉调度组复核</td>
+</tr>
+<tr>
+<td>UI 组件 + 必备交互</td>
+<td>供需全景看板 + 缺口告警清单 + 状态徽章 + 术语 hover 卡；#1 流式 #2 工具调用 #7 出处引用 #8 状态徽章</td>
+</tr>
+<tr>
+<td>业务内容来源</td>
+<td>L5「汇总全国可分配库存与在途」「计算各仓库存天数并判定缺口等级」「校验底表字段口径完整性」；规则 <strong>rd_01 缺口分级规则（DOS 分级）</strong>、<strong>rext_01 分货数据底表字段提取要点</strong>、<strong>rdict_01 分仓补货业务口径词典</strong></td>
+</tr>
+</tbody>
+</table>
+<h3 id="2-hitl">故事线 2 · 多约束分货方案生成与人工确认（含 HITL）</h3>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>业务价值高光</td>
+<td>从京慧建议量到全局最优分配方案，多仓×多SKU×多约束一次算完，计划员只需确认</td>
+</tr>
+<tr>
+<td>对应阶段</td>
+<td>L3「分货方案编制」（全场景 P0）· L5 计算生产备货率与订单完成率 / 计算各仓目标备货率与补货优先级 / 计算建议补货量 / 选择发货仓并拆分多仓补足 / 生成多版分配方案 / 人工确认与微调分配量</td>
+</tr>
+<tr>
+<td>演示剧本</td>
+<td>用户：「按这周销售计划帮我出分货方案。」→ 调工具（读京慧建议量/可发量/备货率）→ 思考（计算优先级/备货率/分配量，按 <strong>可发量约束 &gt; 时效优先 &gt; 京慧建议量</strong> 多约束求解；目标备货率=订单进度+20% 封顶100%）→ 输出多版分配方案（均衡版/优先版）→ <strong>HITL 拦截</strong>：「北京顺义仓分配量较京慧建议量上调 12%（因促销放量），请确认。」→ 用户：「确认，并把天津武清仓改到 800 罐。」→ Agent 更新方案并<strong>重新校验库存/在途/效期/促销多约束</strong>，修改原因必填留痕</td>
+</tr>
+<tr>
+<td>UI 组件 + 必备交互</td>
+<td>分货方案工作台 + 方案对比（A/B）+ HITL 拦截横幅 + 出处引用悬浮卡；#1 #2 #3 思考折叠 #4 内联组件 #5 HITL #7 #8</td>
+</tr>
+<tr>
+<td>业务内容来源</td>
+<td>L5 焦点四动作（算量/选仓/出版本/确认）；规则 <strong>rd_02 备货率与目标备货率计算规则</strong>、<strong>rd_03 多约束分配量优化规则</strong>、<strong>rt_01 分货方案模板</strong>、<strong>rrel_01 基地仓—销售仓—产品—SKU—渠道关联</strong></td>
+</tr>
+</tbody>
+</table>
+<h3 id="3_1">故事线 3 · 异常诊断与备选方案（含错误态）</h3>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>业务价值高光</td>
+<td>基地仓缺货时，AI 自动检索周边资源，给出 3 套备选（成本/时效/库存均衡维度）</td>
+</tr>
+<tr>
+<td>对应阶段</td>
+<td>L3「分货方案编制」（异常分支）· L5 诊断异常并生成备选方案 / 人工选定备选方案</td>
+</tr>
+<tr>
+<td>演示剧本</td>
+<td>用户：「华北基地仓可发量不足，怎么办？」→ 调工具（读仓网距离/物流预警/安全水位）→ 输出 3 套备选（华东大仓/华中大仓/京慧跨仓调拨，对比距离/时效/备货率/物流预警）→ <strong>错误态降级</strong>：「TMS 物流预警数据暂未接通，已按历史时效估算，建议人工复核后下发。」→ 备选均不可行时升级人工并建议调整周期</td>
+</tr>
+<tr>
+<td>UI 组件 + 必备交互</td>
+<td>备选方案对比表 + 错误态提示 + 出处引用；#2 #7 #9 错误态</td>
+</tr>
+<tr>
+<td>业务内容来源</td>
+<td>L5「诊断异常并生成备选方案」「人工选定备选方案」；规则 <strong>rd_03 多约束分配量优化规则</strong>（异常分支）、<strong>rd_07 安全水位设置规则</strong>；『积兆逻辑』标注 <strong>[伪经验候选·待二轮验证]</strong></td>
+</tr>
+</tbody>
+</table>
+<h3 id="4_1">故事线 4 · 补货单生成下发与执行复盘（含撤销）</h3>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>业务价值高光</td>
+<td>方案确认后一键生成标准补货单并下发，全程跟踪到入库，月末自动出复盘</td>
+</tr>
+<tr>
+<td>对应阶段</td>
+<td>L3「补货单生成与下发」+「执行跟踪与入库同步」+「库存监控与效果复盘」· L5 生成标准化补货单 / 校验收发仓·SKU·数量·时效 / 确认并下发补货单 / 抓取在途定位并判定预警 / 核对入库实收与差异 / 同步库存指标并关闭调拨单 / 计算库存天数并设置安全水位 / 巡检大日期库存 / 统计复盘指标并生成调参建议</td>
+</tr>
+<tr>
+<td>演示剧本</td>
+<td>用户：「方案确认，生成补货单并下发。」→ 调工具（校验收发仓/SKU/数量/时效 <strong>4 项</strong>）→ 生成补货单，校验通过已下发物流调度+财务 → <strong>撤销 Toast</strong>：「已下发，10 秒内可撤销。」→ 执行跟踪（在途定位、延误&gt;24h/48h 预警、破损率&gt;1% 异常、入库差异 0.33%≤0.5% 记正常损耗）→ 月度复盘（时效达成率 92%≥90%、缺货缓解率 88%≥85%、周转 24 天同比-8%、差异率 0.33%≤0.5%，建议华北安全水位 14 天→12 天，审批后下一周期生效）</td>
+</tr>
+<tr>
+<td>UI 组件 + 必备交互</td>
+<td>补货单 + 撤销 Toast + 执行跟踪看板 + 复盘报告 + Artifact 空态；#2 #6 撤销 #8 #10 空态</td>
+</tr>
+<tr>
+<td>业务内容来源</td>
+<td>L5 对应 9 个使用点；规则 <strong>rt_03 标准补货单模板</strong>、<strong>rd_04 补货单校验规则</strong>、<strong>rd_05 入库差异判定规则</strong>、<strong>rd_06 复盘调参规则</strong>、<strong>rd_07 安全水位设置规则</strong>、<strong>rd_08 大日期库存判定规则</strong>、<strong>rt_02 月度复盘报告模板</strong>、<strong>rdict_01 分仓补货业务口径词典</strong></td>
+</tr>
+</tbody>
+</table>
+<h2 id="5-ui">5 业务功能与 UI 组件清单</h2>
+<table>
+<thead>
+<tr>
+<th>功能名</th>
+<th>一句话价值</th>
+<th>绑定角色</th>
+<th>渲染层</th>
+<th>触发方式</th>
+<th>UI 组件名 + 组件内容</th>
+<th>用户操作</th>
+<th>关联故事线</th>
+<th>上游来源</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>全仓网供需全景</td>
+<td>一屏看清谁缺货谁积压</td>
+<td>物流计划/调度</td>
+<td>Artifact Pane</td>
+<td>用户点击召唤</td>
+<td>供需全景看板（各仓可发量/在途/DOS/缺口等级，引现货库存/在途库存/销售计划）</td>
+<td>只读</td>
+<td>故事线1</td>
+<td>L5 汇总全国可分配库存与在途；rrel_01</td>
+</tr>
+<tr>
+<td>缺口分级告警</td>
+<td>缺货/积压自动分级提示</td>
+<td>物流计划</td>
+<td>Artifact Pane</td>
+<td>Agent 主动渲染</td>
+<td>缺口告警清单（红/黄/蓝分级，DOS 阈值）</td>
+<td>只读/可钻取到仓×SKU</td>
+<td>故事线1</td>
+<td>L5 计算各仓库存天数并判定缺口等级；rd_01</td>
+</tr>
+<tr>
+<td>分货底表准备与口径校验</td>
+<td>底表自动汇总并校验 6 项口径</td>
+<td>调度组</td>
+<td>Artifact Pane</td>
+<td>Agent 主动渲染</td>
+<td>分货数据底表 + 口径校验结果（可发量/待检/合格/在途/生产备货率/大日期）</td>
+<td>复核/标红处理</td>
+<td>故事线1</td>
+<td>L5 汇总分货数据底表、校验底表字段口径完整性；rt_01·rext_01·rdict_01</td>
+</tr>
+<tr>
+<td>分货方案编制</td>
+<td>多约束一次算出分配量</td>
+<td>物流计划</td>
+<td>Artifact Pane</td>
+<td>用户点击召唤</td>
+<td>分货方案工作台（分配量、分配后库存天数，引京慧建议量/可发量/分配量）</td>
+<td>只读</td>
+<td>故事线2</td>
+<td>L5 计算建议补货量、选择发货仓并拆分多仓补足、生成多版分配方案；rd_02·rd_03·rt_01</td>
+</tr>
+<tr>
+<td>方案对比与微调</td>
+<td>多版方案对比、人工可微调</td>
+<td>物流计划</td>
+<td>Artifact Pane</td>
+<td>用户点击召唤</td>
+<td>方案对比表（均衡版/优先版）+ 分配量可编辑 + 修改原因留痕</td>
+<td>可编辑/可撤销</td>
+<td>故事线2</td>
+<td>L5 人工确认与微调分配量；rd_03·rt_01</td>
+</tr>
+<tr>
+<td>异常诊断与备选</td>
+<td>缺货时给出备选方案</td>
+<td>物流计划</td>
+<td>Artifact Pane</td>
+<td>Agent 主动渲染</td>
+<td>备选方案对比表（距离/时效/备货率/物流预警）</td>
+<td>只读/可触发下发</td>
+<td>故事线3</td>
+<td>L5 诊断异常并生成备选方案、人工选定备选方案；rd_03·rd_07</td>
+</tr>
+<tr>
+<td>补货单生成与校验</td>
+<td>一键生成标准补货单</td>
+<td>物流计划</td>
+<td>Artifact Pane</td>
+<td>Agent 主动渲染</td>
+<td>补货单（收发仓/SKU/数量/时效，4 项校验结果）</td>
+<td>只读/可下发</td>
+<td>故事线4</td>
+<td>L5 生成标准化补货单、校验收发仓/SKU/数量/时效；rt_03·rd_04</td>
+</tr>
+<tr>
+<td>下发确认与撤销</td>
+<td>对外下发必停 + 10 秒撤销</td>
+<td>物流计划</td>
+<td>Artifact Pane</td>
+<td>Agent 主动渲染</td>
+<td>下发确认横幅 + 撤销 Toast（10 秒窗口）</td>
+<td>确认/撤销</td>
+<td>故事线4</td>
+<td>L5 确认并下发补货单；rd_04</td>
+</tr>
+<tr>
+<td>执行跟踪与在途监控</td>
+<td>在途定位/延误/破损预警</td>
+<td>仓储/物流</td>
+<td>Artifact Pane</td>
+<td>Agent 主动渲染</td>
+<td>执行跟踪看板（车辆定位/运输状态/延误预警/破损）</td>
+<td>只读</td>
+<td>故事线4</td>
+<td>L5 抓取在途定位并判定预警；rrel_01</td>
+</tr>
+<tr>
+<td>入库差异处理</td>
+<td>实收核对与差异判定</td>
+<td>仓储/物流</td>
+<td>Artifact Pane</td>
+<td>Agent 主动渲染</td>
+<td>入库验收表 + 差异处理单（差异率/破损率判定）</td>
+<td>只读/生成差异单</td>
+<td>故事线4</td>
+<td>L5 核对入库实收与差异、同步库存指标并关闭调拨单；rd_05·rdict_01</td>
+</tr>
+<tr>
+<td>安全水位审批</td>
+<td>区域+渠道差异化水位建议</td>
+<td>物流计划</td>
+<td>Artifact Pane</td>
+<td>Agent 主动渲染</td>
+<td>安全水位建议表（电商低水位/线下高水位/偏远+3天）+ 审批按钮</td>
+<td>可审批</td>
+<td>故事线4</td>
+<td>L5 计算库存天数并设置安全水位；rd_07</td>
+</tr>
+<tr>
+<td>复盘报告与调参建议</td>
+<td>月末自动出复盘并建议调参</td>
+<td>物流计划</td>
+<td>Artifact Pane</td>
+<td>用户点击召唤</td>
+<td>复盘报告（时效达成率/缺货缓解率/周转率/差异率 + 调参建议）</td>
+<td>只读/可审批</td>
+<td>故事线4</td>
+<td>L5 统计复盘指标并生成调参建议、巡检大日期库存；rd_06·rd_08·rt_02</td>
+</tr>
+<tr>
+<td>术语口径标注</td>
+<td>鼠标悬停看懂字段口径</td>
+<td>物流计划</td>
+<td>Conversation Pane</td>
+<td>自动激活</td>
+<td>术语 hover 卡（可发量/待检/合格/在途总量/DOS/生产备货率/目标备货率/大日期 8 条）</td>
+<td>只读</td>
+<td>故事线1/2/4</td>
+<td>rdict_01 分仓补货业务口径词典</td>
+</tr>
+</tbody>
+</table>
+<p><strong>必备交互 10 项（产品承诺）：</strong> #1 流式输出 / #2 工具调用可视化 / #3 思考过程可折叠 / #4 内联组件 / #5 HITL 拦截 / #6 撤销回滚 / #7 出处引用 / #8 状态徽章 / #9 错误态 / #10 空态。</p>
+<h2 id="6-agent">6 Agent 行为设计</h2>
+<h3 id="61-agent">6.1 Agent 是谁</h3>
+<ul>
+<li><strong>开场话术草稿</strong>：「我是分货方案助理，能帮你识别全仓网缺口、算各仓分配量、生成补货单并跟踪执行。分配方案我会给建议，最终下发由你确认。」</li>
+<li><strong>语气基调</strong>：专业但不死板（用数字说话）；克制不卖弄（不夸「最优」，说「满足约束下的可行方案」）。</li>
+<li><strong>能力边界承诺</strong>：我能——识别缺口（DOS 分级）、算优先级/备货率/分配量、生成校验补货单、跟踪在途/入库、出复盘调参建议；我不能——替你拍板最终分配量、脱离库存/在途/效期/促销约束、跳过对外下发的确认、静默覆盖京慧建议量。</li>
+</ul>
+<h3 id="62-agent">6.2 Agent 让用户看到什么</h3>
+<table>
+<thead>
+<tr>
+<th>事件类型</th>
+<th>默认行为</th>
+<th>来源 / 落到交互</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Agent 正在做什么（进度）</td>
+<td>实时可见</td>
+<td>#8 状态徽章（idle/thinking/tool_calling/awaiting_human/error）</td>
+</tr>
+<tr>
+<td>使用了哪些数据/知识</td>
+<td>始终标注来源</td>
+<td>L5 使用点 + 14 条规则 + CKD 资产 → #7 出处引用</td>
+</tr>
+<tr>
+<td>Agent 不确定/置信度低</td>
+<td>显式标注</td>
+<td>边界冲突/降级（DOS 7/14/60、TMS 未接通）→ #5 HITL + #7</td>
+</tr>
+<tr>
+<td>触发工具/外部行为</td>
+<td>告知 + 可查看</td>
+<td>#2 工具调用卡片（读库存/京慧/仓网，写分配量/补货单）</td>
+</tr>
+<tr>
+<td>思考过程</td>
+<td>默认折叠可展开</td>
+<td>#3 思考过程可折叠</td>
+</tr>
+<tr>
+<td>口径解释</td>
+<td>悬停即得</td>
+<td>rdict_01 8 条术语 → 术语 hover 卡</td>
+</tr>
+</tbody>
+</table>
+<h3 id="63-agent">6.3 Agent 何时停下等用户</h3>
+<table>
+<thead>
+<tr>
+<th>触发类别</th>
+<th>触发条件</th>
+<th>默认拦截形态</th>
+<th>理由/来源</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>对外发送/下发</td>
+<td>补货单下发物流调度/财务</td>
+<td>下发前必停（10 秒撤销窗口）</td>
+<td>L5「确认并下发补货单」+ rd_04 硬约束（对外动作）</td>
+</tr>
+<tr>
+<td>修改关键业务数据</td>
+<td>分配量偏离京慧建议量</td>
+<td>写入前必停</td>
+<td>rd_03 硬约束；本体行动边界 ab_jinghui_deviation</td>
+</tr>
+<tr>
+<td>Agent 自判不确定</td>
+<td>DOS 落在 7/14/60 边界；目标备货率&gt;100%；约束冲突无法求解</td>
+<td>提示用户决策（标注冲突项）</td>
+<td>rd_01/rd_02/rd_03 例外分支</td>
+</tr>
+<tr>
+<td>连续失败/重试超限</td>
+<td>TMS 物流预警未接通、WMS 数据缺失</td>
+<td>给降级建议（按历史时效估算）+ 升级人工</td>
+<td>rd_03/rd_05 降级分支；CKD 评级 C/D 需开发</td>
+</tr>
+</tbody>
+</table>
+<h3 id="64">6.4 用户怎么撤销与兜底</h3>
+<table>
+<thead>
+<tr>
+<th>问题</th>
+<th>内容</th>
+<th>落到交互</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>撤销范围</td>
+<td>当前动作（下发后 10 秒窗口）/ 本轮会话</td>
+<td>#6 撤销/回滚</td>
+</tr>
+<tr>
+<td>追问深度</td>
+<td>可追问「为什么这么分」到一层依据（决策因子 + 来源字段 + 规则 id）</td>
+<td>#7 出处引用</td>
+</tr>
+<tr>
+<td>完全失败时怎么办</td>
+<td>给 ≥2 明确选项：切人工 / 按历史经验估算（显式标注降级）/ 放弃并保留上下文</td>
+<td>#9 错误态</td>
+</tr>
+</tbody>
+</table>
+<h2 id="75">75 类规则消费门禁</h2>
+<blockquote>
+<p>上游 P2《业务规则挖掘》共产出 <strong>14 条规则</strong>（决策 8 / 模版 3 / 术语 1 / 提取 1 / 关联 1），全部绑定到 P1 使用点。本表逐类列出产品方案承接点与承接内容，做到<strong>可解释 / 可复核 / 可验收</strong>。</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>规则类型</th>
+<th>是否识别</th>
+<th>产品方案承接点</th>
+<th>承接的业务内容（规则 id）</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>决策模型类</td>
+<td>✅</td>
+<td>第6章·何时停下等用户；第5章·分货方案工作台/缺口告警/复盘报告</td>
+<td><strong>rd_01 缺口分级（DOS&lt;7 红 / 7-14 黄 / &gt;60 且无促销 蓝；可发量约束&gt;时效优先&gt;优先级）</strong>；<strong>rd_02 备货率与目标备货率（=订单进度+20% 封顶100%）</strong>；<strong>rd_03 多约束分配量优化（可发量约束&gt;时效优先&gt;京慧建议量；凑车±200件）</strong>；<strong>rd_04 补货单校验（收发仓/SKU/数量≤可发量/时效 4 项）</strong>；<strong>rd_05 入库差异判定（差异率≤0.5% 正常损耗 / &gt;0.5% 差异单；破损率&gt;1% 异常工单）</strong>；<strong>rd_06 复盘调参（时效≥90% / 缺货缓解≥85% / 周转同比降幅≤10% / 差异≤0.5%）</strong>；<strong>rd_07 安全水位设置（电商低水位/线下高水位/偏远+3天）</strong>；<strong>rd_08 大日期库存判定[待二轮验证]</strong></td>
+<td>必须承接（硬约束→必停+撤销；软优先级→提示+出处）</td>
+</tr>
+<tr>
+<td>模版范例类</td>
+<td>✅</td>
+<td>第5章·分货方案工作台 / 补货单 / 复盘报告（Artifact 渲染，可变字段可编辑）</td>
+<td><strong>rt_01 分货方案模板</strong>（①方案头 ②分配明细表 ③效果预估 ④待确认项）；<strong>rt_02 月度复盘报告模板</strong>（①指标总览 ②短板分析 ③调参建议 ④审批）；<strong>rt_03 标准补货单模板</strong>（①单据头 ②收发明细 ③校验结果）</td>
+<td>必须承接</td>
+</tr>
+<tr>
+<td>术语字典类</td>
+<td>✅</td>
+<td>第5章·术语 hover 卡</td>
+<td><strong>rdict_01 分仓补货业务口径词典</strong>：可发量 / 待检 / 合格 / 在途总量 / DOS / 生产备货率 / 目标备货率 / 大日期（8 条，防待检-合格混用、在途口径混淆）</td>
+<td>必须承接</td>
+</tr>
+<tr>
+<td>关键信息提取要点</td>
+<td>✅</td>
+<td>第5章·出处引用悬浮卡（字段典型位置 + 易错变体）</td>
+<td><strong>rext_01 分货数据底表字段提取要点</strong>：可发量（现货库存「可发量」列）/ 待检-合格（status 列）/ 在途总量（store_transit 列）/ 生产备货率 / 大日期（big_date_num 列）；验收：关键字段识别准确率≥98%、待检合格混用漏标率 0</td>
+<td>必须强化承接</td>
+</tr>
+<tr>
+<td>关联关系类</td>
+<td>✅</td>
+<td>第5章·供需全景看板 + 执行跟踪（仓—品—渠道关联展示）</td>
+<td><strong>rrel_01 基地仓—销售仓—产品—SKU—渠道关联</strong>：site_code 贯通收发仓、product_code 贯通产品、调拨单号贯通「补货单→在途→入库」、site_code×product_code 为最小分析粒度</td>
+<td>必须承接</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>操作流程类已由 P1「任务流程拆解」的 21 个 L5 使用点承载（本表不重复）；其在第5章功能清单的「上游来源」列通过 L5 业务名引用。P1↔P2 双向核对已在《业务规则挖掘》<code>reconciliation</code> 段完成（6 组任务×规则 checks 全 true）。</p>
+</blockquote>
+<h2 id="8">8 待确认问题清单</h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>待确认问题</th>
+<th>用途与影响</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>决策阈值（DOS 7/14/60、目标备货率+20%封顶100%、差异率0.5%、破损率1%、时效90%/缺货缓解85%/周转10%）与业务专家口径是否一致</td>
+<td>决定故事线 mock 与 HITL 是否可信；决定门禁是否可验收</td>
+</tr>
+<tr>
+<td>2</td>
+<td>「积兆逻辑（异常诊断）」「大日期判定经验」两处伪经验候选能否经二轮访谈坐实</td>
+<td>影响故事线3 异常诊断与 rd_08 的决策依据是否真实；当前标注概念级</td>
+</tr>
+<tr>
+<td>3</td>
+<td>「京慧一盘货」与「奶粉分仓补调系统」与本产品的边界（本方案默认相邻系统、只读建议量/读写分配量）</td>
+<td>决定形态架构图接触面与 rd_03 京慧建议量的接口口径是否准确</td>
+</tr>
+<tr>
+<td>4</td>
+<td>视觉基底 P0/P1/P2/P3 锚定（客户有无品牌手册/设计系统/参照产品）</td>
+<td>决定阶段2 DESIGN.md 与定制设计系统的视觉来源</td>
+</tr>
+<tr>
+<td>5</td>
+<td>As-Is 量化基线（分货数据准备/方案编制约 2.5 天/轮、补货单 0.5 天/批等）待客户确认</td>
+<td>决定收益测算与 MVP 指标的目标值设定</td>
+</tr>
+</tbody>
+</table>
+<div class="foot">X奶粉 · 分仓智能补货 · Agent 产品方案 · 由 agent-product-proposal-generator 生成</div>
+</div>
+</body>
+</html>
