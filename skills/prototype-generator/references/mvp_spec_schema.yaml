@@ -37,19 +37,74 @@ scenarios:
     goal: "10 分钟内完成需求识别 + 供应商初选 + 订单草稿生成"
 
 # ---- 核心数据模型 + 真实 Mock 数据（承接 userInputs / visibleData） ----
+# 铁律（见 mvp_prompts.md 第二节）：主数据先行、核心对象字段 ≥8、mockData ≥8 条且覆盖异常/边界、跨对象关联键一致
 dataModels:
-  - name: "PurchaseOrder"
-    description: "采购订单"
+  - name: "Supplier"
+    description: "供应商主数据（主数据先行，供采购订单/寻源复用）"
     fields:
-      - { key: "code", title: "订单号", type: "string" }
-      - { key: "supplier", title: "供应商", type: "string" }
-      - { key: "amount", title: "金额", type: "number" }
-      - { key: "dueDate", title: "交期", type: "string" }
-      - { key: "status", title: "状态", type: "string" }
+      - { key: "code", title: "供应商编码", type: "string" }
+      - { key: "name", title: "供应商名称", type: "string" }
+      - { key: "category", title: "供应类别", type: "string" }
+      - { key: "region", title: "所在地区", type: "string" }
+      - { key: "creditTerm", title: "账期", type: "string" }
+      - { key: "rating", title: "绩效评级", type: "string" }
+      - { key: "contact", title: "对接人", type: "string" }
+      - { key: "status", title: "合作状态", type: "string" }
     mockData:
-      - { code: "PO-2024-0812-001", supplier: "泰科机电", amount: 9250, dueDate: "2024-08-17", status: "待供应商确认" }
-      - { code: "PO-2024-0812-002", supplier: "华宇传动", amount: 3580, dueDate: "2024-08-21", status: "在途" }
-      - { code: "PO-2024-0812-003", supplier: "密封圈科技", amount: 3330, dueDate: "2024-08-24", status: "待审批" }
+      - { code: "SUP-1001", name: "泰科机电（苏州）", category: "电机 / 传动", region: "江苏苏州", creditTerm: "月结 60 天", rating: "A", contact: "陈立", status: "合作中" }
+      - { code: "SUP-1002", name: "华宇传动（宁波）", category: "轴承 / 传动", region: "浙江宁波", creditTerm: "月结 45 天", rating: "B", contact: "周敏", status: "合作中" }
+      - { code: "SUP-1003", name: "密封圈科技（东莞）", category: "密封件", region: "广东东莞", creditTerm: "月结 30 天", rating: "A", contact: "刘伟", status: "合作中" }
+      - { code: "SUP-1004", name: "精工铸造（常州）", category: "铸件", region: "江苏常州", creditTerm: "月结 60 天", rating: "C", contact: "赵磊", status: "观察期" }
+      - { code: "SUP-1005", name: "恒信线缆（无锡）", category: "线缆", region: "江苏无锡", creditTerm: "月结 45 天", rating: "B", contact: "孙浩", status: "合作中" }
+      - { code: "SUP-1006", name: "锐驰电子（深圳）", category: "电控 / 传感器", region: "广东深圳", creditTerm: "月结 30 天", rating: "A", contact: "吴迪", status: "合作中" }
+      - { code: "SUP-1007", name: "宏达五金（佛山）", category: "标准件", region: "广东佛山", creditTerm: "现结", rating: "C", contact: "黄婷", status: "暂停合作" }
+      - { code: "SUP-1008", name: "德昌精密（青岛）", category: "机加工件", region: "山东青岛", creditTerm: "月结 60 天", rating: "B", contact: "郑凯", status: "合作中" }
+
+  - name: "Material"
+    description: "物料主数据（供采购订单 / 库存复用）"
+    fields:
+      - { key: "code", title: "物料编码", type: "string" }
+      - { key: "name", title: "物料名称", type: "string" }
+      - { key: "category", title: "物料类别", type: "string" }
+      - { key: "spec", title: "规格型号", type: "string" }
+      - { key: "unit", title: "单位", type: "string" }
+      - { key: "safeStock", title: "安全库存", type: "number" }
+      - { key: "standardPrice", title: "标准单价(¥)", type: "number" }
+      - { key: "primarySupplierCode", title: "主供应商编码", type: "string" }
+    mockData:
+      - { code: "MTR-001", name: "三相异步电机 YE3-132S", category: "电机", spec: "7.5kW / 380V", unit: "台", safeStock: 20, standardPrice: 6200.00, primarySupplierCode: "SUP-1001" }
+      - { code: "BRG-002", name: "深沟球轴承 6205-2RS", category: "轴承", spec: "25×52×15", unit: "套", safeStock: 500, standardPrice: 37.00, primarySupplierCode: "SUP-1002" }
+      - { code: "SEL-003", name: "O 型密封圈 NBR 70A", category: "密封件", spec: "Φ50×3.5", unit: "只", safeStock: 3000, standardPrice: 1.30, primarySupplierCode: "SUP-1003" }
+      - { code: "CST-004", name: "电机端盖 HT250", category: "铸件", spec: "YE3-132 适配", unit: "件", safeStock: 40, standardPrice: 480.00, primarySupplierCode: "SUP-1004" }
+      - { code: "CBL-005", name: "屏蔽电缆 RVVP 4×1.0", category: "线缆", spec: "4 芯 1.0mm²", unit: "米", safeStock: 800, standardPrice: 12.30, primarySupplierCode: "SUP-1005" }
+      - { code: "SEN-006", name: "接近开关 M18 PNP", category: "传感器", spec: "M18 / 常开", unit: "只", safeStock: 60, standardPrice: 130.00, primarySupplierCode: "SUP-1006" }
+      - { code: "FST-007", name: "内六角螺栓 M8×40", category: "标准件", spec: "8.8 级 / 镀锌", unit: "只", safeStock: 8000, standardPrice: 0.46, primarySupplierCode: "SUP-1007" }
+      - { code: "MCH-008", name: "法兰盘 DN80（定制）", category: "机加工件", spec: "DN80 / PN16", unit: "件", safeStock: 50, standardPrice: 142.00, primarySupplierCode: "SUP-1008" }
+
+  - name: "PurchaseOrder"
+    description: "采购订单（核心对象，通过 supplierCode 关联供应商主数据）"
+    fields:
+      - { key: "code", title: "采购订单号", type: "string" }
+      - { key: "supplierCode", title: "供应商编码", type: "string" }
+      - { key: "supplier", title: "供应商名称", type: "string" }
+      - { key: "materialCode", title: "物料编码", type: "string" }
+      - { key: "material", title: "物料名称", type: "string" }
+      - { key: "qty", title: "数量", type: "number" }
+      - { key: "unit", title: "单位", type: "string" }
+      - { key: "amountExTax", title: "不含税金额(¥)", type: "number" }
+      - { key: "dueDate", title: "约定交期", type: "string" }
+      - { key: "buyer", title: "采购负责人", type: "string" }
+      - { key: "status", title: "订单状态", type: "string" }
+      - { key: "note", title: "备注", type: "string" }
+    mockData:
+      - { code: "PO-2024-0812-001", supplierCode: "SUP-1001", supplier: "泰科机电（苏州）", materialCode: "MTR-001", material: "三相异步电机 YE3-132S", qty: 12, unit: "台", amountExTax: 74400.00, dueDate: "2024-08-17", buyer: "张敏", status: "待供应商确认", note: "产线紧急件" }
+      - { code: "PO-2024-0812-002", supplierCode: "SUP-1002", supplier: "华宇传动（宁波）", materialCode: "BRG-002", material: "深沟球轴承 6205-2RS", qty: 500, unit: "套", amountExTax: 18500.00, dueDate: "2024-08-21", buyer: "张敏", status: "在途", note: "" }
+      - { code: "PO-2024-0812-003", supplierCode: "SUP-1003", supplier: "密封圈科技（东莞）", materialCode: "SEL-003", material: "O 型密封圈 NBR 70A", qty: 5000, unit: "只", amountExTax: 6500.00, dueDate: "2024-08-24", buyer: "李强", status: "待审批", note: "需技术确认材质" }
+      - { code: "PO-2024-0812-004", supplierCode: "SUP-1004", supplier: "精工铸造（常州）", materialCode: "CST-004", material: "电机端盖 HT250", qty: 60, unit: "件", amountExTax: 28800.00, dueDate: "2024-08-15", buyer: "李强", status: "延期风险", note: "供应商产能不足，预计晚 3 天" }
+      - { code: "PO-2024-0812-005", supplierCode: "SUP-1005", supplier: "恒信线缆（无锡）", materialCode: "CBL-005", material: "屏蔽电缆 RVVP 4×1.0", qty: 2000, unit: "米", amountExTax: 24600.00, dueDate: "2024-08-19", buyer: "张敏", status: "已入库", note: "" }
+      - { code: "PO-2024-0812-006", supplierCode: "SUP-1006", supplier: "锐驰电子（深圳）", materialCode: "SEN-006", material: "接近开关 M18 PNP", qty: 120, unit: "只", amountExTax: 15600.00, dueDate: "2024-08-22", buyer: "李强", status: "部分到货", note: "到货 80 只，余 40 只待发" }
+      - { code: "PO-2024-0812-007", supplierCode: "SUP-1007", supplier: "宏达五金（佛山）", materialCode: "FST-007", material: "内六角螺栓 M8×40", qty: 20000, unit: "只", amountExTax: 9200.00, dueDate: "2024-08-26", buyer: "张敏", status: "已取消", note: "改由集采平台下单" }
+      - { code: "PO-2024-0812-008", supplierCode: "SUP-1008", supplier: "德昌精密（青岛）", materialCode: "MCH-008", material: "法兰盘 DN80（定制）", qty: 300, unit: "件", amountExTax: 42600.00, dueDate: "2024-08-18", buyer: "李强", status: "已对账", note: "已生成对账单 RC-2024-08-008" }
 
 # ---- 页面设计（承接 touchpoints / handoff.pages，元素见 mvp_prompts.md） ----
 pages:
@@ -69,6 +124,16 @@ pages:
         accept: ".xlsx,.csv"
         hint: "支持 Excel/CSV，自动识别物料编码、数量、期望交期（示例：PR-2024-0812.xlsx）"
         action: "parseRequest"
+      - type: "formCard"
+        title: "申请单头信息（自动带出，可修改）"
+        action: "parseRequest"
+        fields:
+          - { key: "applicant", label: "申请人", type: "text", value: "张敏（生产计划）" }
+          - { key: "department", label: "需求部门", type: "text", value: "制造部 · 装配一车间" }
+          - { key: "costCenter", label: "成本中心", type: "text", value: "CC-3021（制造费用）" }
+          - { key: "needBy", label: "需求日期", type: "date", value: "2024-08-17" }
+          - { key: "currency", label: "币种", type: "select", value: "CNY", options: ["CNY", "USD"] }
+          - { key: "taxRate", label: "税率", type: "select", value: "13%", options: ["13%", "9%", "6%"] }
       - type: "aiResultCard"
         title: "AI 识别结果"
         bind: "parseRequest"
@@ -84,15 +149,19 @@ pages:
           - { text: "确认并进入供应商推荐", type: "primary", action: "navigate:/recommend" }
 
 # ---- Mock AI 服务接口（server/services/aiService.js 生成依据） ----
+# 列表型 response 至少 5 条，字段与页面 columns 对齐，状态取值必须命中 tag 映射
 aiMocks:
   - name: "parseRequest"                      # aiService 方法名
     latency: 700                              # 模拟 AI 处理延迟 ms
     response:
-      summary: "已识别 3 条物料，2 项通过，1 项缺失（期望交期未填）"
+      summary: "已识别 6 条物料：4 项通过、1 项数量缺失、1 项交期异常（早于最早可交期）"
       items:
-        - { code: "MTR-001", name: "电机", qty: 180, dueDate: "2024-08-15", status: "通过" }
-        - { code: "BRG-002", name: "轴承", qty: 200, dueDate: "2024-08-15", status: "通过" }
-        - { code: "SEL-003", name: "密封圈", qty: 1000, dueDate: "", status: "缺失" }
+        - { code: "MTR-001", name: "三相异步电机 YE3-132S", qty: 12, dueDate: "2024-08-17", status: "通过" }
+        - { code: "BRG-002", name: "深沟球轴承 6205-2RS", qty: 500, dueDate: "2024-08-21", status: "通过" }
+        - { code: "SEL-003", name: "O 型密封圈 NBR 70A", qty: 5000, dueDate: "2024-08-24", status: "通过" }
+        - { code: "CBL-005", name: "屏蔽电缆 RVVP 4×1.0", qty: 2000, dueDate: "2024-08-19", status: "通过" }
+        - { code: "SEN-006", name: "接近开关 M18 PNP", qty: 120, dueDate: "2024-08-22", status: "缺失" }
+        - { code: "CST-004", name: "电机端盖 HT250", qty: 60, dueDate: "2024-08-10", status: "异常" }
 
 # ---- Mock 业务系统接口（server/services/businessMock.js 生成依据） ----
 businessMocks:
@@ -101,7 +170,12 @@ businessMocks:
     latency: 200
     response:
       items:
-        - { code: "MTR-001", name: "电机", stock: 320, safeStock: 500, status: "低于安全库存" }
+        - { code: "MTR-001", name: "三相异步电机 YE3-132S", warehouse: "原料库 A", stock: 6, safeStock: 20, onOrder: 12, status: "低于安全库存" }
+        - { code: "BRG-002", name: "深沟球轴承 6205-2RS", warehouse: "备件库", stock: 820, safeStock: 500, onOrder: 500, status: "正常" }
+        - { code: "SEL-003", name: "O 型密封圈 NBR 70A", warehouse: "原料库 B", stock: 3200, safeStock: 3000, onOrder: 5000, status: "正常" }
+        - { code: "CST-004", name: "电机端盖 HT250", warehouse: "半成品库", stock: 18, safeStock: 40, onOrder: 60, status: "低于安全库存" }
+        - { code: "CBL-005", name: "屏蔽电缆 RVVP 4×1.0", warehouse: "原料库 A", stock: 150, safeStock: 800, onOrder: 2000, status: "低于安全库存" }
+        - { code: "SEN-006", name: "接近开关 M18 PNP", warehouse: "备件库", stock: 95, safeStock: 60, onOrder: 120, status: "正常" }
 
 # ---- API 网关路由（server/routes/api.js 与前端 client.js 生成依据） ----
 apiRoutes:
@@ -109,10 +183,10 @@ apiRoutes:
     method: "POST"
     path: "/api/purchase/parse"
     target: "ai:parseRequest"
-  - name: "getOrders"
+  - name: "getInventory"
     method: "GET"
-    path: "/api/orders"
-    target: "business:getOrders"
+    path: "/api/inventory"
+    target: "business:getInventory"
   - name: "loadDashboard"
     method: "GET"
     path: "/api/dashboard"

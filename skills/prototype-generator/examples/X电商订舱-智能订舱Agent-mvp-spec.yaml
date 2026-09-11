@@ -52,19 +52,52 @@ scenarios:
     trigger: "每周一基于出货计划批量提交订舱与 SI"
     goal: "3 票 SI 批量预填 15 分钟内完成，异常项一次补全"
 dataModels:
+  - name: "Customer"
+    description: "订舱客户主数据（BCO 直客 / 货代，供订舱单与推荐复用）"
+    fields:
+      - { key: "code", title: "客户编码", type: "string" }
+      - { key: "name", title: "客户名称", type: "string" }
+      - { key: "type", title: "客户类型", type: "string" }
+      - { key: "industry", title: "行业", type: "string" }
+      - { key: "region", title: "所在地区", type: "string" }
+      - { key: "creditTerm", title: "账期", type: "string" }
+      - { key: "contractNo", title: "合约号", type: "string" }
+      - { key: "status", title: "合作状态", type: "string" }
+    mockData:
+      - { code: "CUS-2001", name: "小米通讯（北京）", type: "BCO 直客", industry: "消费电子", region: "北京", creditTerm: "月结 30 天", contractNo: "CT-2026-0101", status: "合作中" }
+      - { code: "CUS-2002", name: "比亚迪（深圳）", type: "BCO 直客", industry: "新能源汽车", region: "广东深圳", creditTerm: "月结 60 天", contractNo: "CT-2026-0102", status: "合作中" }
+      - { code: "CUS-2003", name: "美的集团（佛山）", type: "BCO 直客", industry: "智能家电", region: "广东佛山", creditTerm: "月结 45 天", contractNo: "CT-2026-0103", status: "合作中" }
+      - { code: "CUS-2004", name: "华勤技术（上海）", type: "BCO 直客", industry: "智能终端 ODM", region: "上海", creditTerm: "月结 30 天", contractNo: "CT-2026-0104", status: "合作中" }
+      - { code: "CUS-2005", name: "宁德时代（宁德）", type: "BCO 直客", industry: "动力电池", region: "福建宁德", creditTerm: "月结 60 天", contractNo: "CT-2026-0105", status: "合作中" }
+      - { code: "CUS-2006", name: "立讯精密（东莞）", type: "BCO 直客", industry: "消费电子", region: "广东东莞", creditTerm: "月结 30 天", contractNo: "CT-2026-0106", status: "合作中" }
+      - { code: "CUS-2007", name: "环球货代（上海）", type: "货代", industry: "国际物流", region: "上海", creditTerm: "预付", contractNo: "CT-2026-0107", status: "合作中" }
+      - { code: "CUS-2008", name: "传音控股（深圳）", type: "BCO 直客", industry: "手机出海", region: "广东深圳", creditTerm: "月结 45 天", contractNo: "CT-2026-0108", status: "观察期" }
+
   - name: "BookingOrder"
-    description: "电商订舱单（OMS）"
+    description: "电商订舱单（OMS，核心对象，通过 customerCode 关联客户主数据）"
     fields:
       - { key: "code", title: "订舱号", type: "string" }
+      - { key: "customerCode", title: "客户编码", type: "string" }
+      - { key: "customer", title: "客户", type: "string" }
       - { key: "route", title: "航线", type: "string" }
       - { key: "vessel", title: "船名航次", type: "string" }
+      - { key: "container", title: "箱型货量", type: "string" }
       - { key: "etd", title: "ETD", type: "string" }
-      - { key: "rate", title: "运价", type: "string" }
+      - { key: "eta", title: "ETA", type: "string" }
+      - { key: "rate", title: "All-in 运价", type: "string" }
+      - { key: "owner", title: "客服负责人", type: "string" }
       - { key: "status", title: "状态", type: "string" }
+      - { key: "note", title: "备注", type: "string" }
     mockData:
-      - { code: "BK-2026-0901-001", route: "上海→洛杉矶", vessel: "X-PRIDE 101E", etd: "2026-09-12", rate: "USD 2,450", status: "待装柜" }
-      - { code: "BK-2026-0901-002", route: "宁波→汉堡", vessel: "X-HARMONY 201E", etd: "2026-09-15", rate: "USD 2,780", status: "已开船" }
-      - { code: "BK-2026-0901-003", route: "上海→鹿特丹", vessel: "X-VOYAGER 305E", etd: "2026-09-18", rate: "USD 2,950", status: "待补件" }
+      - { code: "BK-2026-0901-001", customerCode: "CUS-2001", customer: "小米通讯（北京）", route: "上海→洛杉矶", vessel: "X-PRIDE 101E", container: "1×40HQ", etd: "2026-09-12", eta: "2026-10-02", rate: "USD 2,450", owner: "王静", status: "待装柜", note: "Space Protection 已生效" }
+      - { code: "BK-2026-0901-002", customerCode: "CUS-2002", customer: "比亚迪（深圳）", route: "宁波→汉堡", vessel: "X-HARMONY 201E", container: "2×40HQ", etd: "2026-09-15", eta: "2026-10-18", rate: "USD 2,780", owner: "李娜", status: "已开船", note: "" }
+      - { code: "BK-2026-0901-003", customerCode: "CUS-2003", customer: "美的集团（佛山）", route: "上海→鹿特丹", vessel: "X-VOYAGER 305E", container: "1×40HQ+1×20GP", etd: "2026-09-18", eta: "2026-10-21", rate: "USD 2,950", owner: "王静", status: "待补件", note: "缺收货人税号 / VGM" }
+      - { code: "BK-2026-0901-004", customerCode: "CUS-2004", customer: "华勤技术（上海）", route: "深圳→长滩", vessel: "X-PRIDE 103E", container: "1×40HQ", etd: "2026-09-20", eta: "2026-10-08", rate: "USD 2,520", owner: "赵敏", status: "已放舱", note: "" }
+      - { code: "BK-2026-0901-005", customerCode: "CUS-2005", customer: "宁德时代（宁德）", route: "上海→悉尼", vessel: "X-AURORA 207E", container: "1×40HQ（危品 UN3480）", etd: "2026-09-22", eta: "2026-10-15", rate: "USD 3,180", owner: "赵敏", status: "改配中", note: "危品需重新申报 IMDG" }
+      - { code: "BK-2026-0901-006", customerCode: "CUS-2006", customer: "立讯精密（东莞）", route: "深圳→新加坡", vessel: "X-ATLAS 105E", container: "1×40GP", etd: "2026-09-10", eta: "2026-09-18", rate: "USD 980", owner: "王静", status: "已到港", note: "" }
+      - { code: "BK-2026-0901-007", customerCode: "CUS-2007", customer: "环球货代（上海）", route: "青岛→纽约", vessel: "X-VOYAGER 311E", container: "3×40HQ", etd: "2026-09-08", eta: "2026-10-12", rate: "USD 3,050", owner: "李娜", status: "退关", note: "客户改期，退关重订" }
+      - { code: "BK-2026-0901-008", customerCode: "CUS-2008", customer: "传音控股（深圳）", route: "宁波→迪拜", vessel: "X-HARMONY 209E", container: "1×40HQ", etd: "2026-09-05", eta: "2026-09-28", rate: "USD 1,860", owner: "赵敏", status: "已完成", note: "已对账结算" }
+
   - name: "QuoteOption"
     description: "Agent 舱位推荐方案（E-Spot / Secured E-Quote / E-Quote）"
     fields:
@@ -73,25 +106,39 @@ dataModels:
       - { key: "rate", title: "All-in 运价", type: "string" }
       - { key: "transit", title: "航程", type: "string" }
       - { key: "etd", title: "ETD", type: "string" }
+      - { key: "eta", title: "ETA", type: "string" }
       - { key: "space", title: "舱位状态", type: "string" }
       - { key: "score", title: "推荐指数", type: "number" }
     mockData:
-      - { option: "方案 A", product: "E-Spot 即期", rate: "USD 2,450/40HQ", transit: "12 天", etd: "2026-10-08", space: "舱位保证", score: 92 }
-      - { option: "方案 B", product: "Secured E-Quote 锁价", rate: "USD 2,580/40HQ", transit: "14 天", etd: "2026-10-10", space: "舱位保证", score: 88 }
-      - { option: "方案 C", product: "E-Quote 长协", rate: "USD 2,380/40HQ", transit: "15 天", etd: "2026-10-12", space: "需确认", score: 81 }
+      - { option: "方案 A", product: "E-Spot 即期", rate: "USD 2,450/40HQ", transit: "12 天", etd: "2026-10-08", eta: "2026-10-20", space: "舱位保证", score: 92 }
+      - { option: "方案 B", product: "Secured E-Quote 锁价", rate: "USD 2,580/40HQ", transit: "14 天", etd: "2026-10-10", eta: "2026-10-24", space: "舱位保证", score: 88 }
+      - { option: "方案 C", product: "E-Quote 长协", rate: "USD 2,380/40HQ", transit: "15 天", etd: "2026-10-12", eta: "2026-10-27", space: "需确认", score: 81 }
+      - { option: "方案 D", product: "E-Spot 即期（中转）", rate: "USD 2,320/40HQ", transit: "18 天", etd: "2026-10-09", eta: "2026-10-27", space: "需确认", score: 76 }
+      - { option: "方案 E", product: "Secured E-Quote（加班船）", rate: "USD 2,760/40HQ", transit: "11 天", etd: "2026-10-07", eta: "2026-10-18", space: "舱位保证", score: 84 }
+      - { option: "方案 F", product: "E-Quote 长协（备用港）", rate: "USD 2,410/40HQ", transit: "16 天", etd: "2026-10-11", eta: "2026-10-27", space: "舱位保证", score: 79 }
+      - { option: "方案 G", product: "E-Spot 即期（延后）", rate: "USD 2,300/40HQ", transit: "13 天", etd: "2026-10-15", eta: "2026-10-28", space: "可订", score: 72 }
+      - { option: "方案 H", product: "E-Quote 长协（超期）", rate: "USD 2,290/40HQ", transit: "20 天", etd: "2026-10-18", eta: "2026-11-07", space: "需确认", score: 64 }
+
   - name: "ShipmentTracking"
-    description: "控制塔 / Cargo Tracking+ 运输里程碑"
+    description: "控制塔 / Cargo Tracking+ 运输里程碑（关联订舱号）"
     fields:
+      - { key: "bookingNo", title: "订舱号", type: "string" }
       - { key: "milestone", title: "节点", type: "string" }
       - { key: "time", title: "时间", type: "string" }
+      - { key: "location", title: "地点", type: "string" }
+      - { key: "vessel", title: "船名航次", type: "string" }
+      - { key: "owner", title: "客服负责人", type: "string" }
       - { key: "status", title: "状态", type: "string" }
+      - { key: "note", title: "备注", type: "string" }
     mockData:
-      - { milestone: "订舱确认", time: "09-01", status: "完成" }
-      - { milestone: "提箱/装柜", time: "09-06", status: "完成" }
-      - { milestone: "重箱进场", time: "09-08", status: "完成" }
-      - { milestone: "开船（ETD 09-12）", time: "09-12", status: "完成" }
-      - { milestone: "中转港 · 釜山", time: "09-18", status: "进行中" }
-      - { milestone: "ETA 洛杉矶", time: "10-02", status: "待到达" }
+      - { bookingNo: "BK-2026-0901-001", milestone: "订舱确认", time: "09-01 10:20", location: "上海", vessel: "X-PRIDE 101E", owner: "王静", status: "完成", note: "Booking Confirmation 已签发" }
+      - { bookingNo: "BK-2026-0901-001", milestone: "提箱/装柜", time: "09-06 08:30", location: "上海外高桥", vessel: "X-PRIDE 101E", owner: "王静", status: "完成", note: "" }
+      - { bookingNo: "BK-2026-0901-001", milestone: "重箱进场", time: "09-08 16:10", location: "上海洋山港", vessel: "X-PRIDE 101E", owner: "王静", status: "完成", note: "" }
+      - { bookingNo: "BK-2026-0901-001", milestone: "开船（ETD）", time: "09-12 02:00", location: "上海洋山港", vessel: "X-PRIDE 101E", owner: "王静", status: "完成", note: "" }
+      - { bookingNo: "BK-2026-0901-001", milestone: "中转港", time: "09-18 22:40", location: "釜山", vessel: "X-PRIDE 101E", owner: "王静", status: "进行中", note: "预计停留 8 小时" }
+      - { bookingNo: "BK-2026-0901-001", milestone: "ETA", time: "10-02 09:00", location: "洛杉矶", vessel: "X-PRIDE 101E", owner: "王静", status: "待到达", note: "码头拥堵指数偏高 [推断]" }
+      - { bookingNo: "BK-2026-0901-001", milestone: "卸船", time: "—", location: "洛杉矶", vessel: "X-PRIDE 101E", owner: "王静", status: "待到达", note: "" }
+      - { bookingNo: "BK-2026-0901-001", milestone: "提柜/还柜", time: "—", location: "洛杉矶", vessel: "X-PRIDE 101E", owner: "王静", status: "待到达", note: "D&D 免费期 7 天" }
 pages:
   - id: "dashboard"
     title: "工作台总览"
@@ -323,6 +370,8 @@ aiMocks:
         - { option: "方案 A", product: "E-Spot 即期", rate: "USD 2,450/40HQ", transit: "12 天", etd: "2026-10-08", space: "舱位保证", score: 92 }
         - { option: "方案 B", product: "Secured E-Quote 锁价", rate: "USD 2,580/40HQ", transit: "14 天", etd: "2026-10-10", space: "舱位保证", score: 88 }
         - { option: "方案 C", product: "E-Quote 长协", rate: "USD 2,380/40HQ", transit: "15 天", etd: "2026-10-12", space: "需确认", score: 81 }
+        - { option: "方案 D", product: "E-Spot 即期（中转）", rate: "USD 2,320/40HQ", transit: "18 天", etd: "2026-10-09", space: "需确认", score: 76 }
+        - { option: "方案 E", product: "Secured E-Quote（加班船）", rate: "USD 2,760/40HQ", transit: "11 天", etd: "2026-10-07", space: "舱位保证", score: 84 }
   - name: "submitBooking"
     latency: 800
     response:
@@ -353,6 +402,9 @@ aiMocks:
       items:
         - { option: "改配方案 1", voyage: "X-PRIDE 103E", etd: "2026-09-15", impact: "货期 +2 天，舱位保证延续", status: "推荐" }
         - { option: "改配方案 2", voyage: "X-ATLAS 105E", etd: "2026-09-18", impact: "货期 +4 天，可启动 Delay in Transit 赔付预判", status: "可选" }
+        - { option: "改配方案 3", voyage: "X-AURORA 207E", etd: "2026-09-16", impact: "货期 +3 天，中转港釜山换装", status: "可选" }
+        - { option: "改配方案 4", voyage: "X-VOYAGER 311E", etd: "2026-09-20", impact: "货期 +6 天，直航改中转，成本 -USD 120", status: "备选" }
+        - { option: "维持原航次", voyage: "X-PRIDE 101E", etd: "2026-09-12", impact: "货期 +2~3 天，可申请 Delay in Transit 保障", status: "维持" }
   - name: "payOrder"
     latency: 700
     response:
@@ -367,9 +419,14 @@ businessMocks:
     latency: 300
     response:
       items:
-        - { code: "BK-2026-0901-001", route: "上海→洛杉矶", vessel: "X-PRIDE 101E", etd: "2026-09-12", rate: "USD 2,450", status: "待装柜" }
-        - { code: "BK-2026-0901-002", route: "宁波→汉堡", vessel: "X-HARMONY 201E", etd: "2026-09-15", rate: "USD 2,780", status: "已开船" }
-        - { code: "BK-2026-0901-003", route: "上海→鹿特丹", vessel: "X-VOYAGER 305E", etd: "2026-09-18", rate: "USD 2,950", status: "待补件" }
+        - { code: "BK-2026-0901-001", customer: "小米通讯（北京）", route: "上海→洛杉矶", vessel: "X-PRIDE 101E", etd: "2026-09-12", rate: "USD 2,450", status: "待装柜" }
+        - { code: "BK-2026-0901-002", customer: "比亚迪（深圳）", route: "宁波→汉堡", vessel: "X-HARMONY 201E", etd: "2026-09-15", rate: "USD 2,780", status: "已开船" }
+        - { code: "BK-2026-0901-003", customer: "美的集团（佛山）", route: "上海→鹿特丹", vessel: "X-VOYAGER 305E", etd: "2026-09-18", rate: "USD 2,950", status: "待补件" }
+        - { code: "BK-2026-0901-004", customer: "华勤技术（上海）", route: "深圳→长滩", vessel: "X-PRIDE 103E", etd: "2026-09-20", rate: "USD 2,520", status: "已放舱" }
+        - { code: "BK-2026-0901-005", customer: "宁德时代（宁德）", route: "上海→悉尼", vessel: "X-AURORA 207E", etd: "2026-09-22", rate: "USD 3,180", status: "改配中" }
+        - { code: "BK-2026-0901-006", customer: "立讯精密（东莞）", route: "深圳→新加坡", vessel: "X-ATLAS 105E", etd: "2026-09-10", rate: "USD 980", status: "已到港" }
+        - { code: "BK-2026-0901-007", customer: "环球货代（上海）", route: "青岛→纽约", vessel: "X-VOYAGER 311E", etd: "2026-09-08", rate: "USD 3,050", status: "退关" }
+        - { code: "BK-2026-0901-008", customer: "传音控股（深圳）", route: "宁波→迪拜", vessel: "X-HARMONY 209E", etd: "2026-09-05", rate: "USD 1,860", status: "已完成" }
   - name: "getTracking"
     system: "controlTower"
     latency: 300

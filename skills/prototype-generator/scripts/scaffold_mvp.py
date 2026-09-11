@@ -464,9 +464,11 @@ def react_render_section(el, page, spec, state=None):
             if ftype == "select":
                 opts = ensure_list(f.get("options"))
                 opts_js = ", ".join("{ value: '%s', label: '%s' }" % (o.get("value", o), o.get("label", o)) if isinstance(o, dict) else "{ value: '%s', label: '%s' }" % (o, o) for o in opts)
-                jsx.append(f"  <div style={{{{ marginBottom: 12 }}}}><span style={{{{ marginRight: 8 }}}}>{label}：</span><Select style={{{{ width: 260 }}}} options={{ [{opts_js}] }} onChange={{ (v) => setForm(v => ({{ ...v, {key}: v }})) }} /></div>")
+                dflt = f.get("value", f.get("default", ""))
+                jsx.append(f"  <div style={{{{ marginBottom: 12 }}}}><span style={{{{ marginRight: 8 }}}}>{label}：</span><Select style={{{{ width: 260 }}}} defaultValue={{{json.dumps(dflt, ensure_ascii=False)}}} options={{ [{opts_js}] }} onChange={{ (v) => setForm(v => ({{ ...v, {key}: v }})) }} /></div>")
             else:
-                jsx.append(f"  <div style={{{{ marginBottom: 12 }}}}><span style={{{{ marginRight: 8 }}}}>{label}：</span><Input style={{{{ width: 260 }}}} onChange={{ (e) => setForm(v => ({{ ...v, {key}: e.target.value }})) }} /></div>")
+                dflt = f.get("value", f.get("default", ""))
+                jsx.append(f"  <div style={{{{ marginBottom: 12 }}}}><span style={{{{ marginRight: 8 }}}}>{label}：</span><Input style={{{{ width: 260 }}}} defaultValue={{{json.dumps(dflt, ensure_ascii=False)}}} onChange={{ (e) => setForm(v => ({{ ...v, {key}: e.target.value }})) }} /></div>")
         if action:
             jsx.append(f"  <Button type=\"primary\" loading={{ {action}Loading }} onClick={{ () => handle{cap(camel(action))}(form) }}>提交</Button>")
         jsx.append("</Card>")
@@ -764,19 +766,20 @@ def vue_render_section(el, page, spec, state=None):
             key = f.get("key", "")
             label = f.get("label", key)
             ftype = f.get("type", "text")
+            dflt = f.get("value", f.get("default", ""))
             if ftype == "select":
                 opts = ensure_list(f.get("options"))
                 opts_vue = "\n".join(f"        <a-option value=\"{o.get('value', o) if isinstance(o, dict) else o}\">{o.get('label', o.get('value', o)) if isinstance(o, dict) else o}</a-option>" for o in opts)
                 lines.append("  <div class=\"form-row\">")
                 lines.append(f"    <span class=\"form-label\">{label}</span>")
-                lines.append(f"    <a-select style=\"width: 260px\" @change=\"(v) => (form['{key}'] = v)\">")
+                lines.append(f"    <a-select style=\"width: 260px\" :default-value=\"'{dflt}'\" @change=\"(v) => (form['{key}'] = v)\">")
                 lines.append(opts_vue)
                 lines.append("    </a-select>")
                 lines.append("  </div>")
             else:
                 lines.append("  <div class=\"form-row\">")
                 lines.append(f"    <span class=\"form-label\">{label}</span>")
-                lines.append(f"    <a-input style=\"width: 260px\" @input=\"(v) => (form['{key}'] = v)\" />")
+                lines.append(f"    <a-input style=\"width: 260px\" :default-value=\"'{dflt}'\" @input=\"(v) => (form['{key}'] = v)\" />")
                 lines.append("  </div>")
         if action:
             cname = cap(camel(action))
@@ -871,6 +874,30 @@ def generate_vue_page(spec, page):
 # ---------------------------------------------------------------
 # 脚手架主流程
 # ---------------------------------------------------------------
+
+def mock_data_warnings(spec):
+    """检查 Mock 数据丰富度（见 references/mvp_prompts.md 第二节），返回告警列表。"""
+    warns = []
+    models = ensure_list(spec.get("dataModels"))
+    if len(models) < 3:
+        warns.append(f"dataModels 仅 {len(models)} 个（建议 ≥3，覆盖核心对象）")
+    for m in models:
+        name = m.get("name", "?")
+        nf = len(ensure_list(m.get("fields")))
+        nr = len(ensure_list(m.get("mockData")))
+        if nf < 8:
+            warns.append(f"dataModel「{name}」字段仅 {nf} 个（建议 ≥8：主键/状态/金额或数量+单位/日期/责任人/关联键…）")
+        if nr < 8:
+            warns.append(f"dataModel「{name}」mockData 仅 {nr} 条（建议 ≥8，且含异常/边界样本）")
+    for key, label in (("aiMocks", "aiMock"), ("businessMocks", "businessMock")):
+        for mk in ensure_list(spec.get(key)):
+            resp = mk.get("response") or {}
+            if isinstance(resp, dict):
+                for listkey, items in resp.items():
+                    if isinstance(items, list) and len(items) < 5:
+                        warns.append(f"{label}「{mk.get('name', '?')}」的 {listkey} 仅 {len(items)} 条（列表型建议 ≥5）")
+    return warns
+
 
 def main():
     parser = argparse.ArgumentParser(description="MVP 脚手架编译引擎")
@@ -1009,6 +1036,11 @@ def main():
     print(f"   前端: {frontend} + {meta['designSystem']}  |  后端: Express 一体化")
     print(f"   页面: {len(spec['pages'])} 个 | API 路由: {len(spec['apiRoutes'])} 条 | AI Mock: {len(spec['aiMocks'])} 个 | 业务 Mock: {len(spec['businessMocks'])} 个")
     print(f"   启动: cd {out_rel} && npm install && npm run dev")
+    warns = mock_data_warnings(spec)
+    if warns:
+        print("   ⚠️ Mock 数据丰富度告警（铁律见 references/mvp_prompts.md 第二节，建议回填后再交付）：")
+        for w in warns:
+            print(f"      - {w}")
 
 
 def render_file(env, ctx, template_name, out_path):

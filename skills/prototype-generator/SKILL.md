@@ -103,8 +103,21 @@ AI Canvas YAML + To-be Journey YAML（+ 用户偏好：前端框架/配色）
 - **兜底**：用户仅提供自然语言场景描述时，先按 AI Canvas 十维结构推演画布，再进入 Step 2。
 
 ### Step 2 · 推演 mvp_spec.yaml（LLM 产物）
-- 严格遵循 `references/mvp_prompts.md` 铁律（承接规则、元素类型白名单、主题推导表、防呆结构）。
+- 严格遵循 `references/mvp_prompts.md` 铁律（承接规则、**Mock 数据丰富度与业务贴合铁律**、元素类型白名单、主题推导表、防呆结构）。
 - **产物保存位置**：输出到 `<客户案例目录>/<场景目录>/` 场景子目录，命名为 `[公司/业务名]-[场景名]-mvp-spec.yaml`（不是 Skill 的 `examples/`；`examples/` 仅存放演示样例）。
+
+#### Step 2.1 · Mock 数据深化（必做，别跳过）
+mvp_spec 里**本来就有 mock data 这一步**：`dataModels.mockData` + `aiMocks.response` + `businessMocks.response`（需要更深业务数据再补 `sim_spec`）。生成时按下述清单自查，**不达标就补**：
+
+- [ ] **主数据先行**：先定一套业务主数据（客户 / 供应商 / 物料 / 组织 / 仓库 / 线路 / 单证…），命名、编码、行业属性贴合客户业务；后续所有 mock 只复用这套主数据。
+- [ ] **核心对象字段 ≥ 8**：主键 / 名称 / 状态 / 金额或数量+单位 / 日期 / 责任人 / **关联键** / 备注，`title` 用客户业务术语。
+- [ ] **mockData ≥ 8 条**（复杂场景 ≥ 12），覆盖 正常 / 进行中 / 异常 / 边界，至少 1~2 条异常或边界样本。
+- [ ] **跨对象关联一致**：同一实体在 `dataModels` / `aiMocks` / `businessMocks` 中编码·名称·口径完全一致，可用一条主链（客户→订单→…→凭证）交叉核对。
+- [ ] **列表型响应 ≥ 5 条**，字段与页面 `columns` 对齐，状态值命中 `tag` 映射。
+- [ ] **表单（formCard）带真实默认值**（`value`），不要空占位。
+- [ ] 无 `xxx` / `TODO` / `A公司` / 玩具数值。
+
+> 数据单薄会直接拉低原型可信度。`references/mvp_spec_schema.yaml` 给出了「主数据 + 核心对象 + 列表响应 + 表单默认值」的完整范例。
 
 ### Step 3 · 脚手架编译
 ```bash
