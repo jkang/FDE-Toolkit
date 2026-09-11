@@ -2,8 +2,53 @@
 // {{ productName }} · API 客户端（由 mvp_spec.apiRoutes 生成）
 // =========================================================
 import axios from 'axios';
+import { aiService } from '../../server/services/aiService.js';
+import { businessMock } from '../../server/services/businessMock.js';
 
 const http = axios.create({ baseURL: '/api', timeout: 30000 });
+
+// —— 纯静态部署（如 Vercel，无 Node 后端）兜底 ——
+// 无后端时 POST /api 会命中静态 index.html 并返回 405；此处按 URL 回退到
+// 本地 Mock（与 server/services 同源），保证前端在无后端时仍可完整演示。
+const MOCK = {
+{% for route in apiRoutes %}{% if route.mock_js %}  {{ route.client_path|tojson }}: {{ route.mock_js }},
+{% endif %}{% endfor %}};
+
+// 统一错误信息提取：避免出现 [object Object] / 误命中静态页
+export function errMsg(e) {
+  const resp = e?.response;
+  const d = resp?.data;
+  if (typeof d === 'string' && d.trim()) {
+    if (d.trim().startsWith('<')) return `接口返回了非 JSON 内容（HTTP ${resp?.status}）。请确认后端 API 已启动且端口未被其它应用占用。`;
+    return d.slice(0, 300);
+  }
+  if (d && typeof d === 'object') {
+    const msg = d.error ?? d.message;
+    return typeof msg === 'string' ? msg : JSON.stringify(d).slice(0, 300);
+  }
+  return String(e?.message || e);
+}
+
+function payloadOf(config) {
+  const d = config?.data;
+  if (typeof d === 'string' && d) { try { return JSON.parse(d); } catch { return {}; } }
+  if (d && typeof d === 'object') return d;
+  return config?.params || {};
+}
+
+http.interceptors.response.use(
+  (r) => r,
+  async (error) => {
+    const url = error?.config?.url;
+    const fn = MOCK[url];
+    const dev = typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.DEV;
+    if (!dev && fn) {
+      const data = await fn(payloadOf(error.config));
+      return { data, status: 200, statusText: 'OK (mock)', headers: {}, config: error.config };
+    }
+    return Promise.reject(error);
+  }
+);
 
 export const api = {
 {% for route in apiRoutes %}

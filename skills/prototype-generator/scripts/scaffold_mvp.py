@@ -184,6 +184,17 @@ def normalize(spec):
             route["compose_kv"] = ", ".join(
                 "%s: %s" % (camel(c.get("key", "v%d" % i)), camel(c.get("key", "v%d" % i)))
                 for i, c in enumerate(comps))
+            calls = ", ".join(
+                ("aiService" if c.get("service") == "ai" else "businessMock") + "." + ensure_str(c.get("method")) + "(d)"
+                for c in comps)
+            route["mock_js"] = "async (d) => { const [%s] = await Promise.all([%s]); return { %s }; }" % (
+                route["compose_vars"], calls, route["compose_kv"])
+        elif target_type == "ai":
+            route["mock_js"] = "(d) => aiService.%s(d)" % target_method
+        elif target_type == "business":
+            route["mock_js"] = "(d) => businessMock.%s(d)" % target_method
+        else:
+            route["mock_js"] = ""
         api_routes.append(route)
 
     # ---- 规范化 pages ----
@@ -243,12 +254,13 @@ def react_rowkey(columns):
 
 
 def react_columns_def(name, columns, tab="    "):
-    """生成列定义 JS（含 tag 映射与 dataIndex——antd 必需）"""
+    """生成列定义 JS（含 tag 映射与 dataIndex——antd 必需）
+    tag 映射名带上列定义名（name）前缀，避免同页多张表的同名 key 冲突。"""
     lines = []
     tag_maps = []
     for col in columns:
         if col.get("tag"):
-            map_name = "tagMap_" + col["key"].replace(".", "_")
+            map_name = "tagMap_" + name + "_" + col["key"].replace(".", "_")
             tag_maps.append((map_name, col["tag"]))
     if tag_maps:
         for map_name, tagmap in tag_maps:
@@ -258,7 +270,7 @@ def react_columns_def(name, columns, tab="    "):
         key = col.get("key", "")
         title = col.get("title", key)
         if col.get("tag"):
-            map_name = "tagMap_" + key.replace(".", "_")
+            map_name = "tagMap_" + name + "_" + key.replace(".", "_")
             lines.append(f"{tab}{{ key: '{key}', dataIndex: '{key}', title: '{title}', render: (v) => <Tag color={{ {map_name}[v] || 'default' }}>{{v}}</Tag> }},")
         else:
             lines.append(f"{tab}{{ key: '{key}', dataIndex: '{key}', title: '{title}' }},")
@@ -266,8 +278,9 @@ def react_columns_def(name, columns, tab="    "):
     return lines
 
 
-def react_render_section(el, page, spec):
+def react_render_section(el, page, spec, state=None):
     """返回 (jsx_lines, setup_extra) —— setup_extra 为需要提前声明的代码"""
+    state = state if state is not None else {}
     etype = el.get("type")
     jsx = []
     setup = []
@@ -355,19 +368,24 @@ def react_render_section(el, page, spec):
     elif etype == "table":
         title = el.get("title", "数据")
         data_ref = el.get("data")
-        cols_def = react_columns_def("tblCols", el.get("columns", []))
+        n = state.get("tbl", 0) + 1
+        state["tbl"] = n
+        suffix = "" if n == 1 else str(n)
+        cols_name = f"tblCols{suffix}"
+        data_name = f"tblData{suffix}"
+        cols_def = react_columns_def(cols_name, el.get("columns", []))
         setup.extend(cols_def)
         if isinstance(data_ref, str) and data_ref.startswith("mock:"):
             model_name = data_ref.split(":", 1)[1]
             rows = find_model_mock(spec, model_name)
             rows_js = json.dumps(rows, ensure_ascii=False)
-            setup.append(f"const tblData = {rows_js};")
+            setup.append(f"const {data_name} = {rows_js};")
         elif isinstance(data_ref, list):
-            setup.append(f"const tblData = {json.dumps(data_ref, ensure_ascii=False)};")
+            setup.append(f"const {data_name} = {json.dumps(data_ref, ensure_ascii=False)};")
         else:
-            setup.append("const tblData = [];")
+            setup.append(f"const {data_name} = [];")
         jsx.append(f"<Card title=\"{title}\" style={{{{ marginBottom: 16 }}}}>")
-        jsx.append(f"  <Table {react_rowkey(el.get('columns', []))} dataSource={{tblData}} columns={{tblCols}} pagination={{false}} size=\"small\" />")
+        jsx.append(f"  <Table {react_rowkey(el.get('columns', []))} dataSource={{{data_name}}} columns={{{cols_name}}} pagination={{false}} size=\"small\" />")
         jsx.append("</Card>")
 
     elif etype == "buttonRow":
@@ -489,7 +507,7 @@ def generate_react_page(spec, page):
     setup.append("import { useNavigate } from 'react-router-dom';")
     setup.append("import { Card, Steps, Upload, Button, Table, Statistic, Row, Col, Alert, Timeline, Empty, Typography, Space, Tag, Input, Select } from 'antd';")
     setup.append(f"import {{ {icon_imports} }} from '@ant-design/icons';")
-    setup.append("import { api } from '../api/client.js';")
+    setup.append("import { api, errMsg } from '../api/client.js';")
     setup.append("")
     setup.append("const { Dragger } = Upload;")
     setup.append("")
@@ -514,7 +532,7 @@ def generate_react_page(spec, page):
         setup.append(f"      const data = await api.{aname}(payload || {{}});")
         setup.append(f"      set{cname}Result(data);")
         setup.append("    } catch (e) {")
-        setup.append(f"      set{cname}Result({{ error: String(e?.response?.data?.error || e) }});")
+        setup.append(f"      set{cname}Result({{ error: errMsg(e) }});")
         setup.append("    } finally {")
         setup.append(f"      set{cname}Loading(false);")
         setup.append("    }")
@@ -523,8 +541,9 @@ def generate_react_page(spec, page):
 
     # 先收集所有 section 的 setup（列定义等），再拼 return JSX
     body_extra = []
+    section_state = {}
     for el in page.get("sections", []):
-        el_jsx, el_setup = react_render_section(el, page, spec)
+        el_jsx, el_setup = react_render_section(el, page, spec, section_state)
         body_extra.extend(el_setup)
         jsx.extend("  " + l for l in el_jsx)
 
@@ -552,11 +571,12 @@ def generate_react_page(spec, page):
 # ---------------------------------------------------------------
 
 def vue_columns_def(name, columns, tab="    "):
+    """生成列定义 JS（tag 映射名带上列定义名前缀，避免同页多表冲突）。"""
     lines = []
     tag_maps = []
     for col in columns:
         if col.get("tag"):
-            map_name = "tagMap_" + col["key"].replace(".", "_")
+            map_name = "tagMap_" + name + "_" + col["key"].replace(".", "_")
             tag_maps.append((map_name, col["tag"]))
     for map_name, tagmap in tag_maps:
         lines.append(f"const {map_name} = {json.dumps(tagmap, ensure_ascii=False)};")
@@ -565,7 +585,7 @@ def vue_columns_def(name, columns, tab="    "):
         key = col.get("key", "")
         title = col.get("title", key)
         if col.get("tag"):
-            map_name = "tagMap_" + key.replace(".", "_")
+            map_name = "tagMap_" + name + "_" + key.replace(".", "_")
             lines.append(f"{tab}{{ title: '{title}', dataIndex: '{key}', render: ({{ record }}) => h(Tag, {{ color: {map_name}[record.{key}] || 'default' }}, {{ default: () => record.{key} }}) }},")
         else:
             lines.append(f"{tab}{{ title: '{title}', dataIndex: '{key}' }},")
@@ -573,7 +593,8 @@ def vue_columns_def(name, columns, tab="    "):
     return lines
 
 
-def vue_render_section(el, page, spec):
+def vue_render_section(el, page, spec, state=None):
+    state = state if state is not None else {}
     etype = el.get("type")
     lines = []
     setup = []
@@ -653,18 +674,23 @@ def vue_render_section(el, page, spec):
     elif etype == "table":
         title = el.get("title", "数据")
         data_ref = el.get("data")
-        cols = vue_columns_def("tblCols", el.get("columns", []))
+        n = state.get("tbl", 0) + 1
+        state["tbl"] = n
+        suffix = "" if n == 1 else str(n)
+        cols_name = f"tblCols{suffix}"
+        data_name = f"tblData{suffix}"
+        cols = vue_columns_def(cols_name, el.get("columns", []))
         setup.extend(cols)
         if isinstance(data_ref, str) and data_ref.startswith("mock:"):
             model_name = data_ref.split(":", 1)[1]
             rows = find_model_mock(spec, model_name)
-            setup.append(f"const tblData = {json.dumps(rows, ensure_ascii=False)};")
+            setup.append(f"const {data_name} = {json.dumps(rows, ensure_ascii=False)};")
         elif isinstance(data_ref, list):
-            setup.append(f"const tblData = {json.dumps(data_ref, ensure_ascii=False)};")
+            setup.append(f"const {data_name} = {json.dumps(data_ref, ensure_ascii=False)};")
         else:
-            setup.append("const tblData = [];")
+            setup.append(f"const {data_name} = [];")
         lines.append(f"<a-card title=\"{title}\" class=\"mb16\">")
-        lines.append("  <a-table :columns=\"tblCols\" :data=\"tblData\" :pagination=\"false\" size=\"small\" />")
+        lines.append(f"  <a-table :columns=\"{cols_name}\" :data=\"{data_name}\" :pagination=\"false\" size=\"small\" />")
         lines.append("</a-card>")
 
     elif etype == "buttonRow":
@@ -773,8 +799,9 @@ def generate_vue_page(spec, page):
         body.append(f"      <p class=\"page-desc\">{page['description']}</p>")
     body.append("    </div>")
 
+    section_state = {}
     for el in page.get("sections", []):
-        el_lines, el_setup = vue_render_section(el, page, spec)
+        el_lines, el_setup = vue_render_section(el, page, spec, section_state)
         setup.extend(el_setup)
         body.extend("  " + l for l in el_lines)
 
@@ -787,7 +814,7 @@ def generate_vue_page(spec, page):
     script.append("import { h } from 'vue';")
     script.append("import { useRouter } from 'vue-router';")
     script.append("import { Tag } from '@arco-design/web-vue';")
-    script.append("import { api } from '../api/client.js';")
+    script.append("import { api, errMsg } from '../api/client.js';")
     script.append("")
     script.append("const router = useRouter();")
     script.append("const fileName = ref('');")
@@ -806,7 +833,7 @@ def generate_vue_page(spec, page):
         script.append(f"    const data = await api.{aname}(payload || {{}});")
         script.append(f"    {aname}Result.value = data;")
         script.append("  } catch (e) {")
-        script.append(f"    {aname}Result.value = {{ error: String(e?.response?.data?.error || e) }};")
+        script.append(f"    {aname}Result.value = {{ error: errMsg(e) }};")
         script.append("  } finally {")
         script.append(f"    {aname}Loading.value = false;")
         script.append("  }")
@@ -932,6 +959,7 @@ def main():
     # 渲染通用 + 服务端
     render_file(env, ctx, "common/package.json.j2", os.path.join(out_dir, "package.json"))
     render_file(env, ctx, "common/.gitignore.j2", os.path.join(out_dir, ".gitignore"))
+    render_file(env, ctx, "common/vercel.json.j2", os.path.join(out_dir, "vercel.json"))
     render_file(env, ctx, "common/README.md.j2", os.path.join(out_dir, "README.md"))
     render_file(env, ctx, "server/config.js.j2", os.path.join(out_dir, "server/config.js"))
     render_file(env, ctx, "server/index.js.j2", os.path.join(out_dir, "server/index.js"))

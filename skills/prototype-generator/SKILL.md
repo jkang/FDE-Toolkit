@@ -64,6 +64,7 @@ AI Canvas YAML + To-be Journey YAML（+ 用户偏好：前端框架/配色）
 | ⑥ 输出目录 | `<客户案例目录>/<场景目录>/mvp-prototype/`（脚手架 `--case` / `--scenario` 指定） |
 | ⑦ 启动验证 | 安装依赖 → 启动 → curl API 实测 + 浏览器打开前端验证 UI 与 AI 交互 |
 | ⑧ 业务数据 & 过程仿真 | `--sim sim_spec.yaml`，生成场景数据源 + 可视化组件（segChart/routeMap/nestedGroup/documentBlock/stateMachine/processTimeline）。**SimVisuals 可视化组件当前仅 React 模板提供**（`templates/frontend_vue/` 下无 SimVisuals 源模板），选择 Vue 时 sim 的交互可视化不可自动注入（Vue 侧亦缺 `scenarioData` 源模板），须手工补 `scenarioData.js` 与页面 |
+| ⑨ 静态部署兼容（Vercel） | 生成物自带 `vercel.json` + `src/api/client.js` 前端 Mock 兜底：纯静态托管（无 Node 后端）时 `POST /api` 会命中 `index.html` 返回 405，拦截器在生产构建下自动回退到与 `server/services/*` 同源的本地 Mock，页面照常演示（见 Step 6） |
 
 ---
 
@@ -132,6 +133,21 @@ npm run dev          # 开发模式：API(:8080) + Vite 前端(:5173)
 - 输出 `README.md`（含快速开始、架构图、接口清单）。
 - 生产模式说明：`npm run build && npm start` 单端口 `:8080` 一体化运行。
 
+### Step 6 · 静态部署兼容（Vercel / 纯静态托管，必做）
+生成物默认是「Express 一体化」：`/api` 由 Node 提供。**部署到 Vercel 等纯静态托管（只托管 `dist/`、不运行 Node）时**，`POST /api/*` 会被 SPA 兜底重写命中静态 `index.html`，而 Vercel 对静态文件的非 GET 请求返回 **405 Method Not Allowed** → 页面报「调用失败」。这不是代码 bug，而是静态站点没有后端；`localhost` 因有 Express 而正常。
+
+**脚手架已内置兜底（无需手工补）**：
+- `templates/common/vercel.json.j2` → 生成 `vercel.json`（`buildCommand` / `outputDirectory: dist` / SPA rewrites）。
+- `templates/frontend_react|vue/src/api/client.js.j2` → `src/api/client.js` 生成时：
+  - 引入与后端**同源**的 `server/services/*`，按 `apiRoutes` 的 `client_path` 建 `MOCK` 映射（含 `compose` 组合路由）；
+  - axios `response` 拦截器在**生产构建**（`import.meta.env.DEV === false`）下，请求失败即回退本地 Mock，页面照常演示（开发模式仍抛错，便于排查后端）；
+  - 导出 `errMsg(e)`：页面 catch 一律用它拼接错误文案，**禁止**写 `String(e?.response?.data?.error || e)`（当 data 为对象时会显示 `[object Object]`）。
+
+**部署 Vercel 步骤**：项目根目录设为 `<案例>/<场景>/mvp-prototype/`，Framework 选 Vite（或直接采用 `vercel.json`），无需配置后端。
+> 注意：Network 面板仍会看到一条 `POST /api → 405`（确实没有后端），已被前端静默兜底，不影响功能与数据。
+
+**验证（必须）**：`npm run build` 后，用一个「非 GET 请求返回 405」的静态服务器托管 `dist/`，浏览器打开页面点主要操作按钮 → 应无错误提示、数据正常渲染；同时 `npm start` 下真实 API 亦正常。
+
 ---
 
 ## 页面元素模型（元素类型白名单）
@@ -163,7 +179,7 @@ prototype-generator/
 │   ├── sim_spec_schema.yaml        # sim_spec（业务数据 & 过程仿真）数据契约示例
 │   └── sim_prompts.md              # sim_spec 生成提示词与铁律
 ├── templates/
-│   ├── common/                     # 根 package.json / README / .gitignore
+│   ├── common/                     # 根 package.json / README / .gitignore / vercel.json
 │   ├── server/                     # Express 一体化（index/config/routes/services）
 │   ├── frontend_react/             # Vite+React+antd 基座
 │   │   ├── src/data/scenarioData.js.j2           # sim 场景数据源模板（react）
