@@ -7,6 +7,8 @@ Usage:
 
 设计要点：
 - 以「列=L3 子环节(stage) × 行=角色泳道(lane) × 格=L4 任务/决策(step)」为骨架。
+- 角色泳道按「泳道内最早发生的 L4 活动序号」自动重排：第一排 = 最先发生的活动，
+  自上而下活动序号尽量递增，保证阅读顺序自然（见 order_lanes_by_earliest_step）。
 - 每个 step 通过 painTypes 标注现状痛点（高耗时/高认知负荷/高频错误/来回往复/系统瓶颈）。
 - 泳道图下方渲染任务明细表（编号/所属业务流程/任务·决策/角色/输入→输出/业务规则及固化度/痛点）。
 - 遵循全局开发约定：Jinja 内联样式隐患通过「类 + 安全拼接」规避；autoescape 开启。
@@ -57,6 +59,46 @@ def ensure_str(val) -> str:
     if val is None:
         return ""
     return str(val)
+
+
+def normalize_order(items):
+    """把 items 的 order 归一为 1..N（按当前列表顺序）。
+
+    保证模板/网格用 `order - 1` 做定位时稳定可靠（不依赖 YAML 里 order 是否连续）。
+    """
+    for i, it in enumerate(items, start=1):
+        it["order"] = i
+    return items
+
+
+def order_lanes_by_earliest_step(lanes, steps):
+    """按「泳道内最早发生的 L4 活动序号」升序重排角色泳道（本 Skill 的阅读顺序铁律）。
+
+    目的：第一排泳道承载**最先发生**的活动，其余泳道按各自最早活动的先后依次向下，
+    使自上而下阅读时活动序号尽可能递增，避免「先发生的活动被排在下面、序号来回跳」的别扭观感。
+    - 有活动的泳道：按其最小 `step.order` 升序；
+    - 无活动的泳道：排在最后（保持原始相对顺序）。
+    重排后把 lane.order 归一为 1..N，供网格按 `order - 1` 定位。
+    """
+    earliest = {}
+    for st in steps:
+        lid = st.get("laneId")
+        try:
+            o = int(st.get("order", 0))
+        except (TypeError, ValueError):
+            o = 0
+        if lid not in earliest or o < earliest[lid]:
+            earliest[lid] = o
+
+    def sort_key(pair):
+        idx, lane = pair
+        lid = lane.get("id")
+        if lid in earliest:
+            return (0, earliest[lid], idx)
+        return (1, float("inf"), idx)
+
+    ordered = [lane for _, lane in sorted(enumerate(lanes), key=sort_key)]
+    return normalize_order(ordered)
 
 
 def build_grid(stages, lanes, steps):
@@ -142,11 +184,18 @@ def main():
     # ---- stages (列) 与 lanes (行) 排序 ---- #
     stages = ensure_list(data.get("stages"))
     stages.sort(key=lambda x: int(x.get("order", 0)))
+    stages = normalize_order(stages)
+
     lanes = ensure_list(data.get("lanes"))
     lanes.sort(key=lambda x: int(x.get("order", 0)))
 
-    # ---- steps (格) 建泳道网格 + 任务表行 ---- #
+    # ---- steps (格) 先就绪，供泳道排序使用 ---- #
     steps = ensure_list(data.get("steps"))
+
+    # 角色泳道按「最早活动序号」自动重排：第一排 = 最先发生的活动，自上而下序号尽量递增
+    lanes = order_lanes_by_earliest_step(lanes, steps)
+
+    # ---- steps (格) 建泳道网格 + 任务表行 ---- #
     grid, table_rows, pain_stats = build_grid(stages, lanes, steps)
 
     environment_defaults = {
