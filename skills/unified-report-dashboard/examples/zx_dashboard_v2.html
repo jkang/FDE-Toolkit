@@ -12,6 +12,13 @@
             color: #e2e8f0;
             overflow: hidden;
         }
+        .bp-canvas {
+            min-width: var(--canvas-width);
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #fff;
+        }
         .app-container {
             display: flex;
             height: 100vh;
@@ -23,10 +30,45 @@
             display: flex;
             flex-direction: column;
             overflow-y: auto;
+            overflow-x: hidden;
+            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+        .sidebar.collapsed {
+            width: 80px;
         }
         .sidebar-header {
             padding: 24px;
             border-bottom: 1px solid rgba(255,255,255,0.1);
+            position: relative;
+        }
+        .sidebar.collapsed .sidebar-header {
+            padding: 24px 12px;
+        }
+        .sidebar-toggle {
+            position: absolute;
+            top: 24px;
+            right: 16px;
+            width: 28px;
+            height: 28px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #94a3b8;
+            z-index: 10;
+        }
+        .sidebar-toggle:hover {
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+        }
+        .sidebar.collapsed .sidebar-toggle {
+            right: 50%;
+            transform: translateX(50%) rotate(180deg);
         }
         .logo {
             display: flex;
@@ -111,6 +153,50 @@
             border-radius: 12px;
             font-size: 11px;
             font-weight: 600;
+        }
+        /* 子章节导航（缩进） */
+        .nav-sub-item {
+            display: flex;
+            align-items: center;
+            padding: 7px 24px 7px 50px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-left: 3px solid transparent;
+            text-decoration: none;
+            color: #64748b;
+        }
+        .nav-sub-item:hover { background: rgba(255,255,255,0.05); color: #cbd5e1; }
+        .nav-sub-item.active { background: rgba(59, 130, 246, 0.08); border-left-color: #3b82f6; color: #60a5fa; }
+        .nav-sub-item .nav-item-text { font-size: 12.5px; font-weight: 400; }
+        .sidebar.collapsed .nav-sub-item { display: none; }
+        /* Collapsed State Overrides */
+        .sidebar.collapsed .logo-text,
+        .sidebar.collapsed .sidebar-subtitle,
+        .sidebar.collapsed .nav-item-text,
+        .sidebar.collapsed .nav-badge,
+        .sidebar.collapsed .sidebar-footer {
+            display: none;
+        }
+        .sidebar.collapsed .nav-section-title {
+            height: 1px;
+            background: rgba(255,255,255,0.1);
+            margin: 16px 12px;
+            padding: 0;
+            display: block;
+            text-indent: -9999px;
+            overflow: hidden;
+        }
+        .sidebar.collapsed .logo {
+            justify-content: center;
+            margin-right: 0;
+        }
+        .sidebar.collapsed .nav-item {
+            justify-content: center;
+            padding: 12px 0;
+        }
+        .sidebar.collapsed .nav-item-icon {
+            margin-right: 0;
+            font-size: 18px;
         }
         .sidebar-footer {
             padding: 16px 24px;
@@ -204,10 +290,10 @@
             margin-bottom: 16px;
             line-height: 1.2;
             background: linear-gradient(135deg, #fff 0%, #94a3b8 100%);
-            -webkit-background-clip: text;
-            background-clip: text;
+            --bg-clip: text;
+            -webkit-background-clip: var(--bg-clip);
+            background-clip: var(--bg-clip);
             -webkit-text-fill-color: transparent;
-            color: transparent;
         }
         .cover-subtitle {
             font-size: 20px;
@@ -275,6 +361,30 @@
             font-size: 12px;
             color: #475569;
         }
+        /* ---------- Executive Summary cover ---------- */
+        .exec-wrap { max-width: 1020px; width: 100%; text-align: left; margin: 0 auto; }
+        .exec-section { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 26px 30px; margin-bottom: 26px; }
+        .exec-section-head { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+        .exec-section-title { font-size: 18px; font-weight: 700; color: #e2e8f0; display: flex; align-items: center; gap: 12px; }
+        .exec-section-title::before { content:""; width: 4px; height: 20px; border-radius: 2px; background: linear-gradient(180deg,#3b82f6,#f59e0b); display: inline-block; }
+        .exec-section-tag { margin-left: auto; font-size: 12px; color: #94a3b8; background: rgba(255,255,255,0.06); padding: 3px 10px; border-radius: 12px; }
+        .exec-insights { display: flex; flex-direction: column; gap: 14px; }
+        .exec-insight { display: flex; gap: 12px; align-items: flex-start; font-size: 15px; color: #cbd5e1; line-height: 1.7; }
+        .exec-insight::before { content:"▸"; color: #f59e0b; font-size: 16px; line-height: 1.6; flex: 0 0 auto; }
+        .exec-insight b { color: #fff; }
+        .exec-stage { margin-bottom: 22px; }
+        .exec-stage-label { display: flex; align-items: center; gap: 10px; font-size: 15px; font-weight: 700; color: #60a5fa; margin-bottom: 4px; }
+        .exec-stage-note { font-size: 13px; color: #64748b; margin: 0 0 14px; }
+        .exec-steps { display: flex; flex-wrap: wrap; align-items: stretch; }
+        .exec-step { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 14px 16px; cursor: pointer; transition: all .25s; min-width: 150px; flex: 1 1 auto; }
+        .exec-step:hover { background: rgba(59,130,246,0.12); border-color: rgba(59,130,246,0.5); transform: translateY(-2px); }
+        .exec-step-title { font-size: 14px; font-weight: 600; color: #e2e8f0; margin-bottom: 4px; }
+        .exec-step-hint { font-size: 12px; color: #64748b; }
+        .exec-arrow { display: flex; align-items: center; color: #3b82f6; font-size: 18px; padding: 0 8px; flex: 0 0 auto; }
+        .exec-toggle { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #94a3b8; padding: 10px 18px; border-radius: 10px; cursor: pointer; font-size: 13px; font-weight: 600; margin: 6px auto 20px; display: flex; align-items: center; gap: 8px; transition: all .2s; justify-content: center; }
+        .exec-toggle:hover { color: #fff; border-color: rgba(59,130,246,0.5); }
+        .toc-grid-wrap { display: none; margin-top: 4px; }
+        .toc-grid-wrap.open { display: block; }
         @media (max-width: 1024px) {
             .sidebar { width: 280px; }
             .cover-toc { grid-template-columns: repeat(2, 1fr); }
@@ -284,11 +394,68 @@
             .cover-toc { grid-template-columns: 1fr; }
             .cover-stats { flex-direction: column; gap: 24px; }
         }
+
+        /* ==================================================================
+           封面可读性 & 排版优化（覆盖上方默认值）
+           1) 提升暗色底上的文字对比度（原 #64748b 在 #0a0e27 上偏暗）
+           2) 核心路径改为等宽网格卡片，去掉会折行的箭头，序号更清晰
+           ================================================================== */
+        .cover-page { justify-content: flex-start; padding-top: 44px; }
+        .exec-wrap { max-width: 1180px; }
+
+        /* --- 文字对比度 --- */
+        .sidebar-subtitle,
+        .nav-section-title,
+        .sidebar-footer,
+        .cover-subtitle,
+        .stat-label,
+        .toc-card-desc,
+        .cover-footer { color: #94a3b8; }
+        .nav-item { color: #cbd5e1; }
+        .nav-sub-item { color: #94a3b8; }
+        .nav-sub-item:hover { color: #e2e8f0; }
+        .toc-card-title { color: #f1f5f9; }
+        .exec-section-title { color: #f1f5f9; }
+        .exec-section-tag { color: #cbd5e1; background: rgba(255,255,255,0.10); }
+        .exec-insight { color: #dbe3ee; }
+        .exec-stage-note { color: #9aa7bd; }
+        .exec-toggle { color: #cbd5e1; background: rgba(255,255,255,0.07); border-color: rgba(255,255,255,0.16); }
+
+        /* --- 卡片描边/底色加深，边界更清楚 --- */
+        .toc-card { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.14); }
+        .exec-section { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.14); }
+
+        /* --- 阶段标题左侧强调条 --- */
+        .exec-stage { margin-bottom: 18px; }
+        .exec-stage-label::before {
+            content: ""; width: 3px; height: 14px; border-radius: 2px;
+            background: linear-gradient(180deg, #60a5fa, #3b82f6);
+            display: inline-block; margin-right: 2px;
+        }
+
+        /* --- 核心路径：等宽网格卡片（不再折行错位） --- */
+        .exec-steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; }
+        .exec-step { display: flex; align-items: flex-start; gap: 10px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.16); border-radius: 12px; padding: 13px 15px; }
+        .exec-step:hover { background: rgba(96,165,250,0.16); border-color: rgba(96,165,250,0.6); }
+        .exec-step-idx {
+            flex: 0 0 auto; width: 22px; height: 22px; border-radius: 6px;
+            background: rgba(96,165,250,0.20); border: 1px solid rgba(96,165,250,0.35);
+            color: #bfdbfe; font-size: 12px; font-weight: 700;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .exec-step-body { min-width: 0; }
+        .exec-step-title { display: block; font-size: 13.5px; font-weight: 600; color: #f1f5f9; line-height: 1.45; }
+        .exec-step-hint { display: block; font-size: 12px; color: #a9b4c7; margin-top: 3px; line-height: 1.5; }
+        .exec-arrow { display: none; }
     </style>
+    
 </head>
 <body>
     <div class="app-container">
-        <nav class="sidebar">
+        <nav class="sidebar" id="sidebar">
+            <div class="sidebar-toggle" onclick="toggleSidebar()" title="切换侧边栏">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+            </div>
             <div class="sidebar-header">
                 <div class="logo">
                     <div class="logo-icon">ZX</div>
@@ -304,35 +471,38 @@
                 <div class="nav-section">
                     <div class="nav-section-title">概览</div>
                     
-                    <a class="nav-item active" href="#" onclick="loadReport('cover'); return false;">
+                    <a class="nav-item active" href="#" onclick="loadReport('cover'); return false;" title="报告首页">
                         <span class="nav-item-icon">📊</span>
                         <span class="nav-item-text">报告首页</span>
                         
                     </a>
+                    
                     
                 </div>
                 
                 <div class="nav-section">
                     <div class="nav-section-title">战略分析</div>
                     
-                    <a class="nav-item " href="#" onclick="loadReport('report1'); return false;">
+                    <a class="nav-item " href="#" onclick="loadReport('report1'); return false;" title="北极星指标与战略">
                         <span class="nav-item-icon">🎯</span>
                         <span class="nav-item-text">北极星指标与战略</span>
                         
                     </a>
                     
-                    <a class="nav-item " href="#" onclick="loadReport('report2'); return false;">
+                    
+                    <a class="nav-item " href="#" onclick="loadReport('report2'); return false;" title="SWOT分析">
                         <span class="nav-item-icon">⚡</span>
                         <span class="nav-item-text">SWOT分析</span>
                         
                     </a>
+                    
                     
                 </div>
                 
                 <div class="nav-section">
                     <div class="nav-section-title">流程与体验</div>
                     
-                    <a class="nav-item " href="#" onclick="loadReport('report3'); return false;">
+                    <a class="nav-item " href="#" onclick="loadReport('report3'); return false;" title="业务流程深度分析">
                         <span class="nav-item-icon">🔍</span>
                         <span class="nav-item-text">业务流程深度分析</span>
                         
@@ -340,7 +510,8 @@
                         
                     </a>
                     
-                    <a class="nav-item " href="#" onclick="loadReport('report4'); return false;">
+                    
+                    <a class="nav-item " href="#" onclick="loadReport('report4'); return false;" title="DTC服务蓝图">
                         <span class="nav-item-icon">🗺️</span>
                         <span class="nav-item-text">DTC服务蓝图</span>
                         
@@ -348,12 +519,13 @@
                         
                     </a>
                     
+                    
                 </div>
                 
                 <div class="nav-section">
                     <div class="nav-section-title">AI场景</div>
                     
-                    <a class="nav-item " href="#" onclick="loadReport('report5'); return false;">
+                    <a class="nav-item " href="#" onclick="loadReport('report5'); return false;" title="AI机会场景地图">
                         <span class="nav-item-icon">💡</span>
                         <span class="nav-item-text">AI机会场景地图</span>
                         
@@ -361,7 +533,8 @@
                         
                     </a>
                     
-                    <a class="nav-item " href="#" onclick="loadReport('report6'); return false;">
+                    
+                    <a class="nav-item " href="#" onclick="loadReport('report6'); return false;" title="AI场景优先级矩阵">
                         <span class="nav-item-icon">📈</span>
                         <span class="nav-item-text">AI场景优先级矩阵</span>
                         
@@ -369,35 +542,39 @@
                         
                     </a>
                     
+                    
                 </div>
                 
                 <div class="nav-section">
                     <div class="nav-section-title">AI画布</div>
                     
-                    <a class="nav-item " href="#" onclick="loadReport('report7'); return false;">
+                    <a class="nav-item " href="#" onclick="loadReport('report7'); return false;" title="AI多语言客服机器人">
                         <span class="nav-item-icon">🤖</span>
                         <span class="nav-item-text">AI多语言客服机器人</span>
                         
                     </a>
                     
-                    <a class="nav-item " href="#" onclick="loadReport('report8'); return false;">
+                    
+                    <a class="nav-item " href="#" onclick="loadReport('report8'); return false;" title="AI多语言内容工厂">
                         <span class="nav-item-icon">🎨</span>
                         <span class="nav-item-text">AI多语言内容工厂</span>
                         
                     </a>
                     
-                    <a class="nav-item " href="#" onclick="loadReport('report9'); return false;">
+                    
+                    <a class="nav-item " href="#" onclick="loadReport('report9'); return false;" title="智能购车顾问">
                         <span class="nav-item-icon">🛒</span>
                         <span class="nav-item-text">智能购车顾问</span>
                         
                     </a>
+                    
                     
                 </div>
                 
                 <div class="nav-section">
                     <div class="nav-section-title">路线图</div>
                     
-                    <a class="nav-item " href="#" onclick="loadReport('report10'); return false;">
+                    <a class="nav-item " href="#" onclick="loadReport('report10'); return false;" title="1-2年里程碑计划">
                         <span class="nav-item-icon">🚀</span>
                         <span class="nav-item-text">1-2年里程碑计划</span>
                         
@@ -405,18 +582,20 @@
                         
                     </a>
                     
+                    
                 </div>
                 
                 <div class="nav-section">
                     <div class="nav-section-title">AI原生工作流</div>
                     
-                    <a class="nav-item " href="#" onclick="loadReport('report11'); return false;">
+                    <a class="nav-item " href="#" onclick="loadReport('report11'); return false;" title="AI原生海外销售工作流">
                         <span class="nav-item-icon">🔮</span>
                         <span class="nav-item-text">AI原生海外销售工作流</span>
                         
                         <span class="nav-badge">17节点</span>
                         
                     </a>
+                    
                     
                 </div>
                 
@@ -471,78 +650,251 @@
                         
                     </div>
                     
-                    <div class="cover-toc">
+                    <div class="exec-wrap">
                         
-                        <div class="toc-card" onclick="loadReport('report1')">
-                            <div class="toc-card-number">01</div>
-                            <div class="toc-card-title">北极星指标与战略</div>
-                            <div class="toc-card-desc">海外月度活跃骑手数(MAR)</div>
+
+                        
+                        <div class="exec-section" id="exec-path">
+                            <div class="exec-section-head">
+                                <span class="exec-section-title">核心路径 阅读主线</span>
+                                <span class="exec-section-tag">点击任一步查看详情</span>
+                            </div>
+                            
+                            <div class="exec-stage">
+                                <div class="exec-stage-label">概览</div>
+                                
+                                <div class="exec-steps">
+                                    
+                                    <div class="exec-step" onclick="loadReport('cover')" title="报告首页">
+                                        <span class="exec-step-idx">1</span>
+                                        <span class="exec-step-body">
+                                            <span class="exec-step-title">报告首页</span>
+                                            
+                                        </span>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            
+                            <div class="exec-stage">
+                                <div class="exec-stage-label">战略分析</div>
+                                
+                                <div class="exec-steps">
+                                    
+                                    <div class="exec-step" onclick="loadReport('report1')" title="北极星指标与战略">
+                                        <span class="exec-step-idx">1</span>
+                                        <span class="exec-step-body">
+                                            <span class="exec-step-title">北极星指标与战略</span>
+                                            
+                                        </span>
+                                    </div>
+                                    
+                                    <div class="exec-step" onclick="loadReport('report2')" title="SWOT分析">
+                                        <span class="exec-step-idx">2</span>
+                                        <span class="exec-step-body">
+                                            <span class="exec-step-title">SWOT分析</span>
+                                            
+                                        </span>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            
+                            <div class="exec-stage">
+                                <div class="exec-stage-label">流程与体验</div>
+                                
+                                <div class="exec-steps">
+                                    
+                                    <div class="exec-step" onclick="loadReport('report3')" title="业务流程深度分析">
+                                        <span class="exec-step-idx">1</span>
+                                        <span class="exec-step-body">
+                                            <span class="exec-step-title">业务流程深度分析</span>
+                                            
+                                        </span>
+                                    </div>
+                                    
+                                    <div class="exec-step" onclick="loadReport('report4')" title="DTC服务蓝图">
+                                        <span class="exec-step-idx">2</span>
+                                        <span class="exec-step-body">
+                                            <span class="exec-step-title">DTC服务蓝图</span>
+                                            
+                                        </span>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            
+                            <div class="exec-stage">
+                                <div class="exec-stage-label">AI场景</div>
+                                
+                                <div class="exec-steps">
+                                    
+                                    <div class="exec-step" onclick="loadReport('report5')" title="AI机会场景地图">
+                                        <span class="exec-step-idx">1</span>
+                                        <span class="exec-step-body">
+                                            <span class="exec-step-title">AI机会场景地图</span>
+                                            
+                                        </span>
+                                    </div>
+                                    
+                                    <div class="exec-step" onclick="loadReport('report6')" title="AI场景优先级矩阵">
+                                        <span class="exec-step-idx">2</span>
+                                        <span class="exec-step-body">
+                                            <span class="exec-step-title">AI场景优先级矩阵</span>
+                                            
+                                        </span>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            
+                            <div class="exec-stage">
+                                <div class="exec-stage-label">AI画布</div>
+                                
+                                <div class="exec-steps">
+                                    
+                                    <div class="exec-step" onclick="loadReport('report7')" title="AI多语言客服机器人">
+                                        <span class="exec-step-idx">1</span>
+                                        <span class="exec-step-body">
+                                            <span class="exec-step-title">AI多语言客服机器人</span>
+                                            
+                                        </span>
+                                    </div>
+                                    
+                                    <div class="exec-step" onclick="loadReport('report8')" title="AI多语言内容工厂">
+                                        <span class="exec-step-idx">2</span>
+                                        <span class="exec-step-body">
+                                            <span class="exec-step-title">AI多语言内容工厂</span>
+                                            
+                                        </span>
+                                    </div>
+                                    
+                                    <div class="exec-step" onclick="loadReport('report9')" title="智能购车顾问">
+                                        <span class="exec-step-idx">3</span>
+                                        <span class="exec-step-body">
+                                            <span class="exec-step-title">智能购车顾问</span>
+                                            
+                                        </span>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            
+                            <div class="exec-stage">
+                                <div class="exec-stage-label">路线图</div>
+                                
+                                <div class="exec-steps">
+                                    
+                                    <div class="exec-step" onclick="loadReport('report10')" title="1-2年里程碑计划">
+                                        <span class="exec-step-idx">1</span>
+                                        <span class="exec-step-body">
+                                            <span class="exec-step-title">1-2年里程碑计划</span>
+                                            
+                                        </span>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            
+                            <div class="exec-stage">
+                                <div class="exec-stage-label">AI原生工作流</div>
+                                
+                                <div class="exec-steps">
+                                    
+                                    <div class="exec-step" onclick="loadReport('report11')" title="AI原生海外销售工作流">
+                                        <span class="exec-step-idx">1</span>
+                                        <span class="exec-step-body">
+                                            <span class="exec-step-title">AI原生海外销售工作流</span>
+                                            
+                                        </span>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            
                         </div>
                         
-                        <div class="toc-card" onclick="loadReport('report2')">
-                            <div class="toc-card-number">02</div>
-                            <div class="toc-card-title">SWOT分析</div>
-                            <div class="toc-card-desc">竞争优势与威胁识别</div>
-                        </div>
+
                         
-                        <div class="toc-card" onclick="loadReport('report3')">
-                            <div class="toc-card-number">03</div>
-                            <div class="toc-card-title">业务流程深度分析</div>
-                            <div class="toc-card-desc">3大渠道39个痛点</div>
+                        <div class="exec-toggle" onclick="toggleCatalog()">
+                            <span class="catalog-caret">▸</span><span>查看全部产出（11 项）</span>
                         </div>
-                        
-                        <div class="toc-card" onclick="loadReport('report4')">
-                            <div class="toc-card-number">04</div>
-                            <div class="toc-card-title">DTC服务蓝图</div>
-                            <div class="toc-card-desc">8阶段服务旅程</div>
-                        </div>
-                        
-                        <div class="toc-card" onclick="loadReport('report5')">
-                            <div class="toc-card-number">05</div>
-                            <div class="toc-card-title">AI机会场景地图</div>
-                            <div class="toc-card-desc">32个AI落地场景</div>
-                        </div>
-                        
-                        <div class="toc-card" onclick="loadReport('report6')">
-                            <div class="toc-card-number">06</div>
-                            <div class="toc-card-title">AI场景优先级矩阵</div>
-                            <div class="toc-card-desc">7维度量化评估</div>
-                        </div>
-                        
-                        <div class="toc-card" onclick="loadReport('report7')">
-                            <div class="toc-card-number">07</div>
-                            <div class="toc-card-title">AI客服机器人画布</div>
-                            <div class="toc-card-desc">多语言7x24客服</div>
-                        </div>
-                        
-                        <div class="toc-card" onclick="loadReport('report8')">
-                            <div class="toc-card-number">08</div>
-                            <div class="toc-card-title">AI内容工厂画布</div>
-                            <div class="toc-card-desc">多语言内容生成</div>
-                        </div>
-                        
-                        <div class="toc-card" onclick="loadReport('report9')">
-                            <div class="toc-card-number">09</div>
-                            <div class="toc-card-title">智能购车顾问画布</div>
-                            <div class="toc-card-desc">个性化推荐系统</div>
-                        </div>
-                        
-                        <div class="toc-card" onclick="loadReport('report10')">
-                            <div class="toc-card-number">10</div>
-                            <div class="toc-card-title">1-2年里程碑计划</div>
-                            <div class="toc-card-desc">37个关键任务</div>
-                        </div>
-                        
-                        <div class="toc-card" onclick="loadReport('report11')">
-                            <div class="toc-card-number">11</div>
-                            <div class="toc-card-title">AI原生海外销售工作流</div>
-                            <div class="toc-card-desc">AI-Native DTC全流程重构</div>
+                        <div class="toc-grid-wrap" id="toc-grid">
+                            <div class="cover-toc">
+                                
+                                <div class="toc-card" onclick="loadReport('report1')">
+                                    <div class="toc-card-number">01</div>
+                                    <div class="toc-card-title">北极星指标与战略</div>
+                                    <div class="toc-card-desc">海外月度活跃骑手数(MAR)</div>
+                                </div>
+                                
+                                <div class="toc-card" onclick="loadReport('report2')">
+                                    <div class="toc-card-number">02</div>
+                                    <div class="toc-card-title">SWOT分析</div>
+                                    <div class="toc-card-desc">竞争优势与威胁识别</div>
+                                </div>
+                                
+                                <div class="toc-card" onclick="loadReport('report3')">
+                                    <div class="toc-card-number">03</div>
+                                    <div class="toc-card-title">业务流程深度分析</div>
+                                    <div class="toc-card-desc">3大渠道39个痛点</div>
+                                </div>
+                                
+                                <div class="toc-card" onclick="loadReport('report4')">
+                                    <div class="toc-card-number">04</div>
+                                    <div class="toc-card-title">DTC服务蓝图</div>
+                                    <div class="toc-card-desc">8阶段服务旅程</div>
+                                </div>
+                                
+                                <div class="toc-card" onclick="loadReport('report5')">
+                                    <div class="toc-card-number">05</div>
+                                    <div class="toc-card-title">AI机会场景地图</div>
+                                    <div class="toc-card-desc">32个AI落地场景</div>
+                                </div>
+                                
+                                <div class="toc-card" onclick="loadReport('report6')">
+                                    <div class="toc-card-number">06</div>
+                                    <div class="toc-card-title">AI场景优先级矩阵</div>
+                                    <div class="toc-card-desc">7维度量化评估</div>
+                                </div>
+                                
+                                <div class="toc-card" onclick="loadReport('report7')">
+                                    <div class="toc-card-number">07</div>
+                                    <div class="toc-card-title">AI客服机器人画布</div>
+                                    <div class="toc-card-desc">多语言7x24客服</div>
+                                </div>
+                                
+                                <div class="toc-card" onclick="loadReport('report8')">
+                                    <div class="toc-card-number">08</div>
+                                    <div class="toc-card-title">AI内容工厂画布</div>
+                                    <div class="toc-card-desc">多语言内容生成</div>
+                                </div>
+                                
+                                <div class="toc-card" onclick="loadReport('report9')">
+                                    <div class="toc-card-number">09</div>
+                                    <div class="toc-card-title">智能购车顾问画布</div>
+                                    <div class="toc-card-desc">个性化推荐系统</div>
+                                </div>
+                                
+                                <div class="toc-card" onclick="loadReport('report10')">
+                                    <div class="toc-card-number">10</div>
+                                    <div class="toc-card-title">1-2年里程碑计划</div>
+                                    <div class="toc-card-desc">37个关键任务</div>
+                                </div>
+                                
+                                <div class="toc-card" onclick="loadReport('report11')">
+                                    <div class="toc-card-number">11</div>
+                                    <div class="toc-card-title">AI原生海外销售工作流</div>
+                                    <div class="toc-card-desc">AI-Native DTC全流程重构</div>
+                                </div>
+                                
+                            </div>
                         </div>
                         
                     </div>
                     
                     <div class="cover-footer">
-                        点击上方卡片或左侧菜单查看详细报告
+                        点击上方路径步骤或左侧菜单查看详细报告
                     </div>
                 </div>
             </div>
@@ -550,11 +902,26 @@
     </div>
     
     <script>
-        const reports = {"report1": {"file": "\u5f20\u96ea\u673a\u8f66_\u6d77\u5916\u9500\u552e\u6218\u7565\u4e0e\u5317\u6781\u661f\u6307\u6807\u5206\u6790\u62a5\u544a.html", "title": "\u5317\u6781\u661f\u6307\u6807\u4e0e\u6218\u7565"}, "report10": {"file": "\u5f20\u96ea\u673a\u8f66_AI\u9500\u552e\u843d\u5730\u8def\u7ebf\u56fe_\u91cc\u7a0b\u7891\u8ba1\u5212.html", "title": "1-2\u5e74\u91cc\u7a0b\u7891\u8ba1\u5212"}, "report11": {"file": "\u5f20\u96ea\u673a\u8f66_AI\u539f\u751f\u6d77\u5916\u9500\u552e\u5de5\u4f5c\u6d41.html", "title": "AI\u539f\u751f\u6d77\u5916\u9500\u552e\u5de5\u4f5c\u6d41"}, "report2": {"file": null, "title": "SWOT\u5206\u6790"}, "report3": {"file": "\u5f20\u96ea\u673a\u8f66_\u6d77\u5916\u9500\u552e\u4e1a\u52a1\u6d41\u7a0b\u6df1\u5ea6\u5206\u6790.html", "title": "\u4e1a\u52a1\u6d41\u7a0b\u6df1\u5ea6\u5206\u6790"}, "report4": {"file": "\u5f20\u96ea\u673a\u8f66_\u6d77\u5916DTC\u9500\u552e\u670d\u52a1\u84dd\u56fe.html", "title": "DTC\u670d\u52a1\u84dd\u56fe"}, "report5": {"file": "\u5f20\u96ea\u673a\u8f66_AI\u673a\u4f1a\u573a\u666f\u5730\u56fe.html", "title": "AI\u673a\u4f1a\u573a\u666f\u5730\u56fe"}, "report6": {"file": "\u5f20\u96ea\u673a\u8f66_AI\u573a\u666f\u4f18\u5148\u7ea7\u77e9\u9635.html", "title": "AI\u573a\u666f\u4f18\u5148\u7ea7\u77e9\u9635"}, "report7": {"file": "\u5f20\u96ea\u673a\u8f66_AI\u753b\u5e03_\u591a\u8bed\u8a00\u5ba2\u670d\u673a\u5668\u4eba.html", "title": "AI\u5ba2\u670d\u673a\u5668\u4eba\u753b\u5e03"}, "report8": {"file": "\u5f20\u96ea\u673a\u8f66_AI\u753b\u5e03_\u591a\u8bed\u8a00\u5185\u5bb9\u5de5\u5382.html", "title": "AI\u5185\u5bb9\u5de5\u5382\u753b\u5e03"}, "report9": {"file": "\u5f20\u96ea\u673a\u8f66_AI\u753b\u5e03_\u667a\u80fd\u8d2d\u8f66\u987e\u95ee.html", "title": "\u667a\u80fd\u8d2d\u8f66\u987e\u95ee\u753b\u5e03"}};
+        // Inject reports mapping from Jinja2
+        const reports = {"cover": {"file": null, "title": "\u62a5\u544a\u9996\u9875"}, "report1": {"file": "ZX\u673a\u8f66_\u6d77\u5916\u9500\u552e\u6218\u7565\u4e0e\u5317\u6781\u661f\u6307\u6807\u5206\u6790\u62a5\u544a.html", "title": "\u5317\u6781\u661f\u6307\u6807\u4e0e\u6218\u7565"}, "report10": {"file": "ZX\u673a\u8f66_AI\u9500\u552e\u843d\u5730\u8def\u7ebf\u56fe_\u91cc\u7a0b\u7891\u8ba1\u5212.html", "title": "1-2\u5e74\u91cc\u7a0b\u7891\u8ba1\u5212"}, "report11": {"file": "ZX\u673a\u8f66_AI\u539f\u751f\u6d77\u5916\u9500\u552e\u5de5\u4f5c\u6d41.html", "title": "AI\u539f\u751f\u6d77\u5916\u9500\u552e\u5de5\u4f5c\u6d41"}, "report2": {"file": null, "title": "SWOT\u5206\u6790"}, "report3": {"file": "ZX\u673a\u8f66_\u6d77\u5916\u9500\u552e\u4e1a\u52a1\u6d41\u7a0b\u6df1\u5ea6\u5206\u6790.html", "title": "\u4e1a\u52a1\u6d41\u7a0b\u6df1\u5ea6\u5206\u6790"}, "report4": {"file": "ZX\u673a\u8f66_\u6d77\u5916DTC\u9500\u552e\u670d\u52a1\u84dd\u56fe.html", "title": "DTC\u670d\u52a1\u84dd\u56fe"}, "report5": {"file": "ZX\u673a\u8f66_AI\u673a\u4f1a\u573a\u666f\u5730\u56fe.html", "title": "AI\u673a\u4f1a\u573a\u666f\u5730\u56fe"}, "report6": {"file": "ZX\u673a\u8f66_AI\u573a\u666f\u4f18\u5148\u7ea7\u77e9\u9635.html", "title": "AI\u573a\u666f\u4f18\u5148\u7ea7\u77e9\u9635"}, "report7": {"file": "ZX\u673a\u8f66_AI\u753b\u5e03_\u591a\u8bed\u8a00\u5ba2\u670d\u673a\u5668\u4eba.html", "title": "AI\u5ba2\u670d\u673a\u5668\u4eba\u753b\u5e03"}, "report8": {"file": "ZX\u673a\u8f66_AI\u753b\u5e03_\u591a\u8bed\u8a00\u5185\u5bb9\u5de5\u5382.html", "title": "AI\u5185\u5bb9\u5de5\u5382\u753b\u5e03"}, "report9": {"file": "ZX\u673a\u8f66_AI\u753b\u5e03_\u667a\u80fd\u8d2d\u8f66\u987e\u95ee.html", "title": "\u667a\u80fd\u8d2d\u8f66\u987e\u95ee\u753b\u5e03"}};
+        const initialCoverHTML = document.getElementById('cover-page').outerHTML;
+        
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('collapsed');
+        }
+
+        function toggleCatalog() {
+            const grid = document.getElementById('toc-grid');
+            const caret = document.querySelector('.catalog-caret');
+            if (!grid) return;
+            const open = grid.classList.toggle('open');
+            if (caret) caret.textContent = open ? '▾' : '▸';
+        }
         
         function showCover() {
             const frame = document.getElementById('content-frame');
-            frame.innerHTML = document.getElementById('cover-page').outerHTML;
+            frame.innerHTML = initialCoverHTML;
             document.getElementById('page-title').textContent = 'ZX机车海外AI销售战略分析';
             updateActiveNav(null);
         }
@@ -576,7 +943,7 @@
         }
         
         function updateActiveNav(reportId) {
-            document.querySelectorAll('.nav-item').forEach(item => {
+            document.querySelectorAll('.nav-item, .nav-sub-item').forEach(item => {
                 item.classList.remove('active');
             });
             

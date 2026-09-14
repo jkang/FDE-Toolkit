@@ -394,6 +394,59 @@
             .cover-toc { grid-template-columns: 1fr; }
             .cover-stats { flex-direction: column; gap: 24px; }
         }
+
+        /* ==================================================================
+           封面可读性 & 排版优化（覆盖上方默认值）
+           1) 提升暗色底上的文字对比度（原 #64748b 在 #0a0e27 上偏暗）
+           2) 核心路径改为等宽网格卡片，去掉会折行的箭头，序号更清晰
+           ================================================================== */
+        .cover-page { justify-content: flex-start; padding-top: 44px; }
+        .exec-wrap { max-width: 1180px; }
+
+        /* --- 文字对比度 --- */
+        .sidebar-subtitle,
+        .nav-section-title,
+        .sidebar-footer,
+        .cover-subtitle,
+        .stat-label,
+        .toc-card-desc,
+        .cover-footer { color: #94a3b8; }
+        .nav-item { color: #cbd5e1; }
+        .nav-sub-item { color: #94a3b8; }
+        .nav-sub-item:hover { color: #e2e8f0; }
+        .toc-card-title { color: #f1f5f9; }
+        .exec-section-title { color: #f1f5f9; }
+        .exec-section-tag { color: #cbd5e1; background: rgba(255,255,255,0.10); }
+        .exec-insight { color: #dbe3ee; }
+        .exec-stage-note { color: #9aa7bd; }
+        .exec-toggle { color: #cbd5e1; background: rgba(255,255,255,0.07); border-color: rgba(255,255,255,0.16); }
+
+        /* --- 卡片描边/底色加深，边界更清楚 --- */
+        .toc-card { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.14); }
+        .exec-section { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.14); }
+
+        /* --- 阶段标题左侧强调条 --- */
+        .exec-stage { margin-bottom: 18px; }
+        .exec-stage-label::before {
+            content: ""; width: 3px; height: 14px; border-radius: 2px;
+            background: linear-gradient(180deg, #60a5fa, #3b82f6);
+            display: inline-block; margin-right: 2px;
+        }
+
+        /* --- 核心路径：等宽网格卡片（不再折行错位） --- */
+        .exec-steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; }
+        .exec-step { display: flex; align-items: flex-start; gap: 10px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.16); border-radius: 12px; padding: 13px 15px; }
+        .exec-step:hover { background: rgba(96,165,250,0.16); border-color: rgba(96,165,250,0.6); }
+        .exec-step-idx {
+            flex: 0 0 auto; width: 22px; height: 22px; border-radius: 6px;
+            background: rgba(96,165,250,0.20); border: 1px solid rgba(96,165,250,0.35);
+            color: #bfdbfe; font-size: 12px; font-weight: 700;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .exec-step-body { min-width: 0; }
+        .exec-step-title { display: block; font-size: 13.5px; font-weight: 600; color: #f1f5f9; line-height: 1.45; }
+        .exec-step-hint { display: block; font-size: 12px; color: #a9b4c7; margin-top: 3px; line-height: 1.5; }
+        .exec-arrow { display: none; }
     </style>
     {% if custom_styles %}
     <style id="custom-styles">
@@ -501,10 +554,12 @@
                                 {% if nav.note %}<div class="exec-stage-note">{{ nav.note }}</div>{% endif %}
                                 <div class="exec-steps">
                                     {% for item in nav.get('items') or nav.get('children') or [] %}
-                                    {% if not loop.first %}<span class="exec-arrow">▸</span>{% endif %}
                                     <div class="exec-step" onclick="loadReport('{{ item.id }}')" title="{{ item.title }}">
-                                        <div class="exec-step-title">{{ item.title }}</div>
-                                        {% if item.hint %}<div class="exec-step-hint">{{ item.hint }}</div>{% endif %}
+                                        <span class="exec-step-idx">{{ loop.index }}</span>
+                                        <span class="exec-step-body">
+                                            <span class="exec-step-title">{{ item.title }}</span>
+                                            {% if item.hint %}<span class="exec-step-hint">{{ item.hint }}</span>{% endif %}
+                                        </span>
                                     </div>
                                     {% endfor %}
                                 </div>
