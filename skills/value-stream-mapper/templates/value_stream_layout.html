@@ -51,6 +51,7 @@
   .vs-insight { margin-top: 16px; background: var(--insight-bg); border: 1px solid var(--insight-line); border-radius: var(--radius); padding: 13px 16px; font-size: 13px; color: #23455F; }
   .vs-insight .ins-label { font-weight: 700; color: var(--navy); }
   .vs-insight p { margin: 0; }
+  .vs-insight .ins-line { margin: 5px 0 0; padding-left: 11px; border-left: 2px solid var(--insight-line); }
 
   /* ---------- 元信息 chips ---------- */
   .vs-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
@@ -62,6 +63,16 @@
   .vs-chip b { color: var(--navy); font-weight: 700; }
   .vs-chip.star { border-color: var(--sky); color: var(--sky); background: var(--focus-bg); }
   .vs-chip.star b { color: var(--sky); }
+
+  /* ---------- 营销中心部门职责 ---------- */
+  .vs-depts { margin-top: 14px; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 13px 16px; }
+  .vs-depts-title { font-size: 13.5px; font-weight: 700; color: var(--navy); margin-bottom: 10px; }
+  .vs-depts-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 8px; }
+  .vs-dept { border: 1px solid var(--line-soft); border-radius: var(--radius-s); padding: 9px 12px; background: #FBFCFD; }
+  .vs-dept-head { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; flex-wrap: wrap; }
+  .vs-dept-name { font-size: 13px; font-weight: 700; color: var(--navy); }
+  .vs-dept-ch { font-size: 11px; color: var(--sky); background: var(--focus-bg); border: 1px solid var(--insight-line); border-radius: 999px; padding: 1px 8px; }
+  .vs-dept-role { font-size: 12px; color: #41556F; line-height: 1.5; }
 
   /* ---------- 价值流组（一条 = 一个概述条带 + 若干价值段列） ---------- */
   .vs-sgroups { display: flex; flex-direction: column; gap: 22px; margin-top: 20px; }
@@ -192,8 +203,13 @@
     </div>
   </div>
 
-  <!-- 核心洞察 -->
-  <div class="vs-insight"><p><span class="ins-label">核心洞察：</span>{{ meta.insight }}</p></div>
+  <!-- 核心洞察（每条一行） -->
+  <div class="vs-insight">
+    <p class="ins-lead"><span class="ins-label">核心洞察：</span>{{ meta.insight.split('\n')[0] }}</p>
+    {%- for line in meta.insight.split('\n')[1:] if line.strip() %}
+    <p class="ins-line">{{ line }}</p>
+    {%- endfor %}
+  </div>
 
   <!-- 元信息 chips -->
   <div class="vs-chips">
@@ -203,6 +219,24 @@
     <span class="vs-chip star">★ 聚焦范围 <b>{{ stats.focusLinks }}</b> 环节</span>
     {%- if meta.sourceRef %}<span class="vs-chip">{{ meta.sourceRef }}</span>{% endif %}
   </div>
+
+  {%- if meta.departments %}
+  <!-- 营销中心部门职责（与价值流渠道对应） -->
+  <div class="vs-depts">
+    <div class="vs-depts-title">营销中心部门职责（与上方价值流渠道一一对应）</div>
+    <div class="vs-depts-grid">
+      {%- for d in meta.departments %}
+      <div class="vs-dept">
+        <div class="vs-dept-head">
+          <span class="vs-dept-name">{{ d.name }}</span>
+          {%- if d.channel %}<span class="vs-dept-ch">{{ d.channel }}</span>{% endif %}
+        </div>
+        <div class="vs-dept-role">{{ d.role }}</div>
+      </div>
+      {%- endfor %}
+    </div>
+  </div>
+  {%- endif %}
 
   <!-- 业务环节卡（可折叠：定义/目标/理由）复用宏；聚焦优先级标在卡上 -->
   {% macro link_card(link) -%}

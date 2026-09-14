@@ -46,25 +46,29 @@ def extract_css_from_markdown(content: str) -> str:
 
 def build_reports_mapping(cards: list, navigation: list) -> dict:
     reports = {}
-    for card in cards:
-        card_id = safe_string(card.get('id'))
-        if card_id:
-            reports[card_id] = {
-                'title': safe_string(card.get('title')),
-                'file': safe_string(card.get('file')) or None
+
+    def add(rid, title, file):
+        rid = safe_string(rid)
+        if rid and rid not in reports:
+            reports[rid] = {
+                'title': safe_string(title),
+                'file': safe_string(file) or None
             }
+
+    def walk(items):
+        # 递归支持子章节（item.children）
+        for item in ensure_list(items, dict):
+            add(item.get('id'), item.get('title'), item.get('file'))
+            walk(item.get('children'))
+
+    for card in cards:
+        add(card.get('id'), card.get('title'), card.get('file'))
     for nav in navigation:
         # 兼容两种字段名：items（SKILL.md 规范）与 children（schema/历史示例）
         items_field = nav.get('items')
         if items_field is None:
             items_field = nav.get('children', [])
-        for item in ensure_list(items_field, dict):
-            item_id = safe_string(item.get('id'))
-            if item_id and item_id not in reports:
-                reports[item_id] = {
-                    'title': safe_string(item.get('title')),
-                    'file': safe_string(item.get('file')) or None
-                }
+        walk(items_field)
     return reports
 
 def main():
