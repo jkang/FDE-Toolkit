@@ -15,13 +15,13 @@ from pathlib import Path
 
 
 SECTIONS = [
-    "## 1 总览", "## 2 产品定位", "## 3 产品形态架构图", "## 4 原型演示故事线",
-    "## 5 业务功能与 UI 组件清单", "## 6 Agent 行为设计",
-    "## 75 类规则消费门禁", "## 8 待确认问题清单",
+    "## 1 产品定位", "## 2 产品形态架构图", "## 3 原型演示故事线",
+    "## 4 业务功能与 UI 组件清单", "## 5 Agent 行为设计",
+    "## 6 五类规则消费门禁", "## 7 待确认问题清单",
 ]
 
 FOUR_COMPONENTS = ["产品定位一句话", "非目标", "主要使用者", "Agent 人格"]
-BEHAVIOR_SUB = ["### 6.1", "### 6.2", "### 6.3", "### 6.4"]
+BEHAVIOR_SUB = ["### 5.1", "### 5.2", "### 5.3", "### 5.4"]
 RULE_TYPES = ["决策模型类", "模版范例类", "术语字典类", "关键信息提取要点", "关联关系类"]
 REQ_INTERACTIONS = [
     "#1 流式输出", "#2 工具调用可视化", "#3 思考过程可折叠", "#4 内联组件", "#5 HITL 拦截",
@@ -43,12 +43,12 @@ def main(path_str: str) -> int:
     blob = text
     results = []
 
-    # 1. 八大段
+    # 1. 七大段
     for sec in SECTIONS:
         found = any(sec in l for l in lines)
         results.append(check(found, f"段存在", f"{sec}"))
         if not found:
-            # 允许 "## 1 总览" 等由表格标题占位，但一般应是标题行
+            # 允许标题由表格/占位行承载，但一般应是标题行
             pass
 
     # 2. 四件套
@@ -83,7 +83,7 @@ def main(path_str: str) -> int:
     # 8. 待确认问题（表 + ≥2）
     q_rows = [l for l in lines if re.match(r"^\|\s*\d+\s*\|", l)]
     results.append(check(len(q_rows) >= 2, "待确认问题数", f"表格行 {len(q_rows)} 行（应 ≥2，含明细）"))
-    results.append(check("## 8 待确认问题清单" in blob, "第8章", "待确认问题清单"))
+    results.append(check("## 7 待确认问题清单" in blob, "第7章", "待确认问题清单"))
 
     # 汇总
     total = len(results)

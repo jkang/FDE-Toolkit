@@ -64,7 +64,7 @@ author: KK
   │     Step 14 Agentic 工作流（agentic-workflow-designer：AI 能力序列图 + Agent 编排）
   │
   ├─ Phase 4 · 生智能（产品方案 → To-be 旅程 → MVP 原型 → UX → 评测）
-  │     Step 15 Agent 产品方案（agent-product-proposal-generator：8 段式施工蓝图，单一 .md）
+  │     Step 15 Agent 产品方案（agent-product-proposal-generator：7 段式施工蓝图，单一 .md）
   │     Step 16 To-be 旅程（ai-product-journey-generator：角色细化 + AI 交互细节）
   │     Step 17 MVP 原型（prototype-generator：mvp-spec + 前后端 MVP + 启动验证）
   │     Step 18 UX 优化（ux-optimizer：企业品牌 × 业务主题 → 定制设计系统 + 覆盖层注入）
@@ -305,7 +305,7 @@ scene_3: 场景C名称
 **读取并遵循 `agent-product-proposal-generator/SKILL.md` 的完整指令。**
 
 - 传入：理需求 / 场景定义 / 挖知识 / 本体的既有产出（`phase_cache/p7_canvas.md`、`p9_taskflow.md`、`p11_rule.md`、`p12_ckd.md`、`p13_ontology.md`）
-- 产出：`[客户名称]/[场景名]/[客户名称]-[场景名]-Agent产品方案.md`（8 段式施工蓝图：产品定位 → 形态架构 → 演示故事线 → 功能与 UI 组件 → Agent 行为 → 规则消费门禁；**单一 Markdown，不走 HTML 双输出**）
+- 产出：`[客户名称]/[场景名]/[客户名称]-[场景名]-Agent产品方案.md`（7 段式施工蓝图：产品定位 → 形态架构 → 演示故事线 → 功能与 UI 组件 → Agent 行为 → 规则消费门禁；**单一 Markdown，不走 HTML 双输出**）
 - **可选**：同一场景需要结构化数据时另输出 `.schema.yaml`。
 
 ### Step 16：To-be 旅程设计

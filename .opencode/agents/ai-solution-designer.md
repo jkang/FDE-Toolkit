@@ -31,7 +31,7 @@ AI 场景（机会点定义 + 上游问题定义 / AI 机会地图）
    ├─ ③ 建本体
    │     agent-ontology-designer          → Agent 本体（对象关系/行动边界/状态迁移）
    ├─ ④ 生智能
-   │     agent-product-proposal-generator → Agent 产品方案（8 段式，单一 Markdown）
+   │     agent-product-proposal-generator → Agent 产品方案（7 段式，单一 Markdown）
    │     ai-product-journey-generator     → To-be 旅程（角色 + AI 交互细节）
    │     prototype-generator              → mvp-spec + mvp-prototype/（前后端一体化）
    │     ux-optimizer                     → UX 定制设计系统 + 无侵入注入原型
@@ -61,7 +61,7 @@ AI 场景（机会点定义 + 上游问题定义 / AI 机会地图）
 - `skills/deep-task-flow-analyzer/SKILL.md` — **任务流程拆解 P1**：L3→L4→L5 纵切，产出**使用点清单（P1→P2 契约）**。
 - `skills/business-rule-miner/SKILL.md` — **业务规则挖掘 P2**：以使用点为输入深挖五类规则并做 P1↔P2 双向可追踪。
 - `skills/agent-ontology-designer/SKILL.md` — **Agent 本体设计**：对象关系 → 行动边界 → 状态迁移三层建模。
-- `skills/agent-product-proposal-generator/SKILL.md` — **Agent 产品方案**：聚合上游产出为 8 段式可施工 Markdown（**单一 Markdown，不走 HTML 双输出**）。
+- `skills/agent-product-proposal-generator/SKILL.md` — **Agent 产品方案**：聚合上游产出为 7 段式可施工 Markdown（**单一 Markdown，不走 HTML 双输出**）。
 - `skills/ai-product-journey-generator/SKILL.md` — **To-be 旅程设计**：细化角色 + 典型场景 + AI 交互细节。
 - `skills/prototype-generator/SKILL.md` — **MVP 原型生成器**：输出 `mvp-spec.yaml` + 可启动的前后端一体化 MVP（含启动验证）。
 - `skills/ux-optimizer/SKILL.md` — **UX 优化器**：按「企业品牌 × 业务主题」定制设计系统，产出 `-ux-audit.yaml` + `-UX设计报告.html`，并以无侵入覆盖层注入 `mvp-prototype/`（含注入后验证与 before/after）。

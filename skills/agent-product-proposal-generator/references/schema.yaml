@@ -1,4 +1,4 @@
-# Agent 产品方案 · 产出数据模型（8 段字段契约）
+# Agent 产品方案 · 产出数据模型（7 段字段契约）
 # 用途：作为「生成/校验」Agent 产品方案 Markdown 的字段结构基准。
 # 说明：由该数据体可渲染为《<公司>-<场景名>-Agent产品方案.md》；输出为 Markdown，故本 schema 主要用于约束字段齐全性与生成提示词。
 
@@ -17,14 +17,7 @@ meta:
     - { stage: "挖知识",  source: "<任务流程挖掘清单/任务处理规则挖掘清单>", ref: "<文件名>" }
     - { stage: "梳理本体", source: "<Agent 本体设计>",                   ref: "<文件名>" }
 
-section_1_overview:                       # 1 总览（由其余各段回填总结生成）
-  what_done: "<这份方案做了什么>"
-  focus: "<重点看什么>"
-  why_matters: "<为什么关注>"
-  insight: "<当前洞察：提炼规则结构一致性 / 硬软约束分布>"
-  action_for_fde: "<需要 FDE 做什么>"
-
-section_2_product_positioning:            # 2 产品定位
+section_1_product_positioning:            # 1 产品定位
   iteration_scope: "<迭代范围（基于输入回填精化说明 + PoC 范围）>"
   form_factor: "<产品形态：B2B 自用型 / B2C 等>"
   four_components:
@@ -39,7 +32,7 @@ section_2_product_positioning:            # 2 产品定位
       capabilities_can: ["<能做>", "<能做>"]
       capabilities_cannot: ["<不能做 1>", "<不能做 2>"]
 
-section_3_architecture:                   # 3 产品形态架构图（mermaid flowchart）
+section_2_architecture:                   # 2 产品形态架构图（mermaid flowchart）
   zones:                                  # 三大区
     entry: ["入口区节点 1", "入口区节点 2"]
     main: ["主交互区节点 1", "主交互区节点 2"]
@@ -47,7 +40,7 @@ section_3_architecture:                   # 3 产品形态架构图（mermaid fl
   adjacent_products:                      # 相邻产品，仅标接触面（读/写）
     - { name: "<相邻产品名>", interface: "read | write", touch: "<接触面说明>" }
 
-section_4_storylines:                     # 4 原型演示故事线（默认 4 条）
+section_3_storylines:                     # 3 原型演示故事线（默认 4 条）
   - id: "storyline-1"
     title: "<故事线标题>"
     business_highlight: "<业务价值高光>"
@@ -62,12 +55,12 @@ section_4_storylines:                     # 4 原型演示故事线（默认 4 �
     ui_and_required_interactions: "<UI 组件 + 必备交互 #号（#1~#10）>"
     business_content_source: "<上游来源：任务/规则/术语条目>"
 
-section_5_functions:                      # 5 业务功能与 UI 组件清单
+section_4_functions:                      # 4 业务功能与 UI 组件清单
   required_interactions: ["#1 流式", "#2 工具调用可视化", "#3 思考折叠", "#4 内联组件", "#5 HITL拦截", "#6 撤销回滚", "#7 出处引用", "#8 状态徽章", "#9 错误态", "#10 空态"]
   items:
     - { name: "<功能名>", value: "<一句话价值>", role: "<绑定角色>", render: "Artifact Pane | Conversation Pane", trigger: "用户点击召唤 | Agent 主动渲染 | 自动激活", ui_component: "<组件名 + 组件内容>", user_action: "<用户操作>", storyline: "<关联故事线>", source: "<上游来源>" }
 
-section_6_agent_behavior:                 # 6 Agent 行为设计
+section_5_agent_behavior:                 # 5 Agent 行为设计
   who:
     opening: "<开场话术草稿>"
     tone: "<语气基调>"
@@ -79,7 +72,7 @@ section_6_agent_behavior:                 # 6 Agent 行为设计
   undo_fallback:
     - { issue: "<问题>", content: "<内容>", interaction: "<落到交互 #号>" }
 
-section_7_rule_gates:                     # 7五类规则消费门禁
+section_6_rule_gates:                     # 6 五类规则消费门禁
   items:
     - { rule_type: "决策模型类",   srp_recognized: true, gate_point: "<第几章承接点>", content: "<承接的业务内容>", note: "必须承接" }
     - { rule_type: "模版范例类",   srp_recognized: true, gate_point: "<…>", content: "<…>", note: "必须承接" }
@@ -87,7 +80,7 @@ section_7_rule_gates:                     # 7五类规则消费门禁
     - { rule_type: "关键信息提取要点", srp_recognized: true, gate_point: "<…>", content: "<…>", note: "必须强化承接" }
     - { rule_type: "关联关系类",   srp_recognized: true, gate_point: "<…>", content: "<…>", note: "必须承接" }
 
-section_8_open_questions:                 # 8 待确认问题清单
+section_7_open_questions:                 # 7 待确认问题清单
   items:
     - { id: 1, question: "<待确认问题>", impact: "<用途与影响>" }
     - { id: 2, question: "<待确认问题>", impact: "<用途与影响>" }
