@@ -60,6 +60,8 @@ author: KK
 >   同列内**相邻聚焦环节整体包成一个聚焦框**（★标签 + 卡级优先级）+ 底部图例。
 > - **底色模式**：浅色底 (Light Mode)；内容区**撑满整个浏览器宽度（`width:100%`、无 `max-width` 上限）**，
 >   价值段列超出时 `overflow-x:auto` 可横滚，确保横向价值流全貌不被裁切。
+> - **上游语境（可选）**：`meta.contextNote` 在核心洞察与 chips 之后、价值流图之前渲染一个「上游语境」callout，
+>   用于交代该价值流所处的上下游背景机制（**只作背景，不新增价值段/业务环节**）；多行时首行为引导句、其余行左侧竖线缩进。未声明该字段时整块不渲染（向后兼容）。
 
 ---
 
@@ -76,7 +78,7 @@ author: KK
 
 | 模块 | 内容 | 视觉特性 |
 |------|------|---------|
-| **meta** | title / sectionNo / business / domain / **originalIdea** / insight / sourceRef / kpi | 页眉 + 核心洞察 callout + 元信息 chips |
+| **meta** | title / sectionNo / business / domain / **originalIdea** / insight / **contextNote** / sourceRef / kpi | 页眉 + 核心洞察 callout + 元信息 chips + **上游语境 callout（可选）** |
 | **legend** | 焦点范围说明 / P0 说明 / 可点开提示 | 底部图例栏 |
 | **valueStreams** | 横向一条 = 一条端到端主线；含 chain 副标题 | 价值流概述条带（①序号+名称+价值段串联小字） |
 | **segments** | 列 = 一个价值段；name + chain（业务环节串联）+ links（业务环节卡）+ items（渲染序列：普通卡/聚焦框交错） | 横向从左到右串联列（→ 连接） |
