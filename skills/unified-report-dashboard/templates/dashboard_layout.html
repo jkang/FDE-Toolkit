@@ -112,7 +112,18 @@
             color: #64748b;
             text-transform: uppercase;
             letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            cursor: pointer;
+            user-select: none;
         }
+        .nav-section-title:hover { color: #cbd5e1; }
+        .nav-caret { font-size: 10px; color: #64748b; transition: transform .2s ease; flex: 0 0 auto; }
+        .nav-section.collapsed .nav-caret { transform: rotate(-90deg); }
+        .nav-section.collapsed .nav-section-body { display: none; }
+        .nav-section.collapsed .nav-section-title { color: #7c8aa0; }
         .nav-item {
             display: flex;
             align-items: center;
@@ -433,6 +444,16 @@
             display: inline-block; margin-right: 2px;
         }
 
+        /* --- 待共识阶段（默认折叠，不在封面展开步骤） --- */
+        .exec-stage-locked { border-left-color: rgba(148,163,184,0.45) !important; background: rgba(255,255,255,0.02) !important; }
+        .exec-stage-locked .exec-stage-label { color: #94a3b8; }
+        .exec-stage-locked .exec-stage-label::before { background: linear-gradient(180deg, #94a3b8, #64748b); }
+        .exec-stage-lockhint {
+            font-size: 12.5px; color: #8b98ad; background: rgba(255,255,255,0.04);
+            border: 1px dashed rgba(255,255,255,0.16); border-radius: 10px;
+            padding: 9px 14px; display: inline-block;
+        }
+
         /* --- 核心路径：等宽网格卡片（不再折行错位） --- */
         .exec-steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; }
         .exec-step { display: flex; align-items: flex-start; gap: 10px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.16); border-radius: 12px; padding: 13px 15px; }
@@ -473,9 +494,14 @@
             
             <div class="nav-menu">
                 {% for nav in navigation %}
-                <div class="nav-section">
-                    <div class="nav-section-title">{{ nav.section }}</div>
-                    {% for item in nav.get('items') or nav.get('children') or [] %}
+                <div class="nav-section{% if nav.collapsed %} collapsed{% endif %}">
+                    <div class="nav-section-title" onclick="toggleNavSection(this)">
+                        <span>{{ nav.section }}</span>
+                        <span class="nav-caret">▾</span>
+                    </div>
+                    <div class="nav-section-body">
+                    {% set nav_items = nav.get('items') or nav.get('children') or [] %}
+                    {% for item in nav_items %}
                     <a class="nav-item {% if loop.first and nav == navigation[0] %}active{% endif %}" href="#" onclick="loadReport('{{ item.id }}'); return false;" title="{{ item.title }}">
                         <span class="nav-item-icon">{{ item.icon }}</span>
                         <span class="nav-item-text">{{ item.title }}</span>
@@ -489,6 +515,14 @@
                     </a>
                     {% endfor %}
                     {% endfor %}
+                    {% if not nav_items and nav.id %}
+                    <a class="nav-item {% if nav == navigation[0] %}active{% endif %}" href="#" onclick="loadReport('{{ nav.id }}'); return false;" title="{{ nav.title or nav.section }}">
+                        <span class="nav-item-icon">{{ nav.icon }}</span>
+                        <span class="nav-item-text">{{ nav.title or nav.section }}</span>
+                        {% if nav.badge %}<span class="nav-badge">{{ nav.badge }}</span>{% endif %}
+                    </a>
+                    {% endif %}
+                    </div>
                 </div>
                 {% endfor %}
             </div>
@@ -549,11 +583,15 @@
                                 <span class="exec-section-tag">点击任一步查看详情</span>
                             </div>
                             {% for nav in navigation %}
-                            <div class="exec-stage">
+                            <div class="exec-stage{% if nav.collapsed %} exec-stage-locked{% endif %}">
                                 <div class="exec-stage-label">{{ nav.section }}</div>
                                 {% if nav.note %}<div class="exec-stage-note">{{ nav.note }}</div>{% endif %}
+                                {% if nav.collapsed %}
+                                <div class="exec-stage-lockhint">待前面阶段与客户共识后展开</div>
+                                {% else %}
                                 <div class="exec-steps">
-                                    {% for item in nav.get('items') or nav.get('children') or [] %}
+                                    {% set nav_items = nav.get('items') or nav.get('children') or [] %}
+                                    {% for item in nav_items %}
                                     <div class="exec-step" onclick="loadReport('{{ item.id }}')" title="{{ item.title }}">
                                         <span class="exec-step-idx">{{ loop.index }}</span>
                                         <span class="exec-step-body">
@@ -562,7 +600,17 @@
                                         </span>
                                     </div>
                                     {% endfor %}
+                                    {% if not nav_items and nav.id %}
+                                    <div class="exec-step" onclick="loadReport('{{ nav.id }}')" title="{{ nav.title or nav.section }}">
+                                        <span class="exec-step-idx">1</span>
+                                        <span class="exec-step-body">
+                                            <span class="exec-step-title">{{ nav.title or nav.section }}</span>
+                                            {% if nav.hint %}<span class="exec-step-hint">{{ nav.hint }}</span>{% endif %}
+                                        </span>
+                                    </div>
+                                    {% endif %}
                                 </div>
+                                {% endif %}
                             </div>
                             {% endfor %}
                         </div>
@@ -635,17 +683,28 @@
             updateActiveNav(reportId);
         }
         
+        function toggleNavSection(el) {
+            const sec = el.closest('.nav-section');
+            if (sec) sec.classList.toggle('collapsed');
+        }
+
         function updateActiveNav(reportId) {
             document.querySelectorAll('.nav-item, .nav-sub-item').forEach(item => {
                 item.classList.remove('active');
             });
-            
+
+            let activeItem = null;
             if (reportId) {
-                const activeItem = document.querySelector(`[onclick*="${reportId}"]`);
+                activeItem = document.querySelector(`[onclick*="${reportId}"]`);
                 if (activeItem) activeItem.classList.add('active');
             } else {
-                const firstItem = document.querySelector('.nav-item');
-                if (firstItem) firstItem.classList.add('active');
+                activeItem = document.querySelector('.nav-item');
+                if (activeItem) activeItem.classList.add('active');
+            }
+            // 自动展开当前项所在分组（折叠状态下也能定位）
+            if (activeItem) {
+                const sec = activeItem.closest('.nav-section');
+                if (sec) sec.classList.remove('collapsed');
             }
         }
         
