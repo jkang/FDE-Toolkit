@@ -36,6 +36,28 @@
   .summary .h{font-size:13px;color:var(--accent);font-weight:700;margin-bottom:8px}
   .summary .row{font-size:13.5px;margin:4px 0}
   .summary .row b{color:#374151}
+  /* ---- 补充：根因挖掘（5 Why），置于问题定义之后 ---- */
+  .mining{margin-top:36px;padding-top:16px;border-top:2px dashed var(--chipb)}
+  .mining h2{font-size:17px;margin:0 0 4px;display:flex;align-items:center;gap:8px}
+  .mining .sub-note{font-size:12px;color:var(--sub);margin-bottom:10px}
+  .rc-legend{font-size:12px;color:var(--sub);background:var(--chip);border-radius:8px;padding:8px 12px;margin:8px 0 4px}
+  .pain-summary{font-size:13.5px;color:#374151;background:var(--card);border:1px solid var(--line);
+    border-radius:10px;padding:12px 14px;margin:10px 0}
+  .why-block{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:12px 0}
+  .why-title{font-weight:700;font-size:15px;color:var(--accent);margin-bottom:6px}
+  .why-cat{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.3px;color:#fff;
+    background:var(--accent);border-radius:999px;padding:2px 8px;margin-right:8px;vertical-align:1px}
+  .why-pains{font-size:13px;color:var(--sub);margin-bottom:10px}
+  .why-list{list-style:none;margin:0;padding:0}
+  .why-list li{display:flex;gap:10px;padding:8px 0;border-top:1px dashed var(--line)}
+  .why-list li:first-child{border-top:none}
+  .why-lv{flex:0 0 58px;font-size:12px;font-weight:700;color:#fff;background:var(--accent);
+    border-radius:6px;height:20px;display:flex;align-items:center;justify-content:center}
+  .why-list li.root .why-lv{background:#b45309}
+  .why-list .q{font-weight:600;font-size:13.5px}
+  .why-list .a{font-size:13.5px;color:#374151}
+  .why-conclusion{margin-top:10px;font-size:13.5px;background:#fff7ed;color:#9a3412;
+    border-radius:8px;padding:10px 12px}
   footer{color:var(--sub);font-size:12px;margin-top:28px}
   textarea{display:none}
 </style>
@@ -140,6 +162,51 @@
   </div>
   
 
+  
+  
+  <section class="mining">
+    <h2>附 · 根因挖掘（5 Why）</h2>
+    <div class="sub-note">以下为支撑上方问题定义的根因分析过程，供追溯与复核使用。</div>
+    <div class="rc-legend">根因分类：RC-PROC 流程机制缺失 · RC-KNOW 知识与规则缺失 · RC-DATA 数据分散/口径不一 · RC-MANUAL 纯人工高耗时 · RC-EXPERT 依赖专家经验</div>
+    <div class="pain-summary">表面痛点：新客首单慢、大量 SME 请求回退人工审核、确认时效无法对标分钟级。</div>
+    
+    <div class="why-block">
+      <div class="why-title"><span class="why-cat">RC-KNOW</span>根因簇 ① ·【知识与规则缺失】系统自动校验规则覆盖不全</div>
+      <div class="why-pains">表面痛点：大量请求走人工审核；异常处置无分级标准；规则边界靠运营经验</div>
+      <ol class="why-list">
+        
+        <li class="">
+          <span class="why-lv">Why 1</span>
+          <div><div class="q">为什么确认时效无法对标分钟级？</div><div class="a">因为大量请求被迫回退人工审核。</div></div>
+        </li>
+        
+        <li class="">
+          <span class="why-lv">Why 2</span>
+          <div><div class="q">为什么大量请求回退人工？</div><div class="a">因为系统自动校验覆盖不全，规则边界外的请求只能人工兜底。</div></div>
+        </li>
+        
+        <li class="">
+          <span class="why-lv">Why 3</span>
+          <div><div class="q">为什么规则覆盖不全？</div><div class="a">因为费率 / 信用 / 航线 / 船期的校验口径与边界未沉淀为可执行规则。</div></div>
+        </li>
+        
+        <li class="">
+          <span class="why-lv">Why 4</span>
+          <div><div class="q">为什么没有沉淀？</div><div class="a">因为规则散落在运营经验里，没有统一的规则库与维护机制。</div></div>
+        </li>
+        
+        <li class="root">
+          <span class="why-lv">Why 5</span>
+          <div><div class="q">为什么最终判断只能靠人？</div><div class="a">因为缺少『校验口径 + 异常分级 + 规则库』这套知识资产，判断依据无法复用与校验。</div></div>
+        </li>
+        
+      </ol>
+      <div class="why-conclusion">结构性根因：结构性根因（知识与规则缺失）：校验口径与边界未沉淀为可执行规则，异常判定无分级标准。</div>
+    </div>
+    
+  </section>
+  
+
   <footer>数据来源：在线订舱现状泳道图（L3/L4）+ 客户一手话 + 根因分析（5-Why） · 生成于 2026-09-03</footer>
 </div>
 
@@ -196,6 +263,21 @@ summary:
   painPoint: &quot;人工审核兜底 + 规则覆盖不全&quot;
   rootCause: &quot;多系统联动下系统自动校验覆盖不全 → 大量请求回退人工&quot;
   problem: &quot;订舱确认时效无法对标分钟级 / 自助率与分流率不达标&quot;
+
+# ---- 补充：根因挖掘（5 Why）——渲染在问题定义之后，作为支撑材料 ----
+rootCauseMining:
+  painSummary: &quot;表面痛点：新客首单慢、大量 SME 请求回退人工审核、确认时效无法对标分钟级。&quot;
+  clusters:
+    - category: &quot;RC-KNOW&quot;
+      title: &quot;根因簇 ① ·【知识与规则缺失】系统自动校验规则覆盖不全&quot;
+      painPoints: [&quot;大量请求走人工审核&quot;, &quot;异常处置无分级标准&quot;, &quot;规则边界靠运营经验&quot;]
+      whyChain:
+        - { level: &quot;Why 1&quot;, q: &quot;为什么确认时效无法对标分钟级？&quot;, a: &quot;因为大量请求被迫回退人工审核。&quot; }
+        - { level: &quot;Why 2&quot;, q: &quot;为什么大量请求回退人工？&quot;, a: &quot;因为系统自动校验覆盖不全，规则边界外的请求只能人工兜底。&quot; }
+        - { level: &quot;Why 3&quot;, q: &quot;为什么规则覆盖不全？&quot;, a: &quot;因为费率 / 信用 / 航线 / 船期的校验口径与边界未沉淀为可执行规则。&quot; }
+        - { level: &quot;Why 4&quot;, q: &quot;为什么没有沉淀？&quot;, a: &quot;因为规则散落在运营经验里，没有统一的规则库与维护机制。&quot; }
+        - { level: &quot;Why 5&quot;, q: &quot;为什么最终判断只能靠人？&quot;, a: &quot;因为缺少『校验口径 + 异常分级 + 规则库』这套知识资产，判断依据无法复用与校验。&quot;, root: true }
+      conclusion: &quot;结构性根因（知识与规则缺失）：校验口径与边界未沉淀为可执行规则，异常判定无分级标准。&quot;
 </textarea>
 <script>
 function copyYaml(){

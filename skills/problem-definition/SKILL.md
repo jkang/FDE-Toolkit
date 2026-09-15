@@ -43,7 +43,8 @@ author: KK
 > **视觉设计规范 (Visual Design Standard)**:
 > - 默认按本 skill `references/schema.yaml` + `templates/problem_definition_layout.html` 输出。
 > - 浅色底 (Light Mode)；内容区撑满容器；8 个要素以编号卡片纵向排布，逐条可读。
-> - 顶部为「标题 + 核心问题一句话 callout + 元信息 chips」；末尾附「痛点→根因→问题」小结区。
+> - **内容顺序铁律**：**问题定义在前、根因分析在后** —— 顶部「标题 + 核心问题一句话 callout + 元信息 chips」
+>   → ①~⑧ 各要素卡 → 「痛点→根因→问题」小结区 → **附 · 根因挖掘（5 Why）**（作为支撑材料置于最下方）。
 
 ---
 
@@ -142,7 +143,10 @@ python3 scripts/build_problem_definition.py examples/<标识>.yaml examples/<标
 
 ### Step 4 · 最终交付
 告知用户浏览器直接打开该 HTML 即可查阅：标题 → 一句话问题 callout → 元信息 chips →
-①~⑧ 各要素卡 → 「痛点→根因→问题」小结区。顶部可「📋 复制 YAML」。
+①~⑧ 各要素卡 → 「痛点→根因→问题」小结区 → **附 · 根因挖掘（5 Why）**。顶部可「📋 复制 YAML」。
+
+> **顺序铁律**：**问题定义是主，5-Why 根因分析是补充**。根因挖掘一律渲染在 8 要素与小结之后
+> （标题含「附 · 根因挖掘（5 Why）」并注明「供追溯与复核」），不得置于问题定义之前。
 
 ---
 

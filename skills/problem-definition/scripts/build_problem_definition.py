@@ -47,7 +47,10 @@ def normalize(data: dict) -> dict:
     summary = data.get("summary") or {}
     n_elems = len(elements)
     assert n_elems >= 8, f"8 要素应为 8 个，当前 {n_elems} 个"
-    return {"meta": meta, "elements": elements, "summary": summary}
+    # 5-Why 根因挖掘：作为问题定义之后的补充材料渲染（可选）
+    root_cause_mining = data.get("rootCauseMining") or {}
+    return {"meta": meta, "elements": elements, "summary": summary,
+            "rootCauseMining": root_cause_mining}
 
 
 def render(data: dict, raw_yaml: str) -> str:
