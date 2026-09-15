@@ -193,6 +193,27 @@
     border-radius: 999px; padding: 1px 8px;
   }
 
+  /* 该环节系统支撑标注 */
+  .sc-sys { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; margin-top: 8px; }
+  .sys-label { font-size: 11px; color: var(--soft); }
+  .sys-tag {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 11px; font-weight: 600; line-height: 1.6;
+    color: #0B5E54; background: #E6F4F1; border: 1px solid #BFE3DC;
+    border-radius: 999px; padding: 1px 8px;
+  }
+  .sys-tag.upgrading { color: #8A5A00; background: #FFF7E6; border-color: #F3D9A6; }
+  .sys-up {
+    font-size: 9.5px; font-weight: 700; line-height: 1.5;
+    padding: 0 5px; border-radius: 999px;
+    background: #F59E0B; color: #fff; margin-left: 2px;
+  }
+  .sys-none { font-size: 11px; color: var(--soft); }
+  .sys-baseline { background: #EAF6F3; border-color: #C4E4DD; color: #1F4A43; }
+  .sys-baseline b { color: #0B5E54; }
+  .sys-baseline .sys-ref { color: var(--soft); font-size: 11.5px; }
+  .t-sys { display: flex; flex-wrap: wrap; gap: 4px; }
+
   /* ---------- 任务明细表 ---------- */
   .section-title {
     font-size: 17px; font-weight: 700; color: var(--navy);
@@ -265,6 +286,10 @@
   <div class="context-note"><b>现状总述：</b>{{ meta.currentStateNote }}</div>
   {%- endif %}
 
+  {%- if meta.systemBaseline %}
+  <div class="context-note sys-baseline"><b>系统基线：</b>{{ meta.systemBaseline }}{% if meta.systemRef %} <span class="sys-ref">（来源：{{ meta.systemRef }}）</span>{% endif %}</div>
+  {%- endif %}
+
   <!-- 图例 -->
   <div class="legend">
     <span class="lg-title">该环节痛点：</span>
@@ -274,6 +299,10 @@
     <span class="lg-item">{{ legend.flowNote }}</span>
     <span class="lg-item">{{ legend.ruleNote }}</span>
     <span class="lg-item">{{ legend.painLabel }}</span>
+    {%- if has_systems %}
+    <span class="lg-item"><span class="sys-tag" style="pointer-events:none">🖥 系统支撑</span></span>
+    <span class="lg-item"><span class="sys-tag upgrading" style="pointer-events:none">⏫ 升级 / 迁移中</span></span>
+    {%- endif %}
   </div>
 
   <!-- 泳道图 -->
@@ -295,6 +324,18 @@
           <div class="sc-meta">
             {%- if step.source %}<span class="m-item">💻 {{ step.source }}</span>{% endif %}
             {%- if step.duration %}<span class="m-item">⏱ {{ step.duration }}</span>{% endif %}
+          </div>
+          {%- endif %}
+          {%- if step.hasSystemInfo %}
+          <div class="sc-sys">
+            {%- if step.systems %}
+              <span class="sys-label">🖥 系统支撑</span>
+              {%- for sys in step.systems %}
+              <span class="sys-tag{% if sys.upgrade %} upgrading{% endif %}">{{ sys.name }}{% if sys.upgrade %}<span class="sys-up">升级中</span>{% endif %}</span>
+              {%- endfor %}
+            {%- else %}
+              <span class="sys-none">🖥 无系统支撑 · 人工 / Excel / 线下</span>
+            {%- endif %}
           </div>
           {%- endif %}
           {%- if step.pains %}
@@ -319,7 +360,7 @@
 
   <!-- 任务明细表 -->
   <div class="section-title">📋 任务明细</div>
-  <div class="section-sub">每个 L4 任务的角色、输入输出 / 业务规则及固化度、痛点明细</div>
+  <div class="section-sub">每个 L4 任务的角色、输入输出 / 系统支撑 / 业务规则及固化度、痛点明细{%- if has_systems %}（系统支撑：有系统 {{ sys_stats.supported }} 项 · 部分支撑 {{ sys_stats.partial }} 项 · 无系统 {{ sys_stats.none }} 项，共 {{ sys_stats.total }} 项）{%- endif %}</div>
   <div class="task-table-wrap">
     <table class="task-table">
       <thead>
@@ -329,6 +370,9 @@
           <th>任务 / 决策</th>
           <th>角色</th>
           <th>输入 → 输出</th>
+          {%- if has_systems %}
+          <th>系统支撑</th>
+          {%- endif %}
           <th>业务规则及固化度</th>
           <th>痛点</th>
         </tr>
@@ -344,6 +388,17 @@
             <span class="io"><b>入</b> {{ s.inputs | join('、') or '—' }}</span>
             <span class="io"><b>出</b> {{ s.outputs | join('、') or '—' }}</span>
           </td>
+          {%- if has_systems %}
+          <td>
+            <div class="t-sys">
+              {%- if s.systems %}
+                {%- for sys in s.systems %}
+                <span class="sys-tag{% if sys.upgrade %} upgrading{% endif %}">{{ sys.name }}{% if sys.upgrade %}<span class="sys-up">升级中</span>{% endif %}</span>
+                {%- endfor %}
+              {%- else %}<span class="sys-none">— 人工 / Excel / 线下</span>{% endif %}
+            </div>
+          </td>
+          {%- endif %}
           <td>
             <div class="t-rule">
               <span class="warn">⚠️</span><span>{{ s.businessRule or '—' }}</span>

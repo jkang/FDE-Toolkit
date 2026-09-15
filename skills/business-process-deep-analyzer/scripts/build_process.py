@@ -61,6 +61,38 @@ def ensure_str(val) -> str:
     return str(val)
 
 
+def normalize_systems(val):
+    """把 step.systems 归一为 [{name, upgrade}, ...]。
+
+    支持两种写法：
+      - 字符串列表：["金蝶云之家", "花红WMS"]
+      - 对象列表：[{name: "金蝶云之家"}, {name: "花红WMS", upgrade: true}]
+    空/缺失 → []（表示该活动无系统支撑）。
+    """
+    out = []
+    for item in ensure_list(val):
+        if isinstance(item, dict):
+            name = ensure_str(item.get("name", ""))
+            upgrade = bool(item.get("upgrade", False))
+        else:
+            name = ensure_str(item)
+            upgrade = False
+        if name:
+            out.append({"name": name, "upgrade": upgrade})
+    return out
+
+
+def resolve_system_level(step: dict, systems: list) -> str:
+    """系统支撑等级：supported（有系统支撑）/ partial（部分支撑）/ none（无系统支撑）。
+
+    优先取显式 systemLevel；缺省时按 systems 是否为空推断（有→supported，无→none）。
+    """
+    level = ensure_str(step.get("systemLevel", "")).strip().lower()
+    if level in ("supported", "partial", "none"):
+        return level
+    return "supported" if systems else "none"
+
+
 def normalize_order(items):
     """把 items 的 order 归一为 1..N（按当前列表顺序）。
 
@@ -130,6 +162,7 @@ def build_grid(stages, lanes, steps):
             sid = stage_by_id.get(stages[0]["id"], {}).get("id")
             lid = lane_by_id.get(lanes[0]["id"], {}).get("id")
 
+        systems = normalize_systems(step.get("systems"))
         norm = {
             "id": ensure_str(step.get("id", "")),
             "order": int(step.get("order", 0)),
@@ -142,6 +175,10 @@ def build_grid(stages, lanes, steps):
             "inputs": ensure_list(step.get("inputs")),
             "outputs": ensure_list(step.get("outputs")),
             "pains": ensure_list(step.get("pains")),
+            "systems": systems,
+            "systemLevel": resolve_system_level(step, systems),
+            "systemNote": ensure_str(step.get("systemNote", "")),
+            "hasSystemInfo": ("systems" in step) or ("systemLevel" in step),
             "stageName": stage_by_id.get(sid, {}).get("name", ""),
             "laneName": lane_by_id.get(lid, {}).get("name", ""),
         }
@@ -198,6 +235,18 @@ def main():
     # ---- steps (格) 建泳道网格 + 任务表行 ---- #
     grid, table_rows, pain_stats = build_grid(stages, lanes, steps)
 
+    # 系统支撑统计（用于图例与顶部基线）
+    has_systems = any(s.get("systems") for s in table_rows)
+    sys_supported = sum(1 for s in table_rows if s.get("systemLevel") == "supported")
+    sys_partial = sum(1 for s in table_rows if s.get("systemLevel") == "partial")
+    sys_none = sum(1 for s in table_rows if s.get("systemLevel") == "none")
+    sys_stats = {
+        "supported": sys_supported,
+        "partial": sys_partial,
+        "none": sys_none,
+        "total": len(table_rows),
+    }
+
     environment_defaults = {
         "flowNote": "🔄 流程走向",
         "ruleNote": "⚠️ 业务规则及固化度",
@@ -223,6 +272,8 @@ def main():
         stage_count=len(stages),
         lane_count=len(lanes),
         pain_stats=pain_stats,
+        has_systems=has_systems,
+        sys_stats=sys_stats,
         generated_at=datetime.datetime.now().strftime("%Y-%m-%d %H:%M"),
         raw_yaml=raw_yaml_content,
     )
@@ -235,6 +286,8 @@ def main():
     print(f"   痛点统计: 高耗时={pain_stats.get('highTime',0)} 高认知负荷={pain_stats.get('cognitive',0)} "
           f"高频错误={pain_stats.get('freqError',0)} 来回往复={pain_stats.get('backForth',0)} "
           f"系统瓶颈={pain_stats.get('bottleneck',0)} (总计={pain_stats.get('total',0)})")
+    print(f"   系统支撑: 有系统={sys_stats['supported']} 部分支撑={sys_stats['partial']} "
+          f"无系统={sys_stats['none']} (总计={sys_stats['total']})")
 
 
 if __name__ == "__main__":

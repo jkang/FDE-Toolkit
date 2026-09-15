@@ -43,7 +43,8 @@ author: KK
 > **视觉设计规范 (Visual Design Standard)**:
 > - 样式对齐 `10-分仓补货_现状泳道图.html`：泳道网格（列=L3 子环节，行=角色，格=L4 任务卡）。
 > - **新增**：每张 L4 任务卡下方标注该环节痛点（5 类彩色圆点+标签），无痛点则不标注。
-> - **新增**：泳道图下方渲染「任务明细表」（编号 / 所属业务流程 / 任务·决策 / 角色 / 输入→输出 / 业务规则及固化度 / 痛点）。
+> - **新增（系统支撑）**：当 step 声明了 `systems` / `systemLevel` 时，任务卡上以绿色胶囊标注「🖥 系统支撑：<系统名>」；被列入升级/迁移的系统在系统名后加橙色「升级中」小徽章；无系统支撑的活动显示灰色「🖥 无系统支撑 · 人工 / Excel / 线下」。`meta.systemBaseline` 渲染为顶部「系统基线」callout。仅当存在系统标注时才渲染图例与表格「系统支撑」列（向后兼容未声明 systems 的旧产物）。
+> - **新增**：泳道图下方渲染「任务明细表」（编号 / 所属业务流程 / 任务·决策 / 角色 / 输入→输出 / **系统支撑** / 业务规则及固化度 / 痛点）。
 > - **角色泳道排序（阅读顺序铁律）**：**第一排泳道 = 最先发生的活动**；其余泳道按「各自最早发生的 L4 活动序号」依次向下，
 >   使自上而下阅读时活动序号尽量递增。此排序由 `build_process.py` 的 `order_lanes_by_earliest_step` **自动完成**，
 >   LLM/YAML 无需手工调序（`lanes[].order` 仅作兜底）。
@@ -64,12 +65,12 @@ author: KK
 
 | 模块 | 内容 | 视觉特性 |
 |------|------|---------|
-| **meta** | title / sectionNo / business / domain / **valueSegment** / currentStateNote / upstream / kpi | 页眉 + 价值段 chip + 现状总述 callout |
+| **meta** | title / sectionNo / business / domain / **valueSegment** / currentStateNote / **systemBaseline** / systemRef / upstream / kpi | 页眉 + 价值段 chip + 现状总述 callout + 系统基线 callout |
 | **painTypes** | 5 类痛点：highTime / cognitive / freqError / backForth / bottleneck | 图例 + 卡下圆点 + 表格痛点列 |
-| **legend** | 流程走向 / 规则固化度 / 痛点说明 | 图例栏 |
+| **legend** | 流程走向 / 规则固化度 / 痛点说明 / **系统支撑** | 图例栏 |
 | **stages** | 列 = L3 子环节（STG1..），含 desc | 泳道列头（带序号） |
 | **lanes** | 行 = 角色泳道（L1..），含 desc | 泳道行头（竖排） |
-| **steps** | 格 = L4 任务/决策，定位 stageId×laneId，含 pains / businessRule / ruleSolidity / inputs / outputs | 泳道卡 + 任务明细表行 |
+| **steps** | 格 = L4 任务/决策，定位 stageId×laneId，含 pains / **systems·systemLevel** / businessRule / ruleSolidity / inputs / outputs | 泳道卡 + 任务明细表行 |
 
 L4 任务（step）核心字段：
 
@@ -80,6 +81,9 @@ L4 任务（step）核心字段：
 | `pains` | 该环节现状痛点 | `["highTime","cognitive"]` |
 | `duration` | 耗时 | `约 1-2 小时/单 [推断]` |
 | `source` | 来源/系统 | `订舱管理系统 / CRM` |
+| `systems` | 支撑该活动的现有业务系统（无则 `[]`） | `[{name: "CRM（销售易）", upgrade: true}, "ERP（金蝶云星空）"]` |
+| `systemLevel` | 系统支撑等级 | `supported`（有系统）/ `partial`（部分支撑）/ `none`（无系统，缺省按 systems 推断） |
+| `systemNote` | 系统支撑补充说明（可选） | `仅审批环节由 OA 承接` |
 | `businessRule` | 业务规则/口径 | `SLA 条款外/异常单人工审核` |
 | `ruleSolidity` | 固化度 | `Excel / 人工` / `系统` / `AI` |
 | `inputs` / `outputs` | 输入 → 输出 | `["异常/条款外订舱请求"]` |
@@ -146,7 +150,8 @@ business-process-deep-analyzer/
 - [ ] 每个 step 的 `stageId`/`laneId` 都能在 `stages[]`/`lanes[]` 中命中
 - [ ] 每个环节的痛点都落在 `painTypes` 5 类之内（有默认回退色）
 - [ ] 卡下方仅对有痛点的环节显示痛点标注，无痛点不显示
-- [ ] 任务明细表含 7 列：编号 / 所属业务流程 / 任务·决策 / 角色 / 输入→输出 / 业务规则及固化度 / 痛点
+- [ ] 任务明细表含 7 列（编号 / 所属业务流程 / 任务·决策 / 角色 / 输入→输出 / 业务规则及固化度 / 痛点）；启用系统支撑时增列「系统支撑」为 8 列
+- [ ] 若声明了 `systems`：任务卡与明细表均显示「系统支撑」，升级/迁移系统带「升级中」徽章，无系统活动显示「无系统支撑」；未声明 `systems` 的旧产物不渲染系统列（向后兼容）
 - [ ] 泳道图每个交叉格定位正确（任务出现在对应 stage×lane）
 - [ ] 角色泳道按「最早活动序号」自上而下排序：第一排 = 最先发生的活动，阅读时活动序号尽量递增（编译器自动完成）
 - [ ] 页面撑满整页宽度（无 max-width 上限），泳道图纵向高度自适应、可横向查看全貌

@@ -47,6 +47,25 @@
 
 ---
 
+## 三·补、系统支撑标注铁律（有客户系统清单时启用）
+
+当输入提供「现有业务系统清单」时，对每个 `step` 标注**该活动由哪些现有系统支撑**，用于暴露数字化基线与系统缺口：
+
+| 字段 | 口径 |
+|------|------|
+| `systems` | 列出**直接承接该活动**的现有系统名（对齐客户系统清单命名）；仅部分环节由系统承接、其余靠人工时同样列出已承接部分 |
+| `systemLevel` | `supported`（该活动基本由系统完成）/ `partial`（仅部分由系统承接，仍大量人工/Excel）/ `none`（无系统支撑，纯人工/Excel/线下） |
+| `upgrade` | 系统在客户清单中标注「计划升级 / 切换 / 迁移」时置 `true`，渲染为「升级中」徽章 |
+| `meta.systemBaseline` | 用一段话概述：在用系统规模、本价值段相关系统、升级/迁移中的系统 |
+
+铁律：
+- **有依据**：系统名必须来自客户提供的系统清单，不臆造系统；无法确认的用 `[待确认]` 标注。
+- **就低不就高**：仅沟通工具（如企业微信）承载活动时，标 `partial`，不要标 `supported`。
+- **无系统也要显式**：确认无系统支撑的环节写 `systems: []` + `systemLevel: "none"`，让缺口一目了然（这是后续 AI 机会点的直接依据）。
+- **不重复 source**：`source` 保留原始「来源/工具」描述；`systems` 只列系统。二者互补。
+
+---
+
 ## 四、字段规范（对齐 schema.yaml）
 
 | 字段 | 必填 | 取值约束 |
@@ -56,6 +75,8 @@
 | `meta.business` / `domain` | ✅ | 公司 + 领域 |
 | `meta.valueSegment` | ✅ | 目标价值段/业务环节名 |
 | `meta.currentStateNote` | ✅ | 一段现状总述（流程怎么走、痛点概貌） |
+| `meta.systemBaseline` | ⬜ | 现状系统基线（在用系统规模、本价值段相关系统、升级/迁移中的系统） |
+| `meta.systemRef` | ⬜ | 系统清单来源（如《现有系统情况 …》） |
 | `meta.upstream` | ⬜ | 上游价值流/价值段/来源锚点 |
 | `meta.kpi` | ⬜ | 该环节要服务的关键指标 |
 | `painTypes` | ✅ | 5 类痛点（复用默认：highTime/cognitive/freqError/backForth/bottleneck） |
@@ -65,7 +86,10 @@
 | `steps[].id/order/stageId/laneId/name` | ✅ | L4 任务：ST1..；stageId/laneId 必须存在 |
 | `steps[].description` | ✅ | 一句话描述 |
 | `steps[].duration` | ⬜ | 耗时（如 `约 1-2h`、`0点取数 6h+`） |
-| `steps[].source` | ⬜ | 来源/支撑系统 |
+| `steps[].source` | ⬜ | 来源/工具（原始描述，如 `Excel 汇总 + 邮件审批`） |
+| `steps[].systems` | ⬜ | 支撑该活动的**现有业务系统**（对齐客户系统清单）；无则 `[]` 或省略。元素可为字符串或 `{name, upgrade}`；`upgrade: true` 表示该系统正在升级/迁移 |
+| `steps[].systemLevel` | ⬜ | `supported`（有系统支撑）/ `partial`（部分支撑）/ `none`（无系统支撑）；缺省按 `systems` 是否为空推断 |
+| `steps[].systemNote` | ⬜ | 系统支撑补充说明（可选，如「仅审批环节由 OA 承接」） |
 | `steps[].businessRule` | ⬜ | 业务规则/口径 |
 | `steps[].ruleSolidity` | ✅ | 固化度：`Excel` / `系统` / `AI` / `人工` / `系统+人工` 等 |
 | `steps[].inputs` / `outputs` | ✅ | 数组 |

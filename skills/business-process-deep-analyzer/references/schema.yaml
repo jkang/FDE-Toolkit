@@ -22,6 +22,8 @@ meta:
     valueSegment: "在线订舱"
     sourceRef: "X电商订舱-业务流程深度分析 + 客户 Workshop 一手话 + 深度研究推断"
   kpi: ["订舱确认时效", "SME 自助率", "AI 分流率"]
+  systemBaseline: "集团在用业务系统 N 个；本价值段核心系统为订舱门户（OMS）与 CRM，其中 CRM 计划升级。"   # 可选：现状系统基线
+  systemRef: "《现有系统情况 …》"                                                                       # 可选：系统清单来源
 
 # ---- 痛点五色（卡下圆点 + 图标 + 任务明细表）----
 # 本次改造新增「系统瓶颈」，与高耗时/高认知负荷/高频错误/来回往复 共 5 类。
@@ -67,6 +69,10 @@ steps:
     ruleSolidity: "系统表单"          # Excel / 系统 / AI / 人工
     inputs: ["报价参考号", "货量与箱型", "港对与货方信息"]
     outputs: ["订舱请求 (Booking Request)"]
+    systems:                            # 可选：支撑该活动的现有业务系统；无则 []（或省略）
+      - { name: "订舱门户 (OMS)" }
+      - { name: "CRM", upgrade: true }  # upgrade: true → 系统名后加「升级中」徽章
+    systemLevel: "supported"            # supported / partial / none（缺省按 systems 推断）
     pains: ["highTime", "backForth"]   # 新客首单慢 + 资料不齐往返补件
 
   - id: "ST2"
@@ -109,6 +115,8 @@ steps:
     ruleSolidity: "Excel / 人工"
     inputs: ["异常/条款外订舱请求"]
     outputs: ["人工放行或驳回"]
+    systems: []                        # 无系统支撑（人工 / Excel / 线下）
+    systemLevel: "none"
     pains: ["highTime", "cognitive"]   # 人工审核慢 + 规则边界依赖经验
 
   - id: "ST5"
