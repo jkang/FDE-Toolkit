@@ -187,7 +187,9 @@ def main():
 
         actor = ensure_str(task.get("actor"))
         ast = get_actor_styles(actor)
-        key = actor.lower()
+        key = actor.lower().strip()
+        key = {"ai": "agent", "auto": "agent", "manual": "human", "人工": "human",
+               "mix": "hybrid", "mixed": "hybrid", "混合": "hybrid"}.get(key, key)
         if key in actor_counts:
             actor_counts[key] += 1
 
@@ -204,6 +206,8 @@ def main():
             "id": ensure_str(task.get("id")),
             "name": ensure_str(task.get("name")),
             "actor": ast,
+            "actorKey": key,
+            "aiFocus": ensure_str(task.get("aiFocus")),
             "inputs": ensure_list(task.get("inputs")),
             "outputs": ensure_list(task.get("outputs")),
             "ruleType": ensure_str(task.get("ruleType")),

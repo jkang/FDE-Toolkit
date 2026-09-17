@@ -71,6 +71,7 @@ tasks:
       ruleType: "关键信息提取要点·分货数据关键字段识别",
       valueAnchors: ["分货效率"], hitlFocus: "low",
       exception: "数据缺失/口径异常 → 拉人",
+      aiFocus: "异常下钻",                              # 可选：该任务体现的 AI 核心能力（卡片渲染紫色胶囊）
       description: "Agent 拉取全量库存，形成全国供需视图" }
 
   - { id: "t02", order: 2, phaseId: "P1", laneId: "data",
