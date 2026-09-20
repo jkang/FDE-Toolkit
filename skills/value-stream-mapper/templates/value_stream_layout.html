@@ -89,26 +89,27 @@
     background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
     padding: 11px 16px; display: flex; align-items: flex-start; gap: 12px;
   }
+  /* 价值流编号（与价值段编号刻意区分：实底深色胶囊 + 「价值流」前缀） */
   .vs-sgroup-head .sh-num {
-    width: 23px; height: 23px; border: 1.5px solid var(--navy); color: var(--navy);
-    border-radius: 50%; font-size: 12px; font-weight: 700;
-    display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px;
+    background: var(--navy); color: #fff; border: 0;
+    border-radius: 6px; padding: 3px 10px; font-size: 11px; font-weight: 700; letter-spacing: .3px;
+    display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; white-space: nowrap;
   }
   .vs-sgroup-head .sh-title { font-size: 15px; font-weight: 700; color: var(--navy); }
   .vs-sgroup-head .sh-chain { font-size: 11.5px; color: var(--soft); line-height: 1.5; margin-top: 2px; }
 
   /* 价值段列（参考图：①……⑤ 横向从左到右串联，→ 连接） */
   .vs-columns {
-    display: flex; align-items: flex-start; gap: 8px;
+    display: flex; align-items: flex-start; gap: 6px;
     overflow-x: auto; padding: 4px 2px 8px;
   }
-  .vs-col-arrow { align-self: center; color: #AEB6C2; font-size: 17px; font-weight: 700; flex-shrink: 0; padding: 0 3px; }
+  .vs-col-arrow { align-self: center; color: #AEB6C2; font-size: 14px; font-weight: 700; flex-shrink: 0; padding: 0 1px; }
 
   .vs-column {
     background: var(--card);
     border: 1px solid var(--line);
     border-radius: var(--radius);
-    min-width: 218px; flex: 1 1 0;
+    min-width: 150px; flex: 1 1 0;
     display: flex; flex-direction: column;
     overflow: hidden;
   }
@@ -118,11 +119,12 @@
     background: #FBFCFD;
     display: flex; flex-direction: column; gap: 8px;
   }
-  .vs-col-head .ch-title { display: flex; align-items: center; gap: 9px; font-size: 14.5px; font-weight: 700; color: var(--navy); }
+  .vs-col-head .ch-title { display: flex; align-items: flex-start; gap: 7px; font-size: 13.5px; font-weight: 700; color: var(--navy); line-height: 1.45; }
+  /* 价值段编号（与价值流编号刻意区分：浅蓝描边胶囊 + 「价值段」前缀） */
   .vs-col-head .ch-num {
-    width: 23px; height: 23px; border: 1.5px solid var(--navy); color: var(--navy);
-    border-radius: 50%; font-size: 12px; font-weight: 700;
-    display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;
+    background: var(--focus-bg); color: #1D4ED8; border: 1px solid #BFDCF0;
+    border-radius: 6px; padding: 1px 8px; font-size: 10.5px; font-weight: 700;
+    display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; white-space: nowrap;
   }
   .vs-col-head .ch-chain { font-size: 11px; color: var(--soft); line-height: 1.5; }
 
@@ -141,9 +143,6 @@
   }
   .vs-link-top { display: flex; flex-direction: column; gap: 7px; }
   .vs-link-name { font-size: 13.5px; font-weight: 600; color: var(--navy); line-height: 1.4; }
-  .vs-link-pri { font-size: 10.5px; font-weight: 700; border-radius: 4px; padding: 1px 6px; color: #fff; line-height: 1.5; align-self: flex-start; }
-  .vs-link-pri.p0 { background: #E4703A; }
-  .vs-link-pri.p1 { background: #5DA8D8; }
 
   /* 聚焦框（列内：把同段相邻聚焦环节整体包成一个蓝框） */
   .vs-focus-group {
@@ -180,7 +179,6 @@
   }
   .vs-legend .lg-title { font-weight: 700; color: var(--navy); }
   .vs-legend .lg-star { color: #1D4ED8; font-weight: 700; }
-  .vs-legend .lg-p0 { color: #E4703A; font-weight: 700; }
 
   @media (max-width: 720px) {
     .vs-columns { flex-direction: column; }
@@ -205,7 +203,7 @@
     </div>
     <div class="vs-actions">
       <button class="vs-btn" onclick="toggleDetailAll(this)">全部展开 / 收起</button>
-      <button class="vs-btn" onclick="copyYAML(this)">📋 复制 YAML</button>
+      <button class="vs-btn" onclick="copyYAML(this)">复制 YAML</button>
     </div>
   </div>
 
@@ -259,8 +257,6 @@
   <div class="vs-link">
     <div class="vs-link-top">
       <div class="vs-link-name">{{ link.name }}</div>
-      {%- if link.priority == 'P0' %}<span class="vs-link-pri p0">P0</span>{% endif %}
-      {%- if link.priority == 'P1' %}<span class="vs-link-pri p1">P1</span>{% endif %}
     </div>
     {%- if link.detail %}
     <div class="vs-link-detail">
@@ -285,7 +281,7 @@
     {%- for stream in valueStreams %}
     <div class="vs-sgroup">
       <div class="vs-sgroup-head">
-        <span class="sh-num">{{ stream.order }}</span>
+        <span class="sh-num">价值流 {{ stream.order }}</span>
         <div class="sh-body">
           <div class="sh-title">{{ stream.name }}</div>
           {%- if stream.chain %}<div class="sh-chain">{{ stream.chain }}</div>{% endif %}
@@ -297,7 +293,7 @@
           {%- if not loop.first %}<div class="vs-col-arrow">→</div>{% endif %}
           <div class="vs-column">
             <div class="vs-col-head">
-              <div class="ch-title"><span class="ch-num">{{ seg.order }}</span><span>{{ seg.name }}</span></div>
+              <div class="ch-title"><span class="ch-num">价值段 {{ seg.order }}</span><span>{{ seg.name }}</span></div>
               {%- if seg.chain %}<div class="ch-chain">{{ seg.chain }}</div>{% endif %}
             </div>
             <div class="vs-col-links">
@@ -328,7 +324,7 @@
   <!-- 底部图例 -->
   <div class="vs-legend">
     <span class="lg-item"><span class="lg-star">★</span>{{ legend.focusNote }}</span>
-    <span class="lg-item"><span class="lg-p0">P0</span>{{ legend.priorityNote }}</span>
+    <span class="lg-item">{{ legend.priorityNote }}</span>
     <span class="lg-item">{{ legend.clickNote }}</span>
   </div>
 </div>
@@ -347,7 +343,7 @@
     var text = '';
     try { text = JSON.parse(el.textContent || ''); }
     catch (e) { text = el.textContent || ''; }
-    var done = function(){ btn.textContent = '✅ 已复制 YAML'; setTimeout(function(){ btn.textContent = '📋 复制 YAML'; }, 1600); };
+    var done = function(){ btn.textContent = '已复制 YAML'; setTimeout(function(){ btn.textContent = '复制 YAML'; }, 1600); };
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(text.trim()).then(done).catch(function(){ fallback(); });
     } else { fallback(); }
