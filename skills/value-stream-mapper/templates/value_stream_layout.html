@@ -260,7 +260,7 @@
     </div>
     {%- if link.detail %}
     <div class="vs-link-detail">
-      <span class="vs-link-toggle" onclick="toggleLink(this)">定义 / 目标 / {{ '聚焦理由' if link.focus else '不聚焦理由' }}</span>
+      <span class="vs-link-toggle" onclick="toggleLink(this)">{% if link.detail.definition %}定义 / {% endif %}{% if link.detail.goal %}目标 / {% endif %}{{ '聚焦理由' if link.focus else '不聚焦理由' }}</span>
       <div class="vs-link-body">
         {%- if link.detail.definition %}<div class="vs-field"><span class="vf-label">定义：</span><span class="vf-val">{{ link.detail.definition }}</span></div>{% endif %}
         {%- if link.detail.goal %}<div class="vs-field"><span class="vf-label">目标：</span><span class="vf-val">{{ link.detail.goal }}</span></div>{% endif %}
