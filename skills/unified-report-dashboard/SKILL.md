@@ -81,6 +81,9 @@ executive_summary:   # 封面「核心结论」（string 或 list，观点句，
   - "一句话结论：把「人工收集+经验拍底价」升级为「AI 全链成本测算 + 最优方案推荐」，报价出案 3-7 天收敛至小时级。"
   - "本报告沿 <b>理需求 → 挖知识 → 建本体 → 生智能 → 评测</b> 给出可施工的证据链。"
 logo: { icon: "OC", text: "[公司/业务名]", subtitle: "场景规划", badge: "AI-POWERED" }
+# logo.image：客户 logo 图片路径（相对仪表盘所在目录）。填写后侧边栏用图片替代 icon+text；
+#            本地路径会在编译时自动内联为 data URI，产物自包含。
+# cover_title: true 才会渲染封面大标题（默认 false，避免与顶栏标题重复）。
 stats:
   - { number: "3", label: "AI 场景" }
   - { number: "19", label: "L5深度任务" }
@@ -114,6 +117,13 @@ python3 scripts/build_dashboard.py input.yaml output.html [design.md]
 ### Step 4: 部署
 
 `cards[].file` / `navigation[].items[].file` **支持相对路径**（模板按 `src="${report.file}"` 以 iframe 相对仪表盘文件所在目录解析），报告**无需全部复制到与仪表盘同一目录**，可直接指向子目录：
+
+### 导航分组「收起」的两种语义（勿混用）
+
+| 字段 | 含义 | 阅读主线中的表现 |
+| --- | --- | --- |
+| `staged: true`（旧名 `collapsed: true`，保留兼容） | **分阶段锁定**：内容待前面阶段与客户共识后再展开 | 显示「待前面阶段与客户共识后展开」，不列条目 |
+| `sidebar_collapsed: true` | **仅侧边栏收起**（如附录分组），条目仍可在阅读主线中直达 | 正常列出能力项 chip |
 
 ```yaml
 # 仪表盘置于 <公司/业务名>/ 根目录时：
@@ -159,12 +169,14 @@ unified-report-dashboard/
 
 ## 输出特性
 
-- 封面 = **Executive Summary**（核心结论 + 核心路径，点击路径步骤直达；完整目录默认折叠）
-- 响应式侧边栏**文字菜单**（默认展开、可收缩、图标带 tooltip）
-- 封面页统计卡片
-- 暗色主题（#0a0e27 背景）
-- iframe 安全沙箱加载报告
-- 打印支持
+- **封面 = 紧凑 Executive Summary**（**总览** + **阅读主线**），目标**一屏展示完**：
+  - 阅读主线为「**分组标签 + 能力项 chip**」，点击 chip 直达报告；
+  - 交付数字为**一行小字号**，置于阅读主线**之后**；
+  - 封面**不渲染副标题**（`subtitle` 仅作元数据）；封面大标题默认**不渲染**（避免与顶栏标题重复），需要时用 `cover_title: true` 打开。
+- 侧边栏：**文字菜单**（默认展开、可收缩、图标带 tooltip）；支持**图片 logo**（`logo.image`，本地路径编译时自动内联为 data URI，产物自包含）。
+- 主题：模板默认**暗色**（#0a0e27）；可用 `build_dashboard.py` 的第三个参数（design 覆盖层）切换为**白底**等任意主题，不必改模板。
+- iframe 安全沙箱加载报告。
+- 顶栏仅保留「返回首页」；**不提供打印按钮**（浏览器自带打印即可）。
 
 ---
 
