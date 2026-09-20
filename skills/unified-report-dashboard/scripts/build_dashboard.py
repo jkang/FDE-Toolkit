@@ -7,6 +7,8 @@ Usage: python3 build_dashboard.py <input.yaml> <output.html>
 import re
 import sys
 import os
+import base64
+import mimetypes
 import yaml
 from jinja2 import Environment, FileSystemLoader
 
@@ -43,6 +45,21 @@ def extract_css_from_markdown(content: str) -> str:
     if '```' not in content:
         return content
     return ""
+
+def inline_local_image(src: str, base_dir: str) -> str:
+    """把本地相对路径的图片内联为 data URI，使产物 HTML 自包含。
+    - data: / http(s): 原样返回；
+    - 本地路径存在 → base64 内联；不存在 → 原样返回（便于定位问题）。"""
+    if not src or src.startswith(("data:", "http://", "https://")):
+        return src
+    p = os.path.join(base_dir, src)
+    if not os.path.exists(p):
+        return src
+    mime = mimetypes.guess_type(p)[0] or "image/png"
+    with open(p, "rb") as f:
+        b64 = base64.b64encode(f.read()).decode("ascii")
+    return f"data:{mime};base64,{b64}"
+
 
 def build_reports_mapping(cards: list, navigation: list) -> dict:
     reports = {}
@@ -115,6 +132,9 @@ def main():
         "logo_text": safe_string(logo.get("text", "Report")),
         "logo_subtitle": safe_string(logo.get("subtitle", "")),
         "logo_badge": safe_string(logo.get("badge", "")),
+        "logo_image": inline_local_image(safe_string(logo.get("image", "")),
+                                              os.path.dirname(os.path.abspath(output_html))),
+        "cover_title": bool(data.get("cover_title", False)),
         "stats": stats,
         "cards": cards,
         "navigation": navigation,

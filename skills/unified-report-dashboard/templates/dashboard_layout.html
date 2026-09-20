@@ -380,8 +380,9 @@
         .exec-section-title::before { content:""; width: 4px; height: 20px; border-radius: 2px; background: linear-gradient(180deg,#3b82f6,#f59e0b); display: inline-block; }
         .exec-section-tag { margin-left: auto; font-size: 12px; color: #94a3b8; background: rgba(255,255,255,0.06); padding: 3px 10px; border-radius: 12px; }
         .exec-insights { display: flex; flex-direction: column; gap: 14px; }
-        .exec-insight { display: flex; gap: 12px; align-items: flex-start; font-size: 15px; color: #cbd5e1; line-height: 1.7; }
-        .exec-insight::before { content:"▸"; color: #f59e0b; font-size: 16px; line-height: 1.6; flex: 0 0 auto; }
+        /* 用块级 + 绝对定位的项目符号：flex 会把行内 <b> 当成 flex 项拉伸换行 */
+        .exec-insight { position: relative; padding-left: 22px; font-size: 15px; color: #cbd5e1; line-height: 1.7; }
+        .exec-insight::before { content:"▸"; color: #f59e0b; font-size: 16px; line-height: 1.6; position: absolute; left: 0; top: 0; }
         .exec-insight b { color: #fff; }
         .exec-stage { margin-bottom: 22px; }
         .exec-stage-label { display: flex; align-items: center; gap: 10px; font-size: 15px; font-weight: 700; color: #60a5fa; margin-bottom: 4px; }
@@ -468,6 +469,39 @@
         .exec-step-title { display: block; font-size: 13.5px; font-weight: 600; color: #f1f5f9; line-height: 1.45; }
         .exec-step-hint { display: block; font-size: 12px; color: #a9b4c7; margin-top: 3px; line-height: 1.5; }
         .exec-arrow { display: none; }
+
+        /* ==================================================================
+           封面紧凑化 & 侧边栏 logo 图片（skill 默认）
+           —— 目标：封面一屏展示完；副标题不渲染；交付数字缩小并后置到阅读主线之后
+           ================================================================== */
+        .logo-img { height: 34px; width: auto; display: block; max-width: 100%; }
+        .sidebar.collapsed .logo-img { height: 24px; }
+
+        .cover-page { padding: 30px 40px 24px; justify-content: flex-start; }
+        .cover-title { font-size: 26px; margin-bottom: 18px; }
+        .exec-section { padding: 18px 22px; margin-bottom: 14px; }
+        .exec-section-head { margin-bottom: 12px; }
+        .exec-section-title { font-size: 15px; }
+        .exec-insight { font-size: 13.5px; }
+
+        /* 阅读主线：分组标签 + 能力项 chip（紧凑，替代大卡片） */
+        .exec-path-row { display: flex; align-items: flex-start; gap: 12px; padding: 7px 0;
+            border-top: 1px solid rgba(255,255,255,0.06); }
+        .exec-path-row:first-of-type { border-top: 0; }
+        .exec-path-label { flex: 0 0 auto; min-width: 132px; font-size: 13px; font-weight: 700;
+            color: #60a5fa; line-height: 1.9; }
+        .exec-path-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+        .exec-chip { font-size: 12.5px; line-height: 1.5; padding: 4px 11px; border-radius: 999px;
+            background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.14);
+            color: #cbd5e1; cursor: pointer; transition: all .2s; }
+        .exec-chip:hover { background: rgba(96,165,250,0.16); border-color: rgba(96,165,250,0.55); color: #fff; }
+        .exec-path-lock { font-size: 12.5px; color: #64748b; line-height: 1.9; }
+
+        /* 交付物数字：缩小为一行、放在阅读主线之后 */
+        .cover-stats { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 20px;
+            margin: 14px 0 0; font-size: 12.5px; color: #94a3b8; }
+        .stat-inline b { color: #e2e8f0; font-weight: 800; margin-right: 5px; }
+        .cover-footer { margin-top: 16px; font-size: 12px; }
     </style>
     {% if custom_styles %}
     <style id="custom-styles">
@@ -484,8 +518,12 @@
             </div>
             <div class="sidebar-header">
                 <div class="logo">
+                    {% if logo_image %}
+                    <img class="logo-img" src="{{ logo_image }}" alt="{{ logo_text }}">
+                    {% else %}
                     <div class="logo-icon">{{ logo_icon }}</div>
                     <div class="logo-text">{{ logo_text }}</div>
+                    {% endif %}
                 </div>
                 {% if logo_subtitle %}
                 <div class="sidebar-subtitle">{{ logo_subtitle }}</div>
@@ -494,7 +532,7 @@
             
             <div class="nav-menu">
                 {% for nav in navigation %}
-                <div class="nav-section{% if nav.collapsed %} collapsed{% endif %}">
+                <div class="nav-section{% if nav.staged or nav.collapsed or nav.sidebar_collapsed %} collapsed{% endif %}">
                     <div class="nav-section-title" onclick="toggleNavSection(this)">
                         <span>{{ nav.section }}</span>
                         <span class="nav-caret">▾</span>
@@ -540,7 +578,6 @@
                 <div class="content-title" id="page-title">{{ title }}</div>
                 <div class="content-actions">
                     <button class="action-btn" onclick="showCover()">返回首页</button>
-                    <button class="action-btn primary" onclick="window.print()">打印报告</button>
                 </div>
             </div>
             
@@ -549,23 +586,15 @@
                     {% if logo_badge %}
                     <div class="cover-badge">{{ logo_badge }}</div>
                     {% endif %}
+                    {% if cover_title %}
                     <h1 class="cover-title">{{ title }}</h1>
-                    <p class="cover-subtitle">{{ subtitle }}</p>
-                    
-                    <div class="cover-stats">
-                        {% for stat in stats %}
-                        <div class="stat-item">
-                            <div class="stat-number">{{ stat.number }}</div>
-                            <div class="stat-label">{{ stat.label }}</div>
-                        </div>
-                        {% endfor %}
-                    </div>
+                    {% endif %}
                     
                     <div class="exec-wrap">
                         {% if executive_summary %}
                         <div class="exec-section" id="exec-summary">
                             <div class="exec-section-head">
-                                <span class="exec-section-title">核心结论 Executive Summary</span>
+                                <span class="exec-section-title">总览</span>
                                 <span class="exec-section-tag">观点</span>
                             </div>
                             <div class="exec-insights">
@@ -579,39 +608,35 @@
                         {% if navigation %}
                         <div class="exec-section" id="exec-path">
                             <div class="exec-section-head">
-                                <span class="exec-section-title">核心路径 阅读主线</span>
-                                <span class="exec-section-tag">点击任一步查看详情</span>
+                                <span class="exec-section-title">阅读主线</span>
+                                <span class="exec-section-tag">点击任一项查看详情</span>
                             </div>
                             {% for nav in navigation %}
-                            <div class="exec-stage{% if nav.collapsed %} exec-stage-locked{% endif %}">
-                                <div class="exec-stage-label">{{ nav.section }}</div>
-                                {% if nav.note %}<div class="exec-stage-note">{{ nav.note }}</div>{% endif %}
-                                {% if nav.collapsed %}
-                                <div class="exec-stage-lockhint">待前面阶段与客户共识后展开</div>
+                            {% set is_staged = nav.staged or nav.collapsed %}
+                            <div class="exec-path-row{% if is_staged %} exec-path-row-staged{% endif %}">
+                                <span class="exec-path-label">{{ nav.section }}</span>
+                                {% if is_staged %}
+                                <span class="exec-path-lock">待前面阶段与客户共识后展开</span>
                                 {% else %}
-                                <div class="exec-steps">
+                                <span class="exec-path-chips">
                                     {% set nav_items = nav.get('items') or nav.get('children') or [] %}
                                     {% for item in nav_items %}
-                                    <div class="exec-step" onclick="loadReport('{{ item.id }}')" title="{{ item.title }}">
-                                        <span class="exec-step-idx">{{ loop.index }}</span>
-                                        <span class="exec-step-body">
-                                            <span class="exec-step-title">{{ item.title }}</span>
-                                            {% if item.hint %}<span class="exec-step-hint">{{ item.hint }}</span>{% endif %}
-                                        </span>
-                                    </div>
+                                    <span class="exec-chip" onclick="loadReport('{{ item.id }}')" title="{{ item.title }}">{{ item.title }}</span>
                                     {% endfor %}
                                     {% if not nav_items and nav.id %}
-                                    <div class="exec-step" onclick="loadReport('{{ nav.id }}')" title="{{ nav.title or nav.section }}">
-                                        <span class="exec-step-idx">1</span>
-                                        <span class="exec-step-body">
-                                            <span class="exec-step-title">{{ nav.title or nav.section }}</span>
-                                            {% if nav.hint %}<span class="exec-step-hint">{{ nav.hint }}</span>{% endif %}
-                                        </span>
-                                    </div>
+                                    <span class="exec-chip" onclick="loadReport('{{ nav.id }}')" title="{{ nav.title or nav.section }}">{{ nav.title or nav.section }}</span>
                                     {% endif %}
-                                </div>
+                                </span>
                                 {% endif %}
                             </div>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+
+                        {% if stats %}
+                        <div class="cover-stats">
+                            {% for stat in stats %}
+                            <span class="stat-inline"><b>{{ stat.number }}</b>{{ stat.label }}</span>
                             {% endfor %}
                         </div>
                         {% endif %}
@@ -635,7 +660,7 @@
                     </div>
                     
                     <div class="cover-footer">
-                        点击上方路径步骤或左侧菜单查看详细报告
+                        点击上方任一项或左侧菜单查看详细报告
                     </div>
                 </div>
             </div>
