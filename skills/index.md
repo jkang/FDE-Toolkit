@@ -6,6 +6,7 @@
 
 > 协作规范见仓库根目录 `AGENTS.md`；各 Skill 的详细 SOP 见其 `SKILL.md`。
 > 所有产物遵循**双重输出**（结构化 YAML + 交互式 HTML）与**两层目录**（`[公司/业务名]/` 与 `[公司/业务名]/[场景名]/`）规范。
+> 例外：`interview-outline-designer`、`interview-record-integrator`（访谈工具与叙事型事实稿）输出单一 Markdown。
 
 ---
 
@@ -47,6 +48,8 @@ FDE 四步法：**理需求 → 挖知识 → 建本体 → 生智能**。每一
 - **[AI 成熟度评估与战略调研 (Company AI Maturity Research)](company-ai-maturity-research/SKILL.md)**：对企业 AI 就绪度与战略现状进行评估。
 - **[OSM 目标度量地图 (OSM Map Generator)](osm-map-generator/SKILL.md)**：把战略目标拆为策略（Strategy）与度量（Metrics）。
 - **[价值流图 (Value Stream Mapper)](value-stream-mapper/SKILL.md)**：梳理 L1 端到端价值链全景，并在业务环节级标注聚焦范围（★ + 优先级），是后续拆解的全貌底稿。
+- **[访谈提纲设计 (Interview Outline Designer)](interview-outline-designer/SKILL.md)**：为现状访谈设计简洁提纲（3 大段：角色与业务背景 / 信息流现状 / 理想态与资源重排；适用于任何客户、业务线与岗位），只出提纲本体、无填写模板与附录。输出单一 Markdown（显式例外）。
+- **[访谈记录整理 (Interview Record Integrator)](interview-record-integrator/SKILL.md)**：把「调研提纲 + 人工记录 + AI 录音转写」三源合并为客观事实底稿（待确认稿）——只归位事实、未提及显式标注、转写存疑的人名/产品名集中澄清。输出单一 Markdown（显式例外）。
 - **[业务流程深度分析 (Business Process Deep Analyzer)](business-process-deep-analyzer/SKILL.md)**：把单个价值段下钻为 L3/L4 现状泳道图，逐环节标痛点与任务明细表。
 - **[业务问题定义 (Problem Definition)](problem-definition/SKILL.md)**：承接痛点 + 根因（5-Why），用 8 要素把一个痛点定义成可取证、可量化、可归因的业务问题。
 - **[体验旅程图 (Journey Map Generator)](journey-map-generator/SKILL.md)**：生成含情感波动、交互点与痛点的体验旅程图。
@@ -96,6 +99,7 @@ FDE 四步法：**理需求 → 挖知识 → 建本体 → 生智能**。每一
 - **初次拜访 / 数字化评估**：用 `/client-insight`（AI 成熟度 + 流程深度分析）。
 - **找 AI 机会并定优先级**：`/opportunity` → AI 机会地图 → 画布 → CKD → 优先级矩阵。
 - **理需求·问题/机会驱动链（课件顺序）**：`value-stream-mapper`（L1 价值流）→ `business-process-deep-analyzer`（L3/L4 泳道图）→ `problem-definition`（问题定义 8 要素）→ `ai-opportunity-map-generator`（机会挖掘可视化）→ `opportunity-definition`（机会点定义 5 要素）→ `ai-canvas-generator`（AI 画布）→ `ai-scenario-matrix-generator`（优先级矩阵）。
+- **现状访谈（前 → 后）**：访谈前用 `interview-outline-designer` 出提纲 → 访谈后用 `interview-record-integrator` 出事实底稿（待确认稿）→ 交业务方核对 → 再进 `business-process-deep-analyzer` / `problem-definition`。
 - **让 Agent 规则落地**：`/agent-arch` → To-be 流程/任务拆解（P1）→ 规则挖掘（P2）→ 本体/工作流/CKD 三视图 → 落地技术架构与编排图（`agent-tech-architecture`）。
 - **把场景做成原型**：`/mvp-prototype` → Agent 产品方案 → To-be 旅程 → MVP 原型 → UX 优化。
 - **单场景端到端解决方案**：`/scenario-solution` → 机会点定义 → AI 画布 → To-be 流程/CKD/任务拆解(P1)/规则挖掘(P2) → Agent 本体 → Agent 产品方案 → To-be 旅程 → MVP 原型 → UX 优化 → 落地技术架构 → MVP 成效指标 → 测试数据集 → 场景级统一报告（适合已有机会点、要一次性跑完一个场景全链路并直接查看汇总报告的场景）。
