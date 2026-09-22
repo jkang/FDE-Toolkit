@@ -1,15 +1,15 @@
-# Agent 产品方案 · 产出数据模型（7 段字段契约）
-# 用途：作为「生成/校验」Agent 产品方案 Markdown 的字段结构基准。
-# 说明：由该数据体可渲染为《<公司>-<场景名>-Agent产品方案.md》；输出为 Markdown，故本 schema 主要用于约束字段齐全性与生成提示词。
+# 产品方案 · 产出数据模型（7 段字段契约）
+# 用途：作为「生成/校验」产品方案 Markdown 的字段结构基准。
+# 说明：由该数据体可渲染为《<公司>-<场景名>-产品方案.md》；输出为 Markdown，故本 schema 主要用于约束字段齐全性与生成提示词。
 
-title: "<公司/业务名>-<场景名>-Agent产品方案"
+title: "<公司/业务名>-<场景名>-产品方案"
 product_name: "<Agent 产品名称>"          # 如：智能订舱 Agent
 business_domain: "<业务领域>"              # 如：供应链物流
 
 meta:
   version: "v1.0"
   updated_at: "YYYY-MM-DD"
-  business_stage: "设计方案（SDP-Product）· 阶段1 Agent产品方案设计 · 步骤1.1~1.6"
+  business_stage: "设计方案（SDP-Product）· 阶段1 产品方案设计 · 步骤1.1~1.6"
   methodology: "SDP-Product 阶段1方法（产品定位 → 形态架构 → 故事线 → 功能清单 → Agent行为 → 规则消费门禁）"
   input_sources:                          # 引用的上游产物
     - { stage: "理需求",  source: "<业务主体与画像/业务现状全景/需求场景全景>", ref: "<文件名>" }
@@ -40,20 +40,23 @@ section_2_architecture:                   # 2 产品形态架构图（mermaid fl
   adjacent_products:                      # 相邻产品，仅标接触面（读/写）
     - { name: "<相邻产品名>", interface: "read | write", touch: "<接触面说明>" }
 
-section_3_storylines:                     # 3 原型演示故事线（默认 4 条）
+section_3_storylines:                     # 3 用户场景演示故事线（按「画像 × 场景」；每条端到端：起点→终点）
   - id: "storyline-1"
     title: "<故事线标题>"
+    persona: "<用户画像：主用户 / 次要用户 + 角色（如：一线销售 / 区域经理）>"
+    scenario: "<场景名，取自《用户画像与典型旅程》>"
+    job_story: "<当 [情境] ，我想要 [动机] ，以便 [预期结果]>"
+    journey_start_end: "<起点（目标触发）→ 终点（目标完成）>"
     business_highlight: "<业务价值高光>"
-    stage: "<对应 L3/L5 阶段>"
     script:
-      steps:                               # 用户→思考→调工具→输出→(HITL/错误/撤销)
+      steps:                               # 覆盖该场景旅程关键步：用户→思考→调工具→输出→(HITL/错误/撤销)
         - { type: "user",        text: "<用户操作>" }
         - { type: "thinking",    text: "<Agent 思考：拉取什么、按什么决策因子>" }
         - { type: "tool_call",   text: "<调用工具>" }
         - { type: "output",      text: "<Agent 输出>" }
         - { type: "hitl_error_undo", text: "<HITL 拦截 / 错误态 / 撤销，若有>" }
     ui_and_required_interactions: "<UI 组件 + 必备交互 #号（#1~#10）>"
-    business_content_source: "<上游来源：任务/规则/术语条目>"
+    business_content_source: "<上游来源：具体 L5 任务名 + 规则类/决策因子>"
 
 section_4_functions:                      # 4 业务功能与 UI 组件清单
   required_interactions: ["#1 流式", "#2 工具调用可视化", "#3 思考折叠", "#4 内联组件", "#5 HITL拦截", "#6 撤销回滚", "#7 出处引用", "#8 状态徽章", "#9 错误态", "#10 空态"]

@@ -25,7 +25,7 @@ author: KK
 > - **上游输入**：`ai-opportunity-map-generator`（AI 机会场景地图）、`problem-definition`（问题①根因）。
 > - **本 Skill**：把一个机会点按 5 要素定义 + 价值收益拆解。
 > - **下游衔接**：`ai-canvas-generator`（AI 场景画布）、`ai-scenario-matrix-generator`（优先级评估）、
->   `agentic-product-proposal-generator`（Agent 产品方案）。
+>   `agentic-product-proposal-generator`（产品方案）。
 
 > [!IMPORTANT] 全局规范（双重输出 / 输出路径 / 视觉设计）
 > 当你使用此 Skill 时，必须**同时**输出两个部分：

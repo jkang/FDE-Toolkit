@@ -64,7 +64,7 @@ author: KK
   │     Step 14 Agentic 工作流（agentic-workflow-designer：AI 能力序列图 + Agent 编排）
   │
   ├─ Phase 4 · 生智能（产品方案 → To-be 旅程 → MVP 原型 → UX → 评测）
-  │     Step 15 Agent 产品方案（agentic-product-proposal-generator：7 段式施工蓝图，单一 .md）
+  │     Step 15 产品方案（agentic-product-proposal-generator：7 段式施工蓝图，单一 .md）
   │     Step 16 To-be 旅程（ai-product-journey-generator：角色细化 + AI 交互细节）
   │     Step 17 MVP 原型（prototype-generator：mvp-spec + 前后端 MVP + 启动验证）
   │     Step 18 UX 优化（ux-optimizer：企业品牌 × 业务主题 → 定制设计系统 + 覆盖层注入）
@@ -121,7 +121,7 @@ author: KK
 | Step 12 | CKD 数据映射 | ⏳ 待执行 | [客户名称]-[场景]-CKD矩阵分析.html |
 | Step 13 | Agent 本体设计 | ⏳ 待执行 | [客户名称]-[场景]-本体设计.html |
 | Step 14 | Agentic 工作流 | ⏳ 待执行 | [客户名称]-[场景]-Agentic工作流.html |
-| Step 15 | Agent 产品方案 | ⏳ 待执行 | [客户名称]-[场景]-Agent产品方案.md |
+| Step 15 | 产品方案 | ⏳ 待执行 | [客户名称]-[场景]-产品方案.md |
 | Step 16 | To-be 旅程 | ⏳ 待执行 | [客户名称]-[场景]-To-be旅程.html |
 | Step 17 | MVP 原型 | ⏳ 待执行 | [客户名称]-[场景]-mvp-spec.yaml + mvp-prototype/ |
 | Step 18 | UX 优化 | ⏳ 待执行 | [客户名称]-[场景]-UX设计报告.html |
@@ -300,12 +300,12 @@ scene_3: 场景C名称
 
 > 本阶段照搬 FDE 线下课「生智能」：把「业务规则 + 本体 + 挖知识」的成果聚合翻译成可照单施工的**产品方案**，再落到**可运行的 MVP 原型**，并给出**能否上线**的量化依据。
 
-### Step 15：Agent 产品方案
+### Step 15：产品方案
 
 **读取并遵循 `agentic-product-proposal-generator/SKILL.md` 的完整指令。**
 
 - 传入：理需求 / 场景定义 / 挖知识 / 本体的既有产出（`phase_cache/p7_canvas.md`、`p9_taskflow.md`、`p11_rule.md`、`p12_ckd.md`、`p13_ontology.md`）
-- 产出：`[客户名称]/[场景名]/[客户名称]-[场景名]-Agent产品方案.md`（7 段式施工蓝图：产品定位 → 形态架构 → 演示故事线 → 功能与 UI 组件 → Agent 行为 → 规则消费门禁；**单一 Markdown，不走 HTML 双输出**）
+- 产出：`[客户名称]/[场景名]/[客户名称]-[场景名]-产品方案.md`（7 段式施工蓝图：产品定位 → 形态架构 → 演示故事线 → 功能与 UI 组件 → Agent 行为 → 规则消费门禁；**单一 Markdown，不走 HTML 双输出**）
 - **可选**：同一场景需要结构化数据时另输出 `.schema.yaml`。
 
 ### Step 16：To-be 旅程设计
@@ -440,7 +440,7 @@ scene_3: 场景C名称
 | Step 7 AI 画布 Top3 | `opportunity-advisor` | p6_opportunity | p7_canvas | 3 个场景可并行 |
 | Step 13 本体 | `agent-arch-designer` | handoff_p2 | p13_ontology | 可与 Step 16 并行 |
 | Step 14 Agentic 工作流 | `agent-arch-designer` | handoff_p2 | p14_workflow | 可与 Step 16 并行 |
-| Step 15 产品方案 | `mvp-prototype` | handoff_p3（+ p11_rule / p12_ckd） | Agent产品方案.md | — |
+| Step 15 产品方案 | `mvp-prototype` | handoff_p3（+ p11_rule / p12_ckd） | 产品方案.md | — |
 | Step 17 MVP 原型 | `mvp-prototype` | handoff_p4 | mvp-spec + mvp-prototype/ | — |
 | Step 19 MVP 评测 | `mvp-evaluator` | handoff_p4 | AI测试数据集 + MVP指标 | 可与 Step 18 并行 |
 | 汇总 Step 20 | `unified-report-dashboard` | 全部产物 | dashboard | — |
@@ -501,7 +501,7 @@ scene_3: 场景C名称
 | 14 | Agentic 工作流 | [客户名称]-[场景]-Agentic工作流.html |
 
 ### Phase 4 · 生智能
-| 15 | Agent 产品方案 | [客户名称]-[场景]-Agent产品方案.md |
+| 15 | 产品方案 | [客户名称]-[场景]-产品方案.md |
 | 16 | To-be 旅程 | [客户名称]-[场景]-To-be旅程.html |
 | 17 | MVP 原型 | mvp-spec.yaml + mvp-prototype/ |
 | 18 | UX 优化 | [客户名称]-[场景]-UX设计报告.html |

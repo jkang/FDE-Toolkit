@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Agent 产品方案 · 结构校验器
+产品方案 · 结构校验器
 用法:
-    python3 build_proposal.py <Agent产品方案.md>
+    python3 build_proposal.py <产品方案.md>
 作用:
-    按「质量校验 Checklist」检查生成的 Agent 产品方案 Markdown 是否结构齐全、要素完整。
+    按「质量校验 Checklist」检查生成的 产品方案 Markdown 是否结构齐全、要素完整。
     输出一份 PASS/FAIL 清单报告。校验项仅覆盖结构与字段齐全性，不评判内容质量。
 依赖: 仅标准库。
 """
@@ -15,7 +15,7 @@ from pathlib import Path
 
 
 SECTIONS = [
-    "## 1 产品定位", "## 2 产品形态架构图", "## 3 原型演示故事线",
+    "## 1 产品定位", "## 2 产品形态架构图", "## 3 用户场景演示故事线",
     "## 4 业务功能与 UI 组件清单", "## 5 Agent 行为设计",
     "## 6 五类规则消费门禁", "## 7 待确认问题清单",
 ]
@@ -60,10 +60,10 @@ def main(path_str: str) -> int:
     results.append(check(("入口" in blob and "主交互" in blob and "周边支撑" in blob and "相邻产品" in blob),
                          "架构图三区+相邻产品", "入口区/主交互区/周边支撑区/相邻产品"))
 
-    # 4. 故事线（≥4 条，每条约 5 要素表）
+    # 4. 用户场景演示故事线（按「画像 × 场景」，覆盖主用户一期场景 + ≥1 条次要用户场景）
     story_heads = [l for l in lines if re.match(r"^### 故事线 \d+", l)]
-    results.append(check(len(story_heads) >= 4, "故事线条数", f"共 {len(story_heads)} 条（应 ≥4）"))
-    for col in ["业务价值高光", "对应阶段", "演示剧本", "UI 组件", "业务内容来源"]:
+    results.append(check(len(story_heads) >= 2, "故事线条数", f"共 {len(story_heads)} 条（应 ≥2：覆盖主用户一期场景 + ≥1 条次要用户场景）"))
+    for col in ["用户画像", "场景", "用户目标", "起点", "演示剧本", "UI 组件", "业务内容来源"]:
         results.append(check(col in blob, "故事线要素", col))
 
     # 5. 功能表 + 必备交互 10 项

@@ -1,7 +1,7 @@
 ---
 name: agent-tech-architecture
 description: |
-  承接「场景定义 + 任务流程/规则 + 本体 + Agent 产品方案 + mvp-spec」等上游产出，
+  承接「场景定义 + 任务流程/规则 + 本体 + 产品方案 + mvp-spec」等上游产出，
   以 AI 技术架构专家视角输出一份「Agent 落地技术架构方案」：先盘点资产、再做路线二选一
   （Workflow vs Autonomous Planner）、最后落定落地面貌 / 选型 / 环境 / HITL 护栏 / 验收，
   并编译出一张可执行的「Agent 应用逻辑编排图」——1 编排 Agent + N 个 Skill（每个 Skill 内含
@@ -92,7 +92,7 @@ author: KK
 
 ### Step 1 · 解析输入
 优先读取上游 YAML / Markdown（按可用性降级）：
-- 必需：`Agent产品方案`（.md）、`本体设计`（.yaml）、`业务规则挖掘`（.yaml）
+- 必需：`产品方案`（.md）、`本体设计`（.yaml）、`业务规则挖掘`（.yaml）
 - 强烈建议：`任务流程拆解`（.yaml）、`To-be流程`（.yaml）、`Agentic工作流`（.yaml）
 - 建议：`CKD矩阵分析`（.yaml）、`mvp-spec`（.yaml）
 - 可选：`AI测试数据集`、`成效指标`

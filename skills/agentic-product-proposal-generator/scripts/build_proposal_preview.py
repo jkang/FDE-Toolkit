@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Agent 产品方案 · Markdown → 自包含 HTML 预览
+产品方案 · Markdown → 自包含 HTML 预览
 用法:
-    python3 build_proposal_preview.py <Agent产品方案.md> <输出.html>
+    python3 build_proposal_preview.py <产品方案.md> <输出.html>
 作用:
     读取产品方案 Markdown，渲染为单文件、可被 iframe 内嵌的 HTML 预览。
     - Markdown 用 marked（CDN）在客户端解析；< / & 按 agent.md 规则预转义，避免误判成 HTML。

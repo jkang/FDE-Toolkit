@@ -59,7 +59,7 @@ author: KK
 ### B. 场景小节（每个场景一个导航分组）
 
 ```
-机会点定义 · AI画布（AI 场景定义）→ To-be流程 → 业务规则挖掘 → Agent本体设计 → Agent产品方案 → To-be旅程(含分人/深化) → MVP规格评审 → MVP原型 → ROI核算
+机会点定义 · AI画布（AI 场景定义）→ To-be流程 → 业务规则挖掘 → Agent本体设计 → 产品方案 → To-be旅程(含分人/深化) → MVP规格评审 → MVP原型 → ROI核算
 ```
 
 要点：
@@ -138,7 +138,7 @@ cards:
 
 ## 非 HTML 产物的承载
 
-- **Markdown / 其它非 HTML**（如 `Agent产品方案.md`）：iframe 不渲染 md，需先用 `python3 -m markdown`（tables/fenced_code/codehilite/toc）转为同名 `.html`，再给仪表盘引用（参考 `examples/` 与 X 实例）。
+- **Markdown / 其它非 HTML**（如 `产品方案.md`）：iframe 不渲染 md，需先用 `python3 -m markdown`（tables/fenced_code/codehilite/toc）转为同名 `.html`，再给仪表盘引用（参考 `examples/` 与 X 实例）。
 - **可运行原型 / 需启动服务的应用**（React + Express）：**不直接 iframe 内嵌**（会因缺后端 API/服务而空白）。改为生成一个「启动指引」HTML（含 `npm install` / 启动命令 / 演示分支 / 链接），仪表盘引用该指引页。
 
 ## 多场景 vs 单场景仪表盘

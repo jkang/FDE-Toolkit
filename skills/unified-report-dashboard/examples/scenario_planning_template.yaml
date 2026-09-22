@@ -36,7 +36,7 @@ cards:
   - { id: "c03", number: "09", title: "To-be 流程 · [场景名]", desc: "深度任务序列泳道图", icon: "🔀", badge: "深挖", file: "[场景名]/[公司/业务名]-[场景名]-To-be流程.html" }
   - { id: "c04", number: "10", title: "业务规则挖掘 · [场景名]", desc: "五类可消费知识", icon: "⚙️", badge: "五类", file: "[场景名]/[公司/业务名]-[场景名]-业务规则挖掘.html" }
   - { id: "c05", number: "11", title: "Agent 本体设计 · [场景名]", desc: "实体/关系/状态机/行动边界", icon: "🧠", badge: "本体", file: "[场景名]/[公司/业务名]-[场景名]-本体设计.html" }
-  - { id: "c06", number: "12", title: "Agent 产品方案 · [场景名]", desc: "md 已转 HTML 后引用", icon: "📦", badge: "方案", file: "[场景名]/[公司/业务名]-[场景名]-Agent产品方案.html" }
+  - { id: "c06", number: "12", title: "产品方案 · [场景名]", desc: "md 已转 HTML 后引用", icon: "📦", badge: "方案", file: "[场景名]/[公司/业务名]-[场景名]-产品方案.html" }
   - { id: "c07", number: "13", title: "To-be 旅程 · [场景名]", desc: "persona/场景/阶段", icon: "🧭", badge: "", file: "[场景名]/[公司/业务名]-[场景名]-To-be旅程.html" }
   - { id: "c08", number: "14", title: "MVP 规格评审 · [场景名]", desc: "MVP spec 评审（页面/组件/mock/接口）", icon: "🧪", badge: "规格", file: "[场景名]/[公司/业务名]-[场景名]-mvp-spec-评审.html" }
   - { id: "c09", number: "15", title: "MVP 原型 · [场景名]", desc: "启动指引页（直嵌会空白）", icon: "🚀", badge: "可运行", file: "[场景名]/[公司/业务名]-[场景名]-MVP原型启动指引.html" }
@@ -60,7 +60,7 @@ navigation:
       - { id: "c03", title: "To-be 流程", icon: "🔀", badge: "深挖", hint: "任务拆解", file: "[场景名]/[公司/业务名]-[场景名]-To-be流程.html" }
       - { id: "c04", title: "业务规则挖掘", icon: "⚙️", badge: "五类", hint: "规则沉淀", file: "[场景名]/[公司/业务名]-[场景名]-业务规则挖掘.html" }
       - { id: "c05", title: "Agent 本体设计", icon: "🧠", badge: "本体", hint: "业务语义", file: "[场景名]/[公司/业务名]-[场景名]-本体设计.html" }
-      - { id: "c06", title: "Agent 产品方案", icon: "📦", badge: "方案", hint: "可施工设计", file: "[场景名]/[公司/业务名]-[场景名]-Agent产品方案.html" }
+      - { id: "c06", title: "产品方案", icon: "📦", badge: "方案", hint: "可施工设计", file: "[场景名]/[公司/业务名]-[场景名]-产品方案.html" }
       - { id: "c07", title: "To-be 旅程", icon: "🧭", badge: "", hint: "用户旅程", file: "[场景名]/[公司/业务名]-[场景名]-To-be旅程.html" }
       - { id: "c08", title: "MVP 规格评审", icon: "🧪", badge: "规格", hint: "规格评审", file: "[场景名]/[公司/业务名]-[场景名]-mvp-spec-评审.html" }
       - { id: "c09", title: "MVP 原型", icon: "🚀", badge: "可运行", hint: "可运行原型", file: "[场景名]/[公司/业务名]-[场景名]-MVP原型启动指引.html" }
