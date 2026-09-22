@@ -22,7 +22,7 @@
 | `/opportunity` | opportunity-advisor | `ai-opportunity-map-generator`、`ai-canvas-generator`、`ai-scenario-matrix-generator` | AI 机会挖掘与优先级评估（CKD 深度映射属 `/agent-arch`） |
 | `/agent-arch` | agent-arch-designer | `to-be-process-designer`、`deep-task-flow-analyzer`、`business-rule-miner`、`agent-ontology-designer`、`agentic-workflow-designer`、`context-knowledge-data-analyzer`、`agent-tech-architecture` | Agent 系统设计（P1→P2 + 结构/行为/资源三视图 + 落地技术架构与编排图） |
 | `/mvp-prototype` | mvp-prototype | `agentic-product-proposal-generator`、`ai-product-journey-generator`、`prototype-generator`、`ux-optimizer` | Agent 产品方案 → To-be 旅程 → MVP 原型 → UX 定制优化 |
-| `/scenario-solution` | ai-solution-designer | `opportunity-definition`、`ai-canvas-generator`、`to-be-process-designer`、`context-knowledge-data-analyzer`、`deep-task-flow-analyzer`、`business-rule-miner`、`agent-ontology-designer`、`agentic-product-proposal-generator`、`ai-product-journey-generator`、`prototype-generator`、`ux-optimizer`、`agent-tech-architecture`、`mvp-metrics-generator`、`ai-test-dataset-generator`、`unified-report-dashboard` | 单场景端到端解决方案：机会点 → 画布 → To-be流程/CKD/P1/P2 → 本体 → 产品方案 → 旅程 → MVP 原型 → UX → 落地技术架构 → 指标 → 测试数据集 → 场景级统一报告 |
+| `/scenario-solution` | ai-solution-designer | `opportunity-definition`、`ai-canvas-generator`、`to-be-process-designer`、`context-knowledge-data-analyzer`、`deep-task-flow-analyzer`、`business-rule-miner`、`agent-ontology-designer`、`agentic-product-concept-designer`、`agentic-product-proposal-generator`、`ai-product-journey-generator`、`prototype-generator`、`ux-optimizer`、`agent-tech-architecture`、`mvp-metrics-generator`、`ai-test-dataset-generator`、`unified-report-dashboard` | 单场景端到端解决方案：机会点 → 画布 → To-be流程/CKD/P1/P2 → 本体 → 概念设计（客户确认）→ 产品方案 → 旅程 → MVP 原型 → UX → 落地技术架构 → 指标 → 测试数据集 → 场景级统一报告 |
 | `/mvp-eval` | mvp-evaluator | `ai-test-dataset-generator`、`mvp-metrics-generator` | MVP 评测（测试数据集 / 成效指标 / Go-No-Go） |
 | `/requirement` | requirement-analyst | `story-map-generator`、`mvp-plan-generator` | 需求拆解（故事地图 / MVP 迭代计划） |
 | `/roadmap` | roadmap-planner | `roadmap-generator`、`milestone-plan-generator` | 战略规划（路线图 / 里程碑） |
@@ -104,7 +104,7 @@ FDE 四步法：**理需求 → 挖知识 → 建本体 → 生智能**。每一
 - **让 Agent 规则落地**：`/agent-arch` → To-be 流程/任务拆解（P1）→ 规则挖掘（P2）→ 本体/工作流/CKD 三视图 → 落地技术架构与编排图（`agent-tech-architecture`）。
 - **把场景做成原型**：`/mvp-prototype` → Agent 产品方案 → To-be 旅程 → MVP 原型 → UX 优化。
 - **概念设计（客户确认）**：`agentic-product-concept-designer` → 概念设计稿（客户确认）→ 通过后进 `agentic-product-proposal-generator` 出工程级方案。
-- **单场景端到端解决方案**：`/scenario-solution` → 机会点定义 → AI 画布 → To-be 流程/CKD/任务拆解(P1)/规则挖掘(P2) → Agent 本体 → Agent 产品方案 → To-be 旅程 → MVP 原型 → UX 优化 → 落地技术架构 → MVP 成效指标 → 测试数据集 → 场景级统一报告（适合已有机会点、要一次性跑完一个场景全链路并直接查看汇总报告的场景）。
+- **单场景端到端解决方案**：`/scenario-solution` → 机会点定义 → AI 画布 → To-be 流程/CKD/任务拆解(P1)/规则挖掘(P2) → Agent 本体 → 产品概念设计（客户确认）→ Agent 产品方案 → To-be 旅程 → MVP 原型 → UX 优化 → 落地技术架构 → MVP 成效指标 → 测试数据集 → 场景级统一报告（适合已有机会点、要一次性跑完一个场景全链路并直接查看汇总报告的场景）。
 - **判断能否上线**：`/mvp-eval` → 测试数据集 + 成效指标/门禁（Go/No-Go）。
 - **需求梳理与迭代排期**：`/requirement` → 故事地图 → MVP 迭代计划；规划长期节奏用 `/roadmap`。
 
