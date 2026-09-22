@@ -51,7 +51,7 @@ flowchart TB
 | `/client-insight` | client-insight-advisor | `company-ai-maturity-research`、`osm-map-generator`、`business-process-deep-analyzer`、`journey-map-generator`、`blueprint-map-generator` | 客户洞察与现状业务梳理 |
 | `/opportunity` | opportunity-advisor | `ai-opportunity-map-generator`、`ai-canvas-generator`、`ai-scenario-matrix-generator` | AI 机会挖掘与优先级评估（CKD 深度映射属 `/agent-arch`） |
 | `/agent-arch` | agent-arch-designer | `to-be-process-designer`、`deep-task-flow-analyzer`、`business-rule-miner`、`agent-ontology-designer`、`agentic-workflow-designer`、`context-knowledge-data-analyzer`、`agent-tech-architecture` | Agent 系统设计（P1 任务流程 → P2 规则 → 结构/行为/资源三视图 → 落地技术架构） |
-| `/scenario-solution` | ai-solution-designer | 16 个场景级 Skills（机会点定义 → 画布 → To-be 流程/CKD/P1/P2 → 本体 → 产品概念设计（客户确认）→ 产品方案 → 旅程 → 原型 → UX → 技术架构 → 指标 → 测试数据集 → 场景级统一报告） | 单场景端到端解决方案 |
+| `/scenario-solution` | ai-solution-designer | 17 个场景级 Skills（机会点定义 → 画布 → To-be 流程/CKD/P1/P2 → 本体 → 产品概念设计（客户确认）→ 用户画像与旅程 → 产品方案 → 旅程 → 原型 → UX → 技术架构 → 指标 → 测试数据集 → 场景级统一报告） | 单场景端到端解决方案 |
 | `/mvp-prototype` | mvp-prototype | `agentic-product-proposal-generator`、`ai-product-journey-generator`、`prototype-generator`、`ux-optimizer` | Agent 产品方案 → To-be 旅程 → MVP 原型 → UX 定制优化 |
 | `/mvp-eval` | mvp-evaluator | `ai-test-dataset-generator`、`mvp-metrics-generator` | MVP 评测（测试数据集 / 成效指标 / Go-No-Go 上线门禁） |
 | `/requirement` | requirement-analyst | `story-map-generator`、`mvp-plan-generator` | 需求拆解（故事地图 / MVP 迭代计划） |
@@ -83,7 +83,7 @@ flowchart TB
 - `agent-ontology-designer`（对象关系 → 行动边界 → 状态迁移三层本体，可注入 System Prompt）。
 
 **④ 生智能（Generate the Intelligence）**——方案、原型、评测
-- `agentic-product-concept-designer`（面向客户确认的产品概念设计）、`agentic-product-proposal-generator`（可施工的 Agent 产品方案）、`ai-product-journey-generator`（含 AI 交互细节的 To-be 旅程）、`agent-tech-architecture`（落地技术架构 + 编排图）、`prototype-generator`（可启动的前后端一体化 MVP 原型）、`ux-optimizer`（企业品牌 × 业务主题的定制设计系统）、`story-map-generator`（用户故事地图）、`mvp-plan-generator`（MVP 迭代计划）、`ai-test-dataset-generator`（三层三类测试数据集）、`mvp-metrics-generator`（成效指标与 Go/No-Go 门禁）、`ai-roi-calculator`（AI 项目 ROI 核算）、`plantuml-flow-generator`（PlantUML 时序图/活动图）。
+- `agentic-product-concept-designer`（面向客户确认的产品概念设计）、`persona-journey-designer`（用户画像与典型旅程）、`agentic-product-proposal-generator`（可施工的 Agent 产品方案）、`ai-product-journey-generator`（含 AI 交互细节的 To-be 旅程）、`agent-tech-architecture`（落地技术架构 + 编排图）、`prototype-generator`（可启动的前后端一体化 MVP 原型）、`ux-optimizer`（企业品牌 × 业务主题的定制设计系统）、`story-map-generator`（用户故事地图）、`mvp-plan-generator`（MVP 迭代计划）、`ai-test-dataset-generator`（三层三类测试数据集）、`mvp-metrics-generator`（成效指标与 Go/No-Go 门禁）、`ai-roi-calculator`（AI 项目 ROI 核算）、`plantuml-flow-generator`（PlantUML 时序图/活动图）。
 
 **编排与汇总**：`discovery-agent`（全链路宏编排）、`unified-report-dashboard`（统一报告仪表盘，支持场景化两段式）。
 

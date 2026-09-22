@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>脱敏演示样例.md · 预览</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ow-primary:#10213E; --ow-accent:#625D9C; --ow-cerulean:#5DB2E2;
+  --ow-green:#00524C; --ow-bg:#F5F5F6; --ow-card:#ffffff;
+  --ow-text:#10213E; --ow-text-l:#4a5568; --ow-muted:#8b95a5; --ow-border:#dfe4ea;
+}
+* { box-sizing:border-box; }
+html,body { margin:0; padding:0; background:var(--ow-bg); color:var(--ow-text);
+  font-family:"Noto Sans SC","Inter",-apple-system,"PingFang SC","Microsoft YaHei",sans-serif; }
+.ow-toolbar { position:sticky; top:0; z-index:5; display:flex; align-items:center; gap:10px;
+  background:linear-gradient(135deg,#10213E,#1d3a5c); color:#fff; padding:12px 18px;
+  box-shadow:0 4px 14px rgba(16,33,62,.18); }
+.ow-toolbar .t { font-weight:700; font-size:15px; flex:1; }
+.ow-toolbar a, .ow-toolbar button { background:rgba(255,255,255,.14); color:#fff; border:1px solid rgba(255,255,255,.25);
+  border-radius:100px; padding:6px 14px; font-size:12.5px; text-decoration:none; cursor:pointer; font-family:inherit; }
+.ow-toolbar a:hover, .ow-toolbar button:hover { background:var(--ow-accent); }
+#content { max-width:1080px; margin:0 auto; padding:28px 34px 60px; background:var(--ow-card);
+  min-height:100vh; box-shadow:0 5px 22px rgba(16,33,62,.06); }
+#content h1 { font-size:22px; color:var(--ow-primary); padding-bottom:10px; margin:8px 0 16px; }
+#content h1::after { content:""; display:block; width:64px; height:4px; border-radius:999px; margin-top:10px;
+  background:linear-gradient(90deg,var(--ow-accent),var(--ow-cerulean)); }
+#content h2 { font-size:18px; color:var(--ow-primary); margin:30px 0 12px; }
+#content h2::after { content:""; display:block; width:46px; height:3px; border-radius:999px; margin-top:8px;
+  background:linear-gradient(90deg,var(--ow-accent),var(--ow-cerulean)); }
+#content h3 { font-size:15px; color:var(--ow-primary); margin:22px 0 10px;
+  background:#F7F5FC; border-radius:12px; padding:10px 14px; }
+#content h4 { font-size:14px; color:var(--ow-accent); margin:18px 0 8px; }
+#content p { line-height:1.8; color:var(--ow-text-l); margin:10px 0; }
+#content blockquote { margin:12px 0; padding:12px 16px; background:#F6F8FC;
+  border-radius:10px; color:var(--ow-text-l); font-size:13px; line-height:1.7; }
+#content blockquote p { margin:4px 0; }
+#content ul, #content ol { padding-left:22px; color:var(--ow-text-l); line-height:1.8; }
+#content li { margin:4px 0; }
+#content code { background:#eef1f5; color:var(--ow-accent); border-radius:5px; padding:1px 6px;
+  font-family:"SFMono-Regular",Consolas,monospace; font-size:13px; }
+#content pre { background:#10213E; color:#e6ebf5; border-radius:10px; padding:14px 16px; overflow:auto;
+  font-size:13px; line-height:1.6; }
+#content pre code { background:transparent; color:inherit; padding:0; }
+#content table { width:100%; border-collapse:collapse; margin:14px 0; font-size:13px;
+  border-radius:12px; overflow:hidden; }
+#content thead th { background:#10213E; color:#fff; text-align:left; padding:9px 12px; font-weight:600; }
+#content tbody td { padding:9px 12px; border-bottom:1px solid var(--ow-border); color:var(--ow-text-l); vertical-align:top; }
+#content tbody tr:hover td { background:#f6f8fc; }
+@media (max-width:720px) { #content { padding:18px; } }
+</style>
+</head>
+<body>
+<div class="ow-toolbar">
+  <span class="t">脱敏演示样例.md</span>
+  <button onclick="copyMd()">复制 Markdown</button>
+  <a href="脱敏演示样例.md" target="_blank" rel="noopener">打开 .md 原文</a>
+</div>
+<div id="content"><p style="color:#8b95a5">加载中…</p></div>
+<script src="https://cdn.jsdelivr.net/npm/marked@11/marked.min.js"></script>
+<script>
+const SRC = "# 示例客户 · 渠道运营 AI 伙伴 用户画像与典型旅程\n\n> **用途**：从每类核心用户视角梳理典型场景与简要旅程，为原型设计提供输入。\n> **来源**：机会点定义《渠道运营机会点定义》+ 产品概念设计《渠道运营 AI 伙伴 产品概念设计》\n> **版本**：v1.0 · 2026-01-01\n\n## 一、核心用户画像总览\n\n| 画像 | 类型 | 一句话定位 | 核心 Job（要完成的事） | 关键指标 | 使用频次 |\n|---|---|---|---|---|---|\n| 一线销售 | 主用户 | 跑现场、把信息变成判断的人 | 把现场信息采回来并形成可判断的机会 | 覆盖 / 动销 | 每日 |\n| 区域经理 | 次要用户 | 看区域、做干预决策的人 | 掌握区域风险与机会并及时干预 | 区域达成 / 风险数 | 每周 |\n\n> 主用户 = 直接使用产品做事的人；次要用户 = 管理者 / 协作方。\n\n## 二、用户画像与典型旅程\n\n### 画像 1 · 一线销售\n\n**画像卡**\n- **角色 / 岗位**：区域一线销售\n- **职责**：走访客户与终端、维护关系、推进动销\n- **目标**：完成区域销量与覆盖指标\n- **痛点**：现场信息靠脑子记、事后难回溯；定策略时缺先导信息\n- **关注指标**：覆盖率、单店产出、复购\n- **技术接受度**：中等，愿意用「省事」的工具，抵触填表\n\n**Job（要完成的事）**\n- **功能性**：把现场看到 / 听到的信息采回来，并形成可判断的机会\n- **社会性**：在团队里显得专业、可靠，能拿出有依据的判断\n- **情感性**：避免「信息漏了、事后说不清」的焦虑\n\n#### 场景 1.1 · 拜访后采集现场信息\n\n- **Job Story**：当拜访完一个客户、发现货架与价格有变化，我想要当场把信息采下来、不用事后整理，以便回到系统就能拿到可判断的信息。\n- **起点（目标触发）**：拜访结束、发现值得记录的变化（陈列 / 价格 / 库存 / 竞品）\n- **终点（目标完成）**：信息已采下并结构化，可直接用于判断\n\n| # | 阶段 | 用户动作 | 触点 | 期望结果 |\n|---|---|---|---|---|\n| 1 | 触发 | 拜访中发现值得记录的变化 | 现场 | 判断「这条信息要采」 |\n| 2 | 采集 | 拍照 / 口述记录变化 | 手机 | 信息被采下，不用二次整理 |\n| 3 | 补全 | 按提示补充缺的信息 | 手机 | 关键字段齐了 |\n| 4 | 提交 | 确认并提交 | 手机 | 信息进入系统 |\n| 5 | 完成 | 看到结构化结果 | 手机 | 这条信息可被后续判断使用 |\n\n- **产品介入点**：第 2–3 步由 Agent 承担采集引导与补全；第 5 步给出结构化结果。\n\n#### 场景 1.2 · 下个周期定策略前的机会判断\n\n- **Job Story**：当下个周期要定策略但缺先导信息，我想要拿到基于现场信息的机会清单，以便把有限投入放在最有把握的机会上。\n- **起点（目标触发）**：周期结束、要定下期策略\n- **终点（目标完成）**：拿到机会清单并判断出优先级\n\n| # | 阶段 | 用户动作 | 触点 | 期望结果 |\n|---|---|---|---|---|\n| 1 | 触发 | 收到定下期策略的要求 | 系统 / 上级 | 明确「先看有哪些机会」 |\n| 2 | 查看 | 打开机会清单 | 手机 / 电脑 | 看到按优先级排序的机会 |\n| 3 | 核对 | 核对机会的依据与证据 | 系统 | 判断哪些机会可信 |\n| 4 | 判断 | 确认重点机会 | 系统 | 选定要投入的机会 |\n| 5 | 完成 | 带着机会进入策略讨论 | 会议 | 「这件事办完了」，可据此定策略 |\n\n- **产品介入点**：第 2–4 步由 Agent 汇总现场信息、生成机会清单并给出证据链。\n\n### 画像 2 · 区域经理\n\n**画像卡**\n- **角色 / 岗位**：区域经理\n- **职责**：管理区域团队、分配资源、跟踪达成\n- **目标**：区域指标达成、风险可控\n- **痛点**：区域情况靠下属口头汇报，滞后且不全\n- **关注指标**：区域达成率、风险对象数\n- **技术接受度**：较高，愿意用数据说话\n\n**Job（要完成的事）**\n- **功能性**：掌握区域风险与机会，及时干预\n- **社会性**：在上级面前显得掌控局面\n- **情感性**：避免被问到细节时答不上来的被动\n\n#### 场景 2.1 · 周度查看区域风险与重点对象\n\n- **Job Story**：当每周要看区域进展，我想要快速看到风险与重点对象，以便及时干预。\n- **起点（目标触发）**：周例会前 / 每周固定查看\n- **终点（目标完成）**：确认重点对象并定下干预动作\n\n| # | 阶段 | 用户动作 | 触点 | 期望结果 |\n|---|---|---|---|---|\n| 1 | 触发 | 周例会前需要看区域进展 | 系统 | 明确「要看哪几块」 |\n| 2 | 查看 | 打开区域风险与重点对象视图 | 电脑 | 看到风险与波动对象 |\n| 3 | 下钻 | 查看重点对象的原因与证据 | 系统 | 判断风险真实性 |\n| 4 | 决策 | 确定干预对象与动作 | 系统 | 定下要跟进的名单 |\n| 5 | 完成 | 在例会上分配跟进 | 会议 | 「这件事办完了」，团队有了动作 |\n\n- **产品介入点**：第 2–3 步由 Agent 给出区域风险与重点对象视图并支持下钻证据；第 4 步给出干预建议。\n\n## 三、画像 × 场景矩阵\n\n| 画像 \\ 场景 | 拜访后采集 | 机会判断 | 区域风险查看 |\n|---|---|---|---|\n| 一线销售 | ● 一期 | ● 一期 | — |\n| 区域经理 | — | ○ | ● 一期 |\n\n> 图例：● 一期覆盖 · ○ 后续 · — 不适用\n\n## 四、角色覆盖校验（对照 To-be 流程）\n\n| 画像 | 对应 To-be 阶段 | 在主流程中是否显性 | 备注 |\n|---|---|---|---|\n| 一线销售 | P2 信息采集 | 易忽略 | 主流程未体现现场采集动作，需独立旅程 |\n| 区域经理 | P1 业务复盘 | 显性 | 主流程有复盘阶段 |\n\n## 五、原型设计输入要点\n\n- **主用户**：一线销售（原型的核心页面优先服务其「采集」与「机会判断」两段旅程）\n- **一期需覆盖的场景 / 旅程**：拜访后采集、机会判断、区域风险查看\n- **需重点保证的角色**：一线销售（易被主流程忽略）\n- **待确认事项**：区域经理是否需要在原型中看到与一线相同的证据链";
+function copyMd() {
+  const ta = document.createElement('textarea');
+  ta.value = SRC; document.body.appendChild(ta); ta.select();
+  try { document.execCommand('copy'); } catch(e) {}
+  document.body.removeChild(ta);
+}
+window.addEventListener('DOMContentLoaded', function() {
+  const content = document.getElementById('content');
+  content.innerHTML = marked.parse(SRC, { gfm:true, breaks:true });
+});
+</script>
+</body>
+</html>
