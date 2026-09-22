@@ -65,29 +65,24 @@ rsync -a --delete \
 5. **汇报**：向用户报告改动清单与验证结果；由用户决定何时安装到全局。
 6. **安装到全局（仅稳定后）**：使用上方 rsync 命令安装，并在交付摘要中说明已安装。
 
-### 5. Agent 与 Command 多端维护
+### 5. Agent 与 Command 维护（单端入库）
 
-Agent（Subagent）与 Command 是「Skill 的组合编排层」，同样必须同步维护各端：
+Agent（Subagent）与 Command 是「Skill 的组合编排层」，**仓库内只维护 `.opencode/` 一端**：
 
 ```
-Agent 定义：.opencode/agents/<name>.md  +  .qoder/agents/<name>.md
-Command 定义：.opencode/commands/<name>.md  +  .qoder/commands/<name>.md
+Agent 定义：.opencode/agents/<name>.md
+Command 定义：.opencode/commands/<name>.md
 ```
 
-规则：
-
-- **各端必须同时创建/更新**，禁止只改一端。
-- **各端正文必须一致**；仅 frontmatter 的 `tools` 声明允许按平台格式差异书写
-  （opencode 用 YAML 布尔 `read: true, ...` + `temperature`；qoder 用逗号字符串 `tools: Read, Glob, ...`；
-  qoder 无 `temperature` 字段、命令不含 `subtask`，skills 只认 `name`/`description` 两个 frontmatter 字段）。
+- **`.trae/`、`.qoder/` 为本地多端配置，不入库**（已在 `.gitignore` 忽略）；需要时从 `.opencode/` 自行转换，不在仓库内维护副本。
 - **Agent 职责要精确**：一个 Agent 只组合粒度一致的 Skill。
-  - 示例：`mvp-prototype` = `agentic-product-proposal-generator` + `ai-product-journey-generator` + `prototype-generator` + `ux-optimizer`（均为「场景级」）；
-  - 更细粒度的「用户故事级」技能（规划中）不得混入该 Agent，需新增时先经 `skill-creator` 在 `skills/` 内落地再编排。
+  - 示例：`mvp-prototype` = `ai-product-journey-generator` + `agentic-product-proposal-generator` + `prototype-generator` + `ux-optimizer`（均为「场景级」）；
+  - 更细粒度的「用户故事级」技能不得混入该 Agent，需新增时先经 `skill-creator` 在 `skills/` 内落地再编排。
 - **触发词必须写明边界**，避免与其他 Agent 或技能流程混淆。
-- 修改 Agent 涉及到的 Skill 名称/路径变更时，同步更新各端 Agent、各端 Command 及 `skills/` 内相关 SKILL.md 的引用。
+- 修改 Agent 涉及到的 Skill 名称/路径变更时，同步更新 `.opencode/` 内 Agent、Command 及 `skills/` 内相关 SKILL.md 的引用。
 - 完成后检查无旧名残留（如 `prototype-designer` → `mvp-prototype` 的重命名需全库 grep 确认）。
-- 同步/分发约定：`.opencode/` 与 `.qoder/` 内**只维护** Agent/Command 定义（`agents/`、`commands/`），**不建** `skills/` 分发副本；技能分发一律通过「全局安装位置（`~/.config/opencode/skills/`）」单向同步（见上文第 3 节），Qoder 端需要技能时从全局位置安装，仓库内不再维护 `.qoder/skills/`、`.opencode/skills/` 副本。
-- 技能 frontmatter `name` 需合规（小写连字符、无冒号），跨端同步时保持一致。
+- 同步/分发约定：`.opencode/` 内**只维护** Agent/Command 定义（`agents/`、`commands/`），**不建** `skills/` 分发副本；技能分发一律通过「全局安装位置（`~/.config/opencode/skills/`）」单向同步（见上文第 3 节）。
+- 技能 frontmatter `name` 需合规（小写连字符、无冒号）。
 
 ---
 

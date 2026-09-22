@@ -5,10 +5,11 @@
 .Spotlight-V100
 .Trashes
 
-# AI 工具 / 编辑器的内部目录（只入库 Agent/Command 定义）
-# .opencode/ 与 .qoder/ 内的 agents/、commands/ 定义需入库（已 git track），因此不整体忽略目录；
-# .opencode/、.qoder/ 下的 node_modules/ 由下方 node_modules/ 规则统一忽略、.DS_Store 由上方规则忽略，
-# .opencode/ 内其余本地依赖文件由 .opencode/.gitignore 排除（该文件已自排除，不入库）
+# AI 工具 / 编辑器的内部目录（仓库只入库 .opencode/ 的 Agent/Command 定义）
+# .opencode/ 内的 agents/、commands/ 定义需入库（已 git track）；
+# .trae/、.qoder/ 为本地多端配置，不入库（本地保留，不占仓库空间）。
+.trae/
+.qoder/
 .opencode-router/
 .sisyphus/
 .openwork-enterprise-creators
