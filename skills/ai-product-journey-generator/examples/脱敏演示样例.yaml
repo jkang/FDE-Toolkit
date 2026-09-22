@@ -1,0 +1,152 @@
+title: "示例客户 · 一线销售 · 走访终端时采集现场情报 · To-be 旅程"
+
+meta:
+  mode: "to-be"
+  scenarioName: "走访终端时采集现场情报"
+  persona: "一线销售"
+  source: "用户画像与旅程: 示例客户-渠道运营AI伙伴-用户画像与旅程.md；规则: 示例客户-渠道运营AI伙伴-业务规则挖掘.yaml"
+
+journey:
+  jobStory: "当走访门店时发现陈列、价盘、库存或竞品有变化，我想要当场把信息采下来、不用事后整理，以便回到系统就有可判断的情报。"
+  start: "走访中发现值得记录的变化"
+  end: "情报采下并结构化入库，可被后续解读使用"
+  productTouchpoints: "第 2–3 步由 Agent 承担采集引导与补全；第 4 步给出结构化情报。"
+
+persona:
+  id: "sales_01"
+  name: "王静"
+  role: "一线销售"
+  department: "零售事业部"
+  background: "负责 3 个连锁客户的终端走访，日均走访 4~6 家门店，习惯用手机记录"
+  goals:
+    - "把现场信息采回来，形成可判断的机会"
+    - "减少事后补记与信息遗漏"
+  painPoints:
+    - "现场信息靠脑子记，回公司后想不起来细节"
+    - "填表式采集太费时间，走访时经常跳过"
+  dataProfile:
+    typicalValues:
+      - "门店陈列照片：含货架位、排面数、价签"
+      - "库存与批号：货架库存 12 盒、批号 20260115"
+      - "竞品物料：促销堆头 2 个、价签 ¥39.9"
+    frequency: "高频"
+    commonErrors:
+      - "价签拍糊、看不清价格"
+      - "漏记批号与库存"
+
+scenario:
+  id: "s1"
+  name: "走访终端时采集现场情报"
+  trigger: "走访中发现值得记录的变化（陈列 / 价签 / 库存 / 竞品）"
+  businessData:
+    - "门店基础信息：门店编码、连锁、区域"
+    - "本次走访计划：重点门店与目标"
+  goal: "5 分钟内完成一次现场情报采集并结构化入库"
+
+handoff:
+  paths:
+    - "主路径：发现变化 → 拍照 / 口述 → AI 追问补全 → 提交 → 查看结构化情报"
+    - "分支：识别置信度低 → 提示重拍或补充说明"
+    - "异常：无网络 → 本地暂存，恢复后自动上传"
+
+stages:
+  - name: "触发与准备"
+    actions:
+      - name: "发现变化并打开采集"
+        owner: "用户"
+        touchpoints: "手机 · 拜访小程序"
+        thoughts:
+          - "这个价签和上次不一样，得记一下"
+        userInputs:
+          - type: "操作"
+            name: "进入采集"
+            format: "点击"
+            example: "在门店页点击「采集情报」"
+            content: "当前门店、采集类型（陈列 / 价盘 / 库存 / 竞品）"
+        aiInteraction:
+          aiAction: "根据门店与历史采集记录，预选采集类型并给出标准问题清单"
+          suggestions:
+            - "按标准问题采集"
+            - "只拍一张快照"
+        visibleData:
+          - "采集类型已预选：价盘 + 陈列"
+          - "标准问题：价格是否变动？排面是否被占？"
+        designNotes:
+          - "采集入口从 3 级菜单提到门店首页，减少一次点击"
+
+  - name: "现场采集"
+    actions:
+      - name: "拍照与口述记录"
+        owner: "人机协同"
+        touchpoints: "手机 · 采集页"
+        thoughts:
+          - "拍两张就够了，别让我写一堆字"
+        userInputs:
+          - type: "影像"
+            name: "货架 / 价签照片"
+            format: "JPG"
+            example: "价签-20260922-01.jpg"
+            content: "货架位、排面数、价签价格、竞品物料"
+          - type: "语音"
+            name: "现场口述"
+            format: "语音转文字"
+            example: "「这个价格从 42 降到 39.9，堆头被竞品占了」"
+            content: "价格变化、陈列变化、客户原话"
+        aiInteraction:
+          aiAction: "影像识别价签与排面，语音转写并抽取关键事实"
+          suggestions:
+            - "补充库存与批号"
+            - "记录客户原话"
+        visibleData:
+          - "识别结果：价签 ¥39.9（原 ¥42）"
+          - "排面：本品 2 排面 / 竞品 4 排面"
+        designNotes:
+          - "采集动作由「填 8 个字段」降为「拍 2 张 + 说 1 句」"
+
+  - name: "补全与提交"
+    actions:
+      - name: "按提示补全并提交"
+        owner: "人机协同"
+        touchpoints: "手机 · 采集页 · 待补项"
+        thoughts:
+          - "缺什么直接告诉我，别让我自己找"
+        userInputs:
+          - type: "补录"
+            name: "缺失字段"
+            format: "页面内编辑"
+            example: "库存 12 盒、批号 20260115"
+            content: "库存、批号、客户原话"
+        aiInteraction:
+          aiAction: "比对标准问题清单，逐条提示缺失项并给出填写示例"
+          suggestions:
+            - "补录库存与批号"
+            - "跳过并提交"
+        visibleData:
+          - "待补项：库存、批号（2 项）"
+          - "已通过：价格、陈列、竞品（3 项）"
+        designNotes:
+          - "缺项一次问清，避免二次回访补记"
+
+  - name: "确认结果"
+    actions:
+      - name: "查看结构化情报"
+        owner: "用户"
+        touchpoints: "手机 · 情报详情"
+        thoughts:
+          - "这才是我要的——回公司不用再回忆"
+        userInputs:
+          - type: "系统自动"
+            name: "结构化情报"
+            format: "结构化记录"
+            example: "〔示例门店〕价签 42→39.9（照片）；堆头被竞品占（口述）"
+            content: "对象、事实·变化、证据、含义、时效"
+        aiInteraction:
+          aiAction: "汇总为结构化情报并写入情报库，标注置信度与待验证点"
+          suggestions:
+            - "查看同类情报"
+            - "标记为待验证"
+        visibleData:
+          - "结构化情报：〔示例门店〕价签 42→39.9（照片）"
+          - "置信度：B（来源单一，建议后续交叉验证）"
+        designNotes:
+          - "一次采集产出可直接用于后续解读，无需二次整理"

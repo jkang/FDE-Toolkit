@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>To-be 旅程总览</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&family=Inter:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#10213E; --purple:#625D9C; --sky:#5DB2E2; --green:#00524C;
+    --bg:#F5F5F6; --card:#fff; --line:#e3e7ee; --muted:#4a5568; --soft:#8b95a5;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--navy);
+    font-family:"Noto Sans SC","PingFang SC",-apple-system,sans-serif;font-size:14px;line-height:1.7;}
+  .hero{background:linear-gradient(120deg,#10213E 0%,#243b63 55%,#625D9C 100%);color:#fff;padding:34px 40px 30px;}
+  .hero .eyebrow{font-family:"Inter",sans-serif;font-size:12px;font-weight:700;letter-spacing:.16em;color:#9EC9EC;}
+  .hero h1{font-size:28px;font-weight:900;margin:8px 0 6px;}
+  .hero .sub{font-size:14px;color:#C7D6E8;}
+  main{padding:28px 40px 56px;}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:18px;}
+  .card{background:var(--card);border-radius:16px;padding:20px 22px;box-shadow:0 1px 2px rgba(16,33,62,.06);
+    display:flex;flex-direction:column;gap:10px;text-decoration:none;color:inherit;transition:box-shadow .15s;}
+  .card:hover{box-shadow:0 6px 20px rgba(16,33,62,.12);}
+  .card .who{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+  .pill{font-size:11.5px;font-weight:700;border-radius:999px;padding:2px 10px;}
+  .pill.persona{background:#EDEAF8;color:var(--purple);}
+  .pill.scenario{background:#E7F0FB;color:#1F5FA8;}
+  .card h3{font-size:15.5px;margin:0;color:var(--navy);}
+  .card .job{font-size:13px;color:var(--muted);margin:0;}
+  .card .range{font-size:12.5px;color:var(--soft);}
+  .card .stat{font-size:12px;color:var(--soft);border-top:1px solid var(--line);padding-top:8px;margin-top:auto;}
+  .empty{background:var(--card);border-radius:16px;padding:28px;color:var(--soft);text-align:center;}
+  footer{padding:0 40px 40px;color:var(--soft);font-size:12px;}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="eyebrow">TO-BE USER JOURNEY · OVERVIEW</div>
+  <h1>To-be 旅程总览</h1>
+  <div class="sub">共 {{ count }} 条 journey（画像 × 场景），每条单独一份完整旅程图。</div>
+</header>
+
+<main>
+  {% if items %}
+  <div class="grid">
+    {% for it in items %}
+    <a class="card" href="{{ it.html }}">
+      <div class="who">
+        <span class="pill persona">{{ it.persona }}</span>
+        <span class="pill scenario">{{ it.scenario }}</span>
+      </div>
+      <h3>{{ it.title }}</h3>
+      {% if it.jobStory %}<p class="job">{{ it.jobStory }}</p>{% endif %}
+      <div class="range">{{ it.start }} → {{ it.end }}</div>
+      <div class="stat">{{ it.stageCount }} 个阶段 · {{ it.actionCount }} 个行为步骤</div>
+    </a>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty">该目录下暂无 `*-To-be旅程.yaml`。</div>
+  {% endif %}
+</main>
+
+<footer>生成于 {{ generated_at }}</footer>
+</body>
+</html>

@@ -228,10 +228,22 @@ def compile_to_be(yaml_path, output_html_path):
         "mode": ensure_str(meta.get("mode"), "to-be"),
         "source": ensure_str(meta.get("source"), "来源未标注"),
         "scenarioName": ensure_str(meta.get("scenarioName")),
-        "productType": ensure_str(meta.get("productType")),
+        "persona": ensure_str(meta.get("persona")),
     }
-    personas = [process_persona(p) for p in ensure_list(data.get("personas", []), {})]
-    scenarios = [process_scenario(s) for s in ensure_list(data.get("scenarios", []), {})]
+    # 单 journey 模型：persona / scenario 为单对象；兼容旧的多元素数组（取第一条）
+    raw_persona = data.get("persona") or (data.get("personas") or [{}])[0]
+    raw_scenario = data.get("scenario") or (data.get("scenarios") or [{}])[0]
+    personas = [process_persona(raw_persona)]
+    scenarios = [process_scenario(raw_scenario)]
+    journey = data.get("journey") or {}
+    if not isinstance(journey, dict):
+        journey = {}
+    journey = {
+        "jobStory": ensure_str(journey.get("jobStory")),
+        "start": ensure_str(journey.get("start")),
+        "end": ensure_str(journey.get("end")),
+        "productTouchpoints": ensure_str(journey.get("productTouchpoints")),
+    }
 
     # 丢弃没有 actions 的无意义阶段，防崩溃
     raw_stages = data.get("stages", [])
@@ -294,6 +306,7 @@ def compile_to_be(yaml_path, output_html_path):
     html_content = template.render(
         title=title,
         meta=meta,
+        journey=journey,
         personas=personas,
         scenarios=scenarios,
         stages=stages,

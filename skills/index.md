@@ -22,7 +22,7 @@
 | `/opportunity` | opportunity-advisor | `ai-opportunity-map-generator`、`ai-canvas-generator`、`ai-scenario-matrix-generator` | AI 机会挖掘与优先级评估（CKD 深度映射属 `/agent-arch`） |
 | `/agent-arch` | agent-arch-designer | `to-be-process-designer`、`deep-task-flow-analyzer`、`business-rule-miner`、`agent-ontology-designer`、`agentic-workflow-designer`、`context-knowledge-data-analyzer`、`agent-tech-architecture` | Agent 系统设计（P1→P2 + 结构/行为/资源三视图 + 落地技术架构与编排图） |
 | `/mvp-prototype` | mvp-prototype | `agentic-product-proposal-generator`、`ai-product-journey-generator`、`prototype-generator`、`ux-optimizer` | 产品方案 → To-be 旅程 → MVP 原型 → UX 定制优化 |
-| `/scenario-solution` | ai-solution-designer | `opportunity-definition`、`ai-canvas-generator`、`to-be-process-designer`、`context-knowledge-data-analyzer`、`deep-task-flow-analyzer`、`business-rule-miner`、`agent-ontology-designer`、`agentic-product-concept-designer`、`persona-journey-designer`、`agentic-product-proposal-generator`、`ai-product-journey-generator`、`prototype-generator`、`ux-optimizer`、`agent-tech-architecture`、`mvp-metrics-generator`、`ai-test-dataset-generator`、`unified-report-dashboard` | 单场景端到端解决方案：机会点 → 画布 → To-be流程/CKD/P1/P2 → 本体 → 概念设计（客户确认）→ 用户画像与典型旅程 → 产品方案 → 旅程 → MVP 原型 → UX → 落地技术架构 → 指标 → 测试数据集 → 场景级统一报告 |
+| `/scenario-solution` | ai-solution-designer | `opportunity-definition`、`ai-canvas-generator`、`to-be-process-designer`、`context-knowledge-data-analyzer`、`deep-task-flow-analyzer`、`business-rule-miner`、`agent-ontology-designer`、`agentic-product-concept-designer`、`persona-journey-designer`、`ai-product-journey-generator`、`agentic-product-proposal-generator`、`prototype-generator`、`ux-optimizer`、`agent-tech-architecture`、`mvp-metrics-generator`、`ai-test-dataset-generator`、`unified-report-dashboard` | 单场景端到端解决方案：机会点 → 画布 → To-be流程/CKD/P1/P2 → 本体 → 概念设计（客户确认）→ 用户画像与典型旅程 → To-be 旅程（逐 journey）→ 产品方案 → MVP 原型 → UX → 落地技术架构 → 指标 → 测试数据集 → 场景级统一报告 |
 | `/mvp-eval` | mvp-evaluator | `ai-test-dataset-generator`、`mvp-metrics-generator` | MVP 评测（测试数据集 / 成效指标 / Go-No-Go） |
 | `/requirement` | requirement-analyst | `story-map-generator`、`mvp-plan-generator` | 需求拆解（故事地图 / MVP 迭代计划） |
 | `/roadmap` | roadmap-planner | `roadmap-generator`、`milestone-plan-generator` | 战略规划（路线图 / 里程碑） |
@@ -81,7 +81,7 @@ FDE 四步法：**理需求 → 挖知识 → 建本体 → 生智能**。每一
 - **[Agent 产品概念设计 (Agentic Product Concept Designer)](agentic-product-concept-designer/SKILL.md)**：承接 To-be 流程 + 核心功能，产出面向**客户确认**的初步概念设计（产品愿景 / 阶段流水线与 AI·人分工 / 一期范围与试点 / 落地路线图 / 客户确认事项）；双重输出 YAML + HTML。
 - **[用户画像与典型旅程 (Persona Journey Designer)](persona-journey-designer/SKILL.md)**：承接机会点定义 + 产品概念设计，梳理核心用户画像与典型场景，用 JTBD 方法为每类画像画「从用户目标起点到目标完成终点」的简要旅程（保证一线执行角色不被主流程吞掉），为原型设计提供输入。输出 Markdown + HTML。
 - **[产品方案 (Agent Product Proposal Generator)](agentic-product-proposal-generator/SKILL.md)**：聚合理需求/场景/挖知识/本体产出，生成一份可施工的 Markdown 方案（产品定位 → 形态架构 → 演示故事线 → 功能与 UI → Agent 行为 → 规则消费门禁）。
-- **[To-be 旅程设计 (AI Product Journey Generator)](ai-product-journey-generator/SKILL.md)**：细化用户角色与典型场景，设计含 AI 交互细节（上传数据示例 / 推荐操作指令 / 可见数据）的 To-be Journey。
+- **[To-be 旅程设计 (AI Product Journey Generator)](ai-product-journey-generator/SKILL.md)**：承接《用户画像与典型旅程》，把其中**每一条 journey（画像 × 场景）**分别细化为一份**完整 To-be 旅程图**（阶段 → 行为步骤：用户行为 / 触点 / 想法 / 用户输入 / AI 交互 / 可见数据 / 设计意图）；**逐条出产**、不合并成主流程。输出 YAML + HTML + 总览页。
 - **[Agent 落地技术架构 (Agent Tech Architecture)](agent-tech-architecture/SKILL.md)**：承接场景定义 / 流程规则 / 本体 / 产品方案 / mvp-spec，输出「盘点 → 路线二选一（Workflow vs Autonomous Planner）→ 落地设计」的技术架构方案，并编译一张可执行编排图：**1 编排 Agent + N 个 Skill（每个 Skill 内含纵向逻辑流程：并行 / 分支 / Loop / HITL / 终态）+ 共享本体与 MCP**，节点标注模型类型 / Skill / MCP / RAG / 确定性 / HITL。
 - **[MVP 原型生成器 (Prototype Generator)](prototype-generator/SKILL.md)**：输入 AI Canvas + To-be Journey，编译可启动的前后端一体化 MVP（React/Vue + Express + Mock AI/业务服务），含启动验证；支持可选 `--sim sim_spec.yaml`（业务数据 & 过程仿真：多批次询价/多段航程/TCO分组明细/报价单文档/状态机 + 可视化组件 segChart·routeMap·nestedGroup·documentBlock·stateMachine·processTimeline）。
 - **[UX 优化器 (UX-Optimizer)](ux-optimizer/SKILL.md)**：按「企业品牌 × 业务主题」定制产品设计系统，以覆盖层注入 mvp-prototype，产出 UX 设计报告。
@@ -105,7 +105,7 @@ FDE 四步法：**理需求 → 挖知识 → 建本体 → 生智能**。每一
 - **让 Agent 规则落地**：`/agent-arch` → To-be 流程/任务拆解（P1）→ 规则挖掘（P2）→ 本体/工作流/CKD 三视图 → 落地技术架构与编排图（`agent-tech-architecture`）。
 - **把场景做成原型**：`/mvp-prototype` → 产品方案 → To-be 旅程 → MVP 原型 → UX 优化。
 - **概念设计（客户确认）**：`agentic-product-concept-designer` → 概念设计稿（客户确认）→ 通过后进 `agentic-product-proposal-generator` 出工程级方案。
-- **单场景端到端解决方案**：`/scenario-solution` → 机会点定义 → AI 画布 → To-be 流程/CKD/任务拆解(P1)/规则挖掘(P2) → Agent 本体 → 产品概念设计（客户确认）→ 用户画像与典型旅程 → 产品方案 → To-be 旅程 → MVP 原型 → UX 优化 → 落地技术架构 → MVP 成效指标 → 测试数据集 → 场景级统一报告（适合已有机会点、要一次性跑完一个场景全链路并直接查看汇总报告的场景）。
+- **单场景端到端解决方案**：`/scenario-solution` → 机会点定义 → AI 画布 → To-be 流程/CKD/任务拆解(P1)/规则挖掘(P2) → Agent 本体 → 产品概念设计（客户确认）→ 用户画像与典型旅程 → To-be 旅程（逐 journey）→ 产品方案 → MVP 原型 → UX 优化 → 落地技术架构 → MVP 成效指标 → 测试数据集 → 场景级统一报告（适合已有机会点、要一次性跑完一个场景全链路并直接查看汇总报告的场景）。
 - **判断能否上线**：`/mvp-eval` → 测试数据集 + 成效指标/门禁（Go/No-Go）。
 - **需求梳理与迭代排期**：`/requirement` → 故事地图 → MVP 迭代计划；规划长期节奏用 `/roadmap`。
 

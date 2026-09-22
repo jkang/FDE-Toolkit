@@ -17,7 +17,7 @@ author: KK
 
 # Prototype Generator (MVP 原型生成器)
 
-承接 `ai-canvas-generator`（AI 场景定义）与 `ai-product-journey-generator`（To-be 旅程设计），
+承接 `ai-canvas-generator`（AI 场景定义）与 `ai-product-journey-generator`（To-be 旅程 · 逐 journey），
 以 **AI 产品 MVP 架构师** 的视角，编译出一个**可一键启动、前后端一体、UI 专业**的 MVP 应用。
 
 ```
@@ -212,7 +212,7 @@ prototype-generator/
 | 关系 | Skill | 说明 |
 |------|-------|------|
 | 上游输入 | `ai-canvas-generator` | AI 场景定义（Canvas YAML） |
-| 上游输入 | `ai-product-journey-generator` | To-be 旅程设计（personas/scenarios/AI 交互细节） |
+| 上游输入 | `ai-product-journey-generator` | To-be 旅程（逐 journey：画像 / 场景 / 行为步骤 / 用户输入 / 可见数据 / 推荐指令） |
 | 下游/协作 | `story-map-generator` | MVP 功能可进一步拆解为用户故事地图 |
 | 调用方 | `mvp-prototype`（Subagent） | MVP 原型设计顾问，负责调度「To-be 旅程 → MVP 原型」全流程 |
 

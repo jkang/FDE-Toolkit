@@ -333,6 +333,21 @@
         color: #FFFFFF !important;
         border: 1px solid #10213E !important;
       }
+      .journey-block {
+        display: grid;
+        gap: 8px;
+        margin-bottom: 16px;
+      }
+      .jb-item {
+        display: grid;
+        grid-template-columns: 96px 1fr;
+        gap: 12px;
+        background: #F7F5FC;
+        border-radius: 10px;
+        padding: 10px 14px;
+      }
+      .jb-k { font-size: 12.5px; font-weight: 700; color: #625D9C; }
+      .jb-v { font-size: 13px; color: #4a5568; line-height: 1.7; }
 </style>
 
 
@@ -352,16 +367,16 @@
     </div>
     <div class="meta-badges">
       <span class="badge mode-badge">TO-BE 设计态</span>
+      <span class="badge">👤 画像：{{ meta.persona }}</span>
       <span class="badge">🎯 场景：{{ meta.scenarioName }}</span>
       <span class="badge">📎 来源：{{ meta.source }}</span>
-      <span class="badge">📦 形态：{{ meta.productType }}</span>
     </div>
   </header>
 
   <!-- ================= 01 用户角色细化 ================= -->
   <section class="section">
     <div class="section-title">
-      <span class="section-num">01</span> 用户角色细化 <span class="section-en">PERSONAS</span>
+      <span class="section-num">01</span> 用户画像 <span class="section-en">PERSONA</span>
     </div>
     <div class="persona-grid">
       {% for p in personas %}
@@ -412,11 +427,18 @@
     </div>
   </section>
 
-  <!-- ================= 02 典型使用场景 ================= -->
+  <!-- ================= 02 旅程场景 ================= -->
   <section class="section">
     <div class="section-title">
-      <span class="section-num">02</span> 典型使用场景 <span class="section-en">SCENARIOS</span>
+      <span class="section-num">02</span> 旅程场景 <span class="section-en">JOURNEY</span>
     </div>
+    {% if journey %}
+    <div class="journey-block">
+      <div class="jb-item"><span class="jb-k">用户目标</span><span class="jb-v">{{ journey.jobStory }}</span></div>
+      <div class="jb-item"><span class="jb-k">起点 → 终点</span><span class="jb-v">{{ journey.start }} → {{ journey.end }}</span></div>
+      <div class="jb-item"><span class="jb-k">产品介入点</span><span class="jb-v">{{ journey.productTouchpoints }}</span></div>
+    </div>
+    {% endif %}
     <div class="scenario-grid">
       {% for s in scenarios %}
       <div class="scenario-card">
