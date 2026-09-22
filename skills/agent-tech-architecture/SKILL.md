@@ -27,7 +27,7 @@ author: KK
 > 与相邻 Skill 的边界：
 > - `agent-ontology-designer`：**静态语义**（对象关系 / 行动边界 / 状态迁移）——本 Skill 消费它，不重复建模。
 > - `agentic-workflow-designer`：**单个 AI 能力的动态时序**（PlantUML 活动序列图）——本 Skill 是**系统级组装视图**（Agent / Skill / 本体 / MCP / 运行时怎么拼成可运行系统）。
-> - `agent-product-proposal-generator`：**产品方案**（做什么、用户看到什么）——本 Skill 回答「怎么跑起来、边界怎么守」，不重复产品定位与 UI 设计。
+> - `agentic-product-proposal-generator`：**产品方案**（做什么、用户看到什么）——本 Skill 回答「怎么跑起来、边界怎么守」，不重复产品定位与 UI 设计。
 > - `prototype-generator`：**MVP 原型**（可运行代码）——本 Skill 产出架构级设计物，是原型的上游依据。
 > - 触发词「Agent 架构 / 三视图」归 `agent-arch-designer` 的既有六技能；本 Skill 专管「**落地技术架构 + 编排图**」，不与其抢触发。
 
@@ -137,7 +137,7 @@ agent-tech-architecture/
 
 | 关系 | Skill | 说明 |
 |---|---|---|
-| 上游输入 | `agent-product-proposal-generator` | 产品方案：定位 / 形态 / 故事线 → 落地面貌 |
+| 上游输入 | `agentic-product-proposal-generator` | 产品方案：定位 / 形态 / 故事线 → 落地面貌 |
 | 上游输入 | `agent-ontology-designer` | 本体：对象 / 关系 / 状态迁移 → 确定性底座 + 行动边界 |
 | 上游输入 | `business-rule-miner` | 五类规则 → 规则引擎 / 知识库 / 模板落点 |
 | 上游输入 | `deep-task-flow-analyzer` / `to-be-process-designer` | 流程 / 任务序列 → 编排步骤与 HITL 断点 |

@@ -22,7 +22,7 @@ author: KK
 > 本 Agent 编排的每一个子 Skill 都必须**同时**输出：
 > 1. **结构化 YAML**：用于跨阶段数据传递与存档。
 > 2. **交互式 HTML**：供最终用户直观审查与演示。
-> （唯一例外：`agent-product-proposal-generator` 输出**单一 Markdown**，见其 SKILL.md 例外声明。）
+> （唯一例外：`agentic-product-proposal-generator` 输出**单一 Markdown**，见其 SKILL.md 例外声明。）
 >
 > **输出路径规范**：产物按两层目录组织——公司/业务级产物存放于 `[客户名称]/` 目录，场景级产物（属于具体 AI 场景的）必须放入 `[客户名称]/[场景名]/` 子目录（两层规范）。文件命名遵循 `[客户名称]-[场景名]-[阶段名称].html` / `.yaml` 格式，具体以各 Skill 的命名规范为准。
 >
@@ -64,7 +64,7 @@ author: KK
   │     Step 14 Agentic 工作流（agentic-workflow-designer：AI 能力序列图 + Agent 编排）
   │
   ├─ Phase 4 · 生智能（产品方案 → To-be 旅程 → MVP 原型 → UX → 评测）
-  │     Step 15 Agent 产品方案（agent-product-proposal-generator：7 段式施工蓝图，单一 .md）
+  │     Step 15 Agent 产品方案（agentic-product-proposal-generator：7 段式施工蓝图，单一 .md）
   │     Step 16 To-be 旅程（ai-product-journey-generator：角色细化 + AI 交互细节）
   │     Step 17 MVP 原型（prototype-generator：mvp-spec + 前后端 MVP + 启动验证）
   │     Step 18 UX 优化（ux-optimizer：企业品牌 × 业务主题 → 定制设计系统 + 覆盖层注入）
@@ -302,7 +302,7 @@ scene_3: 场景C名称
 
 ### Step 15：Agent 产品方案
 
-**读取并遵循 `agent-product-proposal-generator/SKILL.md` 的完整指令。**
+**读取并遵循 `agentic-product-proposal-generator/SKILL.md` 的完整指令。**
 
 - 传入：理需求 / 场景定义 / 挖知识 / 本体的既有产出（`phase_cache/p7_canvas.md`、`p9_taskflow.md`、`p11_rule.md`、`p12_ckd.md`、`p13_ontology.md`）
 - 产出：`[客户名称]/[场景名]/[客户名称]-[场景名]-Agent产品方案.md`（7 段式施工蓝图：产品定位 → 形态架构 → 演示故事线 → 功能与 UI 组件 → Agent 行为 → 规则消费门禁；**单一 Markdown，不走 HTML 双输出**）

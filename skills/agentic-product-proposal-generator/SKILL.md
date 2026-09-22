@@ -1,5 +1,5 @@
 ---
-name: agent-product-proposal-generator
+name: agentic-product-proposal-generator
 description: |
   基于理需求、场景定义、挖知识、梳理本体的各项产出，聚合生成一份结构化、可施工的「Agent 产品方案」设计文档（Markdown）。它把上游的业务深度（规则 / 决策因子 / 阈值 / 硬软约束 / 实体关系）翻译成下游原型可执行的「产品定位 → 形态架构 → 演示故事线 → 功能与 UI 组件 → Agent 行为 → 规则消费门禁」。
 
@@ -109,7 +109,7 @@ author: KK
 ## 六、目录结构说明
 
 ```
-agent-product-proposal-generator/
+agentic-product-proposal-generator/
 ├── SKILL.md                          # 本指南
 ├── references/
 │   ├── schema.yaml                   # 产出数据模型（7 段字段契约）

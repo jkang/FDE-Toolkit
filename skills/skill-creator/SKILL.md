@@ -75,7 +75,7 @@ mkdir -p "skills/<skill-name>/references" \
 ## 四、双重输出与输出路径规范（新技能必须遵守）
 
 - 业务技能默认**同时**输出 ① 结构化 YAML（供下游自动化/存档）② 交互式 HTML（供审查/演示）。
-  - 例外必须显式声明（如 `agent-product-proposal-generator` 输出单一 Markdown）。
+  - 例外必须显式声明（如 `agentic-product-proposal-generator` 输出单一 Markdown）。
 - 输出路径遵循**两层目录**：公司/业务级产物在 `[客户名称]/`，场景级产物必须放到
   `[客户名称]/[场景名]/` 子目录；文件命名 `[客户名称]-[场景名]-[阶段名].yaml/.html`。
 - **禁止**把场景级产物写进 `examples/`（examples/ 仅放演示样例）。

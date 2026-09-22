@@ -1,0 +1,99 @@
+# 产品概念设计 · 数据契约（唯一 Source of Truth）
+# LLM 产物（本 YAML）与 HTML 编译器（scripts/build_concept.py）之间唯一契约。
+# 字段与 templates/concept_layout.html 实际消费的字段一致。
+#
+# 用法：
+#   python3 scripts/build_concept.py <input.yaml> <output.html>
+#
+# 约定：
+# - 所有文本为纯文本（不写 HTML）；需要强调时由模板按结构渲染，不在 YAML 内嵌标签。
+# - 未确定的值写 "[待客户确认]"，不要臆造。
+
+meta:
+  product: "产品名（如：销售 AI 伙伴）"
+  title: "产品概念设计"
+  version: "v1.0"
+  date: "2026-01-01"
+  basis: "依据 <To-be 流程> 与 <核心功能> 整理"
+
+# hero：顶部横幅
+hero:
+  product: "产品名"
+  tagline: "定位一句话（短语，10–30 字）"
+  chips:                       # 3–5 个关键标签
+    - {label: "定位", value: "服务一线"}
+    - {label: "形态", value: "闭环"}
+    - {label: "本次切入", value: "核心场景"}
+    - {label: "试点", value: "范围待定"}
+
+# 1 产品愿景
+vision:
+  statement: "定位一句话（完整句，作为引用块展示）"
+  lead: "一句话说明本产品不是什么、而是什么"
+  principles:                  # 2–4 条设计原则
+    - {title: "原则一", desc: "说明"}
+    - {title: "原则二", desc: "说明"}
+
+# 2 To-be 流程总览（阶段流水线）
+# scope: partial | mvp | next | later（决定阶段卡配色与角标）
+stages:
+  - no: "P1"
+    name: "阶段名"
+    full: "阶段全称"
+    scope: "partial"
+    scopeLabel: "★ 部分本轮"
+    ai:                        # AI 承担的能力项
+      - {text: "能力项说明", kind: "auto", mvp: true}    # kind: auto | hybrid | manual
+    human: "人承担的动作"
+    nonAi: ""                  # 可选：非 AI 机制（如人主动分享），留空则不渲染
+
+flowFoot:                      # 流程总览底部脚注（每条一行）
+  - "一期范围 = ..."
+  - "后续阶段待前段跑通后展开"
+
+# 3 AI 与人分工表
+# scope: now | next | later
+division:
+  - stage: "P1 业务复盘"
+    full: "阶段全称"
+    ai: "AI 承担的内容（可含 MVP 标记）"
+    human: "人承担的内容"
+    scope: "now"
+
+# 4 第一期范围与试点
+phase1:
+  lead: "本轮重点落在 ..."
+  focus:                       # 本轮重点卡（2–4 张）
+    - title: "本轮重点一"
+      subtitle: "一句话说明"
+      rows:
+        - {k: "解决什么", v: "..."}
+        - {k: "怎么做", v: "..."}
+        - {k: "边界", v: "..."}
+      output: "产出：..."
+  pilot:
+    business:                  # 业务范围
+      - "业务线 / 区域 / 规模"
+    rationale:                 # 选点依据
+      - "依据一"
+
+# 5 落地路线图（三阶段）
+# hl: true 表示该行高亮（如「衡量」行）
+roadmap:
+  - phase: "阶段一"
+    tag: "MVP · 本轮"
+    title: "阶段标题"
+    rows:
+      - {k: "范围", v: "..."}
+      - {k: "能力", v: "..."}
+      - {k: "数据集成", v: "..."}
+      - {k: "知识库", v: "..."}
+      - {k: "覆盖", v: "..."}
+      - {k: "交付", v: "..."}
+      - {k: "衡量", v: "...", hl: true}
+
+# 6 客户确认事项（本稿核心）
+confirm:
+  - item: "需确认事项"
+    impact: "影响（不确定会怎样）"
+    owner: "需谁拍板"

@@ -19,13 +19,13 @@ author: KK
 此技能用于在「AI 机会场景地图」里筛出**聚焦的核心机会点**之后，承接上游 `problem-definition`
 的问题①根因，用 **5 个结构化要素**把一个机会点定义成「结构化、可评审、可立项」的 AI 机会点，
 并附**价值收益拆解**对齐问题定义的 8 要素（⑥ 影响范围 / ⑤ 发生频度 / ⑦ 单次影响 / ⑧ 累计影响），
-供后续 `ai-canvas-generator` / `agent-product-proposal-generator` 展开。
+供后续 `ai-canvas-generator` / `agentic-product-proposal-generator` 展开。
 
 > 定位与上下游：
 > - **上游输入**：`ai-opportunity-map-generator`（AI 机会场景地图）、`problem-definition`（问题①根因）。
 > - **本 Skill**：把一个机会点按 5 要素定义 + 价值收益拆解。
 > - **下游衔接**：`ai-canvas-generator`（AI 场景画布）、`ai-scenario-matrix-generator`（优先级评估）、
->   `agent-product-proposal-generator`（Agent 产品方案）。
+>   `agentic-product-proposal-generator`（Agent 产品方案）。
 
 > [!IMPORTANT] 全局规范（双重输出 / 输出路径 / 视觉设计）
 > 当你使用此 Skill 时，必须**同时**输出两个部分：

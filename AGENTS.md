@@ -81,7 +81,7 @@ Command 定义：.opencode/commands/<name>.md  +  .qoder/commands/<name>.md
   （opencode 用 YAML 布尔 `read: true, ...` + `temperature`；qoder 用逗号字符串 `tools: Read, Glob, ...`；
   qoder 无 `temperature` 字段、命令不含 `subtask`，skills 只认 `name`/`description` 两个 frontmatter 字段）。
 - **Agent 职责要精确**：一个 Agent 只组合粒度一致的 Skill。
-  - 示例：`mvp-prototype` = `agent-product-proposal-generator` + `ai-product-journey-generator` + `prototype-generator` + `ux-optimizer`（均为「场景级」）；
+  - 示例：`mvp-prototype` = `agentic-product-proposal-generator` + `ai-product-journey-generator` + `prototype-generator` + `ux-optimizer`（均为「场景级」）；
   - 更细粒度的「用户故事级」技能（规划中）不得混入该 Agent，需新增时先经 `skill-creator` 在 `skills/` 内落地再编排。
 - **触发词必须写明边界**，避免与其他 Agent 或技能流程混淆。
 - 修改 Agent 涉及到的 Skill 名称/路径变更时，同步更新各端 Agent、各端 Command 及 `skills/` 内相关 SKILL.md 的引用。

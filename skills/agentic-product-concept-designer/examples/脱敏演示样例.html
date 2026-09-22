@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>渠道运营 AI 伙伴 · 产品概念设计</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&family=Inter:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#10213E; --purple:#625D9C; --sky:#5DB2E2; --green:#00524C; --pink:#F5ACB8;
+    --bg:#F5F5F6; --card:#fff; --line:#e3e7ee; --soft:#8b95a5; --muted:#4a5568;
+    --amber:#B45309; --amberbg:#FFF7EA; --radius:16px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{margin:0;background:var(--bg);color:var(--navy);
+    font-family:"Noto Sans SC","PingFang SC",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    font-size:14px;line-height:1.7;-webkit-font-smoothing:antialiased;}
+  .pad{padding-left:40px;padding-right:40px;}
+  .hero{background:linear-gradient(120deg,#10213E 0%,#243b63 55%,#625D9C 100%);color:#fff;padding:38px 0 32px;position:relative;}
+  .eyebrow{font-family:"Inter",sans-serif;font-size:12px;font-weight:700;letter-spacing:.16em;color:#9EC9EC;}
+  .hero h1{font-size:32px;font-weight:900;margin:8px 0 8px;}
+  .hero .sub{font-size:15px;color:#C7D6E8;max-width:900px;}
+  .hero-chips{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px;}
+  .hero-chips span{font-size:12.5px;color:#EAF2FB;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);border-radius:999px;padding:4px 14px;}
+  .hero-chips b{color:#fff;}
+  .copy-yaml{position:absolute;top:26px;right:40px;background:rgba(255,255,255,.14);color:#fff;border:1px solid rgba(255,255,255,.3);
+    border-radius:999px;padding:6px 16px;font-size:12.5px;cursor:pointer;font-family:inherit;}
+  .copy-yaml:hover{background:rgba(255,255,255,.24);}
+  main{padding-top:30px;padding-bottom:8px;}
+  section{margin-bottom:38px;}
+  .sec-head{display:flex;align-items:center;gap:12px;margin-bottom:12px;}
+  .sec-no{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;
+    font-family:"Inter",sans-serif;font-weight:700;font-size:15px;color:#fff;background:linear-gradient(135deg,var(--navy),var(--purple));}
+  .sec-head h2{font-size:21px;font-weight:800;margin:0;}
+  .sec-lead{font-size:14px;color:var(--muted);margin:0 0 14px;max-width:1200px;}
+  .sec-lead strong{color:var(--navy);}
+  .quote{background:linear-gradient(135deg,#10213E,#625D9C);color:#fff;border-radius:var(--radius);padding:22px 28px;font-size:16px;font-weight:600;line-height:1.75;max-width:1400px;}
+  .principles{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:16px;}
+  .pr{background:var(--card);border-radius:var(--radius);padding:16px 20px;box-shadow:0 1px 2px rgba(16,33,62,.05);}
+  .pr .pt{font-size:14px;font-weight:800;color:var(--purple);margin-bottom:4px;}
+  .pr .pd{font-size:13px;color:var(--muted);}
+  .flow-legend{display:flex;flex-wrap:wrap;gap:8px 20px;align-items:center;font-size:12.5px;color:var(--muted);margin:0 0 12px;}
+  .flow-legend span{display:inline-flex;align-items:center;gap:6px;}
+  .flow-legend .lg-mvp{font-weight:700;color:var(--purple);}
+  .flow-legend .lg-mvp i{display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--purple);}
+  .flow-scroll{overflow-x:auto;padding-bottom:6px;}
+  .flow{display:grid;gap:12px;min-width:1100px;}
+  .flow-stage{position:relative;display:flex;flex-direction:column;background:var(--card);border-radius:var(--radius);box-shadow:0 1px 2px rgba(16,33,62,.05);padding:14px 14px 16px;}
+  .flow-stage.mvp,.flow-stage.partial{background:linear-gradient(180deg,#F7F5FC 0%,#fff 44%);box-shadow:0 2px 10px rgba(98,93,156,.12);}
+  .flow-stage.next{background:linear-gradient(180deg,#F5FAFE 0%,#fff 44%);}
+  .fs-flag{font-size:10.5px;font-weight:700;border-radius:999px;padding:1px 9px;align-self:flex-start;margin-bottom:9px;white-space:nowrap;}
+  .flow-stage.mvp .fs-flag,.flow-stage.partial .fs-flag{background:#EDEAF8;color:var(--purple);}
+  .flow-stage.next .fs-flag{background:#E7F0FB;color:#1F5FA8;}
+  .flow-stage.later .fs-flag{background:#EFF1F5;color:var(--soft);}
+  .fs-head{margin-bottom:9px;}
+  .fs-no{font-family:"Inter",sans-serif;font-size:11.5px;font-weight:700;color:#fff;background:var(--navy);border-radius:7px;padding:1px 8px;margin-right:6px;}
+  .flow-stage.mvp .fs-no,.flow-stage.partial .fs-no{background:var(--purple);}
+  .fs-name{font-size:14px;font-weight:800;color:var(--navy);}
+  .fs-full{display:block;font-size:11.5px;color:var(--soft);margin-top:3px;line-height:1.5;}
+  .fs-sub{font-size:10.5px;font-weight:700;color:var(--soft);letter-spacing:.04em;margin:0 0 6px;}
+  .fs-fns{display:grid;gap:6px;}
+  .fn{font-size:12px;line-height:1.45;color:var(--navy);background:#F6F8FC;border-radius:8px;padding:6px 9px;}
+  .fn em{font-style:normal;margin-right:5px;}
+  .fn.hybrid{background:#F1F8F6;color:#0B3B36;}
+  .fn.mvp{background:#F1EEFB;color:#3F3A6B;font-weight:600;}
+  .fs-human{margin-top:auto;padding-top:10px;font-size:11.5px;line-height:1.5;color:var(--muted);border-top:1px dashed var(--line);}
+  .fs-human b{color:var(--soft);font-weight:700;margin-right:4px;}
+  .fs-nonai{margin-top:8px;font-size:11.5px;line-height:1.45;color:#0B4A44;background:rgba(15,118,110,.08);border-radius:8px;padding:6px 9px;}
+  .flow-foot{display:flex;flex-wrap:wrap;gap:6px 20px;align-items:center;font-size:12.5px;color:var(--muted);background:#F7F8FA;border-radius:10px;padding:12px 16px;margin-top:14px;}
+  table.loop{width:100%;border-collapse:collapse;font-size:13px;background:var(--card);border-radius:var(--radius);overflow:hidden;}
+  table.loop th,table.loop td{text-align:left;padding:11px 16px;border-bottom:1px solid var(--line);vertical-align:top;}
+  table.loop th{font-size:12px;color:var(--soft);font-weight:700;background:#FAFBFC;}
+  table.loop tr:last-child td{border-bottom:none;}
+  table.loop td.ph{font-weight:800;color:var(--navy);white-space:nowrap;}
+  table.loop td.ph span{display:block;font-size:11.5px;font-weight:600;color:var(--soft);}
+  .tag{display:inline-block;font-size:11px;font-weight:700;border-radius:999px;padding:1px 9px;white-space:nowrap;}
+  .tag.now{background:#FDEBD8;color:var(--amber);}
+  .tag.next{background:#E7F0FB;color:#1F5FA8;}
+  .tag.later{background:#EFF1F5;color:var(--soft);}
+  .mvp-chip{display:inline-block;font-size:10px;font-weight:700;color:var(--purple);background:#EDEAF8;border-radius:999px;padding:0 7px;margin-left:6px;vertical-align:1px;}
+  .entry-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;align-items:start;}
+  .entry{background:var(--card);border-radius:var(--radius);padding:20px 24px;box-shadow:0 1px 2px rgba(16,33,62,.05);}
+  .entry.key{background:#FAF9FD;}
+  .entry .et{font-size:16px;font-weight:800;color:var(--navy);}
+  .entry .es{font-size:13px;color:var(--soft);margin:4px 0 12px;}
+  .entry .eb{display:grid;gap:9px;}
+  .er{display:grid;grid-template-columns:88px 1fr;gap:12px;font-size:13.5px;}
+  .er .k{font-weight:700;color:var(--soft);font-size:12.5px;padding-top:1px;}
+  .er p{margin:0;color:var(--muted);}
+  .er.out{background:#F6FBF9;border-radius:10px;padding:10px 13px;margin:2px -13px;}
+  .er.out .k{color:var(--green);}
+  .er.out p{color:#0B3B36;font-weight:600;}
+  .pilot{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px;}
+  .pc{background:var(--card);border-radius:var(--radius);padding:16px 20px;box-shadow:0 1px 2px rgba(16,33,62,.05);}
+  .pc h4{margin:0 0 6px;font-size:14px;color:var(--navy);}
+  .pc ul{margin:0;padding-left:18px;font-size:13px;color:var(--muted);}
+  .pc li{margin:3px 0;}
+  .rmap{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;align-items:stretch;}
+  .rp{display:flex;flex-direction:column;}
+  .rp-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px;}
+  .rp-no{font-family:"Inter",sans-serif;font-size:12.5px;font-weight:700;color:#fff;background:var(--purple);border-radius:9px;padding:3px 12px;}
+  .rp.p2 .rp-no{background:var(--sky);}
+  .rp.p3 .rp-no{background:var(--green);}
+  .rp-tag{font-size:11px;font-weight:700;border-radius:999px;padding:2px 10px;background:#FDEBD8;color:var(--amber);}
+  .rp.p2 .rp-tag{background:#E7F0FB;color:#1F5FA8;}
+  .rp.p3 .rp-tag{background:#E7F3EF;color:var(--green);}
+  .rp-title{font-size:16.5px;font-weight:800;color:var(--navy);margin-bottom:10px;}
+  .rp-card{background:var(--card);border-radius:var(--radius);padding:16px 20px 18px;box-shadow:0 1px 2px rgba(16,33,62,.05);flex:1;}
+  .rp-body{display:grid;gap:9px;}
+  .rpr{display:grid;grid-template-columns:84px 1fr;gap:10px;font-size:13px;}
+  .rpr .k{font-weight:700;color:var(--soft);font-size:12.5px;padding-top:1px;}
+  .rpr p{margin:0;color:var(--muted);}
+  .rpr.hl{background:#F6FBF9;border-radius:9px;padding:8px 11px;margin:2px -11px;}
+  .rpr.hl .k{color:var(--green);}
+  .rpr.hl p{color:#0B3B36;font-weight:600;}
+  table.confirm{width:100%;border-collapse:collapse;font-size:13px;background:var(--card);border-radius:var(--radius);overflow:hidden;}
+  table.confirm th,table.confirm td{text-align:left;padding:11px 16px;border-bottom:1px solid var(--line);vertical-align:top;}
+  table.confirm th{font-size:12px;color:var(--soft);font-weight:700;background:#FAFBFC;}
+  table.confirm tr:last-child td{border-bottom:none;}
+  table.confirm td.item{font-weight:700;color:var(--navy);}
+  footer{padding:8px 40px 48px;color:var(--soft);font-size:12px;}
+  @media (max-width:1000px){
+    .pad,.hero-inner{padding-left:20px;padding-right:20px;}
+    .principles,.pilot,.entry-grid,.rmap{grid-template-columns:1fr;}
+    .hero h1{font-size:24px;}
+    .copy-yaml{right:20px;}
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="pad">
+    <span class="eyebrow">产品概念设计 · v1.0</span>
+    <button class="copy-yaml" onclick="copyYaml()">📋 复制 YAML</button>
+    <h1>渠道运营 AI 伙伴</h1>
+    <div class="sub">面向一线渠道运营的 AI 伙伴 —— 把现场碎片信息变成可执行的判断与打法</div>
+    
+    <div class="hero-chips">
+      <span>定位 · <b>服务一线运营</b></span><span>形态 · <b>信息闭环</b></span><span>本次切入 · <b>现场信息采集与解读</b></span><span>试点 · <b>2 条业务线 · 6 个区域</b></span>
+    </div>
+    
+  </div>
+</header>
+
+<main class="pad">
+
+  <!-- 1 产品愿景 -->
+  <section id="vision">
+    <div class="sec-head"><div class="sec-no">1</div><h2>产品愿景</h2></div>
+    <p class="sec-lead">不是工具拼盘，而是围绕一个业务周期的全流程支持：取数、采集、校验、解读、生成交给 AI，人只在关键节点做判断与决策。</p>
+    <div class="quote">一个面向一线渠道运营的 AI 伙伴：把组织里顶尖运营的经验蒸馏出来、无感地推到一线面前，让不具备专家经验的人也能做出接近专家的判断。</div>
+    
+    <div class="principles">
+      
+      <div class="pr"><div class="pt">服务一线</div><div class="pd">第一对象是一线运营，不是管理者；让做事更轻松有效，而不是「管他们」的工具。</div></div>
+      
+      <div class="pr"><div class="pt">主动</div><div class="pd">主动提问、主动提醒、主动引导补充信息，而非被动应答。</div></div>
+      
+      <div class="pr"><div class="pt">有回路</div><div class="pd">收集 → 结论 → 验证 → 行动 → 结果回流，执行与复盘产生的新信息再次进入下一轮。</div></div>
+      
+    </div>
+    
+  </section>
+
+  <!-- 2 To-be 流程总览 -->
+  <section id="tobe">
+    <div class="sec-head"><div class="sec-no">2</div><h2>To-be 流程总览</h2></div>
+    <p class="sec-lead">5 个业务阶段，各阶段标出 Agent 承担的具体 AI 功能与人承担的关键判断；紫色底 = 一期范围。</p>
+    <div class="flow-legend">
+      <span><em>🤖</em> Agent 自动执行</span>
+      <span><em>🤝</em> 人机协同</span>
+      <span><em>👤</em> 人工承担</span>
+      <span class="lg-mvp"><i></i>紫色底 = 一期范围</span>
+    </div>
+    <div class="flow-scroll">
+      <div class="flow" style="grid-template-columns:repeat(5,minmax(180px,1fr));">
+        
+        <div class="flow-stage partial">
+          <span class="fs-flag">★ 部分本轮</span>
+          <div class="fs-head"><span class="fs-no"></span><span class="fs-name">业务复盘</span><span class="fs-full">上期业务复盘与目标设定</span></div>
+          <div class="fs-sub">AI 承担</div>
+          <div class="fs-fns">
+            
+            <div class="fn auto mvp"><em>🤖</em>关键指标展示与风险分析（覆盖 / 动销 / 库存 / 执行进度）</div>
+            
+            <div class="fn auto mvp"><em>🤖</em>从现有数据识别重点关注区域及终端</div>
+            
+            <div class="fn auto"><em>🤖</em>业绩取数下钻、目标测算与分解</div>
+            
+          </div>
+          <div class="fs-human"><b>人承担</b>确认目标与重点对象 · 认领对象并制定走访计划</div>
+          
+        </div>
+        
+        <div class="flow-stage mvp">
+          <span class="fs-flag">★ 本轮重点</span>
+          <div class="fs-head"><span class="fs-no"></span><span class="fs-name">信息采集</span><span class="fs-full">现场信息采集与非结构化知识处理</span></div>
+          <div class="fs-sub">AI 承担</div>
+          <div class="fs-fns">
+            
+            <div class="fn auto mvp"><em>🤖</em>政策与市场动态监控与解读</div>
+            
+            <div class="fn hybrid mvp"><em>🤝</em>现场走访采集（拍照 / 语音 / 抄数）</div>
+            
+            <div class="fn auto mvp"><em>🤖</em>产品资料与活动日历结构化</div>
+            
+          </div>
+          <div class="fs-human"><b>人承担</b>现场「拍 / 采」· 客户提供经营与现场信息</div>
+          
+        </div>
+        
+        <div class="flow-stage mvp">
+          <span class="fs-flag">★ 本轮重点</span>
+          <div class="fs-head"><span class="fs-no"></span><span class="fs-name">信息解读</span><span class="fs-full">信息解读与校验</span></div>
+          <div class="fs-sub">AI 承担</div>
+          <div class="fs-fns">
+            
+            <div class="fn auto mvp"><em>🤖</em>影像与沟通记录解读（货架 / 价签 / 库存 / 客户原话）</div>
+            
+            <div class="fn auto mvp"><em>🤖</em>现场信息 × 业务数据交叉核验</div>
+            
+            <div class="fn auto mvp"><em>🤖</em>置信度与信息差定级</div>
+            
+          </div>
+          <div class="fs-human"><b>人承担</b>—（AI 全自动；低置信度信息进待验证清单）</div>
+          
+        </div>
+        
+        <div class="flow-stage mvp">
+          <span class="fs-flag">★ 本轮重点</span>
+          <div class="fs-head"><span class="fs-no"></span><span class="fs-name">机会识别</span><span class="fs-full">原因分析与机会识别</span></div>
+          <div class="fs-sub">AI 承担</div>
+          <div class="fs-fns">
+            
+            <div class="fn auto mvp"><em>🤖</em>推导业绩原因假设（附证据链与待验证点）</div>
+            
+            <div class="fn auto mvp"><em>🤖</em>增长空间推测与机会生成（对象 / 产品 / 方式 / 指标）</div>
+            
+          </div>
+          <div class="fs-human"><b>人承担</b>验证原因假设并裁定主因 · 确认机会与优先级</div>
+          <div class="fs-nonai"><b>非 AI</b> · 确认有效后，把机会案例分享给其他运营</div>
+        </div>
+        
+        <div class="flow-stage next">
+          <span class="fs-flag">下一步</span>
+          <div class="fs-head"><span class="fs-no"></span><span class="fs-name">策略与执行</span><span class="fs-full">策略方案生成与执行调整</span></div>
+          <div class="fs-sub">AI 承担</div>
+          <div class="fs-fns">
+            
+            <div class="fn auto"><em>🤖</em>按对象类型生成策略方案（A / B 方案 + 投入产出预估）</div>
+            
+            <div class="fn auto"><em>🤖</em>执行进度跟踪与偏差预警</div>
+            
+          </div>
+          <div class="fs-human"><b>人承担</b>核定方案目标与资源 · 执行落地与决策调整</div>
+          
+        </div>
+        
+      </div>
+    </div>
+    
+    <div class="flow-foot">
+      <span>一期范围 = 重点关注对象识别 + 信息采集与解读 + 机会识别</span><span>策略与执行紧随其后</span><span>P1 其余能力沿用现有系统</span><span>执行与复盘产生的新信息回流至 P2 / P3，形成闭环</span>
+    </div>
+    
+  </section>
+
+  <!-- 3 AI 与人分工表 -->
+  <section id="loop">
+    <div class="sec-head"><div class="sec-no">3</div><h2>AI 与人各承担什么</h2></div>
+    <table class="loop">
+      <thead><tr><th style="width:200px;">阶段</th><th>AI 承担</th><th style="width:240px;">人承担</th><th style="width:90px;">范围</th></tr></thead>
+      <tbody>
+        
+        <tr class="hit">
+          <td class="ph">P1 业务复盘<span>上期业务复盘与目标设定</span></td>
+          <td>关键指标展示与风险分析、识别重点关注区域及终端（MVP）；业绩取数下钻、目标测算与分解</td>
+          <td>确认目标与重点对象；认领对象并制定走访计划</td>
+          <td><span class="tag now">本轮</span></td>
+        </tr>
+        
+        <tr class="hit">
+          <td class="ph">P2 信息采集<span>现场信息采集与非结构化知识处理</span></td>
+          <td>政策与市场动态监控；现场走访采集（拍照 / 语音 / 抄数）；产品资料与活动日历结构化（MVP）</td>
+          <td>现场「拍 / 采」；客户提供经营与现场信息</td>
+          <td><span class="tag now">本轮</span></td>
+        </tr>
+        
+        <tr class="hit">
+          <td class="ph">P3 信息解读<span>信息解读与校验</span></td>
+          <td>影像与沟通记录解读；现场信息 × 业务数据交叉核验；置信度与信息差定级（MVP）</td>
+          <td>—（AI 全自动；低置信度进待验证清单）</td>
+          <td><span class="tag now">本轮</span></td>
+        </tr>
+        
+        <tr class="hit">
+          <td class="ph">P4 机会识别<span>原因分析与机会识别</span></td>
+          <td>推导业绩原因假设；增长空间推测与机会生成（MVP）</td>
+          <td>验证原因假设并裁定主因；确认机会与优先级</td>
+          <td><span class="tag now">本轮</span></td>
+        </tr>
+        
+        <tr>
+          <td class="ph">P5 策略与执行<span>策略方案生成与执行调整</span></td>
+          <td>按对象类型生成策略方案；执行进度跟踪与偏差预警</td>
+          <td>核定方案目标与资源；执行落地与决策调整</td>
+          <td><span class="tag next">下一步</span></td>
+        </tr>
+        
+      </tbody>
+    </table>
+  </section>
+
+  <!-- 4 第一期范围与试点 -->
+  <section id="entry">
+    <div class="sec-head"><div class="sec-no">4</div><h2>建议第一期范围</h2></div>
+    <p class="sec-lead">本轮重点落在现场信息采集与获取、交叉验证与碎片信息解读、机会识别；策略方案建议为下一步。</p>
+    <div class="entry-grid" style="grid-template-columns:repeat(3,1fr);">
+      
+      <div class="entry key">
+        <div class="et">现场信息采集与获取</div>
+        <div class="es">服务于一线为下个周期做策略计划</div>
+        <div class="eb">
+          
+          <div class="er"><span class="k">解决什么</span><p>做策略计划时缺先导性信息——现有数据以结果数据为主（滞后），真正决定机会与风险的现场信息留在一线脑子里，没有采、没有沉淀、没有复用。</p></div>
+          
+          <div class="er"><span class="k">怎么做</span><p>多源无感采集：拍照、语音口述、结构化抄数；按标准问题引导采集，Agent 主动追问「还缺什么」。</p></div>
+          
+          <div class="er"><span class="k">边界</span><p>一线只负责「拍 / 采」，整理与判断由 Agent 承担；采集方式须过合规边界。</p></div>
+          
+          <div class="er out"><span class="k">产出</span><p>结构化信息：〔对象〕〔事实 · 变化〕（证据）→ 意味着〔含义〕〔时效〕</p></div>
+        </div>
+      </div>
+      
+      <div class="entry key">
+        <div class="et">交叉验证与碎片信息解读</div>
+        <div class="es">给出置信度参考，并解读出关键结论</div>
+        <div class="eb">
+          
+          <div class="er"><span class="k">交叉验证</span><p>现场信息 × 业务数据交叉比对，给出置信度（A 可交叉验证 / B 来源单一 / C 感知推测）并标注信息差（领先 / 同步 / 滞后）。</p></div>
+          
+          <div class="er"><span class="k">碎片解读</span><p>把照片、原话、现场观察解读成关键结论：风险 / 增长空间 / 增长机会方向。</p></div>
+          
+          <div class="er out"><span class="k">产出</span><p>结论清单（风险 / 增长空间 / 机会方向）+ 待验证点</p></div>
+        </div>
+      </div>
+      
+      <div class="entry key">
+        <div class="et">机会识别</div>
+        <div class="es">由信息与数据推导主因，给出可判断的机会清单</div>
+        <div class="eb">
+          
+          <div class="er"><span class="k">怎么做</span><p>由结构化信息 + 业绩异常推导原因假设（附证据链）→ 结合主因推测增长机会 → 生成机会清单（对象 / 产品 / 方式 / 预期指标），一次给 5–6 条。</p></div>
+          
+          <div class="er out"><span class="k">产出</span><p>原因假设（附证据链）+ 机会清单（对象 / 产品 / 方式 / 预期指标）</p></div>
+        </div>
+      </div>
+      
+    </div>
+    
+    <div class="pilot">
+      <div class="pc">
+        <h4>业务范围</h4>
+        <ul><li>两条业务线，共 6 个典型区域（名单待定）。</li><li>共用同一套采集 / 校验 / 解读能力，不按部门各做一套。</li></ul>
+      </div>
+      <div class="pc">
+        <h4>选点依据</h4>
+        <ul><li>覆盖不同市场成熟度（成熟与成长兼顾）。</li><li>数据基础与系统条件较好，便于交叉验证。</li><li>团队配合度高，能先跑出可复用样本。</li></ul>
+      </div>
+    </div>
+    
+  </section>
+
+  <!-- 5 落地路线图 -->
+  <section id="roadmap">
+    <div class="sec-head"><div class="sec-no">5</div><h2>落地路线图</h2></div>
+    <div class="rmap">
+      
+      <div class="rp p1">
+        <div class="rp-head"><span class="rp-no">阶段一</span><span class="rp-tag">MVP · 本轮</span></div>
+        <div class="rp-title">信息采集与解读</div>
+        <div class="rp-card"><div class="rp-body">
+          
+          <div class="rpr"><span class="k">范围</span><p>一期 MVP：重点关注对象识别、现场信息采集与处理、交叉验证与解读、机会识别。</p></div>
+          
+          <div class="rpr"><span class="k">能力</span><p>指标展示与风险分析、对象识别；政策监控、现场采集、资料结构化；影像与沟通解读、交叉核验、置信度定级；原因假设与机会生成。</p></div>
+          
+          <div class="rpr"><span class="k">数据集成</span><p>打通业务系统（流向 / 覆盖 / 库存）、采集记录、协议与名单。</p></div>
+          
+          <div class="rpr"><span class="k">知识库</span><p>把产品资料、活动日历解析入库，形成可被 AI 消费的知识。</p></div>
+          
+          <div class="rpr"><span class="k">覆盖</span><p>2 条业务线，6 个区域试点。</p></div>
+          
+          <div class="rpr"><span class="k">交付</span><p>多源无感采集 + 标准问题引导；信息库；解读结论；原因假设与机会清单。</p></div>
+          
+          <div class="rpr hl"><span class="k">衡量</span><p>有效信息数量、活跃用户数。</p></div>
+          
+        </div></div>
+      </div>
+      
+      <div class="rp p2">
+        <div class="rp-head"><span class="rp-no">阶段二</span><span class="rp-tag">扩展 · 推广</span></div>
+        <div class="rp-title">信息与策略方案更丰富</div>
+        <div class="rp-card"><div class="rp-body">
+          
+          <div class="rpr"><span class="k">范围</span><p>补齐其余 AI 能力，并把采集、知识处理与解读做丰富。</p></div>
+          
+          <div class="rpr"><span class="k">能力</span><p>新增策略方案生成、合规校验、执行跟踪与调整建议；历史总结解析形成打法案例库。</p></div>
+          
+          <div class="rpr"><span class="k">数据集成</span><p>扩展数据源，统一口径与客户关系，完成多源融合。</p></div>
+          
+          <div class="rpr"><span class="k">知识库</span><p>把周报、活动总结、优秀案例结构化入库，与信息库联动。</p></div>
+          
+          <div class="rpr"><span class="k">覆盖</span><p>推广到 50–60% 的用户落地使用。</p></div>
+          
+          <div class="rpr"><span class="k">交付</span><p>全流程 AI 能力齐备；机会清单结构化；策略方案 + 合规校验。</p></div>
+          
+          <div class="rpr hl"><span class="k">衡量</span><p>有效信息数量、机会与策略采纳数、活跃用户覆盖。</p></div>
+          
+        </div></div>
+      </div>
+      
+      <div class="rp p3">
+        <div class="rp-head"><span class="rp-no">阶段三</span><span class="rp-tag">全流程闭环</span></div>
+        <div class="rp-title">闭环 + 更丰富的 Agent 能力</div>
+        <div class="rp-card"><div class="rp-body">
+          
+          <div class="rpr"><span class="k">范围</span><p>全流程 AI 能力稳定运行并持续深化，能力延伸至算账与谈判。</p></div>
+          
+          <div class="rpr"><span class="k">能力</span><p>全流程能力深化；新增算账、谈判装备、谈判模拟。</p></div>
+          
+          <div class="rpr"><span class="k">数据集成</span><p>全链路数据打通，支撑闭环与实时预警。</p></div>
+          
+          <div class="rpr"><span class="k">知识库</span><p>知识飞轮运转：案例与规则回流、人工确认后生效、跨线复用。</p></div>
+          
+          <div class="rpr"><span class="k">覆盖</span><p>多条业务线共用一套能力。</p></div>
+          
+          <div class="rpr"><span class="k">交付</span><p>复盘与目标、执行动态反馈、调整建议、知识回流。</p></div>
+          
+          <div class="rpr hl"><span class="k">衡量</span><p>机会与策略采纳数、活跃用户覆盖。</p></div>
+          
+        </div></div>
+      </div>
+      
+    </div>
+  </section>
+
+  <!-- 6 客户确认事项 -->
+  <section id="confirm">
+    <div class="sec-head"><div class="sec-no">6</div><h2>客户确认事项</h2></div>
+    <p class="sec-lead">以下事项需客户确认后方可进入详细设计（<strong>施工级方案</strong>）。</p>
+    <table class="confirm">
+      <thead><tr><th style="width:34%;">待确认事项</th><th>影响</th><th style="width:18%;">需谁拍板</th></tr></thead>
+      <tbody>
+        
+        <tr><td class="item">一期范围确认</td><td>决定本轮开发与试点投入的边界；不确定则无法排期。</td><td>客户项目负责人 + 业务线负责人</td></tr>
+        
+        <tr><td class="item">试点业务线与区域名单</td><td>影响试点样本与推广节奏。</td><td>客户业务负责人</td></tr>
+        
+        <tr><td class="item">合规与数据边界</td><td>决定哪些信息可采、可记、可用；越界将带来合规风险。</td><td>客户合规 / 法务</td></tr>
+        
+        <tr><td class="item">数据与系统权限</td><td>交叉核验依赖业务系统数据打通；权限不到位则解读能力受限。</td><td>客户 IT / 数据负责人</td></tr>
+        
+        <tr><td class="item">一期衡量指标与目标值</td><td>决定上线门禁与验收口径。</td><td>客户项目负责人</td></tr>
+        
+      </tbody>
+    </table>
+  </section>
+
+</main>
+
+<footer>
+  渠道运营 AI 伙伴 · 产品概念设计 · v1.0 · 依据《渠道运营 To-be 流程》与核心功能清单整理 · 2026-01-01
+</footer>
+
+<textarea id="yamlSrc" rows="1" style="display:none">meta:
+  product: &quot;渠道运营 AI 伙伴&quot;
+  title: &quot;产品概念设计&quot;
+  version: &quot;v1.0&quot;
+  date: &quot;2026-01-01&quot;
+  basis: &quot;依据《渠道运营 To-be 流程》与核心功能清单整理&quot;
+
+hero:
+  product: &quot;渠道运营 AI 伙伴&quot;
+  tagline: &quot;面向一线渠道运营的 AI 伙伴 —— 把现场碎片信息变成可执行的判断与打法&quot;
+  chips:
+    - {label: &quot;定位&quot;, value: &quot;服务一线运营&quot;}
+    - {label: &quot;形态&quot;, value: &quot;信息闭环&quot;}
+    - {label: &quot;本次切入&quot;, value: &quot;现场信息采集与解读&quot;}
+    - {label: &quot;试点&quot;, value: &quot;2 条业务线 · 6 个区域&quot;}
+
+vision:
+  statement: &quot;一个面向一线渠道运营的 AI 伙伴：把组织里顶尖运营的经验蒸馏出来、无感地推到一线面前，让不具备专家经验的人也能做出接近专家的判断。&quot;
+  lead: &quot;不是工具拼盘，而是围绕一个业务周期的全流程支持：取数、采集、校验、解读、生成交给 AI，人只在关键节点做判断与决策。&quot;
+  principles:
+    - {title: &quot;服务一线&quot;, desc: &quot;第一对象是一线运营，不是管理者；让做事更轻松有效，而不是「管他们」的工具。&quot;}
+    - {title: &quot;主动&quot;, desc: &quot;主动提问、主动提醒、主动引导补充信息，而非被动应答。&quot;}
+    - {title: &quot;有回路&quot;, desc: &quot;收集 → 结论 → 验证 → 行动 → 结果回流，执行与复盘产生的新信息再次进入下一轮。&quot;}
+
+stages:
+  - no: &quot;P1&quot;
+    name: &quot;业务复盘&quot;
+    full: &quot;上期业务复盘与目标设定&quot;
+    scope: &quot;partial&quot;
+    scopeLabel: &quot;★ 部分本轮&quot;
+    ai:
+      - {text: &quot;关键指标展示与风险分析（覆盖 / 动销 / 库存 / 执行进度）&quot;, kind: &quot;auto&quot;, mvp: true}
+      - {text: &quot;从现有数据识别重点关注区域及终端&quot;, kind: &quot;auto&quot;, mvp: true}
+      - {text: &quot;业绩取数下钻、目标测算与分解&quot;, kind: &quot;auto&quot;, mvp: false}
+    human: &quot;确认目标与重点对象 · 认领对象并制定走访计划&quot;
+  - no: &quot;P2&quot;
+    name: &quot;信息采集&quot;
+    full: &quot;现场信息采集与非结构化知识处理&quot;
+    scope: &quot;mvp&quot;
+    scopeLabel: &quot;★ 本轮重点&quot;
+    ai:
+      - {text: &quot;政策与市场动态监控与解读&quot;, kind: &quot;auto&quot;, mvp: true}
+      - {text: &quot;现场走访采集（拍照 / 语音 / 抄数）&quot;, kind: &quot;hybrid&quot;, mvp: true}
+      - {text: &quot;产品资料与活动日历结构化&quot;, kind: &quot;auto&quot;, mvp: true}
+    human: &quot;现场「拍 / 采」· 客户提供经营与现场信息&quot;
+  - no: &quot;P3&quot;
+    name: &quot;信息解读&quot;
+    full: &quot;信息解读与校验&quot;
+    scope: &quot;mvp&quot;
+    scopeLabel: &quot;★ 本轮重点&quot;
+    ai:
+      - {text: &quot;影像与沟通记录解读（货架 / 价签 / 库存 / 客户原话）&quot;, kind: &quot;auto&quot;, mvp: true}
+      - {text: &quot;现场信息 × 业务数据交叉核验&quot;, kind: &quot;auto&quot;, mvp: true}
+      - {text: &quot;置信度与信息差定级&quot;, kind: &quot;auto&quot;, mvp: true}
+    human: &quot;—（AI 全自动；低置信度信息进待验证清单）&quot;
+  - no: &quot;P4&quot;
+    name: &quot;机会识别&quot;
+    full: &quot;原因分析与机会识别&quot;
+    scope: &quot;mvp&quot;
+    scopeLabel: &quot;★ 本轮重点&quot;
+    ai:
+      - {text: &quot;推导业绩原因假设（附证据链与待验证点）&quot;, kind: &quot;auto&quot;, mvp: true}
+      - {text: &quot;增长空间推测与机会生成（对象 / 产品 / 方式 / 指标）&quot;, kind: &quot;auto&quot;, mvp: true}
+    human: &quot;验证原因假设并裁定主因 · 确认机会与优先级&quot;
+    nonAi: &quot;确认有效后，把机会案例分享给其他运营&quot;
+  - no: &quot;P5&quot;
+    name: &quot;策略与执行&quot;
+    full: &quot;策略方案生成与执行调整&quot;
+    scope: &quot;next&quot;
+    scopeLabel: &quot;下一步&quot;
+    ai:
+      - {text: &quot;按对象类型生成策略方案（A / B 方案 + 投入产出预估）&quot;, kind: &quot;auto&quot;, mvp: false}
+      - {text: &quot;执行进度跟踪与偏差预警&quot;, kind: &quot;auto&quot;, mvp: false}
+    human: &quot;核定方案目标与资源 · 执行落地与决策调整&quot;
+
+flowFoot:
+  - &quot;一期范围 = 重点关注对象识别 + 信息采集与解读 + 机会识别&quot;
+  - &quot;策略与执行紧随其后&quot;
+  - &quot;P1 其余能力沿用现有系统&quot;
+  - &quot;执行与复盘产生的新信息回流至 P2 / P3，形成闭环&quot;
+
+division:
+  - stage: &quot;P1 业务复盘&quot;
+    full: &quot;上期业务复盘与目标设定&quot;
+    ai: &quot;关键指标展示与风险分析、识别重点关注区域及终端（MVP）；业绩取数下钻、目标测算与分解&quot;
+    human: &quot;确认目标与重点对象；认领对象并制定走访计划&quot;
+    scope: &quot;now&quot;
+  - stage: &quot;P2 信息采集&quot;
+    full: &quot;现场信息采集与非结构化知识处理&quot;
+    ai: &quot;政策与市场动态监控；现场走访采集（拍照 / 语音 / 抄数）；产品资料与活动日历结构化（MVP）&quot;
+    human: &quot;现场「拍 / 采」；客户提供经营与现场信息&quot;
+    scope: &quot;now&quot;
+  - stage: &quot;P3 信息解读&quot;
+    full: &quot;信息解读与校验&quot;
+    ai: &quot;影像与沟通记录解读；现场信息 × 业务数据交叉核验；置信度与信息差定级（MVP）&quot;
+    human: &quot;—（AI 全自动；低置信度进待验证清单）&quot;
+    scope: &quot;now&quot;
+  - stage: &quot;P4 机会识别&quot;
+    full: &quot;原因分析与机会识别&quot;
+    ai: &quot;推导业绩原因假设；增长空间推测与机会生成（MVP）&quot;
+    human: &quot;验证原因假设并裁定主因；确认机会与优先级&quot;
+    scope: &quot;now&quot;
+  - stage: &quot;P5 策略与执行&quot;
+    full: &quot;策略方案生成与执行调整&quot;
+    ai: &quot;按对象类型生成策略方案；执行进度跟踪与偏差预警&quot;
+    human: &quot;核定方案目标与资源；执行落地与决策调整&quot;
+    scope: &quot;next&quot;
+
+phase1:
+  lead: &quot;本轮重点落在现场信息采集与获取、交叉验证与碎片信息解读、机会识别；策略方案建议为下一步。&quot;
+  focus:
+    - title: &quot;现场信息采集与获取&quot;
+      subtitle: &quot;服务于一线为下个周期做策略计划&quot;
+      rows:
+        - {k: &quot;解决什么&quot;, v: &quot;做策略计划时缺先导性信息——现有数据以结果数据为主（滞后），真正决定机会与风险的现场信息留在一线脑子里，没有采、没有沉淀、没有复用。&quot;}
+        - {k: &quot;怎么做&quot;, v: &quot;多源无感采集：拍照、语音口述、结构化抄数；按标准问题引导采集，Agent 主动追问「还缺什么」。&quot;}
+        - {k: &quot;边界&quot;, v: &quot;一线只负责「拍 / 采」，整理与判断由 Agent 承担；采集方式须过合规边界。&quot;}
+      output: &quot;结构化信息：〔对象〕〔事实 · 变化〕（证据）→ 意味着〔含义〕〔时效〕&quot;
+    - title: &quot;交叉验证与碎片信息解读&quot;
+      subtitle: &quot;给出置信度参考，并解读出关键结论&quot;
+      rows:
+        - {k: &quot;交叉验证&quot;, v: &quot;现场信息 × 业务数据交叉比对，给出置信度（A 可交叉验证 / B 来源单一 / C 感知推测）并标注信息差（领先 / 同步 / 滞后）。&quot;}
+        - {k: &quot;碎片解读&quot;, v: &quot;把照片、原话、现场观察解读成关键结论：风险 / 增长空间 / 增长机会方向。&quot;}
+      output: &quot;结论清单（风险 / 增长空间 / 机会方向）+ 待验证点&quot;
+    - title: &quot;机会识别&quot;
+      subtitle: &quot;由信息与数据推导主因，给出可判断的机会清单&quot;
+      rows:
+        - {k: &quot;怎么做&quot;, v: &quot;由结构化信息 + 业绩异常推导原因假设（附证据链）→ 结合主因推测增长机会 → 生成机会清单（对象 / 产品 / 方式 / 预期指标），一次给 5–6 条。&quot;}
+      output: &quot;原因假设（附证据链）+ 机会清单（对象 / 产品 / 方式 / 预期指标）&quot;
+  pilot:
+    business:
+      - &quot;两条业务线，共 6 个典型区域（名单待定）。&quot;
+      - &quot;共用同一套采集 / 校验 / 解读能力，不按部门各做一套。&quot;
+    rationale:
+      - &quot;覆盖不同市场成熟度（成熟与成长兼顾）。&quot;
+      - &quot;数据基础与系统条件较好，便于交叉验证。&quot;
+      - &quot;团队配合度高，能先跑出可复用样本。&quot;
+
+roadmap:
+  - phase: &quot;阶段一&quot;
+    tag: &quot;MVP · 本轮&quot;
+    title: &quot;信息采集与解读&quot;
+    rows:
+      - {k: &quot;范围&quot;, v: &quot;一期 MVP：重点关注对象识别、现场信息采集与处理、交叉验证与解读、机会识别。&quot;}
+      - {k: &quot;能力&quot;, v: &quot;指标展示与风险分析、对象识别；政策监控、现场采集、资料结构化；影像与沟通解读、交叉核验、置信度定级；原因假设与机会生成。&quot;}
+      - {k: &quot;数据集成&quot;, v: &quot;打通业务系统（流向 / 覆盖 / 库存）、采集记录、协议与名单。&quot;}
+      - {k: &quot;知识库&quot;, v: &quot;把产品资料、活动日历解析入库，形成可被 AI 消费的知识。&quot;}
+      - {k: &quot;覆盖&quot;, v: &quot;2 条业务线，6 个区域试点。&quot;}
+      - {k: &quot;交付&quot;, v: &quot;多源无感采集 + 标准问题引导；信息库；解读结论；原因假设与机会清单。&quot;}
+      - {k: &quot;衡量&quot;, v: &quot;有效信息数量、活跃用户数。&quot;, hl: true}
+  - phase: &quot;阶段二&quot;
+    tag: &quot;扩展 · 推广&quot;
+    title: &quot;信息与策略方案更丰富&quot;
+    rows:
+      - {k: &quot;范围&quot;, v: &quot;补齐其余 AI 能力，并把采集、知识处理与解读做丰富。&quot;}
+      - {k: &quot;能力&quot;, v: &quot;新增策略方案生成、合规校验、执行跟踪与调整建议；历史总结解析形成打法案例库。&quot;}
+      - {k: &quot;数据集成&quot;, v: &quot;扩展数据源，统一口径与客户关系，完成多源融合。&quot;}
+      - {k: &quot;知识库&quot;, v: &quot;把周报、活动总结、优秀案例结构化入库，与信息库联动。&quot;}
+      - {k: &quot;覆盖&quot;, v: &quot;推广到 50–60% 的用户落地使用。&quot;}
+      - {k: &quot;交付&quot;, v: &quot;全流程 AI 能力齐备；机会清单结构化；策略方案 + 合规校验。&quot;}
+      - {k: &quot;衡量&quot;, v: &quot;有效信息数量、机会与策略采纳数、活跃用户覆盖。&quot;, hl: true}
+  - phase: &quot;阶段三&quot;
+    tag: &quot;全流程闭环&quot;
+    title: &quot;闭环 + 更丰富的 Agent 能力&quot;
+    rows:
+      - {k: &quot;范围&quot;, v: &quot;全流程 AI 能力稳定运行并持续深化，能力延伸至算账与谈判。&quot;}
+      - {k: &quot;能力&quot;, v: &quot;全流程能力深化；新增算账、谈判装备、谈判模拟。&quot;}
+      - {k: &quot;数据集成&quot;, v: &quot;全链路数据打通，支撑闭环与实时预警。&quot;}
+      - {k: &quot;知识库&quot;, v: &quot;知识飞轮运转：案例与规则回流、人工确认后生效、跨线复用。&quot;}
+      - {k: &quot;覆盖&quot;, v: &quot;多条业务线共用一套能力。&quot;}
+      - {k: &quot;交付&quot;, v: &quot;复盘与目标、执行动态反馈、调整建议、知识回流。&quot;}
+      - {k: &quot;衡量&quot;, v: &quot;机会与策略采纳数、活跃用户覆盖。&quot;, hl: true}
+
+confirm:
+  - item: &quot;一期范围确认&quot;
+    impact: &quot;决定本轮开发与试点投入的边界；不确定则无法排期。&quot;
+    owner: &quot;客户项目负责人 + 业务线负责人&quot;
+  - item: &quot;试点业务线与区域名单&quot;
+    impact: &quot;影响试点样本与推广节奏。&quot;
+    owner: &quot;客户业务负责人&quot;
+  - item: &quot;合规与数据边界&quot;
+    impact: &quot;决定哪些信息可采、可记、可用；越界将带来合规风险。&quot;
+    owner: &quot;客户合规 / 法务&quot;
+  - item: &quot;数据与系统权限&quot;
+    impact: &quot;交叉核验依赖业务系统数据打通；权限不到位则解读能力受限。&quot;
+    owner: &quot;客户 IT / 数据负责人&quot;
+  - item: &quot;一期衡量指标与目标值&quot;
+    impact: &quot;决定上线门禁与验收口径。&quot;
+    owner: &quot;客户项目负责人&quot;
+</textarea>
+<script>
+function copyYaml(){
+  const src = document.getElementById('yamlSrc').value;
+  navigator.clipboard.writeText(src).then(()=>{ alert('✅ YAML 已复制'); })
+    .catch(()=>{ window.prompt('复制失败，请手动复制：', src); });
+}
+</script>
+</body>
+</html>

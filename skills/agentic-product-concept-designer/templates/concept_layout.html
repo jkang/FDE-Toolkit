@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{ meta.product }} · {{ meta.title }}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&family=Inter:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#10213E; --purple:#625D9C; --sky:#5DB2E2; --green:#00524C; --pink:#F5ACB8;
+    --bg:#F5F5F6; --card:#fff; --line:#e3e7ee; --soft:#8b95a5; --muted:#4a5568;
+    --amber:#B45309; --amberbg:#FFF7EA; --radius:16px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{margin:0;background:var(--bg);color:var(--navy);
+    font-family:"Noto Sans SC","PingFang SC",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    font-size:14px;line-height:1.7;-webkit-font-smoothing:antialiased;}
+  .pad{padding-left:40px;padding-right:40px;}
+  .hero{background:linear-gradient(120deg,#10213E 0%,#243b63 55%,#625D9C 100%);color:#fff;padding:38px 0 32px;position:relative;}
+  .eyebrow{font-family:"Inter",sans-serif;font-size:12px;font-weight:700;letter-spacing:.16em;color:#9EC9EC;}
+  .hero h1{font-size:32px;font-weight:900;margin:8px 0 8px;}
+  .hero .sub{font-size:15px;color:#C7D6E8;max-width:900px;}
+  .hero-chips{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px;}
+  .hero-chips span{font-size:12.5px;color:#EAF2FB;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);border-radius:999px;padding:4px 14px;}
+  .hero-chips b{color:#fff;}
+  .copy-yaml{position:absolute;top:26px;right:40px;background:rgba(255,255,255,.14);color:#fff;border:1px solid rgba(255,255,255,.3);
+    border-radius:999px;padding:6px 16px;font-size:12.5px;cursor:pointer;font-family:inherit;}
+  .copy-yaml:hover{background:rgba(255,255,255,.24);}
+  main{padding-top:30px;padding-bottom:8px;}
+  section{margin-bottom:38px;}
+  .sec-head{display:flex;align-items:center;gap:12px;margin-bottom:12px;}
+  .sec-no{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;
+    font-family:"Inter",sans-serif;font-weight:700;font-size:15px;color:#fff;background:linear-gradient(135deg,var(--navy),var(--purple));}
+  .sec-head h2{font-size:21px;font-weight:800;margin:0;}
+  .sec-lead{font-size:14px;color:var(--muted);margin:0 0 14px;max-width:1200px;}
+  .sec-lead strong{color:var(--navy);}
+  .quote{background:linear-gradient(135deg,#10213E,#625D9C);color:#fff;border-radius:var(--radius);padding:22px 28px;font-size:16px;font-weight:600;line-height:1.75;max-width:1400px;}
+  .principles{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:16px;}
+  .pr{background:var(--card);border-radius:var(--radius);padding:16px 20px;box-shadow:0 1px 2px rgba(16,33,62,.05);}
+  .pr .pt{font-size:14px;font-weight:800;color:var(--purple);margin-bottom:4px;}
+  .pr .pd{font-size:13px;color:var(--muted);}
+  .flow-legend{display:flex;flex-wrap:wrap;gap:8px 20px;align-items:center;font-size:12.5px;color:var(--muted);margin:0 0 12px;}
+  .flow-legend span{display:inline-flex;align-items:center;gap:6px;}
+  .flow-legend .lg-mvp{font-weight:700;color:var(--purple);}
+  .flow-legend .lg-mvp i{display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--purple);}
+  .flow-scroll{overflow-x:auto;padding-bottom:6px;}
+  .flow{display:grid;gap:12px;min-width:1100px;}
+  .flow-stage{position:relative;display:flex;flex-direction:column;background:var(--card);border-radius:var(--radius);box-shadow:0 1px 2px rgba(16,33,62,.05);padding:14px 14px 16px;}
+  .flow-stage.mvp,.flow-stage.partial{background:linear-gradient(180deg,#F7F5FC 0%,#fff 44%);box-shadow:0 2px 10px rgba(98,93,156,.12);}
+  .flow-stage.next{background:linear-gradient(180deg,#F5FAFE 0%,#fff 44%);}
+  .fs-flag{font-size:10.5px;font-weight:700;border-radius:999px;padding:1px 9px;align-self:flex-start;margin-bottom:9px;white-space:nowrap;}
+  .flow-stage.mvp .fs-flag,.flow-stage.partial .fs-flag{background:#EDEAF8;color:var(--purple);}
+  .flow-stage.next .fs-flag{background:#E7F0FB;color:#1F5FA8;}
+  .flow-stage.later .fs-flag{background:#EFF1F5;color:var(--soft);}
+  .fs-head{margin-bottom:9px;}
+  .fs-no{font-family:"Inter",sans-serif;font-size:11.5px;font-weight:700;color:#fff;background:var(--navy);border-radius:7px;padding:1px 8px;margin-right:6px;}
+  .flow-stage.mvp .fs-no,.flow-stage.partial .fs-no{background:var(--purple);}
+  .fs-name{font-size:14px;font-weight:800;color:var(--navy);}
+  .fs-full{display:block;font-size:11.5px;color:var(--soft);margin-top:3px;line-height:1.5;}
+  .fs-sub{font-size:10.5px;font-weight:700;color:var(--soft);letter-spacing:.04em;margin:0 0 6px;}
+  .fs-fns{display:grid;gap:6px;}
+  .fn{font-size:12px;line-height:1.45;color:var(--navy);background:#F6F8FC;border-radius:8px;padding:6px 9px;}
+  .fn em{font-style:normal;margin-right:5px;}
+  .fn.hybrid{background:#F1F8F6;color:#0B3B36;}
+  .fn.mvp{background:#F1EEFB;color:#3F3A6B;font-weight:600;}
+  .fs-human{margin-top:auto;padding-top:10px;font-size:11.5px;line-height:1.5;color:var(--muted);border-top:1px dashed var(--line);}
+  .fs-human b{color:var(--soft);font-weight:700;margin-right:4px;}
+  .fs-nonai{margin-top:8px;font-size:11.5px;line-height:1.45;color:#0B4A44;background:rgba(15,118,110,.08);border-radius:8px;padding:6px 9px;}
+  .flow-foot{display:flex;flex-wrap:wrap;gap:6px 20px;align-items:center;font-size:12.5px;color:var(--muted);background:#F7F8FA;border-radius:10px;padding:12px 16px;margin-top:14px;}
+  table.loop{width:100%;border-collapse:collapse;font-size:13px;background:var(--card);border-radius:var(--radius);overflow:hidden;}
+  table.loop th,table.loop td{text-align:left;padding:11px 16px;border-bottom:1px solid var(--line);vertical-align:top;}
+  table.loop th{font-size:12px;color:var(--soft);font-weight:700;background:#FAFBFC;}
+  table.loop tr:last-child td{border-bottom:none;}
+  table.loop td.ph{font-weight:800;color:var(--navy);white-space:nowrap;}
+  table.loop td.ph span{display:block;font-size:11.5px;font-weight:600;color:var(--soft);}
+  .tag{display:inline-block;font-size:11px;font-weight:700;border-radius:999px;padding:1px 9px;white-space:nowrap;}
+  .tag.now{background:#FDEBD8;color:var(--amber);}
+  .tag.next{background:#E7F0FB;color:#1F5FA8;}
+  .tag.later{background:#EFF1F5;color:var(--soft);}
+  .mvp-chip{display:inline-block;font-size:10px;font-weight:700;color:var(--purple);background:#EDEAF8;border-radius:999px;padding:0 7px;margin-left:6px;vertical-align:1px;}
+  .entry-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;align-items:start;}
+  .entry{background:var(--card);border-radius:var(--radius);padding:20px 24px;box-shadow:0 1px 2px rgba(16,33,62,.05);}
+  .entry.key{background:#FAF9FD;}
+  .entry .et{font-size:16px;font-weight:800;color:var(--navy);}
+  .entry .es{font-size:13px;color:var(--soft);margin:4px 0 12px;}
+  .entry .eb{display:grid;gap:9px;}
+  .er{display:grid;grid-template-columns:88px 1fr;gap:12px;font-size:13.5px;}
+  .er .k{font-weight:700;color:var(--soft);font-size:12.5px;padding-top:1px;}
+  .er p{margin:0;color:var(--muted);}
+  .er.out{background:#F6FBF9;border-radius:10px;padding:10px 13px;margin:2px -13px;}
+  .er.out .k{color:var(--green);}
+  .er.out p{color:#0B3B36;font-weight:600;}
+  .pilot{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px;}
+  .pc{background:var(--card);border-radius:var(--radius);padding:16px 20px;box-shadow:0 1px 2px rgba(16,33,62,.05);}
+  .pc h4{margin:0 0 6px;font-size:14px;color:var(--navy);}
+  .pc ul{margin:0;padding-left:18px;font-size:13px;color:var(--muted);}
+  .pc li{margin:3px 0;}
+  .rmap{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;align-items:stretch;}
+  .rp{display:flex;flex-direction:column;}
+  .rp-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px;}
+  .rp-no{font-family:"Inter",sans-serif;font-size:12.5px;font-weight:700;color:#fff;background:var(--purple);border-radius:9px;padding:3px 12px;}
+  .rp.p2 .rp-no{background:var(--sky);}
+  .rp.p3 .rp-no{background:var(--green);}
+  .rp-tag{font-size:11px;font-weight:700;border-radius:999px;padding:2px 10px;background:#FDEBD8;color:var(--amber);}
+  .rp.p2 .rp-tag{background:#E7F0FB;color:#1F5FA8;}
+  .rp.p3 .rp-tag{background:#E7F3EF;color:var(--green);}
+  .rp-title{font-size:16.5px;font-weight:800;color:var(--navy);margin-bottom:10px;}
+  .rp-card{background:var(--card);border-radius:var(--radius);padding:16px 20px 18px;box-shadow:0 1px 2px rgba(16,33,62,.05);flex:1;}
+  .rp-body{display:grid;gap:9px;}
+  .rpr{display:grid;grid-template-columns:84px 1fr;gap:10px;font-size:13px;}
+  .rpr .k{font-weight:700;color:var(--soft);font-size:12.5px;padding-top:1px;}
+  .rpr p{margin:0;color:var(--muted);}
+  .rpr.hl{background:#F6FBF9;border-radius:9px;padding:8px 11px;margin:2px -11px;}
+  .rpr.hl .k{color:var(--green);}
+  .rpr.hl p{color:#0B3B36;font-weight:600;}
+  table.confirm{width:100%;border-collapse:collapse;font-size:13px;background:var(--card);border-radius:var(--radius);overflow:hidden;}
+  table.confirm th,table.confirm td{text-align:left;padding:11px 16px;border-bottom:1px solid var(--line);vertical-align:top;}
+  table.confirm th{font-size:12px;color:var(--soft);font-weight:700;background:#FAFBFC;}
+  table.confirm tr:last-child td{border-bottom:none;}
+  table.confirm td.item{font-weight:700;color:var(--navy);}
+  footer{padding:8px 40px 48px;color:var(--soft);font-size:12px;}
+  @media (max-width:1000px){
+    .pad,.hero-inner{padding-left:20px;padding-right:20px;}
+    .principles,.pilot,.entry-grid,.rmap{grid-template-columns:1fr;}
+    .hero h1{font-size:24px;}
+    .copy-yaml{right:20px;}
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="pad">
+    <span class="eyebrow">{{ meta.title }} · {{ meta.version }}</span>
+    <button class="copy-yaml" onclick="copyYaml()">📋 复制 YAML</button>
+    <h1>{{ hero.product }}</h1>
+    <div class="sub">{{ hero.tagline }}</div>
+    {% if hero.chips %}
+    <div class="hero-chips">
+      {% for c in hero.chips %}<span>{{ c.label }} · <b>{{ c.value }}</b></span>{% endfor %}
+    </div>
+    {% endif %}
+  </div>
+</header>
+
+<main class="pad">
+
+  <!-- 1 产品愿景 -->
+  <section id="vision">
+    <div class="sec-head"><div class="sec-no">1</div><h2>产品愿景</h2></div>
+    {% if vision.lead %}<p class="sec-lead">{{ vision.lead }}</p>{% endif %}
+    {% if vision.statement %}<div class="quote">{{ vision.statement }}</div>{% endif %}
+    {% if vision.principles %}
+    <div class="principles">
+      {% for p in vision.principles %}
+      <div class="pr"><div class="pt">{{ p.title }}</div><div class="pd">{{ p.desc }}</div></div>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </section>
+
+  <!-- 2 To-be 流程总览 -->
+  <section id="tobe">
+    <div class="sec-head"><div class="sec-no">2</div><h2>To-be 流程总览</h2></div>
+    <p class="sec-lead">{{ stages | length }} 个业务阶段，各阶段标出 Agent 承担的具体 AI 功能与人承担的关键判断；紫色底 = 一期范围。</p>
+    <div class="flow-legend">
+      <span><em>🤖</em> Agent 自动执行</span>
+      <span><em>🤝</em> 人机协同</span>
+      <span><em>👤</em> 人工承担</span>
+      <span class="lg-mvp"><i></i>紫色底 = 一期范围</span>
+    </div>
+    <div class="flow-scroll">
+      <div class="flow" style="grid-template-columns:repeat({{ stages | length }},minmax(180px,1fr));">
+        {% for s in stages %}
+        <div class="flow-stage {{ s.scope }}">
+          {% if s.scopeLabel %}<span class="fs-flag">{{ s.scopeLabel }}</span>{% endif %}
+          <div class="fs-head"><span class="fs-no">{{ s.no }}</span><span class="fs-name">{{ s.name }}</span><span class="fs-full">{{ s.full }}</span></div>
+          <div class="fs-sub">AI 承担</div>
+          <div class="fs-fns">
+            {% for f in s.ai %}
+            <div class="fn {{ f.kind }}{% if f.mvp %} mvp{% endif %}"><em>{% if f.kind == 'hybrid' %}🤝{% elif f.kind == 'manual' %}👤{% else %}🤖{% endif %}</em>{{ f.text }}</div>
+            {% endfor %}
+          </div>
+          {% if s.human %}<div class="fs-human"><b>人承担</b>{{ s.human }}</div>{% endif %}
+          {% if s.nonAi %}<div class="fs-nonai"><b>非 AI</b> · {{ s.nonAi }}</div>{% endif %}
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% if flowFoot %}
+    <div class="flow-foot">
+      {% for n in flowFoot %}<span>{{ n }}</span>{% endfor %}
+    </div>
+    {% endif %}
+  </section>
+
+  <!-- 3 AI 与人分工表 -->
+  <section id="loop">
+    <div class="sec-head"><div class="sec-no">3</div><h2>AI 与人各承担什么</h2></div>
+    <table class="loop">
+      <thead><tr><th style="width:200px;">阶段</th><th>AI 承担</th><th style="width:240px;">人承担</th><th style="width:90px;">范围</th></tr></thead>
+      <tbody>
+        {% for d in division %}
+        <tr{% if d.scope == 'now' %} class="hit"{% endif %}>
+          <td class="ph">{{ d.stage }}<span>{{ d.full }}</span></td>
+          <td>{{ d.ai }}</td>
+          <td>{{ d.human }}</td>
+          <td>{% if d.scope == 'now' %}<span class="tag now">本轮</span>{% elif d.scope == 'next' %}<span class="tag next">下一步</span>{% else %}<span class="tag later">后续</span>{% endif %}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </section>
+
+  <!-- 4 第一期范围与试点 -->
+  <section id="entry">
+    <div class="sec-head"><div class="sec-no">4</div><h2>建议第一期范围</h2></div>
+    {% if phase1.lead %}<p class="sec-lead">{{ phase1.lead }}</p>{% endif %}
+    <div class="entry-grid" style="grid-template-columns:repeat({{ phase1.focus | length }},1fr);">
+      {% for f in phase1.focus %}
+      <div class="entry key">
+        <div class="et">{{ f.title }}</div>
+        <div class="es">{{ f.subtitle }}</div>
+        <div class="eb">
+          {% for r in f.rows %}
+          <div class="er"><span class="k">{{ r.k }}</span><p>{{ r.v }}</p></div>
+          {% endfor %}
+          {% if f.output %}<div class="er out"><span class="k">产出</span><p>{{ f.output }}</p></div>{% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% if phase1.pilot %}
+    <div class="pilot">
+      <div class="pc">
+        <h4>业务范围</h4>
+        <ul>{% for x in phase1.pilot.business %}<li>{{ x }}</li>{% endfor %}</ul>
+      </div>
+      <div class="pc">
+        <h4>选点依据</h4>
+        <ul>{% for x in phase1.pilot.rationale %}<li>{{ x }}</li>{% endfor %}</ul>
+      </div>
+    </div>
+    {% endif %}
+  </section>
+
+  <!-- 5 落地路线图 -->
+  <section id="roadmap">
+    <div class="sec-head"><div class="sec-no">5</div><h2>落地路线图</h2></div>
+    <div class="rmap">
+      {% for r in roadmap %}
+      <div class="rp p{{ loop.index }}">
+        <div class="rp-head"><span class="rp-no">{{ r.phase }}</span>{% if r.tag %}<span class="rp-tag">{{ r.tag }}</span>{% endif %}</div>
+        <div class="rp-title">{{ r.title }}</div>
+        <div class="rp-card"><div class="rp-body">
+          {% for row in r.rows %}
+          <div class="rpr{% if row.hl %} hl{% endif %}"><span class="k">{{ row.k }}</span><p>{{ row.v }}</p></div>
+          {% endfor %}
+        </div></div>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+
+  <!-- 6 客户确认事项 -->
+  <section id="confirm">
+    <div class="sec-head"><div class="sec-no">6</div><h2>客户确认事项</h2></div>
+    <p class="sec-lead">以下事项需客户确认后方可进入详细设计（<strong>施工级方案</strong>）。</p>
+    <table class="confirm">
+      <thead><tr><th style="width:34%;">待确认事项</th><th>影响</th><th style="width:18%;">需谁拍板</th></tr></thead>
+      <tbody>
+        {% for c in confirm %}
+        <tr><td class="item">{{ c.item }}</td><td>{{ c.impact }}</td><td>{{ c.owner }}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </section>
+
+</main>
+
+<footer>
+  {{ meta.product }} · {{ meta.title }} · {{ meta.version }} · {{ meta.basis }} · {{ meta.date }}
+</footer>
+
+<textarea id="yamlSrc" rows="1" style="display:none">RAW_YAML_PLACEHOLDER</textarea>
+<script>
+function copyYaml(){
+  const src = document.getElementById('yamlSrc').value;
+  navigator.clipboard.writeText(src).then(()=>{ alert('✅ YAML 已复制'); })
+    .catch(()=>{ window.prompt('复制失败，请手动复制：', src); });
+}
+</script>
+</body>
+</html>

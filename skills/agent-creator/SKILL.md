@@ -28,7 +28,7 @@ Skill」组合成一个可被 `@Agent` 调用的编排层。它**不**教用户�
 1. **组合对象是 Skill，不是需求**：确认要组合的技能全部已落地在 `skills/<x>/SKILL.md`
    （唯一源头）；不存在则先走 `skill-creator` 创建，再来编排。
 2. **粒度一致，不混级**：一个 Agent 只组合同一粒度的 Skill。
-   - 场景级示例：`mvp-prototype` = `agent-product-proposal-generator` +
+   - 场景级示例：`mvp-prototype` = `agentic-product-proposal-generator` +
      `ai-product-journey-generator` + `prototype-generator` + `ux-optimizer`。
    - 「用户故事级」技能（故事详述 / Story 原型等）属另一套更细粒度流程，**不得混入**场景级 Agent。
 3. **与既有 9 个 Agent 不重叠**：`nsm-analyst`、`client-insight-advisor`、
