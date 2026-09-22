@@ -15,6 +15,7 @@ journey:                                   # 承接 persona journey 的端到端
   jobStory: "当 [情境] ，我想要 [动机] ，以便 [预期结果]"
   start: "<起点：目标触发>"
   end: "<终点：目标完成>"
+  participants: "<参与角色：主责 + 参与 / 知会（一条旅程可跨角色）>"
   productTouchpoints: "<产品介入点：AI 在哪几步帮忙>"
 
 persona:                                   # 单一画像（细化）

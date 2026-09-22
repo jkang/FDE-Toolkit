@@ -242,6 +242,7 @@ def compile_to_be(yaml_path, output_html_path):
         "jobStory": ensure_str(journey.get("jobStory")),
         "start": ensure_str(journey.get("start")),
         "end": ensure_str(journey.get("end")),
+        "participants": ensure_str(journey.get("participants")),
         "productTouchpoints": ensure_str(journey.get("productTouchpoints")),
     }
 

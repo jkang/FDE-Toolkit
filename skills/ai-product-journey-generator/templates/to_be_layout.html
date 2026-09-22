@@ -434,6 +434,7 @@
     </div>
     {% if journey %}
     <div class="journey-block">
+      <div class="jb-item"><span class="jb-k">参与角色</span><span class="jb-v">{{ journey.participants }}</span></div>
       <div class="jb-item"><span class="jb-k">用户目标</span><span class="jb-v">{{ journey.jobStory }}</span></div>
       <div class="jb-item"><span class="jb-k">起点 → 终点</span><span class="jb-v">{{ journey.start }} → {{ journey.end }}</span></div>
       <div class="jb-item"><span class="jb-k">产品介入点</span><span class="jb-v">{{ journey.productTouchpoints }}</span></div>

@@ -58,6 +58,7 @@
 | `jobStory` | 用户目标 | `当 [情境] ，我想要 [动机] ，以便 [预期结果]` |
 | `start` | 起点（目标触发） | 1 句 |
 | `end` | 终点（目标完成） | 1 句 |
+| `participants` | 参与角色 | `主责 + 参与 / 知会`（一条旅程可跨角色） |
 | `productTouchpoints` | 产品介入点 | 1 句，标明 AI 在哪几步帮忙 |
 
 ### persona（单一）
@@ -109,6 +110,7 @@ journey:
   jobStory:
   start:
   end:
+  participants:
   productTouchpoints:
 persona:
   id:
