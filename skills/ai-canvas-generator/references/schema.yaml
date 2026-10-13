@@ -7,9 +7,10 @@ userPains:
   - 每周写周报需要花1小时回忆做过的事
   - 经常遗漏解决过的小bug或沟通事项
   - 文笔不好，被Leader挑刺表达不够结构化
+# aiInput = 场景输入（场景级触发入口）：触发事件 + 启动时一次性带入的原始信息
 aiInput:
-  - 指定周报的始末时间(默认本周)
-  - 人工补充的一段额外高优关注事项(选填)
+  - 研发在周期切换时发起「生成本周周报」，触发本场景启动
+  - 带入：周报始末时间(默认本周)、一段额外高优关注事项(选填)
 dataKnowledge:
   - Jira/飞书项目本周被认领并完结的Issue/Task
   - 该员工本周在Gitlab上的核心Commit记录摘要
@@ -28,9 +29,11 @@ workflow:
 modelUsage:
   - 核心编排：Gpt-4o 或 Claude 3.5 Sonnet
   - 要求优秀的上下文归纳整理能力，防止代码流水账
+# aiOutput = 场景输出（场景级交付出口）：对外交付物 + 业务结果/状态
 aiOutput:
-  - 按“本周核心进展”、“问题与风险”、“下周计划”三段式输出的Markdown文本
-# systemIntegration = 工具调用/系统集成：写明要调用/集成的上下游系统，以及集成方向
+  - 三段式 Markdown 周报（本周核心进展 / 问题与风险 / 下周计划）对外交付
+  - 周报状态置为「已提交」并同步至项目管理工具
+# systemIntegration = 集成系统：工具调用 / MCP / 上下游系统，注明方向与用途
 systemIntegration:
   - system: Jira / 飞书项目
     direction: upstream

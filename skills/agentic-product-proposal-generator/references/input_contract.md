@@ -29,10 +29,10 @@
 
 | 关键字段 | 映射到 |
 |---|---|
-| userRoles / userPains | 第1段·主要使用者、第1段·定位一句话、第1段·Agent 人格语气 |
-| aiInput / dataKnowledge | 第2段·主交互区（输入/知识）、第3段·演示剧本 mock、第4段·功能 |
-| workflow / modelUsage | 第2段·编排、第5段·让用户看到什么（工具调用/系统集成） |
-| aiOutput / systemIntegration | 第3段·Agent 输出、第4段·UI 组件 |
+| userRoles / userPains | 第1段·主要使用者（目标用户）、第1段·定位一句话、第1段·Agent 人格语气、第1段·场景痛点 |
+| aiInput / dataKnowledge | 第2段·主交互区（场景输入·触发入口 / 知识）、第3段·演示剧本 mock、第4段·功能 |
+| workflow / modelUsage | 第2段·编排、第5段·让用户看到什么（核心能力·方案假设） |
+| aiOutput / systemIntegration | 第3段·Agent 输出（场景输出·交付出口）、第4段·UI 组件（集成系统） |
 | productType / businessGains | 第1段·产品形态、第1段·定位一句话、第3段·业务价值高光（KPI） |
 | 场景边界 / 相邻系统 | 第1段·非目标、第2段·相邻产品 |
 

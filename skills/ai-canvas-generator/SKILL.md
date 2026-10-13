@@ -39,19 +39,27 @@ AI Canvas 画布展现为 10 个业务模块分布于 5 列之中，具有特定
 
 | 列索引 | 包含维度 | 颜色标识 (Macaron Theme) |
 |--------|----------|--------------------------|
-| **1（用户与痛点）** | `userRoles` (用户角色), `userPains` (用户痛点) | Rose 粉红 |
-| **2（输入与数据）** | `aiInput` (AI 输入), `dataKnowledge` (知识/数据) | Amber 琥珀 |
-| **3（处理与模型）** | `workflow` (新人机流程), `modelUsage` (模型使用) | Sky 天蓝 |
-| **4（输出与集成）** | `aiOutput` (AI 输出), `systemIntegration` (工具调用/系统集成) | Violet 紫罗兰 |
+| **1（用户与痛点）** | `userRoles` (目标用户), `userPains` (场景痛点) | Rose 粉红 |
+| **2（输入与数据）** | `aiInput` (场景输入·触发入口), `dataKnowledge` (知识/数据) | Amber 琥珀 |
+| **3（处理与模型）** | `workflow` (新人机流程), `modelUsage` (核心能力·方案假设) | Sky 天蓝 |
+| **4（输出与集成）** | `aiOutput` (场景输出·交付出口), `systemIntegration` (集成系统) | Violet 紫罗兰 |
 | **5（产品与收益）** | `productType` (产品形态), `businessGains` (业务收益) | Emerald 翡翠绿 |
 
 > **维度口径说明（区别于旧版）**：
+> - `userRoles`（目标用户）：对齐「机会点定义」 e2 业务角色；`userPains`（场景痛点）：对齐
+>   「问题定义」的场景 + 痛点 + 根因。
+> - `aiInput`（场景输入）：**场景级"触发入口"**——触发本场景启动的业务事件 + 启动时由人/上游
+>   **一次性带入的原始信息**；**不写**处理时参照的知识/规则（→ `dataKnowledge`），
+>   也**不写**各中间环节的临时输入（→ `workflow`）。
+> - `aiOutput`（场景输出）：**场景级"交付出口"**——场景对外交付的最终产物 + 业务结果/状态变化；
+>   **不写**系统回写/通知（→ `systemIntegration`），也**不写**量化 KPI（→ `businessGains`）。
 > - `workflow`：不再是无主体的“AI 处理步骤罗列”，而是**改造后的完整新人机流程**（参考 To-be 流程但粗颗粒度）；
 >   每步用 `{actor, action}` 标记执行主体（human 人 / agent Agent / hybrid 人机协同）。
-> - `systemIntegration`（原名 `tools`）：**工具调用/系统集成**，用 `{system, direction, purpose}`
->   写明被调用系统 / 集成方向（upstream 上游输入 / downstream 下游执行回写 / bidirectional 双向）/ 用途，
->   覆盖要集成的上下游信息。
-> - `businessGains`（原名 `userGains`）：**业务收益**（非用户收益），且必须像「机会点定义」那样
+> - `modelUsage`（核心能力）：对齐「机会点定义」e4 方案假设。
+> - `systemIntegration`（集成系统，原名 `tools`）：**工具调用 / MCP / 上下游系统集成**，用
+>   `{system, direction, purpose}` 写明被调用系统 / 集成方向（upstream 上游输入 / downstream 下游执行回写 /
+>   bidirectional 双向）/ 用途，覆盖要集成的上下游信息。
+> - `businessGains`（业务收益，原名 `userGains`）：非用户收益，且必须像「机会点定义」那样
 >   **非常量化**（含明确数字 / 目标值 / 对比基准）。
 
 ---
@@ -59,7 +67,7 @@ AI Canvas 画布展现为 10 个业务模块分布于 5 列之中，具有特定
 ## 工作流 SOP
 
 ### Step 1 · LLM 解析生成
-阅读用户的“AI适用场景”口语化描述，推演出：适用用户、所解决的痛点、AI介入点、输入输出、所需的模型与上下文数据、最终能产生多少业务指标提升等。
+阅读用户的“AI适用场景”口语化描述，推演出：目标用户、所解决的场景痛点、AI介入点、场景触发与交付、所需的模型与上下文数据、最终能产生多少业务指标提升等。
 
 ### Step 2 · 组装产生 YAML
 依据 `references/canvas_prompts.md` 中的系统级铁律（扁平化 List 结构为主），输出防呆契约级 YAML 数据体，**产物保存到 `<公司/业务名>/<场景名>/` 场景子目录**（命名 `[公司/业务名]-[场景名]-AI画布.yaml`；`examples/` 仅存放演示样例）。
