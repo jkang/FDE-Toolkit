@@ -22,6 +22,20 @@
   .tools{display:flex;gap:8px;justify-content:flex-end;margin-bottom:6px}
   .btn{font-size:13px;border:1px solid var(--chipb);background:#fff;color:var(--ink);padding:6px 12px;border-radius:8px;cursor:pointer}
   .btn:hover{background:var(--chip)}
+  .hmw{border:1px solid var(--line);border-radius:14px;background:var(--card);padding:16px 18px;margin:0 0 8px}
+  .hmw-title{font-size:16px;font-weight:700;margin-bottom:12px}
+  .hmw-problem{display:flex;gap:12px;align-items:flex-start;background:#f0f9ff;border-radius:10px;padding:11px 14px;font-size:14px;color:#374151}
+  .hmw-problem-k{flex:0 0 auto;font-weight:700;color:var(--accent)}
+  .hmw-how{font-size:13px;color:var(--sub);margin:12px 2px 12px}
+  .hmw-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .hmw-card{border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:#fff}
+  .hmw-head{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}
+  .hmw-k{flex:0 0 auto;font-size:12px;font-weight:700;color:#fff;background:var(--t-longtail);padding:2px 9px;border-radius:999px}
+  .hmw-q{font-size:14px;font-weight:600;color:var(--ink)}
+  .hmw-ideas{margin:8px 0 0;padding-left:18px}
+  .hmw-ideas li{font-size:13px;color:#374151;margin:3px 0}
+  .hmw-converge{margin-top:12px;background:#fafbfc;border-radius:10px;padding:11px 14px;font-size:13px;color:#374151}
+  @media (max-width:720px){.hmw-grid{grid-template-columns:1fr}}
   .op-card{border:1px solid var(--line);border-radius:14px;background:var(--card);margin:18px 0;overflow:hidden}
   .op-head{padding:14px 18px;border-bottom:1px solid var(--line);background:#fafbfc;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
   .op-name{font-size:17px;font-weight:700;margin-right:auto}
@@ -62,6 +76,23 @@
   </div>
   {% endif %}
 
+  {% if hmw %}
+  <section class="hmw">
+    <div class="hmw-title">HMW 应用 · 把「{{ hmw.problemTitle }}」发散成候选解法</div>
+    <div class="hmw-problem"><span class="hmw-problem-k">业务问题</span><span>{{ hmw.problem }}</span></div>
+    <div class="hmw-how">HMW（How Might We）：把业务问题改写成「我们如何……」的开放式问句——既聚焦、又不锁死方案；再用五个方向逐个发散，一个业务问题可得出多条候选解法。</div>
+    <div class="hmw-grid">
+      {% for d in hmw.directions %}
+      <div class="hmw-card">
+        <div class="hmw-head"><span class="hmw-k">{{ d.key }}</span><span class="hmw-q">{{ d.question }}</span></div>
+        <ul class="hmw-ideas">{% for i in d.ideas %}<li>{{ i }}</li>{% endfor %}</ul>
+      </div>
+      {% endfor %}
+    </div>
+    {% if hmw.converge %}<div class="hmw-converge">{{ hmw.converge }}</div>{% endif %}
+  </section>
+  {% endif %}
+
   {% for o in opportunities %}
   <div class="op-card">
     <div class="op-head">
@@ -71,7 +102,7 @@
       {% if o.capabilityMatch %}<span class="chip">能力：{{ o.capabilityMatch }}</span>{% endif %}
     </div>
     <div class="op-body">
-      {% set labels = {1:'① 机会点一句话描述',2:'② 业务角色及场景',3:'③ 问题痛点',4:'④ 方案假设',5:'⑤ 价值收益'} %}
+      {% set labels = {1:'① 机会点一句话描述',2:'② 业务角色及场景',3:'③ 问题根因',4:'④ 方案假设',5:'⑤ 价值收益'} %}
       {% for k,v in [('E1',o.e1),('E2',o.e2),('E3',o.e3),('E4',o.e4),('E5',o.e5)] %}
       <div class="elem">
         <div class="no">{{ loop.index }}</div>

@@ -208,6 +208,7 @@ def main():
             "actor": ast,
             "actorKey": key,
             "aiFocus": ensure_str(task.get("aiFocus")),
+            "llm": ensure_str(task.get("llm")),
             "inputs": ensure_list(task.get("inputs")),
             "outputs": ensure_list(task.get("outputs")),
             "ruleType": ensure_str(task.get("ruleType")),

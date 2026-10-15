@@ -184,6 +184,17 @@
             border-radius: 999px !important; padding: 2px 9px !important; white-space: nowrap !important;
         }
         .ai-focus-row { display: flex !important; flex-wrap: wrap !important; gap: 5px !important; }
+        /* ===== 大模型（生成式 LLM）使用点：独立高亮 ===== */
+        .llm-pill {
+            display: inline-flex !important; align-items: center !important; gap: 4px !important;
+            font-size: 10px !important; font-weight: 800 !important; letter-spacing: .02em !important;
+            color: #FFFFFF !important; background: linear-gradient(135deg, #4338CA, #7C6BE0) !important;
+            border-radius: 999px !important; padding: 2px 9px !important; white-space: nowrap !important;
+        }
+        .task-card.uses-llm {
+            box-shadow: 0 0 0 2.5px #8B7FE0, 0 6px 16px -7px rgba(67,56,202,0.45) !important;
+            border-color: #8B7FE0 !important;
+        }
 
         .task-top { display: flex !important; align-items: flex-start !important; gap: 8px !important; }
         .actor-badge {
@@ -286,6 +297,7 @@
             <div class="legend-item"><span class="lbl">AI 参与</span>
                 <span class="legend-pill" style="color:#4C4680; background:linear-gradient(180deg,#F5F2FD,#FCFBFE); border-color:#D7D0F0;">🤖 紫色底 = AI 参与完成（含人机协同）</span>
                 <span class="legend-pill" style="color:#FFFFFF; background:linear-gradient(135deg,#625D9C,#8A7FC4); border-color:#625D9C;">⚡ AI 核心能力</span>
+                <span class="legend-pill" style="color:#FFFFFF; background:linear-gradient(135deg,#4338CA,#7C6BE0); border-color:#4338CA;">🧠 大模型能力</span>
             </div>
             {% if flow_conventions %}
             <div class="legend-item"><span class="lbl">流程流向</span>
@@ -331,13 +343,13 @@
                     {% set pi = loop.index0 %}
                     <div class="phase-cell">
                         {% for card in grid[li][pi] %}
-                        <div class="task-card{% if card.actorKey in ('agent', 'hybrid') %} is-ai{% endif %}" {{ 'style="border-left-color:' ~ card.actor.marker ~ ';"' }}>
+                        <div class="task-card{% if card.actorKey in ('agent', 'hybrid') %} is-ai{% endif %}{% if card.llm %} uses-llm{% endif %}" {{ 'style="border-left-color:' ~ card.actor.marker ~ ';"' }}>
                             <div class="task-top">
                                 <span class="actor-badge" {{ 'style="background:' ~ card.actor.bg ~ '; border-color:' ~ card.actor.border ~ ';"' }} title="{{ card.actor.label }}">{{ card.actor.icon }}</span>
                                 <span class="task-title">{{ card.name }}</span>
                                 <span class="hitl-pill" {{ 'style="color:' ~ card.hitlFocus.fg ~ '; background:' ~ card.hitlFocus.bg ~ '; border-color:' ~ card.hitlFocus.border ~ ';"' }}>HITL {{ card.hitlFocus.label }}</span>
                             </div>
-                            {% if card.aiFocus %}<div class="ai-focus-row"><span class="ai-focus-pill">⚡ AI 核心能力 · {{ card.aiFocus }}</span></div>{% endif %}
+                            {% if card.aiFocus or card.llm %}<div class="ai-focus-row">{% if card.aiFocus %}<span class="ai-focus-pill">⚡ AI 核心能力 · {{ card.aiFocus }}</span>{% endif %}{% if card.llm %}<span class="llm-pill">🧠 大模型 · {{ card.llm }}</span>{% endif %}</div>{% endif %}
                             {% if card.description %}<div class="task-desc">{{ card.description }}</div>{% endif %}
                             {% if card.anchors %}
                             <div class="anchor-row">

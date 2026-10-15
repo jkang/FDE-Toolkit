@@ -148,6 +148,7 @@ def main():
                     "id": ensure_str(t.get("id")),
                     "name": ensure_str(t.get("name")),
                     "actor": ast,
+                    "llm": ensure_str(t.get("llm")),
                 })
                 total_l5 += 1
             is_p0 = bool(grp.get("isP0"))
@@ -220,6 +221,7 @@ def main():
             "ruleType": ensure_str(row.get("ruleType")),
             "exception": ensure_str(row.get("exception")),
             "actor": ast,
+            "llm": ensure_str(row.get("llm")),
         })
 
     # ---- 渲染 ---- #

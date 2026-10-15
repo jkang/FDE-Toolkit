@@ -155,6 +155,8 @@
         .task-item:hover { background: var(--color-bg-alt) !important; }
         .task-item .dot { width: 8px !important; height: 8px !important; border-radius: 50% !important; flex-shrink: 0 !important; }
         .task-item .t-name { flex: 1 1 auto !important; }
+        /* ===== 大模型（生成式 LLM）使用点标记 ===== */
+        .llm-tag { display: inline-flex !important; align-items: center !important; gap: 3px !important; font-size: 9.5px !important; font-weight: 800 !important; color: #FFFFFF !important; background: linear-gradient(135deg,#4338CA,#7C6BE0) !important; border-radius: 6px !important; padding: 1px 6px !important; white-space: nowrap !important; flex-shrink: 0 !important; }
         .stage-arrow { display: flex !important; align-items: center !important; color: var(--color-text-muted) !important; font-size: 16px !important; flex-shrink: 0 !important; }
         .reading-strip {
             display: flex !important; align-items: center !important; flex-wrap: wrap !important; gap: 8px 10px !important;
@@ -275,6 +277,10 @@
                 <span class="legend-pill p0">{{ legend_focus.label }}</span>
             </div>
             {% endif %}
+            <div class="legend-item"><span class="lbl">大模型</span>
+                <span class="llm-tag">🧠 大模型</span>
+                <span style="font-size:11px;color:var(--color-text-muted);">= 该动作使用生成式大模型（理解 / 生成 / 解释）；无此标记 = 确定性规则 / 计算</span>
+            </div>
             {% if legend_convention %}
             <div class="legend-convention">
                 {% for seg in legend_convention %}{{ seg }}{% if not loop.last %}<i>→</i>{% endif %}{% endfor %}
@@ -309,6 +315,7 @@
                             <div class="task-item">
                                 <span class="dot" {{ 'style="background:' ~ task.actor.marker ~ ';"' }}></span>
                                 <span class="t-name">{{ task.name }}</span>
+                                {% if task.llm %}<span class="llm-tag" title="{{ task.llm }}">🧠 大模型</span>{% endif %}
                             </div>
                             {% endfor %}
                         </div>
@@ -383,6 +390,7 @@
                     {% for row in task_table %}
                     <tr>
                         <td class="td-l5">{{ row.l5 }}
+                            {% if row.llm %}<br><span class="llm-tag" title="{{ row.llm }}">🧠 大模型 · {{ row.llm }}</span>{% endif %}
                             {% if row.actor %}<br><span class="actor-chip" {{ 'style="color:' ~ row.actor.text ~ '; background:' ~ row.actor.bg ~ '; border-color:' ~ row.actor.border ~ ';"' }}>{{ row.actor.icon }} {{ row.actor.label }}</span>{% endif %}
                         </td>
                         <td>{{ row.inputs }}</td>

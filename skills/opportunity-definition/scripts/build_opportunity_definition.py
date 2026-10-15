@@ -33,10 +33,12 @@ def load_yaml_robust(path: str) -> dict:
 
 
 def normalize(data: dict) -> dict:
-    meta = data.get("meta") or {}
+    # 保留顶层额外键（如 hmw / 其他可选区块），仅规整 meta 与 opportunities
+    out = dict(data)
+    meta = out.get("meta") or {}
     meta.setdefault("title", "机会点定义")
     meta.setdefault("date", datetime.date.today().isoformat())
-    opps = data.get("opportunities") or []
+    opps = out.get("opportunities") or []
     opps = sorted(opps, key=lambda x: int(x.get("order", 0)))
     assert len(opps) >= 1, "至少 1 个机会点"
     for o in opps:
@@ -44,7 +46,9 @@ def normalize(data: dict) -> dict:
         o.setdefault("rootCauseType", "")
         o.setdefault("capabilityMatch", "")
         o.setdefault("valueBreakdown", [])
-    return {"meta": meta, "opportunities": opps}
+    out["meta"] = meta
+    out["opportunities"] = opps
+    return out
 
 
 def render(data: dict, raw_yaml: str) -> str:
