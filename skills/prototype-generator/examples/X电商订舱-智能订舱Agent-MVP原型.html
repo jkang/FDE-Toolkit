@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>X 智能订舱 Agent</title>
+  <style>
+    :root {
+      --primary: #1f1f1f;
+      --accent: #91caff;
+      --success: #52c41a;
+      --warning: #faad14;
+      --error: #ff4d4f;
+      --info: #1677ff;
+      --text: #1f1f1f;
+      --text-2: #595959;
+      --text-3: #8c8c8c;
+      --border: #d9d9d9;
+      --border-2: #f0f0f0;
+      --bg: #f5f5f5;
+      --sider: #001529;
+      --radius: 8px;
+      --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC",
+              "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      font-family: var(--font); color: var(--text); background: var(--bg);
+      font-size: 13px; line-height: 1.5;
+    }
+    .layout { display: flex; min-height: 100vh; }
+
+    /* 侧边栏 */
+    .sider {
+      width: 216px; flex: 0 0 216px; background: var(--sider);
+      position: sticky; top: 0; height: 100vh; color: #fff;
+    }
+    .brand { display: flex; align-items: center; gap: 10px; height: 56px; padding: 0 16px; }
+    .brand-logo {
+      width: 32px; height: 32px; border-radius: 8px; flex: 0 0 32px;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 17px;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+    }
+    .brand-name { font-weight: 700; font-size: 14px; line-height: 1.2; white-space: nowrap; }
+    .brand-sub { font-size: 10px; opacity: .55; }
+    .nav { margin-top: 8px; }
+    .nav-item {
+      display: block; padding: 9px 16px; color: rgba(255,255,255,.68);
+      text-decoration: none; font-size: 13px; border-radius: 6px; margin: 2px 8px;
+    }
+    .nav-item:hover { color: #fff; background: rgba(255,255,255,.08); }
+    .nav-item.active { color: #fff; background: var(--primary); }
+    .sider-foot {
+      position: absolute; bottom: 16px; left: 16px; right: 16px;
+      font-size: 11px; color: rgba(255,255,255,.35); line-height: 1.6;
+    }
+
+    /* 顶栏 + 内容 */
+    .main { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; }
+    .header {
+      height: 56px; background: #fff; display: flex; align-items: center;
+      justify-content: space-between; padding: 0 24px; position: sticky; top: 0;
+      z-index: 10; box-shadow: 0 1px 4px rgba(0,0,0,.06);
+    }
+    .header-title { font-size: 15px; font-weight: 600; margin: 0; }
+    .header-tag {
+      font-size: 12px; color: var(--text-2); background: var(--bg);
+      border: 1px solid var(--border-2); border-radius: 999px; padding: 3px 12px;
+    }
+    .content { padding: 20px; width: 100%; }
+
+    /* 页面 */
+    .page { display: none; }
+    .page.active { display: block; }
+    .page-head { margin-bottom: 16px; }
+    .page-title { margin: 0; font-size: 17px; font-weight: 600; }
+    .page-desc { margin: 4px 0 0; color: var(--text-3); font-size: 13px; }
+
+    /* 卡片 */
+    .card {
+      background: #fff; border: 1px solid var(--border-2); border-radius: var(--radius);
+      padding: 16px; margin-bottom: 16px;
+    }
+    .card-title { font-size: 14px; font-weight: 600; margin-bottom: 12px; }
+    .muted { color: var(--text-3); font-size: 13px; margin: 0 0 8px; }
+    .empty { color: var(--text-3); text-align: center; padding: 24px 0; }
+
+    /* 步骤条 */
+    .steps { display: flex; flex-wrap: wrap; gap: 12px; }
+    .step { display: flex; align-items: center; gap: 8px; color: var(--text-3); font-size: 12px; }
+    .step-dot {
+      width: 22px; height: 22px; border-radius: 50%; display: inline-flex;
+      align-items: center; justify-content: center; font-size: 12px;
+      background: var(--bg); color: var(--text-3); border: 1px solid var(--border);
+    }
+    .step.active .step-dot { background: var(--primary); color: #fff; border-color: var(--primary); }
+    .step.done .step-dot { background: #e6f4ff; color: var(--info); border-color: #91caff; }
+    .step.active .step-t, .step.done .step-t { color: var(--text); }
+
+    /* 指标卡 */
+    .stat-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 16px; }
+    .stat {
+      background: #fff; border: 1px solid var(--border-2); border-radius: var(--radius); padding: 16px;
+    }
+    .stat-label { font-size: 12px; color: var(--text-3); margin-bottom: 6px; }
+    .stat-value { font-size: 24px; font-weight: 600; line-height: 1.2; }
+    .stat-suffix { font-size: 13px; font-weight: 400; color: var(--text-3); margin-left: 2px; }
+
+    /* 上传 */
+    .uploader {
+      display: block; border: 1px dashed var(--border); border-radius: var(--radius);
+      padding: 28px; text-align: center; cursor: pointer; background: #fafafa;
+    }
+    .uploader:hover { border-color: var(--primary); }
+    .upload-ico { font-size: 28px; color: var(--primary); }
+    .upload-text { font-size: 14px; color: var(--text-2); margin: 8px 0 4px; }
+    .upload-hint { font-size: 12px; color: var(--text-3); }
+    .upload-name { font-size: 12px; color: var(--success); margin-top: 6px; }
+
+    /* 按钮 */
+    .btn {
+      display: inline-flex; align-items: center; gap: 6px; font-family: var(--font);
+      font-size: 13px; height: 32px; padding: 0 15px; margin-top: 12px;
+      border: 1px solid var(--border); border-radius: 6px; background: #fff;
+      color: var(--text); cursor: pointer;
+    }
+    .btn:hover { border-color: var(--primary); color: var(--primary); }
+    .btn-primary { background: var(--primary); border-color: var(--primary); color: #fff; }
+    .btn-primary:hover { color: #fff; opacity: .88; }
+    .btn[disabled] { opacity: .55; cursor: progress; }
+    .btn-row { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 16px; }
+    .btn-row .btn { margin-top: 0; }
+
+    /* 告警 */
+    .alert { border-radius: var(--radius); padding: 12px 16px; margin-bottom: 16px; border: 1px solid; }
+    .alert-msg { font-weight: 600; }
+    .alert-desc { font-size: 12px; margin-top: 4px; opacity: .85; }
+    .alert-info { background: #e6f4ff; border-color: #91caff; color: #0958d9; }
+    .alert-success { background: #f6ffed; border-color: #b7eb8f; color: #389e0d; }
+    .alert-warning { background: #fffbe6; border-color: #ffe58f; color: #d48806; }
+    .alert-error { background: #fff2f0; border-color: #ffccc7; color: #cf1322; }
+
+    /* 表格 */
+    .tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .tbl th, .tbl td { border-bottom: 1px solid var(--border-2); padding: 8px 12px; text-align: left; }
+    .tbl th { background: #fafafa; color: var(--text-2); font-weight: 600; font-size: 12px; }
+    .tbl tr:hover td { background: #fafafa; }
+
+    /* 标签 */
+    .tag { display: inline-block; padding: 0 8px; height: 22px; line-height: 20px; font-size: 12px; border-radius: 4px; border: 1px solid; }
+    .tag-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+    .tag-success { background: #f6ffed; border-color: #b7eb8f; color: #389e0d; }
+    .tag-processing { background: #e6f4ff; border-color: #91caff; color: #0958d9; }
+    .tag-warning { background: #fffbe6; border-color: #ffe58f; color: #d48806; }
+    .tag-error { background: #fff2f0; border-color: #ffccc7; color: #cf1322; }
+    .tag-default { background: #fafafa; border-color: var(--border); color: var(--text-2); }
+    .tag-blue { background: #e6f4ff; border-color: #91caff; color: #0958d9; }
+    .tag-geekblue { background: #f0f5ff; border-color: #adc6ff; color: #1d39c4; }
+    .tag-cyan { background: #e6fffb; border-color: #87e8de; color: #08979c; }
+    .tag-gold { background: #fffbe6; border-color: #ffe58f; color: #d48806; }
+    .tag-orange { background: #fff7e6; border-color: #ffd591; color: #d46b08; }
+    .tag-green { background: #f6ffed; border-color: #b7eb8f; color: #389e0d; }
+    .tag-lime { background: #fcffe6; border-color: #eaff8f; color: #7cb305; }
+    .tag-red { background: #fff2f0; border-color: #ffccc7; color: #cf1322; }
+    .tag-purple { background: #f9f0ff; border-color: #d3adf7; color: #531dab; }
+    .tag-magenta { background: #fff0f6; border-color: #ffadd2; color: #c41d7f; }
+
+    /* 时间线 */
+    .timeline { list-style: none; margin: 0; padding: 4px 0 0 4px; }
+    .tl-item { display: flex; align-items: center; gap: 10px; padding: 6px 0; }
+    .tl-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--info); display: inline-block; }
+    .tl-success { background: var(--success); }
+    .tl-warning { background: var(--warning); }
+    .tl-red, .tl-error { background: var(--error); }
+    .tl-default { background: var(--text-3); }
+    .tl-cyan { background: #13c2c2; }
+    .tl-gold { background: #faad14; }
+
+    /* 键值 / 结果 */
+    .kv-row { display: flex; gap: 8px; margin-bottom: 6px; }
+    .kv-k { font-weight: 600; min-width: 96px; flex: 0 0 auto; color: var(--text-2); }
+    .pre { background: #fafafa; padding: 12px; border-radius: var(--radius); white-space: pre-wrap; font-size: 12px; margin: 0; }
+
+    /* 对话 */
+    .chat-area { min-height: 72px; margin-bottom: 12px; }
+    .chat-bubble { background: #e6f4ff; border: 1px solid #91caff; color: #0958d9; border-radius: 8px; padding: 10px 12px; white-space: pre-wrap; }
+    .chat-input { display: flex; gap: 8px; }
+    .chat-input input {
+      flex: 1; height: 32px; padding: 0 10px; border: 1px solid var(--border);
+      border-radius: 6px; font-family: var(--font); font-size: 13px;
+    }
+    .chat-input .btn { margin-top: 0; }
+    .chat-sugg { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 10px; }
+    .sugg-label { font-size: 12px; color: var(--text-3); }
+    .chip {
+      font-family: var(--font); font-size: 12px; height: 24px; padding: 0 10px;
+      border: 1px solid #91caff; background: #e6f4ff; color: #0958d9;
+      border-radius: 4px; cursor: pointer;
+    }
+    .chip:hover { background: #d6e9ff; }
+
+    /* 表单 */
+    .form-row { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+    .form-label { min-width: 96px; color: var(--text-2); }
+    .form-row input, .form-row select {
+      width: 260px; height: 32px; padding: 0 10px; border: 1px solid var(--border);
+      border-radius: 6px; font-family: var(--font); font-size: 13px; background: #fff;
+    }
+    .form .btn { margin-top: 4px; }
+
+    @media (max-width: 900px) {
+      .stat-row { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside class="sider">
+      <div class="brand">
+        <div class="brand-logo">X</div>
+        <div>
+          <div class="brand-name">X 智能订舱 Agent</div>
+          <div class="brand-sub">AI-POWERED MVP</div>
+        </div>
+      </div>
+      <nav class="nav">
+        
+        <a class="nav-item" data-route="/dashboard" href="#/dashboard">工作台总览</a>
+        
+        <a class="nav-item" data-route="/chat-quote" href="#/chat-quote">对话询价</a>
+        
+        <a class="nav-item" data-route="/recommend-confirm" href="#/recommend-confirm">舱位推荐与一键订舱</a>
+        
+        <a class="nav-item" data-route="/document-si" href="#/document-si">单证预填与补件</a>
+        
+        <a class="nav-item" data-route="/tracking-alert" href="#/tracking-alert">出运跟踪与预警</a>
+        
+        <a class="nav-item" data-route="/payment-aftercare" href="#/payment-aftercare">支付与售后复购</a>
+        
+      </nav>
+      <div class="sider-foot">
+        供应链物流<br />
+        王静（SME 货主直客）<br />陈浩（订舱操作员）<br />林晓（人工客服 CSR）
+      </div>
+    </aside>
+    <div class="main">
+      <header class="header">
+        <h1 class="header-title" id="topTitle">工作台</h1>
+        <span class="header-tag">X 智能订舱 Agent</span>
+      </header>
+      <main class="content">
+<section class="page" data-route="/dashboard" data-id="dashboard">
+<div class="page-head">
+<h2 class="page-title">工作台总览</h2>
+<p class="page-desc">北极星贡献看板：电商订舱渗透率 25%[推断] → 40%（phase3 口径）</p>
+</div>
+<div class="card"><div class="steps"><div class="step active"><span class="step-dot">1</span><span class="step-t">对话询价</span></div><div class="step"><span class="step-dot">2</span><span class="step-t">舱位推荐</span></div><div class="step"><span class="step-dot">3</span><span class="step-t">一键订舱</span></div><div class="step"><span class="step-dot">4</span><span class="step-t">单证预填</span></div><div class="step"><span class="step-dot">5</span><span class="step-t">出运跟踪</span></div></div></div>
+<div class="stat-row"><div class="stat"><div class="stat-label">电商订舱渗透率（当前）</div><div class="stat-value">25<span class="stat-suffix">% [推断]</span></div></div><div class="stat"><div class="stat-label">目标渗透率（12 个月）</div><div class="stat-value">40<span class="stat-suffix">%</span></div></div><div class="stat"><div class="stat-label">在线订舱确认时效</div><div class="stat-value">≤2h<span class="stat-suffix"></span></div></div><div class="stat"><div class="stat-label">AI 服务分流率</div><div class="stat-value">30<span class="stat-suffix">%+</span></div></div></div>
+<div class="alert alert-info"><div class="alert-msg">场景定位：智能订舱 Agent（优先级 Top 6 · 7.35 分，高认知辅助）</div><div class="alert-desc">将 AI 客服（Ask Fin/小飞）从问答升级为可执行订舱的 Agent：报价解读、舱位推荐、订舱操作、单证预填、异常补件（来源：AI 场景优先级矩阵 G02）</div></div>
+<div class="card"><div class="card-title">我的电商订舱</div><table class="tbl"><thead><tr><th>订舱号</th><th>航线</th><th>船名航次</th><th>ETD</th><th>运价</th><th>状态</th></tr></thead><tbody><tr><td>BK-2026-0901-001</td><td>上海→洛杉矶</td><td>X-PRIDE 101E</td><td>2026-09-12</td><td>USD 2,450</td><td><span class="tag tag-processing">待装柜</span></td></tr><tr><td>BK-2026-0901-002</td><td>宁波→汉堡</td><td>X-HARMONY 201E</td><td>2026-09-15</td><td>USD 2,780</td><td><span class="tag tag-success">已开船</span></td></tr><tr><td>BK-2026-0901-003</td><td>上海→鹿特丹</td><td>X-VOYAGER 305E</td><td>2026-09-18</td><td>USD 2,950</td><td><span class="tag tag-warning">待补件</span></td></tr><tr><td>BK-2026-0901-004</td><td>深圳→长滩</td><td>X-PRIDE 103E</td><td>2026-09-20</td><td>USD 2,520</td><td>已放舱</td></tr><tr><td>BK-2026-0901-005</td><td>上海→悉尼</td><td>X-AURORA 207E</td><td>2026-09-22</td><td>USD 3,180</td><td>改配中</td></tr><tr><td>BK-2026-0901-006</td><td>深圳→新加坡</td><td>X-ATLAS 105E</td><td>2026-09-10</td><td>USD 980</td><td>已到港</td></tr><tr><td>BK-2026-0901-007</td><td>青岛→纽约</td><td>X-VOYAGER 311E</td><td>2026-09-08</td><td>USD 3,050</td><td>退关</td></tr><tr><td>BK-2026-0901-008</td><td>宁波→迪拜</td><td>X-HARMONY 209E</td><td>2026-09-05</td><td>USD 1,860</td><td>已完成</td></tr></tbody></table></div>
+<div class="btn-row"><button class="btn btn-primary" data-nav="/chat-quote">开始对话询价</button><button class="btn" data-nav="/tracking-alert">查看出运跟踪</button></div>
+</section>
+<section class="page" data-route="/chat-quote" data-id="chat-quote">
+<div class="page-head">
+<h2 class="page-title">对话询价</h2>
+<p class="page-desc">以自然语言发起询价，Agent 实时解读报价与费用构成</p>
+</div>
+<div class="card"><div class="steps"><div class="step done"><span class="step-dot">1</span><span class="step-t">对话询价</span></div><div class="step active"><span class="step-dot">2</span><span class="step-t">舱位推荐</span></div><div class="step"><span class="step-dot">3</span><span class="step-t">一键订舱</span></div><div class="step"><span class="step-dot">4</span><span class="step-t">单证预填</span></div><div class="step"><span class="step-dot">5</span><span class="step-t">出运跟踪</span></div></div></div>
+<div class="card"><div class="card-title">智能订舱 Agent</div><div class="chat-area" id="chat-1"><div class="empty">与 AI 助手对话，获取推荐操作</div></div><div class="chat-input"><input type="text" placeholder="例如：上海到洛杉矶 40HQ，10月8日截关的船有吗？全包价多少？" /><button class="btn btn-primary" data-run="chat-quote::chatQuote" data-action="chatQuote" data-payload="message" data-load="chat-quote::chatQuote">发送</button></div><div class="chat-sugg"><span class="sugg-label">推荐指令：</span><button class="chip" data-run="chat-quote::chatQuote" data-action="chatQuote" data-payload="fixed" data-message="上海→洛杉矶 40HQ 即期报价" data-load="chat-quote::chatQuote">上海→洛杉矶 40HQ 即期报价</button><button class="chip" data-run="chat-quote::chatQuote" data-action="chatQuote" data-payload="fixed" data-message="解读 E-Quote 锁价条款" data-load="chat-quote::chatQuote">解读 E-Quote 锁价条款</button><button class="chip" data-run="chat-quote::chatQuote" data-action="chatQuote" data-payload="fixed" data-message="查询 Space Protection 舱位保证" data-load="chat-quote::chatQuote">查询 Space Protection 舱位保证</button></div></div>
+<div class="card"><div class="card-title">Agent 报价解读</div><div class="result" id="res-2"><div class="empty">触发操作后展示结果</div></div></div>
+<div class="btn-row"><button class="btn btn-primary" data-nav="/recommend-confirm">查看舱位推荐 →</button></div>
+</section>
+<section class="page" data-route="/recommend-confirm" data-id="recommend-confirm">
+<div class="page-head">
+<h2 class="page-title">舱位推荐与一键订舱</h2>
+<p class="page-desc">AI 综合排序推荐 Top 3 舱位方案，对话内一键确认订舱</p>
+</div>
+<div class="card"><div class="steps"><div class="step done"><span class="step-dot">1</span><span class="step-t">对话询价</span></div><div class="step done"><span class="step-dot">2</span><span class="step-t">舱位推荐</span></div><div class="step active"><span class="step-dot">3</span><span class="step-t">一键订舱</span></div><div class="step"><span class="step-dot">4</span><span class="step-t">单证预填</span></div><div class="step"><span class="step-dot">5</span><span class="step-t">出运跟踪</span></div></div></div>
+<div class="btn-row"><button class="btn btn-primary" data-run="recommend-confirm::recommendSpace" data-action="recommendSpace" data-payload="none" data-load="recommend-confirm::recommendSpace">AI 舱位推荐（Top 3）</button></div>
+<div class="card"><div class="card-title">Agent 舱位推荐</div><div class="result" id="res-3"><div class="empty">触发操作后展示结果</div></div></div>
+<div class="alert alert-info"><div class="alert-msg">舱位保证（Space Protection）</div><div class="alert-desc">E-Spot / Secured E-Quote 带舱位保证；电商订舱舱位保证兑现率目标 95%+（KPI 5，phase3 口径）</div></div>
+<div class="btn-row"><button class="btn btn-primary" data-run="recommend-confirm::submitBooking" data-action="submitBooking" data-payload="none" data-load="recommend-confirm::submitBooking">确认并一键订舱</button></div>
+<div class="card"><div class="card-title">订舱确认结果（Booking Confirmation）</div><div class="result" id="res-4"><div class="empty">触发操作后展示结果</div></div></div>
+</section>
+<section class="page" data-route="/document-si" data-id="document-si">
+<div class="page-head">
+<h2 class="page-title">单证预填与补件</h2>
+<p class="page-desc">上传 PI / 装箱单，AI 自动抽取字段预填 SI，缺件实时提示并给出示例</p>
+</div>
+<div class="card"><div class="steps"><div class="step done"><span class="step-dot">1</span><span class="step-t">对话询价</span></div><div class="step done"><span class="step-dot">2</span><span class="step-t">舱位推荐</span></div><div class="step done"><span class="step-dot">3</span><span class="step-t">一键订舱</span></div><div class="step active"><span class="step-dot">4</span><span class="step-t">单证预填</span></div><div class="step"><span class="step-dot">5</span><span class="step-t">出运跟踪</span></div></div></div>
+<div class="card"><div class="card-title">贸易单据（PI / 装箱单 / 发票）</div><label class="uploader"><input type="file" accept=".pdf,.xlsx,.png" hidden onchange="var c=this.closest('.card');c.querySelector('.upload-name').textContent=this.files[0]?this.files[0].name:'';"><div class="upload-ico">&#8679;</div><div class="upload-text">点击或拖拽文件到此处上传</div><div class="upload-hint">示例：PI-2026-0902.pdf + 装箱单-0902.xlsx（自动抽取品名/唛头/件数/毛重/体积/HS）</div><div class="upload-name"></div></label><button class="btn btn-primary" data-run="document-si::parseDocuments" data-action="parseDocuments" data-payload="file" data-load="document-si::parseDocuments">识别并预填 SI</button></div>
+<div class="card"><div class="card-title">SI 预填与校验结果</div><div class="result" id="res-5"><div class="empty">触发操作后展示结果</div></div></div>
+<div class="alert alert-warning"><div class="alert-msg">补件提醒：2 项待补</div><div class="alert-desc">VGM 截止时间、收货人税号缺失。AI 已生成填写示例：VGM 12,900 KG（装柜后过磅）；税号 US/EIN 88-1234567</div></div>
+<div class="btn-row"><button class="btn btn-primary" data-nav="/tracking-alert">完成单证 → 出运跟踪</button></div>
+</section>
+<section class="page" data-route="/tracking-alert" data-id="tracking-alert">
+<div class="page-head">
+<h2 class="page-title">出运跟踪与预警</h2>
+<p class="page-desc">控制塔里程碑实时可见；AI 预测性延误预警与改配方案</p>
+</div>
+<div class="card"><div class="steps"><div class="step done"><span class="step-dot">1</span><span class="step-t">对话询价</span></div><div class="step done"><span class="step-dot">2</span><span class="step-t">舱位推荐</span></div><div class="step done"><span class="step-dot">3</span><span class="step-t">一键订舱</span></div><div class="step done"><span class="step-dot">4</span><span class="step-t">单证预填</span></div><div class="step active"><span class="step-dot">5</span><span class="step-t">出运跟踪</span></div></div></div>
+<div class="stat-row"><div class="stat"><div class="stat-label">预计到港（ETA）</div><div class="stat-value">10-02<span class="stat-suffix"></span></div></div><div class="stat"><div class="stat-label">延误概率 [推断]</div><div class="stat-value">68<span class="stat-suffix">%</span></div></div><div class="stat"><div class="stat-label">在航天数</div><div class="stat-value">12<span class="stat-suffix"> 天</span></div></div><div class="stat"><div class="stat-label">里程碑</div><div class="stat-value">5<span class="stat-suffix">/8</span></div></div></div>
+<div class="btn-row"><button class="btn" data-run="tracking-alert::getTracking" data-action="getTracking" data-payload="none" data-load="tracking-alert::getTracking">刷新实时跟踪</button></div>
+<div class="card"><div class="card-title">控制塔 · 实时里程碑</div><div class="result" id="res-6"><div class="empty">触发操作后展示结果</div></div></div>
+<div class="alert alert-warning"><div class="alert-msg">AI 预测性预警：预计延误 2~3 天 [推断]</div><div class="alert-desc">洛杉矶码头拥堵指数高企 + 上一航次晚到 1.5 天（多源轨迹/码头数据）。建议启用改配方案或 Delay in Transit 保障（2025.12 上线条款）</div></div>
+<div class="btn-row"><button class="btn btn-primary" data-run="tracking-alert::predictDelay" data-action="predictDelay" data-payload="none" data-load="tracking-alert::predictDelay">AI 延误预测 / 生成改配建议</button></div>
+<div class="card"><div class="card-title">改配方案建议</div><div class="result" id="res-7"><div class="empty">触发操作后展示结果</div></div></div>
+<div class="btn-row"><button class="btn btn-primary" data-nav="/payment-aftercare">在线支付运费 →</button></div>
+</section>
+<section class="page" data-route="/payment-aftercare" data-id="payment-aftercare">
+<div class="page-head">
+<h2 class="page-title">支付与售后复购</h2>
+<p class="page-desc">多币种在线支付；D&amp;D 前置透明与会员权益推荐</p>
+</div>
+<div class="card"><div class="steps"><div class="step done"><span class="step-dot">1</span><span class="step-t">对话询价</span></div><div class="step done"><span class="step-dot">2</span><span class="step-t">舱位推荐</span></div><div class="step done"><span class="step-dot">3</span><span class="step-t">一键订舱</span></div><div class="step done"><span class="step-dot">4</span><span class="step-t">单证预填</span></div><div class="step done"><span class="step-dot">5</span><span class="step-t">出运跟踪</span></div></div></div>
+<div class="card"><div class="card-title">在线支付运费</div><div class="form"><div class="form-row"><label class="form-label">订舱号</label><input type="text" data-field="bookingNo" value="" /></div><div class="form-row"><label class="form-label">应付金额</label><input type="text" data-field="amount" value="" /></div><div class="form-row"><label class="form-label">币种</label><select data-field="currency"><option value="USD">USD</option><option value="CNY">CNY</option><option value="EUR">EUR</option></select></div><div class="form-row"><label class="form-label">支付方式</label><select data-field="method"><option value="本地支付">本地支付</option><option value="信用卡">信用卡</option><option value="电汇">电汇</option></select></div></div><button class="btn btn-primary" data-run="payment-aftercare::payOrder" data-action="payOrder" data-payload="form" data-load="payment-aftercare::payOrder">提交</button></div>
+<div class="card"><div class="card-title">支付结果</div><div class="result" id="res-8"><div class="empty">触发操作后展示结果</div></div></div>
+<div class="tag-row"><span class="tag tag-gold">PlumSmart Silver 会员</span><span class="tag tag-blue">舱位保证兑现率 95%+（KPI 5）</span><span class="tag tag-cyan">E-Spot Flash Sale 优先权</span><span class="tag tag-green">24/7 Agent 服务</span></div>
+<div class="alert alert-success"><div class="alert-msg">AI 复购关怀 [推断]</div><div class="alert-desc">基于近 3 个月 12 TEU 订舱量，已为您预留下月美西舱位保证额度；直客（非货代）订单占比目标 40%（KPI 7）</div></div>
+</section>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    const MOCK = {"chatQuote": {"latency": 900, "response": {"reply": "已识别询价意图：上海→洛杉矶 40HQ，期望 ETD 2026-10-08，为您解读 E-Spot 即期报价", "产品": "E-Spot 即期报价", "全包运价": "USD 2,450 / 40HQ", "有效期": "2026-09-30", "费用构成": "海运费 + BAF（不含目的港 THC / D&D）", "市场基准": "SCFI 美西约 USD 2,300~2,600 [推断]", "舱位状态": "可订（Space Protection 舱位保证）"}}, "recommendSpace": {"latency": 1100, "response": {"summary": "按装载率 / ETA 置信度 / 舱位保证综合排序，为您推荐 Top 3 方案", "items": [{"option": "方案 A", "product": "E-Spot 即期", "rate": "USD 2,450/40HQ", "transit": "12 天", "etd": "2026-10-08", "space": "舱位保证", "score": 92}, {"option": "方案 B", "product": "Secured E-Quote 锁价", "rate": "USD 2,580/40HQ", "transit": "14 天", "etd": "2026-10-10", "space": "舱位保证", "score": 88}, {"option": "方案 C", "product": "E-Quote 长协", "rate": "USD 2,380/40HQ", "transit": "15 天", "etd": "2026-10-12", "space": "需确认", "score": 81}, {"option": "方案 D", "product": "E-Spot 即期（中转）", "rate": "USD 2,320/40HQ", "transit": "18 天", "etd": "2026-10-09", "space": "需确认", "score": 76}, {"option": "方案 E", "product": "Secured E-Quote（加班船）", "rate": "USD 2,760/40HQ", "transit": "11 天", "etd": "2026-10-07", "space": "舱位保证", "score": 84}]}}, "submitBooking": {"latency": 800, "response": {"订舱号": "BK-2026-0901-001", "航线": "上海（SHA）→ 洛杉矶（LAX）", "船名航次": "X-PRIDE 101E · ETD 2026-10-08 [推断]", "箱型货量": "1 × 40HQ", "状态": "已确认（Booking Confirmation 已签发）", "确认说明": "最快 1 分钟签发（标准 SME 订单自动校验通过）；平均目标 ≤2h（KPI 3）", "舱位保证": "Space Protection 已生效（兑现率目标 95%+，KPI 5）"}}, "parseDocuments": {"latency": 1200, "response": {"summary": "已识别 PI-2026-0902.pdf + 装箱单-0902.xlsx，SI 预填 8/10 字段通过", "items": [{"field": "品名", "value": "家居收纳用品", "status": "通过"}, {"field": "唛头", "value": "N/M", "status": "通过"}, {"field": "件数", "value": "480 CTNS", "status": "通过"}, {"field": "毛重", "value": "12,480 KG", "status": "待复核"}, {"field": "体积", "value": "42.6 CBM", "status": "通过"}, {"field": "HS 编码", "value": "9403.20", "status": "通过"}, {"field": "VGM 截止时间", "value": "—（缺失）", "status": "缺失"}, {"field": "收货人税号", "value": "—（缺失）", "status": "缺失"}]}}, "predictDelay": {"latency": 1000, "response": {"summary": "AI 预测 ETA 延误概率 68% [推断]，预计延误 2~3 天，为您生成改配方案如下", "items": [{"option": "改配方案 1", "voyage": "X-PRIDE 103E", "etd": "2026-09-15", "impact": "货期 +2 天，舱位保证延续", "status": "推荐"}, {"option": "改配方案 2", "voyage": "X-ATLAS 105E", "etd": "2026-09-18", "impact": "货期 +4 天，可启动 Delay in Transit 赔付预判", "status": "可选"}, {"option": "改配方案 3", "voyage": "X-AURORA 207E", "etd": "2026-09-16", "impact": "货期 +3 天，中转港釜山换装", "status": "可选"}, {"option": "改配方案 4", "voyage": "X-VOYAGER 311E", "etd": "2026-09-20", "impact": "货期 +6 天，直航改中转，成本 -USD 120", "status": "备选"}, {"option": "维持原航次", "voyage": "X-PRIDE 101E", "etd": "2026-09-12", "impact": "货期 +2~3 天，可申请 Delay in Transit 保障", "status": "维持"}]}}, "payOrder": {"latency": 700, "response": {"支付状态": "支付成功", "支付金额": "USD 2,450（≈ CNY 17,640，汇率 7.2，手续费 1.2% [推断]）", "支付方式": "本地支付通道", "发票号": "INV-2026-0903-001", "系统同步": "OMS 状态已同步，单证流程自动继续"}}, "getBookingList": {"latency": 300, "response": {"items": [{"code": "BK-2026-0901-001", "customer": "小米通讯（北京）", "route": "上海→洛杉矶", "vessel": "X-PRIDE 101E", "etd": "2026-09-12", "rate": "USD 2,450", "status": "待装柜"}, {"code": "BK-2026-0901-002", "customer": "比亚迪（深圳）", "route": "宁波→汉堡", "vessel": "X-HARMONY 201E", "etd": "2026-09-15", "rate": "USD 2,780", "status": "已开船"}, {"code": "BK-2026-0901-003", "customer": "美的集团（佛山）", "route": "上海→鹿特丹", "vessel": "X-VOYAGER 305E", "etd": "2026-09-18", "rate": "USD 2,950", "status": "待补件"}, {"code": "BK-2026-0901-004", "customer": "华勤技术（上海）", "route": "深圳→长滩", "vessel": "X-PRIDE 103E", "etd": "2026-09-20", "rate": "USD 2,520", "status": "已放舱"}, {"code": "BK-2026-0901-005", "customer": "宁德时代（宁德）", "route": "上海→悉尼", "vessel": "X-AURORA 207E", "etd": "2026-09-22", "rate": "USD 3,180", "status": "改配中"}, {"code": "BK-2026-0901-006", "customer": "立讯精密（东莞）", "route": "深圳→新加坡", "vessel": "X-ATLAS 105E", "etd": "2026-09-10", "rate": "USD 980", "status": "已到港"}, {"code": "BK-2026-0901-007", "customer": "环球货代（上海）", "route": "青岛→纽约", "vessel": "X-VOYAGER 311E", "etd": "2026-09-08", "rate": "USD 3,050", "status": "退关"}, {"code": "BK-2026-0901-008", "customer": "传音控股（深圳）", "route": "宁波→迪拜", "vessel": "X-HARMONY 209E", "etd": "2026-09-05", "rate": "USD 1,860", "status": "已完成"}]}}, "getTracking": {"latency": 300, "response": {"items": [{"milestone": "订舱确认", "time": "09-01", "status": "完成"}, {"milestone": "提箱/装柜", "time": "09-06", "status": "完成"}, {"milestone": "重箱进场", "time": "09-08", "status": "完成"}, {"milestone": "开船（ETD 09-12）", "time": "09-12", "status": "完成"}, {"milestone": "中转港 · 釜山", "time": "09-18", "status": "进行中"}, {"milestone": "ETA 洛杉矶", "time": "10-02", "status": "待到达"}]}}, "getBookings": {"latency": 300, "response": {"items": [{"code": "BK-2026-0901-001", "customer": "小米通讯（北京）", "route": "上海→洛杉矶", "vessel": "X-PRIDE 101E", "etd": "2026-09-12", "rate": "USD 2,450", "status": "待装柜"}, {"code": "BK-2026-0901-002", "customer": "比亚迪（深圳）", "route": "宁波→汉堡", "vessel": "X-HARMONY 201E", "etd": "2026-09-15", "rate": "USD 2,780", "status": "已开船"}, {"code": "BK-2026-0901-003", "customer": "美的集团（佛山）", "route": "上海→鹿特丹", "vessel": "X-VOYAGER 305E", "etd": "2026-09-18", "rate": "USD 2,950", "status": "待补件"}, {"code": "BK-2026-0901-004", "customer": "华勤技术（上海）", "route": "深圳→长滩", "vessel": "X-PRIDE 103E", "etd": "2026-09-20", "rate": "USD 2,520", "status": "已放舱"}, {"code": "BK-2026-0901-005", "customer": "宁德时代（宁德）", "route": "上海→悉尼", "vessel": "X-AURORA 207E", "etd": "2026-09-22", "rate": "USD 3,180", "status": "改配中"}, {"code": "BK-2026-0901-006", "customer": "立讯精密（东莞）", "route": "深圳→新加坡", "vessel": "X-ATLAS 105E", "etd": "2026-09-10", "rate": "USD 980", "status": "已到港"}, {"code": "BK-2026-0901-007", "customer": "环球货代（上海）", "route": "青岛→纽约", "vessel": "X-VOYAGER 311E", "etd": "2026-09-08", "rate": "USD 3,050", "status": "退关"}, {"code": "BK-2026-0901-008", "customer": "传音控股（深圳）", "route": "宁波→迪拜", "vessel": "X-HARMONY 209E", "etd": "2026-09-05", "rate": "USD 1,860", "status": "已完成"}]}}};
+    const BINDINGS = {"chat-quote::chatQuote": [{"kind": "chat", "elId": "chat-1"}, {"kind": "aiCard", "elId": "res-2", "render": "kv", "columns": []}], "recommend-confirm::recommendSpace": [{"kind": "aiCard", "elId": "res-3", "render": "table", "columns": [{"key": "option", "title": "方案"}, {"key": "product", "title": "产品"}, {"key": "rate", "title": "All-in 运价"}, {"key": "transit", "title": "航程"}, {"key": "etd", "title": "ETD"}, {"key": "space", "title": "舱位状态", "tag": {"舱位保证": "success", "可订": "processing", "需确认": "warning"}}, {"key": "score", "title": "推荐指数"}]}], "recommend-confirm::submitBooking": [{"kind": "aiCard", "elId": "res-4", "render": "kv", "columns": []}], "document-si::parseDocuments": [{"kind": "aiCard", "elId": "res-5", "render": "table", "columns": [{"key": "field", "title": "字段"}, {"key": "value", "title": "识别值"}, {"key": "status", "title": "校验状态", "tag": {"通过": "success", "待复核": "warning", "缺失": "error"}}]}], "tracking-alert::getTracking": [{"kind": "aiCard", "elId": "res-6", "render": "table", "columns": [{"key": "milestone", "title": "节点"}, {"key": "time", "title": "时间"}, {"key": "status", "title": "状态", "tag": {"完成": "success", "进行中": "processing", "待到达": "default"}}]}], "tracking-alert::predictDelay": [{"kind": "aiCard", "elId": "res-7", "render": "table", "columns": [{"key": "option", "title": "方案"}, {"key": "voyage", "title": "航次"}, {"key": "etd", "title": "ETD"}, {"key": "impact", "title": "货期影响"}, {"key": "status", "title": "状态", "tag": {"推荐": "success", "可选": "default"}}]}], "payment-aftercare::payOrder": [{"kind": "aiCard", "elId": "res-8", "render": "kv", "columns": []}]};
+    const TAG_COLOR = { success:'success', processing:'processing', warning:'warning', error:'error',
+      default:'default', blue:'blue', arcoblue:'blue', geekblue:'geekblue', cyan:'cyan', gold:'gold',
+      orange:'orange', volcano:'red', red:'red', green:'green', lime:'lime', purple:'purple', magenta:'magenta' };
+
+    function esc(v) {
+      if (v === null || v === undefined) return '';
+      return String(v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+    function tagClass(c) { return 'tag tag-' + (TAG_COLOR[c] || 'default'); }
+
+    async function callApi(name, payload) {
+      const m = MOCK[name];
+      if (!m) return { error: '未定义的接口：' + name + '（请检查 actions.name 与 aiMocks/businessMocks.name 是否一致）' };
+      await new Promise(function (r) { setTimeout(r, m.latency || 400); });
+      return JSON.parse(JSON.stringify(m.response));
+    }
+
+    function renderTable(columns, items) {
+      let h = '<table class="tbl"><thead><tr>';
+      (columns || []).forEach(function (c) { h += '<th>' + esc(c.title || c.key) + '</th>'; });
+      h += '</tr></thead><tbody>';
+      (items || []).forEach(function (row) {
+        h += '<tr>';
+        (columns || []).forEach(function (c) {
+          const v = row[c.key];
+          if (c.tag && c.tag[v]) h += '<td><span class="' + tagClass(c.tag[v]) + '">' + esc(v) + '</span></td>';
+          else h += '<td>' + esc(v) + '</td>';
+        });
+        h += '</tr>';
+      });
+      h += '</tbody></table>';
+      return h;
+    }
+
+    function renderAiCard(b, data) {
+      const el = document.getElementById(b.elId);
+      if (!el) return;
+      if (data && data.error) { el.innerHTML = '<div class="alert alert-error">' + esc(data.error) + '</div>'; return; }
+      if (b.render === 'table') {
+        let h = '';
+        if (data && data.summary) h += '<p class="muted">' + esc(data.summary) + '</p>';
+        h += renderTable(b.columns, (data && data.items) || []);
+        el.innerHTML = h;
+      } else if (b.render === 'kv') {
+        let h = '<div class="kv">';
+        Object.keys(data || {}).forEach(function (k) {
+          if (k === 'error') return;
+          let v = data[k];
+          if (typeof v !== 'string') v = JSON.stringify(v);
+          h += '<div class="kv-row"><span class="kv-k">' + esc(k) + '：</span><span class="kv-v">' + esc(v) + '</span></div>';
+        });
+        el.innerHTML = h + '</div>';
+      } else {
+        el.innerHTML = '<pre class="pre">' + esc(JSON.stringify(data, null, 2)) + '</pre>';
+      }
+    }
+
+    function renderChat(b, data) {
+      const el = document.getElementById(b.elId);
+      if (!el) return;
+      if (data && data.error) { el.innerHTML = '<div class="alert alert-error">' + esc(data.error) + '</div>'; return; }
+      let text = data && data.reply !== undefined ? data.reply : JSON.stringify(data, null, 2);
+      el.innerHTML = '<div class="chat-bubble">' + esc(text) + '</div>';
+    }
+
+    function setLoading(key, on) {
+      document.querySelectorAll('[data-load="' + key + '"]').forEach(function (b) {
+        b.disabled = on;
+      });
+    }
+
+    function payloadFor(btn) {
+      const kind = btn.dataset.payload || 'none';
+      const card = btn.closest('.card');
+      if (kind === 'file') {
+        const f = card && card.querySelector('input[type=file]');
+        return { file: f && f.files[0] ? f.files[0].name : '示例文件.xlsx' };
+      }
+      if (kind === 'form') {
+        const o = {};
+        card.querySelectorAll('[data-field]').forEach(function (i) { o[i.dataset.field] = i.value; });
+        return o;
+      }
+      if (kind === 'message') {
+        const i = card && card.querySelector('.chat-input input');
+        return { message: i ? i.value : '' };
+      }
+      if (kind === 'fixed') return { message: btn.dataset.message || '' };
+      return {};
+    }
+
+    async function run(key, action, payload) {
+      setLoading(key, true);
+      let data;
+      try { data = await callApi(action, payload || {}); }
+      catch (e) { data = { error: String((e && e.message) || e) }; }
+      (BINDINGS[key] || []).forEach(function (b) {
+        if (b.kind === 'aiCard') renderAiCard(b, data);
+        else if (b.kind === 'chat') renderChat(b, data);
+      });
+      setLoading(key, false);
+    }
+
+    function showRoute() {
+      const pages = document.querySelectorAll('.page');
+      if (!pages.length) return;
+      let h = location.hash;
+      if (!h) h = '#' + pages[0].dataset.route;
+      pages.forEach(function (p) { p.classList.toggle('active', '#' + p.dataset.route === h); });
+      document.querySelectorAll('.nav-item').forEach(function (n) {
+        n.classList.toggle('active', '#' + n.dataset.route === h);
+      });
+      const t = document.querySelector('.page.active .page-title');
+      document.getElementById('topTitle').textContent = t ? t.textContent : '工作台';
+    }
+
+    document.addEventListener('click', function (e) {
+      const nav = e.target.closest('[data-nav]');
+      if (nav) { location.hash = nav.dataset.nav; return; }
+      const btn = e.target.closest('[data-run]');
+      if (btn) run(btn.dataset.run, btn.dataset.action, payloadFor(btn));
+    });
+    window.addEventListener('hashchange', showRoute);
+    document.addEventListener('DOMContentLoaded', showRoute);
+    showRoute();
+  </script>
+</body>
+</html>

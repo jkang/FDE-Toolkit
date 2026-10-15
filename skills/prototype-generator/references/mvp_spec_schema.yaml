@@ -1,14 +1,14 @@
 # =============================================================
 # MVP 设计规格 (mvp_spec) 数据契约 · 标准示例
 # 由 LLM 从「AI Canvas YAML + To-be Journey YAML」推导产出
-# Python 脚手架 scaffold_mvp.py 依据本契约编译出可运行的 mvp-prototype/ 项目
+# 编译（按 frontend）：react/vue → scaffold_mvp.py 编译 mvp-prototype/ 工程；html → build_html_prototype.py 渲染单文件 HTML
 # =============================================================
 meta:
   projectName: "intelligent-procurement"      # 包名/目录名（小写连字符）
   productName: "智能采购助手"                  # 产品中文名
   businessDomain: "供应链采购"                 # 业务域（用于自动主题推导）
-  frontend: "react"                           # react | vue（用户输入，必填）
-  designSystem: "antd"                        # antd(react) | arco(vue)
+  frontend: "react"                           # react | vue | html（用户输入，必填）
+  designSystem: "antd"                        # antd(react) | arco(vue) | html(占位)
   theme:
     source: "auto"                            # auto=按业务域推导 | user=用户提供
     primary: "#0958d9"                        # 主色

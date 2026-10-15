@@ -146,11 +146,12 @@ def parse_sim_spec(sim_path):
 def normalize(spec):
     meta = spec.get("meta", {})
     frontend = ensure_str(meta.get("frontend"), "react").lower()
-    if frontend not in ("react", "vue"):
-        raise ValueError(f"frontend 仅支持 react/vue，收到: {frontend}")
+    if frontend not in ("react", "vue", "html"):
+        raise ValueError(f"frontend 仅支持 react/vue/html，收到: {frontend}")
     theme = meta.get("theme") or {}
     ports = meta.get("ports") or {}
-    design_system = ensure_str(meta.get("designSystem"), "antd" if frontend == "react" else "arco")
+    default_ds = "antd" if frontend == "react" else ("arco" if frontend == "vue" else "html")
+    design_system = ensure_str(meta.get("designSystem"), default_ds)
     primary = ensure_str(theme.get("primary"), "#0958d9")   # antd blue-7（标准色阶）
     accent = ensure_str(theme.get("accent"), "#faad14")     # antd gold-6（标准色阶）
 
@@ -914,6 +915,11 @@ def main():
     sim_data = parse_sim_spec(args.sim)
     meta = spec["meta"]
     frontend = meta["frontend"]
+
+    if frontend == "html":
+        print("ℹ️ meta.frontend=html：单文件 HTML 原型请使用 scripts/build_html_prototype.py 生成"
+              "（scaffold_mvp.py 仅编译 react/vue 工程）。")
+        sys.exit(0)
 
     # 输出路径解析：--output 显式指定 > --case/--scenario 推导 > 默认 mvp-prototype
     if args.output:

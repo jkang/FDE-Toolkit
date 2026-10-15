@@ -35,7 +35,7 @@ AI 场景（机会点定义 + 上游问题定义 / AI 机会地图）
    │     persona-journey-designer          → 用户画像与典型旅程（按角色：场景 + 简要旅程）
    │     ai-product-journey-generator      → To-be 旅程（逐 journey 细化：阶段 → 行为步骤）
    │     agentic-product-proposal-generator → 产品方案（7 段式，单一 Markdown）
-   │     prototype-generator              → mvp-spec + mvp-prototype/（前后端一体化）
+   │     prototype-generator              → mvp-spec + 原型（先问技术栈 HTML / React / Vue）
    │     ux-optimizer                     → UX 定制设计系统 + 无侵入注入原型
    │     agent-tech-architecture          → 落地技术架构 + 编排图（1 Agent + N Skill + 本体/MCP）
    │     mvp-metrics-generator            → MVP 成效指标（四维指标 + Rubric + Go/No-Go）
@@ -67,7 +67,7 @@ AI 场景（机会点定义 + 上游问题定义 / AI 机会地图）
 - `skills/persona-journey-designer/SKILL.md` — **用户画像与典型旅程**：承接机会点定义 + 概念设计，按画像梳理典型场景与 JTBD 简要旅程（从目标起点到完成终点），保证一线执行角色不被主流程吞掉；输出 Markdown + HTML。
 - `skills/ai-product-journey-generator/SKILL.md` — **To-be 旅程**：承接《用户画像与典型旅程》，逐 journey 细化为完整旅程图（阶段 → 行为步骤：输入 / AI 交互 / 可见数据 / 设计意图）；输出 YAML + HTML + 总览页。
 - `skills/agentic-product-proposal-generator/SKILL.md` — **产品方案**：聚合上游产出为 7 段式可施工 Markdown（**单一 Markdown，不走 HTML 双输出**）。
-- `skills/prototype-generator/SKILL.md` — **MVP 原型生成器**：输出 `mvp-spec.yaml` + 可启动的前后端一体化 MVP（含启动验证）。
+- `skills/prototype-generator/SKILL.md` — **MVP 原型生成器**：输出 `mvp-spec.yaml` + 按用户所选技术栈产物（HTML 单文件 / React / Vue 前后端一体化，含验证）。
 - `skills/ux-optimizer/SKILL.md` — **UX 优化器**：按「企业品牌 × 业务主题」定制设计系统，产出 `-ux-audit.yaml` + `-UX设计报告.html`，并以无侵入覆盖层注入 `mvp-prototype/`（含注入后验证与 before/after）。
 - `skills/agent-tech-architecture/SKILL.md` — **Agent 落地技术架构**：盘点资产 → **路线二选一（Workflow / Autonomous Planner，用户拍板）** → 落地设计，输出 `-落地技术架构.yaml/.html`（1 编排 Agent + N Skill + 共享本体/MCP 的编排图）。
 - `skills/mvp-metrics-generator/SKILL.md` — **MVP 成效指标**：四维成效指标（业务/模型/系统/体验）+ 打分准则（Rubric）+ 上线门禁句（Go/No-Go）。
@@ -84,7 +84,7 @@ AI 场景（机会点定义 + 上游问题定义 / AI 机会地图）
    - **② 挖知识**：`to-be-process-designer`（泳道）→ `context-knowledge-data-analyzer`（CKD）→ `deep-task-flow-analyzer`（P1，产出使用点）→ `business-rule-miner`（P2 五类规则，以使用点为输入）。
    - **③ 建本体**：`agent-ontology-designer`（对象 / 行动边界 / 状态迁移）。
      - **门禁 2**：列出流程 / CKD / 规则 / 本体，请用户确认并交叉校验后，写 `handoff_p2.md`。
-   - **④ 生智能**：`agentic-product-concept-designer`（产品概念设计 · 客户确认）→ `persona-journey-designer`（用户画像与典型旅程）→ `ai-product-journey-generator`（To-be 旅程 · 逐 journey 细化）→ `agentic-product-proposal-generator`（产品方案）→ `prototype-generator`（mvp-spec + 原型，**含启动验证**）→ `ux-optimizer`（UX 定制设计 + 无侵入注入 + 注入后验证）→ `agent-tech-architecture`（落地技术架构 + 编排图）→ `mvp-metrics-generator`（成效指标 + Go/No-Go）→ `ai-test-dataset-generator`（测试数据集）。
+   - **④ 生智能**：`agentic-product-concept-designer`（产品概念设计 · 客户确认）→ `persona-journey-designer`（用户画像与典型旅程）→ `ai-product-journey-generator`（To-be 旅程 · 逐 journey 细化）→ `agentic-product-proposal-generator`（产品方案）→ `prototype-generator`（mvp-spec + 原型，**先问技术栈 HTML / React / Vue**，含验证）→ `ux-optimizer`（UX 定制设计 + 无侵入注入 + 注入后验证）→ `agent-tech-architecture`（落地技术架构 + 编排图）→ `mvp-metrics-generator`（成效指标 + Go/No-Go）→ `ai-test-dataset-generator`（测试数据集）。
      - **门禁 3（强制）**：执行 `agent-tech-architecture` 前，必须就 **路线二选一（Workflow vs Autonomous Planner）** 请用户拍板，未确认不得进入详细设计。
    - **⑤ 汇总**：`unified-report-dashboard` 生成场景级统一报告：先处理非 HTML / 不可 iframe 产物（`产品方案.md` 转 HTML；可运行 MVP 原型改为生成「MVP原型启动指引.html」），再生成「本场景总览」页与 `-统一报告仪表盘.yaml`，**先跑 `validate_dashboard.py` 确保 PASS**，再 `build_dashboard.py` 编译。
 4. **编译 / 渲染交付**：每项按各自 SKILL.md 的编译脚本产出 HTML 并在浏览器实测渲染；MVP 原型执行 `npm install && npm run dev` + 健康检查验证。
@@ -103,7 +103,7 @@ AI 场景（机会点定义 + 上游问题定义 / AI 机会地图）
 - 用户画像与旅程：`<公司>-<场景>-用户画像与旅程.md / .html`
 - 产品方案：`<公司>-<场景>-产品方案.md`（单一 Markdown；汇总报告另转 `.html`）
 - To-be 旅程：`<公司>-<场景>-To-be旅程.yaml / .html`
-- MVP 原型：`<公司>-<场景>-mvp-spec.yaml` + `<公司>/<场景>/mvp-prototype/`
+- MVP 原型：`<公司>-<场景>-mvp-spec.yaml` + 按技术栈产物（HTML：`<公司>-<场景>-MVP原型.html`；React/Vue：`<公司>/<场景>/mvp-prototype/`）
 - UX 优化：`<公司>-<场景>-ux-audit.yaml` + `<公司>-<场景>-UX设计报告.html`
 - 落地技术架构：`<公司>-<场景>-落地技术架构.yaml / .html`
 - MVP 成效指标：`<公司>-<场景>-MVP指标设计.yaml / .html`

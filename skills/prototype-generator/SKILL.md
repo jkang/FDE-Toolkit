@@ -1,14 +1,18 @@
 ---
 name: prototype-generator
 description: |
-  高级 MVP 原型生成器 —— 输入 AI Canvas + To-be Journey 设计，
-  编译输出可启动运行的前后端一体化 MVP 应用（React/Vue + Express + Mock AI/业务服务）。
+  高级 MVP 原型生成器 —— 先问用户选技术栈（HTML 单文件 / React / Vue），
+  再据所选栈组织提示词并编译：HTML → 单文件交互原型；React/Vue → 可启动的前后端一体化 MVP 应用
+  （Vite + antd/arco + Express + Mock AI/业务服务）。三条路径共用同一份技术栈无关的 mvp_spec.yaml。
 
   Triggers when user mentions:
   - "生成 MVP 原型"
   - "生成高级原型"
   - "MVP 应用设计"
   - "前后端原型"
+  - "HTML 原型"
+  - "单文件原型"
+  - "静态原型"
   - "generate MVP prototype"
   - "create interactive prototype"
   - "原型生成"
@@ -18,30 +22,40 @@ author: KK
 # Prototype Generator (MVP 原型生成器)
 
 承接 `ai-canvas-generator`（AI 场景定义）与 `ai-product-journey-generator`（To-be 旅程 · 逐 journey），
-以 **AI 产品 MVP 架构师** 的视角，编译出一个**可一键启动、前后端一体、UI 专业**的 MVP 应用。
+以 **AI 产品 MVP 架构师** 的视角，**先问用户选技术栈，再据其编译原型**。
 
 ```
-AI Canvas YAML + To-be Journey YAML（+ 用户偏好：前端框架/配色）
+AI Canvas YAML + To-be Journey YAML（+ 用户所选技术栈：HTML / React / Vue）
         │
         ▼
-【LLM】推演 MVP 设计规格 mvp_spec.yaml
+【LLM】推演技术栈无关的设计规格 mvp_spec.yaml（meta.frontend: html | react | vue）
         │
-        ▼
-【Python 脚手架】scaffold_mvp.py 编译 → <案例>/<场景>/mvp-prototype/
-        │
-        ▼
-【验证】npm install → npm run dev → curl + 浏览器实测
+   ┌────┴────────────────────────────────┐
+   ▼ HTML 原型                            ▼ React / Vue
+【build_html_prototype.py】             【scaffold_mvp.py】
+ → <案例>/<场景>/<公司>-<场景>-MVP原型.html      → <案例>/<场景>/mvp-prototype/
+   │                                      │
+   ▼ 浏览器双击实测（免构建）                ▼ npm install → npm run dev → curl + 浏览器实测
 ```
+
+**技术栈路由表（Step 0 决定路径）**：
+
+| 选择 | 提示词 | 编译脚本 | 产物 | 验证 |
+|------|--------|----------|------|------|
+| **HTML 原型** | `mvp_prompts.md` + `references/html_prototype_prompts.md` | `scripts/build_html_prototype.py` | `<案例>/<场景>/<公司>-<场景>-MVP原型.html`（单文件） | 浏览器双击打开实测 |
+| **React** | `references/mvp_prompts.md` | `scripts/scaffold_mvp.py` | `<案例>/<场景>/mvp-prototype/`（Vite+React+antd+Express） | `npm install && npm run dev` |
+| **Vue** | `references/mvp_prompts.md` | `scripts/scaffold_mvp.py` | `<案例>/<场景>/mvp-prototype/`（Vite+Vue+arco+Express） | 同上 |
 
 > [!IMPORTANT] 全局规范（双重输出 / 输出路径 / 视觉设计）
 > 当你使用此 Skill 时，必须**同时**输出两个部分：
-> 1. **结构化 YAML**: `mvp_spec.yaml`（MVP 设计规格），用于脚手架编译与数据存档。
-> 2. **交互式 HTML / 工程**: 可启动运行的前后端一体化 MVP 应用（React/Vue + Express）。
+> 1. **结构化 YAML**: `mvp_spec.yaml`（技术栈无关的 MVP 设计规格），用于编译与数据存档。
+> 2. **原型产物**: 按用户所选技术栈——HTML 单文件原型，或可启动的前后端一体化 MVP 应用（React/Vue + Express）。
 >
 > **输出路径与命名规范 (Output Path & Naming Convention)**:
 > - **目录**: 输出到 `<公司/业务名>/` 公司/业务级目录；若产物属于**具体 AI 场景**（如某场景的测试数据集 / 故事地图 / Agent 本体等），**必须**放入 `<公司/业务名>/<场景名>/` 场景子目录（两层规范；场景级文件名需含场景名，如 `[公司]-[场景]-[业务类型].html`）。
 > - **文件命名**:
->   - `mvp_spec.yaml` 产物命名 `[公司/业务名]-[场景名]-mvp-spec.yaml`（例如：`ZX机车海外销售-售后理赔-mvp-spec.yaml`），**必须**与 MVP 应用同放于 `<案例>/<场景>/` 目录；
+>   - `mvp_spec.yaml` 产物命名 `[公司/业务名]-[场景名]-mvp-spec.yaml`（例如：`ZX机车海外销售-售后理赔-mvp-spec.yaml`），**必须**与原型产物同放于 `<案例>/<场景>/` 目录；
+>   - HTML 原型命名 `[公司/业务名]-[场景名]-MVP原型.html`（单文件）；
 >   - Skill 的 `examples/` 目录仅存放演示样例，**禁止**将客户产物保存在其中。
 > - **禁止**将场景级产物输出到 `<客户案例目录>/` 根目录。
 >
@@ -56,13 +70,14 @@ AI Canvas YAML + To-be Journey YAML（+ 用户偏好：前端框架/配色）
 
 | 需求 | 实现 |
 |------|------|
-| ① 前端 React 或 Vue | Step 0 必问用户；React→Ant Design，Vue→Arco Design |
-| ② AI 功能独立 service | `server/services/aiService.js` 独立模块（识别/推荐/审批/对话，含模拟延迟，可抽离微服务） |
+| ① 技术栈三选一 | Step 0 必问用户：HTML 单文件 / React / Vue；未选择不得默认。React→Ant Design，Vue→Arco Design |
+| ①' HTML 单文件原型 | `build_html_prototype.py` 渲染为**一个 .html**：内联 CSS/JS/Mock，无外链、无构建、无后端，双击即用、离线演示 |
+| ② AI 功能独立 service | React/Vue：`server/services/aiService.js` 独立模块（识别/推荐/审批/对话，含模拟延迟，可抽离微服务）；HTML：内联 JS Mock 同源实现 |
 | ③ 业务系统交互 mock | `server/services/businessMock.js` 独立模块（ERP/SRM/HR 数据接口） |
 | ④ 专业设计系统 | AntD / Arco 工作台布局（侧边栏+顶栏+卡片/表格/表单/对话组件） |
 | ⑤ 主题配色 | 用户提供品牌色 → **映射到最接近的 antd/arco 标准色阶档位**（blue/geekblue/… 的 -6/-7）；否则按业务域映射 antd 标准色阶（见 `references/mvp_prompts.md`）。**语义色/中性色/尺度一律用组件库标准值，禁止自造未成体系 hex**（防「山寨感」） |
-| ⑥ 输出目录 | `<客户案例目录>/<场景目录>/mvp-prototype/`（脚手架 `--case` / `--scenario` 指定） |
-| ⑦ 启动验证 | 安装依赖 → 启动 → curl API 实测 + 浏览器打开前端验证 UI 与 AI 交互 |
+| ⑥ 输出位置 | HTML：`<客户案例目录>/<场景目录>/<公司>-<场景>-MVP原型.html`；React/Vue：`<客户案例目录>/<场景目录>/mvp-prototype/`（`--case` / `--scenario` 指定） |
+| ⑦ 启动验证 | React/Vue：安装依赖 → 启动 → curl API 实测 + 浏览器打开前端验证；HTML：浏览器双击打开，逐页切换 + 触发 AI 交互验证（无 console 报错） |
 | ⑧ 业务数据 & 过程仿真 | `--sim sim_spec.yaml`，生成场景数据源 + 可视化组件（segChart/routeMap/nestedGroup/documentBlock/stateMachine/processTimeline）。**SimVisuals 可视化组件当前仅 React 模板提供**（`templates/frontend_vue/` 下无 SimVisuals 源模板），选择 Vue 时 sim 的交互可视化不可自动注入（Vue 侧亦缺 `scenarioData` 源模板），须手工补 `scenarioData.js` 与页面 |
 | ⑨ 静态部署兼容（Vercel） | 生成物自带 `vercel.json` + `src/api/client.js` 前端 Mock 兜底：纯静态托管（无 Node 后端）时 `POST /api` 会命中 `index.html` 返回 405，拦截器在生产构建下自动回退到与 `server/services/*` 同源的本地 Mock，页面照常演示（见 Step 6） |
 
@@ -70,12 +85,17 @@ AI Canvas YAML + To-be Journey YAML（+ 用户偏好：前端框架/配色）
 
 ## 工作流 SOP
 
-### Step 0 · 需求澄清（必问）
-1. **前端框架**：React 还是 Vue？
-2. **配色**：是否有指定主色/强调色/Logo？（有则**映射到 antd/arco 标准色阶**后再用；无则按业务域映射 antd 标准色阶。语义/中性色一律用组件库标准值，禁止自造 hex）
-3. **端口偏好**：默认 Vite `:5173` / API `:8080`，是否冲突？
+### Step 0 · 技术栈选择（必问）
+1. **技术栈**：**HTML 单文件原型 / React / Vue**（三选一，未选择不得默认；决定提示词、编译脚本与产物，见上方技术栈路由表）。
+   - **HTML**：一个 `.html`、免构建、离线双击即用，适合快速评审与汇报；不引入外部 CDN，可视化以表格 / 指标卡 / 时间线 / 标签呈现（`sim_spec` 的 ECharts 类可视化暂不支持）。
+   - **React / Vue**：可启动的前后端一体化工程（Vite + antd/arco + Express + Mock 服务），适合交互与业务数据更深的演示。
+2. **配色**：是否有指定主色/强调色/Logo？（有则**映射到 antd 标准色阶**后再用；无则按业务域映射标准色阶。语义/中性色一律用标准值，禁止自造 hex。HTML 路径以 `meta.theme.primary` 注入 CSS 变量）
+3. **端口偏好**：默认 Vite `:5173` / API `:8080`（**仅 React/Vue 路径消费**），是否冲突？
 
-### Step 0' · sim_spec（业务数据 & 过程仿真，推荐）
+### Step 0' · sim_spec（业务数据 & 过程仿真，推荐 · 仅 React/Vue 路径）
+> **适用边界**：`sim_spec` 的交互可视化（SimVisuals）当前仅 **React/Vue 工程**支持；
+> **HTML 单文件路径暂不支持**（基础版可视化以表格/指标卡/时间线呈现）。
+>
 > 在 `mvp_spec` 之后**建议新增一轮 `sim_spec`**（`references/sim_spec_schema.yaml` + `references/sim_prompts.md`），
 > 用于把「业务数据深度 + 过程状态 + 业务可视化」编译进原型。`mvp_spec` 只描述 UI 骨架，
 > 真实业务丰富度（多批次询价/多段航程/TCO 分组明细/报价单全文/状态机/成本占比图）由 `sim_spec` 承载，
@@ -119,18 +139,39 @@ mvp_spec 里**本来就有 mock data 这一步**：`dataModels.mockData` + `aiMo
 
 > 数据单薄会直接拉低原型可信度。`references/mvp_spec_schema.yaml` 给出了「主数据 + 核心对象 + 列表响应 + 表单默认值」的完整范例。
 
-### Step 3 · 脚手架编译
+### Step 3 · 编译（按 Step 0 所选技术栈分叉）
+
+**A. HTML 原型**（单文件）：
+```bash
+python3 skills/prototype-generator/scripts/build_html_prototype.py \
+  "<客户案例目录>/<场景目录>/<公司/业务名>-<场景名>-mvp-spec.yaml" \
+  --case "<客户案例目录>" --scenario "<场景目录>"
+```
+- 产物：**`<客户案例目录>/<场景目录>/<公司>-<场景>-MVP原型.html`**（单文件，免构建）。
+- 也可用 `--output <显式路径>` 覆盖；`--force` 覆盖已存在文件。
+- 渲染铁律见 `references/html_prototype_prompts.md`（单文件、hash 路由、交互模拟、无外链）。
+
+**B. React / Vue 工程**：
 ```bash
 # 在项目根目录（含 客户案例目录 的层级）执行；输入取 Step 2 已写入客户场景目录的真实 mvp_spec 产物
 python3 skills/prototype-generator/scripts/scaffold_mvp.py \
   "<客户案例目录>/<场景目录>/<公司/业务名>-<场景名>-mvp-spec.yaml" \
   --case "<客户案例目录>" --scenario "<场景目录>"
 ```
-> 注：`skills/prototype-generator/examples/` 仅含演示样例（`X电商订舱-智能订舱Agent-mvp-spec.yaml`），可用于跑通脚手架流程，客户产物不可存于其中。
-- 产物位于 **`<客户案例目录>/<场景目录>/mvp-prototype/`**。
+- 产物：**`<客户案例目录>/<场景目录>/mvp-prototype/`**。
 - 也可用 `--output <显式路径>` 覆盖；`--force` 覆盖已存在目录。
 
-### Step 4 · 启动验证（必须执行）
+> 注：`skills/prototype-generator/examples/` 仅含演示样例（`X电商订舱-智能订舱Agent-mvp-spec.yaml` + 同名 `-MVP原型.html`），可用于跑通编译流程，客户产物不可存于其中。
+
+### Step 4 · 验证（必须执行）
+
+**A. HTML 原型**：浏览器**双击打开** `<公司>-<场景>-MVP原型.html`，验证清单：
+1. 逐个点击左侧导航，各页 `sections` 正常渲染、切换无刷新。
+2. 对每个 `aiResultCard` / `chatPanel` / `formCard` / `uploadCard`：触发其 `action` → 出现 loading → 命中对应 Mock → 结果按 `table`/`kv` 正确渲染，状态列 Tag 着色。
+3. `buttonRow` 的 `navigate:<route>` 正确跳转；控制台**无报错**（重点：无「未定义的接口」提示，即 `actions.name` 与 Mock 名称已对齐）。
+4. 用无头浏览器（如 Playwright）复跑一遍交互，确认 `console` 无 error 后再交付。
+
+**B. React / Vue 工程**：
 ```bash
 cd "<客户案例目录>/<场景目录>/mvp-prototype"
 npm install          # 一次性安装全部依赖
@@ -143,10 +184,11 @@ npm run dev          # 开发模式：API(:8080) + Vite 前端(:5173)
 4. 验证失败 → 定位修复后重新验证
 
 ### Step 5 · 交付
-- 输出 `README.md`（含快速开始、架构图、接口清单）。
-- 生产模式说明：`npm run build && npm start` 单端口 `:8080` 一体化运行。
+- **HTML 原型**：交付单个 `.html` 文件即可（浏览器直接打开演示，无需环境）。
+- **React / Vue**：输出 `README.md`（含快速开始、架构图、接口清单）；生产模式 `npm run build && npm start` 单端口 `:8080` 一体化运行。
 
-### Step 6 · 静态部署兼容（Vercel / 纯静态托管，必做）
+### Step 6 · 静态部署兼容（Vercel / 纯静态托管，仅 React/Vue 路径）
+> HTML 单文件原型本身即纯静态（内联 Mock），无需本步；以下仅针对 React/Vue 工程的 Vercel 部署。
 生成物默认是「Express 一体化」：`/api` 由 Node 提供。**部署到 Vercel 等纯静态托管（只托管 `dist/`、不运行 Node）时**，`POST /api/*` 会被 SPA 兜底重写命中静态 `index.html`，而 Vercel 对静态文件的非 GET 请求返回 **405 Method Not Allowed** → 页面报「调用失败」。这不是代码 bug，而是静态站点没有后端；`localhost` 因有 Express 而正常。
 
 **脚手架已内置兜底（无需手工补）**：
@@ -179,6 +221,11 @@ npm run dev          # 开发模式：API(:8080) + Vite 前端(:5173)
 | `formCard` | Form + Input/Select | 表单录入 |
 | `tagRow` | Tag / a-tag | 标签 |
 
+> **HTML 单文件路径**：以等价的原生 HTML/CSS/JS 渲染**同一套元素**（不引外部组件库/ CDN），
+> 字段口径与 `mvp_spec.yaml` 完全一致——`steps`→步骤条、`statRow`→指标卡、`uploadCard`→虚线上传框、
+> `aiResultCard`→结果卡（table/kv）、`table`→表格（Tag 着色）、`buttonRow`→按钮区、`alert`→告警条、
+> `timeline`→时间线、`tagRow`→标签、`chatPanel`→对话面板、`formCard`→表单。
+
 ---
 
 ## 目录结构
@@ -188,10 +235,12 @@ prototype-generator/
 ├── SKILL.md                        # 本指南
 ├── references/
 │   ├── mvp_prompts.md              # LLM 铁律（承接规则、元素白名单、主题推导表）
+│   ├── html_prototype_prompts.md   # HTML 单文件路径补充铁律（frontend: html）
 │   ├── mvp_spec_schema.yaml        # mvp_spec 数据契约示例
 │   ├── sim_spec_schema.yaml        # sim_spec（业务数据 & 过程仿真）数据契约示例
 │   └── sim_prompts.md              # sim_spec 生成提示词与铁律
 ├── templates/
+│   ├── html_prototype_layout.html.j2  # HTML 单文件外壳（内联 CSS/JS + hash 路由 + Mock 运行时）
 │   ├── common/                     # 根 package.json / README / .gitignore / vercel.json
 │   ├── server/                     # Express 一体化（index/config/routes/services）
 │   ├── frontend_react/             # Vite+React+antd 基座
@@ -199,10 +248,12 @@ prototype-generator/
 │   │   └── src/components/SimVisuals.jsx.j2      # sim 可视化组件（仅 react 提供）
 │   └── frontend_vue/               # Vite+Vue+arco 基座（无 SimVisuals / scenarioData 源模板）
 ├── scripts/
-│   └── scaffold_mvp.py             # 脚手架编译引擎（--case/--scenario/--output/--force/--sim）
+│   ├── scaffold_mvp.py             # React/Vue 工程编译引擎（--case/--scenario/--output/--force/--sim）
+│   └── build_html_prototype.py     # HTML 单文件原型渲染器（--case/--scenario/--output/--force）
 ├── assets/_legacy/                 # 旧 Next.js 模板归档
 └── examples/
-    └── X电商订舱-智能订舱Agent-mvp-spec.yaml  # 演示样例：X 电商订舱智能订舱 Agent 场景（见 X电商订舱/）
+    ├── X电商订舱-智能订舱Agent-mvp-spec.yaml   # 演示样例 spec：X 电商订舱智能订舱 Agent 场景
+    └── X电商订舱-智能订舱Agent-MVP原型.html     # 由该 spec 渲染的 HTML 单文件演示样例
 ```
 
 ---

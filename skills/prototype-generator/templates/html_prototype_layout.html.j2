@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{ productName }}</title>
+  <style>
+    :root {
+      --primary: {{ primary }};
+      --accent: {{ accent }};
+      --success: #52c41a;
+      --warning: #faad14;
+      --error: #ff4d4f;
+      --info: #1677ff;
+      --text: #1f1f1f;
+      --text-2: #595959;
+      --text-3: #8c8c8c;
+      --border: #d9d9d9;
+      --border-2: #f0f0f0;
+      --bg: #f5f5f5;
+      --sider: #001529;
+      --radius: 8px;
+      --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC",
+              "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      font-family: var(--font); color: var(--text); background: var(--bg);
+      font-size: 13px; line-height: 1.5;
+    }
+    .layout { display: flex; min-height: 100vh; }
+
+    /* 侧边栏 */
+    .sider {
+      width: 216px; flex: 0 0 216px; background: var(--sider);
+      position: sticky; top: 0; height: 100vh; color: #fff;
+    }
+    .brand { display: flex; align-items: center; gap: 10px; height: 56px; padding: 0 16px; }
+    .brand-logo {
+      width: 32px; height: 32px; border-radius: 8px; flex: 0 0 32px;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 17px;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+    }
+    .brand-name { font-weight: 700; font-size: 14px; line-height: 1.2; white-space: nowrap; }
+    .brand-sub { font-size: 10px; opacity: .55; }
+    .nav { margin-top: 8px; }
+    .nav-item {
+      display: block; padding: 9px 16px; color: rgba(255,255,255,.68);
+      text-decoration: none; font-size: 13px; border-radius: 6px; margin: 2px 8px;
+    }
+    .nav-item:hover { color: #fff; background: rgba(255,255,255,.08); }
+    .nav-item.active { color: #fff; background: var(--primary); }
+    .sider-foot {
+      position: absolute; bottom: 16px; left: 16px; right: 16px;
+      font-size: 11px; color: rgba(255,255,255,.35); line-height: 1.6;
+    }
+
+    /* 顶栏 + 内容 */
+    .main { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; }
+    .header {
+      height: 56px; background: #fff; display: flex; align-items: center;
+      justify-content: space-between; padding: 0 24px; position: sticky; top: 0;
+      z-index: 10; box-shadow: 0 1px 4px rgba(0,0,0,.06);
+    }
+    .header-title { font-size: 15px; font-weight: 600; margin: 0; }
+    .header-tag {
+      font-size: 12px; color: var(--text-2); background: var(--bg);
+      border: 1px solid var(--border-2); border-radius: 999px; padding: 3px 12px;
+    }
+    .content { padding: 20px; width: 100%; }
+
+    /* 页面 */
+    .page { display: none; }
+    .page.active { display: block; }
+    .page-head { margin-bottom: 16px; }
+    .page-title { margin: 0; font-size: 17px; font-weight: 600; }
+    .page-desc { margin: 4px 0 0; color: var(--text-3); font-size: 13px; }
+
+    /* 卡片 */
+    .card {
+      background: #fff; border: 1px solid var(--border-2); border-radius: var(--radius);
+      padding: 16px; margin-bottom: 16px;
+    }
+    .card-title { font-size: 14px; font-weight: 600; margin-bottom: 12px; }
+    .muted { color: var(--text-3); font-size: 13px; margin: 0 0 8px; }
+    .empty { color: var(--text-3); text-align: center; padding: 24px 0; }
+
+    /* 步骤条 */
+    .steps { display: flex; flex-wrap: wrap; gap: 12px; }
+    .step { display: flex; align-items: center; gap: 8px; color: var(--text-3); font-size: 12px; }
+    .step-dot {
+      width: 22px; height: 22px; border-radius: 50%; display: inline-flex;
+      align-items: center; justify-content: center; font-size: 12px;
+      background: var(--bg); color: var(--text-3); border: 1px solid var(--border);
+    }
+    .step.active .step-dot { background: var(--primary); color: #fff; border-color: var(--primary); }
+    .step.done .step-dot { background: #e6f4ff; color: var(--info); border-color: #91caff; }
+    .step.active .step-t, .step.done .step-t { color: var(--text); }
+
+    /* 指标卡 */
+    .stat-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 16px; }
+    .stat {
+      background: #fff; border: 1px solid var(--border-2); border-radius: var(--radius); padding: 16px;
+    }
+    .stat-label { font-size: 12px; color: var(--text-3); margin-bottom: 6px; }
+    .stat-value { font-size: 24px; font-weight: 600; line-height: 1.2; }
+    .stat-suffix { font-size: 13px; font-weight: 400; color: var(--text-3); margin-left: 2px; }
+
+    /* 上传 */
+    .uploader {
+      display: block; border: 1px dashed var(--border); border-radius: var(--radius);
+      padding: 28px; text-align: center; cursor: pointer; background: #fafafa;
+    }
+    .uploader:hover { border-color: var(--primary); }
+    .upload-ico { font-size: 28px; color: var(--primary); }
+    .upload-text { font-size: 14px; color: var(--text-2); margin: 8px 0 4px; }
+    .upload-hint { font-size: 12px; color: var(--text-3); }
+    .upload-name { font-size: 12px; color: var(--success); margin-top: 6px; }
+
+    /* 按钮 */
+    .btn {
+      display: inline-flex; align-items: center; gap: 6px; font-family: var(--font);
+      font-size: 13px; height: 32px; padding: 0 15px; margin-top: 12px;
+      border: 1px solid var(--border); border-radius: 6px; background: #fff;
+      color: var(--text); cursor: pointer;
+    }
+    .btn:hover { border-color: var(--primary); color: var(--primary); }
+    .btn-primary { background: var(--primary); border-color: var(--primary); color: #fff; }
+    .btn-primary:hover { color: #fff; opacity: .88; }
+    .btn[disabled] { opacity: .55; cursor: progress; }
+    .btn-row { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 16px; }
+    .btn-row .btn { margin-top: 0; }
+
+    /* 告警 */
+    .alert { border-radius: var(--radius); padding: 12px 16px; margin-bottom: 16px; border: 1px solid; }
+    .alert-msg { font-weight: 600; }
+    .alert-desc { font-size: 12px; margin-top: 4px; opacity: .85; }
+    .alert-info { background: #e6f4ff; border-color: #91caff; color: #0958d9; }
+    .alert-success { background: #f6ffed; border-color: #b7eb8f; color: #389e0d; }
+    .alert-warning { background: #fffbe6; border-color: #ffe58f; color: #d48806; }
+    .alert-error { background: #fff2f0; border-color: #ffccc7; color: #cf1322; }
+
+    /* 表格 */
+    .tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .tbl th, .tbl td { border-bottom: 1px solid var(--border-2); padding: 8px 12px; text-align: left; }
+    .tbl th { background: #fafafa; color: var(--text-2); font-weight: 600; font-size: 12px; }
+    .tbl tr:hover td { background: #fafafa; }
+
+    /* 标签 */
+    .tag { display: inline-block; padding: 0 8px; height: 22px; line-height: 20px; font-size: 12px; border-radius: 4px; border: 1px solid; }
+    .tag-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+    .tag-success { background: #f6ffed; border-color: #b7eb8f; color: #389e0d; }
+    .tag-processing { background: #e6f4ff; border-color: #91caff; color: #0958d9; }
+    .tag-warning { background: #fffbe6; border-color: #ffe58f; color: #d48806; }
+    .tag-error { background: #fff2f0; border-color: #ffccc7; color: #cf1322; }
+    .tag-default { background: #fafafa; border-color: var(--border); color: var(--text-2); }
+    .tag-blue { background: #e6f4ff; border-color: #91caff; color: #0958d9; }
+    .tag-geekblue { background: #f0f5ff; border-color: #adc6ff; color: #1d39c4; }
+    .tag-cyan { background: #e6fffb; border-color: #87e8de; color: #08979c; }
+    .tag-gold { background: #fffbe6; border-color: #ffe58f; color: #d48806; }
+    .tag-orange { background: #fff7e6; border-color: #ffd591; color: #d46b08; }
+    .tag-green { background: #f6ffed; border-color: #b7eb8f; color: #389e0d; }
+    .tag-lime { background: #fcffe6; border-color: #eaff8f; color: #7cb305; }
+    .tag-red { background: #fff2f0; border-color: #ffccc7; color: #cf1322; }
+    .tag-purple { background: #f9f0ff; border-color: #d3adf7; color: #531dab; }
+    .tag-magenta { background: #fff0f6; border-color: #ffadd2; color: #c41d7f; }
+
+    /* 时间线 */
+    .timeline { list-style: none; margin: 0; padding: 4px 0 0 4px; }
+    .tl-item { display: flex; align-items: center; gap: 10px; padding: 6px 0; }
+    .tl-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--info); display: inline-block; }
+    .tl-success { background: var(--success); }
+    .tl-warning { background: var(--warning); }
+    .tl-red, .tl-error { background: var(--error); }
+    .tl-default { background: var(--text-3); }
+    .tl-cyan { background: #13c2c2; }
+    .tl-gold { background: #faad14; }
+
+    /* 键值 / 结果 */
+    .kv-row { display: flex; gap: 8px; margin-bottom: 6px; }
+    .kv-k { font-weight: 600; min-width: 96px; flex: 0 0 auto; color: var(--text-2); }
+    .pre { background: #fafafa; padding: 12px; border-radius: var(--radius); white-space: pre-wrap; font-size: 12px; margin: 0; }
+
+    /* 对话 */
+    .chat-area { min-height: 72px; margin-bottom: 12px; }
+    .chat-bubble { background: #e6f4ff; border: 1px solid #91caff; color: #0958d9; border-radius: 8px; padding: 10px 12px; white-space: pre-wrap; }
+    .chat-input { display: flex; gap: 8px; }
+    .chat-input input {
+      flex: 1; height: 32px; padding: 0 10px; border: 1px solid var(--border);
+      border-radius: 6px; font-family: var(--font); font-size: 13px;
+    }
+    .chat-input .btn { margin-top: 0; }
+    .chat-sugg { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 10px; }
+    .sugg-label { font-size: 12px; color: var(--text-3); }
+    .chip {
+      font-family: var(--font); font-size: 12px; height: 24px; padding: 0 10px;
+      border: 1px solid #91caff; background: #e6f4ff; color: #0958d9;
+      border-radius: 4px; cursor: pointer;
+    }
+    .chip:hover { background: #d6e9ff; }
+
+    /* 表单 */
+    .form-row { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+    .form-label { min-width: 96px; color: var(--text-2); }
+    .form-row input, .form-row select {
+      width: 260px; height: 32px; padding: 0 10px; border: 1px solid var(--border);
+      border-radius: 6px; font-family: var(--font); font-size: 13px; background: #fff;
+    }
+    .form .btn { margin-top: 4px; }
+
+    @media (max-width: 900px) {
+      .stat-row { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside class="sider">
+      <div class="brand">
+        <div class="brand-logo">{{ brand_initial }}</div>
+        <div>
+          <div class="brand-name">{{ productName }}</div>
+          <div class="brand-sub">AI-POWERED MVP</div>
+        </div>
+      </div>
+      <nav class="nav">
+        {% for page in pages %}
+        <a class="nav-item" data-route="{{ page.route }}" href="#{{ page.route }}">{{ page.title }}</a>
+        {% endfor %}
+      </nav>
+      <div class="sider-foot">
+        {{ businessDomain }}<br />
+        {% for p in personas %}{{ p.name }}（{{ p.role }}）{% if not loop.last %}<br />{% endif %}{% endfor %}
+      </div>
+    </aside>
+    <div class="main">
+      <header class="header">
+        <h1 class="header-title" id="topTitle">工作台</h1>
+        <span class="header-tag">{{ productName }}</span>
+      </header>
+      <main class="content">
+{{ pages_body }}
+      </main>
+    </div>
+  </div>
+
+  <script>
+    const MOCK = {{ mock_json }};
+    const BINDINGS = {{ bindings_json }};
+    const TAG_COLOR = { success:'success', processing:'processing', warning:'warning', error:'error',
+      default:'default', blue:'blue', arcoblue:'blue', geekblue:'geekblue', cyan:'cyan', gold:'gold',
+      orange:'orange', volcano:'red', red:'red', green:'green', lime:'lime', purple:'purple', magenta:'magenta' };
+
+    function esc(v) {
+      if (v === null || v === undefined) return '';
+      return String(v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+    function tagClass(c) { return 'tag tag-' + (TAG_COLOR[c] || 'default'); }
+
+    async function callApi(name, payload) {
+      const m = MOCK[name];
+      if (!m) return { error: '未定义的接口：' + name + '（请检查 actions.name 与 aiMocks/businessMocks.name 是否一致）' };
+      await new Promise(function (r) { setTimeout(r, m.latency || 400); });
+      return JSON.parse(JSON.stringify(m.response));
+    }
+
+    function renderTable(columns, items) {
+      let h = '<table class="tbl"><thead><tr>';
+      (columns || []).forEach(function (c) { h += '<th>' + esc(c.title || c.key) + '</th>'; });
+      h += '</tr></thead><tbody>';
+      (items || []).forEach(function (row) {
+        h += '<tr>';
+        (columns || []).forEach(function (c) {
+          const v = row[c.key];
+          if (c.tag && c.tag[v]) h += '<td><span class="' + tagClass(c.tag[v]) + '">' + esc(v) + '</span></td>';
+          else h += '<td>' + esc(v) + '</td>';
+        });
+        h += '</tr>';
+      });
+      h += '</tbody></table>';
+      return h;
+    }
+
+    function renderAiCard(b, data) {
+      const el = document.getElementById(b.elId);
+      if (!el) return;
+      if (data && data.error) { el.innerHTML = '<div class="alert alert-error">' + esc(data.error) + '</div>'; return; }
+      if (b.render === 'table') {
+        let h = '';
+        if (data && data.summary) h += '<p class="muted">' + esc(data.summary) + '</p>';
+        h += renderTable(b.columns, (data && data.items) || []);
+        el.innerHTML = h;
+      } else if (b.render === 'kv') {
+        let h = '<div class="kv">';
+        Object.keys(data || {}).forEach(function (k) {
+          if (k === 'error') return;
+          let v = data[k];
+          if (typeof v !== 'string') v = JSON.stringify(v);
+          h += '<div class="kv-row"><span class="kv-k">' + esc(k) + '：</span><span class="kv-v">' + esc(v) + '</span></div>';
+        });
+        el.innerHTML = h + '</div>';
+      } else {
+        el.innerHTML = '<pre class="pre">' + esc(JSON.stringify(data, null, 2)) + '</pre>';
+      }
+    }
+
+    function renderChat(b, data) {
+      const el = document.getElementById(b.elId);
+      if (!el) return;
+      if (data && data.error) { el.innerHTML = '<div class="alert alert-error">' + esc(data.error) + '</div>'; return; }
+      let text = data && data.reply !== undefined ? data.reply : JSON.stringify(data, null, 2);
+      el.innerHTML = '<div class="chat-bubble">' + esc(text) + '</div>';
+    }
+
+    function setLoading(key, on) {
+      document.querySelectorAll('[data-load="' + key + '"]').forEach(function (b) {
+        b.disabled = on;
+      });
+    }
+
+    function payloadFor(btn) {
+      const kind = btn.dataset.payload || 'none';
+      const card = btn.closest('.card');
+      if (kind === 'file') {
+        const f = card && card.querySelector('input[type=file]');
+        return { file: f && f.files[0] ? f.files[0].name : '示例文件.xlsx' };
+      }
+      if (kind === 'form') {
+        const o = {};
+        card.querySelectorAll('[data-field]').forEach(function (i) { o[i.dataset.field] = i.value; });
+        return o;
+      }
+      if (kind === 'message') {
+        const i = card && card.querySelector('.chat-input input');
+        return { message: i ? i.value : '' };
+      }
+      if (kind === 'fixed') return { message: btn.dataset.message || '' };
+      return {};
+    }
+
+    async function run(key, action, payload) {
+      setLoading(key, true);
+      let data;
+      try { data = await callApi(action, payload || {}); }
+      catch (e) { data = { error: String((e && e.message) || e) }; }
+      (BINDINGS[key] || []).forEach(function (b) {
+        if (b.kind === 'aiCard') renderAiCard(b, data);
+        else if (b.kind === 'chat') renderChat(b, data);
+      });
+      setLoading(key, false);
+    }
+
+    function showRoute() {
+      const pages = document.querySelectorAll('.page');
+      if (!pages.length) return;
+      let h = location.hash;
+      if (!h) h = '#' + pages[0].dataset.route;
+      pages.forEach(function (p) { p.classList.toggle('active', '#' + p.dataset.route === h); });
+      document.querySelectorAll('.nav-item').forEach(function (n) {
+        n.classList.toggle('active', '#' + n.dataset.route === h);
+      });
+      const t = document.querySelector('.page.active .page-title');
+      document.getElementById('topTitle').textContent = t ? t.textContent : '工作台';
+    }
+
+    document.addEventListener('click', function (e) {
+      const nav = e.target.closest('[data-nav]');
+      if (nav) { location.hash = nav.dataset.nav; return; }
+      const btn = e.target.closest('[data-run]');
+      if (btn) run(btn.dataset.run, btn.dataset.action, payloadFor(btn));
+    });
+    window.addEventListener('hashchange', showRoute);
+    document.addEventListener('DOMContentLoaded', showRoute);
+    showRoute();
+  </script>
+</body>
+</html>

@@ -3,7 +3,9 @@
 你现在是顶级的 **AI 产品 MVP 架构师 + 全栈工程师**。你将根据两份上游输入——
 **① AI Canvas YAML**（AI 场景定义）与 **② To-be Journey YAML**（用户角色/典型场景/AI 交互旅程）——
 推演出一份可直接编译为**可运行 MVP 应用**的设计规格（mvp_spec YAML）。
-Python 脚手架 `scaffold_mvp.py` 会将其编译为 `mvp-prototype/`（React/Vue + Express + Mock 服务）。
+该规格**与技术栈无关**：`meta.frontend` 为 `react` / `vue` / `html` 时，分别由 `scaffold_mvp.py`
+编译为 `mvp-prototype/` 工程（React/Vue + Express + Mock 服务），或由 `build_html_prototype.py`
+渲染为单文件 HTML 原型（`html`，补充铁律见 `html_prototype_prompts.md`）。
 
 ---
 
@@ -97,7 +99,7 @@ meta:
   projectName:
   productName:
   businessDomain:
-  frontend: "react"        # 或 "vue"（用户输入）
+  frontend: "react"        # react | vue | html（用户输入，必填）
   designSystem: "antd"     # 或 "arco"
   theme: { source, primary, accent, layout }
   ports: { dev, api }

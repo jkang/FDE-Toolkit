@@ -83,7 +83,7 @@ flowchart TB
 - `agent-ontology-designer`（对象关系 → 行动边界 → 状态迁移三层本体，可注入 System Prompt）。
 
 **④ 生智能（Generate the Intelligence）**——方案、原型、评测
-- `agentic-product-concept-designer`（面向客户确认的产品概念设计）、`persona-journey-designer`（用户画像与典型旅程）、`ai-product-journey-generator`（逐 journey 的完整 To-be 旅程）、`agentic-product-proposal-generator`（可施工的 产品方案）、`agent-tech-architecture`（落地技术架构 + 编排图）、`prototype-generator`（可启动的前后端一体化 MVP 原型）、`ux-optimizer`（企业品牌 × 业务主题的定制设计系统）、`story-map-generator`（用户故事地图）、`mvp-plan-generator`（MVP 迭代计划）、`ai-test-dataset-generator`（三层三类测试数据集）、`mvp-metrics-generator`（成效指标与 Go/No-Go 门禁）、`ai-roi-calculator`（AI 项目 ROI 核算）、`plantuml-flow-generator`（PlantUML 时序图/活动图）。
+- `agentic-product-concept-designer`（面向客户确认的产品概念设计）、`persona-journey-designer`（用户画像与典型旅程）、`ai-product-journey-generator`（逐 journey 的完整 To-be 旅程）、`agentic-product-proposal-generator`（可施工的 产品方案）、`agent-tech-architecture`（落地技术架构 + 编排图）、`prototype-generator`（先问技术栈的 MVP 原型：HTML 单文件 / React / Vue）、`ux-optimizer`（企业品牌 × 业务主题的定制设计系统）、`story-map-generator`（用户故事地图）、`mvp-plan-generator`（MVP 迭代计划）、`ai-test-dataset-generator`（三层三类测试数据集）、`mvp-metrics-generator`（成效指标与 Go/No-Go 门禁）、`ai-roi-calculator`（AI 项目 ROI 核算）、`plantuml-flow-generator`（PlantUML 时序图/活动图）。
 
 **编排与汇总**：`discovery-agent`（全链路宏编排）、`unified-report-dashboard`（统一报告仪表盘，支持场景化两段式）。
 
